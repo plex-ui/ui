@@ -1,0 +1,14 @@
+import type { SVGProps } from "react"
+const ThumbDownFilled = (props: SVGProps<SVGSVGElement>) => (
+  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path
+      d="M11.4079 21.4961C11.1953 21.8699 10.7683 22.065 10.348 21.9806C8.4373 21.5969 7.27541 19.6392 7.84844 17.7691L8.69697 15H6.98577C4.35915 15 2.45151 12.4921 3.14262 9.94753L4.50063 4.94753C4.97329 3.20728 6.54741 2 8.34378 2H14.0328C15.131 2.00213 16.0206 2.89674 16.0206 4V15H15.6827C15.3253 15 14.9953 15.1923 14.818 15.5039L11.4079 21.4961Z"
+      fill="currentColor"
+    />
+    <path
+      d="M18.0125 15C19.6625 15 21.0001 13.6569 21.0001 12V5C21.0001 3.34315 19.6625 2 18.0125 2H17.4795C17.8185 2.58835 18.0125 3.27142 18.0125 4V15Z"
+      fill="currentColor"
+    />
+  </svg>
+)
+export default ThumbDownFilled

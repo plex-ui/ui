@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["ES2020"],
+    "strict": true,
+    "noImplicitAny": false,
+    "typeRoots": ["./node_modules/@types", "./node_modules/@figma"]
+  }
+}

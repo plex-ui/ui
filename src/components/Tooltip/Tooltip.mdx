@@ -1,0 +1,44 @@
+import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import * as TooltipStories from './Tooltip.stories';
+ 
+<Meta of={TooltipStories} />
+ 
+<Title>Tooltip</Title>
+<Subtitle>Brief and informative hover text</Subtitle>
+
+## Usage
+```jsx
+import { Tooltip } from "@plexui/ui/components/Tooltip";
+```
+<Canvas of={TooltipStories.Base} />
+
+## Reference
+
+<ArgTypes of={TooltipStories.Base} />
+
+## Examples
+
+### Different triggers
+`Tooltip` provides an optional component, `Tooltip.TriggerDecorator`, to help create accessible tooltip triggers. However, any component can be used as a trigger.
+<Canvas of={TooltipStories.Triggers} />
+
+### Conditionally enabled
+Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in `null` content.
+<Canvas of={TooltipStories.Conditional} source={{code: `<Tooltip
+  content={disabled ? "This action is disabled for reasons" : null}
+>
+  <Button color="primary" size="lg" disabled={disabled}>
+    Sample button
+  </Button>
+</Tooltip>
+`}} />
+<Controls of={TooltipStories.Conditional} />
+
+### Compact tooltips
+Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use `compact={true}` for brief status messages.
+<Canvas of={TooltipStories.Compact} source={{code: `<Tooltip content="Copy to clipboard" compact>
+  <Button color="secondary" variant="ghost" size="md">
+    <Copy />
+  </Button>
+</Tooltip>
+`}} />

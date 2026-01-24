@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #fff;
+      min-height: 100vh;
+    }
+
+    /* Main Content */
+    .content {
+      padding: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #000;
+      letter-spacing: -0.02em;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #6b6b6b;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .collection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .collection-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b6b6b;
+    }
+
+    .collection-list {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+
+    .collection-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .collection-item:last-child {
+      border-bottom: none;
+    }
+
+    .collection-item:hover {
+      background: #f8f8f8;
+    }
+
+    /* Native checkbox with accent color */
+    .collection-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-right: 12px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+
+    .collection-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .collection-meta {
+      font-size: 13px;
+      color: #999;
+      font-weight: 400;
+    }
+
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .btn-toggle {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s ease;
+    }
+
+    .btn-toggle:hover {
+      color: #1d4ed8;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px 20px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: #333;
+    }
+
+    .btn-primary:disabled {
+      background: #e0e0e0;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 12px 20px;
+      background: #fff;
+      color: #1a1a1a;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #f8f8f8;
+      border-color: #d0d0d0;
+    }
+
+    .loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      color: #6b6b6b;
+      font-size: 14px;
+    }
+
+    .loading.visible {
+      display: flex;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e5e5e5;
+      border-top-color: #1a1a1a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status.success {
+      display: block;
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .status.error {
+      display: block;
+      background: #fef2f2;
+      color: #dc2626;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Main Content -->
+  <div class="content">
+    <h2>Plex UI</h2>
+    <p class="description">Generate documentation tables from your Variable Collections. Select the collections you want
+      to document.</p>
+
+    <div class="collection-header">
+      <span class="collection-label">Collections</span>
+      <button class="btn-toggle" id="toggleSelect">Select all</button>
+    </div>
+
+    <div class="collection-list" id="collectionList">
+      <div class="empty-state" id="emptyState">Loading collections...</div>
+    </div>
+
+    <button class="btn-primary" id="generate" disabled>Generate Documentation</button>
+    <button class="btn-secondary" id="generateTypography">Generate Text Styles Table</button>
+    <button class="btn-secondary" id="fixMenuTokenDescriptions">Fix Menu Token Descriptions</button>
+    <button class="btn-secondary" id="fixPrimitiveValues">Fix Primitive Values</button>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span id="loadingText">Processing...</span>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    let collections = [];
+
+    // Request collections from plugin
+    parent.postMessage({ pluginMessage: { type: 'get-collections' } }, '*');
+
+    // Handle messages from plugin
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'collections-data') {
+        collections = msg.collections;
+        renderCollections();
+      }
+
+      if (msg.type === 'generation-complete') {
+        hideLoading();
+        showStatus('success', `Generated ${msg.count} table(s) successfully!`);
+      }
+
+      if (msg.type === 'generation-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'typography-complete') {
+        hideLoading();
+        showStatus('success', 'Text styles table generated successfully!');
+      }
+
+      if (msg.type === 'typography-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'effects-complete') {
+        hideLoading();
+        showStatus('success', 'Effects table generated successfully!');
+      }
+
+      if (msg.type === 'effects-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'fix-variable-descriptions-complete') {
+        hideLoading();
+        let statusMsg = 'Variable descriptions fixed!';
+        const parts = [];
+        if (msg.fixedCount > 0) {
+          parts.push(`fixed ${msg.fixedCount} description(s)`);
+        }
+        if (msg.skippedCount > 0) {
+          parts.push(`skipped ${msg.skippedCount}`);
+        }
+        if (parts.length > 0) {
+          statusMsg += ' ' + parts.join(', ') + '.';
+        }
+        if (msg.errors && msg.errors.length > 0) {
+          statusMsg += ` ${msg.errors.length} error(s).`;
+        }
+        showStatus('success', statusMsg);
+      }
+
+      if (msg.type === 'fix-variable-descriptions-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'refine-select-control-complete') {
+        hideLoading();
+        showStatus('success', `Updated ${msg.updatedCount} SelectControl variables.`);
+      }
+
+      if (msg.type === 'refine-select-control-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'fix-variable-paths-from-tokens-complete') {
+        hideLoading();
+        let statusMsg = `Fixed ${msg.updatedCount} variable path(s).`;
+        if (msg.errors && msg.errors.length > 0) {
+          statusMsg += ` ${msg.errors.length} error(s) occurred. Check browser console (View > Developer > Developer Tools > Console) for details.`;
+          showStatus('error', statusMsg);
+        } else {
+          showStatus('success', statusMsg);
+        }
+
+        // Log details to console for debugging
+        console.log('[UI] fix-variable-paths-from-tokens-complete:', {
+          updatedCount: msg.updatedCount,
+          errors: msg.errors
+        });
+
+        if (msg.errors && msg.errors.length > 0) {
+          console.error('[UI] Errors occurred:');
+          msg.errors.forEach((error, index) => {
+            console.error(`[UI]   ${index + 1}. ${error}`);
+          });
+        }
+      }
+
+      if (msg.type === 'fix-variable-paths-from-tokens-error') {
+        hideLoading();
+        showStatus('error', `Error: ${msg.message}. Check browser console for details.`);
+        console.error('[UI] fix-variable-paths-from-tokens-error:', msg.message);
+      }
+
+      if (msg.type === 'fix-sizing-tokens-complete') {
+        console.log('[UI] Received fix-sizing-tokens-complete', msg);
+        hideLoading();
+        showStatus('success', `Updated ${msg.updatedCount} sizing variables.`);
+        if (msg.errors && msg.errors.length > 0) {
+          console.error('[UI] Errors fixing sizing tokens:', msg.errors);
+        }
+      }
+
+      if (msg.type === 'fix-token-descriptions-complete') {
+        console.log('[UI] Received fix-token-descriptions-complete', msg);
+        hideLoading();
+        showStatus('success', `Updated ${msg.updatedCount} token descriptions.`);
+        if (msg.errors && msg.errors.length > 0) {
+          console.error('[UI] Errors fixing token descriptions:', msg.errors);
+          showStatus('error', `Updated ${msg.updatedCount} descriptions with ${msg.errors.length} errors.`);
+        }
+      }
+
+      if (msg.type === 'fix-token-descriptions-error') {
+        hideLoading();
+        showStatus('error', msg.message);
+      }
+
+      if (msg.type === 'fix-menu-token-descriptions-complete') {
+        console.log('[UI] Received fix-menu-token-descriptions-complete', msg);
+        hideLoading();
+        let statusMsg = `Fixed ${msg.updatedCount} menu token description(s).`;
+        if (msg.errors && msg.errors.length > 0) {
+          statusMsg += ` ${msg.errors.length} error(s) occurred. Check browser console (View > Developer > Developer Tools > Console) for details.`;
+          showStatus('error', statusMsg);
+        } else {
+          showStatus('success', statusMsg);
+        }
+        console.log('[UI] fix-menu-token-descriptions-complete:', {
+          updatedCount: msg.updatedCount,
+          errors: msg.errors
+        });
+        if (msg.errors && msg.errors.length > 0) {
+          console.error('[UI] Errors occurred:');
+          msg.errors.forEach((error, index) => {
+            console.error(`[UI]   ${index + 1}. ${error}`);
+          });
+        }
+      }
+
+      if (msg.type === 'fix-menu-token-descriptions-error') {
+        hideLoading();
+        showStatus('error', `Error: ${msg.message}. Check browser console for details.`);
+        console.error('[UI] fix-menu-token-descriptions-error:', msg.message);
+      }
+
+      if (msg.type === 'fix-primitive-values-complete') {
+        console.log('[UI] Received fix-primitive-values-complete', msg);
+        hideLoading();
+        let statusMsg = `Fixed ${msg.updatedCount} primitive value(s).`;
+        if (msg.errors && msg.errors.length > 0) {
+          statusMsg += ` ${msg.errors.length} error(s) occurred. Check browser console (View > Developer > Developer Tools > Console) for details.`;
+          showStatus('error', statusMsg);
+        } else {
+          showStatus('success', statusMsg);
+        }
+        console.log('[UI] fix-primitive-values-complete:', {
+          updatedCount: msg.updatedCount,
+          errors: msg.errors
+        });
+        if (msg.errors && msg.errors.length > 0) {
+          console.error('[UI] Errors occurred:');
+          msg.errors.forEach((error, index) => {
+            console.error(`[UI]   ${index + 1}. ${error}`);
+          });
+        }
+      }
+
+      if (msg.type === 'fix-primitive-values-error') {
+        hideLoading();
+        showStatus('error', `Error: ${msg.message}. Check browser console for details.`);
+        console.error('[UI] fix-primitive-values-error:', msg.message);
+      }
+
+    };
+
+    function renderCollections() {
+      const list = document.getElementById('collectionList');
+      const emptyState = document.getElementById('emptyState');
+
+      if (collections.length === 0) {
+        emptyState.textContent = 'No Variable Collections found in this file.';
+        return;
+      }
+
+      list.innerHTML = collections.map((col, i) => `
+        <label class="collection-item">
+          <input type="checkbox" value="${col.id}" data-index="${i}">
+          <span class="collection-name">${col.name}</span>
+          <span class="collection-meta">${col.variableCount} variables · ${col.modeCount} mode${col.modeCount > 1 ? 's' : ''}</span>
+        </label>
+      `).join('');
+
+      updateGenerateButton();
+      updateToggleButton();
+
+      // Add change listeners
+      list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          updateGenerateButton();
+          updateToggleButton();
+        });
+      });
+    }
+
+    function getSelectedCollections() {
+      const checkboxes = document.querySelectorAll('#collectionList input[type="checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    function getAllCheckboxes() {
+      return document.querySelectorAll('#collectionList input[type="checkbox"]');
+    }
+
+    function areAllSelected() {
+      const all = getAllCheckboxes();
+      if (all.length === 0) return false;
+      return Array.from(all).every(cb => cb.checked);
+    }
+
+    function updateGenerateButton() {
+      const selected = getSelectedCollections();
+      const btn = document.getElementById('generate');
+      btn.disabled = selected.length === 0;
+      btn.textContent = selected.length > 0
+        ? `Generate Documentation (${selected.length})`
+        : 'Generate Documentation';
+    }
+
+    function updateToggleButton() {
+      const btn = document.getElementById('toggleSelect');
+      btn.textContent = areAllSelected() ? 'Deselect all' : 'Select all';
+    }
+
+    function showLoading(text = 'Processing...') {
+      document.getElementById('loadingText').textContent = text;
+      document.getElementById('loading').classList.add('visible');
+      document.getElementById('generate').disabled = true;
+      document.getElementById('generateTypography').disabled = true;
+      document.getElementById('fixMenuTokenDescriptions').disabled = true;
+      document.getElementById('fixPrimitiveValues').disabled = true;
+      document.getElementById('status').className = 'status';
+    }
+
+    function enableButtons() {
+      document.getElementById('generate').disabled = false;
+      document.getElementById('generateTypography').disabled = false;
+      document.getElementById('fixMenuTokenDescriptions').disabled = false;
+      document.getElementById('fixPrimitiveValues').disabled = false;
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('visible');
+      updateGenerateButton();
+      enableButtons();
+    }
+
+    function showStatus(type, message) {
+      const status = document.getElementById('status');
+      status.className = `status ${type}`;
+      status.textContent = message;
+    }
+
+
+    // Toggle Select All / Deselect All
+    document.getElementById('toggleSelect').onclick = () => {
+      const allSelected = areAllSelected();
+      getAllCheckboxes().forEach(cb => {
+        cb.checked = !allSelected;
+      });
+      updateGenerateButton();
+      updateToggleButton();
+    };
+
+    // Generate Documentation
+    document.getElementById('generate').onclick = () => {
+      const selected = getSelectedCollections();
+      if (selected.length === 0) return;
+
+      showLoading('Generating tables...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate-tables',
+          collectionIds: selected
+        }
+      }, '*');
+    };
+
+    // Generate Typography
+    document.getElementById('generateTypography').onclick = () => {
+      showLoading('Generating typography table...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate-typography'
+        }
+      }, '*');
+    };
+
+    // Fix Menu Token Descriptions
+    document.getElementById('fixMenuTokenDescriptions').onclick = () => {
+      console.log('[UI] "Fix Menu Token Descriptions" clicked');
+      showLoading('Fixing menu token descriptions...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'fix-menu-token-descriptions'
+        }
+      }, '*');
+    };
+
+    // Fix Primitive Values
+    document.getElementById('fixPrimitiveValues').onclick = () => {
+      console.log('[UI] "Fix Primitive Values" clicked');
+      showLoading('Fixing primitive values...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'fix-primitive-values'
+        }
+      }, '*');
+    };
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,357 @@
+[
+  {
+    "typography": {
+      "modes": {
+        "Value": {
+          "size": {
+            "text": {
+              "3xs": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "2xs": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 10
+              },
+              "xs": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 12
+              },
+              "sm": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 14
+              },
+              "md": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "lg": {
+                "$scopes": ["FONT_SIZE", "PARAGRAPH_SPACING"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              }
+            },
+            "heading": {
+              "xs": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "sm": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              },
+              "md": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 20
+              },
+              "lg": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 24
+              },
+              "xl": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 32
+              },
+              "2xl": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 36
+              },
+              "3xl": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 48
+              },
+              "4xl": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 60
+              },
+              "5xl": {
+                "$scopes": ["FONT_SIZE"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 72
+              }
+            }
+          },
+          "line": {
+            "text": {
+              "3xs": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 12
+              },
+              "2xs": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 14
+              },
+              "xs": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              },
+              "sm": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 20
+              },
+              "md": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 24
+              },
+              "lg": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 29
+              }
+            },
+            "heading": {
+              "xs": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 24
+              },
+              "sm": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 26
+              },
+              "md": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 26
+              },
+              "lg": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 28
+              },
+              "xl": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 38
+              },
+              "2xl": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 42
+              },
+              "3xl": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 48
+              },
+              "4xl": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 60
+              },
+              "5xl": {
+                "$scopes": ["LINE_HEIGHT"],
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 72
+              }
+            }
+          },
+          "tracking": {
+            "text": {
+              "3xs-wide": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-wide = 0 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 0
+              },
+              "2xs-wide": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-wide = 0 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 0
+              },
+              "xs-wide": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-wide = 0 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 0
+              },
+              "sm-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.14000000059604645
+              },
+              "md-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.1599999964237213
+              },
+              "lg-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.18000000715255737
+              }
+            },
+            "heading": {
+              "xs-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.1599999964237213
+              },
+              "sm-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.18000000715255737
+              },
+              "md-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.20000000298023224
+              },
+              "lg-normal": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-normal = -0.01 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.23999999463558197
+              },
+              "xl-tight": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-tight = -0.02 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.6399999856948853
+              },
+              "2xl-tight": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-tight = -0.02 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.7200000286102295
+              },
+              "3xl-tight": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-tight = -0.02 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -0.9599999785423279
+              },
+              "4xl-tight": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-tight = -0.02 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1.2000000476837158
+              },
+              "5xl-tight": {
+                "$scopes": ["LETTER_SPACING"],
+                "$description": "tracking-tight = -0.02 em",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1.440000057220459
+              }
+            }
+          },
+          "weight": {
+            "normal": {
+              "$scopes": ["FONT_STYLE"],
+              "$description": "400",
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Regular"
+            },
+            "medium": {
+              "$scopes": ["FONT_STYLE"],
+              "$description": "500",
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Medium"
+            },
+            "semibold": {
+              "$scopes": ["FONT_STYLE"],
+              "$description": "600",
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Semi Bold"
+            },
+            "bold": {
+              "$scopes": ["FONT_STYLE"],
+              "$description": "700",
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Bold"
+            }
+          },
+          "family": {
+            "text": {
+              "$scopes": ["FONT_FAMILY"],
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Inter"
+            },
+            "heading": {
+              "$scopes": ["FONT_FAMILY"],
+              "$hiddenFromPublishing": true,
+              "$type": "string",
+              "$value": "Inter"
+            }
+          }
+        }
+      }
+    }
+  }
+]

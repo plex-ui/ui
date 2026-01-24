@@ -1,0 +1,3213 @@
+[
+  {
+    "sizing": {
+      "modes": {
+        "Value": {
+          "breakpoints": {
+            "xs": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Portrait mobile\napplying styles to very small screens (by default), then using this breakpoint to override",
+              "$type": "float",
+              "$value": 380
+            },
+            "sm": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Landscape mobile, phablet\ncollapsed mobile menu single-column list/detail views",
+              "$type": "float",
+              "$value": 576
+            },
+            "md": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Tablet\nexpanded primary navigation fixed left sidebar navigation",
+              "$type": "float",
+              "$value": 768
+            },
+            "lg": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Laptop tight column layouts sticky sidebar in api ref",
+              "$type": "float",
+              "$value": 1024
+            },
+            "xl": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Desktop\nspacious column layouts",
+              "$type": "float",
+              "$value": 1280
+            },
+            "2xl": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "Widescreen\nlargest screen sizes, widescreen viewing",
+              "$type": "float",
+              "$value": 1536
+            }
+          },
+          "radius": {
+            "none": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-none\nRadius none",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 0
+            },
+            "2xs": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-2xs\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 2
+            },
+            "xs": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-xs\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 4
+            },
+            "sm": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-sm\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 6
+            },
+            "md": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-md\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 8
+            },
+            "lg": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-lg\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 10
+            },
+            "xl": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-xl\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 12
+            },
+            "2xl": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-2xl\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 16
+            },
+            "3xl": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-3xl\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 20
+            },
+            "4xl": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-4xl\nGlobal radius",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 24
+            },
+            "full": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--radius-full\nFull circle",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 9999
+            }
+          },
+          "segmented-control": {
+            "gap": {
+              "$scopes": ["GAP"],
+              "$description": "--segmented-control-gap\nControl gap",
+              "$type": "float",
+              "$value": 2
+            },
+            "gutter": {
+              "$scopes": ["GAP"],
+              "$description": "--segmented-control-gutter\nControl padding",
+              "$type": "float",
+              "$value": 2
+            },
+            "option-highlight-gutter": {
+              "$scopes": ["GAP"],
+              "$description": "--segmented-control-option-highlight-gutter\nHighlight padding",
+              "$type": "float",
+              "$value": 1
+            }
+          },
+          "switch": {
+            "track-width": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--switch-track-width\nTrack width",
+              "$type": "float",
+              "$value": 32
+            },
+            "track-height": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--switch-track-height\nTrack height",
+              "$type": "float",
+              "$value": 19
+            },
+            "thumb-offset": {
+              "$scopes": ["GAP"],
+              "$description": "--switch-thumb-offset\nThumb offset",
+              "$type": "float",
+              "$value": 3
+            },
+            "label-gap": {
+              "$scopes": ["GAP"],
+              "$description": "--switch-label-gap\nLabel gap",
+              "$type": "float",
+              "$value": 8
+            }
+          },
+          "radio-group": {
+            "col-gap": {
+              "$scopes": ["GAP"],
+              "$description": "--radio-group-col-gap\nColumn gap",
+              "$type": "float",
+              "$value": 10
+            },
+            "row-gap": {
+              "$scopes": ["GAP"],
+              "$description": "--radio-group-row-gap\nRow gap",
+              "$type": "float",
+              "$value": 20
+            },
+            "item-gap": {
+              "$scopes": ["GAP"],
+              "$description": "--radio-group-item-gap\nItem gap",
+              "$type": "float",
+              "$value": 6
+            },
+            "indicator-size": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--radio-group-indicator-size\nIndicator size",
+              "$type": "float",
+              "$value": 16
+            },
+            "indicator-hole-size": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--radio-group-indicator-hole-size\nHole size",
+              "$type": "float",
+              "$value": 6
+            }
+          },
+          "badge": {
+            "gutter": {
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--badge-gutter-sm\nBadge padding",
+                "$type": "float",
+                "$value": 5
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--badge-gutter-md\nBadge padding",
+                "$type": "float",
+                "$value": 6
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--badge-gutter-lg\nBadge padding",
+                "$type": "float",
+                "$value": 8
+              }
+            },
+            "size": {
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-size-sm\nBadge height",
+                "$type": "float",
+                "$value": 20
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-size-md\nBadge height",
+                "$type": "float",
+                "$value": 22
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-size-lg\nBadge height",
+                "$type": "float",
+                "$value": 24
+              }
+            },
+            "radius": {
+              "sm": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--badge-radius-sm\nBorder radius",
+                "$type": "float",
+                "$value": 4
+              },
+              "md": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--badge-radius-md\nBorder radius",
+                "$type": "float",
+                "$value": 4
+              },
+              "lg": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--badge-radius-lg\nBorder radius",
+                "$type": "float",
+                "$value": 6
+              }
+            },
+            "indicator-size": {
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-indicator-size-sm\nIndicator size",
+                "$type": "float",
+                "$value": 12
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-indicator-size-md\nIndicator size",
+                "$type": "float",
+                "$value": 12
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--badge-indicator-size-lg\nIndicator size",
+                "$type": "float",
+                "$value": 14
+              }
+            }
+          },
+          "spacing": {
+            "none": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-none\nspacing(0)\nBase unit (none)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 0
+            },
+            "2xs": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-2xs\nspacing(0.5)\nBase unit (2xs)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 2
+            },
+            "xs": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-xs\nspacing(1)\nBase unit (xs)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 4
+            },
+            "sm": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-sm\nspacing(1.5)\nBase unit (sm)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 6
+            },
+            "md": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-md\nspacing(2)\nBase unit (md)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 8
+            },
+            "lg": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-lg\nspacing(3)\nBase unit (lg)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 12
+            },
+            "xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-xl\nspacing(4)\nBase unit (xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 16
+            },
+            "2xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-2xl\nspacing(5)\nBase unit (2xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 20
+            },
+            "3xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-3xl\nspacing(6)\nBase unit (3xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 24
+            },
+            "4xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-4xl\nspacing(8)\nBase unit (4xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 32
+            },
+            "5xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-5xl\nspacing(10)\nBase unit (5xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 40
+            },
+            "6xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-6xl\nspacing(12)\nBase unit (6xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 48
+            },
+            "7xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-7xl\nspacing(16)\nBase unit (7xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 64
+            },
+            "8xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-8xl\nspacing(20)\nBase unit (8xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 80
+            },
+            "9xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-9xl\nspacing(24)\nBase unit (9xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 96
+            },
+            "10xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-10xl\nspacing(32)\nBase unit (10xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 128
+            },
+            "11xl": {
+              "$scopes": ["GAP"],
+              "$description": "--spacing-11xl\nspacing(42)\nBase unit (11xl)",
+              "$hiddenFromPublishing": true,
+              "$type": "float",
+              "$value": 160
+            }
+          },
+          "menu": {
+            "gutter": {
+              "$scopes": ["GAP"],
+              "$description": "--menu-gutter\nMenu padding",
+              "$type": "float",
+              "$value": 6
+            },
+            "radius": {
+              "$scopes": ["CORNER_RADIUS"],
+              "$description": "--menu-radius\nMenu border radius",
+              "$type": "float",
+              "$value": 12
+            },
+            "slot-height": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--menu-slot-height\nMenu slot-height",
+              "$type": "float",
+              "$value": 20
+            },
+            "side-offset": {
+              "$scopes": ["GAP"],
+              "$description": "--menu-side-offset\nMenu side-offset",
+              "$type": "float",
+              "$value": 5
+            },
+            "align-offset": {
+              "$scopes": ["GAP"],
+              "$description": "--menu-align-offset\nMenu align-offset",
+              "$type": "float",
+              "$value": -5
+            },
+            "item-gap": {
+              "$scopes": ["GAP"],
+              "$description": "--menu-item-gap\nItem gap",
+              "$type": "float",
+              "$value": 6
+            },
+            "radio-indicator-size": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--menu-radio-indicator-size\nRadio size",
+              "$type": "float",
+              "$value": 18
+            },
+            "radio-indicator-hole-size": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--menu-radio-indicator-hole-size\nRadio hole",
+              "$type": "float",
+              "$value": 8
+            },
+            "checkbox-indicator-size": {
+              "$scopes": ["WIDTH_HEIGHT"],
+              "$description": "--menu-checkbox-indicator-size\nCheckbox size",
+              "$type": "float",
+              "$value": 18
+            },
+            "submenu-item": {
+              "trigger-icon": {
+                "side-offset": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-submenu-item-trigger-icon-side-offset\nMenu submenu-item trigger-icon side-offset",
+                  "$type": "float",
+                  "$value": -2
+                },
+                "align-offset": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-submenu-item-trigger-icon-align-offset\nMenu submenu-item trigger-icon align-offset",
+                  "$type": "float",
+                  "$value": -6
+                },
+                "margin-right": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu submenu-item trigger-icon margin-right",
+                  "$type": "float",
+                  "$value": -2
+                },
+                "size": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Menu submenu-item trigger-icon size",
+                  "$type": "float",
+                  "$value": 16
+                }
+              }
+            },
+            "item": {
+              "gap": {
+                "$scopes": ["GAP"],
+                "$description": "--menu-item-gap\nItem gap",
+                "$type": "float",
+                "$value": 6
+              },
+              "radius": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "Menu item radius",
+                "$type": "float",
+                "$value": 6
+              },
+              "padding": {
+                "top-bottom": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-item-padding\nMenu item padding",
+                  "$type": "float",
+                  "$value": 6
+                },
+                "left-right": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-item-padding\nMenu item padding",
+                  "$type": "float",
+                  "$value": 8
+                },
+                "info": {
+                  "top-bottom": {
+                    "$scopes": ["GAP"],
+                    "$description": "--menu-item-padding\nMenu item padding",
+                    "$type": "float",
+                    "$value": 4
+                  }
+                },
+                "content": {
+                  "top-bottom": {
+                    "$scopes": ["GAP"],
+                    "$description": "--menu-item-padding\nMenu item padding",
+                    "$type": "float",
+                    "$value": 6
+                  }
+                }
+              },
+              "action": {
+                "margin-right": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu item action margin-right",
+                  "$type": "float",
+                  "$value": -5
+                }
+              }
+            },
+            "separator": {
+              "padding": {
+                "top-bottom": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-separator-gutter\nMenu separator padding",
+                  "$type": "float",
+                  "$value": 6
+                },
+                "left-right": {
+                  "$scopes": ["GAP"],
+                  "$description": "--menu-separator-gutter\nMenu separator padding",
+                  "$type": "float",
+                  "$value": -6
+                }
+              }
+            },
+            "radio-item": {
+              "indicator-size": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--menu-radio-indicator-size\nRadio size",
+                "$type": "float",
+                "$value": 18
+              },
+              "indicator-hole": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--menu-radio-indicator-hole-size\nRadio hole",
+                "$type": "float",
+                "$value": 8
+              },
+              "gap": {
+                "start": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu radio-item gap start",
+                  "$type": "float",
+                  "$value": 8
+                },
+                "end": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu radio-item gap end",
+                  "$type": "float",
+                  "$value": 12
+                }
+              }
+            },
+            "checkbox-item": {
+              "indicator-size": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--menu-checkbox-indicator-size\nCheckbox size",
+                "$type": "float",
+                "$value": 18,
+                "solid": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Menu checkbox-item indicator-size solid",
+                  "$type": "float",
+                  "$value": 18
+                },
+                "ghost": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Menu checkbox-item indicator-size ghost",
+                  "$type": "float",
+                  "$value": 16
+                }
+              },
+              "icon-size": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Menu checkbox-item icon-size",
+                "$type": "float",
+                "$value": 16
+              },
+              "gap": {
+                "start": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu checkbox-item gap start",
+                  "$type": "float",
+                  "$value": 8
+                },
+                "end": {
+                  "$scopes": ["GAP"],
+                  "$description": "Menu checkbox-item gap end",
+                  "$type": "float",
+                  "$value": 12
+                }
+              }
+            },
+            "icon-size": {
+              "xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-xs\nControl icon size for xs button (1rem≈16px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.xs}"
+              },
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-sm\nControl icon size for sm button (1.125rem≈18px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.sm}"
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nControl icon size for md button (1.125rem≈18px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.md}"
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-lg\nControl icon size for lg button (1.125rem≈18px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.lg}"
+              },
+              "xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-xl\nControl icon size for xl button (1.125rem≈18px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.xl}"
+              },
+              "2xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-2xl\nControl icon size for 2xl button (1.25rem≈20px)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.2xl}"
+              }
+            }
+          },
+          "control": {
+            "size": {
+              "3xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-3xs\nControl size (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 22
+              },
+              "2xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-2xs\nControl size (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 24
+              },
+              "xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-xs\nControl size (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 26
+              },
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-sm\nControl size (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 28
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-md\nControl size (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 32
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-lg\nControl size (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 36
+              },
+              "xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-xl\nControl size (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 40
+              },
+              "2xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-2xl\nControl size (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 44
+              },
+              "3xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-size-3xl\nControl size (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 48
+              }
+            },
+            "indicator-size": {
+              "3xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "2xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 12
+              },
+              "xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 13
+              },
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 15
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              },
+              "2xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              },
+              "3xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "Control indicator size (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 20
+              }
+            },
+            "gutter": {
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-2xs\nControl padding (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 6
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nControl padding (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-sm\nControl padding (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 10
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nControl padding (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 12
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nControl padding (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 14
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xl\nControl padding (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              }
+            },
+            "icon-size": {
+              "xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-xs\nControl icon size (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 14
+              },
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-sm\nControl icon size (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nControl icon size (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 18
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-lg\nControl icon size (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 20
+              },
+              "xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-xl\nControl icon size (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 22
+              },
+              "2xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-2xl\nControl icon size (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 24
+              }
+            },
+            "radius": {
+              "sm": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--radius-sm\nControl radius (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{radius.sm}"
+              },
+              "md": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--radius-md\nControl radius (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{radius.md}"
+              },
+              "lg": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--radius-lg\nControl radius (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{radius.lg}"
+              },
+              "xl": {
+                "$scopes": ["CORNER_RADIUS"],
+                "$description": "--radius-xl\nControl radius (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{radius.xl}"
+              }
+            }
+          },
+          "button": {
+            "gap": {
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--button-gap-sm\nButton gap (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 3
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--button-gap-md\nButton gap (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 4
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--button-gap-lg\nButton gap (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 6
+              }
+            },
+            "gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-2xs\nButton padding (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.2xs}"
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nButton padding (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nButton padding (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-sm\nButton padding (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.sm}"
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nButton padding (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nButton padding (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nButton padding (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.lg}"
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nButton padding (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.lg}"
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xl\nButton padding (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xl}"
+              }
+            },
+            "pill-gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 13
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 19
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 19
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nButton padding (Pill) (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 21
+              }
+            },
+            "icon-size": {
+              "3xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-xs\nButton icon-size 3xs",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.xs}"
+              },
+              "2xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-sm\nButton icon-size 2xs",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.sm}"
+              },
+              "xs": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-sm\nButton icon-size xs",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.sm}"
+              },
+              "sm": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nButton icon-size sm",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.md}"
+              },
+              "md": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nButton icon-size md",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.md}"
+              },
+              "lg": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nButton icon-size lg",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.md}"
+              },
+              "xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-md\nButton icon-size xl",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.md}"
+              },
+              "2xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-lg\nButton icon-size 2xl",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.lg}"
+              },
+              "3xl": {
+                "$scopes": ["WIDTH_HEIGHT"],
+                "$description": "--control-icon-size-lg\nButton icon-size 3xl",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.icon-size.lg}"
+              }
+            },
+            "icon-margin": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -1
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -2
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "Icon negative margin",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": -2
+              }
+            }
+          },
+          "input": {
+            "gap": {
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "--input-gap-xs\nInput gap (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 4
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--input-gap-sm\nInput gap (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 6
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--input-gap-md\nInput gap (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--input-gap-lg\nInput gap (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 10
+              }
+            },
+            "gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nInput padding (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nInput padding (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nInput padding (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-sm\nInput padding (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.sm}"
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nInput padding (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nInput padding (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nInput padding (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.lg}"
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xl\nInput padding (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xl}"
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xl\nInput padding (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xl}"
+              }
+            },
+            "pill-gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 13
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 19
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 21
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nInput padding (Pill) (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 21
+              }
+            },
+            "adornment": {
+              "size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Adornment size",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                }
+              },
+              "start-margin": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Adornment start-margin",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                }
+              },
+              "end-margin": {
+                "clear": {
+                  "3xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -6
+                  },
+                  "2xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -8
+                  },
+                  "xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -6
+                  },
+                  "sm": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -7
+                  },
+                  "md": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -7
+                  },
+                  "lg": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -5
+                  },
+                  "xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -5
+                  },
+                  "2xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -3
+                  },
+                  "3xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin clear",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -3
+                  },
+                  "pill": {
+                    "3xs": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -11
+                    },
+                    "2xs": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -10
+                    },
+                    "xs": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -9
+                    },
+                    "sm": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -10
+                    },
+                    "md": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -11
+                    },
+                    "lg": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -9
+                    },
+                    "xl": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -10
+                    },
+                    "2xl": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -10
+                    },
+                    "3xl": {
+                      "$scopes": ["GAP"],
+                      "$description": "Adornment end-margin clear pill",
+                      "$hiddenFromPublishing": true,
+                      "$type": "float",
+                      "$value": -8
+                    }
+                  }
+                },
+                "counter": {
+                  "3xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -1
+                  },
+                  "2xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -1
+                  },
+                  "xs": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -1
+                  },
+                  "sm": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -1
+                  },
+                  "md": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -2
+                  },
+                  "lg": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -2
+                  },
+                  "xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -2
+                  },
+                  "2xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -4
+                  },
+                  "3xl": {
+                    "$scopes": ["GAP"],
+                    "$description": "Adornment end-margin counter",
+                    "$hiddenFromPublishing": true,
+                    "$type": "float",
+                    "$value": -4
+                  }
+                }
+              }
+            }
+          },
+          "select-control": {
+            "indicator-wrapper": {
+              "gap": {
+                "3xs": {
+                  "$scopes": ["ALL_SCOPES"],
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.sm}"
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.sm}"
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.sm}"
+                }
+              },
+              "gutter": {
+                "3xs": {
+                  "$scopes": ["ALL_SCOPES"],
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.none}"
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.2xs}"
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$libraryName": "",
+                  "$collectionName": "sizing",
+                  "$value": "{spacing.xs}"
+                }
+              }
+            },
+            "gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-2xs\nSelect padding (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.2xs}"
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nSelect padding (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xs\nSelect padding (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xs}"
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-sm\nSelect padding (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.sm}"
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nSelect padding (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-md\nSelect padding (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.md}"
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nSelect padding (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.lg}"
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-lg\nSelect padding (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.lg}"
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "--control-gutter-xl\nSelect padding (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$libraryName": "",
+                "$collectionName": "sizing",
+                "$value": "{control.gutter.xl}"
+              }
+            },
+            "pill-gutter": {
+              "3xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (3xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "2xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (2xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 11
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 13
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 16
+              },
+              "xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 19
+              },
+              "2xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (2xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 19
+              },
+              "3xl": {
+                "$scopes": ["GAP"],
+                "$description": "calc(gutter * 1.33)\nSelect padding (Pill) (3xl)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 21
+              }
+            },
+            "gap": {
+              "xs": {
+                "$scopes": ["GAP"],
+                "$description": "Select gap (xs)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 4
+              },
+              "sm": {
+                "$scopes": ["GAP"],
+                "$description": "Select gap (sm)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 6
+              },
+              "md": {
+                "$scopes": ["GAP"],
+                "$description": "Select gap (md)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 8
+              },
+              "lg": {
+                "$scopes": ["GAP"],
+                "$description": "Select gap (lg)",
+                "$hiddenFromPublishing": true,
+                "$type": "float",
+                "$value": 10
+              }
+            },
+            "icon": {
+              "offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                }
+              },
+              "pill-offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Start icon pill offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                }
+              }
+            },
+            "loading": {
+              "size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Loading indicator size (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                }
+              },
+              "pill-offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Loading indicator pill offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -3
+                }
+              }
+            },
+            "clear": {
+              "size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 22
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 22
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 24
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 24
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 24
+                }
+              },
+              "icon-size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 13
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 13
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 15
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 15
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                }
+              }
+            },
+            "clear-iso": {
+              "size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 16
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 18
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 20
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear button size (isolated) (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 20
+                }
+              },
+              "icon-size": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 10
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 14
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 15
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Clear icon size (isolated) (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 15
+                }
+              },
+              "offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -1
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -3
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                }
+              },
+              "pill-offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -4
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -6
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -7
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -6
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -7
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -7
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Clear button pill offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -7
+                }
+              }
+            },
+            "dropdown-icon": {
+              "pill-offset": {
+                "3xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "2xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "xs": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 0
+                },
+                "sm": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "md": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "lg": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "2xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -2
+                },
+                "3xl": {
+                  "$scopes": ["GAP"],
+                  "$description": "Dropdown icon pill offset (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": -3
+                }
+              },
+              "width": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 7
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 7
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon width (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 9
+                }
+              },
+              "height": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 9
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 9
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Dropdown icon height (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 13
+                }
+              }
+            },
+            "chevron-icon": {
+              "width": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 8
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 9
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 9
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 11
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon width (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 12
+                }
+              },
+              "height": {
+                "3xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (3xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 5
+                },
+                "2xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (2xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 5
+                },
+                "xs": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (xs)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 5
+                },
+                "sm": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (sm)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 5
+                },
+                "md": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (md)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "lg": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (lg)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "2xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (2xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 6
+                },
+                "3xl": {
+                  "$scopes": ["WIDTH_HEIGHT"],
+                  "$description": "Chevron icon height (3xl)",
+                  "$hiddenFromPublishing": true,
+                  "$type": "float",
+                  "$value": 7
+                }
+              }
+            }
+          },
+          "modal-container-inner-padding": {
+            "$scopes": ["GAP"],
+            "$description": "--modal-container-inner-padding\nModal container-inner-padding",
+            "$type": "float",
+            "$value": 20
+          },
+          "popover-radius": {
+            "$scopes": ["CORNER_RADIUS"],
+            "$description": "--popover-radius\nBorder radius",
+            "$type": "float",
+            "$value": 12
+          },
+          "shadow-hairline": {
+            "$scopes": ["EFFECT_FLOAT"],
+            "$description": "--shadow-hairline\nShadow hairline",
+            "$type": "float",
+            "$value": 0.5
+          },
+          "thread-gutter": {
+            "$scopes": ["GAP"],
+            "$description": "--thread-gutter\nThread padding",
+            "$type": "float",
+            "$value": 16
+          },
+          "link-gap": {
+            "$scopes": ["GAP"],
+            "$description": "--link-gap\nIcon gap",
+            "$type": "float",
+            "$value": 2
+          },
+          "link-radius": {
+            "$scopes": ["CORNER_RADIUS"],
+            "$description": "--link-radius\nBorder radius",
+            "$type": "float",
+            "$value": 6
+          },
+          "chat-max-width": {
+            "$scopes": ["WIDTH_HEIGHT"],
+            "$description": "--chat-max-width\nMax width",
+            "$type": "float",
+            "$value": 800
+          },
+          "chat-gutter": {
+            "$scopes": ["GAP"],
+            "$description": "--chat-gutter\nChat padding",
+            "$type": "float",
+            "$value": 20
+          },
+          "alert-gap": {
+            "$scopes": ["GAP"],
+            "$description": "--alert-gap\nAlert gap",
+            "$type": "float",
+            "$value": 12
+          },
+          "alert-gutter": {
+            "$scopes": ["GAP"],
+            "$description": "--alert-gutter\nAlert padding",
+            "$type": "float",
+            "$value": 16
+          },
+          "alert-border-radius": {
+            "$scopes": ["CORNER_RADIUS"],
+            "$description": "--alert-border-radius\nAlert border radius",
+            "$type": "float",
+            "$value": 12
+          },
+          "avatar-group-cutout-width": {
+            "$scopes": ["GAP"],
+            "$description": "--avatar-group-cutout-width\nBorder width",
+            "$type": "float",
+            "$value": 3
+          },
+          "avatar-size": {
+            "$scopes": ["WIDTH_HEIGHT"],
+            "$description": "--avatar-size\nAvatar size",
+            "$type": "float",
+            "$value": 28
+          },
+          "avatar-radius": {
+            "$scopes": ["CORNER_RADIUS"],
+            "$description": "--avatar-radius\nAvatar border radius",
+            "$type": "float",
+            "$value": 9999
+          },
+          "avatar-font-size-scaling": {
+            "$scopes": ["GAP"],
+            "$description": "--avatar-font-size-scaling\nFont size multiplier",
+            "$type": "float",
+            "$value": 0.5
+          },
+          "composer-gutter": {
+            "$scopes": ["GAP"],
+            "$description": "--composer-gutter\nComposer padding",
+            "$type": "float",
+            "$value": 12
+          },
+          "composer-compact-gutter": {
+            "$scopes": ["GAP"],
+            "$description": "--composer-compact-gutter\nCompact padding",
+            "$type": "float",
+            "$value": 8
+          },
+          "composer-radius": {
+            "$scopes": ["CORNER_RADIUS"],
+            "$description": "--composer-radius\nBorder radius",
+            "$type": "float",
+            "$value": 24
+          },
+          "dialog-min-width": {
+            "$scopes": ["WIDTH_HEIGHT"],
+            "$description": "--dialog-min-width\nMin width",
+            "$type": "float",
+            "$value": 250
+          },
+          "dialog-max-width": {
+            "$scopes": ["WIDTH_HEIGHT"],
+            "$description": "--dialog-max-width\nMax width",
+            "$type": "float",
+            "$value": 450
+          },
+          "dialog-container-inner-padding": {
+            "$scopes": ["GAP"],
+            "$description": "--dialog-container-inner-padding\nDialog container-inner-padding",
+            "$type": "float",
+            "$value": 20
+          }
+        }
+      }
+    }
+  }
+]
