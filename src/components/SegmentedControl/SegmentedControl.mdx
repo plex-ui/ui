@@ -104,3 +104,11 @@ Use `disabled` on a given `SegmentedControl.Option` to disable only that option.
 To create a scrollable segmented control, wrap the component in a simple `flex` wrapper, which will then cause the control to create inner scrolling when applicable. When scrollable, the selected option will automatically be scrolled into view.
 
 <Canvas of={SegmentedControlStories.Scrollable} />
+ 
+### Narrow Pill
+When using the `pill` prop with narrow content (such as a single digit or an icon), especially when using large component sizes and small `gutterSize` values, the option width will automatically be at least equal to the control height. This ensures that the hover and active states maintain a perfectly circular shape without overflowing the container or overlapping adjacent options.
+
+<Canvas of={SegmentedControlStories.NarrowPill} sourceState='hidden' />
+<div className="canvas-controls-only">
+<Controls of={SegmentedControlStories.NarrowPill}/>
+</div>

@@ -1,5 +1,6 @@
 import type { Meta } from "@storybook/react"
 import { useState } from "react"
+import { DarkMode, LightMode, SystemMode } from "../Icon"
 import { SegmentedControl, type SegmentedControlProps, type SizeVariant } from "./"
 
 const meta = {
@@ -146,14 +147,52 @@ export const Scrollable = ({ size }: { size: SizeVariant }) => {
   )
 }
 
-Scrollable.parameters = {
-  docs: {
-    source: {
-      code: `<div className="flex">
-  <SegmentedControl>
-    {...}
-  </SegmentedControl>
-</div>`,
-    },
-  },
+export const NarrowPill = (args: SegmentedControlProps<string>) => {
+  const [view, setView] = useState("1")
+  const [mode, setMode] = useState("light")
+
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <SegmentedControl
+        {...args}
+        block={false}
+        value={view}
+        onChange={(nextView) => setView(nextView)}
+        aria-label="Select number"
+        pill
+      >
+        <SegmentedControl.Option value="1">1</SegmentedControl.Option>
+        <SegmentedControl.Option value="2">2</SegmentedControl.Option>
+        <SegmentedControl.Option value="3">3</SegmentedControl.Option>
+      </SegmentedControl>
+
+      <SegmentedControl
+        {...args}
+        block={false}
+        value={mode}
+        onChange={(nextMode) => setMode(nextMode)}
+        aria-label="Select mode"
+        pill
+      >
+        <SegmentedControl.Option value="light" aria-label="Light mode">
+          <LightMode />
+        </SegmentedControl.Option>
+        <SegmentedControl.Option value="dark" aria-label="Dark mode">
+          <DarkMode />
+        </SegmentedControl.Option>
+        <SegmentedControl.Option value="system" aria-label="System mode">
+          <SystemMode />
+        </SegmentedControl.Option>
+      </SegmentedControl>
+    </div>
+  )
+}
+
+NarrowPill.args = {
+  size: "3xl",
+  gutterSize: "2xs",
+}
+
+NarrowPill.parameters = {
+  controls: { include: ["size", "gutterSize"] },
 }

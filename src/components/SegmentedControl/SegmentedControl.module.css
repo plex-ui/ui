@@ -1,7 +1,5 @@
 .SegmentedControl {
-  --segmented-control-option-radius: calc(
-    var(--segmented-control-radius) - var(--segmented-control-gutter)
-  );
+  --segmented-control-option-radius: calc(var(--segmented-control-radius) - var(--segmented-control-gutter));
 
   position: relative;
   overflow: auto;
@@ -34,7 +32,7 @@
     overflow: hidden;
     display: flex;
     width: 100%;
-    white-space: wrap;
+    white-space: normal;
   }
 
   /* =============================================
@@ -146,6 +144,10 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   line-height: 1;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   transition-duration: var(--transition-duration-basic);
   transition-property: opacity, background-color, color;
   transition-timing-function: var(--transition-ease-basic);
@@ -159,6 +161,7 @@
   }
 
   :where(.SegmentedControl[data-pill]) & {
+    min-width: calc(var(--segmented-control-size) - 2 * var(--segmented-control-gutter));
     padding: 0 calc(var(--segmented-control-option-gutter) * var(--control-gutter-pill-scaling));
   }
 
