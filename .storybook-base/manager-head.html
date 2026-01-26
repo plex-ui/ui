@@ -79,12 +79,12 @@
   }
 
   /* Hide the gear icon */
-  .sidebar-header > div:last-child {
+  .sidebar-header>div:last-child {
     display: none !important;
   }
 
   /* Hide the "Create new story" button */
-  .search-field + div {
+  .search-field+div {
     display: none;
   }
 
@@ -129,18 +129,21 @@
   .search-field:hover {
     box-shadow: 0 0 0 1px var(--sb-input-border-hover-color) !important;
   }
+
   .search-field:has(#storybook-explorer-searchfield:focus) {
     box-shadow: 0 0 0 1px var(--sb-input-border-focus-color) !important;
   }
+
   #storybook-explorer-searchfield {
     font-size: 14px !important;
   }
+
   /* Hide tags filter */
-  .search-field > div:last-child > div {
+  .search-field>div:last-child>div {
     display: none !important;
   }
 
-  .search-field > div:last-child > button {
+  .search-field>div:last-child>button {
     width: 22px;
     height: 22px;
     padding: 0;
@@ -148,7 +151,7 @@
     border-radius: 100%;
   }
 
-  .search-field > div:last-child > button:hover {
+  .search-field>div:last-child>button:hover {
     background: light-dark(var(--gray-100), var(--gray-400)) !important;
     color: var(--gray-900) !important;
   }
@@ -176,23 +179,23 @@
     background: light-dark(var(--gray-100), var(--gray-400)) !important;
   }
 
-  .search-result-item > div:first-child {
+  .search-result-item>div:first-child {
     display: none !important;
   }
 
-  .search-result-item--label > div:first-child {
+  .search-result-item--label>div:first-child {
     margin-bottom: 2px !important;
     font-size: 14px !important;
     font-weight: 500 !important;
     color: var(--color-text) !important;
   }
 
-  .search-result-item--label > div:first-child mark {
+  .search-result-item--label>div:first-child mark {
     color: var(--color-text) !important;
     background: var(--alpha-08) !important;
   }
 
-  .search-result-item--label > div:last-child {
+  .search-result-item--label>div:last-child {
     color: light-dark(var(--gray-500), var(--gray-650)) !important;
     font-size: 12px !important;
   }
@@ -204,7 +207,7 @@
   }
 
   /* panel */
-  #root > div > div:nth-child(3):not(:has(.sidebar-container)) {
+  #root>div>div:nth-child(3):not(:has(.sidebar-container)) {
     margin-right: 20px;
     margin-left: 20px;
     border: 1px solid var(--gray-150);
@@ -212,34 +215,31 @@
     border-radius: 8px 8px 0 0;
   }
 
-  #root > div > div:nth-child(3):not(:has(.sidebar-container)) div[orientation]::after,
-  #root > div > div:nth-child(3):not(:has(.sidebar-container)) .sb-bar {
+  #root>div>div:nth-child(3):not(:has(.sidebar-container)) div[orientation]::after,
+  #root>div>div:nth-child(3):not(:has(.sidebar-container)) .sb-bar {
     background: none;
   }
 
-  #root
-    > div
-    > div:nth-child(3):not(:has(.sidebar-container))
-    [title="Change addon orientation [⌥ D]"] {
+  #root>div>div:nth-child(3):not(:has(.sidebar-container)) [title="Change addon orientation [⌥ D]"] {
     display: none !important;
   }
 
   /* Sidebar container */
-  #root > div > div:nth-child(2),
-  #root > div > div:nth-child(3):has(.sidebar-container) {
+  #root>div>div:nth-child(2),
+  #root>div>div:nth-child(3):has(.sidebar-container) {
     border: 0 !important;
   }
 
   /* Sidebar custom nested scroll */
   #storybook-explorer-menu {
     position: absolute;
-    top: 99px;
+    top: 107px;
     left: 0;
     right: 0;
     bottom: 0;
     overflow: auto;
     margin: 0;
-    padding: 20px 12px 10px;
+    padding: 12px 12px 10px;
   }
 
   /* Sidebar "Roots" - remove expand/collapse and treat as normal headers */
@@ -254,7 +254,7 @@
     margin-bottom: 4px !important;
   }
 
-  .sidebar-item ~ [data-nodetype="root"] {
+  .sidebar-item~[data-nodetype="root"] {
     margin-top: 20px !important;
   }
 
@@ -262,7 +262,7 @@
     padding-left: 10px !important;
   }
 
-  [data-nodetype="root"] button:first-child > div:first-child {
+  [data-nodetype="root"] button:first-child>div:first-child {
     display: none;
   }
 
@@ -278,29 +278,36 @@
     font-weight: 500 !important;
     transition: background-color 0.1s ease;
   }
+
   .sidebar-item:not([data-selected="true"]):hover {
     background: light-dark(var(--gray-100), var(--gray-400)) !important;
   }
-  .sidebar-item > button {
+
+  .sidebar-item>button {
     align-items: center !important;
   }
-  .sidebar-item > button > div {
+
+  .sidebar-item>button>div {
     margin-top: 0 !important;
   }
-  .sidebar-item > button:first-child {
+
+  .sidebar-item>button:first-child {
     padding-top: 4px !important;
   }
-  .sidebar-item > a:first-child {
+
+  .sidebar-item>a:first-child {
     min-height: 36px !important;
     align-items: center !important;
     padding: 0 0 0 10px !important;
     font-weight: inherit !important;
     color: var(--color-text) !important;
   }
-  .sidebar-item > a:first-child > div {
+
+  .sidebar-item>a:first-child>div {
     display: none !important;
     margin-top: 1px;
   }
+
   .sidebar-item[data-selected="true"] {
     background: light-dark(var(--gray-100), var(--gray-400)) !important;
     color: var(--gray-900) !important;
@@ -335,33 +342,33 @@
   }
 
   @media (max-width: 599px) {
-    #root > div > div:last-child {
+    #root>div>div:last-child {
       position: absolute !important;
       background: none !important;
     }
 
-    #root > div > div:last-child > div > button {
+    #root>div>div:last-child>div>button {
       position: fixed;
       top: 8px;
       left: 8px;
       cursor: pointer;
     }
 
-    #root > div > div:last-child > div > button svg {
+    #root>div>div:last-child>div>button svg {
       width: 22px;
       height: 22px;
     }
 
-    #root > div > div:last-child > div > button p {
+    #root>div>div:last-child>div>button p {
       display: none;
     }
 
     /* Hide addons drawer on mobile */
-    #root > div > div:nth-child(3) {
+    #root>div>div:nth-child(3) {
       border: 0 !important;
     }
 
-    #root > div > div:nth-child(3) button[title="Open addon panel"] {
+    #root>div>div:nth-child(3) button[title="Open addon panel"] {
       display: none !important;
     }
 
@@ -370,25 +377,26 @@
     }
   }
 
-  [data-test-id="sb-preview-toolbar"] > div {
+  [data-test-id="sb-preview-toolbar"]>div {
     justify-content: flex-end !important;
     width: 100%;
     margin: 0 !important;
     padding: 0 8px;
   }
 
-  [data-test-id="sb-preview-toolbar"] > div > div:last-child {
+  [data-test-id="sb-preview-toolbar"]>div>div:last-child {
     display: none !important;
   }
 
   /* Toolbar hide orphan divider */
-  .sb-bar > div > div > span:first-child {
+  .sb-bar>div>div>span:first-child {
     display: none !important;
   }
 
   #storybook-preview-iframe {
     opacity: 0 !important;
   }
+
   #storybook-preview-iframe[data-is-loaded="true"] {
     opacity: 1 !important;
   }
