@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react"
 import { useState } from "react"
-import { DarkMode, LightMode, SystemMode } from "../Icon"
+import { Bell, DarkMode, Grid, Home, LightMode, Menu, SettingsCog, SystemMode } from "../Icon"
 import { SegmentedControl, type SegmentedControlProps, type SizeVariant } from "./"
 
 const meta = {
@@ -159,7 +159,6 @@ export const NarrowPill = (args: SegmentedControlProps<string>) => {
         value={view}
         onChange={(nextView) => setView(nextView)}
         aria-label="Select number"
-        pill
       >
         <SegmentedControl.Option value="1">1</SegmentedControl.Option>
         <SegmentedControl.Option value="2">2</SegmentedControl.Option>
@@ -172,7 +171,6 @@ export const NarrowPill = (args: SegmentedControlProps<string>) => {
         value={mode}
         onChange={(nextMode) => setMode(nextMode)}
         aria-label="Select mode"
-        pill
       >
         <SegmentedControl.Option value="light" aria-label="Light mode">
           <LightMode />
@@ -191,8 +189,240 @@ export const NarrowPill = (args: SegmentedControlProps<string>) => {
 NarrowPill.args = {
   size: "3xl",
   gutterSize: "2xs",
+  pill: true,
 }
 
 NarrowPill.parameters = {
-  controls: { include: ["size", "gutterSize"] },
+  controls: { include: ["size", "gutterSize", "pill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl pill size="3xl" gutterSize="2xs">
+  <SegmentedControl.Option value="1">1</SegmentedControl.Option>
+  <SegmentedControl.Option value="2">2</SegmentedControl.Option>
+  <SegmentedControl.Option value="3">3</SegmentedControl.Option>
+</SegmentedControl>`,
+    },
+  },
+}
+
+export const IconOnly = (args: SegmentedControlProps<string>) => {
+  const [view, setView] = useState("grid")
+
+  return (
+    <SegmentedControl
+      {...args}
+      value={view}
+      onChange={(nextView) => setView(nextView)}
+      aria-label="Select view mode"
+    >
+      <SegmentedControl.Option value="grid" icon={<Grid />} aria-label="Grid view" />
+      <SegmentedControl.Option value="list" icon={<Menu />} aria-label="List view" />
+    </SegmentedControl>
+  )
+}
+
+IconOnly.args = {
+  size: "md",
+}
+
+IconOnly.parameters = {
+  controls: { include: ["size", "pill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl>
+  <SegmentedControl.Option value="grid" icon={<Grid />} aria-label="Grid view" />
+  <SegmentedControl.Option value="list" icon={<List />} aria-label="List view" />
+</SegmentedControl>`,
+    },
+  },
+}
+
+export const IconAndText = (args: SegmentedControlProps<string>) => {
+  const [tab, setTab] = useState("home")
+
+  return (
+    <SegmentedControl
+      {...args}
+      value={tab}
+      onChange={(nextTab) => setTab(nextTab)}
+      aria-label="Select section"
+    >
+      <SegmentedControl.Option value="home" icon={<Home />}>
+        Home
+      </SegmentedControl.Option>
+      <SegmentedControl.Option value="settings" icon={<SettingsCog />}>
+        Settings
+      </SegmentedControl.Option>
+      <SegmentedControl.Option value="notifications" icon={<Bell />}>
+        Notifications
+      </SegmentedControl.Option>
+    </SegmentedControl>
+  )
+}
+
+IconAndText.args = {
+  size: "lg",
+}
+
+IconAndText.parameters = {
+  controls: { include: ["size", "pill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl>
+  <SegmentedControl.Option value="home" icon={<Home />}>Home</SegmentedControl.Option>
+  <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+  <SegmentedControl.Option value="notifications" icon={<Bell />}>Notifications</SegmentedControl.Option>
+</SegmentedControl>`,
+    },
+  },
+}
+
+export const WithBadge = (args: SegmentedControlProps<string>) => {
+  const [tab, setTab] = useState("all")
+
+  return (
+    <SegmentedControl
+      {...args}
+      value={tab}
+      onChange={(nextTab) => setTab(nextTab)}
+      aria-label="Select filter"
+    >
+      <SegmentedControl.Option value="all" badge={128}>
+        All
+      </SegmentedControl.Option>
+      <SegmentedControl.Option value="unread" badge={{ content: 12, color: "info" }}>
+        Unread
+      </SegmentedControl.Option>
+      <SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger" }}>
+        Flagged
+      </SegmentedControl.Option>
+    </SegmentedControl>
+  )
+}
+
+WithBadge.args = {
+  size: "lg",
+}
+
+WithBadge.parameters = {
+  controls: { include: ["size", "pill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl>
+  <SegmentedControl.Option value="all" badge={128}>All</SegmentedControl.Option>
+  <SegmentedControl.Option value="unread" badge={{ content: 12, color: "info" }}>Unread</SegmentedControl.Option>
+  <SegmentedControl.Option value="flagged" badge={{ content: 3, color: "danger" }}>Flagged</SegmentedControl.Option>
+</SegmentedControl>`,
+    },
+  },
+}
+
+export const IconTextBadge = (args: SegmentedControlProps<string>) => {
+  const [tab, setTab] = useState("inbox")
+
+  return (
+    <SegmentedControl
+      {...args}
+      value={tab}
+      onChange={(nextTab) => setTab(nextTab)}
+      aria-label="Select mailbox"
+    >
+      <SegmentedControl.Option value="inbox" icon={<Home />} badge={24}>
+        Inbox
+      </SegmentedControl.Option>
+      <SegmentedControl.Option
+        value="notifications"
+        icon={<Bell />}
+        badge={{ content: 5, color: "danger" }}
+      >
+        Alerts
+      </SegmentedControl.Option>
+      <SegmentedControl.Option value="settings" icon={<SettingsCog />}>
+        Settings
+      </SegmentedControl.Option>
+    </SegmentedControl>
+  )
+}
+
+IconTextBadge.args = {
+  size: "xl",
+}
+
+IconTextBadge.parameters = {
+  controls: { include: ["size", "pill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl>
+  <SegmentedControl.Option value="inbox" icon={<Home />} badge={24}>Inbox</SegmentedControl.Option>
+  <SegmentedControl.Option value="notifications" icon={<Bell />} badge={{ content: 5, color: "danger" }}>Alerts</SegmentedControl.Option>
+  <SegmentedControl.Option value="settings" icon={<SettingsCog />}>Settings</SegmentedControl.Option>
+</SegmentedControl>`,
+    },
+  },
+}
+
+const BADGE_COLORS = ["secondary", "success", "danger", "info"] as const
+const BADGE_VARIANTS = ["soft", "solid"] as const
+
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+export const BadgeVariants = (args: SegmentedControlProps<string> & { badgePill?: boolean }) => {
+  const [softSelected, setSoftSelected] = useState("secondary")
+  const [solidSelected, setSolidSelected] = useState("danger")
+
+  const states = {
+    soft: [softSelected, setSoftSelected],
+    solid: [solidSelected, setSolidSelected],
+  } as const
+
+  return (
+    <div className="flex flex-col justify-center gap-6 min-h-[320px]">
+      {BADGE_VARIANTS.map((variant) => {
+        const [selected, setSelected] = states[variant]
+        return (
+          <div key={variant} className="flex flex-col items-start gap-2">
+            <span className="text-sm text-tertiary">{capitalize(variant)}</span>
+            <SegmentedControl
+              {...args}
+              value={selected}
+              onChange={setSelected}
+              aria-label={`Badge ${variant} variants`}
+            >
+              {BADGE_COLORS.map((color) => (
+                <SegmentedControl.Option
+                  key={color}
+                  value={color}
+                  badge={{ content: 5, color, variant, pill: args.badgePill }}
+                >
+                  {capitalize(color)}
+                </SegmentedControl.Option>
+              ))}
+            </SegmentedControl>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+BadgeVariants.args = {
+  size: "md",
+  pill: true,
+  badgePill: true,
+}
+
+BadgeVariants.parameters = {
+  controls: { include: ["size", "pill", "badgePill"] },
+  docs: {
+    source: {
+      code: `<SegmentedControl>
+  <SegmentedControl.Option value="inbox" badge={{ content: 5, color: "success" }}>
+    Inbox
+  </SegmentedControl.Option>
+  <SegmentedControl.Option value="alerts" badge={{ content: 3, color: "danger", variant: "solid" }}>
+    Alerts
+  </SegmentedControl.Option>
+</SegmentedControl>`,
+    },
+  },
 }

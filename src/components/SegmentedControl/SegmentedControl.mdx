@@ -105,10 +105,51 @@ To create a scrollable segmented control, wrap the component in a simple `flex` 
 
 <Canvas of={SegmentedControlStories.Scrollable} />
  
-### Narrow Pill
+### Narrow pill
 When using the `pill` prop with narrow content (such as a single digit or an icon), especially when using large component sizes and small `gutterSize` values, the option width will automatically be at least equal to the control height. This ensures that the hover and active states maintain a perfectly circular shape without overflowing the container or overlapping adjacent options.
 
-<Canvas of={SegmentedControlStories.NarrowPill} sourceState='hidden' />
+<Canvas of={SegmentedControlStories.NarrowPill} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.NarrowPill}/>
+</div>
+
+### Icon only
+Use the `icon` prop to display icons in options. When using icon-only options, always provide an `aria-label` for accessibility.
+
+<Canvas of={SegmentedControlStories.IconOnly} />
+
+### Icon and text
+Combine `icon` with text content for richer options. The icon automatically sizes based on the control size.
+
+<Canvas of={SegmentedControlStories.IconAndText} />
+
+### With badge
+Use the `badge` prop to display counts or status indicators. Pass a simple value for default styling, or an object for custom color and variant.
+
+```jsx
+// Simple badge
+<SegmentedControl.Option value="all" badge={128}>All</SegmentedControl.Option>
+
+// Badge with options
+<SegmentedControl.Option 
+  value="flagged" 
+  badge={{ content: 3, color: "danger", variant: "soft" }}
+>
+  Flagged
+</SegmentedControl.Option>
+```
+
+<Canvas of={SegmentedControlStories.WithBadge} />
+
+### Icon, text, and badge
+All three content types can be combined in a single option.
+
+<Canvas of={SegmentedControlStories.IconTextBadge} />
+
+### Badge variants
+Badges support semantic colors (`secondary`, `success`, `danger`, `warning`, `info`, `discovery`, `caution`) and two style variants (`soft`, `solid`). The badge size automatically adjusts based on the control size.
+
+<Canvas of={SegmentedControlStories.BadgeVariants} />
+<div className="canvas-controls-only">
+<Controls of={SegmentedControlStories.BadgeVariants}/>
 </div>

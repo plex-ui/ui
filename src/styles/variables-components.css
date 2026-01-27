@@ -32,27 +32,43 @@
     /* =============================================
       Badge
     ============================================= */
+    --badge-gutter-2xs: 0.1875rem; /* 3px */
+    --badge-gutter-xs: 0.25rem; /* 4px */
     --badge-gutter-sm: calc(var(--control-gutter-2xs) - 1px);
     --badge-gutter-md: var(--control-gutter-2xs);
     --badge-gutter-lg: var(--control-gutter-xs);
+    --badge-size-2xs: 1rem; /* 16px */
+    --badge-size-xs: 1.125rem; /* 18px */
     --badge-size-sm: calc(var(--control-size-3xs) - 2px);
     --badge-size-md: var(--control-size-3xs);
     --badge-size-lg: var(--control-size-2xs);
+    --badge-radius-2xs: var(--radius-2xs);
+    --badge-radius-xs: var(--radius-2xs);
     --badge-radius-sm: var(--radius-xs);
     --badge-radius-md: var(--radius-xs);
     --badge-radius-lg: var(--radius-sm);
+    --badge-font-size-2xs: var(--font-text-xs-size);
+    --badge-font-size-xs: var(--font-text-xs-size);
     --badge-font-size-sm: var(--font-text-xs-size);
     --badge-font-size-md: var(--font-text-sm-size);
     --badge-font-size-lg: var(--font-text-sm-size);
+    --badge-tracking-2xs: var(--tracking-wide);
+    --badge-tracking-xs: var(--tracking-wide);
     --badge-tracking-sm: var(--tracking-wide);
     --badge-tracking-md: var(--tracking-normal);
     --badge-tracking-lg: var(--tracking-normal);
+    --badge-font-weight-2xs: var(--font-weight-semibold);
+    --badge-font-weight-xs: var(--font-weight-semibold);
     --badge-font-weight-sm: var(--font-weight-semibold);
     --badge-font-weight-md: var(--font-weight-semibold);
     --badge-font-weight-lg: var(--font-weight-semibold);
+    --badge-icon-font-size-2xs: var(--font-text-xs-size);
+    --badge-icon-font-size-xs: var(--font-text-xs-size);
     --badge-icon-font-size-sm: var(--font-text-xs-size);
     --badge-icon-font-size-md: var(--font-text-md-size);
     --badge-icon-font-size-lg: var(--font-text-md-size);
+    --badge-indicator-size-2xs: 0.625rem; /* 10px */
+    --badge-indicator-size-xs: 0.625rem; /* 10px */
     --badge-indicator-size-sm: var(--font-text-xs-size);
     --badge-indicator-size-md: var(--font-text-xs-size);
     --badge-indicator-size-lg: var(--font-text-sm-size);

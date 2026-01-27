@@ -45,6 +45,18 @@
     --segmented-control-font-size: var(--control-font-size-sm);
     --segmented-control-radius: var(--control-radius-sm);
     --segmented-control-option-gutter: var(--control-gutter-xs);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-xs);
+    --segmented-control-content-gap: var(--button-gap-sm);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-2xs */
+    --option-badge-size: var(--badge-size-2xs);
+    --option-badge-gutter: var(--badge-gutter-2xs);
+    --option-badge-font-size: var(--badge-font-size-2xs);
+    --option-badge-font-weight: var(--badge-font-weight-2xs);
+    --option-badge-tracking: var(--badge-tracking-2xs);
+    --option-badge-radius: var(--badge-radius-2xs);
   }
 
   &:where([data-size="2xs"]) {
@@ -52,6 +64,18 @@
     --segmented-control-font-size: var(--control-font-size-sm);
     --segmented-control-radius: var(--control-radius-sm);
     --segmented-control-option-gutter: var(--control-gutter-xs);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-sm);
+    --segmented-control-content-gap: var(--button-gap-md);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-2xs */
+    --option-badge-size: var(--badge-size-2xs);
+    --option-badge-gutter: var(--badge-gutter-2xs);
+    --option-badge-font-size: var(--badge-font-size-2xs);
+    --option-badge-font-weight: var(--badge-font-weight-2xs);
+    --option-badge-tracking: var(--badge-tracking-2xs);
+    --option-badge-radius: var(--badge-radius-2xs);
   }
 
   &:where([data-size="xs"]) {
@@ -59,6 +83,18 @@
     --segmented-control-font-size: var(--control-font-size-md);
     --segmented-control-radius: var(--control-radius-sm);
     --segmented-control-option-gutter: var(--control-gutter-xs);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-sm);
+    --segmented-control-content-gap: var(--button-gap-md);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-xs */
+    --option-badge-size: var(--badge-size-xs);
+    --option-badge-gutter: var(--badge-gutter-xs);
+    --option-badge-font-size: var(--badge-font-size-xs);
+    --option-badge-font-weight: var(--badge-font-weight-xs);
+    --option-badge-tracking: var(--badge-tracking-xs);
+    --option-badge-radius: var(--badge-radius-xs);
   }
 
   &:where([data-size="sm"]) {
@@ -66,6 +102,18 @@
     --segmented-control-font-size: var(--control-font-size-md);
     --segmented-control-radius: var(--control-radius-md);
     --segmented-control-option-gutter: var(--control-gutter-sm);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-md);
+    --segmented-control-content-gap: var(--button-gap-md);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-sm */
+    --option-badge-size: var(--badge-size-sm);
+    --option-badge-gutter: var(--badge-gutter-sm);
+    --option-badge-font-size: var(--badge-font-size-sm);
+    --option-badge-font-weight: var(--badge-font-weight-sm);
+    --option-badge-tracking: var(--badge-tracking-sm);
+    --option-badge-radius: var(--badge-radius-sm);
   }
 
   &:where([data-size="md"]) {
@@ -73,6 +121,18 @@
     --segmented-control-font-size: var(--control-font-size-md);
     --segmented-control-radius: var(--control-radius-md);
     --segmented-control-option-gutter: var(--control-gutter-md);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-md);
+    --segmented-control-content-gap: var(--button-gap-lg);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-md */
+    --option-badge-size: var(--badge-size-md);
+    --option-badge-gutter: var(--badge-gutter-md);
+    --option-badge-font-size: var(--badge-font-size-md);
+    --option-badge-font-weight: var(--badge-font-weight-md);
+    --option-badge-tracking: var(--badge-tracking-md);
+    --option-badge-radius: var(--badge-radius-md);
   }
 
   &:where([data-size="lg"]) {
@@ -80,6 +140,18 @@
     --segmented-control-font-size: var(--control-font-size-md);
     --segmented-control-radius: var(--control-radius-md);
     --segmented-control-option-gutter: var(--control-gutter-md);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-md);
+    --segmented-control-content-gap: var(--button-gap-lg);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-md */
+    --option-badge-size: var(--badge-size-md);
+    --option-badge-gutter: var(--badge-gutter-md);
+    --option-badge-font-size: var(--badge-font-size-md);
+    --option-badge-font-weight: var(--badge-font-weight-md);
+    --option-badge-tracking: var(--badge-tracking-md);
+    --option-badge-radius: var(--badge-radius-md);
   }
 
   &:where([data-size="xl"]) {
@@ -87,6 +159,18 @@
     --segmented-control-font-size: var(--control-font-size-md);
     --segmented-control-radius: var(--control-radius-lg);
     --segmented-control-option-gutter: var(--control-gutter-lg);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-md);
+    --segmented-control-content-gap: var(--button-gap-lg);
+    --segmented-control-icon-offset: -1px;
+    --segmented-control-badge-offset: -1px;
+    /* Badge tokens — inherited from badge-size-md */
+    --option-badge-size: var(--badge-size-md);
+    --option-badge-gutter: var(--badge-gutter-md);
+    --option-badge-font-size: var(--badge-font-size-md);
+    --option-badge-font-weight: var(--badge-font-weight-md);
+    --option-badge-tracking: var(--badge-tracking-md);
+    --option-badge-radius: var(--badge-radius-md);
   }
 
   &:where([data-size="2xl"]) {
@@ -94,6 +178,18 @@
     --segmented-control-font-size: var(--control-font-size-lg);
     --segmented-control-radius: var(--control-radius-xl);
     --segmented-control-option-gutter: var(--control-gutter-xl);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-lg);
+    --segmented-control-content-gap: var(--button-gap-lg);
+    --segmented-control-icon-offset: -2px;
+    --segmented-control-badge-offset: -2px;
+    /* Badge tokens — inherited from badge-size-lg */
+    --option-badge-size: var(--badge-size-lg);
+    --option-badge-gutter: var(--badge-gutter-lg);
+    --option-badge-font-size: var(--badge-font-size-lg);
+    --option-badge-font-weight: var(--badge-font-weight-lg);
+    --option-badge-tracking: var(--badge-tracking-lg);
+    --option-badge-radius: var(--badge-radius-lg);
   }
 
   &:where([data-size="3xl"]) {
@@ -101,6 +197,18 @@
     --segmented-control-font-size: var(--control-font-size-lg);
     --segmented-control-radius: var(--control-radius-xl);
     --segmented-control-option-gutter: var(--control-gutter-xl);
+    /* Icon and content */
+    --segmented-control-icon-size: var(--control-icon-size-lg);
+    --segmented-control-content-gap: var(--button-gap-lg);
+    --segmented-control-icon-offset: -2px;
+    --segmented-control-badge-offset: -2px;
+    /* Badge tokens — inherited from badge-size-lg */
+    --option-badge-size: var(--badge-size-lg);
+    --option-badge-gutter: var(--badge-gutter-lg);
+    --option-badge-font-size: var(--badge-font-size-lg);
+    --option-badge-font-weight: var(--badge-font-weight-lg);
+    --option-badge-tracking: var(--badge-tracking-lg);
+    --option-badge-radius: var(--badge-radius-lg);
   }
 
   /* =============================================
@@ -237,4 +345,174 @@
   box-shadow: var(--segmented-control-thumb-shadow);
   pointer-events: none;
   will-change: transform;
+}
+
+/* =============================================
+  Option Content (icon + text + badge layout)
+============================================= */
+.SegmentedControlOptionContent {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--segmented-control-content-gap);
+
+  /* Icon auto-sizing (same as Button) */
+  svg:where(:not([data-no-autosize])) {
+    width: var(--segmented-control-icon-size);
+    height: var(--segmented-control-icon-size);
+  }
+
+  /* Negative margin for icon when followed by text */
+  svg:where(:first-child:not(:only-child)) {
+    margin-left: var(--segmented-control-icon-offset);
+  }
+}
+
+/* =============================================
+  Option Badge (CSS-only, no Badge component)
+============================================= */
+.OptionBadge {
+  display: inline-flex;
+  align-items: center;
+  height: var(--option-badge-size);
+  padding: 0 var(--option-badge-gutter);
+  border-radius: var(--option-badge-radius);
+  background-color: var(--option-badge-bg);
+  color: var(--option-badge-color);
+  font-size: var(--option-badge-font-size);
+  font-weight: var(--option-badge-font-weight);
+  letter-spacing: var(--option-badge-tracking);
+  white-space: nowrap;
+  margin-right: var(--segmented-control-badge-offset);
+
+  /* =============================================
+    Soft variant (default)
+  ============================================= */
+  &[data-variant="soft"] {
+    &:where([data-color="secondary"]) {
+      --option-badge-bg: var(--color-background-secondary-soft-alpha);
+      --option-badge-color: var(--color-text-secondary-soft);
+    }
+
+    &:where([data-color="success"]) {
+      --option-badge-bg: var(--color-background-success-soft-alpha);
+      --option-badge-color: var(--color-text-success-soft);
+    }
+
+    &:where([data-color="warning"]) {
+      --option-badge-bg: var(--color-background-warning-soft-alpha);
+      --option-badge-color: var(--color-text-warning-soft);
+    }
+
+    &:where([data-color="danger"]) {
+      --option-badge-bg: var(--color-background-danger-soft-alpha);
+      --option-badge-color: var(--color-text-danger-soft);
+    }
+
+    &:where([data-color="info"]) {
+      --option-badge-bg: var(--color-background-info-soft-alpha);
+      --option-badge-color: var(--color-text-info-soft);
+    }
+
+    &:where([data-color="discovery"]) {
+      --option-badge-bg: var(--color-background-discovery-soft-alpha);
+      --option-badge-color: var(--color-text-discovery-soft);
+    }
+
+    &:where([data-color="caution"]) {
+      --option-badge-bg: var(--color-background-caution-soft-alpha);
+      --option-badge-color: var(--color-text-caution-soft);
+    }
+  }
+
+  /* =============================================
+    Solid variant
+  ============================================= */
+  &[data-variant="solid"] {
+    &:where([data-color="secondary"]) {
+      --option-badge-bg: var(--color-background-secondary-solid);
+      --option-badge-color: var(--color-text-secondary-solid);
+    }
+
+    &:where([data-color="success"]) {
+      --option-badge-bg: var(--color-background-success-solid);
+      --option-badge-color: var(--color-text-success-solid);
+    }
+
+    &:where([data-color="warning"]) {
+      --option-badge-bg: var(--color-background-warning-solid);
+      --option-badge-color: var(--color-text-warning-solid);
+    }
+
+    &:where([data-color="danger"]) {
+      --option-badge-bg: var(--color-background-danger-solid);
+      --option-badge-color: var(--color-text-danger-solid);
+    }
+
+    &:where([data-color="info"]) {
+      --option-badge-bg: var(--color-background-info-solid);
+      --option-badge-color: var(--color-text-info-solid);
+    }
+
+    &:where([data-color="discovery"]) {
+      --option-badge-bg: var(--color-background-discovery-solid);
+      --option-badge-color: var(--color-text-discovery-solid);
+    }
+
+    &:where([data-color="caution"]) {
+      --option-badge-bg: var(--color-background-caution-solid);
+      --option-badge-color: var(--color-text-caution-solid);
+    }
+  }
+
+  /* =============================================
+    Outline variant
+  ============================================= */
+  &[data-variant="outline"] {
+    background-color: transparent;
+    box-shadow: 0 0 0 1px var(--option-badge-border) inset;
+
+    &:where([data-color="secondary"]) {
+      --option-badge-border: var(--color-border-secondary-outline);
+      --option-badge-color: var(--color-text-secondary-outline);
+    }
+
+    &:where([data-color="success"]) {
+      --option-badge-border: var(--color-border-success-outline);
+      --option-badge-color: var(--color-text-success-outline);
+    }
+
+    &:where([data-color="warning"]) {
+      --option-badge-border: var(--color-border-warning-outline);
+      --option-badge-color: var(--color-text-warning-outline);
+    }
+
+    &:where([data-color="danger"]) {
+      --option-badge-border: var(--color-border-danger-outline);
+      --option-badge-color: var(--color-text-danger-outline);
+    }
+
+    &:where([data-color="info"]) {
+      --option-badge-border: var(--color-border-info-outline);
+      --option-badge-color: var(--color-text-info-outline);
+    }
+
+    &:where([data-color="discovery"]) {
+      --option-badge-border: var(--color-border-discovery-outline);
+      --option-badge-color: var(--color-text-discovery-outline);
+    }
+
+    &:where([data-color="caution"]) {
+      --option-badge-border: var(--color-border-caution-outline);
+      --option-badge-color: var(--color-text-caution-outline);
+    }
+  }
+
+  /* =============================================
+    Pill
+  ============================================= */
+  &[data-pill] {
+    border-radius: var(--radius-full);
+    padding: 0 calc(var(--option-badge-gutter) * var(--control-gutter-pill-scaling));
+  }
 }

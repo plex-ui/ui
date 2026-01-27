@@ -5,7 +5,8 @@ import { ToggleGroup } from "radix-ui"
 import { useCallback, useLayoutEffect, useRef } from "react"
 import { useResizeObserver } from "usehooks-ts"
 import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers"
-import { type ControlSize, type Sizes } from "../../types"
+import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
+import { LoadingIndicator } from "../Indicator"
 import s from "./SegmentedControl.module.css"
 
 export type SizeVariant = "2xs" | "xs" | "sm" | "md" | "lg" | "xl"
@@ -71,6 +72,7 @@ export const SegmentedControl = <T extends string>({
 }: SegmentedControlProps<T>) => {
   const rootRef = useRef<HTMLDivElement>(null)
   const thumbRef = useRef<HTMLDivElement>(null)
+  const prevSizeRef = useRef(size)
 
   const applyThumbSizing = useCallback((attemptScroll: boolean) => {
     const root = rootRef.current
@@ -143,14 +145,32 @@ export const SegmentedControl = <T extends string>({
       return
     }
 
-    // Cheap trick to avoid unintentional scroll on mount - transition is set after mounting
-    applyThumbSizing(!!thumb.style.transition)
+    const sizeChanged = prevSizeRef.current !== size
+    prevSizeRef.current = size
 
-    // Apply transition after initial calculation is set
-    if (!thumb.style.transition) {
+    if (sizeChanged) {
+      // Size changed - disable transition, wait for CSS, then apply sizing
+      const currentTransition = thumb.style.transition
+      thumb.style.transition = ""
+
       waitForAnimationFrame(() => {
-        thumb.style.transition =
-          "width 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
+        applyThumbSizing(false)
+        waitForAnimationFrame(() => {
+          thumb.style.transition = currentTransition
+        })
+      })
+    } else {
+      // Normal update (value change, etc.)
+      waitForAnimationFrame(() => {
+        applyThumbSizing(!!thumb.style.transition)
+
+        // Apply transition after initial calculation is set
+        if (!thumb.style.transition) {
+          waitForAnimationFrame(() => {
+            thumb.style.transition =
+              "width 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
+          })
+        }
       })
     }
   }, [applyThumbSizing, value, size, gutterSize, pill])
@@ -182,7 +202,22 @@ export const SegmentedControl = <T extends string>({
   )
 }
 
-type SegmentedControlOptionProps = {
+/**
+ * Badge configuration for SegmentedControl.Option
+ */
+export type SegmentedControlBadgeProp =
+  | React.ReactNode
+  | {
+      content: React.ReactNode
+      color?: SemanticColors<
+        "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"
+      >
+      variant?: Variants<"soft" | "solid">
+      pill?: boolean
+      loading?: boolean
+    }
+
+export type SegmentedControlOptionProps = {
   /**
    * Option value
    */
@@ -192,23 +227,57 @@ type SegmentedControlOptionProps = {
    */
   "aria-label"?: string
   /**
-   * Content to render in the option
+   * Text content to render in the option
    */
-  "children": React.ReactNode
+  "children"?: React.ReactNode
+  /**
+   * Icon to render before the text content
+   */
+  "icon"?: React.ReactNode
+  /**
+   * Badge to render after the text content.
+   * Can be a simple value or an object with content, color, variant, and loading options.
+   * @example badge={5}
+   * @example badge={{ content: 5, color: "danger" }}
+   */
+  "badge"?: SegmentedControlBadgeProp
   /**
    * Disable the individual option
    */
   "disabled"?: boolean
 }
 
-const Segment = ({ children, ...restProps }: SegmentedControlOptionProps) => {
+// Type guard for badge object form
+const isBadgeObject = (
+  badge: SegmentedControlBadgeProp,
+): badge is Exclude<SegmentedControlBadgeProp, React.ReactNode> & { content: React.ReactNode } => {
+  return badge != null && typeof badge === "object" && "content" in badge
+}
+
+const Segment = ({ children, icon, badge, ...restProps }: SegmentedControlOptionProps) => {
+  // Normalize badge prop
+  const badgeProps = badge != null ? (isBadgeObject(badge) ? badge : { content: badge }) : null
+
   return (
     <ToggleGroup.Item
       className={s.SegmentedControlOption}
       {...restProps}
       onPointerEnter={handlePressableMouseEnter}
     >
-      <span className="relative">{children}</span>
+      <span className={s.SegmentedControlOptionContent}>
+        {icon}
+        {children && <span>{children}</span>}
+        {badgeProps && (
+          <span
+            className={s.OptionBadge}
+            data-color={badgeProps.color ?? "secondary"}
+            data-variant={badgeProps.variant ?? "soft"}
+            data-pill={badgeProps.pill ? "" : undefined}
+          >
+            {badgeProps.loading ? <LoadingIndicator /> : badgeProps.content}
+          </span>
+        )}
+      </span>
     </ToggleGroup.Item>
   )
 }
