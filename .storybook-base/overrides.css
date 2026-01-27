@@ -94,7 +94,7 @@ input[type="radio"] {
   }
 } */
 
-@media (width >= 769px) {
+@media (width >=769px) {
   .sbdocs-wrapper {
     padding-top: 58px !important;
     padding-right: 260px !important;
@@ -200,12 +200,27 @@ input[type="radio"] {
   }
 
   /* Basic <p> styles (taken from Storybook) */
-  > :where(p:not(.sb-anchor, .sb-unstyled, .sb-unstyled p)),
-  > ul :where(li:not(.sb-anchor, .sb-unstyled, .sb-unstyled li)),
-  > ol :where(li:not(.sb-anchor, .sb-unstyled, .sb-unstyled li)) {
+  > :where(p:not(.sb-anchor, .sb-unstyled, .sb-unstyled p)) {
     color: var(--color-text) !important;
-    font-size: var(--font-text-md-size) !important;
-    line-height: var(--font-text-md-line-height) !important;
+    font-size: 16px !important;
+    line-height: 24px !important;
+
+    /* Inline code tags */
+    code {
+      border: 1px solid var(--alpha-12) !important;
+      border-radius: 4px !important;
+      background-color: light-dark(var(--gray-25), var(--alpha-08)) !important;
+      color: var(--color-text) !important;
+      line-height: 12px !important;
+    }
+  }
+
+  /* List items and nested paragraphs - higher specificity to override Storybook defaults */
+  li:not(.sb-anchor, .sb-unstyled, .sb-unstyled li),
+  li p:not(.sb-anchor, .sb-unstyled, .sb-unstyled p) {
+    color: var(--color-text) !important;
+    font-size: 16px !important;
+    line-height: 24px !important;
 
     /* Inline code tags */
     code {
@@ -363,6 +378,27 @@ input[type="radio"] {
     }
   }
 
+  /* Style links inside lists (raw <a> tags from MDX HTML) */
+  ul a,
+  ol a {
+    color: var(--color-text) !important;
+    text-decoration: underline !important;
+    text-decoration-color: color-mix(in srgb, currentcolor 80%, transparent) !important;
+    text-underline-offset: 1px !important;
+    transition-duration: var(--transition-duration-basic);
+    transition-property: color, box-shadow, text-decoration-color;
+    transition-timing-function: var(--transition-ease-basic);
+
+    &:hover {
+      color: var(--color-text-secondary) !important;
+    }
+  }
+
+  /* Changelog list with extra spacing between items */
+  .changelog-list > li {
+    margin-bottom: 20px !important;
+  }
+
   h1.sbdocs-title {
     margin-bottom: 10px !important;
     color: var(--color-text) !important;
@@ -378,7 +414,7 @@ input[type="radio"] {
     line-height: 1.5 !important;
   }
 
-  @media (width >= 769px) {
+  @media (width >=769px) {
     h1.sbdocs-title {
       font-size: 36px !important;
       line-height: 42px !important;
@@ -589,7 +625,7 @@ input[type="radio"] {
   }
 }
 
-@media (width <= 599px) {
+@media (width <=599px) {
   .docblock-argstable {
     .docblock-argstable-head th:nth-child(4),
     .docblock-argstable-body td:nth-child(4) {

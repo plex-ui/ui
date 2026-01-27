@@ -1,0 +1,57 @@
+import { Subtitle, Title, Meta } from "@storybook/blocks";
+
+<Meta title="Overview/Changelog" />
+
+<Title>Changelog</Title>
+<Subtitle>Notable changes and bug fixes in Plex UI</Subtitle>
+
+This changelog documents significant updates, bug fixes, and improvements to components in the Plex UI design system. Entries follow the [Keep a Changelog](https://keepachangelog.com/) format.
+
+---
+
+## Unreleased
+
+### Fixed
+
+<ul className="changelog-list">
+  <li>
+    <strong>Pill overflow and text overlap</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#narrow-pill">SegmentedControl</a>)<br/>
+    In pill mode, narrow options (icons, single digits) could be narrower than the control height, causing circular hover highlights and the active thumb to overflow or clip. Added min-width to options in pill mode ensuring they're at least as wide as the control height. Also fixed a scrollable mode regression where text items overlapped, and corrected invalid <code>white-space: wrap</code> to <code>white-space: normal</code>.
+  </li>
+  <li>
+    <strong>Highlight overlay radius mismatch</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs">SegmentedControl</a>)<br/>
+    The hover/active overlay (::before) used the same <code>border-radius</code> as the option, but the overlay is inset by 1px. This caused the inner rounded shape to not nest correctly. Added <code>--segmented-control-option-highlight-radius</code> calculated as option radius minus inset, so the overlay aligns flush with the container.
+  </li>
+  <li>
+    <strong>Pill gutter scaling with opticallyAlign</strong> (<a href="/?path=/docs/components-selectcontrol--docs#optical-alignment">SelectControl</a>, <a href="/?path=/docs/components-input--docs#optical-alignment">Input</a>, <a href="/?path=/docs/components-button--docs#optical-alignment">Button</a>)<br/>
+    When using <code>opticallyAlign</code> with <code>pill=&#123;true&#125;</code>, the margin calculation used only the base gutter and ignored the pill scaling multiplier (1.33×). Controls with pills now correctly multiply the margin by <code>--control-gutter-pill-scaling</code>, aligning properly with Ghost controls.
+  </li>
+  <li>
+    <strong>Inconsistent gap between Options and Actions</strong> (<a href="/?path=/docs/components-select--docs#actions">Select</a>)<br/>
+    Options used <code>gap: spacing(1)</code> (4px) while Actions used <code>--menu-item-gap</code> (6px). Standardized both to use <code>--menu-item-gap</code> for consistency with the base Menu component.
+  </li>
+  <li>
+    <strong>Search input icon color</strong> (<a href="/?path=/docs/components-select--docs#grouped-options">Select</a>)<br/>
+    The search icon had <code>className="fill-secondary"</code> but <code>fill="currentColor"</code> in the SVG path inherited color from the Input container, ignoring the class. Fixed by passing <code>fill="var(--color-text-secondary)"</code> as a prop with <code>!important</code> to override <code>currentColor</code>.
+  </li>
+  <li>
+    <strong>Missing caution color variant</strong> (<a href="/?path=/docs/components-badge--docs#colors--variants">Badge</a>)<br/>
+    Badge was missing the <code>caution</code> color option, inconsistent with Button and Alert. Added <code>caution</code> to BadgeProps, implemented CSS styles for all variants (soft, solid, outline), and added to the Colors example matrix.
+  </li>
+  <li>
+    <strong>Incorrect size documentation</strong> (<a href="/?path=/docs/components-badge--docs#colors--variants">Badge</a>)<br/>
+    Documentation stated <code>sm</code> size is 18px, but actual computed value is 20px (<code>calc(22px - 2px)</code>). Fixed the JSDoc comment to show correct value.
+  </li>
+</ul>
+
+---
+
+## Contributing
+
+When adding entries to this changelog:
+
+1. Add new items under the **Unreleased** section
+2. Group by change type: **Added**, **Changed**, **Deprecated**, **Removed**, **Fixed**, **Security**
+3. Link to the affected component in parentheses after the fix title
+4. Describe the issue and the fix concisely
+5. When releasing, move items to a dated version section (e.g., `## 1.2.0 — 2026-01-26`)

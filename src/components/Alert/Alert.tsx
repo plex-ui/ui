@@ -96,12 +96,7 @@ export const Alert = ({
         )}
       </div>
       {onDismiss && (
-        <button
-          type="button"
-          onClick={onDismiss}
-          className={s.DismissButton}
-          aria-label="Dismiss"
-        >
+        <button type="button" onClick={onDismiss} className={s.DismissButton} aria-label="Dismiss">
           <X />
         </button>
       )}

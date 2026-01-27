@@ -1,5 +1,7 @@
 .SegmentedControl {
-  --segmented-control-option-radius: calc(var(--segmented-control-radius) - var(--segmented-control-gutter));
+  --segmented-control-option-radius: calc(
+    var(--segmented-control-radius) - var(--segmented-control-gutter)
+  );
 
   position: relative;
   overflow: auto;

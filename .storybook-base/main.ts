@@ -58,7 +58,8 @@ const config: StorybookConfig = {
     const basePath = process.env.STORYBOOK_BASE_PATH || ""
     if (basePath) {
       // For production build, use relative paths
-      finalConfig.base = basePath === "relative" ? "./" : (basePath.endsWith("/") ? basePath : `${basePath}/`)
+      finalConfig.base =
+        basePath === "relative" ? "./" : basePath.endsWith("/") ? basePath : `${basePath}/`
     }
 
     // Define environment variables for browser environment

@@ -12,8 +12,8 @@ import {
 import { handlePressableMouseEnter } from "../../lib/helpers"
 import { wrapTextNodeSiblings } from "../../lib/renderHelpers"
 import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
-import { useLinkComponent } from "../PlexUIProvider/internal"
 import { LoadingIndicator } from "../Indicator"
+import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition/TransitionGroup"
 import s from "./Button.module.css"
 
