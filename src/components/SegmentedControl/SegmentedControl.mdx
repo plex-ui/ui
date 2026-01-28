@@ -126,19 +126,6 @@ Combine `icon` with text content for richer options. The icon automatically size
 ### With badge
 Use the `badge` prop to display counts or status indicators. Pass a simple value for default styling, or an object for custom color and variant.
 
-```jsx
-// Simple badge
-<SegmentedControl.Option value="all" badge={128}>All</SegmentedControl.Option>
-
-// Badge with options
-<SegmentedControl.Option 
-  value="flagged" 
-  badge={{ content: 3, color: "danger", variant: "soft" }}
->
-  Flagged
-</SegmentedControl.Option>
-```
-
 <Canvas of={SegmentedControlStories.WithBadge} />
 
 ### Icon, text, and badge
