@@ -135,7 +135,7 @@ const RANDOM_LETTERS = Array.from({ length: COLORS.length }, () =>
 )
 
 export const Colors = (args: AvatarProps) => (
-  <div className="pt-1 pb-6">
+  <div className="pt-1 pb-6 px-8 w-fit min-w-full">
     <Matrix
       rowLabels={VARIANTS}
       columnLabels={COLORS}
@@ -179,7 +179,7 @@ const Matrix = ({
 
       {rowLabels.map((row, ri) => (
         <Fragment key={ri}>
-          <div className="text-right text-tertiary text-sm mr-3 -ml-3">{row}</div>
+          <div className="text-right text-tertiary text-sm mr-3">{row}</div>
           {columnLabels.map((_, ci) => (
             <div key={ci} className="text-center">
               {renderCell(ri, ci)}

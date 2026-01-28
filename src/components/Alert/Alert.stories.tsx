@@ -104,7 +104,7 @@ Dismissible.args = {
   title: "Thank you!",
   description:
     "Your application has been received. We will review your application and respond within the next 48 hours.",
-  onDismiss: () => {},
+  onDismiss: () => { },
 }
 
 export const Actions = (args: AlertProps) => <Alert {...args} />
@@ -231,7 +231,7 @@ const COLOR_OPTIONS = [
 ] as const
 
 export const Colors = (args: AlertProps) => (
-  <div className="pt-1 pb-6 w-full max-w-[500px] mx-auto">
+  <div className="pt-1 pb-6 px-8 w-fit min-w-full max-w-[500px] mx-auto">
     <RowMatrix
       rowLabels={COLOR_OPTIONS}
       renderRow={(row) => (
@@ -276,7 +276,7 @@ const RowMatrix = ({
   <div className="flex flex-col gap-6">
     {rowLabels.map((row, ri) => (
       <div key={ri} className="flex items-center">
-        <div className="text-right text-tertiary text-sm mr-4 -ml-3 min-w-[4rem]">{row}</div>
+        <div className="text-right text-tertiary text-sm mr-4 min-w-[4rem]">{row}</div>
         <div className="flex-1">{renderRow(ri)}</div>
       </div>
     ))}

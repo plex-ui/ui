@@ -87,7 +87,7 @@ return (
 const VARIANT_OPTIONS = ["soft", "outline", "ghost"] as const
 
 export const Variants = (args: SelectControlProps) => (
-  <div className="pt-1 pb-6 w-full max-w-[500px] mx-auto">
+  <div className="pt-1 pb-6 px-8 w-fit min-w-full max-w-[500px] mx-auto">
     <RowMatrix
       rowLabels={VARIANT_OPTIONS}
       renderRow={(row) => (
@@ -97,7 +97,7 @@ export const Variants = (args: SelectControlProps) => (
           variant={VARIANT_OPTIONS[row]}
           selected
           StartIcon={Cabinet}
-          onClearClick={() => {}}
+          onClearClick={() => { }}
         >
           Sample value
         </SelectControl>
@@ -109,7 +109,7 @@ export const Variants = (args: SelectControlProps) => (
 Variants.args = {
   invalid: false,
   disabled: false,
-  onInteract: () => {},
+  onInteract: () => { },
 }
 
 Variants.parameters = {
@@ -130,7 +130,7 @@ export const Sizing = (args: SelectControlProps) => (
     </SelectControl>
     <SelectControl
       {...args}
-      onClearClick={() => {}}
+      onClearClick={() => { }}
       selected
       StartIcon={Tools}
       dropdownIconType="none"
@@ -139,14 +139,14 @@ export const Sizing = (args: SelectControlProps) => (
     </SelectControl>
     <SelectControl
       {...args}
-      onClearClick={() => {}}
+      onClearClick={() => { }}
       selected
       StartIcon={CalendarAlt}
       dropdownIconType="chevronDown"
     >
       Today
     </SelectControl>
-    <SelectControl {...args} onClearClick={() => {}} selected StartIcon={CalendarAlt}>
+    <SelectControl {...args} onClearClick={() => { }} selected StartIcon={CalendarAlt}>
       Today
     </SelectControl>
   </div>
@@ -156,7 +156,7 @@ Sizing.args = {
   color: "primary",
   size: "md",
   pill: false,
-  onInteract: () => {},
+  onInteract: () => { },
 }
 
 Sizing.parameters = {
@@ -338,7 +338,7 @@ const RowMatrix = ({
   <div className="flex flex-col gap-6">
     {rowLabels.map((row, ri) => (
       <div key={ri} className="flex items-center">
-        <div className="text-right text-tertiary text-sm mr-8 -ml-3 min-w-[4rem]">{row}</div>
+        <div className="text-right text-tertiary text-sm mr-8 min-w-[4rem]">{row}</div>
         <div className="flex-1">{renderRow(ri)}</div>
       </div>
     ))}
