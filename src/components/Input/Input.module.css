@@ -84,9 +84,13 @@
     --input-size: var(--control-size-3xs);
     --input-font-size: var(--control-font-size-sm);
     --input-radius: var(--control-radius-sm);
-    --input-gutter: var(--control-gutter-xs);
+    --input-gutter: var(--control-gutter-2xs);
     --input-gap: var(--input-gap-xs);
     --input-adornment-offset: -1px;
+    --input-clear-size: 12px;
+    --input-clear-icon-size: 10px;
+    --input-clear-offset: -1px;
+    --input-clear-pill-offset: -2px;
   }
 
   &:where([data-size="2xs"]) {
@@ -96,6 +100,10 @@
     --input-gutter: var(--control-gutter-xs);
     --input-gap: var(--input-gap-xs);
     --input-adornment-offset: -1px;
+    --input-clear-size: 14px;
+    --input-clear-icon-size: 12px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -4px;
   }
 
   &:where([data-size="xs"]) {
@@ -105,6 +113,10 @@
     --input-gutter: var(--control-gutter-xs);
     --input-gap: var(--input-gap-sm);
     --input-adornment-offset: -1px;
+    --input-clear-size: 16px;
+    --input-clear-icon-size: 12px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -4px;
   }
 
   &:where([data-size="sm"]) {
@@ -114,6 +126,10 @@
     --input-gutter: var(--control-gutter-sm);
     --input-gap: var(--input-gap-md);
     --input-adornment-offset: -1px;
+    --input-clear-size: 16px;
+    --input-clear-icon-size: 12px;
+    --input-clear-offset: -3px;
+    --input-clear-pill-offset: -6px;
   }
 
   &:where([data-size="md"]) {
@@ -122,6 +138,10 @@
     --input-radius: var(--control-radius-md);
     --input-gutter: var(--control-gutter-md);
     --input-gap: var(--input-gap-md);
+    --input-clear-size: 18px;
+    --input-clear-icon-size: 14px;
+    --input-clear-offset: -4px;
+    --input-clear-pill-offset: -7px;
   }
 
   &:where([data-size="lg"]) {
@@ -130,6 +150,10 @@
     --input-radius: var(--control-radius-md);
     --input-gutter: var(--control-gutter-md);
     --input-gap: var(--input-gap-md);
+    --input-clear-size: 18px;
+    --input-clear-icon-size: 14px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -6px;
   }
 
   &:where([data-size="xl"]) {
@@ -138,15 +162,23 @@
     --input-radius: var(--control-radius-lg);
     --input-gutter: var(--control-gutter-lg);
     --input-gap: var(--input-gap-lg);
+    --input-clear-size: 18px;
+    --input-clear-icon-size: 14px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -7px;
   }
 
   &:where([data-size="2xl"]) {
     --input-size: var(--control-size-2xl);
     --input-font-size: var(--control-font-size-lg);
     --input-radius: var(--control-radius-xl);
-    --input-gutter: var(--control-gutter-xl);
+    --input-gutter: var(--control-gutter-lg);
     --input-gap: var(--input-gap-lg);
     --input-adornment-offset: -4px;
+    --input-clear-size: 20px;
+    --input-clear-icon-size: 15px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -7px;
   }
 
   &:where([data-size="3xl"]) {
@@ -156,6 +188,10 @@
     --input-gutter: var(--control-gutter-xl);
     --input-gap: var(--input-gap-lg);
     --input-adornment-offset: -4px;
+    --input-clear-size: 20px;
+    --input-clear-icon-size: 15px;
+    --input-clear-offset: -2px;
+    --input-clear-pill-offset: -7px;
   }
 
   /* =============================================
@@ -315,6 +351,43 @@
 
   :where(.Container[data-has-end-adornment]) & {
     padding-right: 0;
+  }
+}
+
+.Clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--input-clear-size);
+  height: var(--input-clear-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--control-radius-sm);
+  margin-right: var(--input-clear-offset);
+  background-color: var(--color-background-primary-soft-alpha);
+  color: var(--color-text-primary-soft);
+  cursor: pointer;
+  transition-duration: var(--transition-duration-basic);
+  transition-property: background-color;
+  transition-timing-function: var(--transition-ease-basic);
+
+  &:hover {
+    background-color: var(--color-background-primary-soft-alpha-hover);
+  }
+
+  &:active {
+    background-color: var(--color-background-primary-soft-alpha-active);
+  }
+
+  :where(.Container[data-pill]) & {
+    border-radius: var(--radius-full);
+    margin-right: var(--input-clear-pill-offset);
+  }
+
+  > svg {
+    width: var(--input-clear-icon-size);
+    height: var(--input-clear-icon-size);
   }
 }
 

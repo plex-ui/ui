@@ -48,15 +48,20 @@ Ideally, the spacing will look pretty good by default. If you need to customize 
 
 <Canvas of={InputStories.StartAdornment} />
 
-### End adornment
+### Clear button
 
-You can add arbitrary content to the end of an input with `endAdornment` &ndash; like a clear button.
-
-The same spacing guidance from `startAdornment` applies here.
-
-End adornments are most commonly actions that are tucked tightly into the container frame. In these cases, you'll likely reach for negative right margin (e.g., `-mr-2.5`) to achieve that aesthetic.
+Use the `onClear` prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
 
 <Canvas of={InputStories.EndAdornment} />
+<div className="canvas-controls-only">
+<Controls of={InputStories.EndAdornment}/>
+</div>
+
+### End adornment
+
+You can add arbitrary content to the end of an input with `endAdornment` &ndash; like a character counter or custom icon.
+
+The same spacing guidance from `startAdornment` applies here.
 
 ### Disabled
 

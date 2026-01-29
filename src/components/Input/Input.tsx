@@ -4,6 +4,7 @@ import clsx from "clsx"
 import { useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { type ControlSize, type Sizes, type Variants } from "../../types"
+import { X } from "../Icon"
 import s from "./Input.module.css"
 
 export type InputProps = {
@@ -57,6 +58,11 @@ export type InputProps = {
   /** Content rendered at the end of the input */
   endAdornment?: React.ReactNode
   /**
+   * Callback invoked when the clear button is clicked.
+   * When provided, displays a clear button that appears when the input has a value.
+   */
+  onClear?: () => void
+  /**
    * Determines if the button should be a fully rounded pill shape
    * @default false
    */
@@ -97,11 +103,18 @@ export const Input = (props: InputProps) => {
     autoSelect,
     startAdornment: StartAdornment,
     endAdornment: EndAdornment,
+    onClear,
     pill,
     opticallyAlign,
     ref,
+    value,
+    defaultValue,
     ...restProps
   } = props
+
+  // Determine if clear button should be shown
+  const hasValue = value !== undefined ? !!value : !!defaultValue
+  const showClearButton = !!onClear && hasValue && !disabled && !readOnly
   // Redirect clicks on the container and adornments
   const handleMouseDown = (evt: React.MouseEvent<HTMLDivElement>) => {
     const input = inputRef.current
@@ -184,7 +197,7 @@ export const Input = (props: InputProps) => {
       data-pill={pill ? "" : undefined}
       data-optically-align={opticallyAlign}
       data-has-start-adornment={StartAdornment ? "" : undefined}
-      data-has-end-adornment={EndAdornment ? "" : undefined}
+      data-has-end-adornment={EndAdornment || showClearButton ? "" : undefined}
       onMouseDown={handleMouseDown}
     >
       {StartAdornment}
@@ -195,6 +208,8 @@ export const Input = (props: InputProps) => {
         className={s.Input}
         type={type}
         name={name}
+        value={value}
+        defaultValue={defaultValue}
         readOnly={readOnly}
         disabled={disabled}
         onFocus={(evt) => {
@@ -210,6 +225,11 @@ export const Input = (props: InputProps) => {
         data-lpignore={allowAutofillExtensions ? undefined : true}
         data-1p-ignore={allowAutofillExtensions ? undefined : true}
       />
+      {showClearButton && (
+        <button type="button" aria-label="Clear input" className={s.Clear} onClick={onClear}>
+          <X />
+        </button>
+      )}
       {EndAdornment}
     </div>
   )

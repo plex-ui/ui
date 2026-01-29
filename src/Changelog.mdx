@@ -24,6 +24,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 <ul className="changelog-list">
   <li>
+    <strong>Clear button sizing and consistency</strong> (<a href="/?path=/docs/components-input--docs#clear-button">Input</a>)<br/>
+    Clear button overflow and border collision at various sizes. Refactored to use built-in <code>onClear</code> prop with dedicated sizing tokens matching SelectControl's clear-iso button. Updated gutter values and added per-size offsets for proper alignment in both standard and pill modes.
+  </li>
+  <li>
     <strong>Pill overflow and text overlap</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#narrow-pill">SegmentedControl</a>)<br/>
     In pill mode, narrow options (icons, single digits) could be narrower than the control height, causing circular hover highlights and the active thumb to overflow or clip. Added min-width to options in pill mode ensuring they're at least as wide as the control height. Also fixed a scrollable mode regression where text items overlapped, and corrected invalid <code>white-space: wrap</code> to <code>white-space: normal</code>.
   </li>

@@ -97,7 +97,7 @@ export const Variants = (args: SelectControlProps) => (
           variant={VARIANT_OPTIONS[row]}
           selected
           StartIcon={Cabinet}
-          onClearClick={() => { }}
+          onClearClick={() => {}}
         >
           Sample value
         </SelectControl>
@@ -109,7 +109,7 @@ export const Variants = (args: SelectControlProps) => (
 Variants.args = {
   invalid: false,
   disabled: false,
-  onInteract: () => { },
+  onInteract: () => {},
 }
 
 Variants.parameters = {
@@ -130,7 +130,7 @@ export const Sizing = (args: SelectControlProps) => (
     </SelectControl>
     <SelectControl
       {...args}
-      onClearClick={() => { }}
+      onClearClick={() => {}}
       selected
       StartIcon={Tools}
       dropdownIconType="none"
@@ -139,14 +139,14 @@ export const Sizing = (args: SelectControlProps) => (
     </SelectControl>
     <SelectControl
       {...args}
-      onClearClick={() => { }}
+      onClearClick={() => {}}
       selected
       StartIcon={CalendarAlt}
       dropdownIconType="chevronDown"
     >
       Today
     </SelectControl>
-    <SelectControl {...args} onClearClick={() => { }} selected StartIcon={CalendarAlt}>
+    <SelectControl {...args} onClearClick={() => {}} selected StartIcon={CalendarAlt}>
       Today
     </SelectControl>
   </div>
@@ -156,7 +156,7 @@ Sizing.args = {
   color: "primary",
   size: "md",
   pill: false,
-  onInteract: () => { },
+  onInteract: () => {},
 }
 
 Sizing.parameters = {

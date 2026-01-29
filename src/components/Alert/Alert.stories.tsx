@@ -104,7 +104,7 @@ Dismissible.args = {
   title: "Thank you!",
   description:
     "Your application has been received. We will review your application and respond within the next 48 hours.",
-  onDismiss: () => { },
+  onDismiss: () => {},
 }
 
 export const Actions = (args: AlertProps) => <Alert {...args} />

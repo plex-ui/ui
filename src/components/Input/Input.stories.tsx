@@ -1,7 +1,7 @@
 import { type Meta } from "@storybook/react"
 import { useState } from "react"
 import { Button } from "../Button"
-import { Search, X } from "../Icon"
+import { Search } from "../Icon"
 import { Input, type InputProps } from "./"
 
 const meta = {
@@ -78,7 +78,7 @@ StartAdornment.parameters = {
   },
 }
 
-export const EndAdornment = () => {
+export const EndAdornment = (args: InputProps) => {
   const [value, setValue] = useState<string>("Clearable value")
 
   return (
@@ -87,53 +87,36 @@ export const EndAdornment = () => {
         placeholder="Enter text..."
         value={value}
         onChange={(evt) => setValue(evt.target.value)}
-        pill
-        endAdornment={
-          value ? (
-            <Button
-              className="-mr-2.5"
-              color="secondary"
-              variant="soft"
-              uniform
-              size="3xs"
-              onClick={() => setValue("")}
-              pill
-            >
-              <X />
-            </Button>
-          ) : undefined
-        }
+        onClear={() => setValue("")}
+        pill={args.pill}
+        size={args.size}
       />
     </div>
   )
 }
 
+EndAdornment.args = {
+  pill: true,
+  size: "md",
+}
+
 EndAdornment.parameters = {
+  controls: { include: ["pill", "size"] },
   docs: {
     source: {
       code: `<Input
   placeholder="Enter text..."
   value={value}
   onChange={(evt) => setValue(evt.target.value)}
+  onClear={() => setValue("")}
   pill
-  endAdornment={
-    value ? (
-      <Button
-        className="-mr-2.5"
-        color="secondary"
-        variant="soft"
-        uniform
-        size="3xs"
-        onClick={() => setValue("")}
-        pill
-      >
-        <X />
-      </Button>
-    ) : undefined
-  }
 />`,
     },
   },
+}
+
+EndAdornment.argTypes = {
+  size: { control: "select" },
 }
 
 export const Disabled = (args: InputProps) => <Input {...args} />
