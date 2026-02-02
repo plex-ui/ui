@@ -62,7 +62,7 @@ export const DateRangeTrigger = (props: ComponentProps<"span">) => {
 }
 
 const TriggerStepperView = () => {
-  const { value, min, max, disabled, onChangeRef } = useDateRangeContext()
+  const { value, min, max, disabled, pill, onChangeRef } = useDateRangeContext()
 
   if (!value) {
     return null
@@ -73,7 +73,7 @@ const TriggerStepperView = () => {
   const canGoForward = !max || isBefore(endDate.endOf("month"), max)
 
   return (
-    <span className="flex">
+    <span className={s.StepperContent}>
       <Button
         className={s.StepperPrevious}
         color="secondary"
@@ -81,15 +81,15 @@ const TriggerStepperView = () => {
         disabled={disabled || !canGoBack}
         size="3xs"
         uniform
-        pill
+        pill={pill}
         onPointerDown={(evt) => {
           evt.stopPropagation()
           onChangeRef.current(getMonthStartAndEnd(startDate.minus({ months: 1 }), { min, max }))
         }}
       >
         <ChevronLeft />
-      </Button>{" "}
-      <span className={clsx(s.TriggerText, "min-w-[120px] text-center")}>
+      </Button>
+      <span className={s.StepperText}>
         {startDate.monthLong} {startDate.year}
       </span>
       <Button
@@ -99,7 +99,7 @@ const TriggerStepperView = () => {
         disabled={disabled || !canGoForward}
         size="3xs"
         uniform
-        pill
+        pill={pill}
         onPointerDown={(evt) => {
           evt.stopPropagation()
           onChangeRef.current(getMonthStartAndEnd(startDate.plus({ months: 1 }), { min, max }))

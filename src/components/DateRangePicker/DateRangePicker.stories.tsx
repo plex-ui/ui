@@ -198,7 +198,13 @@ MonthStepper.args = {
   triggerStepperUnit: "month",
 }
 
+MonthStepper.argTypes = {
+  size: { control: "select" },
+  pill: { control: "boolean" },
+}
+
 MonthStepper.parameters = {
+  controls: { include: ["size", "pill"] },
   docs: {
     source: {
       code: `

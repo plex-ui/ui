@@ -1,12 +1,23 @@
 .StepperControl {
   padding-right: calc((var(--select-control-size) - var(--clear-size)) / 2);
   padding-left: calc((var(--select-control-size) - var(--clear-size)) / 2);
+
+  & .StepperPrevious,
+  & .StepperNext {
+    --button-size: var(--clear-size);
+    --button-icon-size: var(--clear-icon-size);
+  }
 }
 
-.StepperPrevious,
-.StepperNext {
-  --button-size: var(--clear-size);
-  --button-icon-size: var(--clear-icon-size);
+.StepperContent {
+  display: flex;
+  align-items: center;
+  gap: var(--select-control-gap);
+}
+
+.StepperText {
+  min-width: 9em;
+  text-align: center;
 }
 
 .RangeText {
