@@ -1,4 +1,4 @@
-import { type Meta } from "@storybook/react/"
+import { type Meta } from "@storybook/react"
 import { Fragment } from "react"
 import { Flask } from "../Icon"
 import { LoadingIndicator } from "../Indicator"

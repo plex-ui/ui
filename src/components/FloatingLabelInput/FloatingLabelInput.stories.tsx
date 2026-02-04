@@ -6,7 +6,7 @@ const meta = {
   title: "Components/Floating Label Input",
   component: FloatingLabelInput,
   parameters: {
-    layout: "padded",
+    layout: "centered",
   },
   args: {
     label: "Email address",
