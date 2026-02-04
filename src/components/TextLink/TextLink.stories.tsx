@@ -1,4 +1,5 @@
 import { type Meta } from "@storybook/react"
+import React from "react"
 import { ArrowRight, ArrowUpRight } from "../Icon"
 import { TextLink, type TextLinkProps } from "./TextLink"
 
@@ -7,6 +8,7 @@ const meta = {
   component: TextLink,
   args: {
     href: "#",
+    onClick: (e: React.MouseEvent) => e.preventDefault(),
   },
 } satisfies Meta<typeof TextLink>
 
@@ -34,13 +36,23 @@ Base.parameters = {
   },
 }
 
-export const Colors = (args: { colorClassName: string }) => (
-  <p className={args.colorClassName}>
-    You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
-    either use the API directly from an HTTP client of your choice, or use one of the{" "}
-    <TextLink href="#">official SDKs</TextLink> for your preferred language.
-  </p>
-)
+export const Colors = (args: { colorClassName: string }) => {
+  const preventDefault = (e: React.MouseEvent) => e.preventDefault()
+  return (
+    <p className={args.colorClassName}>
+      You can use the{" "}
+      <TextLink href="#" onClick={preventDefault}>
+        responses endpoint
+      </TextLink>{" "}
+      to generate text. You can either use the API directly from an HTTP client of your choice, or
+      use one of the{" "}
+      <TextLink href="#" onClick={preventDefault}>
+        official SDKs
+      </TextLink>{" "}
+      for your preferred language.
+    </p>
+  )
+}
 
 Colors.args = {
   colorClassName: "text-secondary",

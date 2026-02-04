@@ -1,28 +1,39 @@
 import { type Meta } from "@storybook/react"
 import React, { useState } from "react"
-import { FloatingInput, type FloatingInputProps } from "./"
+import { FloatingLabelInput, type FloatingLabelInputProps } from "./"
 
 const meta = {
-  title: "Components/Floating Input",
-  component: FloatingInput,
+  title: "Components/Floating Label Input",
+  component: FloatingLabelInput,
+  parameters: {
+    layout: "padded",
+  },
   args: {
     label: "Email address",
     disabled: false,
     invalid: false,
   },
-} satisfies Meta<typeof FloatingInput>
+  argTypes: {
+    label: { control: "text" },
+    errorMessage: { control: "text" },
+    disabled: { control: "boolean" },
+    invalid: { control: "boolean" },
+    readOnly: { control: "boolean" },
+    className: { table: { disable: true } },
+  },
+} satisfies Meta<typeof FloatingLabelInput>
 
 export default meta
 
-export const Base = (args: FloatingInputProps) => (
+export const Base = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} />
+    <FloatingLabelInput {...args} />
   </div>
 )
 
-export const Filled = (args: FloatingInputProps) => (
+export const Filled = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} defaultValue="jane.doe@example.com" />
+    <FloatingLabelInput {...args} defaultValue="jane.doe@example.com" />
   </div>
 )
 
@@ -30,9 +41,9 @@ Filled.args = {
   label: "Email address",
 }
 
-export const WithError = (args: FloatingInputProps) => (
+export const WithError = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} />
+    <FloatingLabelInput {...args} />
   </div>
 )
 
@@ -43,12 +54,12 @@ WithError.args = {
   errorMessage: "Email is not valid.",
 }
 
-export const WithClearButton = (args: FloatingInputProps) => {
+export const WithClearButton = (args: FloatingLabelInputProps) => {
   const [value, setValue] = useState("clearable@example.com")
 
   return (
     <div className="w-[360px]">
-      <FloatingInput
+      <FloatingLabelInput
         {...args}
         value={value}
         onChange={(evt) => setValue(evt.target.value)}
@@ -67,7 +78,7 @@ WithClearButton.parameters = {
     source: {
       code: `const [value, setValue] = useState("clearable@example.com")
 
-<FloatingInput
+<FloatingLabelInput
   label="Email address"
   value={value}
   onChange={(evt) => setValue(evt.target.value)}
@@ -77,9 +88,9 @@ WithClearButton.parameters = {
   },
 }
 
-export const Disabled = (args: FloatingInputProps) => (
+export const Disabled = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} />
+    <FloatingLabelInput {...args} />
   </div>
 )
 
@@ -93,9 +104,9 @@ Disabled.parameters = {
   controls: { include: ["disabled"] },
 }
 
-export const ReadOnly = (args: FloatingInputProps) => (
+export const ReadOnly = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} />
+    <FloatingLabelInput {...args} />
   </div>
 )
 
@@ -118,10 +129,10 @@ export const States = () => (
       renderRow={(index) => {
         switch (index) {
           case 0:
-            return <FloatingInput label="Email address" className="w-[320px]" />
+            return <FloatingLabelInput label="Email address" className="w-[320px]" />
           case 1:
             return (
-              <FloatingInput
+              <FloatingLabelInput
                 label="Email address"
                 defaultValue="jane.doe@example.com"
                 className="w-[320px]"
@@ -129,7 +140,7 @@ export const States = () => (
             )
           case 2:
             return (
-              <FloatingInput
+              <FloatingLabelInput
                 label="Email address"
                 defaultValue="jane.doe@example"
                 invalid
@@ -139,7 +150,7 @@ export const States = () => (
             )
           case 3:
             return (
-              <FloatingInput
+              <FloatingLabelInput
                 label="Email address"
                 defaultValue="disabled@example.com"
                 disabled
@@ -148,7 +159,7 @@ export const States = () => (
             )
           case 4:
             return (
-              <FloatingInput
+              <FloatingLabelInput
                 label="Email address"
                 defaultValue="readonly@example.com"
                 readOnly
@@ -167,9 +178,9 @@ States.parameters = {
   controls: { disable: true },
 }
 
-export const PasswordInput = (args: FloatingInputProps) => (
+export const PasswordInput = (args: FloatingLabelInputProps) => (
   <div className="w-[360px]">
-    <FloatingInput {...args} type="password" />
+    <FloatingLabelInput {...args} type="password" />
   </div>
 )
 

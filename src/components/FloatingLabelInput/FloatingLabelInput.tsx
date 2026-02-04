@@ -7,9 +7,9 @@ import { mergeRefs } from "react-merge-refs"
 import { FieldError } from "../FieldError"
 import { X } from "../Icon"
 
-import s from "./FloatingInput.module.css"
+import s from "./FloatingLabelInput.module.css"
 
-export type FloatingInputProps = {
+export type FloatingLabelInputProps = {
   /**
    * Label text for the floating label
    */
@@ -52,7 +52,7 @@ export type FloatingInputProps = {
   ref?: React.Ref<HTMLInputElement | null>
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "placeholder">
 
-export function FloatingInput(props: FloatingInputProps) {
+export function FloatingLabelInput(props: FloatingLabelInputProps) {
   const {
     label,
     errorMessage,
@@ -79,7 +79,7 @@ export function FloatingInput(props: FloatingInputProps) {
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const generatedId = useId()
-  const inputId = idProp || `floating-input-${generatedId}`
+  const inputId = idProp || `floating-label-input-${generatedId}`
   const errorId = `${inputId}-error`
 
   const [focused, setFocused] = useState(false)

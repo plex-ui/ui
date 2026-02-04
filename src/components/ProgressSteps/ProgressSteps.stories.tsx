@@ -161,7 +161,7 @@ export const WithNavigation = () => {
   const [step, setStep] = useState(1)
   const totalSteps = 4
 
-  const steps = [
+  const navigationSteps = [
     { title: "Your details", description: "Please provide your name and email" },
     { title: "Company details", description: "A few details about your company" },
     { title: "Invite your team", description: "Start collaborating with your team" },
@@ -176,7 +176,9 @@ export const WithNavigation = () => {
         <h3 className="text-lg font-semibold">
           Step {step} of {totalSteps}
         </h3>
-        <p className="text-secondary mt-1">{steps[Math.min(step - 1, totalSteps - 1)].title}</p>
+        <p className="text-secondary mt-1">
+          {navigationSteps[Math.min(step - 1, totalSteps - 1)].title}
+        </p>
       </div>
 
       <div className="flex gap-3">

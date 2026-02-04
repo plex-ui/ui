@@ -108,7 +108,7 @@
     --field-error-margin-bottom: spacing(3);
 
     /* =============================================
-      FloatingInput
+      FloatingLabelInput
     ============================================= */
     --floating-input-height: 3.25rem;
     --floating-input-gutter: 1.25rem;

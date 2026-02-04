@@ -150,7 +150,8 @@ export const ProgressSteps = ({
 export type StepProps = {
   /** Custom icon (replaces step number) */
   icon?: ReactNode
-  children: ReactNode
+  /** Step content (Title and/or Description) */
+  children?: ReactNode
   /** @internal - injected by parent */
   _index?: number
 }
