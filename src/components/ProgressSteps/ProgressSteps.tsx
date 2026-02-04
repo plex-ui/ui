@@ -1,7 +1,8 @@
 "use client"
 
 import clsx from "clsx"
-import React, { createContext, use, useMemo, type ReactNode } from "react"
+import React, { createContext, use, useMemo, useRef, type ReactNode } from "react"
+import { isDev } from "../../lib/environment"
 import type { Sizes } from "../../types"
 import { CheckMd } from "../Icon"
 import s from "./ProgressSteps.module.css"
@@ -81,6 +82,16 @@ export const ProgressSteps = ({
   className,
 }: ProgressStepsProps) => {
   const totalSteps = variant === "minimal" ? total ?? 0 : React.Children.count(children)
+
+  const warnedRef = useRef(false)
+  if (isDev && variant === "minimal" && (total == null || total <= 0) && !warnedRef.current) {
+    warnedRef.current = true
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[ProgressSteps] variant="minimal" requires a positive `total` prop. Received:',
+      total,
+    )
+  }
 
   const store = useMemo<ProgressStepsContextValue>(
     () => ({ current, orientation, size, connectorStyle, variant, color, totalSteps }),

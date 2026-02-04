@@ -14,8 +14,8 @@ const MarkerMultiple = (props: SVGProps<SVGSVGElement>) => (
       fill="currentColor"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M2 8C2 5.79086 3.79086 4 6 4C6.55228 4 7 4.44772 7 5C7 5.55228 6.55228 6 6 6C4.89543 6 4 6.89543 4 8V16C4 17.1046 4.89543 18 6 18C6.55228 18 7 18.4477 7 19C7 19.5523 6.55228 20 6 20C3.79086 20 2 18.2091 2 16V8ZM17 5C17 4.44772 17.4477 4 18 4C20.2091 4 22 5.79086 22 8V16C22 18.2091 20.2091 20 18 20C17.4477 20 17 19.5523 17 19C17 18.4477 17.4477 18 18 18C19.1046 18 20 17.1046 20 16V8C20 6.89543 19.1046 6 18 6C17.4477 6 17 5.55228 17 5Z"
       fill="currentColor"
     />

@@ -1,7 +1,8 @@
 import { ProgressSteps } from "./";
-import { ArgTypes, Canvas, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
 import { linkTo } from '@storybook/addon-links';
 import { Hero } from '@storybookComponents/Hero';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as ProgressStepsStories from './ProgressSteps.stories';
 
@@ -33,12 +34,13 @@ import * as ProgressStepsStories from './ProgressSteps.stories';
 import { ProgressSteps } from "@plexui/ui/components/ProgressSteps";
 ```
 
-<Canvas of={ProgressStepsStories.Base} additionalActions={[
+<CollapsibleCanvas of={ProgressStepsStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(ProgressStepsStories.title, 'Base')}
 ]} />
 <div className="canvas-controls-only">
-<Controls of={ProgressStepsStories.Base}/>
+<Controls of={ProgressStepsStories.Base} exclude={["total", "variant"]} />
 </div>
+<CollapsibleSource of={ProgressStepsStories.Base} />
 
 ## Reference
 
@@ -64,52 +66,53 @@ Wrapper for step description text. Applies appropriate styling based on step sta
 
 Use `size` to control the scale of step indicators.
 
-<Canvas of={ProgressStepsStories.Sizes} sourceState='hidden' />
+<CollapsibleCanvas of={ProgressStepsStories.Sizes} />
 <div className="canvas-controls-only">
-<Controls of={ProgressStepsStories.Sizes}/>
+<Controls of={ProgressStepsStories.Sizes} exclude={["total", "variant"]} />
 </div>
 
 ### Vertical
 
 Use `orientation="vertical"` to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms.
 
-<Canvas of={ProgressStepsStories.Vertical} />
+<CollapsibleCanvas of={ProgressStepsStories.Vertical} />
+<CollapsibleSource of={ProgressStepsStories.Vertical} />
 
 ### With Icons
 
 Use `icon` prop on `ProgressSteps.Step` to display custom icons instead of step numbers.
 
-<Canvas of={ProgressStepsStories.WithIcons} />
+<CollapsibleCanvas of={ProgressStepsStories.WithIcons} />
+<CollapsibleSource of={ProgressStepsStories.WithIcons} />
 
 ### Interactive
 
 Example with navigation controls.
 
-<Canvas of={ProgressStepsStories.Interactive} />
-
-### All States
-
-Shows all step states: completed, active, and inactive.
-
-<Canvas of={ProgressStepsStories.AllStates} />
+<CollapsibleCanvas of={ProgressStepsStories.Interactive} />
+<CollapsibleSource of={ProgressStepsStories.Interactive} />
 
 ### Dashed Connector
 
 Use `connectorStyle="dashed"` for a dotted line between steps.
 
-<Canvas of={ProgressStepsStories.DashedConnector} sourceState='hidden' />
+<CollapsibleCanvas of={ProgressStepsStories.DashedConnector} />
 <div className="canvas-controls-only">
-<Controls of={ProgressStepsStories.DashedConnector}/>
+<Controls of={ProgressStepsStories.DashedConnector} exclude={["total", "variant"]} />
 </div>
 
 ### Minimal
 
 Use `variant="minimal"` for a compact horizontal bar indicator. Requires `total` prop.
 
-<Canvas of={ProgressStepsStories.Minimal} />
+<CollapsibleCanvas of={ProgressStepsStories.Minimal} />
+<div className="canvas-controls-only">
+<Controls of={ProgressStepsStories.Minimal} include={["current", "color"]} />
+</div>
+<CollapsibleSource of={ProgressStepsStories.Minimal} />
 
 ### Colors
 
 Use `color` to change the color scheme of completed and active steps.
 
-<Canvas of={ProgressStepsStories.SuccessColor} sourceState='hidden' />
+<CollapsibleCanvas of={ProgressStepsStories.SuccessColor} />

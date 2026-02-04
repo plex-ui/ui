@@ -2,8 +2,8 @@ import type { SVGProps } from "react"
 const Interactiv = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" {...props}>
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M11.3084 13.1767C10.9761 12.0685 11.9669 11.0332 13.0692 11.2812L13.1766 11.3085L20.9159 13.6308C22.2759 14.0389 22.3602 15.9325 21.0418 16.4599L17.7684 17.7685L16.4598 21.0419C15.9324 22.3603 14.0388 22.276 13.6307 20.916L11.3084 13.1767ZM15.1346 18.9687L15.992 16.8271L16.0555 16.6884C16.2206 16.3733 16.4937 16.1256 16.827 15.9921L18.9686 15.1347L13.4911 13.4912L15.1346 18.9687Z"
       fill="currentColor"
     />

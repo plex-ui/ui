@@ -7,6 +7,9 @@ import { ProgressSteps, type ProgressStepsProps } from "./"
 const meta = {
   title: "Components/Progress Steps",
   component: ProgressSteps,
+  parameters: {
+    layout: "padded",
+  },
   args: {
     current: 2,
     orientation: "horizontal",
@@ -27,8 +30,8 @@ const meta = {
 export default meta
 
 export const Base = (args: ProgressStepsProps) => (
-  <div className="py-6">
-    <ProgressSteps {...args}>
+  <div className="py-6 px-4 w-full">
+    <ProgressSteps {...args} className={`w-full ${args.className ?? ""}`}>
       <ProgressSteps.Step>
         <ProgressSteps.Title>Your details</ProgressSteps.Title>
         <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
@@ -50,8 +53,8 @@ export const Base = (args: ProgressStepsProps) => (
 )
 
 export const Sizes = (args: ProgressStepsProps) => (
-  <div className="py-6">
-    <ProgressSteps {...args}>
+  <div className="py-6 px-4 w-full">
+    <ProgressSteps {...args} className={`w-full ${args.className ?? ""}`}>
       <ProgressSteps.Step>
         <ProgressSteps.Title>Step 1</ProgressSteps.Title>
       </ProgressSteps.Step>
@@ -70,9 +73,9 @@ Sizes.args = {
 }
 
 export const Vertical = () => (
-  <div className="flex gap-12">
+  <div className="flex gap-12 py-6 px-4 w-full">
     <div>
-      <h4 className="text-sm font-medium mb-4">Default</h4>
+      <div className="text-tertiary text-sm mb-4">Default</div>
       <ProgressSteps current={2} orientation="vertical">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Your details</ProgressSteps.Title>
@@ -93,7 +96,7 @@ export const Vertical = () => (
       </ProgressSteps>
     </div>
     <div>
-      <h4 className="text-sm font-medium mb-4">With dashed connector</h4>
+      <div className="text-tertiary text-sm mb-4">With dashed connector</div>
       <ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Your details</ProgressSteps.Title>
@@ -117,24 +120,26 @@ export const Vertical = () => (
 )
 
 export const WithIcons = () => (
-  <ProgressSteps current={3}>
-    <ProgressSteps.Step icon={<Email />}>
-      <ProgressSteps.Title>Your details</ProgressSteps.Title>
-      <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
-    </ProgressSteps.Step>
-    <ProgressSteps.Step icon={<Globe />}>
-      <ProgressSteps.Title>Company details</ProgressSteps.Title>
-      <ProgressSteps.Description>Website and location</ProgressSteps.Description>
-    </ProgressSteps.Step>
-    <ProgressSteps.Step icon={<Users />}>
-      <ProgressSteps.Title>Invite your team</ProgressSteps.Title>
-      <ProgressSteps.Description>Start collaborating</ProgressSteps.Description>
-    </ProgressSteps.Step>
-    <ProgressSteps.Step icon={<Bolt />}>
-      <ProgressSteps.Title>Get started</ProgressSteps.Title>
-      <ProgressSteps.Description>Ready to go</ProgressSteps.Description>
-    </ProgressSteps.Step>
-  </ProgressSteps>
+  <div className="py-6 px-4 w-full">
+    <ProgressSteps current={3} className="w-full">
+      <ProgressSteps.Step icon={<Email />}>
+        <ProgressSteps.Title>Your details</ProgressSteps.Title>
+        <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
+      </ProgressSteps.Step>
+      <ProgressSteps.Step icon={<Globe />}>
+        <ProgressSteps.Title>Company details</ProgressSteps.Title>
+        <ProgressSteps.Description>Website and location</ProgressSteps.Description>
+      </ProgressSteps.Step>
+      <ProgressSteps.Step icon={<Users />}>
+        <ProgressSteps.Title>Invite your team</ProgressSteps.Title>
+        <ProgressSteps.Description>Start collaborating</ProgressSteps.Description>
+      </ProgressSteps.Step>
+      <ProgressSteps.Step icon={<Bolt />}>
+        <ProgressSteps.Title>Get started</ProgressSteps.Title>
+        <ProgressSteps.Description>Ready to go</ProgressSteps.Description>
+      </ProgressSteps.Step>
+    </ProgressSteps>
+  </div>
 )
 
 export const Interactive = () => {
@@ -181,12 +186,15 @@ export const Interactive = () => {
     </div>
   )
 }
+Interactive.parameters = {
+  layout: "centered",
+}
 
 export const AllStates = () => (
-  <div className="flex flex-col gap-12">
+  <div className="flex flex-col gap-12 py-6 px-4 w-full">
     <div>
-      <h4 className="text-sm font-medium mb-4">Step 1 of 4</h4>
-      <ProgressSteps current={1}>
+      <div className="text-tertiary text-sm mb-4">Step 1 of 4</div>
+      <ProgressSteps current={1} className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>
@@ -202,8 +210,8 @@ export const AllStates = () => (
       </ProgressSteps>
     </div>
     <div>
-      <h4 className="text-sm font-medium mb-4">Step 2 of 4</h4>
-      <ProgressSteps current={2}>
+      <div className="text-tertiary text-sm mb-4">Step 2 of 4</div>
+      <ProgressSteps current={2} className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>
@@ -219,8 +227,8 @@ export const AllStates = () => (
       </ProgressSteps>
     </div>
     <div>
-      <h4 className="text-sm font-medium mb-4">Step 3 of 4</h4>
-      <ProgressSteps current={3}>
+      <div className="text-tertiary text-sm mb-4">Step 3 of 4</div>
+      <ProgressSteps current={3} className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>
@@ -236,8 +244,8 @@ export const AllStates = () => (
       </ProgressSteps>
     </div>
     <div>
-      <h4 className="text-sm font-medium mb-4">Completed</h4>
-      <ProgressSteps current={5}>
+      <div className="text-tertiary text-sm mb-4">Completed</div>
+      <ProgressSteps current={5} className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>
@@ -256,8 +264,8 @@ export const AllStates = () => (
 )
 
 export const DashedConnector = (args: ProgressStepsProps) => (
-  <div className="py-6">
-    <ProgressSteps {...args}>
+  <div className="py-6 px-4 w-full">
+    <ProgressSteps {...args} className={`w-full ${args.className ?? ""}`}>
       <ProgressSteps.Step>
         <ProgressSteps.Title>Your details</ProgressSteps.Title>
         <ProgressSteps.Description>Please provide your info</ProgressSteps.Description>
@@ -282,19 +290,26 @@ DashedConnector.args = {
   connectorStyle: "dashed",
 }
 
-export const Minimal = () => (
+export const Minimal = (args: ProgressStepsProps) => (
   <div className="flex items-center justify-between w-full max-w-xl p-4">
     <div className="w-8 h-8 bg-surface-elevated rounded-full" />
-    <ProgressSteps variant="minimal" current={3} total={4} />
+    <ProgressSteps variant="minimal" current={args.current} total={4} color={args.color} />
     <div className="w-8 h-8 bg-surface-elevated rounded-full" />
   </div>
 )
+Minimal.args = {
+  current: 3,
+  color: "default",
+}
+Minimal.parameters = {
+  layout: "centered",
+}
 
 export const SuccessColor = () => (
-  <div className="flex flex-col gap-12">
+  <div className="flex flex-col gap-12 py-6 px-4 w-full">
     <div>
-      <h4 className="text-sm font-medium mb-4">Default</h4>
-      <ProgressSteps current={3}>
+      <div className="text-tertiary text-sm mb-4">Default</div>
+      <ProgressSteps current={3} className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>
@@ -310,8 +325,8 @@ export const SuccessColor = () => (
       </ProgressSteps>
     </div>
     <div>
-      <h4 className="text-sm font-medium mb-4">Success</h4>
-      <ProgressSteps current={3} color="success">
+      <div className="text-tertiary text-sm mb-4">Success</div>
+      <ProgressSteps current={3} color="success" className="w-full">
         <ProgressSteps.Step>
           <ProgressSteps.Title>Step 1</ProgressSteps.Title>
         </ProgressSteps.Step>

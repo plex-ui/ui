@@ -2,8 +2,8 @@ import type { SVGProps } from "react"
 const AgentMode = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" {...props}>
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M11.4053 13.3184C10.986 12.1299 12.1299 10.986 13.3184 11.4053L21.1787 14.1797C22.4453 14.6267 22.5315 16.385 21.3145 16.9531L18.3408 18.3408L16.9531 21.3145C16.385 22.5315 14.6267 22.4453 14.1797 21.1787L11.4053 13.3184ZM15.6572 19.3594L16.6055 17.3301L16.666 17.2139C16.8193 16.9487 17.0506 16.7359 17.3301 16.6055L19.3594 15.6572L13.6387 13.6387L15.6572 19.3594Z"
       fill="currentColor"
     />

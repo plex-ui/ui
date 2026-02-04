@@ -6,8 +6,8 @@ const QuickStart = (props: SVGProps<SVGSVGElement>) => (
       fill="currentColor"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M7.33301 3C4.57158 3 2.33301 5.23858 2.33301 8V16C2.33301 18.7614 4.57158 21 7.33301 21H16.6663C19.4278 21 21.6663 18.7614 21.6663 16V8C21.6663 5.23858 19.4278 3 16.6663 3H7.33301ZM4.33301 8C4.33301 6.34315 5.67615 5 7.33301 5H16.6663C18.3232 5 19.6663 6.34315 19.6663 8V16C19.6663 17.6569 18.3232 19 16.6663 19H7.33301C5.67615 19 4.33301 17.6569 4.33301 16V8Z"
       fill="currentColor"
     />

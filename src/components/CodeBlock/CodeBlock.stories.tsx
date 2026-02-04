@@ -2,6 +2,7 @@ import { type Meta } from "@storybook/react"
 import type { ComponentProps } from "react"
 import { CopyButton } from "../Button"
 import { CodeBlock, CodeBlockBase } from "./CodeBlock"
+import { CollapsibleCodeBlock } from "./CollapsibleCodeBlock"
 
 type CodeBlockProps = ComponentProps<typeof CodeBlock>
 
@@ -588,4 +589,49 @@ function printPoint(p: Point) {
 }`}
     </CodeBlockBase.Code>
   </CodeBlockBase>
+)
+
+// Collapsible code block examples
+const COLLAPSIBLE_CODE_EXAMPLE = `"use client"
+
+import * as React from "react"
+import { Progress } from "@/components/ui/progress"
+
+export function ProgressDemo() {
+  const [progress, setProgress] = React.useState(13)
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setProgress(66), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return <Progress value={progress} />
+}`
+
+export const Collapsible = () => (
+  <CollapsibleCodeBlock language="tsx">{COLLAPSIBLE_CODE_EXAMPLE}</CollapsibleCodeBlock>
+)
+
+export const CollapsibleExpanded = () => (
+  <CollapsibleCodeBlock language="tsx" defaultExpanded>
+    {COLLAPSIBLE_CODE_EXAMPLE}
+  </CollapsibleCodeBlock>
+)
+
+export const CollapsibleCustomHeight = () => (
+  <CollapsibleCodeBlock language="tsx" collapsedHeight={60}>
+    {COLLAPSIBLE_CODE_EXAMPLE}
+  </CollapsibleCodeBlock>
+)
+
+export const CollapsibleWithMaxHeight = () => (
+  <CollapsibleCodeBlock language="tsx" defaultExpanded maxExpandedHeight={200}>
+    {COLLAPSIBLE_CODE_EXAMPLE}
+  </CollapsibleCodeBlock>
+)
+
+export const CollapsibleNoCopy = () => (
+  <CollapsibleCodeBlock language="tsx" defaultExpanded copyable={false}>
+    {COLLAPSIBLE_CODE_EXAMPLE}
+  </CollapsibleCodeBlock>
 )

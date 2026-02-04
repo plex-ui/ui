@@ -26,6 +26,42 @@ return (
 ## Reference
 <ArgTypes of={CodeBlockStories.Base} />
 
+## Collapsible Code Block
+
+Use `CollapsibleCodeBlock` to display code in a compact view with a gradient overlay and "View Code" button. When clicked, the code block expands to show full code with a copy button.
+
+This is the default rendering mode for code blocks in Markdown content.
+
+```jsx
+import { CollapsibleCodeBlock } from "@plexui/ui/components/CodeBlock";
+```
+
+<Canvas of={CodeBlockStories.Collapsible} sourceState="none" />
+
+### Expanded by default
+
+Use `defaultExpanded` to show the code block in expanded state initially.
+
+<Canvas of={CodeBlockStories.CollapsibleExpanded} sourceState="none" />
+
+### Custom collapsed height
+
+Control the height of the collapsed container with `collapsedHeight`.
+
+<Canvas of={CodeBlockStories.CollapsibleCustomHeight} sourceState="none" />
+
+### Max expanded height
+
+Use `maxExpandedHeight` to limit the expanded height and enable scrolling for very long code.
+
+<Canvas of={CodeBlockStories.CollapsibleWithMaxHeight} sourceState="none" />
+
+### Without copy button
+
+Disable the copy button when expanded using `copyable={false}`.
+
+<Canvas of={CodeBlockStories.CollapsibleNoCopy} sourceState="none" />
+
 
 ## Examples
 

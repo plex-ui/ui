@@ -1,0 +1,80 @@
+.SourceContainer {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--alpha-10);
+  border-radius: var(--radius-md);
+  background: var(--gray-25);
+  transition: max-height 0.2s ease-out;
+
+  @mixin dark {
+    border-color: var(--alpha-15);
+    background: var(--gray-0);
+  }
+
+  /* Override Storybook Source component styles */
+  :global(.docblock-source) {
+    border: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide the default copy button when collapsed */
+  &[data-collapsed] :global(.docblock-source > div:last-child) {
+    display: none !important;
+  }
+}
+
+.SourceContainer[data-collapsed] {
+  min-height: 140px;
+}
+
+.GradientOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, transparent 20%, var(--gray-25) 100%);
+
+  @mixin dark {
+    background: linear-gradient(to bottom, transparent 0%, transparent 20%, var(--gray-0) 100%);
+  }
+}
+
+.ViewCodeButtonContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ViewCodeButton {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+  background: white;
+  color: #09090b;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  @mixin dark {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: #27272a;
+    color: #fafafa;
+  }
+
+  &:hover {
+    background: #f4f4f5;
+
+    @mixin dark {
+      background: #3f3f46;
+    }
+  }
+}

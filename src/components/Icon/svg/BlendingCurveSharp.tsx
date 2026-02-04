@@ -6,8 +6,8 @@ const BlendingCurveSharp = (props: SVGProps<SVGSVGElement>) => (
       fill="currentColor"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M7 3.00012C4.79086 3.00012 3 4.79098 3 7.00012V17.0001C3 19.2093 4.79086 21.0001 7 21.0001H17C19.2091 21.0001 21 19.2093 21 17.0001V7.00012C21 4.79098 19.2091 3.00012 17 3.00012H7ZM5 7.00012C5 5.89555 5.89543 5.00012 7 5.00012H17C18.1046 5.00012 19 5.89555 19 7.00012V17.0001C19 18.1047 18.1046 19.0001 17 19.0001H7C5.89543 19.0001 5 18.1047 5 17.0001V7.00012Z"
       fill="currentColor"
     />

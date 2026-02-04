@@ -8,6 +8,7 @@ import remarkDirective from "remark-directive"
 import remarkGfm from "remark-gfm"
 
 import { CodeBlock, CodeBlockBase } from "../CodeBlock/CodeBlock"
+import { CollapsibleCodeBlock } from "../CodeBlock/CollapsibleCodeBlock"
 import { TextLink } from "../TextLink/TextLink"
 import { reactMarkdownRemarkDirective, type MarkdownDirective } from "./directives"
 import s from "./Markdown.module.css"
@@ -47,6 +48,8 @@ export type MarkdownProps = {
   skipHtml?: boolean
   className?: string
   copyableCodeBlocks?: boolean
+  /** Determines if code blocks should use the collapsible view with "View Code" button */
+  collapsibleCodeBlocks?: boolean
 }
 
 export function Markdown({
@@ -63,10 +66,12 @@ export function Markdown({
   urlTransform = defaultUrlTransform,
   className,
   copyableCodeBlocks = true,
+  collapsibleCodeBlocks = true,
 }: MarkdownProps) {
   const mathPlugins = useMathPlugins(includeMath)
   const baseComponents = {
     ...COMMON_COMPONENTS,
+    ...(collapsibleCodeBlocks ? COLLAPSIBLE_CODE_BLOCK_COMPONENTS : null),
     ...(copyableCodeBlocks ? null : NON_COPYABLE_CODE_BLOCK_COMPONENTS),
     ...propsComponents,
   }
@@ -164,4 +169,17 @@ const NonCopyableCodeBlock: MarkdownComponent = ({ children, className }) => {
 
 const NON_COPYABLE_CODE_BLOCK_COMPONENTS: Record<string, MarkdownComponent> = {
   pre: NonCopyableCodeBlock,
+} as const
+
+const CollapsiblePre: MarkdownComponent = ({ children, className }) => {
+  const { code, language } = useParseMarkdownPre(children)
+  return (
+    <CollapsibleCodeBlock language={language} className={className}>
+      {code}
+    </CollapsibleCodeBlock>
+  )
+}
+
+const COLLAPSIBLE_CODE_BLOCK_COMPONENTS: Record<string, MarkdownComponent> = {
+  pre: CollapsiblePre,
 } as const

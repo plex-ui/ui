@@ -591,37 +591,77 @@ input[type="radio"] {
       background: #29292b !important;
     }
   }
+}
 
-  /* Sliders */
-  input[type="range"]::-webkit-slider-thumb {
-    position: relative !important;
-    top: 1px !important;
-    width: 16px !important;
-    height: 16px !important;
-    border: 1px solid #ffffff !important;
-    appearance: none !important;
-    background: #ffffff !important;
-    box-shadow: 0 1px 4px rgb(0 0 0 / 25%) !important;
-    cursor: pointer !important;
-    transform: none !important;
-    transition: border-color 0.15s ease !important;
+/***** Slider Styling *****/
+/* Match our Slider component style - solid track, no thumb border */
+:root {
+  --sb-range-track-height: 4px;
+  --sb-range-thumb-size: 14px;
+}
 
-    &:hover {
-      border: 1px solid var(--gray-200) !important;
+input[type="range"] {
+  height: var(--sb-range-thumb-size) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  outline: none !important;
+}
 
-      @mixin dark {
-        border: 1px solid #2e95d3 !important;
-      }
-    }
+input[type="range"]::-webkit-slider-runnable-track {
+  height: var(--sb-range-track-height) !important;
+  border-radius: calc(var(--sb-range-track-height) / 2) !important;
+  /* Let Storybook set the gradient fill */
+}
 
-    @mixin dark {
-      box-shadow: 0 1px 10px rgb(0 0 0 / 100%) !important;
-    }
-  }
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]:focus::-webkit-slider-thumb,
+input[type="range"]:active::-webkit-slider-thumb,
+input[type="range"]:hover::-webkit-slider-thumb {
+  width: var(--sb-range-thumb-size) !important;
+  height: var(--sb-range-thumb-size) !important;
+  margin-top: calc((var(--sb-range-track-height) - var(--sb-range-thumb-size)) / 2) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: var(--gray-0) !important;
+  box-shadow: inset 0 0 0 1.5px var(--gray-400) !important;
+  cursor: grab !important;
+  outline: none !important;
+  transform: none !important;
 
-  input[type="range"]::-webkit-slider-runnable-track {
-    border-radius: var(--radius-md) !important;
+  @mixin dark {
     background: var(--gray-100) !important;
+    box-shadow: inset 0 0 0 1.5px var(--gray-500) !important;
+  }
+}
+
+input[type="range"]::-moz-range-track {
+  height: var(--sb-range-track-height) !important;
+  border-radius: calc(var(--sb-range-track-height) / 2) !important;
+  /* Let Storybook set the gradient fill */
+}
+
+input[type="range"]::-moz-range-thumb,
+input[type="range"]:focus::-moz-range-thumb,
+input[type="range"]:active::-moz-range-thumb,
+input[type="range"]:hover::-moz-range-thumb {
+  width: var(--sb-range-thumb-size) !important;
+  height: var(--sb-range-thumb-size) !important;
+  margin-top: calc((var(--sb-range-track-height) - var(--sb-range-thumb-size)) / 2) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  -moz-appearance: none !important;
+  background: var(--gray-0) !important;
+  box-shadow: inset 0 0 0 1.5px var(--gray-400) !important;
+  cursor: grab !important;
+  outline: none !important;
+  transform: none !important;
+
+  @mixin dark {
+    background: var(--gray-100) !important;
+    box-shadow: inset 0 0 0 1.5px var(--gray-500) !important;
   }
 }
 
@@ -677,9 +717,19 @@ input[type="radio"] {
 .sbdocs-preview {
   border-color: var(--alpha-10) !important;
   border-radius: var(--radius-md) !important;
+  margin-bottom: 32px !important;
   box-shadow:
     0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
     0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+
+  /* When followed by controls or code, remove bottom styling for unified look */
+  &:has(+ .canvas-controls-only),
+  &:has(+ [data-collapsible-source]) {
+    border-bottom: 0 !important;
+    border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+  }
 
   .docs-story {
     /* Preview area */
@@ -887,11 +937,19 @@ input[type="radio"] {
 /***** Custom examples *****/
 .canvas-controls-only {
   border: 1px solid var(--alpha-10) !important;
-  border-radius: var(--radius-md) !important;
-  margin: -32px 0 40px !important;
+  border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+  margin: 0 0 40px !important;
   box-shadow:
-    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 20%)),
-    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 20%)) !important;
+    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
+    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+
+  /* When followed by code, remove bottom styling for unified look */
+  &:has(+ [data-collapsible-source]) {
+    border-bottom: 0 !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+  }
 
   .docblock-argstable {
     padding: 0 !important;
@@ -932,6 +990,25 @@ input[type="radio"] {
     background: none !important;
     vertical-align: middle !important;
   }
+}
+
+/* Code block spacing - adjacent sibling rules */
+.sbdocs-preview + [data-collapsible-source] {
+  border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+  margin-top: 0 !important;
+  margin-bottom: 40px !important;
+  box-shadow:
+    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
+    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+}
+
+.canvas-controls-only + [data-collapsible-source] {
+  border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+  margin-top: 0 !important;
+  margin-bottom: 40px !important;
+  box-shadow:
+    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
+    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
 }
 
 .story-example {

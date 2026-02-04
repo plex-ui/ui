@@ -1,4 +1,6 @@
 .ProgressSteps {
+  width: 100%;
+
   /* Local CSS vars, overridden by data-size */
   --indicator-size: var(--progress-steps-indicator-size-md);
   --row-gap: var(--progress-steps-row-gap-md);
@@ -46,6 +48,7 @@
     --progress-steps-indicator-background-completed: var(--color-background-success-solid);
     --progress-steps-indicator-text-active: var(--color-text-success-solid);
     --progress-steps-indicator-text-completed: var(--color-text-success-solid);
+    --progress-steps-minimal-color-completed: var(--color-background-success-solid);
   }
 }
 
@@ -179,7 +182,7 @@
 }
 
 [data-orientation="horizontal"] .StepContent {
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   max-width: 100%;
   padding-top: spacing(2);
@@ -188,7 +191,7 @@
 
 .StepTitle {
   color: var(--progress-steps-title-color);
-  font-size: var(--font-size);
+  font-size: var(--font-text-sm-size);
   font-weight: var(--progress-steps-title-font-weight);
   line-height: var(--font-text-sm-line-height);
 
@@ -200,7 +203,7 @@
 .StepDescription {
   margin-top: spacing(0.5);
   color: var(--progress-steps-description-color);
-  font-size: var(--font-size);
+  font-size: var(--font-text-sm-size);
   line-height: var(--font-text-sm-line-height);
 
   [data-state="inactive"] & {
@@ -220,6 +223,7 @@
   Minimal Variant
 ============================================= */
 .Minimal {
+  width: auto;
   --segment-gap: var(--progress-steps-minimal-gap-md);
   --segment-height: var(--progress-steps-minimal-height-md);
   --segment-width: var(--progress-steps-minimal-width-md);

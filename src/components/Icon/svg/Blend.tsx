@@ -42,8 +42,8 @@ const Blend = (props: SVGProps<SVGSVGElement>) => (
       fill="currentColor"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M7 3C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3H7ZM5 7C5 5.89543 5.89543 5 7 5H17C18.1046 5 19 5.89543 19 7V17H17.5C17.2239 17 17 17.2239 17 17.5V19H15V17.5C15 17.2239 14.7761 17 14.5 17H13.5C13.2239 17 13 17.2239 13 17.5V19H11V17.5C11 17.2239 10.7761 17 10.5 17H9.5C9.22386 17 9 17.2239 9 17.5V19H7V17.5C7 17.2239 6.77614 17 6.5 17H5V7Z"
       fill="currentColor"
     />
