@@ -150,14 +150,12 @@ export const ProgressSteps = ({
 export type StepProps = {
   /** Custom icon (replaces step number) */
   icon?: ReactNode
-  /** Disable the step */
-  disabled?: boolean
   children: ReactNode
   /** @internal - injected by parent */
   _index?: number
 }
 
-const Step = ({ children, icon, disabled, _index = 0 }: StepProps) => {
+const Step = ({ children, icon, _index = 0 }: StepProps) => {
   const { current, totalSteps } = useProgressStepsContext()
 
   const state: StepState =
@@ -166,7 +164,7 @@ const Step = ({ children, icon, disabled, _index = 0 }: StepProps) => {
   const isLast = _index === totalSteps - 1
 
   return (
-    <li className={s.Step} data-state={state} data-disabled={disabled ? "" : undefined}>
+    <li className={s.Step} data-state={state}>
       <div className={s.StepIndicator}>
         {state === "completed" ? <CheckMd data-no-autosize /> : icon ?? _index + 1}
       </div>

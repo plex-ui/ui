@@ -37,6 +37,7 @@ const preview: Preview = {
             "Markdown",
             "Menu",
             "Popover",
+            "Progress Steps",
             "Radio Group",
             "Segmented Control",
             "Select",

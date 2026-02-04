@@ -77,6 +77,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--content-gap);
+  min-height: calc(var(--indicator-size) + var(--row-gap));
 }
 
 [data-orientation="horizontal"] .Step {
@@ -177,8 +178,12 @@
 
 .StepContent {
   min-width: 0; /* Allow text truncation */
-  padding-top: spacing(1);
   padding-bottom: var(--row-gap);
+
+  &:empty {
+    display: none;
+    padding-bottom: 0;
+  }
 }
 
 [data-orientation="horizontal"] .StepContent {
@@ -190,6 +195,8 @@
 }
 
 .StepTitle {
+  /* Center title vertically with indicator: (indicator-size - line-height) / 2 */
+  padding-top: calc((var(--indicator-size) - var(--font-text-sm-line-height)) / 2);
   color: var(--progress-steps-title-color);
   font-size: var(--font-text-sm-size);
   font-weight: var(--progress-steps-title-font-weight);
@@ -198,10 +205,13 @@
   [data-state="inactive"] & {
     color: var(--progress-steps-title-color-inactive);
   }
+
+  [data-orientation="horizontal"] & {
+    padding-top: 0;
+  }
 }
 
 .StepDescription {
-  margin-top: spacing(0.5);
   color: var(--progress-steps-description-color);
   font-size: var(--font-text-sm-size);
   line-height: var(--font-text-sm-line-height);
@@ -209,14 +219,16 @@
   [data-state="inactive"] & {
     color: var(--progress-steps-description-color-inactive);
   }
-}
 
-/* =============================================
-  Disabled
-============================================= */
-.Step[data-disabled] {
-  opacity: 0.5;
-  pointer-events: none;
+  /* Add top margin when following a Title */
+  .StepTitle + & {
+    margin-top: spacing(0.5);
+  }
+
+  /* Center description with indicator when no Title */
+  &:first-child {
+    padding-top: calc((var(--indicator-size) - var(--font-text-sm-line-height)) / 2);
+  }
 }
 
 /* =============================================
