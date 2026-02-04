@@ -49,7 +49,7 @@ Sizing.parameters = {
   controls: { include: ["pill"] },
 }
 Sizing.argTypes = {
-  size: { control: "select" },
+  size: { control: "select", options: ["sm", "md", "lg"] },
 }
 
 export const Icon = (args: BadgeProps) => (

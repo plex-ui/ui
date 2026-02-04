@@ -26,8 +26,14 @@
   }
 }
 
+/* Only apply min-height when actually collapsed */
 .SourceContainer[data-collapsed] {
   min-height: 140px;
+}
+
+/* Ensure full content is visible when not collapsed */
+.SourceContainer:not([data-collapsed]) {
+  max-height: none;
 }
 
 .GradientOverlay {

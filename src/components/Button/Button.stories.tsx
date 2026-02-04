@@ -49,8 +49,8 @@ Sizing.parameters = {
 }
 
 Sizing.argTypes = {
-  size: { control: "select" },
-  gutterSize: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  gutterSize: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl"] },
 }
 
 export const Icon = (args: ButtonProps) => (
@@ -71,10 +71,10 @@ Icon.parameters = {
 }
 
 Icon.argTypes = {
-  size: { control: "select" },
-  gutterSize: { control: "select" },
-  iconSize: { control: "select" }, //, options: [undefined, "sm", "md", "lg", "xl", "2xl"] },
-  variant: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  gutterSize: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl"] },
+  iconSize: { control: "select", options: ["sm", "md", "lg", "xl", "2xl"] },
+  variant: { control: "select", options: ["solid", "soft", "outline", "ghost"] },
 }
 
 export const Block = (args: ButtonProps) => (
@@ -161,7 +161,7 @@ Selected.parameters = {
 }
 
 Selected.argTypes = {
-  variant: { control: "select" },
+  variant: { control: "select", options: ["solid", "soft", "outline", "ghost"] },
 }
 
 export const Loading = (args: ButtonProps) => {

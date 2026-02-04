@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from "@storybook/blocks"
+import { Controls, ArgTypes, Meta, Subtitle, Title } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as AnimateStories from './Animate.stories'
  
@@ -36,16 +37,12 @@ These animations should be for transitioning between two states that occupy _the
 By default, `<Animate>` provides a simple fade in/out transition, using `ease` timing functions.
 
 <div className="story-example">
-  <Canvas
-    of={AnimateStories.Fade}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateStories.Fade} />
+  <CollapsibleSource code={`
 <Animate className="w-[200px] h-[200px]">
   {visible && <Square key="s" />}
 </Animate>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Grow
@@ -55,10 +52,8 @@ You can extend the basic fade behavior by providing transform properties to `ent
 When transform properties are passed, our cubic timing functions (`--cubic-enter` and `--cubic-ext`) are automatically applied.
 
 <div className="story-example">
-  <Canvas
-    of={AnimateStories.Grow}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateStories.Grow} />
+  <CollapsibleSource code={`
 <Animate
   className="w-[200px] h-[200px]"
   enter={{ scale: 1 }}
@@ -66,9 +61,7 @@ When transform properties are passed, our cubic timing functions (`--cubic-enter
 >
   {visible && <Square key="s" />}
 </Animate>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Continuous transitions
@@ -78,10 +71,8 @@ By default, `<Animate>` basically "toggles" between `enter` and `exit` definitio
 This example is a bit silly, but a practical example would be creating transitions with an emphasized entrance and subtle exit.
 
 <div className="story-example">
-  <Canvas
-    of={AnimateStories.Continuous}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateStories.Continuous} />
+  <CollapsibleSource code={`
 <Animate
   className="w-[200px] h-[200px]"
   initial={{ x: 120, skewX: 30 }}
@@ -90,19 +81,15 @@ This example is a bit silly, but a practical example would be creating transitio
 >
   {visible && <Square key="s" />}
 </Animate>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Cross fade
 
 Easily create cross fade effects between components, like `<CopyButton>`'s icon animation, or larger elements like page transitions.
 
-<Canvas
-  of={AnimateStories.CrossFade}
-  source={{
-    code: `
+<CollapsibleCanvas of={AnimateStories.CrossFade} />
+<CollapsibleSource code={`
 <Button size="2xl" iconSize="xl" variant="soft" onClick={handleClick}>
   <Animate
     className="w-[var(--button-icon-size)] h-[var(--button-icon-size)]"
@@ -112,9 +99,7 @@ Easily create cross fade effects between components, like `<CopyButton>`'s icon 
     {copied ? <Check key="copied" /> : <Copy key="copy" />}
   </Animate>
 </Button>
-`,
-  }}
-/>
+`} />
 
 ## Props
 

@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as TextareaStories from './Textarea.stories';
 
 <Meta of={TextareaStories} />
@@ -11,7 +12,8 @@ import * as TextareaStories from './Textarea.stories';
 import { Textarea } from "@plexui/ui/components/Textarea";
 ```
 
-<Canvas of={TextareaStories.Base} />
+<CollapsibleCanvas of={TextareaStories.Base} />
+<CollapsibleSource of={TextareaStories.Base} />
 
 ## Reference
 
@@ -22,16 +24,17 @@ import { Textarea } from "@plexui/ui/components/Textarea";
 ### Variants
 Use `variant` to stylize the textarea.
 
-<Canvas of={TextareaStories.Variants} sourceState="none" />
+<CollapsibleCanvas of={TextareaStories.Variants} />
 
 ### Auto resize
 
 Enable `autoResize` to automatically grow/shrink the textarea as the user types. Control the bounds with `rows` (initial height) and `maxRows`.
 
-<Canvas of={TextareaStories.AutoResize} />
+<CollapsibleCanvas of={TextareaStories.AutoResize} />
 <div className="canvas-controls-only">
   <Controls of={TextareaStories.AutoResize} />
 </div>
+<CollapsibleSource of={TextareaStories.AutoResize} />
 
 ### Sizing
 
@@ -39,7 +42,7 @@ Sizing of the textarea is controlled with `size` and `gutterSize` props. `size` 
 
 Each `size` provides default values for `gutterSize`, as well as `font-size` and `border-radius`. Each of these values can be overridden independently.
 
-<Canvas of={TextareaStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={TextareaStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={TextareaStories.Sizing}/>
 </div>
@@ -48,10 +51,11 @@ Each `size` provides default values for `gutterSize`, as well as `font-size` and
 
 Use the `disabled` prop to disable the textarea, greying it out and preventing user interactions.
 
-<Canvas of={TextareaStories.Disabled} />
+<CollapsibleCanvas of={TextareaStories.Disabled} />
 <div className="canvas-controls-only">
   <Controls of={TextareaStories.Disabled} />
 </div>
+<CollapsibleSource of={TextareaStories.Disabled} />
 
 ### Invalid
 
@@ -59,19 +63,21 @@ Use the `invalid` prop to mark the textarea as invalid. You decide how this stat
 
 Default visual styles will be applied, based on the `variant`. Additionally, `[data-invalid]` is applied to the container for custom styling.
 
-<Canvas of={TextareaStories.Invalid} />
+<CollapsibleCanvas of={TextareaStories.Invalid} />
 <div className="canvas-controls-only">
   <Controls of={TextareaStories.Invalid} />
 </div>
+<CollapsibleSource of={TextareaStories.Invalid} />
 
 ### Auto select text
 
 Pass `autoSelect` to select all text in the textarea &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 
-<Canvas of={TextareaStories.AutoSelect} />
+<CollapsibleCanvas of={TextareaStories.AutoSelect} />
 <div className="canvas-controls-only">
   <Controls of={TextareaStories.AutoSelect} />
 </div>
+<CollapsibleSource of={TextareaStories.AutoSelect} />
 
 ### Autofill extensions
 
@@ -79,7 +85,8 @@ By default, autofill extensions are prevented by `Textarea`. For the occasions w
 
 When `name` is passed this value will default to `true`.
 
-<Canvas of={TextareaStories.AutofillExtensions} />
+<CollapsibleCanvas of={TextareaStories.AutofillExtensions} />
 <div className="canvas-controls-only">
   <Controls of={TextareaStories.AutofillExtensions} />
 </div>
+<CollapsibleSource of={TextareaStories.AutofillExtensions} />

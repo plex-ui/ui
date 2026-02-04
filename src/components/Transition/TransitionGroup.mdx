@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as TransitionGroupStories from './TransitionGroup.stories';
  
@@ -27,7 +28,8 @@ Always reach for `<Animate>`, `<AnimateLayout>`, or `<AnimateLayoutGroup>` befor
 
 Direct use of this primitive should only be necessary for very complex transitions with many moving parts.
 
-<Canvas of={TransitionGroupStories.Base} source={{code: `
+<CollapsibleCanvas of={TransitionGroupStories.Base} />
+<CollapsibleSource code={`
 // JSX
 <TransitionGroup className={s.Example} enterDuration={2000} exitDuration={1000}>
   {show && <Square key="s" />}
@@ -57,7 +59,7 @@ Direct use of this primitive should only be necessary for very complex transitio
     transition: opacity 1s ease, box-shadow 1s ease;
   }
 }
-`}}/>
+`} />
 
 ### Transition states
 

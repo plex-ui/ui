@@ -1,5 +1,6 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks'
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks'
 import { linkTo } from '@storybook/addon-links';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as AlertStories from './Alert.stories'
  
 <Meta of={AlertStories} />
@@ -11,9 +12,10 @@ import * as AlertStories from './Alert.stories'
 ```jsx
 import { Alert } from "@plexui/ui/components/Alert";
 ```
-<Canvas of={AlertStories.Base}  additionalActions={[
+<CollapsibleCanvas of={AlertStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(AlertStories.title, 'Base')}
 ]} />
+<CollapsibleSource of={AlertStories.Base} />
 
 ## Reference
 
@@ -25,7 +27,7 @@ import { Alert } from "@plexui/ui/components/Alert";
 
 You can stylize the display of the alert using the `color` and `variant` props.
 
-<Canvas of={AlertStories.Colors} sourceState="none" />
+<CollapsibleCanvas of={AlertStories.Colors} />
 <div className="canvas-controls-only">
 <Controls of={AlertStories.Colors}/>
 </div>
@@ -34,19 +36,22 @@ You can stylize the display of the alert using the `color` and `variant` props.
 
 You can optionally include a title for your alert with the `title` prop.
 
-<Canvas of={AlertStories.TitleOnly} />
+<CollapsibleCanvas of={AlertStories.TitleOnly} />
+<CollapsibleSource of={AlertStories.TitleOnly} />
 
 ### Description
 
 You can optionally include description text for your alert with the `description` prop.
 
-<Canvas of={AlertStories.DescriptionOnly} />
+<CollapsibleCanvas of={AlertStories.DescriptionOnly} />
+<CollapsibleSource of={AlertStories.DescriptionOnly} />
 
 ### Actions
 
 You can add actions to the alert with the `actions` prop, which accepts `ReactNode`.
 
-<Canvas of={AlertStories.Actions} />
+<CollapsibleCanvas of={AlertStories.Actions} />
+<CollapsibleSource of={AlertStories.Actions} />
 
 ### Action placement
 
@@ -54,7 +59,8 @@ Actions are automatically, intelligently positioned in the alert by default.
 
 You can force a specific position with the `actionsPlacement` prop, by passing either `'end'` or `'bottom'`. This would be ideal for long alert messages with multiple actions.
 
-<Canvas of={AlertStories.ActionsPlacement} />
+<CollapsibleCanvas of={AlertStories.ActionsPlacement} />
+<CollapsibleSource of={AlertStories.ActionsPlacement} />
 
 ### Indicator
 
@@ -62,16 +68,18 @@ Alert provides an indicator icon by default, which changes based on the `color` 
 
 You can override the default indicator by passing a custom icon to `indicator`.
 
-<Canvas of={AlertStories.Indicator} />
+<CollapsibleCanvas of={AlertStories.Indicator} />
+<CollapsibleSource of={AlertStories.Indicator} />
 
 To hide the indicator entirely, pass `indicator={false}`.
 
-<Canvas of={AlertStories.NoIndicator} />
+<CollapsibleCanvas of={AlertStories.NoIndicator} />
+<CollapsibleSource of={AlertStories.NoIndicator} />
 
 ### Dismissible
 
 The suggested approach for dismissible notices is to use labeled buttons via `actions`.
 
-<Canvas of={AlertStories.DismissibleActions} />
-
+<CollapsibleCanvas of={AlertStories.DismissibleActions} />
+<CollapsibleSource of={AlertStories.DismissibleActions} />
 

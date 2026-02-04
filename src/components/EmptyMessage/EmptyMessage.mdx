@@ -1,4 +1,5 @@
-import { ArgTypes, Canvas, Meta, Subtitle, Title } from "@storybook/blocks"
+import { ArgTypes, Meta, Subtitle, Title } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { EmptyMessage } from "../EmptyMessage"
 import * as EmptyMessageStories from "./EmptyMessage.stories.tsx"
 
@@ -15,7 +16,8 @@ import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
 
 ### Reference
 
-<Canvas of={EmptyMessageStories.Base} layout="padded" />
+<CollapsibleCanvas of={EmptyMessageStories.Base} layout="padded" />
+<CollapsibleSource of={EmptyMessageStories.Base} />
 
 #### `EmptyMessage`
 
@@ -31,10 +33,12 @@ import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
 
 The `color` property enables you to display clearer intent with the message, such as showing an error state.
 
-<Canvas of={EmptyMessageStories.Error} layout="padded" />
+<CollapsibleCanvas of={EmptyMessageStories.Error} layout="padded" />
+<CollapsibleSource of={EmptyMessageStories.Error} />
 
 ### No results
 
 The components of `EmptyMessage` are both composable and optional. This example omits the `EmptyMessage.Title` component, using only an icon and description for a simpler message style.
 
-<Canvas of={EmptyMessageStories.Empty} layout="padded" />
+<CollapsibleCanvas of={EmptyMessageStories.Empty} layout="padded" />
+<CollapsibleSource of={EmptyMessageStories.Empty} />

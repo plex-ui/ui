@@ -1,7 +1,8 @@
 import { ArrowUp, Link } from "../Icon";
 import { Menu } from "../Menu";
 import { linkTo } from '@storybook/addon-links';
-import { ArgTypes, Controls, Canvas, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
 import * as MenuStories from './Menu.stories';
  
@@ -34,7 +35,8 @@ import * as MenuStories from './Menu.stories';
 import { Menu } from "@plexui/ui/components/Menu"
 ```
 
-<Canvas of={MenuStories.Base} />
+<CollapsibleCanvas of={MenuStories.Base} />
+<CollapsibleSource of={MenuStories.Base} />
 
 > **Note:** Menu prevents `Tab` presses from advancing focus. Because of this, `Menu` isn't suitable for generic popover use-cases &ndash; use <span className="link" onClick={linkTo('components-popover')}>Popover</span> instead.
 
@@ -127,13 +129,15 @@ Renders an action for use in the hover `Menu.ItemActions` container. Child is mo
 - **Flexible sizing** &ndash; `minWidth` can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.
 - **Max sizing** &ndash; apply `max-width` to the `children` of `Menu.Content`. `maxWidth` isn't exposed to props because it's reserved for Radix variables to limit width in collision detection.
 
-<Canvas of={MenuStories.NaturalSizing} />
+<CollapsibleCanvas of={MenuStories.NaturalSizing} />
+<CollapsibleSource of={MenuStories.NaturalSizing} />
 
 ### Submenus
 
 Use `Menu.Sub`, `Menu.SubTrigger`, and `Menu.SubContent` to create nested menu items.
 
-<Canvas of={MenuStories.WithSubmenu} />
+<CollapsibleCanvas of={MenuStories.WithSubmenu} />
+<CollapsibleSource of={MenuStories.WithSubmenu} />
 
 ### Checkbox items
 
@@ -143,10 +147,11 @@ You can render selectable menu items with `Menu.CheckboxItem`.
 - Use `indicatorVariant` to switch between a solid and ghost checkmark indicator.
 - Pass `onSelect={(evt) => evt.preventDefault()}` to prevent the menu from closing when selecting.
 
-<Canvas of={MenuStories.WithCheckboxes} />
+<CollapsibleCanvas of={MenuStories.WithCheckboxes} />
 <div className="canvas-controls-only">
 <Controls of={MenuStories.WithCheckboxes}/>
 </div>
+<CollapsibleSource of={MenuStories.WithCheckboxes} />
 
 ### Radio items
 
@@ -155,10 +160,11 @@ You can render radio options within a menu with `Menu.RadioGroup` and `Menu.Radi
 - Use `indicatorPosition` to control whether the indicator appears before or after the content of the item.
 - Pass `onSelect={(evt) => evt.preventDefault()}` to prevent the menu from closing when selecting.
 
-<Canvas of={MenuStories.WithRadioItems} />
+<CollapsibleCanvas of={MenuStories.WithRadioItems} />
 <div className="canvas-controls-only">
 <Controls of={MenuStories.WithRadioItems}/>
 </div>
+<CollapsibleSource of={MenuStories.WithRadioItems} />
 
 ### Item actions
 
@@ -166,4 +172,5 @@ You can render additional actions on `Menu.Item` by using the `Menu.ItemActions`
 
 > **Accessibility note:** These actions are not keyboard accessible due to how Radix `Menu` works, so these should not be critical actions with no other parity.
 
-<Canvas of={MenuStories.ItemActions} />
+<CollapsibleCanvas of={MenuStories.ItemActions} />
+<CollapsibleSource of={MenuStories.ItemActions} />

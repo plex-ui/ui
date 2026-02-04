@@ -1,4 +1,5 @@
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
  
 import * as DatePickerStories from './DatePicker.stories';
  
@@ -12,7 +13,8 @@ import * as DatePickerStories from './DatePicker.stories';
 import { DatePicker } from "@plexui/ui/components/DatePicker";
 ```
 
-<Canvas of={DatePickerStories.Base}/>
+<CollapsibleCanvas of={DatePickerStories.Base}/>
+<CollapsibleSource of={DatePickerStories.Base} />
 
 ## Reference
 <ArgTypes of={DatePickerStories.Base} />
@@ -23,16 +25,19 @@ import { DatePicker } from "@plexui/ui/components/DatePicker";
 
 Use `min` and `max` to limit selectable dates to a specific timeframe.
 
-<Canvas of={DatePickerStories.Limits}/>
+<CollapsibleCanvas of={DatePickerStories.Limits}/>
+<CollapsibleSource of={DatePickerStories.Limits} />
 
 ### Without Icon
 
 Remove the calendar icon from the trigger by setting `triggerShowIcon` to false.
 
-<Canvas of={DatePickerStories.WithoutIcon} />
+<CollapsibleCanvas of={DatePickerStories.WithoutIcon} />
+<CollapsibleSource of={DatePickerStories.WithoutIcon} />
 
 ### Disabled
 
 Disable the picker to prevent user interaction.
 
-<Canvas of={DatePickerStories.Disabled}/>
+<CollapsibleCanvas of={DatePickerStories.Disabled}/>
+<CollapsibleSource of={DatePickerStories.Disabled} />

@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks'
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks'
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { linkTo } from '@storybook/addon-links'
 import { Hero } from '@storybookComponents/Hero'
 import { LoadingIndicator, LoadingDots, CircularProgress } from "./"
@@ -27,7 +28,8 @@ Simple spinning indicator for general loading states.
 import { LoadingIndicator } from "@plexui/ui/components/Indicator";
 ```
 
-<Canvas of={IndicatorStories.LoadingIndicatorBase} />
+<CollapsibleCanvas of={IndicatorStories.LoadingIndicatorBase} />
+<CollapsibleSource of={IndicatorStories.LoadingIndicatorBase} />
 
 ### Reference
 
@@ -39,23 +41,26 @@ By default, the indicator adapts to the surrounding `font-size` and `color` of t
 
 You can control the size of the `LoadingIndicator` using the `--indicator-size` CSS custom property.
 
-<Canvas of={IndicatorStories.LoadingIndicatorSizing} />
+<CollapsibleCanvas of={IndicatorStories.LoadingIndicatorSizing} />
 <div className="canvas-controls-only">
 <Controls of={IndicatorStories.LoadingIndicatorSizing}/>
 </div>
+<CollapsibleSource of={IndicatorStories.LoadingIndicatorSizing} />
 
 
 ### Color
 
 The indicator defaults to `currentcolor`, inheriting the surrounding text color. This can also be customized by altering the `--indicator-color` variable around the DOM scope of the component.
 
-<Canvas of={IndicatorStories.LoadingIndicatorColor} />
+<CollapsibleCanvas of={IndicatorStories.LoadingIndicatorColor} />
+<CollapsibleSource of={IndicatorStories.LoadingIndicatorColor} />
 
 ### Duration
 
 You can control the rotation speed of the spinner with `--indicator-rotate-duration`.
 
-<Canvas of={IndicatorStories.LoadingIndicatorSpeed} />
+<CollapsibleCanvas of={IndicatorStories.LoadingIndicatorSpeed} />
+<CollapsibleSource of={IndicatorStories.LoadingIndicatorSpeed} />
 
 <hr />
 
@@ -69,7 +74,8 @@ Circular progress ring with simulated progress animation.
 import { CircularProgress } from "@plexui/ui/components/Indicator";
 ```
 
-<Canvas of={IndicatorStories.CircularProgressBase} />
+<CollapsibleCanvas of={IndicatorStories.CircularProgressBase} />
+<CollapsibleSource of={IndicatorStories.CircularProgressBase} />
 
 <ArgTypes of={IndicatorStories.CircularProgressBase} />
 
@@ -78,7 +84,8 @@ import { CircularProgress } from "@plexui/ui/components/Indicator";
 
 Use `progress` to define a static progress and prevent the animation.
 
-<Canvas of={IndicatorStories.CircularProgressStaticProgress} />
+<CollapsibleCanvas of={IndicatorStories.CircularProgressStaticProgress} />
+<CollapsibleSource of={IndicatorStories.CircularProgressStaticProgress} />
 
 ### Sizing & stroke
 
@@ -86,16 +93,18 @@ Use `size` and `strokeWidth` to control the sizing and thickness of the loader.
 
 You can also control these values with CSS variables by targeting `--circular-progress-size` and `--circular-progress-stroke`.
 
-<Canvas of={IndicatorStories.CircularProgressSizing} />
+<CollapsibleCanvas of={IndicatorStories.CircularProgressSizing} />
 <div className="canvas-controls-only">
 <Controls of={IndicatorStories.CircularProgressSizing}/>
 </div>
+<CollapsibleSource of={IndicatorStories.CircularProgressSizing} />
 
 ### Color
 
 Customize the color of the indicator with the `--circular-progress-track-color` and `--circular-progress-track-active-color` variables.
 
-<Canvas of={IndicatorStories.CircularProgressColor} />
+<CollapsibleCanvas of={IndicatorStories.CircularProgressColor} />
+<CollapsibleSource of={IndicatorStories.CircularProgressColor} />
 
 <hr />
 
@@ -110,7 +119,8 @@ Indicate typing progress with staggered pulsing dot animation.
 import { LoadingDots } from "@plexui/ui/components/Indicator";
 ```
 
-<Canvas of={IndicatorStories.LoadingDotsBase} />
+<CollapsibleCanvas of={IndicatorStories.LoadingDotsBase} />
+<CollapsibleSource of={IndicatorStories.LoadingDotsBase} />
 
 ### Color
 
@@ -118,4 +128,5 @@ The indicator defaults to `currentcolor`, inheriting the surrounding text color.
 
 You can customize the color by providing a different `color` value or context.
 
-<Canvas of={IndicatorStories.LoadingDotsColor} />
+<CollapsibleCanvas of={IndicatorStories.LoadingDotsColor} />
+<CollapsibleSource of={IndicatorStories.LoadingDotsColor} />

@@ -1,5 +1,6 @@
 import { ArrowRight, Clear, CompareArrows, Delete } from "../Icon";
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { linkTo } from '@storybook/addon-links';
 import { Hero } from '@storybookComponents/Hero';
  
@@ -15,9 +16,10 @@ import * as SelectControlStories from './SelectControl.stories';
 import { SelectControl } from "@plexui/ui/components/SelectControl";
 ```
 
-<Canvas of={SelectControlStories.Base} additionalActions={[
+<CollapsibleCanvas of={SelectControlStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(SelectControlStories.title, 'Base')}
 ]} />
+<CollapsibleSource of={SelectControlStories.Base} />
 
 ## Reference
 <ArgTypes of={SelectControlStories.Base} />
@@ -27,7 +29,7 @@ import { SelectControl } from "@plexui/ui/components/SelectControl";
 ### Variants
 Use the `variant` prop to stylize the select control. Available `variant` styles are similar to `<Button>`, but aligned with subtle differences from `<Input>` variant treatments.
 
-<Canvas of={SelectControlStories.Variants} sourceState="none" />
+<CollapsibleCanvas of={SelectControlStories.Variants} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Variants}/>
 </div>
@@ -38,7 +40,7 @@ Sizing of the control is determined with the `size` prop. Each `size` provides d
 
 Create fully rounded controls with the `pill` prop. When `pill` is set, extra horizontal gutter is dynamically applied, and the clear action is also set to `pill`.
 
-<Canvas of={SelectControlStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={SelectControlStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Sizing}/>
 </div>
@@ -49,32 +51,36 @@ Use `selected` to indicate if the control has a selected value, which toggles vi
 
 As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.
 
-<Canvas of={SelectControlStories.Selected} />
+<CollapsibleCanvas of={SelectControlStories.Selected} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Selected}/>
 </div>
+<CollapsibleSource of={SelectControlStories.Selected} />
 
 ### Start icon
 
 Use `StartIcon` to display an icon in the control. Sizing, spacing, and coloring are handled automatically.
 
-<Canvas of={SelectControlStories.StartIcon} />
+<CollapsibleCanvas of={SelectControlStories.StartIcon} />
+<CollapsibleSource of={SelectControlStories.StartIcon} />
 
 ### Dropdown icon
 
 Use `dropdownIconType` to control the presentation of the dropdown indicator.
 
-<Canvas of={SelectControlStories.DropdownIcon} />
+<CollapsibleCanvas of={SelectControlStories.DropdownIcon} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.DropdownIcon}/>
 </div>
+<CollapsibleSource of={SelectControlStories.DropdownIcon} />
 
 
 ### Clearable
 
 Pass a callback `onClearClick` to enable the clearable action.
 
-<Canvas of={SelectControlStories.Clearable} />
+<CollapsibleCanvas of={SelectControlStories.Clearable} />
+<CollapsibleSource of={SelectControlStories.Clearable} />
 
 
 ### Loading
@@ -83,42 +89,46 @@ During loading, dropdown icon and clear actions are automatically hidden.
 
 Interactions will be prevented by default during this state, by providing a default value for `inert` to `true`. You can override this behavior directly with `inert`, or use `disabled` to add visual disablement.
 
-<Canvas of={SelectControlStories.Loading} />
+<CollapsibleCanvas of={SelectControlStories.Loading} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Loading}/>
 </div>
+<CollapsibleSource of={SelectControlStories.Loading} />
 
 ### Invalid
 
 Use `invalid` to visually indicate the control is in an invalid state.
 
-<Canvas of={SelectControlStories.Invalid} />
+<CollapsibleCanvas of={SelectControlStories.Invalid} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Invalid}/>
 </div>
+<CollapsibleSource of={SelectControlStories.Invalid} />
 
 
 ### Disabled
 
 Use `disabled` to both visually and accessibly disable the control.
 
-<Canvas of={SelectControlStories.Disabled} />
+<CollapsibleCanvas of={SelectControlStories.Disabled} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Disabled}/>
 </div>
+<CollapsibleSource of={SelectControlStories.Disabled} />
 
 
 ### Block
 
 Create full-width controls with the `block` prop. 
 
-<Canvas of={SelectControlStories.Block} />
+<CollapsibleCanvas of={SelectControlStories.Block} />
 <div className="canvas-controls-only">
 <Controls of={SelectControlStories.Block}/>
 </div>
+<CollapsibleSource of={SelectControlStories.Block} />
 
 ### Optical alignment
 
 Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter of the control.
 
-<Canvas of={SelectControlStories.OpticalAlignment} sourceState="none" />
+<CollapsibleCanvas of={SelectControlStories.OpticalAlignment} />

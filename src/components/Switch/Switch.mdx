@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Switch } from './Switch';
 import * as SwitchStories from './Switch.stories';
 
@@ -12,7 +13,8 @@ import * as SwitchStories from './Switch.stories';
 import { Switch } from "@plexui/ui/components/Switch";
 ```
 
-<Canvas of={SwitchStories.Base} />
+<CollapsibleCanvas of={SwitchStories.Base} />
+<CollapsibleSource of={SwitchStories.Base} />
 
 ## Reference
 
@@ -23,20 +25,25 @@ import { Switch } from "@plexui/ui/components/Switch";
 
 ### With label
 You can add a label to the component by using the `label` prop. The label will automatically connect to the switch with `id`.
-<Canvas of={SwitchStories.WithLabel} />
+<CollapsibleCanvas of={SwitchStories.WithLabel} />
+<CollapsibleSource of={SwitchStories.WithLabel} />
 
 ### Label position
 Set `labelPosition="start"` to place the label on the left side of the switch control.
-<Canvas of={SwitchStories.LabelPositionStart} />
+<CollapsibleCanvas of={SwitchStories.LabelPositionStart} />
+<CollapsibleSource of={SwitchStories.LabelPositionStart} />
 
 ### Default checked
 Initialize the switch with `defaultChecked` when you don't need to control its state. You can then use the `name` prop to read the value later on.
-<Canvas of={SwitchStories.DefaultChecked} />
+<CollapsibleCanvas of={SwitchStories.DefaultChecked} />
+<CollapsibleSource of={SwitchStories.DefaultChecked} />
 
 ### Controlled
 Pass `checked` and `onCheckedChange` to manage the state in a controlled manner.
-<Canvas of={SwitchStories.Controlled} />
+<CollapsibleCanvas of={SwitchStories.Controlled} />
+<CollapsibleSource of={SwitchStories.Controlled} />
 
 ### Disabled
 Use `disabled` to prevent the user from toggling the control.
-<Canvas of={SwitchStories.Disabled} />
+<CollapsibleCanvas of={SwitchStories.Disabled} />
+<CollapsibleSource of={SwitchStories.Disabled} />

@@ -1,6 +1,7 @@
 import { DarkMode, LightMode, SystemMode } from "../Icon";
 import { SegmentedControl } from "./";
-import { ArgTypes, Canvas, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
 import { linkTo } from '@storybook/addon-links';
 import { useState } from 'react';
@@ -43,9 +44,10 @@ export const Example = () => {
 ```jsx
 import { SegmentedControl } from "@plexui/ui/components/SegmentedControl";
 ```
-<Canvas of={SegmentedControlStories.Base} additionalActions={[
+<CollapsibleCanvas of={SegmentedControlStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(SegmentedControlStories.title, 'Base')}
 ]} />
+<CollapsibleSource of={SegmentedControlStories.Base} />
 
 ## Reference
 
@@ -66,7 +68,7 @@ Each `size` provides default values for `gutterSize`, as well as `font-size` and
 
 Create a fully rounded control with the `pill` prop. When `pill` is set, extra horizontal gutter is dynamically applied to the inner options.
 
-<Canvas of={SegmentedControlStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={SegmentedControlStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.Sizing}/>
 </div>
@@ -75,68 +77,78 @@ Create a fully rounded control with the `pill` prop. When `pill` is set, extra h
 
 Create full-width controls with the `block` prop. 
 
-<Canvas of={SegmentedControlStories.Block} />
+<CollapsibleCanvas of={SegmentedControlStories.Block} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.Block}/>
 </div>
+<CollapsibleSource of={SegmentedControlStories.Block} />
 
 ### Disabled group
 
 Use `disabled` on the `SegmentedControl` root to disable all options.
 
-<Canvas of={SegmentedControlStories.Disabled} />
+<CollapsibleCanvas of={SegmentedControlStories.Disabled} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.Disabled}/>
 </div>
+<CollapsibleSource of={SegmentedControlStories.Disabled} />
 
 ### Disabled option
 
 Use `disabled` on a given `SegmentedControl.Option` to disable only that option.
 
-<Canvas of={SegmentedControlStories.DisabledOption} />
+<CollapsibleCanvas of={SegmentedControlStories.DisabledOption} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.DisabledOption}/>
 </div>
+<CollapsibleSource of={SegmentedControlStories.DisabledOption} />
 
 ### Scrollable
 `SegmentedControl` can support scrolling, but is not enabled by default.
 
 To create a scrollable segmented control, wrap the component in a simple `flex` wrapper, which will then cause the control to create inner scrolling when applicable. When scrollable, the selected option will automatically be scrolled into view.
 
-<Canvas of={SegmentedControlStories.Scrollable} />
+<CollapsibleCanvas of={SegmentedControlStories.Scrollable} />
+<CollapsibleSource of={SegmentedControlStories.Scrollable} />
  
 ### Narrow pill
 When using the `pill` prop with narrow content (such as a single digit or an icon), especially when using large component sizes and small `gutterSize` values, the option width will automatically be at least equal to the control height. This ensures that the hover and active states maintain a perfectly circular shape without overflowing the container or overlapping adjacent options.
 
-<Canvas of={SegmentedControlStories.NarrowPill} />
+<CollapsibleCanvas of={SegmentedControlStories.NarrowPill} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.NarrowPill}/>
 </div>
+<CollapsibleSource of={SegmentedControlStories.NarrowPill} />
 
 ### Icon only
 Use the `icon` prop to display icons in options. When using icon-only options, always provide an `aria-label` for accessibility.
 
-<Canvas of={SegmentedControlStories.IconOnly} />
+<CollapsibleCanvas of={SegmentedControlStories.IconOnly} />
+<CollapsibleSource of={SegmentedControlStories.IconOnly} />
 
 ### Icon and text
 Combine `icon` with text content for richer options. The icon automatically sizes based on the control size.
 
-<Canvas of={SegmentedControlStories.IconAndText} />
+<CollapsibleCanvas of={SegmentedControlStories.IconAndText} />
+<CollapsibleSource of={SegmentedControlStories.IconAndText} />
 
 ### With badge
 Use the `badge` prop to display counts or status indicators. Pass a simple value for default styling, or an object for custom color and variant.
 
-<Canvas of={SegmentedControlStories.WithBadge} />
+<CollapsibleCanvas of={SegmentedControlStories.WithBadge} />
+<CollapsibleSource of={SegmentedControlStories.WithBadge} />
 
 ### Icon, text, and badge
 All three content types can be combined in a single option.
 
-<Canvas of={SegmentedControlStories.IconTextBadge} />
+<CollapsibleCanvas of={SegmentedControlStories.IconTextBadge} />
+<CollapsibleSource of={SegmentedControlStories.IconTextBadge} />
 
 ### Badge variants
 Badges support semantic colors (`secondary`, `success`, `danger`, `warning`, `info`, `discovery`, `caution`) and two style variants (`soft`, `solid`). The badge size automatically adjusts based on the control size.
 
-<Canvas of={SegmentedControlStories.BadgeVariants} />
+<CollapsibleCanvas of={SegmentedControlStories.BadgeVariants} />
 <div className="canvas-controls-only">
 <Controls of={SegmentedControlStories.BadgeVariants}/>
 </div>
+<CollapsibleSource of={SegmentedControlStories.BadgeVariants} />

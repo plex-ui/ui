@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as CopyTooltipTooltipStories from './CopyTooltip.stories';
  
 <Meta of={CopyTooltipTooltipStories} />
@@ -13,6 +14,8 @@ import { CopyTooltip } from "@plexui/ui/components/Tooltip";
 ```
 
 ### Reference
-<Canvas of={CopyTooltipTooltipStories.Base} />
-
+<CollapsibleCanvas of={CopyTooltipTooltipStories.Base} />
+<div className="canvas-controls-only">
 <Controls of={CopyTooltipTooltipStories.Base} />
+</div>
+<CollapsibleSource of={CopyTooltipTooltipStories.Base} />

@@ -1,6 +1,7 @@
 import { ArrowRight, Clear, CompareArrows, Delete } from "../Icon";
 import { Button } from "./";
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { linkTo } from '@storybook/addon-links';
 import { Hero } from '@storybookComponents/Hero';
  
@@ -25,9 +26,10 @@ import * as ButtonStories from './Button.stories';
 import { Button } from "@plexui/ui/components/Button";
 ```
 
-<Canvas of={ButtonStories.Base} additionalActions={[
+<CollapsibleCanvas of={ButtonStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(ButtonStories.title, 'Base')}
 ]} />
+<CollapsibleSource of={ButtonStories.Base} />
 
 ## Reference
 <ArgTypes of={ButtonStories.Base} />
@@ -37,7 +39,7 @@ import { Button } from "@plexui/ui/components/Button";
 ### Colors & variants
 You can stylize the display of the button using the `color` and `variant` props.
 
-<Canvas of={ButtonStories.Colors} sourceState="none" />
+<CollapsibleCanvas of={ButtonStories.Colors} />
 
 ### Sizing & roundness
 Sizing of the button is controlled with `size` and `gutterSize` props. `size` sets the button to a specific control `height`, and `gutterSize` sets the horizontal padding.
@@ -46,7 +48,7 @@ Each `size` provides default values for `gutterSize` and `iconSize` props, as we
 
 Create fully rounded buttons with the `pill` prop. When `pill` is set, extra horizontal gutter is dynamically applied to the button.
 
-<Canvas of={ButtonStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={ButtonStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Sizing}/>
 </div>
@@ -61,28 +63,31 @@ For icon-only buttons, there are two common approaches:
 - **Square** &ndash; create perfect square icon buttons with the `uniform` prop. When `uniform` is passed, `gutterSize` is ignored. Combine with `pill` to make circular icons.
 - **Tighter gutters** &ndash; applying a smaller `gutterSize` than `size` can create well-sized, but not exactly square, icon buttons.
 
-<Canvas of={ButtonStories.Icon} />
+<CollapsibleCanvas of={ButtonStories.Icon} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Icon}/>
 </div>
+<CollapsibleSource of={ButtonStories.Icon} />
 
 ### Block
 
 Create full-width buttons with the `block` prop.
 
-<Canvas of={ButtonStories.Block} />
+<CollapsibleCanvas of={ButtonStories.Block} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Block}/>
 </div>
+<CollapsibleSource of={ButtonStories.Block} />
 
 ### Disabled
 
 Use `disabled` to both visually and accessibly disable a button.
 
-<Canvas of={ButtonStories.Disabled} />
+<CollapsibleCanvas of={ButtonStories.Disabled} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Disabled}/>
 </div>
+<CollapsibleSource of={ButtonStories.Disabled} />
 
 ### Inert
 
@@ -90,10 +95,11 @@ Use `inert` to accessibly disable a button **without any visual changes**.
 
 > **Note:** For accessibility reasons, `disabled` is used instead of applying `inert` directly to the button. Visual disablement in the `disabled` prop is applied via `[data-disable]`.
 
-<Canvas of={ButtonStories.Inert} />
+<CollapsibleCanvas of={ButtonStories.Inert} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Inert}/>
 </div>
+<CollapsibleSource of={ButtonStories.Inert} />
 
 ### Loading
 
@@ -101,7 +107,8 @@ Use `loading` to display a loading indicator in the button, fading out the curre
 
 Interactions will be prevented by default during this state, by providing a default value for `inert` to `true`. You can override this behavior directly with `inert`, or use `disabled` to add visual disablement.
 
-<Canvas of={ButtonStories.Loading} />
+<CollapsibleCanvas of={ButtonStories.Loading} />
+<CollapsibleSource of={ButtonStories.Loading} />
 
 ### Selected
 
@@ -109,13 +116,14 @@ Use `selected` to indicate that a given button is correctly in an open or select
 
 This behavior is automatically configured with components like `Menu` that apply `[aria-expanded="true"]` or `[data-state="open"]` attributes.
 
-<Canvas of={ButtonStories.Selected} additionalActions={[]} />
+<CollapsibleCanvas of={ButtonStories.Selected} additionalActions={[]} />
 <div className="canvas-controls-only">
 <Controls of={ButtonStories.Selected}/>
 </div>
+<CollapsibleSource of={ButtonStories.Selected} />
 
 ### Optical alignment
 
 Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter of the button.
 
-<Canvas of={ButtonStories.OpticalAlignment} sourceState="none" />
+<CollapsibleCanvas of={ButtonStories.OpticalAlignment} />

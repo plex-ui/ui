@@ -1,6 +1,7 @@
 import { Robot } from "../Icon";
 import { Avatar, AvatarGroup } from "./";
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
 import * as AvatarGroupStories from './AvatarGroup.stories';
  
@@ -26,7 +27,8 @@ import * as AvatarGroupStories from './AvatarGroup.stories';
 import { AvatarGroup } from "@plexui/ui/components/Avatar";
 ```
 
-<Canvas of={AvatarGroupStories.Base} />
+<CollapsibleCanvas of={AvatarGroupStories.Base} />
+<CollapsibleSource of={AvatarGroupStories.Base} />
 
 ## Reference
 <ArgTypes of={AvatarGroupStories.Base} />
@@ -35,8 +37,7 @@ import { AvatarGroup } from "@plexui/ui/components/Avatar";
 
 ### Stacking direction
 You can control the stacking direction using the `stack` prop, as either `"start"` or `"end"`.
-<Canvas of={AvatarGroupStories.Direction} sourceState="none" />
-
+<CollapsibleCanvas of={AvatarGroupStories.Direction} />
 <div className="canvas-controls-only">
 <Controls of={AvatarGroupStories.Direction}/>
 </div>
@@ -45,7 +46,8 @@ You can control the stacking direction using the `stack` prop, as either `"start
 ### Group sizing
 You can control the size of all avatars in the group by passing `size` directly to the `<AvatarGroup>` component.
 
-<Canvas of={AvatarGroupStories.Sizing} />
+<CollapsibleCanvas of={AvatarGroupStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={AvatarGroupStories.Sizing}/>
 </div>
+<CollapsibleSource of={AvatarGroupStories.Sizing} />

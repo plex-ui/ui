@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, Source } from "@storybook/blocks"
-import { type ComponentProps, useState } from "react"
+import { type ComponentProps, useEffect, useRef, useState } from "react"
 import s from "./CollapsibleCanvas.module.css"
 
 type CanvasProps = ComponentProps<typeof Canvas>
@@ -30,6 +30,7 @@ export type CollapsibleSourceProps = {
 
 /**
  * Collapsible source code block with "View Code" button.
+ * If the code fits within the collapsed height, it will be shown fully without the button.
  */
 export function CollapsibleSource({
   of,
@@ -37,20 +38,41 @@ export function CollapsibleSource({
   collapsedHeight = 140,
   defaultExpanded = false,
 }: CollapsibleSourceProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
+  const [needsCollapse, setNeedsCollapse] = useState<boolean | null>(null) // null = not measured yet
 
-  const containerStyle = !isExpanded ? { maxHeight: collapsedHeight } : undefined
+  useEffect(() => {
+    const el = contentRef.current
+    if (!el) return
+
+    // Use ResizeObserver to detect when content is rendered
+    const observer = new ResizeObserver(() => {
+      const contentHeight = el.scrollHeight
+      // Add some buffer (8px) to avoid edge cases
+      setNeedsCollapse(contentHeight > collapsedHeight + 8)
+    })
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [collapsedHeight, code, of])
+
+  // Don't constrain height until we've measured
+  const shouldCollapse = needsCollapse === true && !isExpanded
+
+  const containerStyle = shouldCollapse ? { maxHeight: collapsedHeight } : undefined
 
   return (
     <div
+      ref={contentRef}
       className={s.SourceContainer}
       data-collapsible-source
-      data-collapsed={!isExpanded ? "" : undefined}
+      data-collapsed={shouldCollapse ? "" : undefined}
       style={containerStyle}
     >
       {code ? <Source code={code} language="tsx" dark /> : <Source of={of} dark />}
 
-      {!isExpanded && (
+      {shouldCollapse && (
         <>
           <div className={s.GradientOverlay} />
           <div className={s.ViewCodeButtonContainer}>

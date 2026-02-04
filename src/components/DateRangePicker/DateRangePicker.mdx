@@ -1,4 +1,5 @@
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
  
 import * as DateRangePickerStories from './DateRangePicker.stories';
  
@@ -12,7 +13,8 @@ import * as DateRangePickerStories from './DateRangePicker.stories';
 import { DateRangePicker } from "@plexui/ui/components/DateRangePicker";
 ```
 
-<Canvas of={DateRangePickerStories.Base}/>
+<CollapsibleCanvas of={DateRangePickerStories.Base}/>
+<CollapsibleSource of={DateRangePickerStories.Base} />
 
 ## Reference
 <ArgTypes of={DateRangePickerStories.Base} />
@@ -25,7 +27,8 @@ Use `min` and `max` to limit date ranges to a specific timeframe.
 
 You can also use `maxRangeDays` to limit the range of days allowed.
 
-<Canvas of={DateRangePickerStories.Limits}/>
+<CollapsibleCanvas of={DateRangePickerStories.Limits}/>
+<CollapsibleSource of={DateRangePickerStories.Limits} />
 
 ### Shortcuts
 
@@ -33,7 +36,8 @@ Use the `shortcuts` array to provide a list of quick data shortcuts.
 
 When a given shortcut is selected, it's label is displayed in the trigger.
 
-<Canvas of={DateRangePickerStories.Shortcuts} />
+<CollapsibleCanvas of={DateRangePickerStories.Shortcuts} />
+<CollapsibleSource of={DateRangePickerStories.Shortcuts} />
 
 ### Month stepper
 
@@ -41,7 +45,7 @@ Enable a stepper view in the trigger by passing `stepperUnit`. When the selected
 
 When the range does not match the stepper unit, the normal trigger is displayed.
 
-<Canvas of={DateRangePickerStories.MonthStepper} sourceState="hidden" />
+<CollapsibleCanvas of={DateRangePickerStories.MonthStepper} />
 <div className="canvas-controls-only">
 <Controls of={DateRangePickerStories.MonthStepper}/>
 </div>

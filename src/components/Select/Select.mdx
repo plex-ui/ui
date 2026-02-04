@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
  
 import * as SelectStories from './Select.stories';
  
@@ -12,7 +13,8 @@ import * as SelectStories from './Select.stories';
 import { Select } from "@plexui/ui/components/Select";
 ```
 
-<Canvas of={SelectStories.Base} />
+<CollapsibleCanvas of={SelectStories.Base} />
+<CollapsibleSource of={SelectStories.Base} />
 
 ## Reference
 
@@ -26,16 +28,20 @@ You can fully customize the styling and rendering of select's trigger and option
 - **Trigger** &ndash; `triggerClassName`, `TriggerStartIcon`, and `TriggerView`
 - **Options** &ndash; `optionClassName`, `OptionView`, as well as `description` and `tooltip` fields in `options`
 
-<Canvas of={SelectStories.CustomViews} />
+<CollapsibleCanvas of={SelectStories.CustomViews} />
+<CollapsibleSource of={SelectStories.CustomViews} />
 
 ### Actions
 Custom, arbitrary actions can be displayed below the options list via the `actions` prop.
-<Canvas of={SelectStories.Actions} />
+<CollapsibleCanvas of={SelectStories.Actions} />
+<CollapsibleSource of={SelectStories.Actions} />
 
 ### Grouped options
 Select supports option groups, similar to All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are 15 or more options.
-<Canvas of={SelectStories.GroupedOptions} />
+<CollapsibleCanvas of={SelectStories.GroupedOptions} />
+<CollapsibleSource of={SelectStories.GroupedOptions} />
 
 ### Multiple selection
 Multiple selection is supported through the `multiple` property. This changes how `value`, `onChange`, and `TriggerView` are typed, accepting and returning arrays of values.
-<Canvas of={SelectStories.MultiSelect} />
+<CollapsibleCanvas of={SelectStories.MultiSelect} />
+<CollapsibleSource of={SelectStories.MultiSelect} />

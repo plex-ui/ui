@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as InputStories from './Input.stories';
  
 <Meta of={InputStories} />
@@ -11,7 +12,8 @@ import * as InputStories from './Input.stories';
 import { Input } from "@plexui/ui/components/Input";
 ```
 
-<Canvas of={InputStories.Base} />
+<CollapsibleCanvas of={InputStories.Base} />
+<CollapsibleSource of={InputStories.Base} />
 
 ## Reference
 
@@ -23,7 +25,7 @@ import { Input } from "@plexui/ui/components/Input";
 ### Variants
 Use `variant` to stylize the input.
 
-<Canvas of={InputStories.Variants} sourceState="none" />
+<CollapsibleCanvas of={InputStories.Variants} />
 
 ### Sizing & roundness
 
@@ -31,7 +33,7 @@ Sizing of the input is controlled with `size` and `gutterSize` props. `size` set
 
 Each `size` provides default values for `gutterSize`, as well as `font-size`. Each of these values can be overridden independently.
 
-<Canvas of={InputStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={InputStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.Sizing}/>
 </div>
@@ -46,16 +48,18 @@ Ideally, the spacing will look pretty good by default. If you need to customize 
   - If you need precise spacing not supported by `gutterSize`, use negative left margin on your adornment directly (e.g., `-ml-2`).
 - The spacing between the adornment and the input is controlled with `gap` on the container, which you can customize as needed with Tailwind classes.
 
-<Canvas of={InputStories.StartAdornment} />
+<CollapsibleCanvas of={InputStories.StartAdornment} />
+<CollapsibleSource of={InputStories.StartAdornment} />
 
 ### Clear button
 
 Use the `onClear` prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
 
-<Canvas of={InputStories.EndAdornment} />
+<CollapsibleCanvas of={InputStories.EndAdornment} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.EndAdornment}/>
 </div>
+<CollapsibleSource of={InputStories.EndAdornment} />
 
 ### End adornment
 
@@ -67,10 +71,11 @@ The same spacing guidance from `startAdornment` applies here.
 
 Use the `disabled` prop to disable the input, greying it out and preventing user interactions.
 
-<Canvas of={InputStories.Disabled} />
+<CollapsibleCanvas of={InputStories.Disabled} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.Disabled}/>
 </div>
+<CollapsibleSource of={InputStories.Disabled} />
 
 ### Invalid
 
@@ -78,19 +83,21 @@ Use the `invalid` prop to mark the input as invalid. You decide how this state i
 
 Default visual styles will be applied, based on the `variant`. Additionally, `[data-invalid]` is applied to the container for custom styling.
 
-<Canvas of={InputStories.Invalid} />
+<CollapsibleCanvas of={InputStories.Invalid} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.Invalid}/>
 </div>
+<CollapsibleSource of={InputStories.Invalid} />
 
 ### Auto select text
 
 Pass `autoSelect` to select all text in the input &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 
-<Canvas of={InputStories.AutoSelect} />
+<CollapsibleCanvas of={InputStories.AutoSelect} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.AutoSelect}/>
 </div>
+<CollapsibleSource of={InputStories.AutoSelect} />
 
 ### Autofill extensions
 
@@ -98,22 +105,24 @@ By default, autofill extensions are prevented by `Input`. For the occasions wher
 
 When `name` is passed, or `type` is set to `"password"`, this value will default to `true`.
 
-<Canvas of={InputStories.AutofillExtensions} />
+<CollapsibleCanvas of={InputStories.AutofillExtensions} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.AutofillExtensions}/>
 </div>
+<CollapsibleSource of={InputStories.AutofillExtensions} />
 
 ### With button
 
 You can pair `Input` and `Button` components together by using the same `size` value.
 
-<Canvas of={InputStories.WithButton} />
+<CollapsibleCanvas of={InputStories.WithButton} />
 <div className="canvas-controls-only">
 <Controls of={InputStories.WithButton}/>
 </div>
+<CollapsibleSource of={InputStories.WithButton} />
 
 ### Optical alignment
 
 Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter of the input.
 
-<Canvas of={InputStories.OpticalAlignment} sourceState="none" />
+<CollapsibleCanvas of={InputStories.OpticalAlignment} />

@@ -1,5 +1,6 @@
 import { RadioGroup } from "./";
-import { ArgTypes, Canvas, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
  
 import * as RadioGroupStories from './RadioGroup.stories';
@@ -21,7 +22,8 @@ import * as RadioGroupStories from './RadioGroup.stories';
 ```jsx
 import { RadioGroup } from "@/components/ui/RadioGroup";
 ```
-<Canvas of={RadioGroupStories.Base} />
+<CollapsibleCanvas of={RadioGroupStories.Base} />
+<CollapsibleSource of={RadioGroupStories.Base} />
 
 ## Reference
 
@@ -37,27 +39,31 @@ import { RadioGroup } from "@/components/ui/RadioGroup";
 ### Direction
 Use `direction` to control whether the items flow in a column or row. An optimal `gap` will be dynamically applied based on the orientation.
 
-<Canvas of={RadioGroupStories.Direction} />
+<CollapsibleCanvas of={RadioGroupStories.Direction} />
 <div className="canvas-controls-only">
 <Controls of={RadioGroupStories.Direction}/>
 </div>
+<CollapsibleSource of={RadioGroupStories.Direction} />
 
 ### Group disabled
 Use `disabled` on `RadioGroup` to disable all radio options.
 
-<Canvas of={RadioGroupStories.GroupDisabled} />
+<CollapsibleCanvas of={RadioGroupStories.GroupDisabled} />
 <div className="canvas-controls-only">
 <Controls of={RadioGroupStories.GroupDisabled}/>
 </div>
+<CollapsibleSource of={RadioGroupStories.GroupDisabled} />
 
 ### Item disabled
 Use `disabled` on single `RadioGroup.Item` to disable only that option.
-<Canvas of={RadioGroupStories.ItemDisabled} />
+<CollapsibleCanvas of={RadioGroupStories.ItemDisabled} />
 <div className="canvas-controls-only">
 <Controls of={RadioGroupStories.ItemDisabled}/>
 </div>
+<CollapsibleSource of={RadioGroupStories.ItemDisabled} />
 
 
 ### Complex layout
 Instrument complex layouts by leveraging component composition and `className` overrides.
-<Canvas of={RadioGroupStories.CustomLayout} />
+<CollapsibleCanvas of={RadioGroupStories.CustomLayout} />
+<CollapsibleSource of={RadioGroupStories.CustomLayout} />

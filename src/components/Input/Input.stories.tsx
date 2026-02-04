@@ -56,8 +56,8 @@ Sizing.parameters = {
 }
 
 Sizing.argTypes = {
-  size: { control: "select" },
-  gutterSize: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  gutterSize: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl"] },
 }
 
 export const StartAdornment = (args: InputProps) => <Input {...args} />
@@ -116,7 +116,7 @@ EndAdornment.parameters = {
 }
 
 EndAdornment.argTypes = {
-  size: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
 }
 
 export const Disabled = (args: InputProps) => <Input {...args} />
@@ -183,8 +183,8 @@ WithButton.parameters = {
 }
 
 WithButton.argTypes = {
-  variant: { control: "select" },
-  size: { control: "select" },
+  variant: { control: "select", options: ["outline", "soft"] },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
 }
 
 export const OpticalAlignment = (args: InputProps) => (

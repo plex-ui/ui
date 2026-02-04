@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
  
 import * as SliderStories from './Slider.stories';
  
@@ -13,15 +14,18 @@ import { Slider } from "@plexui/ui/components/Slider";
 ```
 
 ### Reference
-<Canvas of={SliderStories.Base} />
-
+<CollapsibleCanvas of={SliderStories.Base} />
+<div className="canvas-controls-only">
 <Controls of={SliderStories.Base} />
+</div>
+<CollapsibleSource of={SliderStories.Base} />
 
 ## Examples
 
 ### Adding a tooltip
 A tooltip can easily be added to the Slider label by providing JSX instead of a simple string.
-<Canvas of={SliderStories.Tooltips} source={{code: `  <Slider
+<CollapsibleCanvas of={SliderStories.Tooltips} />
+<CollapsibleSource code={`  <Slider
     label={(
         <Tooltip content="More details about this field">
             <TriggerDecorator>Example field</TriggerDecorator>
@@ -35,11 +39,12 @@ A tooltip can easily be added to the Slider label by providing JSX instead of a 
     unit="ms"
     value={1000}
   />
-`}} />
+`} />
 
 ### Marks
 Slider marks can be easily added by passing an array of values to the `marks` prop. Responsive behaviors are handled automatically.
-<Canvas of={SliderStories.Marks} source={{code: `<Slider
+<CollapsibleCanvas of={SliderStories.Marks} />
+<CollapsibleSource code={`<Slider
     value={value}
     onChange={() => {}}
     label="Passing grade"
@@ -54,4 +59,4 @@ Slider marks can be easily added by passing an array of values to the `marks` pr
     trackColor="#61C454"
     rangeColor="#EF4146"
 />
-`}} />
+`} />

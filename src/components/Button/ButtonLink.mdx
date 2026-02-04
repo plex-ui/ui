@@ -1,6 +1,7 @@
 import { ArrowRight } from "../Icon";
 import { ButtonLink } from "./";
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
 import { linkTo } from '@storybook/addon-links';
  
@@ -15,9 +16,10 @@ import * as ButtonLinkStories from './ButtonLink.stories';
 ```jsx
 import { ButtonLink } from "@plexui/ui/components/Button";
 ```
-<Canvas of={ButtonLinkStories.Base} additionalActions={[
+<CollapsibleCanvas of={ButtonLinkStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(ButtonLinkStories.title, 'Base')}
-]}  />
+]} />
+<CollapsibleSource of={ButtonLinkStories.Base} />
 
 ## Reference
 <ArgTypes of={ButtonLinkStories.Base} />
@@ -28,7 +30,8 @@ import { ButtonLink } from "@plexui/ui/components/Button";
 
 When a relative `href` or `to` is provided, `ButtonLink` automatically uses the configured `LinkComponent` from `PlexUIProvider` so your router handles navigation and prefetching.
 
-<Canvas of={ButtonLinkStories.Internal} />
+<CollapsibleCanvas of={ButtonLinkStories.Internal} />
+<CollapsibleSource of={ButtonLinkStories.Internal} />
 
 ### External link
 
@@ -36,19 +39,20 @@ When linking to an external URL (or when `external` is set), `<a>` is used with 
 
 If your link is not being automatically identified, you can force external link behavior with the `external` prop.
 
-<Canvas of={ButtonLinkStories.External} />
+<CollapsibleCanvas of={ButtonLinkStories.External} />
+<CollapsibleSource of={ButtonLinkStories.External} />
 
 ### Colors & variants
 You can stylize the display of the link using the `color` and `variant` props.
 
-<Canvas of={ButtonLinkStories.Colors} sourceState="none" />
+<CollapsibleCanvas of={ButtonLinkStories.Colors} />
 
 ### Sizing & roundness
 Sizing of the link is controlled with `size` and `gutterSize` props. `size` sets the control `height`, and `gutterSize` sets the horizontal padding.
 
 Create fully rounded links with the `pill` prop. When `pill` is set, extra horizontal gutter is dynamically applied to the link.
 
-<Canvas of={ButtonLinkStories.Sizing} sourceState='hidden' />
+<CollapsibleCanvas of={ButtonLinkStories.Sizing} />
 <div className="canvas-controls-only">
   <Controls of={ButtonLinkStories.Sizing}/>
 </div>
@@ -59,28 +63,31 @@ Icon sizing is controlled by the `iconSize` prop, which makes it easy to add ico
 
 `size` will provide a default value for `iconSize`, but setting the prop will force the specified size.
 
-<Canvas of={ButtonLinkStories.Icon} />
+<CollapsibleCanvas of={ButtonLinkStories.Icon} />
 <div className="canvas-controls-only">
   <Controls of={ButtonLinkStories.Icon}/>
 </div>
+<CollapsibleSource of={ButtonLinkStories.Icon} />
 
 ### Block
 
 Create full-width links with the `block` prop.
 
-<Canvas of={ButtonLinkStories.Block} />
+<CollapsibleCanvas of={ButtonLinkStories.Block} />
 <div className="canvas-controls-only">
   <Controls of={ButtonLinkStories.Block}/>
 </div>
+<CollapsibleSource of={ButtonLinkStories.Block} />
 
 ### Disabled
 
 Use `disabled` to both visually and accessibly disable a link. The component renders as a `span[role="link"]`, and `onClick` handles are not bound.
 
-<Canvas of={ButtonLinkStories.Disabled} />
+<CollapsibleCanvas of={ButtonLinkStories.Disabled} />
 <div className="canvas-controls-only">
   <Controls of={ButtonLinkStories.Disabled}/>
 </div>
+<CollapsibleSource of={ButtonLinkStories.Disabled} />
 
 ## Configure your Router
 

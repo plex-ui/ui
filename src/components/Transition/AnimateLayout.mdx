@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as AnimateLayoutStories from './AnimateLayout.stories'
  
@@ -36,10 +37,8 @@ These animations should be for transitioning between two states that occupy _the
 By default, `<AnimateLayout>` animates the `height` of a component as it enters and exits the DOM.
 
 <div className="story-example">
-  <Canvas
-    of={AnimateLayoutStories.SimpleHeight}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateLayoutStories.SimpleHeight} />
+  <CollapsibleSource code={`
 <>
   <Line className="w-full h-12" />
   <AnimateLayout transitionClassName="pt-4">
@@ -47,9 +46,7 @@ By default, `<AnimateLayout>` animates the `height` of a component as it enters 
   </AnimateLayout>
   <Line className="w-full h-12 mt-4" /> 
 </>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Width
@@ -57,10 +54,8 @@ By default, `<AnimateLayout>` animates the `height` of a component as it enters 
 You can also animate the `width` of components by passing `dimension="width"`.
 
 <div className="story-example">
-  <Canvas
-    of={AnimateLayoutStories.SimpleWidth}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateLayoutStories.SimpleWidth} />
+  <CollapsibleSource code={`
 <div className="flex">
   <Square className="w-[200px] h-[200px]" />
   <AnimateLayout
@@ -73,9 +68,7 @@ You can also animate the `width` of components by passing `dimension="width"`.
   </AnimateLayout>
   <Square className="w-[200px] h-[200px] ml-6" />
 </div>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Accordion
@@ -84,11 +77,8 @@ Accordion items are a great example of dynamically introducing content that affe
 
 The following example shows how to wrap accordion item content with `<AnimateLayout>` to create a smooth animation.
 
-<Canvas
-  of={AnimateLayoutStories.Accordion}
-  layout="padded"
-  source={{
-    code: `
+<CollapsibleCanvas of={AnimateLayoutStories.Accordion} layout="padded" />
+<CollapsibleSource code={`
 <AnimateLayout
   enter={{ y: 0, delay: 150, duration: 450 }}
   exit={{ y: -8 }}
@@ -100,9 +90,7 @@ The following example shows how to wrap accordion item content with `<AnimateLay
     </div>
   )}
 </AnimateLayout>
-`,
-  }}
-/>
+`} />
 
 ### Talk button
 
@@ -110,10 +98,8 @@ When animating `width`, the `height` of the component should be consistent.
 
 The key to making this animation work is using `transitionClassName` to recreate the flexbox structure that `<Button>` normally provides, and stretching it to the ful height of the button.
 
-<Canvas
-  of={AnimateLayoutStories.TalkButton}
-  source={{
-    code: `
+<CollapsibleCanvas of={AnimateLayoutStories.TalkButton} />
+<CollapsibleSource code={`
 <Button
   color={recording ? "danger" : "primary"}
   size="xl"
@@ -131,9 +117,7 @@ The key to making this animation work is using `transitionClassName` to recreate
     )}
   </AnimateLayout>
 </Button>
-`,
-  }}
-/>
+`} />
 
 ### Gotchas
 

@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as AnimateLayoutGroupStories from './AnimateLayoutGroup.stories';
  
@@ -28,10 +29,8 @@ All of the same properties from `<Animate>` are supported here, as well as new p
 ### Vertical list
 
 <div className="story-example">
-  <Canvas
-    of={AnimateLayoutGroupStories.VerticalList}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateLayoutGroupStories.VerticalList} />
+  <CollapsibleSource code={`
 <>
   <Line className="py-2" />
   <AnimateLayoutGroup
@@ -49,18 +48,14 @@ All of the same properties from `<Animate>` are supported here, as well as new p
   </AnimateLayoutGroup>
   <Line className="py-2" />
 <>
-`,
-    }}
-  />
+`} />
 </div>
 
 ### Horizontal list
 
 <div className="story-example">
-  <Canvas
-    of={AnimateLayoutGroupStories.HorizontalList}
-    source={{
-      code: `
+  <CollapsibleCanvas of={AnimateLayoutGroupStories.HorizontalList} />
+  <CollapsibleSource code={`
 <>
   <Square className="px-2" />
   <AnimateLayoutGroup dimension="width">
@@ -72,9 +67,7 @@ All of the same properties from `<Animate>` are supported here, as well as new p
   </AnimateLayoutGroup>
   <Square className="px-2" />
 <>
-`,
-    }}
-  />
+`} />
 </div>
 
 ## Props

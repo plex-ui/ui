@@ -164,8 +164,8 @@ Sizing.parameters = {
 }
 
 Sizing.argTypes = {
-  size: { control: "select" },
-  variant: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  variant: { control: "select", options: ["soft", "outline", "ghost"] },
 }
 
 export const Block = (args: SelectControlProps) => (

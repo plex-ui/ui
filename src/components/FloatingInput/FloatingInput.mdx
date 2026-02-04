@@ -1,4 +1,5 @@
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as FloatingInputStories from './FloatingInput.stories';
 
 <Meta of={FloatingInputStories} />
@@ -11,7 +12,8 @@ import * as FloatingInputStories from './FloatingInput.stories';
 import { FloatingInput } from "@plexui/ui/components/FloatingInput";
 ```
 
-<Canvas of={FloatingInputStories.Base} />
+<CollapsibleCanvas of={FloatingInputStories.Base} />
+<CollapsibleSource of={FloatingInputStories.Base} />
 
 ## Reference
 
@@ -23,46 +25,52 @@ import { FloatingInput } from "@plexui/ui/components/FloatingInput";
 
 When the input has a value, the label stays floated above the input.
 
-<Canvas of={FloatingInputStories.Filled} />
+<CollapsibleCanvas of={FloatingInputStories.Filled} />
+<CollapsibleSource of={FloatingInputStories.Filled} />
 
 ### With error message
 
 Use the `errorMessage` prop to display a validation error below the input. When `errorMessage` is provided, the input automatically enters the invalid state.
 
-<Canvas of={FloatingInputStories.WithError} />
+<CollapsibleCanvas of={FloatingInputStories.WithError} />
+<CollapsibleSource of={FloatingInputStories.WithError} />
 
 ### Clear button
 
 Use the `onClear` prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
 
-<Canvas of={FloatingInputStories.WithClearButton} />
+<CollapsibleCanvas of={FloatingInputStories.WithClearButton} />
 <div className="canvas-controls-only">
 <Controls of={FloatingInputStories.WithClearButton}/>
 </div>
+<CollapsibleSource of={FloatingInputStories.WithClearButton} />
 
 ### Disabled
 
 Use the `disabled` prop to disable the input, greying it out and preventing user interactions.
 
-<Canvas of={FloatingInputStories.Disabled} />
+<CollapsibleCanvas of={FloatingInputStories.Disabled} />
 <div className="canvas-controls-only">
 <Controls of={FloatingInputStories.Disabled}/>
 </div>
+<CollapsibleSource of={FloatingInputStories.Disabled} />
 
 ### Read only
 
 Use the `readOnly` prop to make the input read-only. The user can still select and copy the text.
 
-<Canvas of={FloatingInputStories.ReadOnly} />
+<CollapsibleCanvas of={FloatingInputStories.ReadOnly} />
+<CollapsibleSource of={FloatingInputStories.ReadOnly} />
 
 ### All states
 
 Overview of all input states.
 
-<Canvas of={FloatingInputStories.States} sourceState="none" />
+<CollapsibleCanvas of={FloatingInputStories.States} />
 
 ### Password input
 
 The component works with different input types.
 
-<Canvas of={FloatingInputStories.PasswordInput} />
+<CollapsibleCanvas of={FloatingInputStories.PasswordInput} />
+<CollapsibleSource of={FloatingInputStories.PasswordInput} />

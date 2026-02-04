@@ -263,7 +263,7 @@ Colors.parameters = {
 }
 
 Colors.argTypes = {
-  variant: { control: "select" },
+  variant: { control: "select", options: ["solid", "soft", "outline"] },
 }
 
 const RowMatrix = ({

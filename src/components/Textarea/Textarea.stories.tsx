@@ -66,8 +66,8 @@ Sizing.parameters = {
 }
 
 Sizing.argTypes = {
-  size: { control: "select" },
-  gutterSize: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  gutterSize: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl"] },
 }
 
 export const Disabled = (args: TextareaProps) => (

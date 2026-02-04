@@ -1,7 +1,8 @@
 import { Robot } from "../Icon";
 import { Avatar } from "./Avatar";
 import { linkTo } from '@storybook/addon-links';
-import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { Hero } from '@storybookComponents/Hero';
 import * as AvatarStories from './Avatar.stories';
  
@@ -25,9 +26,10 @@ import * as AvatarStories from './Avatar.stories';
 import { Avatar } from "@plexui/ui/components/Avatar";
 ```
 
-<Canvas of={AvatarStories.Base} additionalActions={[
+<CollapsibleCanvas of={AvatarStories.Base} additionalActions={[
   { title: 'View story', onClick: linkTo(AvatarStories.title, 'Base')}
 ]} />
+<CollapsibleSource of={AvatarStories.Base} />
 
 ## Reference
 
@@ -40,47 +42,54 @@ import { Avatar } from "@plexui/ui/components/Avatar";
 
 For text-based avatars, a single initial is displayed based on the `name` prop passed to the component.
 
-<Canvas of={AvatarStories.Text} />
+<CollapsibleCanvas of={AvatarStories.Text} />
+<CollapsibleSource of={AvatarStories.Text} />
 
 ### Image
 To display an image avatar, provide an absolute URL to the image with `imageUrl`. Images will have a soft fade entrance once loaded, or fallback to a text display if the image fail to load.
-<Canvas of={AvatarStories.Image} />
+<CollapsibleCanvas of={AvatarStories.Image} />
+<CollapsibleSource of={AvatarStories.Image} />
 
 ### Icon
 To display an icon avatar, provide an icon to render to the `Icon` prop. The `name` prop is not used in this case, and can be omitted.
 {/* Providing a custom source because it's struggling to render the SVG prop correctly. */}
-<Canvas of={AvatarStories.Icon} source={{code:`<Avatar
+<CollapsibleCanvas of={AvatarStories.Icon} />
+<CollapsibleSource code={`<Avatar
   Icon={Robot}
   size={48}
-/>`}} />
+/>`} />
 
 ### Overflow count
 To display an overflow avatar, provide a number to the `overflowCount` prop. The number will be automatically formatted and scaled to fit.
-<Canvas of={AvatarStories.Overflow} />
+<CollapsibleCanvas of={AvatarStories.Overflow} />
+<CollapsibleSource of={AvatarStories.Overflow} />
 
 ### Sizing
 To size the avatar, pass a `number` to the `size` property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
-<Canvas of={AvatarStories.Sizing} />
+<CollapsibleCanvas of={AvatarStories.Sizing} />
 <div className="canvas-controls-only">
 <Controls of={AvatarStories.Sizing}/>
 </div>
+<CollapsibleSource of={AvatarStories.Sizing} />
 
 
 ### Colors & variants
 You can stylize the display of the avatar using the `color` and `variant` props.
 {/* Providing a custom source because it's struggling to render the SVG prop correctly. */}
-<Canvas of={AvatarStories.Colors} sourceState="none" />
+<CollapsibleCanvas of={AvatarStories.Colors} />
 
 ### Roundness
 By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to `className`.
 
-<Canvas of={AvatarStories.Rounding} />
+<CollapsibleCanvas of={AvatarStories.Rounding} />
+<CollapsibleSource of={AvatarStories.Rounding} />
 
 
 ### Interactive
 Avatars can be used as interactive elements by passing an `onClick` handler. The avatar will automatically apply semantic and visual interaction styles.
-<Canvas of={AvatarStories.Interactive} source={{code:`<Avatar
+<CollapsibleCanvas of={AvatarStories.Interactive} />
+<CollapsibleSource code={`<Avatar
   name="Will"
   size={48}
   onClick={saySup}
-/>`}} />
+/>`} />

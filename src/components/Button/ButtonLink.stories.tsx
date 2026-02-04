@@ -92,8 +92,8 @@ Icon.parameters = {
 }
 
 Icon.argTypes = {
-  size: { control: "select" },
-  iconSize: { control: "select" },
+  size: { control: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"] },
+  iconSize: { control: "select", options: ["sm", "md", "lg", "xl", "2xl"] },
 }
 
 export const Block = (args: ButtonLinkProps) => (

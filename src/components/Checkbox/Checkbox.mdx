@@ -1,4 +1,5 @@
-import { Canvas, ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { ArgTypes, Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as CheckboxStories from './Checkbox.stories';
  
 <Meta of={CheckboxStories} />
@@ -11,7 +12,8 @@ import * as CheckboxStories from './Checkbox.stories';
 import { Checkbox } from "@plexui/ui/components/Checkbox";
 ```
 
-<Canvas of={CheckboxStories.Base} />
+<CollapsibleCanvas of={CheckboxStories.Base} />
+<CollapsibleSource of={CheckboxStories.Base} />
 
 ## Reference
 <ArgTypes of={CheckboxStories.Base} />
@@ -22,4 +24,5 @@ import { Checkbox } from "@plexui/ui/components/Checkbox";
 
 Use `checked="indeterminate"` to indicate that the checkbox is partially selected.
 
-<Canvas of={CheckboxStories.Indeterminate} />
+<CollapsibleCanvas of={CheckboxStories.Indeterminate} />
+<CollapsibleSource of={CheckboxStories.Indeterminate} />

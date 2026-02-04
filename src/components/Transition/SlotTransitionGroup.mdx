@@ -1,4 +1,5 @@
-import { Canvas, Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { Controls, Meta, Subtitle, Title, ArgTypes } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as SlotTransitionGroupStories from './SlotTransitionGroup.stories';
  
@@ -26,7 +27,8 @@ The timing of stateful attributes is controlled with `enterDuration` and `exitDu
 - Prefer `<Animate>`, `<AnimateLayout>`, or `<AnimateLayoutGroup>` first.
 - Use `<SlotTransitionGroup>` when you need `<TransitionGroup>`-like control but without any extra wrapper nodes.
 
-<Canvas of={SlotTransitionGroupStories.Base} source={{code: `
+<CollapsibleCanvas of={SlotTransitionGroupStories.Base} />
+<CollapsibleSource code={`
 // JSX
 <SlotTransitionGroup enterDuration={2000} exitDuration={1000}>
   {show && <Square key="s" className={s.Example} />}
@@ -56,7 +58,7 @@ The timing of stateful attributes is controlled with `enterDuration` and `exitDu
     transition: opacity 1s ease, box-shadow 1s ease;
   }
 }
-`}}/>
+`} />
 
 ### Transition states
 

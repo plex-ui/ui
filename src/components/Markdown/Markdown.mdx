@@ -1,4 +1,5 @@
-import { ArgTypes, Canvas, Meta, Subtitle, Title } from "@storybook/blocks"
+import { ArgTypes, Meta, Subtitle, Title } from "@storybook/blocks"
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 
 import * as MarkdownStories from "./Markdown.stories"
 
@@ -12,7 +13,8 @@ import * as MarkdownStories from "./Markdown.stories"
 import { Markdown } from "@plexui/ui/components/Markdown"
 ```
 
-<Canvas of={MarkdownStories.Base} layout="padded" />
+<CollapsibleCanvas of={MarkdownStories.Base} layout="padded" />
+<CollapsibleSource of={MarkdownStories.Base} />
 
 ## Reference
 <ArgTypes of={MarkdownStories.Base} />
@@ -21,4 +23,5 @@ import { Markdown } from "@plexui/ui/components/Markdown"
 
 Use `includeMath` to enable LaTeX rendering.
 
-<Canvas of={MarkdownStories.Math} layout="padded" />
+<CollapsibleCanvas of={MarkdownStories.Math} layout="padded" />
+<CollapsibleSource of={MarkdownStories.Math} />
