@@ -1,0 +1,255 @@
+.ProgressSteps {
+  /* Local CSS vars, overridden by data-size */
+  --indicator-size: var(--progress-steps-indicator-size-md);
+  --row-gap: var(--progress-steps-row-gap-md);
+  --content-gap: var(--progress-steps-content-gap-md);
+  --step-padding: var(--progress-steps-step-padding-md);
+  --font-size: var(--progress-steps-font-size-md);
+  --icon-size: var(--progress-steps-icon-size-md);
+
+  /* =============================================
+    Sizes
+  ============================================= */
+  &:where([data-size="sm"]) {
+    --indicator-size: var(--progress-steps-indicator-size-sm);
+    --row-gap: var(--progress-steps-row-gap-sm);
+    --content-gap: var(--progress-steps-content-gap-sm);
+    --step-padding: var(--progress-steps-step-padding-sm);
+    --font-size: var(--progress-steps-font-size-sm);
+    --icon-size: var(--progress-steps-icon-size-sm);
+  }
+
+  &:where([data-size="md"]) {
+    --indicator-size: var(--progress-steps-indicator-size-md);
+    --row-gap: var(--progress-steps-row-gap-md);
+    --content-gap: var(--progress-steps-content-gap-md);
+    --step-padding: var(--progress-steps-step-padding-md);
+    --font-size: var(--progress-steps-font-size-md);
+    --icon-size: var(--progress-steps-icon-size-md);
+  }
+
+  &:where([data-size="lg"]) {
+    --indicator-size: var(--progress-steps-indicator-size-lg);
+    --row-gap: var(--progress-steps-row-gap-lg);
+    --content-gap: var(--progress-steps-content-gap-lg);
+    --step-padding: var(--progress-steps-step-padding-lg);
+    --font-size: var(--progress-steps-font-size-lg);
+    --icon-size: var(--progress-steps-icon-size-lg);
+  }
+
+  /* =============================================
+    Colors
+  ============================================= */
+  &:where([data-color="success"]) {
+    --progress-steps-connector-color-completed: var(--color-background-success-solid);
+    --progress-steps-indicator-background-active: var(--color-background-success-solid);
+    --progress-steps-indicator-background-completed: var(--color-background-success-solid);
+    --progress-steps-indicator-text-active: var(--color-text-success-solid);
+    --progress-steps-indicator-text-completed: var(--color-text-success-solid);
+  }
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* connector fills the gap */
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  &:where([data-orientation="horizontal"]) {
+    display: grid;
+    gap: var(--row-gap);
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+  }
+}
+
+/* =============================================
+  Step
+============================================= */
+.Step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--content-gap);
+}
+
+[data-orientation="horizontal"] .Step {
+  overflow: visible; /* Allow connector to extend into next cell */
+  flex-direction: column;
+  align-items: center;
+  gap: var(--content-gap);
+  min-width: 0; /* Prevent grid blowout */
+  text-align: center;
+}
+
+.StepIndicator {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--indicator-size);
+  height: var(--indicator-size);
+  border-radius: var(--radius-full);
+  background: var(--progress-steps-indicator-background);
+  color: var(--progress-steps-indicator-text);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight-medium);
+  transition-duration: var(--transition-duration-basic);
+  transition-property: background-color, color;
+  transition-timing-function: var(--transition-ease-basic);
+
+  /* State: active */
+  [data-state="active"] & {
+    background: var(--progress-steps-indicator-background-active);
+    color: var(--progress-steps-indicator-text-active);
+  }
+
+  /* State: completed */
+  [data-state="completed"] & {
+    background: var(--progress-steps-indicator-background-completed);
+    color: var(--progress-steps-indicator-text-completed);
+  }
+
+  /* Icon sizing */
+  svg:where(:not([data-no-autosize])) {
+    width: var(--icon-size);
+    height: var(--icon-size);
+  }
+}
+
+.StepConnector {
+  position: absolute;
+  top: var(--indicator-size);
+  left: calc(var(--indicator-size) / 2 - var(--progress-steps-connector-width) / 2);
+  width: var(--progress-steps-connector-width);
+  height: calc(100% - var(--indicator-size) + var(--row-gap));
+  border-radius: var(--radius-full);
+  background: var(--progress-steps-connector-color);
+  transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
+
+  /* Completed state: connector is dark */
+  [data-state="completed"] & {
+    background: var(--progress-steps-connector-color-completed);
+  }
+
+  /* Horizontal connector */
+  [data-orientation="horizontal"] & {
+    top: calc(var(--indicator-size) / 2 - var(--progress-steps-connector-width) / 2);
+    left: calc(50% + var(--indicator-size) / 2);
+    width: calc(100% + var(--row-gap) - var(--indicator-size));
+    height: var(--progress-steps-connector-width);
+  }
+
+  /* Dashed connector (incomplete steps only, vertical) */
+  [data-connector="dashed"] [data-state="active"] &,
+  [data-connector="dashed"] [data-state="inactive"] & {
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--progress-steps-connector-color) 0,
+      var(--progress-steps-connector-color) var(--progress-steps-connector-dash-length),
+      transparent var(--progress-steps-connector-dash-length),
+      transparent
+        calc(var(--progress-steps-connector-dash-length) + var(--progress-steps-connector-dash-gap))
+    );
+  }
+
+  /* Dashed connector (incomplete steps only, horizontal) */
+  [data-orientation="horizontal"][data-connector="dashed"] [data-state="active"] &,
+  [data-orientation="horizontal"][data-connector="dashed"] [data-state="inactive"] & {
+    background: repeating-linear-gradient(
+      to right,
+      var(--progress-steps-connector-color) 0,
+      var(--progress-steps-connector-color) var(--progress-steps-connector-dash-length),
+      transparent var(--progress-steps-connector-dash-length),
+      transparent
+        calc(var(--progress-steps-connector-dash-length) + var(--progress-steps-connector-dash-gap))
+    );
+  }
+}
+
+.StepContent {
+  min-width: 0; /* Allow text truncation */
+  padding-top: spacing(1);
+  padding-bottom: var(--row-gap);
+}
+
+[data-orientation="horizontal"] .StepContent {
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  padding-top: spacing(2);
+  padding-bottom: 0;
+}
+
+.StepTitle {
+  color: var(--progress-steps-title-color);
+  font-size: var(--font-size);
+  font-weight: var(--progress-steps-title-font-weight);
+  line-height: var(--font-text-sm-line-height);
+
+  [data-state="inactive"] & {
+    color: var(--progress-steps-title-color-inactive);
+  }
+}
+
+.StepDescription {
+  margin-top: spacing(0.5);
+  color: var(--progress-steps-description-color);
+  font-size: var(--font-size);
+  line-height: var(--font-text-sm-line-height);
+
+  [data-state="inactive"] & {
+    color: var(--progress-steps-description-color-inactive);
+  }
+}
+
+/* =============================================
+  Disabled
+============================================= */
+.Step[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* =============================================
+  Minimal Variant
+============================================= */
+.Minimal {
+  --segment-gap: var(--progress-steps-minimal-gap-md);
+  --segment-height: var(--progress-steps-minimal-height-md);
+  --segment-width: var(--progress-steps-minimal-width-md);
+
+  &:where([data-size="sm"]) {
+    --segment-gap: var(--progress-steps-minimal-gap-sm);
+    --segment-height: var(--progress-steps-minimal-height-sm);
+    --segment-width: var(--progress-steps-minimal-width-sm);
+  }
+
+  &:where([data-size="lg"]) {
+    --segment-gap: var(--progress-steps-minimal-gap-lg);
+    --segment-height: var(--progress-steps-minimal-height-lg);
+    --segment-width: var(--progress-steps-minimal-width-lg);
+  }
+}
+
+.MinimalList {
+  display: flex;
+  gap: var(--segment-gap);
+}
+
+.MinimalSegment {
+  width: var(--segment-width);
+  height: var(--segment-height);
+  border-radius: var(--progress-steps-minimal-radius);
+  background: var(--progress-steps-minimal-color-upcoming);
+  transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
+
+  &[data-state="completed"] {
+    background: var(--progress-steps-minimal-color-completed);
+  }
+}

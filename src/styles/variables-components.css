@@ -254,5 +254,59 @@
     --switch-thumb-color: light-dark(var(--gray-0), var(--gray-1000));
     --switch-thumb-color-disabled: light-dark(var(--gray-0), var(--gray-800));
     --switch-label-gap: spacing(2);
+
+    /* =============================================
+      ProgressSteps
+    ============================================= */
+    --progress-steps-indicator-size-sm: 24px;
+    --progress-steps-indicator-size-md: 32px;
+    --progress-steps-indicator-size-lg: 40px;
+    --progress-steps-row-gap-sm: spacing(4);
+    --progress-steps-row-gap-md: spacing(6);
+    --progress-steps-row-gap-lg: spacing(8);
+    --progress-steps-content-gap-sm: spacing(2.5);
+    --progress-steps-content-gap-md: spacing(3);
+    --progress-steps-content-gap-lg: spacing(4);
+    --progress-steps-font-size-sm: var(--font-text-xs-size);
+    --progress-steps-font-size-md: var(--font-text-sm-size);
+    --progress-steps-font-size-lg: var(--font-text-md-size);
+    --progress-steps-icon-size-sm: var(--control-icon-size-xs);
+    --progress-steps-icon-size-md: var(--control-icon-size-sm);
+    --progress-steps-icon-size-lg: var(--control-icon-size-md);
+    --progress-steps-step-padding-sm: spacing(1.5);
+    --progress-steps-step-padding-md: spacing(2);
+    --progress-steps-step-padding-lg: spacing(3);
+    --progress-steps-connector-width: 2px;
+    --progress-steps-connector-dash-length: 4px;
+    --progress-steps-connector-dash-gap: 4px;
+    --progress-steps-connector-color: light-dark(var(--gray-100), var(--gray-800));
+    --progress-steps-connector-color-completed: light-dark(var(--gray-900), var(--gray-100));
+    --progress-steps-indicator-background: light-dark(var(--gray-100), var(--gray-800));
+    --progress-steps-indicator-background-active: light-dark(var(--gray-900), var(--gray-0));
+    --progress-steps-indicator-background-completed: light-dark(var(--gray-900), var(--gray-0));
+    --progress-steps-indicator-text: var(--color-text-secondary);
+    --progress-steps-indicator-text-active: light-dark(var(--gray-0), var(--gray-900));
+    --progress-steps-indicator-text-completed: light-dark(var(--gray-0), var(--gray-900));
+    --progress-steps-title-font-weight: var(--font-weight-medium);
+    --progress-steps-title-color: var(--color-text);
+    --progress-steps-title-color-inactive: var(--color-text-tertiary);
+    --progress-steps-description-color: var(--color-text-secondary);
+    --progress-steps-description-color-inactive: var(--color-text-tertiary);
+
+    /* =============================================
+      ProgressSteps Minimal Variant
+    ============================================= */
+    --progress-steps-minimal-gap-sm: spacing(1);
+    --progress-steps-minimal-gap-md: spacing(1);
+    --progress-steps-minimal-gap-lg: spacing(1.5);
+    --progress-steps-minimal-height-sm: 3px;
+    --progress-steps-minimal-height-md: 3px;
+    --progress-steps-minimal-height-lg: 4px;
+    --progress-steps-minimal-width-sm: 24px;
+    --progress-steps-minimal-width-md: 24px;
+    --progress-steps-minimal-width-lg: 32px;
+    --progress-steps-minimal-radius: var(--radius-full);
+    --progress-steps-minimal-color-completed: light-dark(var(--gray-900), var(--gray-100));
+    --progress-steps-minimal-color-upcoming: light-dark(var(--gray-100), var(--gray-800));
   }
 }
