@@ -3,7 +3,7 @@ import { EMAIL_REGEX } from "../../lib/constants"
 import { TagInput, type TagInputProps } from "./"
 
 const meta: Meta<TagInputProps> = {
-  title: "Components/TagInput",
+  title: "Components/Tag Input",
   component: TagInput,
   args: {
     placeholder: "example@example.com",

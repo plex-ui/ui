@@ -1,0 +1,68 @@
+import { Canvas, Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import * as FloatingInputStories from './FloatingInput.stories';
+
+<Meta of={FloatingInputStories} />
+
+<Title>Floating Input</Title>
+<Subtitle>Input with floating label that animates on focus</Subtitle>
+
+## Usage
+```jsx
+import { FloatingInput } from "@plexui/ui/components/FloatingInput";
+```
+
+<Canvas of={FloatingInputStories.Base} />
+
+## Reference
+
+<ArgTypes of={FloatingInputStories.Base} exclude={['ref']} />
+
+## Examples
+
+### Filled state
+
+When the input has a value, the label stays floated above the input.
+
+<Canvas of={FloatingInputStories.Filled} />
+
+### With error message
+
+Use the `errorMessage` prop to display a validation error below the input. When `errorMessage` is provided, the input automatically enters the invalid state.
+
+<Canvas of={FloatingInputStories.WithError} />
+
+### Clear button
+
+Use the `onClear` prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+
+<Canvas of={FloatingInputStories.WithClearButton} />
+<div className="canvas-controls-only">
+<Controls of={FloatingInputStories.WithClearButton}/>
+</div>
+
+### Disabled
+
+Use the `disabled` prop to disable the input, greying it out and preventing user interactions.
+
+<Canvas of={FloatingInputStories.Disabled} />
+<div className="canvas-controls-only">
+<Controls of={FloatingInputStories.Disabled}/>
+</div>
+
+### Read only
+
+Use the `readOnly` prop to make the input read-only. The user can still select and copy the text.
+
+<Canvas of={FloatingInputStories.ReadOnly} />
+
+### All states
+
+Overview of all input states.
+
+<Canvas of={FloatingInputStories.States} sourceState="none" />
+
+### Password input
+
+The component works with different input types.
+
+<Canvas of={FloatingInputStories.PasswordInput} />

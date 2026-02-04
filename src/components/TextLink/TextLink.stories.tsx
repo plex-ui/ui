@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight } from "../Icon"
 import { TextLink, type TextLinkProps } from "./TextLink"
 
 const meta = {
-  title: "Components/TextLink",
+  title: "Components/Text Link",
   component: TextLink,
   args: {
     href: "#",

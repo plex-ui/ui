@@ -5,7 +5,7 @@ import { Tooltip } from "../Tooltip"
 import { RadioGroup, type RadioGroupItemProps, type RadioGroupProps } from "./"
 
 const meta = {
-  title: "Components/RadioGroup",
+  title: "Components/Radio Group",
   component: RadioGroup,
   args: {
     disabled: false,

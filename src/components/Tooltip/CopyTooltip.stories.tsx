@@ -2,7 +2,7 @@ import { type Meta } from "@storybook/react"
 import { CopyTooltip, type CopyTooltipProps, Tooltip } from "./"
 
 const meta = {
-  title: "Components/CopyTooltip",
+  title: "Components/Copy Tooltip",
   component: CopyTooltip,
   args: {
     copyValue: "Very cool content to copy",

@@ -7,7 +7,7 @@ import { ButtonLink } from "./"
 type ButtonLinkProps = ComponentProps<typeof ButtonLink>
 
 const meta = {
-  title: "Components/ButtonLink",
+  title: "Components/Button Link",
   component: ButtonLink,
   args: {
     children: "View API Keys",

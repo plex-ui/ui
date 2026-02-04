@@ -3,7 +3,7 @@ import { Robot } from "../Icon"
 import { Avatar, AvatarGroup, type AvatarGroupProps } from "./"
 
 const meta = {
-  title: "Components/AvatarGroup",
+  title: "Components/Avatar Group",
   component: AvatarGroup,
   args: {
     stack: "start",

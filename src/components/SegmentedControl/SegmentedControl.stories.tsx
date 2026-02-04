@@ -4,7 +4,7 @@ import { Bell, DarkMode, Grid, Home, LightMode, Menu, SettingsCog, SystemMode } 
 import { SegmentedControl, type SegmentedControlProps, type SizeVariant } from "./"
 
 const meta = {
-  title: "Components/SegmentedControl",
+  title: "Components/Segmented Control",
   component: SegmentedControl,
   argTypes: {
     size: {

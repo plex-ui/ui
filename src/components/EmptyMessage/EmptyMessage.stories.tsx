@@ -4,7 +4,7 @@ import { TextLink } from "../TextLink"
 import { EmptyMessage } from "./EmptyMessage"
 
 export default {
-  title: "Components/EmptyMessage",
+  title: "Components/Empty Message",
 }
 
 export const Base = () => (

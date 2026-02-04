@@ -1,0 +1,171 @@
+.Root {
+  position: relative;
+}
+
+.Root:has(:disabled) {
+  --cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.FieldFootprint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  height: var(--floating-input-height);
+  border-radius: var(--floating-input-border-radius);
+  line-height: 1.5rem;
+  color: var(--color-text);
+  font-size: 1rem;
+  width: 100%;
+  border: 1px solid var(--input-state-color, var(--floating-input-border-color));
+  padding: 0 var(--floating-input-gutter);
+  background-color: var(--floating-input-background);
+  cursor: var(--cursor, text);
+  transition: border-color var(--floating-input-transition-duration) ease-in-out;
+}
+
+.FieldFootprint:hover:not([data-disabled]) {
+  border-color: var(--input-state-color, var(--floating-input-border-color-hover));
+}
+
+.FieldFootprint[data-focused] {
+  --input-state-color: var(--floating-input-border-color-focus);
+}
+
+.FieldFootprint[data-invalid] {
+  --input-state-color: var(--floating-input-border-color-invalid);
+}
+
+/* Label container - positioned absolutely */
+.TypeableLabel {
+  cursor: var(--cursor, text);
+  position: absolute;
+  inset: 0;
+}
+
+/* Label background overlay - covers input when not focused */
+.TypeableLabel::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--floating-input-border-radius);
+  background-color: var(--floating-input-background);
+}
+
+/* Label text positioner */
+.LabelPositioner {
+  --placeholder-transition: transform var(--floating-input-transition-duration) ease-in-out;
+  position: absolute;
+  inset: 0;
+  padding: 0 var(--floating-input-gutter);
+  display: flex;
+  align-items: center;
+  transition: var(--placeholder-transition);
+  pointer-events: none;
+}
+
+/* Label text */
+.LabelText {
+  --horizontal-padding: 6px;
+  background-color: var(--floating-input-background);
+  padding: 1px var(--horizontal-padding);
+  transition: var(--placeholder-transition);
+  color: var(--input-state-color, var(--floating-input-label-color));
+  font-size: 1rem;
+  line-height: 1;
+  cursor: var(--cursor, text);
+  transform: translate(calc(-1 * var(--horizontal-padding)));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - var(--floating-input-gutter) * 2);
+}
+
+/* Focused state - label floats up */
+.FieldFootprint[data-focused] .TypeableLabel,
+.FieldFootprint[data-invalid] .TypeableLabel,
+.HasValue .TypeableLabel {
+  pointer-events: none;
+}
+
+.FieldFootprint[data-focused] .TypeableLabel::before,
+.FieldFootprint[data-invalid] .TypeableLabel::before,
+.HasValue .TypeableLabel::before {
+  display: none;
+}
+
+.FieldFootprint[data-focused] .LabelPositioner,
+.FieldFootprint[data-invalid] .LabelPositioner,
+.HasValue .LabelPositioner {
+  transform: translateY(-50%);
+}
+
+.FieldFootprint[data-focused] .LabelText,
+.FieldFootprint[data-invalid] .LabelText,
+.HasValue .LabelText {
+  transform: translate(-12px) scale(var(--floating-input-label-scale));
+  max-width: 133%;
+}
+
+/* Focus label color */
+.FieldFootprint[data-focused] .LabelText {
+  color: var(--floating-input-label-color-focus);
+}
+
+/* Invalid label color */
+.FieldFootprint[data-invalid] .LabelText {
+  color: var(--floating-input-label-color-invalid);
+}
+
+/* Input element */
+.Input {
+  background-color: transparent;
+  outline: none;
+  border: 0;
+  font: inherit;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  position: relative;
+  z-index: 1;
+}
+
+.Input::placeholder {
+  opacity: 0;
+}
+
+.Input:disabled {
+  cursor: not-allowed;
+}
+
+/* Clear button */
+.ClearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+  transition: color 150ms ease;
+}
+
+.ClearButton:hover {
+  color: var(--color-text);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .FieldFootprint,
+  .LabelPositioner,
+  .LabelText {
+    transition: none;
+  }
+}

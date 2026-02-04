@@ -5,7 +5,7 @@ import { Menu } from "../Menu"
 import { SelectControl, type SelectControlProps } from "./"
 
 const meta = {
-  title: "Components/SelectControl",
+  title: "Components/Select Control",
   component: SelectControl,
   argTypes: {
     opticallyAlign: {

@@ -6,7 +6,7 @@ import { DateRangePicker, type DateRangePickerProps } from "./DateRangePicker"
 import { type DateRange, type DateRangeShortcut } from "./types"
 
 const meta = {
-  title: "Components/DateRangePicker",
+  title: "Components/Date Range Picker",
   component: DateRangePicker,
   argTypes: {
     value: { control: false },

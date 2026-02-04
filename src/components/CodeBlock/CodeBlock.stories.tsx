@@ -6,7 +6,7 @@ import { CodeBlock, CodeBlockBase } from "./CodeBlock"
 type CodeBlockProps = ComponentProps<typeof CodeBlock>
 
 const meta = {
-  title: "Components/CodeBlock",
+  title: "Components/Code Block",
   component: CodeBlock,
   parameters: { layout: "padded" },
   argTypes: {

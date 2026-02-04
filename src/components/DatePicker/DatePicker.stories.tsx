@@ -4,7 +4,7 @@ import { useState } from "react"
 import { DatePicker, type DatePickerProps } from "./DatePicker"
 
 const meta = {
-  title: "Components/DatePicker",
+  title: "Components/Date Picker",
   component: DatePicker,
   argTypes: {
     value: { control: false },

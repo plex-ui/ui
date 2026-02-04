@@ -98,6 +98,33 @@
     --input-border-color-invalid: light-dark(var(--red-500), var(--red-600));
 
     /* =============================================
+      FieldError
+    ============================================= */
+    --field-error-color: light-dark(#d00e17, #ff6b6b);
+    --field-error-font-size: 0.75rem;
+    --field-error-line-height: 1.4;
+    --field-error-gap: spacing(2);
+    --field-error-margin-top: spacing(1);
+    --field-error-margin-bottom: spacing(3);
+
+    /* =============================================
+      FloatingInput
+    ============================================= */
+    --floating-input-height: 3.25rem;
+    --floating-input-gutter: 1.25rem;
+    --floating-input-border-radius: var(--radius-full);
+    --floating-input-background: var(--color-surface);
+    --floating-input-border-color: light-dark(rgb(0 0 0 / 15%), rgb(255 255 255 / 16%));
+    --floating-input-border-color-hover: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 24%));
+    --floating-input-border-color-focus: light-dark(#3e68ff, #6f8dff);
+    --floating-input-border-color-invalid: var(--field-error-color);
+    --floating-input-label-color: var(--color-text-tertiary);
+    --floating-input-label-color-focus: light-dark(#3e68ff, #6f8dff);
+    --floating-input-label-color-invalid: var(--field-error-color);
+    --floating-input-transition-duration: 80ms;
+    --floating-input-label-scale: 0.88;
+
+    /* =============================================
       Link
     ============================================= */
     --link-font-weight: inherit;
