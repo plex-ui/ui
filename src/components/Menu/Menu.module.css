@@ -3,6 +3,7 @@
 }
 
 .MenuList {
+  z-index: 50;
   overflow: auto;
   width: var(--menu-width, auto);
   min-width: var(--menu-min-width, 300px);

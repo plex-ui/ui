@@ -6,6 +6,7 @@
 }
 
 .MenuList {
+  z-index: 50;
   /* Default to the width of the trigger */
   width: var(--select-list-width, var(--radix-popover-trigger-width));
   min-width: var(--select-list-min-width, 300px);

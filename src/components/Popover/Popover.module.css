@@ -3,6 +3,7 @@
 }
 
 .Popover {
+  z-index: 50;
   overflow: auto;
   width: var(--popover-width, auto);
   min-width: var(--popover-min-width, 300px);

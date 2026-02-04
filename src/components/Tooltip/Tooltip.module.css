@@ -1,4 +1,5 @@
 .Tooltip {
+  z-index: 50;
   max-width: 300px;
   border-radius: var(--radius-md);
   /* animation-duration: 0.3s; */

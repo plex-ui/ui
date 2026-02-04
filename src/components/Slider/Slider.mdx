@@ -1,4 +1,4 @@
-import { Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
 import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
  
 import * as SliderStories from './Slider.stories';
@@ -8,17 +8,20 @@ import * as SliderStories from './Slider.stories';
 <Title>Slider</Title>
 <Subtitle>Fine-tune values within a set range</Subtitle>
 
-### Usage
+## Usage
 ```jsx
 import { Slider } from "@plexui/ui/components/Slider";
 ```
 
-### Reference
 <CollapsibleCanvas of={SliderStories.Base} />
 <div className="canvas-controls-only">
 <Controls of={SliderStories.Base} />
 </div>
 <CollapsibleSource of={SliderStories.Base} />
+
+## Reference
+
+<ArgTypes of={SliderStories.Base} />
 
 ## Examples
 

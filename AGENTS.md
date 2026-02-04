@@ -82,6 +82,7 @@ All components should be thoroughly documented in Storybook, using the `.mdx` an
 - You should not need to run Storybook locally, so ignore the `pnpm run storybook` command
 - Update or create `.mdx` and `.stories.tsx` files when adding new components or features.
 - Keep usage examples simple and focused. Refer to documentation examples like `Avatar`, `Badge`, and `Button` for guidance.
+- **Sidebar sorting**: Components must always be sorted alphabetically in the Storybook sidebar. When adding a new component, update the `storySort.order` array in `.storybook-base/preview.tsx` to include it in the correct alphabetical position.
 
 # Contributing
 

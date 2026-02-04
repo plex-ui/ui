@@ -1,4 +1,4 @@
-import { Controls, Meta, Subtitle, Title } from '@storybook/blocks';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
 import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import * as TagInputStories from './TagInput.stories';
  
@@ -7,14 +7,17 @@ import * as TagInputStories from './TagInput.stories';
 <Title>Tag Input</Title>
 <Subtitle>Enter multiple unique tags</Subtitle>
 
-### Usage
+## Usage
 ```jsx
 import { TagInput } from "@plexui/ui/components/TagInput";
 ```
 
-### Reference
 <CollapsibleCanvas of={TagInputStories.Base} />
 <div className="canvas-controls-only">
 <Controls of={TagInputStories.Base} />
 </div>
 <CollapsibleSource of={TagInputStories.Base} />
+
+## Reference
+
+<ArgTypes of={TagInputStories.Base} />
