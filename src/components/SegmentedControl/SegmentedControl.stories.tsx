@@ -6,6 +6,16 @@ import { SegmentedControl, type SegmentedControlProps, type SizeVariant } from "
 const meta = {
   title: "Components/SegmentedControl",
   component: SegmentedControl,
+  argTypes: {
+    size: {
+      control: "select",
+      options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"],
+    },
+    gutterSize: {
+      control: "select",
+      options: ["2xs", "xs", "sm", "md", "lg", "xl"],
+    },
+  },
 } satisfies Meta<typeof SegmentedControl>
 
 export default meta
@@ -36,11 +46,6 @@ Sizing.args = {
 
 Sizing.parameters = {
   controls: { include: ["size", "gutterSize", "pill"] },
-}
-
-Sizing.argTypes = {
-  size: { control: "select" },
-  gutterSize: { control: "select" },
 }
 
 export const Block = (args: SegmentedControlProps<string>) => (
