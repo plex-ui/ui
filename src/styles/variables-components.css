@@ -1,4 +1,5 @@
 @layer theme {
+
   :root,
   :where([data-theme]) {
     /* =============================================
@@ -32,13 +33,17 @@
     /* =============================================
       Badge
     ============================================= */
-    --badge-gutter-2xs: 0.1875rem; /* 3px */
-    --badge-gutter-xs: 0.25rem; /* 4px */
+    --badge-gutter-2xs: 0.1875rem;
+    /* 3px */
+    --badge-gutter-xs: 0.25rem;
+    /* 4px */
     --badge-gutter-sm: calc(var(--control-gutter-2xs) - 1px);
     --badge-gutter-md: var(--control-gutter-2xs);
     --badge-gutter-lg: var(--control-gutter-xs);
-    --badge-size-2xs: 1rem; /* 16px */
-    --badge-size-xs: 1.125rem; /* 18px */
+    --badge-size-2xs: 1rem;
+    /* 16px */
+    --badge-size-xs: 1.125rem;
+    /* 18px */
     --badge-size-sm: calc(var(--control-size-3xs) - 2px);
     --badge-size-md: var(--control-size-3xs);
     --badge-size-lg: var(--control-size-2xs);
@@ -67,8 +72,10 @@
     --badge-icon-font-size-sm: var(--font-text-xs-size);
     --badge-icon-font-size-md: var(--font-text-md-size);
     --badge-icon-font-size-lg: var(--font-text-md-size);
-    --badge-indicator-size-2xs: 0.625rem; /* 10px */
-    --badge-indicator-size-xs: 0.625rem; /* 10px */
+    --badge-indicator-size-2xs: 0.625rem;
+    /* 10px */
+    --badge-indicator-size-xs: 0.625rem;
+    /* 10px */
     --badge-indicator-size-sm: var(--font-text-xs-size);
     --badge-indicator-size-md: var(--font-text-xs-size);
     --badge-indicator-size-lg: var(--font-text-sm-size);
@@ -140,7 +147,8 @@
     --chat-max-width: 800px;
     --chat-gutter: spacing(5);
     --chat-background-color: var(--color-surface);
-    --thread-gutter: spacing(4); /* 12px (composer gutter) + 4px (input inset) */
+    --thread-gutter: spacing(4);
+    /* 12px (composer gutter) + 4px (input inset) */
     --composer-gutter: spacing(3);
     --composer-compact-gutter: spacing(2);
     --composer-radius: var(--radius-4xl);
@@ -222,10 +230,8 @@
     --segmented-control-thumb-background: light-dark(var(--gray-0), var(--gray-300));
     --segmented-control-thumb-shadow: 0 1px 4px -1px rgb(0 0 0 / 20%);
     --segmented-control-option-highlight-gutter: 1px;
-    --segmented-control-option-highlight-background-color: light-dark(
-      var(--gray-200),
-      var(--gray-300)
-    );
+    --segmented-control-option-highlight-background-color: light-dark(var(--gray-200),
+        var(--gray-300));
 
     /* =============================================
       SelectControl
@@ -350,7 +356,7 @@
     /* Icon */
     --sidebar-icon-size: 20px;
     --sidebar-icon-wrapper-size: 32px;
-    --sidebar-icon-margin: 0 2px 0 4px;
+    --sidebar-icon-margin: 0 8px 0 12px;
     --sidebar-icon-color: var(--gray-750);
 
     /* Transitions */

@@ -134,6 +134,11 @@
   padding: 16px var(--sidebar-gutter);
   scrollbar-width: none;
   -ms-overflow-style: none;
+  mask-image: linear-gradient(to bottom,
+      transparent,
+      black 20px,
+      black calc(100% - 20px),
+      transparent);
 }
 
 .Content::-webkit-scrollbar {
@@ -184,7 +189,7 @@
 
 .GroupLabel {
   display: block;
-  padding: 0 0 8px 4px;
+  padding: var(--sidebar-group-label-padding);
   margin: var(--sidebar-group-label-margin);
   color: var(--sidebar-group-label-color);
   font-size: var(--sidebar-group-label-font-size);
