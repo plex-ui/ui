@@ -398,11 +398,13 @@
   margin-left: auto;
   padding-left: spacing(2);
   transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+  transition-delay: 0.2s;
 }
 
 :global([data-sidebar="collapsed"]) .MenuBadge {
   opacity: 0;
   pointer-events: none;
+  transition-delay: 0s;
 }
 
 .MenuAction {
