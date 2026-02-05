@@ -44,11 +44,11 @@ If the content is taller than the sidebar, it will scroll vertically.
 
 <CollapsibleCanvas of={SidebarStories.Scrollable} />
 
-### No Icons (Settings)
+### Text Only
 
-A text-only sidebar for settings and configuration pages where icons are not needed. Uses `collapsible="none"` since there are no icons to collapse to.
+A text-only sidebar without icons. Uses `collapsible="none"` since there are no icons to collapse to.
 
-<CollapsibleCanvas of={SidebarStories.NoIcons} />
+<CollapsibleCanvas of={SidebarStories.TextOnly} />
 
 ### Collapsibility
 
@@ -60,11 +60,11 @@ The sidebar supports different collapse behaviors to fit various application nee
 
 <CollapsibleCanvas of={SidebarStories.CollapsibleIcon} />
 
-### Variants
+### Nested Navigation
 
-Use the `variant` prop to change the visual appearance of the sidebar for different contexts.
+Build collapsible nested menus with chevron toggles for documentation and API reference sidebars.
 
-<CollapsibleCanvas of={SidebarStories.DualTier} />
+<CollapsibleCanvas of={SidebarStories.CollapsibleNested} />
 
 ### Mobile Support
 
@@ -78,3 +78,22 @@ The sidebar provides dedicated components for common patterns like search inputs
 
 <CollapsibleCanvas of={SidebarStories.WithSearch} />
 <CollapsibleCanvas of={SidebarStories.LoadingSkeleton} />
+
+### Header Sizes
+
+`SidebarGroupLabel` supports two size variants to fit different navigation contexts:
+
+| Size | Style | Use case |
+|------|-------|----------|
+| `sm` | Compact, tertiary color | Dashboard navigation, settings panels, sidebars with fewer items |
+| `lg` | Larger, primary color, more spacing | Documentation, API reference, content-heavy sections with many items |
+
+```jsx
+// Small header - for compact sidebars
+<SidebarGroupLabel size="sm">Settings</SidebarGroupLabel>
+
+// Large header - for documentation (default)
+<SidebarGroupLabel size="lg">API Reference</SidebarGroupLabel>
+```
+
+The default is `lg` for documentation-style sidebars. Use `sm` for dashboard and settings pages where space is limited.

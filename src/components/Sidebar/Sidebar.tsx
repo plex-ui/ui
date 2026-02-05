@@ -70,7 +70,7 @@ import clsx from "clsx"
 import { forwardRef, useState, type ComponentProps, type ReactNode } from "react"
 
 import { Button } from "../Button"
-import { Search as SearchIcon, SidebarLeft, X } from "../Icon"
+import { ChevronRightSm, Search as SearchIcon, SidebarLeft, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "./Sidebar.module.css"
@@ -219,12 +219,19 @@ SidebarGroup.displayName = "SidebarGroup"
 
 export type SidebarGroupLabelProps = ComponentProps<"span"> & {
   asChild?: boolean
+  /**
+   * Size variant for the label.
+   * - "sm": Compact style for dashboard/settings sidebars
+   * - "lg": Documentation style with larger text and more spacing
+   * @default "lg"
+   */
+  size?: "sm" | "lg"
 }
 
 export const SidebarGroupLabel = forwardRef<HTMLSpanElement, SidebarGroupLabelProps>(
-  ({ asChild = false, className, ...props }, ref) => {
+  ({ asChild = false, size = "lg", className, ...props }, ref) => {
     const Comp = asChild ? Slot : "span"
-    return <Comp ref={ref} className={clsx(s.GroupLabel, className)} {...props} />
+    return <Comp ref={ref} data-size={size} className={clsx(s.GroupLabel, className)} {...props} />
   },
 )
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
@@ -296,10 +303,7 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
 }
 
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  (
-    { isActive = false, tooltip, asChild = false, className, children, ...props },
-    ref,
-  ) => {
+  ({ isActive = false, tooltip, asChild = false, className, children, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
     const Comp = asChild ? Slot : "button"
 
@@ -365,6 +369,21 @@ export const SidebarMenuButtonLabel = forwardRef<HTMLSpanElement, SidebarMenuBut
   ),
 )
 SidebarMenuButtonLabel.displayName = "SidebarMenuButtonLabel"
+
+// =============================================
+// Menu Chevron (Expand/Collapse Toggle)
+// =============================================
+
+export type SidebarMenuChevronProps = ComponentProps<"span">
+
+export const SidebarMenuChevron = forwardRef<HTMLSpanElement, SidebarMenuChevronProps>(
+  ({ className, ...props }, ref) => (
+    <span ref={ref} className={clsx(s.MenuChevron, className)} {...props}>
+      <ChevronRightSm />
+    </span>
+  ),
+)
+SidebarMenuChevron.displayName = "SidebarMenuChevron"
 
 // =============================================
 // Menu Badge & Action
@@ -438,16 +457,22 @@ SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 export type SidebarMenuSubButtonProps = ComponentProps<"button"> & {
   isActive?: boolean
   asChild?: boolean
+  /**
+   * Indent level for nested items (0-3).
+   * Each level adds 12px of left margin.
+   * @default 0
+   */
+  indent?: 0 | 1 | 2 | 3
 }
 
 export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
-  ({ isActive = false, asChild = false, className, ...props }, ref) => {
+  ({ isActive = false, asChild = false, indent = 0, className, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
         ref={ref}
         data-active={isActive ? "true" : "false"}
-        className={clsx(s.MenuSubButton, className)}
+        className={clsx(s.MenuSubButton, s[`indent${indent}`], className)}
         {...props}
       />
     )

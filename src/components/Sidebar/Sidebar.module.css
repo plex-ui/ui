@@ -139,15 +139,27 @@
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px 0 0 0;
+  padding: 24px 0 16px 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* Smooth fade at top and bottom edges with buffer zone */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 8px,
+    black 24px,
+    black calc(100% - 24px),
+    transparent calc(100% - 8px),
+    transparent 100%
+  );
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    transparent 16px,
-    black 16px,
-    black 100%
+    transparent 8px,
+    black 24px,
+    black calc(100% - 24px),
+    transparent calc(100% - 8px),
+    transparent 100%
   );
 }
 
@@ -197,16 +209,33 @@
   padding-bottom: spacing(3);
 }
 
+/* First group should have smaller top margin (only for large headers) */
+.Group:first-child .GroupLabel[data-size="lg"] {
+  margin-top: 8px;
+}
+
 .GroupLabel {
   display: block;
-  padding: var(--sidebar-group-label-padding);
-  margin: var(--sidebar-group-label-margin);
-  color: var(--sidebar-group-label-color);
-  font-size: var(--sidebar-group-label-font-size);
-  font-weight: var(--sidebar-group-label-font-weight);
-  line-height: var(--sidebar-group-label-line-height);
-  letter-spacing: 0.005em;
+  padding: 0 12px 8px;
+  line-height: 14px;
   transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+}
+
+/* Small header - compact dashboard/settings style */
+.GroupLabel[data-size="sm"] {
+  margin: 0;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Large header - documentation style with clear section separation */
+.GroupLabel[data-size="lg"] {
+  margin: 24px 0 2px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.005em;
 }
 
 /* Hide group labels when collapsed */
@@ -480,11 +509,30 @@
   composes: MenuButton;
   font-size: 14px;
   line-height: 20px;
+  padding: 8px 12px;
 }
 
-.MenuSubButton .MenuButtonInner {
-  padding: 6px 12px;
-  height: auto;
+@media (min-width: 768px) {
+  .MenuSubButton {
+    padding: 6px 12px;
+  }
+}
+
+/* Indent levels for nested items - matches reference (each level adds 12px) */
+.MenuSubButton.indent0 {
+  margin-left: 12px;
+}
+
+.MenuSubButton.indent1 {
+  margin-left: 24px;
+}
+
+.MenuSubButton.indent2 {
+  margin-left: 36px;
+}
+
+.MenuSubButton.indent3 {
+  margin-left: 48px;
 }
 
 /* Submenu visibility */
@@ -492,16 +540,14 @@
   display: none;
 }
 
-/* Chevron toggle icon */
+/* Chevron toggle icon - uses 1em from SVG for proper sizing */
 .MenuChevron {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
   margin-left: 4px;
-  color: var(--color-text-tertiary);
-  transition: transform 0.15s ease-out;
+  color: inherit; /* Inherit from parent item */
+  transition: transform 0.15s;
   flex-shrink: 0;
 }
 
@@ -1085,11 +1131,26 @@
 .Sidebar[data-variant="docs"] .MenuButton {
   padding: 0;
   margin: 0 0 2px;
+  border-radius: 8px;
+  transition:
+    color 0.15s var(--cubic-enter),
+    background-color 0.15s var(--cubic-enter);
+}
+
+/* Disable pseudo-element for docs variant - use direct background instead */
+.Sidebar[data-variant="docs"] .MenuButton::before {
+  display: none;
 }
 
 .Sidebar[data-variant="docs"] .MenuButtonInner {
   padding: 8px 12px;
   height: auto;
+}
+
+@media (min-width: 768px) {
+  .Sidebar[data-variant="docs"] .MenuButtonInner {
+    padding: 6px 12px;
+  }
 }
 
 .Sidebar[data-variant="docs"] .MenuButton:hover:not([data-active="true"]) {
@@ -1101,9 +1162,30 @@
   background: light-dark(var(--gray-150), var(--gray-300));
 }
 
-/* Docs variant - ensure proper content padding */
-.Sidebar[data-variant="docs"] .Content {
+/* Disable extra left padding on labels in docs variant (inner already has padding) */
+.Sidebar[data-variant="docs"] .MenuButtonLabel:first-child {
+  padding-left: 0;
+}
+
+/* MenuSubButton needs explicit padding in docs variant (composes MenuButton which has padding: 0) */
+.Sidebar[data-variant="docs"] .MenuSubButton {
   padding: 8px 12px;
+}
+
+@media (min-width: 768px) {
+  .Sidebar[data-variant="docs"] .MenuSubButton {
+    padding: 6px 12px;
+  }
+}
+
+/* Docs variant - keep scroll mask, items have their own horizontal padding */
+.Sidebar[data-variant="docs"] .Content {
+  padding: 0 0 16px 0; /* Bottom padding for mask fade, items provide top padding */
+}
+
+/* First group in docs variant needs top padding since Content has none */
+.Sidebar[data-variant="docs"] .Group:first-child {
+  padding-top: 24px;
 }
 
 /* Nested child items */
@@ -1126,7 +1208,7 @@
 /* Chevron for expandable items */
 .DocsNavChevron {
   margin-left: 4px;
-  transition: transform 0.15s var(--cubic-move);
+  transition: transform 0.15s;
 }
 
 .MenuItem[data-expanded="true"] .DocsNavChevron {

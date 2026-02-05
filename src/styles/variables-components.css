@@ -1,5 +1,4 @@
 @layer theme {
-
   :root,
   :where([data-theme]) {
     /* =============================================
@@ -230,8 +229,10 @@
     --segmented-control-thumb-background: light-dark(var(--gray-0), var(--gray-300));
     --segmented-control-thumb-shadow: 0 1px 4px -1px rgb(0 0 0 / 20%);
     --segmented-control-option-highlight-gutter: 1px;
-    --segmented-control-option-highlight-background-color: light-dark(var(--gray-200),
-        var(--gray-300));
+    --segmented-control-option-highlight-background-color: light-dark(
+      var(--gray-200),
+      var(--gray-300)
+    );
 
     /* =============================================
       SelectControl
@@ -338,10 +339,11 @@
     --sidebar-menu-text-active: var(--gray-900);
 
     /* Group label */
-    --sidebar-group-label-color: var(--color-text-tertiary);
-    --sidebar-group-label-font-size: 13px;
-    --sidebar-group-label-font-weight: var(--font-weight-medium);
-    --sidebar-group-label-margin: 0;
+    --sidebar-group-label-color: var(--color-text-primary);
+    --sidebar-group-label-font-size: 14px;
+    --sidebar-group-label-font-weight: var(--font-weight-semibold);
+    --sidebar-group-label-margin: 24px 0 2px;
+    --sidebar-group-label-margin-first: 8px 0 2px;
     --sidebar-group-label-padding: 0 12px 8px;
     --sidebar-group-label-line-height: 14px;
 
@@ -350,8 +352,8 @@
     --sidebar-menu-item-height-desktop: 32px;
     --sidebar-menu-item-padding: 0;
     --sidebar-menu-item-margin: 0 0 2px;
-    --sidebar-menu-item-margin-desktop: 0 0 4px;
-    --sidebar-menu-item-radius: 6px;
+    --sidebar-menu-item-margin-desktop: 0 0 2px;
+    --sidebar-menu-item-radius: 8px;
     --sidebar-menu-item-font-size: 14px;
     --sidebar-menu-item-line-height: 20px;
 

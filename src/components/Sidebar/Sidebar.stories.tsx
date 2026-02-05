@@ -38,18 +38,18 @@ import {
   SidebarMenuButton,
   SidebarMenuButtonIcon,
   SidebarMenuButtonLabel,
+  SidebarMenuChevron,
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarTrigger,
   SidebarMobile,
-  SidebarMobileHeader,
   SidebarMobileFooter,
+  SidebarMobileHeader,
   SidebarMobileMenuButton,
+  SidebarProvider,
+  SidebarTrigger,
 } from "./Sidebar"
 
 export default {
@@ -83,7 +83,7 @@ const systemNavItems = [
 const SidebarStandardGroups = () => (
   <>
     <SidebarGroup>
-      <SidebarGroupLabel>Project</SidebarGroupLabel>
+      <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {mainNavItems.map((item) => (
@@ -108,7 +108,7 @@ const SidebarStandardGroups = () => (
     </SidebarGroup>
 
     <SidebarGroup>
-      <SidebarGroupLabel>System</SidebarGroupLabel>
+      <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {systemNavItems.map((item) => (
@@ -146,7 +146,7 @@ export const Base = () => {
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {mainNavItems.map((item) => (
@@ -175,7 +175,7 @@ export const Base = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {systemNavItems.map((item) => (
@@ -203,8 +203,8 @@ export const Base = () => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
             <p className="text-secondary">
-              This is the main content area. The sidebar can be collapsed using the trigger button or
-              by pressing <kbd className="kbd">Cmd+B</kbd> / <kbd className="kbd">Ctrl+B</kbd>.
+              This is the main content area. The sidebar can be collapsed using the trigger button
+              or by pressing <kbd className="kbd">Cmd+B</kbd> / <kbd className="kbd">Ctrl+B</kbd>.
             </p>
           </div>
         </SidebarInset>
@@ -222,7 +222,7 @@ export const CollapsibleIcon = () => {
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {mainNavItems.map((item) => (
@@ -244,7 +244,7 @@ export const CollapsibleIcon = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {systemNavItems.map((item) => (
@@ -282,82 +282,137 @@ export const CollapsibleIcon = () => {
   )
 }
 
-export const DualTier = () => {
-  const [activeSection, setActiveSection] = useState("projects")
+export const CollapsibleNested = () => {
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
+  const [activeItem, setActiveItem] = useState({ id: "introduction", label: "Introduction" })
 
-  const sections = [
-    { id: "projects", icon: Folder, label: "Projects" },
-    { id: "deployments", icon: Globe, label: "Deployments" },
-    { id: "analytics", icon: Analytics, label: "Analytics" },
-    { id: "resources", icon: Storage, label: "Resources" },
-    { id: "settings", icon: SettingsCog, label: "Settings" },
+  // Documentation-style navigation structure
+  type NavItem = {
+    id: string
+    label: string
+    items?: NavItem[]
+  }
+
+  const sections: NavItem[] = [
+    {
+      id: "getting-started",
+      label: "Getting Started",
+      items: [
+        { id: "introduction", label: "Introduction" },
+        { id: "installation", label: "Installation" },
+        { id: "quick-start", label: "Quick Start" },
+      ],
+    },
+    {
+      id: "api-reference",
+      label: "API Reference",
+      items: [
+        {
+          id: "responses",
+          label: "Responses",
+          items: [
+            { id: "create-response", label: "Create" },
+            {
+              id: "streaming",
+              label: "Streaming",
+              items: [
+                { id: "stream-created", label: "response.created" },
+                { id: "stream-progress", label: "response.in_progress" },
+                { id: "stream-completed", label: "response.completed" },
+                {
+                  id: "output-item",
+                  label: "response.output_item",
+                  items: [
+                    { id: "output-added", label: "added" },
+                    { id: "output-done", label: "done" },
+                  ],
+                },
+              ],
+            },
+            { id: "get-response", label: "Get" },
+            { id: "list-responses", label: "List" },
+            { id: "delete-response", label: "Delete" },
+          ],
+        },
+        {
+          id: "chat-completions",
+          label: "Chat Completions",
+          items: [
+            { id: "chat-create", label: "Create" },
+            { id: "chat-stream", label: "Streaming" },
+          ],
+        },
+        { id: "models", label: "Models" },
+        { id: "errors", label: "Errors" },
+      ],
+    },
   ]
 
-  const subItems: Record<string, { label: string; active?: boolean }[]> = {
-    projects: [
-      { label: "All Projects", active: true },
-      { label: "Templates" },
-      { label: "Archive" },
-      { label: "Shared with me" },
-    ],
-    deployments: [{ label: "Production" }, { label: "Staging" }, { label: "Preview" }],
-    analytics: [{ label: "Realtime" }, { label: "Events" }, { label: "Audience" }],
-    resources: [{ label: "Databases" }, { label: "Object Storage" }],
-    settings: [{ label: "General" }, { label: "API Keys" }, { label: "Billing" }],
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    )
+  }
+
+  // Recursive render function for nested items
+  const renderItems = (items: NavItem[], depth: number = 0) => {
+    return items.map((item) => {
+      const hasChildren = item.items && item.items.length > 0
+      const isExpanded = expandedSections.includes(item.id)
+
+      if (hasChildren) {
+        return (
+          <SidebarMenuItem key={item.id} expanded={isExpanded}>
+            <SidebarMenuSubButton
+              indent={depth as 0 | 1 | 2 | 3}
+              onClick={() => toggleSection(item.id)}
+            >
+              {item.label}
+              <SidebarMenuChevron />
+            </SidebarMenuSubButton>
+            <SidebarMenuSub open={isExpanded}>{renderItems(item.items!, depth + 1)}</SidebarMenuSub>
+          </SidebarMenuItem>
+        )
+      }
+
+      return (
+        <SidebarMenuSubItem key={item.id}>
+          <SidebarMenuSubButton
+            indent={depth as 0 | 1 | 2 | 3}
+            isActive={activeItem.id === item.id}
+            onClick={() => setActiveItem({ id: item.id, label: item.label })}
+          >
+            {item.label}
+          </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+      )
+    })
   }
 
   return (
-    <SidebarProvider collapsible="icon">
+    <SidebarProvider collapsible="none">
       <SidebarLayout style={{ height: 600 }}>
-        {/* Rail (icon-only tier) */}
-        <Sidebar variant="dual-tier">
+        <Sidebar variant="docs" style={{ width: "280px" }}>
           <SidebarContent>
-            <SidebarMenu>
-              {sections.map((section) => (
-                <SidebarMenuItem key={section.id}>
-                  <SidebarMenuButton
-                    isActive={activeSection === section.id}
-                    tooltip={section.label}
-                    onClick={() => setActiveSection(section.id)}
-                  >
-                    <SidebarMenuButtonIcon>
-                      <section.icon />
-                    </SidebarMenuButtonIcon>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-
-        {/* Secondary panel */}
-        <Sidebar
-          variant="inset"
-          style={{ width: "220px", borderRight: "1px solid var(--color-border)" }}
-        >
-          <SidebarHeader>
-            <span className="text-sm font-semibold px-3 py-2">
-              {sections.find((s) => s.id === activeSection)?.label}
-            </span>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {subItems[activeSection]?.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={item.active}>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            {sections.map((section) => (
+              <SidebarGroup key={section.id}>
+                <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {section.items && renderItems(section.items, 0)}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
           </SidebarContent>
         </Sidebar>
 
         <SidebarInset>
           <div className="p-6">
-            <h1 className="text-2xl font-semibold mb-4">Dual-Tier Sidebar</h1>
+            <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
             <p className="text-secondary">
-              This layout combines a rail (icon-only) with a secondary panel for sub-navigation.
+              Documentation page for {activeItem.label}. This is where the content would be
+              displayed.
             </p>
           </div>
         </SidebarInset>
@@ -375,7 +430,7 @@ export const FooterCards = () => (
         </SidebarContent>
 
         <SidebarFooter>
-          <SidebarCard dismissible onDismiss={() => { }}>
+          <SidebarCard dismissible onDismiss={() => {}}>
             <SidebarCardTitle>Upgrade to Pro</SidebarCardTitle>
             <SidebarCardContent>
               Unlock higher rate limits, priority support, and more.
@@ -426,7 +481,7 @@ export const TextOnlySettings = () => {
           <SidebarContent>
             {settingsCategories.map((category) => (
               <SidebarGroup key={category.label}>
-                <SidebarGroupLabel>{category.label}</SidebarGroupLabel>
+                <SidebarGroupLabel size="sm">{category.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {category.items.map((item, idx) => (
@@ -463,7 +518,7 @@ export const LoadingSkeleton = () => (
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Loading...</SidebarGroupLabel>
+            <SidebarGroupLabel size="sm">Loading...</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -654,7 +709,9 @@ export const Mobile = () => (
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <SidebarMenuButtonIcon><Help /></SidebarMenuButtonIcon>
+                <SidebarMenuButtonIcon>
+                  <Help />
+                </SidebarMenuButtonIcon>
                 <SidebarMenuButtonLabel>Support</SidebarMenuButtonLabel>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -694,7 +751,7 @@ export const Scrollable = () => {
         <Sidebar side="left" variant="sidebar">
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {mainNavItems.map((item) => (
@@ -716,7 +773,7 @@ export const Scrollable = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {systemNavItems.map((item) => (
@@ -738,7 +795,7 @@ export const Scrollable = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>Resources</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {resourcesNavItems.map((item) => (
@@ -778,9 +835,7 @@ export const Scrollable = () => {
 // No Icons (Settings Style)
 // =============================================
 
-const settingsNavItems = [
-  { label: "Your profile" },
-]
+const settingsNavItems = [{ label: "Your profile" }]
 
 const organizationNavItems = [
   { label: "General", active: true },
@@ -797,17 +852,16 @@ const peopleNavItems = [
   { label: "Usage" },
 ]
 
-export const NoIcons = () => {
-  const allItems = [...settingsNavItems, ...organizationNavItems, ...peopleNavItems]
+export const TextOnly = () => {
   const [activeItem, setActiveItem] = useState("General")
 
   return (
     <SidebarProvider collapsible="none">
       <SidebarLayout style={{ height: 600 }}>
-        <Sidebar style={{ width: "180px" }}>
+        <Sidebar variant="docs" style={{ width: "180px" }}>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Settings</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Settings</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {settingsNavItems.map((item) => (
@@ -826,7 +880,7 @@ export const NoIcons = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>Organization</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">Organization</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {organizationNavItems.map((item) => (
@@ -845,7 +899,7 @@ export const NoIcons = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel>People</SidebarGroupLabel>
+              <SidebarGroupLabel size="sm">People</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {peopleNavItems.map((item) => (
@@ -868,7 +922,8 @@ export const NoIcons = () => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold tracking-tight">{activeItem}</h1>
             <p className="text-secondary mt-2">
-              A text-only sidebar for settings pages. Uses collapsible="none" since there are no icons to collapse to.
+              A text-only sidebar for settings pages. Uses collapsible="none" since there are no
+              icons to collapse to.
             </p>
           </div>
         </SidebarInset>
