@@ -398,5 +398,11 @@
     --sidebar-card-shadow: var(--shadow-300), var(--shadow-hairline);
     --sidebar-card-shadow-hover: var(--shadow-400), var(--shadow-hairline);
     --sidebar-card-active-scale: 0.98;
+
+    /* =============================================
+      Skeleton
+    ============================================= */
+    --skeleton-background: light-dark(var(--alpha-08), var(--alpha-12));
+    --skeleton-radius: var(--radius-md);
   }
 }

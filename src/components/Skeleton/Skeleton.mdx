@@ -1,0 +1,66 @@
+import { Skeleton } from "./";
+import { linkTo } from '@storybook/addon-links';
+import { Controls, ArgTypes, Meta, Subtitle, Title } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
+import { Hero } from '@storybookComponents/Hero';
+
+import * as SkeletonStories from './Skeleton.stories';
+
+<Meta of={SkeletonStories} />
+
+<Title>Skeleton</Title>
+<Subtitle>Use to show a placeholder while content is loading</Subtitle>
+
+<Hero className="flex gap-4 items-center">
+  <Skeleton circle className="size-12" />
+  <div className="flex flex-col gap-2">
+    <Skeleton className="h-4 w-[200px]" />
+    <Skeleton className="h-4 w-[150px]" />
+  </div>
+</Hero>
+
+## Usage
+
+```jsx
+import { Skeleton } from "@plexui/ui/components/Skeleton";
+```
+
+<CollapsibleCanvas of={SkeletonStories.Base} additionalActions={[
+  { title: 'View story', onClick: linkTo(SkeletonStories.default.title, 'Base')}
+]} />
+
+## Reference
+
+<ArgTypes of={SkeletonStories.Base} />
+
+## Examples
+
+### Avatar
+
+Use a circular skeleton to represent loading avatars. The default size matches Plex UI's avatar component (28px).
+
+<CollapsibleCanvas of={SkeletonStories.Avatar} />
+
+### Card
+
+Compose multiple skeletons to represent loading cards with images and text content.
+
+<CollapsibleCanvas of={SkeletonStories.Card} />
+
+### Text
+
+Multiple text lines with varying widths create natural-looking paragraph placeholders.
+
+<CollapsibleCanvas of={SkeletonStories.Text} />
+
+### Form
+
+Form skeletons use Plex UI control sizing (32px height for inputs and buttons).
+
+<CollapsibleCanvas of={SkeletonStories.Form} />
+
+### Table
+
+Table skeletons show header and row structure while data loads.
+
+<CollapsibleCanvas of={SkeletonStories.Table} />

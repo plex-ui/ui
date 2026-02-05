@@ -15,16 +15,49 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 <ul className="changelog-list">
   <li>
-    <strong>FloatingLabelInput component</strong> (<a href="/?path=/docs/components-floating-label-input--docs">FloatingLabelInput</a>)<br/>
+    <strong>Sidebar component</strong> (<a href="/?path=/docs/components-sidebar--docs">Sidebar</a>)<br/>
+    New composable navigation sidebar for application layouts. Includes <code>SidebarProvider</code> for state management, <code>SidebarLayout</code> for layout structure, scrollable <code>SidebarContent</code>, sticky <code>SidebarHeader</code>/<code>SidebarFooter</code>, and organized navigation with <code>SidebarGroup</code>, <code>SidebarMenu</code>, <code>SidebarMenuItem</code>, and <code>SidebarMenuButton</code>. Supports three collapse modes: <code>offcanvas</code> (drawer on mobile, full collapse on desktop), <code>icon</code> (collapses to icon rail), and <code>none</code> (static). Includes keyboard shortcut <code>Cmd+B</code>/<code>Ctrl+B</code> for toggling.
+  </li>
+  <li>
+    <strong>Sidebar nested navigation</strong> (<a href="/?path=/docs/components-sidebar--docs#nested-navigation">Sidebar</a>)<br/>
+    Collapsible nested menus with <code>SidebarMenuSub</code> and <code>SidebarMenuSubButton</code>. Animated chevron toggles via <code>SidebarMenuChevron</code>. Supports multi-level hierarchies for documentation and API reference navigation patterns.
+  </li>
+  <li>
+    <strong>Sidebar footer cards</strong> (<a href="/?path=/docs/components-sidebar--docs#footer-cards">Sidebar</a>)<br/>
+    <code>SidebarCard</code> component for promotional content, upgrade CTAs, or announcements in the sidebar footer. Includes <code>SidebarCardTitleLink</code> with dismissible close button, <code>SidebarCardContent</code> for description text, and <code>SidebarCardFooter</code> for action buttons. Cards animate in after sidebar expansion with delayed opacity transition.
+  </li>
+  <li>
+    <strong>Sidebar badges</strong> (<a href="/?path=/docs/components-sidebar--docs#badges">Sidebar</a>)<br/>
+    <code>SidebarMenuBadge</code> container for displaying status indicators, counts, or labels alongside menu items. Pairs with the <code>Badge</code> component supporting all semantic colors (<code>success</code>, <code>warning</code>, <code>danger</code>, <code>info</code>, <code>discovery</code>, <code>caution</code>) and pill shape option.
+  </li>
+  <li>
+    <strong>Sidebar mobile menu</strong> (<a href="/?path=/docs/components-sidebar--docs#mobile-menu">Sidebar</a>)<br/>
+    <code>SidebarMobileMenuButton</code> with animated hamburger icon that transforms to close icon. Mobile behavior is automatic via <code>SidebarProvider</code> with responsive breakpoint detection. Drawer slides in from left with backdrop overlay.
+  </li>
+  <li>
+    <strong>Skeleton component</strong> (<a href="/?path=/docs/components-skeleton--docs">Skeleton</a>)<br/>
+    New component for displaying loading placeholders. Supports rectangular and circular shapes via <code>circle</code> prop. Uses design tokens for background color and border-radius. Includes composition examples for avatars, cards, text blocks, forms, and tables.
+  </li>
+  <li>
+    <strong>Floating Label Input component</strong> (<a href="/?path=/docs/components-floating-label-input--docs">Floating Label Input</a>)<br/>
     New input component with animated floating label that moves above the input on focus or when filled. Supports error states with <code>errorMessage</code> prop, built-in clear button via <code>onClear</code>, disabled and read-only modes, browser autofill detection with <code>onAutofill</code> callback, and password manager extension blocking with <code>allowAutofillExtensions</code>.
   </li>
   <li>
-    <strong>ProgressSteps component</strong> (<a href="/?path=/docs/components-progress-steps--docs">ProgressSteps</a>)<br/>
+    <strong>Progress Steps component</strong> (<a href="/?path=/docs/components-progress-steps--docs">Progress Steps</a>)<br/>
     New component for displaying progress through multi-step processes. Supports horizontal and vertical orientations, three sizes (sm, md, lg), solid and dashed connector styles, custom icons per step, and a minimal bar variant for compact layouts. Includes compound components: <code>ProgressSteps.Step</code>, <code>ProgressSteps.Title</code>, and <code>ProgressSteps.Description</code>. Color schemes include default and success variants.
   </li>
   <li>
-    <strong>Icon and badge support</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#icon-only">SegmentedControl</a>)<br/>
+    <strong>Icon and badge support</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#icon-only">Segmented Control</a>)<br/>
     Added <code>icon</code> and <code>badge</code> props to <code>SegmentedControl.Option</code>. Icons automatically size based on control size with negative left margins for visual alignment. Badges support semantic colors (<code>secondary</code>, <code>success</code>, <code>danger</code>, etc.), style variants (<code>soft</code>, <code>solid</code>), and <code>pill</code> shape option. Badge sizes scale with control size using new 2xs/xs badge tokens for smaller controls.
+  </li>
+</ul>
+
+### Changed
+
+<ul className="changelog-list">
+  <li>
+    <strong>Sidebar variants simplified</strong> (<a href="/?path=/docs/components-sidebar--docs">Sidebar</a>)<br/>
+    Removed unused sidebar variants (<code>floating</code>, <code>inset</code>, <code>dual-tier</code>) from type definitions, documentation, and CSS. The component now supports only <code>sidebar</code> (default) and <code>docs</code> variants.
   </li>
 </ul>
 
@@ -32,7 +65,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 <ul className="changelog-list">
   <li>
-    <strong>Month stepper sizing and alignment</strong> (<a href="/?path=/docs/components-daterangepicker--docs#month-stepper">DateRangePicker</a>)<br/>
+    <strong>Sidebar collapse animation stability</strong> (<a href="/?path=/docs/components-sidebar--docs#collapse-modes">Sidebar</a>)<br/>
+    Fixed jitter and layout shifts during sidebar collapse/expand animations. Stabilized flexbox rendering for menu items, improved padding transitions, and ensured footer cards animate in only after sidebar fully expands.
+  </li>
+  <li>
+    <strong>Sidebar mobile menu label visibility</strong> (<a href="/?path=/docs/components-sidebar--docs#mobile-menu">Sidebar</a>)<br/>
+    Labels in mobile menu were sometimes hidden due to incorrect collapsed state detection. Fixed to ensure labels are always visible in mobile drawer mode regardless of desktop sidebar state.
+  </li>
+  <li>
+    <strong>Month stepper sizing and alignment</strong> (<a href="/?path=/docs/components-daterangepicker--docs#month-stepper">Date Range Picker</a>)<br/>
     Fixed multiple issues with the month stepper trigger: stepper buttons now properly scale with control size using CSS variable overrides with correct specificity; added vertical alignment for buttons; gap between buttons and text scales with control size; month text min-width now uses <code>em</code> units (9em) to scale with font size, preventing width jumps when switching between months with different name lengths (e.g., "May" vs "September"). Stepper buttons now inherit <code>pill</code> prop from parent, matching SelectControl's Clear button behavior. Added size and pill controls to Storybook docs for testing.
   </li>
   <li>
@@ -40,15 +81,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
     Clear button overflow and border collision at various sizes. Refactored to use built-in <code>onClear</code> prop with dedicated sizing tokens matching SelectControl's clear-iso button. Updated gutter values and added per-size offsets for proper alignment in both standard and pill modes.
   </li>
   <li>
-    <strong>Pill overflow and text overlap</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#narrow-pill">SegmentedControl</a>)<br/>
+    <strong>Pill overflow and text overlap</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs#narrow-pill">Segmented Control</a>)<br/>
     In pill mode, narrow options (icons, single digits) could be narrower than the control height, causing circular hover highlights and the active thumb to overflow or clip. Added min-width to options in pill mode ensuring they're at least as wide as the control height. Also fixed a scrollable mode regression where text items overlapped, and corrected invalid <code>white-space: wrap</code> to <code>white-space: normal</code>.
   </li>
   <li>
-    <strong>Highlight overlay radius mismatch</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs">SegmentedControl</a>)<br/>
+    <strong>Highlight overlay radius mismatch</strong> (<a href="/?path=/docs/components-segmentedcontrol--docs">Segmented Control</a>)<br/>
     The hover/active overlay (::before) used the same <code>border-radius</code> as the option, but the overlay is inset by 1px. This caused the inner rounded shape to not nest correctly. Added <code>--segmented-control-option-highlight-radius</code> calculated as option radius minus inset, so the overlay aligns flush with the container.
   </li>
   <li>
-    <strong>Pill gutter scaling with opticallyAlign</strong> (<a href="/?path=/docs/components-selectcontrol--docs#optical-alignment">SelectControl</a>, <a href="/?path=/docs/components-input--docs#optical-alignment">Input</a>, <a href="/?path=/docs/components-button--docs#optical-alignment">Button</a>)<br/>
+    <strong>Pill gutter scaling with opticallyAlign</strong> (<a href="/?path=/docs/components-selectcontrol--docs#optical-alignment">Select Control</a>, <a href="/?path=/docs/components-input--docs#optical-alignment">Input</a>, <a href="/?path=/docs/components-button--docs#optical-alignment">Button</a>)<br/>
     When using <code>opticallyAlign</code> with <code>pill=&#123;true&#125;</code>, the margin calculation used only the base gutter and ignored the pill scaling multiplier (1.33×). Controls with pills now correctly multiply the margin by <code>--control-gutter-pill-scaling</code>, aligning properly with Ghost controls.
   </li>
   <li>

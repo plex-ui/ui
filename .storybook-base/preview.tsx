@@ -44,6 +44,7 @@ const preview: Preview = {
             "Select",
             "Select Control",
             "Sidebar",
+            "Skeleton",
             "Slider",
             "Switch",
             "Tag Input",
