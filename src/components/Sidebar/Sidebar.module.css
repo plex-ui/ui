@@ -359,7 +359,9 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
   height: var(--sidebar-menu-item-height);
+  padding-right: 12px; /* Space for chevron from edge */
   overflow: hidden;
 }
 
@@ -494,11 +496,11 @@
   flex-direction: column;
   gap: 0;
   padding-left: 0;
-  margin-left: 12px;
+  margin-left: 0; /* No margin - buttons handle all indentation via padding */
   list-style: none;
   margin-top: 0;
   margin-bottom: 0;
-  overflow: hidden;
+  overflow: hidden; /* Required for collapse animation */
 }
 
 .MenuSubItem {
@@ -518,21 +520,27 @@
   }
 }
 
-/* Indent levels for nested items - matches reference (each level adds 12px) */
+/* Indent levels for nested items - full-width buttons with padding for text */
+/* indent0 = 12px aligns with section header (GroupLabel) */
 .MenuSubButton.indent0 {
-  margin-left: 12px;
+  padding-left: 12px;
 }
 
 .MenuSubButton.indent1 {
-  margin-left: 24px;
+  padding-left: 24px;
 }
 
 .MenuSubButton.indent2 {
-  margin-left: 36px;
+  padding-left: 36px;
 }
 
 .MenuSubButton.indent3 {
-  margin-left: 48px;
+  padding-left: 48px;
+}
+
+/* When parent has icons, level 1 children align with parent text at 38px */
+.MenuSub[data-has-icons="true"] .MenuSubButton.indent1 {
+  padding-left: 38px;
 }
 
 /* Submenu visibility with animation */
@@ -547,12 +555,12 @@
   pointer-events: none;
 }
 
-/* Chevron toggle icon - uses 1em from SVG for proper sizing */
+/* Chevron toggle icon - pushed to right end */
 .MenuChevron {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 4px;
+  margin-left: auto;
   color: inherit; /* Inherit from parent item */
   transition: transform 0.15s;
   flex-shrink: 0;
@@ -1217,6 +1225,24 @@
   .Sidebar[data-variant="docs"] .MenuSubButton {
     padding: 6px 12px;
   }
+}
+
+/* Docs variant indent levels - override base padding-left */
+/* indent0 = 12px aligns with section header (GroupLabel) */
+.Sidebar[data-variant="docs"] .MenuSubButton.indent0 {
+  padding-left: 12px;
+}
+
+.Sidebar[data-variant="docs"] .MenuSubButton.indent1 {
+  padding-left: 24px;
+}
+
+.Sidebar[data-variant="docs"] .MenuSubButton.indent2 {
+  padding-left: 36px;
+}
+
+.Sidebar[data-variant="docs"] .MenuSubButton.indent3 {
+  padding-left: 48px;
 }
 
 /* Docs variant - keep scroll mask, items have their own horizontal padding */

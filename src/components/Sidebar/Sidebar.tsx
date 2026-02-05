@@ -431,13 +431,19 @@ SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 export type SidebarMenuSubProps = ComponentProps<"ul"> & {
   open?: boolean
+  /**
+   * When true, child items align with parent text that has icons.
+   * This adjusts the padding so level 2 text aligns with level 1 text.
+   */
+  hasIcons?: boolean
 }
 
 export const SidebarMenuSub = forwardRef<HTMLUListElement, SidebarMenuSubProps>(
-  ({ open = true, className, ...props }, ref) => (
+  ({ open = true, hasIcons = false, className, ...props }, ref) => (
     <ul
       ref={ref}
       data-state={open ? "open" : "closed"}
+      data-has-icons={hasIcons ? "true" : undefined}
       className={clsx(s.MenuSub, className)}
       {...props}
     />

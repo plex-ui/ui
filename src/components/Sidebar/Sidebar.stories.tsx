@@ -289,17 +289,27 @@ export const CollapsibleIcon = () => {
   )
 }
 
-export const CollapsibleNested = () => {
-  const [expandedSections, setExpandedSections] = useState<string[]>([])
-  const [activeItem, setActiveItem] = useState({ id: "introduction", label: "Introduction" })
+// CollapsibleNested with icons control
+const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
+  // Initialize state based on icons prop (component remounts when icons changes due to key)
+  const [expandedSections, setExpandedSections] = useState<string[]>(
+    icons ? ["dashboard"] : ["getting-started"]
+  )
+  const [activeItem, setActiveItem] = useState(
+    icons
+      ? { id: "overview", label: "Overview" }
+      : { id: "introduction", label: "Introduction" }
+  )
 
-  // Documentation-style navigation structure
+  // Documentation-style navigation structure with optional icon
   type NavItem = {
     id: string
     label: string
+    icon?: React.ComponentType
     items?: NavItem[]
   }
 
+  // Original sections without icons (deep nesting)
   const sections: NavItem[] = [
     {
       id: "getting-started",
@@ -355,6 +365,52 @@ export const CollapsibleNested = () => {
     },
   ]
 
+  // Sections with icons (2 levels only)
+  const sectionsWithIcons: NavItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      items: [
+        { id: "overview", label: "Overview" },
+        { id: "analytics", label: "Analytics" },
+        { id: "reports", label: "Reports" },
+      ],
+    },
+    {
+      id: "content",
+      label: "Content",
+      icon: FileDocument,
+      items: [
+        { id: "pages", label: "Pages" },
+        { id: "posts", label: "Posts" },
+        { id: "media", label: "Media Library" },
+      ],
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: Members,
+      items: [
+        { id: "all-users", label: "All Users" },
+        { id: "roles", label: "Roles" },
+        { id: "permissions", label: "Permissions" },
+      ],
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: SettingsCog,
+      items: [
+        { id: "general", label: "General" },
+        { id: "security", label: "Security" },
+        { id: "integrations", label: "Integrations" },
+      ],
+    },
+  ]
+
+  const currentSections = icons ? sectionsWithIcons : sections
+
   const toggleSection = (id: string) => {
     setExpandedSections((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -366,6 +422,7 @@ export const CollapsibleNested = () => {
     return items.map((item) => {
       const hasChildren = item.items && item.items.length > 0
       const isExpanded = expandedSections.includes(item.id)
+      const Icon = item.icon
 
       if (hasChildren) {
         return (
@@ -374,6 +431,7 @@ export const CollapsibleNested = () => {
               indent={depth as 0 | 1 | 2 | 3}
               onClick={() => toggleSection(item.id)}
             >
+              {Icon && <Icon />}
               {item.label}
               <SidebarMenuChevron />
             </SidebarMenuSubButton>
@@ -389,6 +447,7 @@ export const CollapsibleNested = () => {
             isActive={activeItem.id === item.id}
             onClick={() => setActiveItem({ id: item.id, label: item.label })}
           >
+            {Icon && <Icon />}
             {item.label}
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
@@ -399,16 +458,57 @@ export const CollapsibleNested = () => {
   return (
     <SidebarProvider collapsible="none">
       <SidebarLayout style={{ height: 600 }}>
-        <Sidebar variant="docs" style={{ width: "280px" }}>
+        <Sidebar variant={icons ? undefined : "docs"} style={{ width: "280px" }}>
           <SidebarContent>
-            {sections.map((section) => (
-              <SidebarGroup key={section.id}>
-                <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            {icons ? (
+              // Icons variant: use standard SidebarMenuButton with icons
+              <SidebarGroup>
                 <SidebarGroupContent>
-                  <SidebarMenu>{section.items && renderItems(section.items, 0)}</SidebarMenu>
+                  <SidebarMenu>
+                    {sectionsWithIcons.map((item) => {
+                      const isExpanded = expandedSections.includes(item.id)
+                      const Icon = item.icon
+                      return (
+                        <SidebarMenuItem key={item.id} expanded={isExpanded}>
+                          <SidebarMenuButton onClick={() => toggleSection(item.id)}>
+                            <SidebarMenuButtonIcon>
+                              {Icon && <Icon />}
+                            </SidebarMenuButtonIcon>
+                            <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                            <SidebarMenuChevron />
+                          </SidebarMenuButton>
+                          <SidebarMenuSub open={isExpanded} hasIcons>
+                            {item.items?.map((child) => (
+                              <SidebarMenuSubItem key={child.id}>
+                                <SidebarMenuSubButton
+                                  indent={1}
+                                  isActive={activeItem.id === child.id}
+                                  onClick={() =>
+                                    setActiveItem({ id: child.id, label: child.label })
+                                  }
+                                >
+                                  {child.label}
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </SidebarMenuItem>
+                      )
+                    })}
+                  </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-            ))}
+            ) : (
+              // Default variant: render sections as groups with labels
+              currentSections.map((section) => (
+                <SidebarGroup key={section.id}>
+                  <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>{section.items && renderItems(section.items, 0)}</SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              ))
+            )}
           </SidebarContent>
         </Sidebar>
 
@@ -424,6 +524,22 @@ export const CollapsibleNested = () => {
       </SidebarLayout>
     </SidebarProvider>
   )
+}
+
+export const CollapsibleNested = (args: { icons: boolean }) => (
+  <CollapsibleNestedContent key={args.icons ? "icons" : "no-icons"} {...args} />
+)
+
+CollapsibleNested.args = {
+  icons: false,
+}
+
+CollapsibleNested.argTypes = {
+  icons: { control: "boolean" },
+}
+
+CollapsibleNested.parameters = {
+  controls: { include: ["icons"] },
 }
 
 export const FooterCards = () => (
