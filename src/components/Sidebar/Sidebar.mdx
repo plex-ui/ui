@@ -130,6 +130,8 @@ The sidebar supports different collapse behaviors via the `collapsible` prop on 
 - **icon** &ndash; Collapses to an icon-only rail.
 - **none** &ndash; Static sidebar that cannot be collapsed.
 
+When using `icon` mode, add the `tooltip` prop to `SidebarMenuButton` to show labels on hover. Tooltips appear only in collapsed state and are hidden on mobile.
+
 Use the `open` control below to toggle the sidebar state programmatically (controlled mode).
 
 <CollapsibleCanvas of={SidebarStories.CollapsibleIcon} />
