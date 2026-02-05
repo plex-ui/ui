@@ -213,28 +213,74 @@ export const Base = () => {
   )
 }
 
-export const CollapsibleIcon = () => (
-  <SidebarProvider collapsible="icon" defaultOpen={false}>
-    <SidebarLayout style={{ height: 600 }}>
-      <Sidebar>
-        <SidebarContent>
-          <SidebarStandardGroups />
-        </SidebarContent>
-        <SidebarStandardFooter />
-      </Sidebar>
+export const CollapsibleIcon = () => {
+  const [activeItem, setActiveItem] = useState("Overview")
 
-      <SidebarInset>
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Collapsed to Icons</h1>
-          <p className="text-secondary">
-            This sidebar is collapsed to show only icons. Hover over icons to see tooltips. Click
-            the expand button or press <kbd className="kbd">Cmd+B</kbd> to expand.
-          </p>
-        </div>
-      </SidebarInset>
-    </SidebarLayout>
-  </SidebarProvider>
-)
+  return (
+    <SidebarProvider collapsible="icon" defaultOpen={false}>
+      <SidebarLayout style={{ height: 600 }}>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {mainNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {systemNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarStandardFooter />
+        </Sidebar>
+
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              This sidebar is collapsed to show only icons. Hover over icons to see tooltips. Click
+              the expand button or press <kbd className="kbd">Cmd+B</kbd> to expand.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
 
 export const DualTier = () => {
   const [activeSection, setActiveSection] = useState("projects")
@@ -630,106 +676,104 @@ export const MobileMenuButtonAnimation = () => (
   </SidebarProvider>
 )
 
-export const Scrollable = () => (
-  <SidebarProvider>
-    <SidebarLayout style={{ height: 500 }}>
-      <Sidebar side="left" variant="sidebar">
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Project</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {mainNavItems.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton isActive={item.active} tooltip={item.label}>
-                      <SidebarMenuButtonIcon>
-                        <item.icon />
-                      </SidebarMenuButtonIcon>
-                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+const resourcesNavItems = [
+  { icon: Code, label: "Logs" },
+  { icon: Terminal, label: "Console" },
+  { icon: Storage, label: "Storage" },
+  { icon: Globe, label: "Deployments" },
+  { icon: CreditCard, label: "Billing" },
+  { icon: ApiKeys, label: "API Keys" },
+]
 
-          <SidebarGroup>
-            <SidebarGroupLabel>System</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {systemNavItems.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton tooltip={item.label}>
-                      <SidebarMenuButtonIcon>
-                        <item.icon />
-                      </SidebarMenuButtonIcon>
-                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+export const Scrollable = () => {
+  const [activeItem, setActiveItem] = useState("Overview")
 
-          <SidebarGroup>
-            <SidebarGroupLabel>Resources</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Logs">
-                    <SidebarMenuButtonIcon><Code /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>Logs</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Console">
-                    <SidebarMenuButtonIcon><Terminal /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>Console</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Storage">
-                    <SidebarMenuButtonIcon><Storage /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>Storage</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Deployments">
-                    <SidebarMenuButtonIcon><Globe /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>Deployments</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Billing">
-                    <SidebarMenuButtonIcon><CreditCard /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>Billing</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="API Keys">
-                    <SidebarMenuButtonIcon><ApiKeys /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>API Keys</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarStandardFooter />
-      </Sidebar>
-      <SidebarInset>
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Vertical Scroll</h1>
-          <p className="text-secondary mt-2">
-            When the sidebar content exceeds the container height, it becomes scrollable.
-            Items smoothly hide under the opaque header and footer as you scroll
-            (the "early crop" effect).
-          </p>
-        </div>
-      </SidebarInset>
-    </SidebarLayout>
-  </SidebarProvider>
-)
+  return (
+    <SidebarProvider>
+      <SidebarLayout style={{ height: 500 }}>
+        <Sidebar side="left" variant="sidebar">
+          <SidebarHeader style={{ minHeight: 16 }} />
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {mainNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {systemNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Resources</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {resourcesNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarStandardFooter />
+        </Sidebar>
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold tracking-tight">{activeItem}</h1>
+            <p className="text-secondary mt-2">
+              When the sidebar content exceeds the container height, it becomes scrollable.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
 
 // =============================================
 // No Icons (Settings Style)
