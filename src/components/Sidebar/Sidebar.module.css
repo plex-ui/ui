@@ -1096,6 +1096,13 @@
   padding: 12px;
 }
 
+/* Force labels visible in mobile menu content regardless of collapsed state */
+.MobileMenuContent .MenuButtonLabel,
+.MobileMenuContent .GroupLabel {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 /* Desktop breakpoint - sidebar becomes fixed */
 @media (min-width: 768px) {
   .MobileSidebar {
