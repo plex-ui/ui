@@ -46,10 +46,15 @@ import {
   SidebarProvider,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarMobile,
+  SidebarMobileHeader,
+  SidebarMobileFooter,
+  SidebarMobileMenuButton,
 } from "./Sidebar"
 
 export default {
   title: "Components/Sidebar",
+  component: Sidebar,
   parameters: {
     layout: "padded",
   },
@@ -545,3 +550,45 @@ export const DocsVariant = () => {
     </SidebarProvider>
   )
 }
+
+export const Mobile = () => (
+  <SidebarProvider collapsible="offcanvas">
+    <div style={{ height: 400, border: "1px solid var(--sidebar-border)", overflow: "hidden" }}>
+      <header className="flex items-center gap-2 p-2 border-b bg-surface">
+        <SidebarMobileMenuButton />
+        <span className="font-semibold text-sm">Mobile View</span>
+      </header>
+
+      <SidebarMobile>
+        <SidebarMobileHeader>
+          <span className="font-semibold">SaaS Platform</span>
+          <SidebarMobileMenuButton />
+        </SidebarMobileHeader>
+        <SidebarContent>
+          <SidebarStandardGroups />
+        </SidebarContent>
+        <SidebarMobileFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <SidebarMenuButtonIcon><Help /></SidebarMenuButtonIcon>
+                <SidebarMenuButtonLabel>Support</SidebarMenuButtonLabel>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarMobileFooter>
+      </SidebarMobile>
+    </div>
+  </SidebarProvider>
+)
+
+export const MobileMenuButtonAnimation = () => (
+  <SidebarProvider>
+    <div className="flex items-center justify-center p-12 bg-surface border rounded-xl">
+      <div className="flex flex-col items-center gap-4">
+        <SidebarMobileMenuButton />
+        <span className="text-secondary text-sm">Click to toggle animation</span>
+      </div>
+    </div>
+  </SidebarProvider>
+)
