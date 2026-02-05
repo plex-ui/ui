@@ -67,21 +67,22 @@ export default {
 }
 
 // Sample navigation data
+// Sample navigation data for a realistic SaaS application
 const mainNavItems = [
-  { icon: Home, label: "Dashboard", active: true },
-  { icon: Playground, label: "Playground" },
-  { icon: Robot, label: "Assistants", badge: "New" },
-  { icon: Terminal, label: "Chat completions" },
-  { icon: ImageSquare, label: "Images" },
-  { icon: Storage, label: "Storage" },
-  { icon: Batches, label: "Batches" },
-  { icon: Analytics, label: "Usage" },
+  { icon: Home, label: "Overview", active: true },
+  { icon: Folder, label: "Projects", badge: "New" },
+  { icon: FileDocument, label: "Assets" },
+  { icon: Analytics, label: "Analytics" },
+  { icon: Globe, label: "Deployments" },
+  { icon: Storage, label: "Resources" },
+  { icon: Code, label: "Logs" },
+  { icon: Terminal, label: "Console" },
 ]
 
-const settingsNavItems = [
-  { icon: ApiKeys, label: "API keys" },
-  { icon: Members, label: "Members" },
+const systemNavItems = [
+  { icon: Members, label: "Team" },
   { icon: CreditCard, label: "Billing" },
+  { icon: ApiKeys, label: "API Keys" },
   { icon: SettingsCog, label: "Settings" },
 ]
 
@@ -95,7 +96,7 @@ export const Base = () => (
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>Project</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {mainNavItems.map((item) => (
@@ -120,10 +121,10 @@ export const Base = () => (
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Settings</SidebarGroupLabel>
+            <SidebarGroupLabel>System</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {settingsNavItems.map((item) => (
+                {systemNavItems.map((item) => (
                   <SidebarMenuItem key={item.label}>
                     <SidebarMenuButton tooltip={item.label}>
                       <SidebarMenuButtonIcon>
@@ -155,7 +156,7 @@ export const Base = () => (
 
       <SidebarInset>
         <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
+          <h1 className="text-2xl font-semibold mb-4">Overview</h1>
           <p className="text-secondary">
             This is the main content area. The sidebar can be collapsed using the trigger button or
             by pressing <kbd className="kbd">Cmd+B</kbd> / <kbd className="kbd">Ctrl+B</kbd>.
@@ -172,7 +173,7 @@ export const CollapsibleIcon = () => (
       <Sidebar>
         <SidebarHeader className="justify-center">
           <div className="size-8 bg-gray-900 rounded-lg flex items-center justify-center text-white text-xs">
-            AI
+            NX
           </div>
         </SidebarHeader>
 
@@ -210,26 +211,26 @@ export const CollapsibleIcon = () => (
 )
 
 export const DualTier = () => {
-  const [activeSection, setActiveSection] = useState("playground")
+  const [activeSection, setActiveSection] = useState("projects")
 
   const sections = [
-    { id: "playground", icon: Playground, label: "Playground" },
-    { id: "assistants", icon: Robot, label: "Assistants" },
-    { id: "storage", icon: Storage, label: "Storage" },
-    { id: "batches", icon: Batches, label: "Batches" },
+    { id: "projects", icon: Folder, label: "Projects" },
+    { id: "deployments", icon: Globe, label: "Deployments" },
+    { id: "analytics", icon: Analytics, label: "Analytics" },
+    { id: "resources", icon: Storage, label: "Resources" },
     { id: "settings", icon: SettingsCog, label: "Settings" },
   ]
 
   const subItems: Record<string, { label: string; active?: boolean }[]> = {
-    playground: [
-      { label: "Chat", active: true },
-      { label: "Complete" },
-      { label: "Edit" },
-      { label: "Embeddings" },
+    projects: [
+      { label: "All Projects", active: true },
+      { label: "Templates" },
+      { label: "Archive" },
+      { label: "Shared with me" },
     ],
-    assistants: [{ label: "All Assistants" }, { label: "Create New" }, { label: "Templates" }],
-    storage: [{ label: "Files" }, { label: "Vector Stores" }],
-    batches: [{ label: "All Batches" }, { label: "Create Batch" }],
+    deployments: [{ label: "Production" }, { label: "Staging" }, { label: "Preview" }],
+    analytics: [{ label: "Realtime" }, { label: "Events" }, { label: "Audience" }],
+    resources: [{ label: "Databases" }, { label: "Object Storage" }],
     settings: [{ label: "General" }, { label: "API Keys" }, { label: "Billing" }],
   }
 
@@ -240,7 +241,7 @@ export const DualTier = () => {
         <Sidebar variant="dual-tier">
           <SidebarHeader className="justify-center">
             <div className="size-8 bg-gray-900 rounded-lg flex items-center justify-center text-white text-xs">
-              AI
+              NX
             </div>
           </SidebarHeader>
 
