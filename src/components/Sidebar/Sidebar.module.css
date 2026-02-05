@@ -23,7 +23,6 @@
   flex-shrink: 0;
   width: var(--sidebar-width);
   height: 100%;
-  padding: 0 var(--sidebar-gutter);
   background: var(--sidebar-background);
   transition: width var(--sidebar-collapse-duration) var(--cubic-move);
 }
@@ -89,7 +88,7 @@
   align-items: center;
   flex-shrink: 0;
   min-height: var(--sidebar-header-height);
-  padding: var(--sidebar-gutter-sm) 0;
+  padding: var(--sidebar-gutter-sm) var(--sidebar-gutter);
 }
 
 /* Hide header text when collapsed, keep only icon/logo */
@@ -132,7 +131,7 @@
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px 0;
+  padding: 16px var(--sidebar-gutter);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -144,7 +143,7 @@
 .Footer {
   flex-shrink: 0;
   width: 100%;
-  padding: 0 0 spacing(3) 0;
+  padding: 0 var(--sidebar-gutter) spacing(3) var(--sidebar-gutter);
 }
 
 .FooterSeparator {
@@ -156,9 +155,10 @@
   width: calc(100% + 2 * var(--sidebar-gutter));
 }
 
+/* No special padding needed for children, parent handles it */
 .Footer>*:not(.FooterSeparator) {
-  padding-left: var(--sidebar-gutter);
-  padding-right: var(--sidebar-gutter);
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* Rail (collapse toggle area) */
