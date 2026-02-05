@@ -735,6 +735,7 @@ input[type="range"]:hover::-moz-range-thumb {
     /* Preview area */
     > div:first-child {
       min-height: 180px;
+      padding-bottom: 48px;
     }
 
     /* Hiding the "show/hide code" button, because it should be visible */

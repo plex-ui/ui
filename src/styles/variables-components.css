@@ -308,5 +308,85 @@
     --progress-steps-minimal-radius: var(--radius-full);
     --progress-steps-minimal-color-completed: light-dark(var(--gray-900), var(--gray-100));
     --progress-steps-minimal-color-upcoming: light-dark(var(--gray-100), var(--gray-800));
+
+    /* =============================================
+      Sidebar
+    ============================================= */
+
+    /* Dimensions */
+    --sidebar-width: 210px;
+    --sidebar-width-mobile: 288px;
+    --sidebar-width-icon: 64px;
+    --sidebar-header-height: var(--control-size-3xl);
+    --sidebar-gutter: 12px;
+    --sidebar-gutter-sm: var(--control-gutter-2xs);
+
+    /* Colors */
+    --sidebar-background: none;
+    --sidebar-background-secondary: var(--color-surface-secondary);
+    --sidebar-foreground: var(--color-text);
+    --sidebar-border: var(--color-border);
+    --sidebar-accent: light-dark(var(--gray-150), var(--gray-300));
+    --sidebar-accent-hover: light-dark(var(--gray-200), var(--gray-400));
+
+    /* Group label */
+    --sidebar-group-label-color: var(--color-text-tertiary);
+    --sidebar-group-label-font-size: 13px;
+    --sidebar-group-label-font-weight: var(--font-weight-medium);
+    --sidebar-group-label-margin: 0;
+    --sidebar-group-label-padding: 0 12px 8px;
+    --sidebar-group-label-line-height: 14px;
+
+    /* Menu item */
+    --sidebar-menu-item-height: 38px;
+    --sidebar-menu-item-height-desktop: 32px;
+    --sidebar-menu-item-padding: 0;
+    --sidebar-menu-item-margin: 0 0 2px;
+    --sidebar-menu-item-margin-desktop: 0 0 4px;
+    --sidebar-menu-item-radius: 6px;
+    --sidebar-menu-item-font-size: 14px;
+    --sidebar-menu-item-line-height: 20px;
+
+    /* Icon */
+    --sidebar-icon-size: 20px;
+    --sidebar-icon-wrapper-size: 32px;
+    --sidebar-icon-margin: 0 2px 0 4px;
+    --sidebar-icon-color: var(--gray-750);
+
+    /* Transitions */
+    --sidebar-transition-duration: 0.3s;
+    --sidebar-collapse-duration: 0.3s;
+
+    /* Mobile menu button (hamburger icon) */
+    --sidebar-mobile-button-size: 32px;
+    --sidebar-mobile-button-radius: 8px;
+    --sidebar-mobile-icon-size: 18px;
+    --sidebar-mobile-line-height: 2px;
+    --sidebar-mobile-line-color: var(--gray-900);
+    --sidebar-mobile-line-transition-duration: 0.2s;
+
+    /* Mobile drawer */
+    --sidebar-mobile-gutter: 12px;
+    --sidebar-mobile-header-height: 48px;
+    --sidebar-mobile-z-index: 301;
+    --sidebar-mobile-backdrop-color: light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 35%));
+    --sidebar-mobile-enter-opacity-duration: 0.8s;
+    --sidebar-mobile-enter-transform-duration: 0.7s;
+    --sidebar-mobile-enter-delay: 0.33s;
+    --sidebar-mobile-exit-duration: 0.3s;
+
+    /* Footer */
+    --sidebar-footer-padding: var(--sidebar-gutter-sm) var(--sidebar-gutter);
+    --sidebar-footer-shadow: 0 -2px 10px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 35%));
+
+    /* Card */
+    --sidebar-card-padding: spacing(4);
+    --sidebar-card-radius: var(--radius-2xl);
+    --sidebar-card-height: 96px;
+    --sidebar-card-background: var(--color-surface);
+    --sidebar-card-background-hover: var(--color-surface-secondary);
+    --sidebar-card-shadow: var(--shadow-300), var(--shadow-hairline);
+    --sidebar-card-shadow-hover: var(--shadow-400), var(--shadow-hairline);
+    --sidebar-card-active-scale: 0.98;
   }
 }

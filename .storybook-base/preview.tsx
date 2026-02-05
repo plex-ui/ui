@@ -43,6 +43,7 @@ const preview: Preview = {
             "Segmented Control",
             "Select",
             "Select Control",
+            "Sidebar",
             "Slider",
             "Switch",
             "Tag Input",

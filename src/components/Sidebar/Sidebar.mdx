@@ -1,0 +1,271 @@
+import { Meta, Subtitle, Title, ArgTypes } from '@storybook/blocks';
+import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
+import { linkTo } from '@storybook/addon-links';
+import { Hero } from '@storybookComponents/Hero';
+
+import * as SidebarStories from './Sidebar.stories';
+
+<Meta of={SidebarStories} />
+
+<Title>Sidebar</Title>
+<Subtitle>Composable navigation sidebar for application layouts</Subtitle>
+
+<Hero className="block w-full max-w-lg text-center">
+  A flexible sidebar component with support for collapsible modes, mobile drawers, keyboard shortcuts, and nested navigation.
+</Hero>
+
+## Usage
+
+```jsx
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+} from "@plexui/ui/components/Sidebar";
+```
+
+<CollapsibleCanvas of={SidebarStories.Base} additionalActions={[
+  { title: 'View story', onClick: linkTo(SidebarStories.default.title, 'Base')}
+]} />
+<CollapsibleSource of={SidebarStories.Base} />
+
+## Provider
+
+The `SidebarProvider` manages the sidebar state and must wrap all sidebar components. It supports both controlled and uncontrolled modes.
+
+```jsx
+// Uncontrolled (default)
+<SidebarProvider defaultOpen={true}>
+  {/* sidebar components */}
+</SidebarProvider>
+
+// Controlled
+<SidebarProvider open={isOpen} onOpenChange={setIsOpen}>
+  {/* sidebar components */}
+</SidebarProvider>
+```
+
+### Provider Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultOpen` | `boolean` | `true` | Initial open state (uncontrolled mode) |
+| `open` | `boolean` | - | Controlled open state |
+| `onOpenChange` | `(open: boolean) => void` | - | Callback when state changes |
+| `collapsible` | `"offcanvas" \| "icon" \| "none"` | `"offcanvas"` | Collapse behavior mode |
+
+## Collapsible Modes
+
+### offcanvas (default)
+
+On mobile, the sidebar slides in as a drawer overlay. On desktop, the sidebar collapses completely.
+
+### icon
+
+The sidebar collapses to show only icons. Tooltips appear on hover. Ideal for desktop applications.
+
+<CollapsibleCanvas of={SidebarStories.CollapsibleIcon} />
+
+### none
+
+The sidebar cannot be collapsed. No trigger button is rendered. Use for documentation-style sidebars.
+
+<CollapsibleCanvas of={SidebarStories.TextOnlySettings} />
+
+## Variants
+
+The `Sidebar` component accepts a `variant` prop to control its visual style:
+
+| Variant | Description |
+| --- | --- |
+| `sidebar` | Default flush sidebar |
+| `floating` | Sidebar with margin and border radius |
+| `inset` | Secondary background color |
+| `dual-tier` | For rail + panel layouts |
+| `docs` | Documentation-style text navigation |
+
+<CollapsibleCanvas of={SidebarStories.DualTier} />
+
+## Components
+
+### Layout Components
+
+- **`SidebarLayout`** - Flex container for sidebar + main content
+- **`Sidebar`** - The sidebar container itself
+- **`SidebarInset`** - Main content area alongside sidebar
+- **`SidebarHeader`** - Top section of sidebar
+- **`SidebarContent`** - Scrollable middle section
+- **`SidebarFooter`** - Bottom section (sticky)
+
+### Navigation Components
+
+- **`SidebarGroup`** - Groups related nav items
+- **`SidebarGroupLabel`** - Section heading
+- **`SidebarMenu`** - List container for menu items
+- **`SidebarMenuItem`** - Individual menu item wrapper
+- **`SidebarMenuButton`** - Clickable navigation item
+- **`SidebarMenuButtonIcon`** - Icon wrapper with fixed width
+- **`SidebarMenuButtonLabel`** - Text label that collapses
+- **`SidebarMenuBadge`** - Badge/status indicator
+- **`SidebarMenuSub`** - Nested submenu container
+- **`SidebarMenuSubItem`** - Submenu item wrapper
+- **`SidebarMenuSubButton`** - Submenu navigation item
+
+### Utility Components
+
+- **`SidebarTrigger`** - Collapse/expand button
+- **`SidebarInput`** - Search input with shortcut display
+- **`SidebarSeparator`** - Visual divider
+- **`SidebarCard`** - Promotional card component
+- **`SidebarMenuSkeleton`** - Loading placeholder
+
+## Keyboard Shortcuts
+
+The sidebar responds to the following keyboard shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + B` | Toggle sidebar open/closed |
+| `Escape` | Close mobile drawer |
+
+Shortcuts are disabled when `collapsible="none"`.
+
+## Mobile Support
+
+For mobile layouts, use the mobile-specific components:
+
+```jsx
+<SidebarProvider collapsible="offcanvas">
+  {/* Header with menu button */}
+  <header>
+    <SidebarMobileMenuButton />
+  </header>
+
+  {/* Mobile drawer */}
+  <SidebarMobile>
+    <SidebarMobileHeader>
+      <span>Menu</span>
+      <SidebarMobileMenuButton />
+    </SidebarMobileHeader>
+    <SidebarContent>
+      {/* navigation items */}
+    </SidebarContent>
+    <SidebarMobileFooter>
+      {/* footer content */}
+    </SidebarMobileFooter>
+  </SidebarMobile>
+</SidebarProvider>
+```
+
+<CollapsibleCanvas of={SidebarStories.Mobile} />
+
+### Hamburger Animation
+
+The `SidebarMobileMenuButton` features an animated hamburger-to-X transition.
+
+<CollapsibleCanvas of={SidebarStories.MobileMenuButtonAnimation} />
+
+## Footer Cards
+
+Use `SidebarCard` components in the footer for promotional content or CTAs.
+
+<CollapsibleCanvas of={SidebarStories.FooterCards} />
+
+Cards automatically hide when the sidebar is collapsed.
+
+## Loading State
+
+Display skeleton placeholders while navigation data loads:
+
+<CollapsibleCanvas of={SidebarStories.LoadingSkeleton} />
+
+## Search
+
+Add a search input with keyboard shortcut display:
+
+<CollapsibleCanvas of={SidebarStories.WithSearch} />
+
+## Controlled Mode
+
+For external state management, use controlled mode:
+
+<CollapsibleCanvas of={SidebarStories.Controlled} />
+
+## Theming
+
+The sidebar uses CSS custom properties for easy theming. Override these in your CSS:
+
+```css
+:root {
+  /* Dimensions */
+  --sidebar-width: 320px;
+  --sidebar-width-mobile: 288px;
+  --sidebar-width-icon: 48px;
+
+  /* Colors */
+  --sidebar-background: var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-border: var(--color-border);
+  --sidebar-accent: var(--color-background-primary-soft);
+
+  /* Menu items */
+  --sidebar-menu-item-height: var(--control-size-md);
+  --sidebar-menu-item-radius: var(--radius-sm);
+
+  /* Transitions */
+  --sidebar-transition-duration: 0.35s;
+  --sidebar-collapse-duration: 0.3s;
+}
+```
+
+## Accessibility
+
+The sidebar implements the following accessibility features:
+
+- Keyboard navigation with `Tab` and `Enter`
+- `aria-label` on trigger buttons
+- Focus management in mobile drawer
+- `Escape` key closes mobile drawer
+- Focus trap in offcanvas mode (via CSS)
+- Screen reader announcements for state changes
+
+### Focus Management
+
+The sidebar uses visible focus rings that match the design system. Focus states are applied using `:focus-visible` to avoid showing focus on mouse interactions.
+
+## Hook
+
+Access sidebar state anywhere within the provider:
+
+```jsx
+import { useSidebar } from "@plexui/ui/components/Sidebar";
+
+function MyComponent() {
+  const { open, state, isMobile, toggleSidebar } = useSidebar();
+
+  return (
+    <button onClick={toggleSidebar}>
+      Sidebar is {state}
+    </button>
+  );
+}
+```
+
+### Hook Return Values
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `open` | `boolean` | Current open state |
+| `state` | `"expanded" \| "collapsed"` | Derived state string |
+| `openMobile` | `boolean` | Mobile drawer open state |
+| `isMobile` | `boolean` | Whether viewport is mobile |
+| `collapsible` | `"offcanvas" \| "icon" \| "none"` | Current collapsible mode |
+| `toggleSidebar` | `() => void` | Toggle function |
+| `setOpen` | `(open: boolean) => void` | Set open state |
+| `setOpenMobile` | `(open: boolean) => void` | Set mobile open state |
