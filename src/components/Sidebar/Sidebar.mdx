@@ -36,46 +36,19 @@ import {
 ]} />
 <CollapsibleSource of={SidebarStories.Base} />
 
-## Reference
-
-<h3 id="sidebar-provider" data-heading-label="Provider">`SidebarProvider`</h3>
-
-The `SidebarProvider` manages the sidebar state and must wrap all sidebar components. It supports both controlled and uncontrolled modes.
-
-<ArgTypes of={SidebarProvider} />
-
-<h3 id="sidebar-root" data-heading-label="Root">`Sidebar`</h3>
-
-The main container for the sidebar content.
-
-<ArgTypes of={Sidebar} />
-
-<h3 id="sidebar-menu-button" data-heading-label="MenuButton">`SidebarMenuButton`</h3>
-
-Clickable navigation item that handles labels and icons.
-
-<ArgTypes of={SidebarMenuButton} />
-
-### Hook: `useSidebar`
-
-Access sidebar state anywhere within the provider:
-
-```jsx
-const { open, state, isMobile, toggleSidebar } = useSidebar();
-```
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `open` | `boolean` | Current open state |
-| `state` | `"expanded" \| "collapsed"` | Derived state string |
-| `openMobile` | `boolean` | Mobile drawer open state |
-| `isMobile` | `boolean` | Whether viewport is mobile |
-| `collapsible` | `"offcanvas" \| "icon" \| "none"` | Current collapsible mode |
-| `toggleSidebar` | `() => void` | Toggle function |
-| `setOpen` | `(open: boolean) => void` | Set open state |
-| `setOpenMobile` | `(open: boolean) => void` | Set mobile open state |
-
 ## Examples
+
+### Vertical Scroll (Early Crop)
+
+If the content is taller than the sidebar, it will scroll vertically. The content will hide under the header and footer as it scrolls (the "early crop" effect).
+
+<CollapsibleCanvas of={SidebarStories.Scrollable} />
+
+### No Icons (Settings)
+
+A text-only sidebar for settings and configuration pages where icons are not needed. Uses `collapsible="none"` since there are no icons to collapse to.
+
+<CollapsibleCanvas of={SidebarStories.NoIcons} />
 
 ### Collapsibility
 
@@ -105,21 +78,3 @@ The sidebar provides dedicated components for common patterns like search inputs
 
 <CollapsibleCanvas of={SidebarStories.WithSearch} />
 <CollapsibleCanvas of={SidebarStories.LoadingSkeleton} />
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Cmd/Ctrl + B` | Toggle sidebar open/closed |
-| `Escape` | Close mobile drawer |
-
-Shortcuts are disabled when `collapsible="none"`.
-
-## Accessibility
-
-The sidebar follows WAI-ARIA patterns for navigation landmarks and focus management:
-
-- Keyboard navigation with `Tab` and `Enter`.
-- `aria-label` on trigger buttons.
-- Focus trap in mobile/offcanvas modes.
-- Screen reader announcements for state changes.

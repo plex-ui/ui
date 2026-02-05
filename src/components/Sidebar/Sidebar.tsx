@@ -285,11 +285,6 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
    */
   isActive?: boolean
   /**
-   * The size of the button.
-   * @default "md"
-   */
-  size?: "sm" | "md" | "lg"
-  /**
    * Optional tooltip to show when the sidebar is collapsed.
    */
   tooltip?: string | ReactNode
@@ -302,7 +297,7 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
 
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   (
-    { isActive = false, size = "md", tooltip, asChild = false, className, children, ...props },
+    { isActive = false, tooltip, asChild = false, className, children, ...props },
     ref,
   ) => {
     const { state, isMobile } = useSidebar()
@@ -312,7 +307,6 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
       <Comp
         ref={ref}
         data-active={isActive ? "true" : "false"}
-        data-size={size}
         className={clsx(s.MenuButton, className)}
         {...props}
       >

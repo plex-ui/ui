@@ -69,16 +69,10 @@ const mainNavItems = [
   { icon: Folder, label: "Projects", badge: "New" },
   { icon: FileDocument, label: "Assets" },
   { icon: Analytics, label: "Analytics" },
-  { icon: Globe, label: "Deployments" },
-  { icon: Storage, label: "Resources" },
-  { icon: Code, label: "Logs" },
-  { icon: Terminal, label: "Console" },
 ]
 
 const systemNavItems = [
   { icon: Members, label: "Team" },
-  { icon: CreditCard, label: "Billing" },
-  { icon: ApiKeys, label: "API Keys" },
   { icon: SettingsCog, label: "Settings" },
 ]
 
@@ -135,16 +129,6 @@ const SidebarStandardGroups = () => (
 
 const SidebarStandardFooter = () => (
   <SidebarFooter>
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Help">
-          <SidebarMenuButtonIcon>
-            <Help />
-          </SidebarMenuButtonIcon>
-          <SidebarMenuButtonLabel>Help</SidebarMenuButtonLabel>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    </SidebarMenu>
     <SidebarTrigger />
   </SidebarFooter>
 )
@@ -153,32 +137,85 @@ const SidebarStandardFooter = () => (
 // Stories
 // =============================================
 
-export const Base = () => (
-  <SidebarProvider>
-    <SidebarLayout style={{ height: 500 }}>
-      <Sidebar>
-        <SidebarContent>
-          <SidebarStandardGroups />
-        </SidebarContent>
-        <SidebarStandardFooter />
-      </Sidebar>
+export const Base = () => {
+  const [activeItem, setActiveItem] = useState("Overview")
 
-      <SidebarInset>
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Overview</h1>
-          <p className="text-secondary">
-            This is the main content area. The sidebar can be collapsed using the trigger button or
-            by pressing <kbd className="kbd">Cmd+B</kbd> / <kbd className="kbd">Ctrl+B</kbd>.
-          </p>
-        </div>
-      </SidebarInset>
-    </SidebarLayout>
-  </SidebarProvider>
-)
+  return (
+    <SidebarProvider>
+      <SidebarLayout style={{ height: 600 }}>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Project</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {mainNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                        {item.badge && (
+                          <SidebarMenuBadge>
+                            <Badge size="sm" color="success">
+                              {item.badge}
+                            </Badge>
+                          </SidebarMenuBadge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>System</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {systemNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarStandardFooter />
+        </Sidebar>
+
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              This is the main content area. The sidebar can be collapsed using the trigger button or
+              by pressing <kbd className="kbd">Cmd+B</kbd> / <kbd className="kbd">Ctrl+B</kbd>.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
 
 export const CollapsibleIcon = () => (
   <SidebarProvider collapsible="icon" defaultOpen={false}>
-    <SidebarLayout style={{ height: 500 }}>
+    <SidebarLayout style={{ height: 600 }}>
       <Sidebar>
         <SidebarContent>
           <SidebarStandardGroups />
@@ -225,7 +262,7 @@ export const DualTier = () => {
 
   return (
     <SidebarProvider collapsible="icon">
-      <SidebarLayout style={{ height: 500 }}>
+      <SidebarLayout style={{ height: 600 }}>
         {/* Rail (icon-only tier) */}
         <Sidebar variant="dual-tier">
           <SidebarContent>
@@ -285,7 +322,7 @@ export const DualTier = () => {
 
 export const FooterCards = () => (
   <SidebarProvider>
-    <SidebarLayout style={{ height: 500 }}>
+    <SidebarLayout style={{ height: 600 }}>
       <Sidebar>
         <SidebarContent>
           <SidebarStandardGroups />
@@ -338,7 +375,7 @@ export const TextOnlySettings = () => {
 
   return (
     <SidebarProvider collapsible="none">
-      <SidebarLayout style={{ height: 500 }}>
+      <SidebarLayout style={{ height: 600 }}>
         <Sidebar variant="docs" style={{ width: "240px" }}>
           <SidebarContent>
             {settingsCategories.map((category) => (
@@ -376,7 +413,7 @@ export const TextOnlySettings = () => {
 
 export const LoadingSkeleton = () => (
   <SidebarProvider>
-    <SidebarLayout style={{ height: 500 }}>
+    <SidebarLayout style={{ height: 600 }}>
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
@@ -420,7 +457,7 @@ export const Controlled = () => {
       </div>
 
       <SidebarProvider open={open} onOpenChange={setOpen}>
-        <SidebarLayout style={{ height: 443 }}>
+        <SidebarLayout style={{ height: 600 }}>
           <Sidebar>
             <SidebarContent>
               <SidebarStandardGroups />
@@ -445,7 +482,7 @@ export const Controlled = () => {
 
 export const WithSearch = () => (
   <SidebarProvider>
-    <SidebarLayout style={{ height: 500 }}>
+    <SidebarLayout style={{ height: 600 }}>
       <Sidebar>
         <SidebarHeader>
           <SidebarInput placeholder="Search..." shortcut="⌘K" />
@@ -496,7 +533,7 @@ export const DocsVariant = () => {
 
   return (
     <SidebarProvider collapsible="none">
-      <SidebarLayout style={{ height: 500 }}>
+      <SidebarLayout style={{ height: 600 }}>
         <Sidebar variant="docs" style={{ width: "280px" }}>
           <SidebarHeader>
             <div className="flex items-center gap-2 font-semibold px-3 py-2">
@@ -592,3 +629,207 @@ export const MobileMenuButtonAnimation = () => (
     </div>
   </SidebarProvider>
 )
+
+export const Scrollable = () => (
+  <SidebarProvider>
+    <SidebarLayout style={{ height: 500 }}>
+      <Sidebar side="left" variant="sidebar">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Project</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {mainNavItems.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton isActive={item.active} tooltip={item.label}>
+                      <SidebarMenuButtonIcon>
+                        <item.icon />
+                      </SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>System</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {systemNavItems.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton tooltip={item.label}>
+                      <SidebarMenuButtonIcon>
+                        <item.icon />
+                      </SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Resources</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Logs">
+                    <SidebarMenuButtonIcon><Code /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>Logs</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Console">
+                    <SidebarMenuButtonIcon><Terminal /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>Console</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Storage">
+                    <SidebarMenuButtonIcon><Storage /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>Storage</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Deployments">
+                    <SidebarMenuButtonIcon><Globe /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>Deployments</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Billing">
+                    <SidebarMenuButtonIcon><CreditCard /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>Billing</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="API Keys">
+                    <SidebarMenuButtonIcon><ApiKeys /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>API Keys</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarStandardFooter />
+      </Sidebar>
+      <SidebarInset>
+        <div className="p-6">
+          <h1 className="text-2xl font-semibold tracking-tight">Vertical Scroll</h1>
+          <p className="text-secondary mt-2">
+            When the sidebar content exceeds the container height, it becomes scrollable.
+            Items smoothly hide under the opaque header and footer as you scroll
+            (the "early crop" effect).
+          </p>
+        </div>
+      </SidebarInset>
+    </SidebarLayout>
+  </SidebarProvider>
+)
+
+// =============================================
+// No Icons (Settings Style)
+// =============================================
+
+const settingsNavItems = [
+  { label: "Your profile" },
+]
+
+const organizationNavItems = [
+  { label: "General", active: true },
+  { label: "API keys" },
+  { label: "Admin keys" },
+]
+
+const peopleNavItems = [
+  { label: "People" },
+  { label: "Projects" },
+  { label: "Billing" },
+  { label: "Limits" },
+  { label: "Tunnels" },
+  { label: "Usage" },
+]
+
+export const NoIcons = () => {
+  const allItems = [...settingsNavItems, ...organizationNavItems, ...peopleNavItems]
+  const [activeItem, setActiveItem] = useState("General")
+
+  return (
+    <SidebarProvider collapsible="none">
+      <SidebarLayout style={{ height: 600 }}>
+        <Sidebar style={{ width: "180px" }}>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Settings</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {settingsNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Organization</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {organizationNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>People</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {peopleNavItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        tooltip={item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold tracking-tight">{activeItem}</h1>
+            <p className="text-secondary mt-2">
+              A text-only sidebar for settings pages. Uses collapsible="none" since there are no icons to collapse to.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}

@@ -332,8 +332,10 @@
     --sidebar-background-secondary: var(--color-surface-secondary);
     --sidebar-foreground: var(--color-text);
     --sidebar-border: var(--color-border);
-    --sidebar-accent: light-dark(var(--gray-150), var(--gray-300));
-    --sidebar-accent-hover: light-dark(var(--gray-200), var(--gray-400));
+    --sidebar-accent: light-dark(var(--alpha-08), var(--alpha-12));
+    --sidebar-accent-hover: light-dark(var(--alpha-12), var(--alpha-16));
+    --sidebar-menu-text: var(--gray-750);
+    --sidebar-menu-text-active: var(--gray-900);
 
     /* Group label */
     --sidebar-group-label-color: var(--color-text-tertiary);
@@ -357,7 +359,7 @@
     --sidebar-icon-size: 20px;
     --sidebar-icon-wrapper-size: 32px;
     --sidebar-icon-margin: 0 2px 0 4px;
-    --sidebar-icon-color: var(--gray-750);
+    --sidebar-icon-color: inherit;
 
     /* Transitions */
     --sidebar-transition-duration: 0.3s;
