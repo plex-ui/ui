@@ -134,13 +134,7 @@
     black 24px,
     black 100%
   );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 8px,
-    black 24px,
-    black 100%
-  );
+  mask-image: linear-gradient(to bottom, transparent 0, transparent 8px, black 24px, black 100%);
 }
 
 .Footer {

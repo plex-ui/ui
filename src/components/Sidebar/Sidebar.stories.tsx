@@ -943,23 +943,39 @@ export const DocsVariant = () => {
 }
 
 // Mobile story with Storybook controls
-const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boolean }) => {
+const MobileStoryContent = ({
+  mobile,
+  nested,
+  icons,
+}: {
+  mobile: boolean
+  nested: boolean
+  icons: boolean
+}) => {
   const [activeItem, setActiveItem] = useState({ id: "overview", label: "Overview" })
   const [expandedSections, setExpandedSections] = useState<string[]>([])
 
-  // Reset activeItem when nested mode changes
+  // Reset activeItem when nested/icons mode changes
   useEffect(() => {
     if (nested) {
-      setActiveItem({ id: "introduction", label: "Introduction" })
+      if (icons) {
+        setActiveItem({ id: "overview", label: "Overview" })
+        setExpandedSections(["dashboard"])
+      } else {
+        setActiveItem({ id: "introduction", label: "Introduction" })
+        setExpandedSections([])
+      }
     } else {
       setActiveItem({ id: "overview", label: "Overview" })
+      setExpandedSections([])
     }
-  }, [nested])
+  }, [nested, icons])
 
-  // Documentation-style navigation structure (like CollapsibleNested)
+  // Navigation structure with optional icon
   type NavItem = {
     id: string
     label: string
+    icon?: React.ComponentType
     items?: NavItem[]
   }
 
@@ -1005,6 +1021,50 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
         },
         { id: "models", label: "Models" },
         { id: "errors", label: "Errors" },
+      ],
+    },
+  ]
+
+  // Icon-based nested navigation (2 levels, with icons)
+  const sectionsWithIcons: NavItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      items: [
+        { id: "overview", label: "Overview" },
+        { id: "analytics", label: "Analytics" },
+        { id: "reports", label: "Reports" },
+      ],
+    },
+    {
+      id: "content",
+      label: "Content",
+      icon: FileDocument,
+      items: [
+        { id: "pages", label: "Pages" },
+        { id: "posts", label: "Posts" },
+        { id: "media", label: "Media Library" },
+      ],
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: Members,
+      items: [
+        { id: "all-users", label: "All Users" },
+        { id: "roles", label: "Roles" },
+        { id: "permissions", label: "Permissions" },
+      ],
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: SettingsCog,
+      items: [
+        { id: "general", label: "General" },
+        { id: "security", label: "Security" },
+        { id: "integrations", label: "Integrations" },
       ],
     },
   ]
@@ -1060,7 +1120,7 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
     })
   }
 
-  // Render nested navigation for desktop (like CollapsibleNested)
+  // Render nested navigation for desktop (text-only, docs style)
   const renderDesktopNestedNav = () => (
     <Sidebar variant="docs" style={{ width: "280px" }}>
       <SidebarContent>
@@ -1073,6 +1133,49 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
           </SidebarGroup>
         ))}
       </SidebarContent>
+    </Sidebar>
+  )
+
+  // Render nested navigation with icons for desktop
+  const renderDesktopNestedNavWithIcons = () => (
+    <Sidebar style={{ width: "280px" }}>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sectionsWithIcons.map((item) => {
+                const isExpanded = expandedSections.includes(item.id)
+                const Icon = item.icon
+                return (
+                  <SidebarMenuItem key={item.id} expanded={isExpanded}>
+                    <SidebarMenuButton onClick={() => toggleSection(item.id)}>
+                      <SidebarMenuButtonIcon>{Icon && <Icon />}</SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      <SidebarMenuChevron />
+                    </SidebarMenuButton>
+                    <SidebarMenuSub open={isExpanded} hasIcons>
+                      {item.items?.map((child) => (
+                        <SidebarMenuSubItem key={child.id}>
+                          <SidebarMenuSubButton
+                            indent={1}
+                            isActive={activeItem.id === child.id}
+                            onClick={() => setActiveItem({ id: child.id, label: child.label })}
+                          >
+                            {child.label}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarTrigger />
+      </SidebarFooter>
     </Sidebar>
   )
 
@@ -1156,85 +1259,80 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
     </Sidebar>
   )
 
-  // Render nested navigation for mobile sidebar drawer
-  const renderMobileNestedNav = () => (
-    <SidebarContent>
-      {sections.map((section) => (
-        <SidebarGroup key={section.id}>
-          <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+  // Render simple navigation for desktop without icons
+  const renderDesktopSimpleNavNoIcons = () => (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{section.items && renderNestedItems(section.items, 0)}</SidebarMenu>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      ))}
-    </SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarTrigger />
+      </SidebarFooter>
+    </Sidebar>
   )
 
-  // Render simple navigation for mobile sidebar drawer
-  const renderMobileSimpleNav = () => (
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {mainNavItems.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton
-                  isActive={activeItem.label === item.label}
-                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
-                >
-                  <SidebarMenuButtonIcon>
-                    <item.icon />
-                  </SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-      <SidebarGroup>
-        <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {systemNavItems.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton
-                  isActive={activeItem.label === item.label}
-                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
-                >
-                  <SidebarMenuButtonIcon>
-                    <item.icon />
-                  </SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-      <SidebarGroup>
-        <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {resourcesNavItems.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton
-                  isActive={activeItem.label === item.label}
-                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
-                >
-                  <SidebarMenuButtonIcon>
-                    <item.icon />
-                  </SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
-  )
+  // Helper to render desktop sidebar based on nested and icons props
+  const renderDesktopSidebar = () => {
+    if (!nested) return icons ? renderDesktopSimpleNav() : renderDesktopSimpleNavNoIcons()
+    if (icons) return renderDesktopNestedNavWithIcons()
+    return renderDesktopNestedNav()
+  }
 
   // Desktop layout - full sidebar with SidebarLayout
   // Wrap in fixed-width container to prevent preview width changes during collapse
@@ -1243,7 +1341,7 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
       <div style={{ width: nested ? 680 : 640 }}>
         <SidebarProvider collapsible="icon">
           <SidebarLayout style={{ height: 667 }}>
-            {nested ? renderDesktopNestedNav() : renderDesktopSimpleNav()}
+            {renderDesktopSidebar()}
             <SidebarInset>
               <div className="p-6">
                 <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
@@ -1335,7 +1433,64 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
       </SidebarContent>
     )
 
-    // Render nested nav with close behavior
+    // Render simple nav without icons with close behavior
+    const renderMobileNavNoIcons = () => (
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    )
+
+    // Render nested nav with close behavior (text-only)
     const renderMobileNestedNavWithClose = () => (
       <SidebarContent>
         {sections.map((section) => (
@@ -1350,6 +1505,54 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
         ))}
       </SidebarContent>
     )
+
+    // Render nested nav with icons and close behavior
+    const renderMobileNestedNavWithIcons = () => (
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sectionsWithIcons.map((item) => {
+                const isExpanded = expandedSections.includes(item.id)
+                const Icon = item.icon
+                return (
+                  <SidebarMenuItem key={item.id} expanded={isExpanded}>
+                    <SidebarMenuButton onClick={() => toggleSection(item.id)}>
+                      <SidebarMenuButtonIcon>{Icon && <Icon />}</SidebarMenuButtonIcon>
+                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                      <SidebarMenuChevron />
+                    </SidebarMenuButton>
+                    <SidebarMenuSub open={isExpanded} hasIcons>
+                      {item.items?.map((child) => (
+                        <SidebarMenuSubItem key={child.id}>
+                          <SidebarMenuSubButton
+                            indent={1}
+                            isActive={activeItem.id === child.id}
+                            onClick={() => {
+                              setActiveItem({ id: child.id, label: child.label })
+                              setOpenMobile(false)
+                            }}
+                          >
+                            {child.label}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    )
+
+    // Helper to render mobile nav based on nested and icons props
+    const renderMobileContent = () => {
+      if (!nested) return icons ? renderMobileNav() : renderMobileNavNoIcons()
+      if (icons) return renderMobileNestedNavWithIcons()
+      return renderMobileNestedNavWithClose()
+    }
 
     return (
       <div
@@ -1388,9 +1591,7 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
         >
           {openMobile ? (
             // Menu content - replaces page content when open
-            <div className={styles.MobileMenuContent}>
-              {nested ? renderMobileNestedNavWithClose() : renderMobileNav()}
-            </div>
+            <div className={styles.MobileMenuContent}>{renderMobileContent()}</div>
           ) : (
             // Page content
             <div style={{ padding: 24 }}>
@@ -1412,7 +1613,7 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
   )
 }
 
-export const Mobile = (args: { mobile: boolean; nested: boolean }) => (
+export const Mobile = (args: { mobile: boolean; nested: boolean; icons: boolean }) => (
   <div className="flex items-center justify-center w-full">
     <MobileStoryContent {...args} />
   </div>
@@ -1421,15 +1622,17 @@ export const Mobile = (args: { mobile: boolean; nested: boolean }) => (
 Mobile.args = {
   mobile: false,
   nested: false,
+  icons: false,
 }
 
 Mobile.argTypes = {
   mobile: { control: "boolean" },
   nested: { control: "boolean" },
+  icons: { control: "boolean" },
 }
 
 Mobile.parameters = {
-  controls: { include: ["mobile", "nested"] },
+  controls: { include: ["mobile", "nested", "icons"] },
 }
 
 export const MobileMenuButtonAnimation = () => (
@@ -1782,7 +1985,11 @@ export const WithBadges = (args: { pill: boolean }) => {
     { label: "Playground", icon: Terminal, badge: { text: "Beta", color: "warning" as const } },
     { label: "Fine-tuning", icon: SettingsCog, badge: { text: "3", color: "info" as const } },
     { label: "Batch API", icon: Storage, badge: { text: "Updated", color: "discovery" as const } },
-    { label: "Legacy Models", icon: FileDocument, badge: { text: "Deprecated", color: "danger" as const } },
+    {
+      label: "Legacy Models",
+      icon: FileDocument,
+      badge: { text: "Deprecated", color: "danger" as const },
+    },
     { label: "Usage", icon: Analytics, badge: { text: "12", color: "caution" as const } },
     { label: "Billing", icon: CreditCard },
   ]
