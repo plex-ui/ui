@@ -346,7 +346,7 @@
   width: var(--sidebar-icon-wrapper-size);
   height: var(--sidebar-icon-wrapper-size);
   margin: var(--sidebar-icon-margin);
-  color: var(--sidebar-icon-color);
+  color: inherit;
 }
 
 .MenuButtonIcon svg {
@@ -702,7 +702,7 @@
   width: var(--sidebar-icon-wrapper-size);
   height: var(--sidebar-icon-wrapper-size);
   margin: var(--sidebar-icon-margin);
-  color: var(--sidebar-icon-color);
+  color: inherit;
 }
 
 .TriggerIcon svg {
