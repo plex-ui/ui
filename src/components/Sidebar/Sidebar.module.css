@@ -125,6 +125,24 @@
   display: none;
 }
 
+/* When Footer with separator is present, remove bottom fade - clip exactly at separator */
+.Sidebar:has(.Footer) .Content {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 8px,
+    black 24px,
+    black 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 8px,
+    black 24px,
+    black 100%
+  );
+}
+
 .Footer {
   flex-shrink: 0;
   width: 100%;

@@ -332,6 +332,8 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
         { id: "introduction", label: "Introduction" },
         { id: "installation", label: "Installation" },
         { id: "quick-start", label: "Quick Start" },
+        { id: "configuration", label: "Configuration" },
+        { id: "examples", label: "Examples" },
       ],
     },
     {
@@ -373,8 +375,40 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
             { id: "chat-stream", label: "Streaming" },
           ],
         },
+        {
+          id: "embeddings",
+          label: "Embeddings",
+          items: [
+            { id: "embeddings-create", label: "Create" },
+            { id: "embeddings-list", label: "List" },
+          ],
+        },
         { id: "models", label: "Models" },
+        { id: "files", label: "Files" },
+        { id: "images", label: "Images" },
+        { id: "audio", label: "Audio" },
         { id: "errors", label: "Errors" },
+      ],
+    },
+    {
+      id: "guides",
+      label: "Guides",
+      items: [
+        { id: "best-practices", label: "Best Practices" },
+        { id: "rate-limits", label: "Rate Limits" },
+        { id: "authentication", label: "Authentication" },
+        { id: "error-handling", label: "Error Handling" },
+        { id: "pagination", label: "Pagination" },
+      ],
+    },
+    {
+      id: "sdks",
+      label: "SDKs & Libraries",
+      items: [
+        { id: "sdk-python", label: "Python" },
+        { id: "sdk-node", label: "Node.js" },
+        { id: "sdk-go", label: "Go" },
+        { id: "sdk-java", label: "Java" },
       ],
     },
   ]
@@ -389,6 +423,7 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
         { id: "overview", label: "Overview" },
         { id: "analytics", label: "Analytics" },
         { id: "reports", label: "Reports" },
+        { id: "metrics", label: "Metrics" },
       ],
     },
     {
@@ -399,6 +434,7 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
         { id: "pages", label: "Pages" },
         { id: "posts", label: "Posts" },
         { id: "media", label: "Media Library" },
+        { id: "templates", label: "Templates" },
       ],
     },
     {
@@ -409,6 +445,27 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
         { id: "all-users", label: "All Users" },
         { id: "roles", label: "Roles" },
         { id: "permissions", label: "Permissions" },
+        { id: "invitations", label: "Invitations" },
+      ],
+    },
+    {
+      id: "api",
+      label: "API",
+      icon: Code,
+      items: [
+        { id: "api-keys", label: "API Keys" },
+        { id: "webhooks", label: "Webhooks" },
+        { id: "logs", label: "Logs" },
+      ],
+    },
+    {
+      id: "billing",
+      label: "Billing",
+      icon: CreditCard,
+      items: [
+        { id: "subscription", label: "Subscription" },
+        { id: "invoices", label: "Invoices" },
+        { id: "usage", label: "Usage" },
       ],
     },
     {
@@ -419,6 +476,7 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
         { id: "general", label: "General" },
         { id: "security", label: "Security" },
         { id: "integrations", label: "Integrations" },
+        { id: "notifications", label: "Notifications" },
       ],
     },
   ]
