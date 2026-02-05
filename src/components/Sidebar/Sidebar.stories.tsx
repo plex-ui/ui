@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"
-import styles from "./Sidebar.module.css"
+import { useEffect, useState } from "react"
 import { Badge } from "../Badge"
 import { Button } from "../Button"
 import {
@@ -23,7 +22,7 @@ import {
   SidebarCard,
   SidebarCardContent,
   SidebarCardFooter,
-  SidebarCardTitle,
+  SidebarCardTitleLink,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -49,6 +48,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "./Sidebar"
+import styles from "./Sidebar.module.css"
 
 export default {
   title: "Components/Sidebar",
@@ -220,11 +220,11 @@ export const Base = () => {
   )
 }
 
-export const CollapsibleIcon = () => {
+const CollapsibleIconContent = ({ open }: { open: boolean }) => {
   const [activeItem, setActiveItem] = useState("Overview")
 
   return (
-    <SidebarProvider collapsible="icon" defaultOpen={false}>
+    <SidebarProvider collapsible="icon" defaultOpen={open}>
       <SidebarLayout style={{ height: 600 }}>
         <Sidebar>
           <SidebarContent>
@@ -279,8 +279,8 @@ export const CollapsibleIcon = () => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
             <p className="text-secondary">
-              This sidebar is collapsed to show only icons. Hover over icons to see tooltips. Click
-              the expand button or press <kbd className="kbd">Cmd+B</kbd> to expand.
+              This sidebar uses <code>collapsible="icon"</code> mode. Toggle the <code>open</code>{" "}
+              control below, or press <kbd className="kbd">Cmd+B</kbd> to expand/collapse.
             </p>
           </div>
         </SidebarInset>
@@ -289,16 +289,30 @@ export const CollapsibleIcon = () => {
   )
 }
 
+export const CollapsibleIcon = (args: { open: boolean }) => (
+  <CollapsibleIconContent key={args.open ? "open" : "closed"} {...args} />
+)
+
+CollapsibleIcon.args = {
+  open: true,
+}
+
+CollapsibleIcon.argTypes = {
+  open: { control: "boolean" },
+}
+
+CollapsibleIcon.parameters = {
+  controls: { include: ["open"] },
+}
+
 // CollapsibleNested with icons control
 const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
   // Initialize state based on icons prop (component remounts when icons changes due to key)
   const [expandedSections, setExpandedSections] = useState<string[]>(
-    icons ? ["dashboard"] : ["getting-started"]
+    icons ? ["dashboard"] : ["getting-started"],
   )
   const [activeItem, setActiveItem] = useState(
-    icons
-      ? { id: "overview", label: "Overview" }
-      : { id: "introduction", label: "Introduction" }
+    icons ? { id: "overview", label: "Overview" } : { id: "introduction", label: "Introduction" },
   )
 
   // Documentation-style navigation structure with optional icon
@@ -471,9 +485,7 @@ const CollapsibleNestedContent = ({ icons }: { icons: boolean }) => {
                       return (
                         <SidebarMenuItem key={item.id} expanded={isExpanded}>
                           <SidebarMenuButton onClick={() => toggleSection(item.id)}>
-                            <SidebarMenuButtonIcon>
-                              {Icon && <Icon />}
-                            </SidebarMenuButtonIcon>
+                            <SidebarMenuButtonIcon>{Icon && <Icon />}</SidebarMenuButtonIcon>
                             <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
                             <SidebarMenuChevron />
                           </SidebarMenuButton>
@@ -543,7 +555,7 @@ CollapsibleNested.parameters = {
 }
 
 export const FooterCards = () => (
-  <SidebarProvider>
+  <SidebarProvider collapsible="icon">
     <SidebarLayout style={{ height: 600 }}>
       <Sidebar>
         <SidebarContent>
@@ -552,13 +564,13 @@ export const FooterCards = () => (
 
         <SidebarFooter>
           <SidebarCard dismissible onDismiss={() => {}}>
-            <SidebarCardTitle>Upgrade to Pro</SidebarCardTitle>
+            <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
             <SidebarCardContent>
-              Unlock higher rate limits, priority support, and more.
+              Unlock higher rate limits, priority support, and advanced features.
             </SidebarCardContent>
             <SidebarCardFooter>
-              <Button size="sm" color="primary" className="w-full">
-                Upgrade Now
+              <Button size="sm" pill color="primary">
+                View Plans
               </Button>
             </SidebarCardFooter>
           </SidebarCard>
@@ -635,31 +647,34 @@ export const TextOnlySettings = () => {
 
 export const LoadingSkeleton = () => (
   <SidebarProvider>
-    <SidebarLayout style={{ height: 600 }}>
+    <SidebarLayout style={{ height: 300 }}>
       <Sidebar>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel size="sm">Loading...</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuSkeleton />
-                  </SidebarMenuItem>
-                ))}
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton labelWidth="70%" />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton labelWidth="55%" />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton labelWidth="80%" />
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuSkeleton labelWidth="45%" />
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarStandardFooter />
       </Sidebar>
 
       <SidebarInset>
         <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Loading Skeleton</h1>
-          <p className="text-secondary">
-            Use skeleton placeholders while navigation data is loading.
-          </p>
+          <h1 className="text-2xl font-semibold mb-4">Loading</h1>
+          <p className="text-secondary">Skeleton placeholders while navigation loads.</p>
         </div>
       </SidebarInset>
     </SidebarLayout>
@@ -702,31 +717,90 @@ export const Controlled = () => {
   )
 }
 
-export const WithSearch = () => (
-  <SidebarProvider>
-    <SidebarLayout style={{ height: 600 }}>
-      <Sidebar>
-        <SidebarHeader>
-          <SidebarInput placeholder="Search..." shortcut="⌘K" />
-        </SidebarHeader>
+export const WithSearch = () => {
+  const [activeItem, setActiveItem] = useState("Overview")
+  const [searchValue, setSearchValue] = useState("")
 
-        <SidebarContent>
-          <SidebarStandardGroups />
-        </SidebarContent>
-        <SidebarStandardFooter />
-      </Sidebar>
+  const docsSections = [
+    {
+      label: "Get started",
+      items: [
+        "Overview",
+        "Quickstart",
+        "Models",
+        "Pricing",
+        "Libraries",
+        "Docs MCP",
+        "Latest: GPT-5.2",
+      ],
+    },
+    {
+      label: "Core concepts",
+      items: [
+        "Text generation",
+        "Code generation",
+        "Images and vision",
+        "Audio and speech",
+        "Structured output",
+        "Function calling",
+        "Responses API",
+      ],
+    },
+    {
+      label: "Agents",
+      items: ["Overview", "Build agents"],
+    },
+  ]
 
-      <SidebarInset>
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">With Search</h1>
-          <p className="text-secondary">
-            The sidebar can include a search input with keyboard shortcut display.
-          </p>
-        </div>
-      </SidebarInset>
-    </SidebarLayout>
-  </SidebarProvider>
-)
+  return (
+    <SidebarProvider collapsible="none">
+      <SidebarLayout style={{ height: 600 }}>
+        <Sidebar variant="docs" style={{ width: "220px" }}>
+          <SidebarHeader>
+            <SidebarInput
+              placeholder="Search"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onClear={() => setSearchValue("")}
+            />
+          </SidebarHeader>
+
+          <SidebarContent>
+            {docsSections.map((section) => (
+              <SidebarGroup key={section.label}>
+                <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {section.items.map((item) => (
+                      <SidebarMenuItem key={item}>
+                        <SidebarMenuSubButton
+                          indent={0}
+                          isActive={activeItem === item}
+                          onClick={() => setActiveItem(item)}
+                        >
+                          {item}
+                        </SidebarMenuSubButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
+          </SidebarContent>
+        </Sidebar>
+
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              The sidebar includes a search input that stays fixed at the top while content scrolls.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
 
 export const DocsVariant = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>(["getting-started", "components"])
@@ -888,7 +962,7 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
   const renderNestedItems = (
     items: NavItem[],
     depth: number = 0,
-    onSelect?: (item: { id: string; label: string }) => void
+    onSelect?: (item: { id: string; label: string }) => void,
   ) => {
     return items.map((item) => {
       const hasChildren = item.items && item.items.length > 0
@@ -1105,21 +1179,24 @@ const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boole
   )
 
   // Desktop layout - full sidebar with SidebarLayout
+  // Wrap in fixed-width container to prevent preview width changes during collapse
   if (!mobile) {
     return (
-      <SidebarProvider collapsible={nested ? "none" : "icon"}>
-        <SidebarLayout style={{ height: 667 }}>
-          {nested ? renderDesktopNestedNav() : renderDesktopSimpleNav()}
-          <SidebarInset>
-            <div className="p-6">
-              <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
-              <p className="text-secondary">
-                This is the desktop view. Toggle mobile to see the mobile sidebar.
-              </p>
-            </div>
-          </SidebarInset>
-        </SidebarLayout>
-      </SidebarProvider>
+      <div style={{ width: nested ? 680 : 640 }}>
+        <SidebarProvider collapsible="icon">
+          <SidebarLayout style={{ height: 667 }}>
+            {nested ? renderDesktopNestedNav() : renderDesktopSimpleNav()}
+            <SidebarInset>
+              <div className="p-6">
+                <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
+                <p className="text-secondary">
+                  This is the desktop view. Toggle mobile to see the mobile sidebar.
+                </p>
+              </div>
+            </SidebarInset>
+          </SidebarLayout>
+        </SidebarProvider>
+      </div>
     )
   }
 
@@ -1496,4 +1573,140 @@ export const TextOnly = () => {
       </SidebarLayout>
     </SidebarProvider>
   )
+}
+
+// =============================================
+// Header Sizes
+// =============================================
+
+const HeaderSizesContent = ({ size }: { size: "sm" | "lg" }) => {
+  const [activeItem, setActiveItem] = useState(size === "sm" ? "Overview" : "Introduction")
+
+  // Dashboard-style items for sm size
+  const dashboardSections = [
+    {
+      label: "Project",
+      items: [
+        { icon: Home, label: "Overview" },
+        { icon: Folder, label: "Projects" },
+        { icon: Analytics, label: "Analytics" },
+      ],
+    },
+    {
+      label: "System",
+      items: [
+        { icon: Members, label: "Team" },
+        { icon: SettingsCog, label: "Settings" },
+      ],
+    },
+  ]
+
+  // Documentation-style sections for lg size
+  const docsSections = [
+    {
+      label: "Getting Started",
+      items: ["Introduction", "Installation", "Quick Start"],
+    },
+    {
+      label: "Components",
+      items: ["Button", "Input", "Modal", "Sidebar"],
+    },
+  ]
+
+  if (size === "sm") {
+    return (
+      <SidebarProvider collapsible="none">
+        <SidebarLayout style={{ height: 400 }}>
+          <Sidebar style={{ width: "200px" }}>
+            <SidebarContent>
+              {dashboardSections.map((section) => (
+                <SidebarGroup key={section.label}>
+                  <SidebarGroupLabel size="sm">{section.label}</SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {section.items.map((item) => (
+                        <SidebarMenuItem key={item.label}>
+                          <SidebarMenuButton
+                            isActive={activeItem === item.label}
+                            onClick={() => setActiveItem(item.label)}
+                          >
+                            <SidebarMenuButtonIcon>
+                              <item.icon />
+                            </SidebarMenuButtonIcon>
+                            <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              ))}
+            </SidebarContent>
+          </Sidebar>
+          <SidebarInset>
+            <div className="p-6">
+              <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+              <p className="text-secondary">
+                Compact headers with tertiary color for dashboard navigation.
+              </p>
+            </div>
+          </SidebarInset>
+        </SidebarLayout>
+      </SidebarProvider>
+    )
+  }
+
+  return (
+    <SidebarProvider collapsible="none">
+      <SidebarLayout style={{ height: 400 }}>
+        <Sidebar variant="docs" style={{ width: "220px" }}>
+          <SidebarContent>
+            {docsSections.map((section) => (
+              <SidebarGroup key={section.label}>
+                <SidebarGroupLabel size="lg">{section.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {section.items.map((item) => (
+                      <SidebarMenuItem key={item}>
+                        <SidebarMenuButton
+                          isActive={activeItem === item}
+                          onClick={() => setActiveItem(item)}
+                        >
+                          <SidebarMenuButtonLabel>{item}</SidebarMenuButtonLabel>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              Prominent headers with primary color for documentation sections.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
+
+export const HeaderSizes = (args: { size: "sm" | "lg" }) => (
+  <HeaderSizesContent key={args.size} {...args} />
+)
+
+HeaderSizes.args = {
+  size: "sm",
+}
+
+HeaderSizes.argTypes = {
+  size: { control: "select", options: ["sm", "lg"] },
+}
+
+HeaderSizes.parameters = {
+  controls: { include: ["size"] },
 }

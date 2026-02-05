@@ -182,8 +182,8 @@
   width: calc(100% + 2 * var(--sidebar-gutter));
 }
 
-/* No special padding needed for children, parent handles it */
-.Footer > *:not(.FooterSeparator) {
+/* No special padding needed for children, parent handles it (except Card) */
+.Footer > *:not(.FooterSeparator):not(.Card) {
   padding-left: 0;
   padding-right: 0;
 }
@@ -546,7 +546,9 @@
 /* Submenu visibility with animation */
 .MenuSub {
   max-height: 1000px;
-  transition: max-height 0.3s var(--cubic-move), opacity 0.3s var(--cubic-move);
+  transition:
+    max-height 0.3s var(--cubic-move),
+    opacity 0.3s var(--cubic-move);
 }
 
 .MenuSub[data-state="closed"] {
@@ -581,48 +583,37 @@
 ============================================= */
 
 .MenuSkeleton {
-  position: relative;
   display: flex;
   align-items: center;
   height: var(--sidebar-menu-item-height);
   padding: var(--sidebar-menu-item-padding);
-  overflow: hidden;
 }
 
 .MenuSkeletonIcon {
   width: var(--sidebar-icon-wrapper-size);
   height: var(--sidebar-icon-wrapper-size);
-  border-radius: var(--radius-sm);
-  background: var(--sidebar-accent);
+  margin: var(--sidebar-icon-margin);
+  border-radius: var(--skeleton-radius);
+  background: var(--skeleton-background);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
 .MenuSkeletonLabel {
-  flex: 1;
   height: 12px;
   margin-left: spacing(2);
-  border-radius: var(--radius-sm);
-  background: var(--sidebar-accent);
+  border-radius: var(--skeleton-radius);
+  background: var(--skeleton-background);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* Shimmer animation */
-.MenuSkeleton::after {
-  position: absolute;
-  inset: 0;
-  animation: sidebar-skeleton-shimmer 1.2s infinite linear;
-  background: linear-gradient(
-    45deg,
-    transparent 0%,
-    rgb(255 255 255 / 20%) 20%,
-    rgb(255 255 255 / 50%) 60%,
-    transparent 100%
-  );
-  content: "";
-  transform: translateX(-100%);
-}
-
-@keyframes sidebar-skeleton-shimmer {
+@keyframes skeleton-pulse {
+  0%,
   100% {
-    transform: translateX(100%);
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
   }
 }
 
@@ -657,12 +648,17 @@
   display: flex;
   flex-direction: column;
   padding: 6px 12px 10px;
-  margin: 8px 0;
+  margin: 12px 0 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-tertiary);
   font-size: 14px;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    height 0.15s ease,
+    padding 0.15s ease,
+    margin 0.15s ease,
+    opacity 0.5s ease 0.25s;
 }
 
 .Card:hover {
@@ -683,8 +679,9 @@
 
 .CardDismiss {
   position: absolute;
-  top: spacing(2);
-  right: spacing(2);
+  top: 6px;
+  right: 6px;
+  border-radius: var(--radius-xs);
 }
 
 .CardContent {
@@ -698,9 +695,36 @@
   margin-top: spacing(3);
 }
 
-/* Hide card when collapsed */
-:global([data-sidebar="collapsed"]) .Card {
+/* Card title link with chevron animation */
+.CardTitleLink {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--sidebar-foreground);
+}
+
+.CardTitleChevron {
   opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.Card:hover .CardTitleChevron {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Hide card when collapsed - fully collapse height */
+:global([data-sidebar="collapsed"]) .Card {
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border-width: 0;
+  opacity: 0;
+  overflow: hidden;
   pointer-events: none;
   transition-delay: 0s;
   transition-duration: 0s;
@@ -831,32 +855,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-/* Ensure input takes full width */
-.Input :global(input) {
-  width: 100%;
-}
-
-.InputShortcut {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 3px;
-}
-
-.InputShortcutKey {
-  min-width: 16px;
-  min-height: 16px;
-  padding: 2px 2px 0;
-  border-radius: 3px;
-  font-size: 12px;
-  letter-spacing: var(--tracking-wide);
-  line-height: 14px;
-  text-align: center;
-  background: var(--color-surface-secondary);
-  color: var(--color-text-tertiary);
+  box-sizing: border-box;
+  padding: 12px 0 8px; /* No horizontal padding - Input component has its own */
 }
 
 /* =============================================

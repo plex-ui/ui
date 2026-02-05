@@ -413,13 +413,15 @@ SidebarMenuAction.displayName = "SidebarMenuAction"
 
 export type SidebarMenuSkeletonProps = ComponentProps<"div"> & {
   showIcon?: boolean
+  /** Width of the label skeleton (e.g., "60%", "80%", "100px") */
+  labelWidth?: string
 }
 
 export const SidebarMenuSkeleton = forwardRef<HTMLDivElement, SidebarMenuSkeletonProps>(
-  ({ showIcon = true, className, ...props }, ref) => (
+  ({ showIcon = true, labelWidth = "60%", className, ...props }, ref) => (
     <div ref={ref} data-skeleton className={clsx(s.MenuSkeleton, className)} {...props}>
       {showIcon && <div className={s.MenuSkeletonIcon} />}
-      <div className={s.MenuSkeletonLabel} />
+      <div className={s.MenuSkeletonLabel} style={{ width: labelWidth }} />
     </div>
   ),
 )
@@ -515,7 +517,7 @@ export const SidebarCard = forwardRef<HTMLDivElement, SidebarCardProps>(
       {dismissible && (
         <Button
           uniform
-          size="xs"
+          size="3xs"
           variant="ghost"
           color="secondary"
           className={s.CardDismiss}
@@ -548,6 +550,18 @@ export const SidebarCardTitle = forwardRef<HTMLDivElement, SidebarCardTitleProps
   ),
 )
 SidebarCardTitle.displayName = "SidebarCardTitle"
+
+export type SidebarCardTitleLinkProps = ComponentProps<"a">
+
+export const SidebarCardTitleLink = forwardRef<HTMLAnchorElement, SidebarCardTitleLinkProps>(
+  ({ className, children, ...props }, ref) => (
+    <a ref={ref} className={clsx(s.CardTitleLink, className)} {...props}>
+      {children}
+      <ChevronRightMd className={s.CardTitleChevron} />
+    </a>
+  ),
+)
+SidebarCardTitleLink.displayName = "SidebarCardTitleLink"
 
 export type SidebarCardContentProps = ComponentProps<"div">
 
@@ -723,30 +737,12 @@ SidebarMobileFooter.displayName = "SidebarMobileFooter"
 // Input (Search)
 // =============================================
 
-export type SidebarInputProps = InputProps & {
-  shortcut?: string
-}
+export type SidebarInputProps = InputProps
 
 export const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
-  ({ shortcut, className, ...props }, ref) => (
+  ({ className, ...props }, ref) => (
     <div className={s.Input}>
-      <Input
-        ref={ref}
-        className={className}
-        startAdornment={<SearchIcon />}
-        endAdornment={
-          shortcut && (
-            <span className={s.InputShortcut}>
-              {shortcut.split("").map((char, i) => (
-                <span key={i} className={s.InputShortcutKey}>
-                  {char}
-                </span>
-              ))}
-            </span>
-          )
-        }
-        {...props}
-      />
+      <Input ref={ref} className={className} startAdornment={<SearchIcon />} {...props} />
     </div>
   ),
 )

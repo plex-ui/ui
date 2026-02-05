@@ -10,6 +10,7 @@ export {
   SidebarCardFooter,
   SidebarCardHeader,
   SidebarCardTitle,
+  SidebarCardTitleLink,
   SidebarContent,
   SidebarFooter,
   // Footer Links
@@ -59,6 +60,7 @@ export type {
   SidebarCardFooterProps,
   SidebarCardHeaderProps,
   SidebarCardProps,
+  SidebarCardTitleLinkProps,
   SidebarCardTitleProps,
   // Context types
   SidebarCollapsible,
