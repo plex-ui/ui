@@ -23,6 +23,7 @@
   flex-shrink: 0;
   width: var(--sidebar-width);
   height: 100%;
+  padding: 0 var(--sidebar-gutter);
   background: var(--sidebar-background);
   transition: width var(--sidebar-collapse-duration) var(--cubic-move);
 }
@@ -84,15 +85,23 @@
 ============================================= */
 
 .Header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   flex-shrink: 0;
   min-height: var(--sidebar-header-height);
-  padding: var(--sidebar-gutter-sm) var(--sidebar-gutter);
+  padding: 0 var(--sidebar-gutter);
+  background: var(--color-surface-tertiary);
 }
 
 /* Hide header text when collapsed, keep only icon/logo */
 :global([data-sidebar="collapsed"]) .Header {
+  justify-content: center;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -131,14 +140,9 @@
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px var(--sidebar-gutter);
+  padding: var(--sidebar-header-height) 0 16px 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  mask-image: linear-gradient(to bottom,
-      transparent,
-      black 20px,
-      black calc(100% - 20px),
-      transparent);
 }
 
 .Content::-webkit-scrollbar {
@@ -148,7 +152,7 @@
 .Footer {
   flex-shrink: 0;
   width: 100%;
-  padding: 0 var(--sidebar-gutter) spacing(3) var(--sidebar-gutter);
+  padding: 0 0 spacing(3) 0;
 }
 
 .FooterSeparator {

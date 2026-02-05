@@ -356,7 +356,7 @@
     /* Icon */
     --sidebar-icon-size: 20px;
     --sidebar-icon-wrapper-size: 32px;
-    --sidebar-icon-margin: 0 8px 0 12px;
+    --sidebar-icon-margin: 0 2px 0 4px;
     --sidebar-icon-color: var(--gray-750);
 
     /* Transitions */
