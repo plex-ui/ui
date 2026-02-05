@@ -15,7 +15,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 const SIDEBAR_WIDTH = "320px"
 const SIDEBAR_WIDTH_MOBILE = "288px"
-const SIDEBAR_WIDTH_ICON = "48px"
+const SIDEBAR_WIDTH_ICON = "64px"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 const MOBILE_BREAKPOINT = 768
 

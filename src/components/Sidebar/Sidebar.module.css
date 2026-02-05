@@ -51,7 +51,6 @@
 }
 
 .Sidebar[data-variant="dual-tier"] .Header {
-  justify-content: center;
   padding: 0;
 }
 
@@ -61,13 +60,12 @@
 }
 
 .Sidebar[data-variant="dual-tier"] .MenuButton {
-  justify-content: center;
   padding: 0;
   width: 100%;
 }
 
 .Sidebar[data-variant="dual-tier"] .MenuButtonLabel {
-  display: none;
+  opacity: 0;
 }
 
 .Sidebar[data-variant="dual-tier"] .MenuButtonIcon {
@@ -95,25 +93,25 @@
 
 /* Hide header text when collapsed, keep only icon/logo */
 :global([data-sidebar="collapsed"]) .Header {
-  justify-content: center;
-  padding: 0;
   overflow: hidden;
 }
 
 /* Hide all spans in header when collapsed */
 :global([data-sidebar="collapsed"]) .Header span {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Keep only the logo icon visible (first element with fixed size) */
-:global([data-sidebar="collapsed"]) .Header > div {
+:global([data-sidebar="collapsed"]) .Header>div {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
 }
 
-:global([data-sidebar="collapsed"]) .Header > div > span {
-  display: none;
+:global([data-sidebar="collapsed"]) .Header>div>span {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Header title text - hidden when collapsed */
@@ -125,7 +123,7 @@
 }
 
 :global([data-sidebar="collapsed"]) .HeaderTitle {
-  display: none;
+  opacity: 0;
 }
 
 .Content {
@@ -341,37 +339,41 @@
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+  transition:
+    opacity var(--sidebar-collapse-duration) var(--cubic-move),
+    width var(--sidebar-collapse-duration) var(--cubic-move),
+    flex-grow var(--sidebar-collapse-duration) var(--cubic-move);
 }
 
-/* Hide label when collapsed - collapse width to allow icon centering */
+/* Hide label when collapsed */
 :global([data-sidebar="collapsed"]) .MenuButtonLabel {
-  flex: 0;
-  width: 0;
   opacity: 0;
+  pointer-events: none;
 }
 
 /* Long/short label support */
 .MenuButtonLabel[data-long-label="true"] {
-  display: block;
+  opacity: 1;
 }
 
 .MenuButtonLabel[data-short-label="true"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 :global([data-sidebar="collapsed"]) .MenuButtonLabel[data-long-label="true"] {
-  display: none;
+  opacity: 0;
 }
 
 :global([data-sidebar="collapsed"]) .MenuButtonLabel[data-short-label="true"] {
-  display: block;
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-/* Center MenuButton content when collapsed */
+/* No special button positioning when collapsed - keep left alignment for smooth transition */
 :global([data-sidebar="collapsed"]) .MenuButton {
-  justify-content: center;
-  padding: 0;
   width: 100%;
 }
 
@@ -395,6 +397,12 @@
   z-index: 1;
   margin-left: auto;
   padding-left: spacing(2);
+  transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+}
+
+:global([data-sidebar="collapsed"]) .MenuBadge {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .MenuAction {
@@ -471,13 +479,11 @@
   position: absolute;
   inset: 0;
   animation: sidebar-skeleton-shimmer 1.2s infinite linear;
-  background: linear-gradient(
-    45deg,
-    transparent 0%,
-    rgb(255 255 255 / 20%) 20%,
-    rgb(255 255 255 / 50%) 60%,
-    transparent 100%
-  );
+  background: linear-gradient(45deg,
+      transparent 0%,
+      rgb(255 255 255 / 20%) 20%,
+      rgb(255 255 255 / 50%) 60%,
+      transparent 100%);
   content: "";
   transform: translateX(-100%);
 }
@@ -490,7 +496,7 @@
 
 /* Hide skeleton label when collapsed */
 :global([data-sidebar="collapsed"]) .MenuSkeletonLabel {
-  display: none;
+  opacity: 0;
 }
 
 /* =============================================
@@ -504,11 +510,10 @@
   transition: width var(--sidebar-collapse-duration) var(--cubic-move);
 }
 
-/* Shorten and center separator when collapsed */
+/* Shorten and align separator when collapsed */
 :global([data-sidebar="collapsed"]) .Separator {
   width: 32px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 4px;
 }
 
 /* =============================================
@@ -645,7 +650,7 @@
 }
 
 :global([data-sidebar="collapsed"]) .Trigger {
-  justify-content: center;
+  /* No special positioning */
 }
 
 /* Inner container - same height as menu items */
@@ -907,7 +912,7 @@
 }
 
 /* Staggered children animation */
-.MobileSidebar > * {
+.MobileSidebar>* {
   opacity: 0;
   transform: translateY(-6px);
   transition:
@@ -915,26 +920,24 @@
     transform var(--sidebar-mobile-exit-duration) var(--cubic-exit);
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar > * {
+:global([data-mobile-menu="visible"]) .MobileSidebar>* {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity var(--sidebar-mobile-enter-opacity-duration) var(--cubic-enter)
-      var(--sidebar-mobile-enter-delay),
-    transform var(--sidebar-mobile-enter-transform-duration) var(--cubic-enter)
-      var(--sidebar-mobile-enter-delay);
+    opacity var(--sidebar-mobile-enter-opacity-duration) var(--cubic-enter) var(--sidebar-mobile-enter-delay),
+    transform var(--sidebar-mobile-enter-transform-duration) var(--cubic-enter) var(--sidebar-mobile-enter-delay);
   will-change: opacity, transform;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(1) {
+:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(1) {
   transition-delay: 0.15s;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(2) {
+:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(2) {
   transition-delay: 0.21s;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(3) {
+:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(3) {
   transition-delay: 0.27s;
 }
 

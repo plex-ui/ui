@@ -119,8 +119,6 @@ export const Base = () => (
             </SidebarGroupContent>
           </SidebarGroup>
 
-          <SidebarSeparator />
-
           <SidebarGroup>
             <SidebarGroupLabel>Settings</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -321,7 +319,7 @@ export const FooterCards = () => (
         </SidebarContent>
 
         <SidebarFooter>
-          <SidebarCard dismissible onDismiss={() => {}}>
+          <SidebarCard dismissible onDismiss={() => { }}>
             <SidebarCardTitle>Upgrade to Pro</SidebarCardTitle>
             <SidebarCardContent>
               Unlock higher rate limits, priority support, and more.
