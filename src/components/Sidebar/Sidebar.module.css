@@ -535,9 +535,16 @@
   margin-left: 48px;
 }
 
-/* Submenu visibility */
+/* Submenu visibility with animation */
+.MenuSub {
+  max-height: 1000px;
+  transition: max-height 0.3s var(--cubic-move), opacity 0.3s var(--cubic-move);
+}
+
 .MenuSub[data-state="closed"] {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Chevron toggle icon - uses 1em from SVG for proper sizing */
@@ -1012,7 +1019,7 @@
   flex-direction: column;
   width: var(--sidebar-width-mobile);
   padding: var(--sidebar-mobile-gutter) var(--sidebar-mobile-gutter) 0;
-  background: var(--sidebar-background);
+  background: var(--sidebar-background, var(--color-surface));
   user-select: none;
   visibility: hidden;
   transition:
@@ -1021,7 +1028,9 @@
 }
 
 :global([data-mobile-menu="visible"]) .MobileSidebar {
-  left: calc(100% - var(--sidebar-width-mobile));
+  left: 0;
+  right: 0;
+  width: auto;
   visibility: visible;
   transition:
     left var(--sidebar-transition-duration) var(--cubic-enter),
@@ -1082,6 +1091,11 @@
   box-shadow: var(--sidebar-footer-shadow);
 }
 
+/* Mobile menu content - for inline menu rendering */
+.MobileMenuContent {
+  padding: 12px;
+}
+
 /* Desktop breakpoint - sidebar becomes fixed */
 @media (min-width: 768px) {
   .MobileSidebar {
@@ -1100,6 +1114,26 @@
 
 .MobileSidebar.contained {
   position: absolute;
+}
+
+/* Contained mode - override desktop hiding for demo purposes */
+@media (min-width: 768px) {
+  .MobileSidebar.contained {
+    display: flex;
+  }
+
+  .MobileBackdrop.contained {
+    display: block;
+  }
+}
+
+/* Contained mode visible state - full width positioning */
+:global([data-mobile-menu="visible"]) .MobileSidebar.contained {
+  left: 0;
+  right: 0;
+  width: auto;
+  background: var(--color-surface);
+  z-index: 10;
 }
 
 /* =============================================

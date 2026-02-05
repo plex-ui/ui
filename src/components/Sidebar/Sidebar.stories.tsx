@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import styles from "./Sidebar.module.css"
 import { Badge } from "../Badge"
 import { Button } from "../Button"
 import {
@@ -11,7 +12,6 @@ import {
   FileDocument,
   Folder,
   Globe,
-  Help,
   Home,
   Members,
   SettingsCog,
@@ -44,12 +44,10 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarMobile,
-  SidebarMobileFooter,
-  SidebarMobileHeader,
   SidebarMobileMenuButton,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "./Sidebar"
 
 export default {
@@ -74,6 +72,15 @@ const mainNavItems = [
 const systemNavItems = [
   { icon: Members, label: "Team" },
   { icon: SettingsCog, label: "Settings" },
+]
+
+const resourcesNavItems = [
+  { icon: Code, label: "Logs" },
+  { icon: Terminal, label: "Console" },
+  { icon: Storage, label: "Storage" },
+  { icon: Globe, label: "Deployments" },
+  { icon: CreditCard, label: "Billing" },
+  { icon: ApiKeys, label: "API Keys" },
 ]
 
 // =============================================
@@ -398,9 +405,7 @@ export const CollapsibleNested = () => {
               <SidebarGroup key={section.id}>
                 <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
-                  <SidebarMenu>
-                    {section.items && renderItems(section.items, 0)}
-                  </SidebarMenu>
+                  <SidebarMenu>{section.items && renderItems(section.items, 0)}</SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
             ))}
@@ -689,38 +694,492 @@ export const DocsVariant = () => {
   )
 }
 
-export const Mobile = () => (
-  <SidebarProvider collapsible="offcanvas">
-    <div style={{ height: 400, border: "1px solid var(--sidebar-border)", overflow: "hidden" }}>
-      <header className="flex items-center gap-2 p-2 border-b bg-surface">
-        <SidebarMobileMenuButton />
-        <span className="font-semibold text-sm">Mobile View</span>
-      </header>
+// Mobile story with Storybook controls
+const MobileStoryContent = ({ mobile, nested }: { mobile: boolean; nested: boolean }) => {
+  const [activeItem, setActiveItem] = useState({ id: "overview", label: "Overview" })
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
 
-      <SidebarMobile>
-        <SidebarMobileHeader>
-          <span className="font-semibold">SaaS Platform</span>
-          <SidebarMobileMenuButton />
-        </SidebarMobileHeader>
-        <SidebarContent>
-          <SidebarStandardGroups />
-        </SidebarContent>
-        <SidebarMobileFooter>
+  // Reset activeItem when nested mode changes
+  useEffect(() => {
+    if (nested) {
+      setActiveItem({ id: "introduction", label: "Introduction" })
+    } else {
+      setActiveItem({ id: "overview", label: "Overview" })
+    }
+  }, [nested])
+
+  // Documentation-style navigation structure (like CollapsibleNested)
+  type NavItem = {
+    id: string
+    label: string
+    items?: NavItem[]
+  }
+
+  const sections: NavItem[] = [
+    {
+      id: "getting-started",
+      label: "Getting Started",
+      items: [
+        { id: "introduction", label: "Introduction" },
+        { id: "installation", label: "Installation" },
+        { id: "quick-start", label: "Quick Start" },
+      ],
+    },
+    {
+      id: "api-reference",
+      label: "API Reference",
+      items: [
+        {
+          id: "responses",
+          label: "Responses",
+          items: [
+            { id: "create-response", label: "Create" },
+            {
+              id: "streaming",
+              label: "Streaming",
+              items: [
+                { id: "stream-created", label: "response.created" },
+                { id: "stream-progress", label: "response.in_progress" },
+                { id: "stream-completed", label: "response.completed" },
+              ],
+            },
+            { id: "get-response", label: "Get" },
+            { id: "list-responses", label: "List" },
+          ],
+        },
+        {
+          id: "chat-completions",
+          label: "Chat Completions",
+          items: [
+            { id: "chat-create", label: "Create" },
+            { id: "chat-stream", label: "Streaming" },
+          ],
+        },
+        { id: "models", label: "Models" },
+        { id: "errors", label: "Errors" },
+      ],
+    },
+  ]
+
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    )
+  }
+
+  // Recursive render function for nested items (like CollapsibleNested)
+  // Optional onSelect callback for closing mobile menu
+  const renderNestedItems = (
+    items: NavItem[],
+    depth: number = 0,
+    onSelect?: (item: { id: string; label: string }) => void
+  ) => {
+    return items.map((item) => {
+      const hasChildren = item.items && item.items.length > 0
+      const isExpanded = expandedSections.includes(item.id)
+
+      if (hasChildren) {
+        return (
+          <SidebarMenuItem key={item.id} expanded={isExpanded}>
+            <SidebarMenuSubButton
+              indent={depth as 0 | 1 | 2 | 3}
+              onClick={() => toggleSection(item.id)}
+            >
+              {item.label}
+              <SidebarMenuChevron />
+            </SidebarMenuSubButton>
+            <SidebarMenuSub open={isExpanded}>
+              {renderNestedItems(item.items!, depth + 1, onSelect)}
+            </SidebarMenuSub>
+          </SidebarMenuItem>
+        )
+      }
+
+      return (
+        <SidebarMenuSubItem key={item.id}>
+          <SidebarMenuSubButton
+            indent={depth as 0 | 1 | 2 | 3}
+            isActive={activeItem.id === item.id}
+            onClick={() => {
+              setActiveItem({ id: item.id, label: item.label })
+              onSelect?.({ id: item.id, label: item.label })
+            }}
+          >
+            {item.label}
+          </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+      )
+    })
+  }
+
+  // Render nested navigation for desktop (like CollapsibleNested)
+  const renderDesktopNestedNav = () => (
+    <Sidebar variant="docs" style={{ width: "280px" }}>
+      <SidebarContent>
+        {sections.map((section) => (
+          <SidebarGroup key={section.id}>
+            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{section.items && renderNestedItems(section.items, 0)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+    </Sidebar>
+  )
+
+  // Render simple navigation for desktop (like Scrollable - 3 groups)
+  const renderDesktopSimpleNav = () => (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    tooltip={item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    tooltip={item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    tooltip={item.label}
+                    onClick={() =>
+                      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+                    }
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarTrigger />
+      </SidebarFooter>
+    </Sidebar>
+  )
+
+  // Render nested navigation for mobile sidebar drawer
+  const renderMobileNestedNav = () => (
+    <SidebarContent>
+      {sections.map((section) => (
+        <SidebarGroup key={section.id}>
+          <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>{section.items && renderNestedItems(section.items, 0)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </SidebarContent>
+  )
+
+  // Render simple navigation for mobile sidebar drawer
+  const renderMobileSimpleNav = () => (
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
+        <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <SidebarMenuButtonIcon>
-                  <Help />
-                </SidebarMenuButtonIcon>
-                <SidebarMenuButtonLabel>Support</SidebarMenuButtonLabel>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  isActive={activeItem.label === item.label}
+                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
+                >
+                  <SidebarMenuButtonIcon>
+                    <item.icon />
+                  </SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
-        </SidebarMobileFooter>
-      </SidebarMobile>
-    </div>
-  </SidebarProvider>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {systemNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  isActive={activeItem.label === item.label}
+                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
+                >
+                  <SidebarMenuButtonIcon>
+                    <item.icon />
+                  </SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {resourcesNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton
+                  isActive={activeItem.label === item.label}
+                  onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}
+                >
+                  <SidebarMenuButtonIcon>
+                    <item.icon />
+                  </SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+  )
+
+  // Desktop layout - full sidebar with SidebarLayout
+  if (!mobile) {
+    return (
+      <SidebarProvider collapsible={nested ? "none" : "icon"}>
+        <SidebarLayout style={{ height: 667 }}>
+          {nested ? renderDesktopNestedNav() : renderDesktopSimpleNav()}
+          <SidebarInset>
+            <div className="p-6">
+              <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
+              <p className="text-secondary">
+                This is the desktop view. Toggle mobile to see the mobile sidebar.
+              </p>
+            </div>
+          </SidebarInset>
+        </SidebarLayout>
+      </SidebarProvider>
+    )
+  }
+
+  // Mobile layout - header with menu button and drawer
+  // Inner component to access useSidebar for data-mobile-menu attribute
+  const MobileContainer = () => {
+    const { openMobile, setOpenMobile } = useSidebar()
+
+    // Handle menu item click - set active and close menu
+    const handleMenuItemClick = (item: { label: string }) => {
+      setActiveItem({ id: item.label.toLowerCase(), label: item.label })
+      setOpenMobile(false)
+    }
+
+    // Render simple nav with close behavior
+    const renderMobileNav = () => (
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton
+                    isActive={activeItem.label === item.label}
+                    onClick={() => handleMenuItemClick(item)}
+                  >
+                    <SidebarMenuButtonIcon>
+                      <item.icon />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    )
+
+    // Render nested nav with close behavior
+    const renderMobileNestedNavWithClose = () => (
+      <SidebarContent>
+        {sections.map((section) => (
+          <SidebarGroup key={section.id}>
+            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {section.items && renderNestedItems(section.items, 0, () => setOpenMobile(false))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+    )
+
+    return (
+      <div
+        data-mobile-menu={openMobile ? "visible" : "hidden"}
+        style={{
+          width: 375,
+          height: 667,
+          background: "var(--gray-75)",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* Mobile header - button on right only */}
+        <header
+          className="flex items-center"
+          style={{
+            justifyContent: "flex-end",
+            height: 54,
+            padding: "0 8px",
+          }}
+        >
+          <SidebarMobileMenuButton />
+        </header>
+
+        {/* Main content area - white background with border */}
+        <div
+          className="bg-surface"
+          style={{
+            margin: 8,
+            marginTop: 0,
+            border: "1px solid var(--sidebar-border)",
+            borderRadius: 8,
+            height: "calc(100% - 54px - 8px)",
+            overflow: "auto",
+          }}
+        >
+          {openMobile ? (
+            // Menu content - replaces page content when open
+            <div className={styles.MobileMenuContent}>
+              {nested ? renderMobileNestedNavWithClose() : renderMobileNav()}
+            </div>
+          ) : (
+            // Page content
+            <div style={{ padding: 24 }}>
+              <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
+              <p className="text-secondary">
+                Click the menu button to open the sidebar and select a different item.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <SidebarProvider collapsible="offcanvas">
+      <MobileContainer />
+    </SidebarProvider>
+  )
+}
+
+export const Mobile = (args: { mobile: boolean; nested: boolean }) => (
+  <div className="flex items-center justify-center w-full">
+    <MobileStoryContent {...args} />
+  </div>
 )
+
+Mobile.args = {
+  mobile: false,
+  nested: false,
+}
+
+Mobile.argTypes = {
+  mobile: { control: "boolean" },
+  nested: { control: "boolean" },
+}
+
+Mobile.parameters = {
+  controls: { include: ["mobile", "nested"] },
+}
 
 export const MobileMenuButtonAnimation = () => (
   <SidebarProvider>
@@ -732,15 +1191,6 @@ export const MobileMenuButtonAnimation = () => (
     </div>
   </SidebarProvider>
 )
-
-const resourcesNavItems = [
-  { icon: Code, label: "Logs" },
-  { icon: Terminal, label: "Console" },
-  { icon: Storage, label: "Storage" },
-  { icon: Globe, label: "Deployments" },
-  { icon: CreditCard, label: "Billing" },
-  { icon: ApiKeys, label: "API Keys" },
-]
 
 export const Scrollable = () => {
   const [activeItem, setActiveItem] = useState("Overview")

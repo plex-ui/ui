@@ -1,4 +1,4 @@
-import { Meta, Subtitle, Title, ArgTypes } from '@storybook/blocks';
+import { Meta, Subtitle, Title, ArgTypes, Controls } from '@storybook/blocks';
 import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { linkTo } from '@storybook/addon-links';
 import { Hero } from '@storybookComponents/Hero';
@@ -71,6 +71,9 @@ Build collapsible nested menus with chevron toggles for documentation and API re
 Mobile behavior is handled automatically when using `SidebarProvider`. The `SidebarMobileMenuButton` provides a standard animated hamburger trigger.
 
 <CollapsibleCanvas of={SidebarStories.Mobile} />
+<div className="canvas-controls-only">
+<Controls of={SidebarStories.Mobile}/>
+</div>
 
 ### Search & Skeleton
 

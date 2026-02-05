@@ -70,7 +70,7 @@ import clsx from "clsx"
 import { forwardRef, useState, type ComponentProps, type ReactNode } from "react"
 
 import { Button } from "../Button"
-import { ChevronRightSm, Search as SearchIcon, SidebarLeft, X } from "../Icon"
+import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "./Sidebar.module.css"
@@ -379,7 +379,7 @@ export type SidebarMenuChevronProps = ComponentProps<"span">
 export const SidebarMenuChevron = forwardRef<HTMLSpanElement, SidebarMenuChevronProps>(
   ({ className, ...props }, ref) => (
     <span ref={ref} className={clsx(s.MenuChevron, className)} {...props}>
-      <ChevronRightSm />
+      <ChevronRightMd />
     </span>
   ),
 )
