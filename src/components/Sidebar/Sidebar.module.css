@@ -29,7 +29,6 @@
   transition: width var(--sidebar-collapse-duration) var(--cubic-move);
 }
 
-
 /* Collapsed state */
 :global([data-sidebar="collapsed"]) .Sidebar {
   width: var(--sidebar-width-icon);
@@ -111,13 +110,13 @@
 }
 
 /* Keep only the logo icon visible (first element with fixed size) */
-:global([data-sidebar="collapsed"]) .Header>div {
+:global([data-sidebar="collapsed"]) .Header > div {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
 }
 
-:global([data-sidebar="collapsed"]) .Header>div>span {
+:global([data-sidebar="collapsed"]) .Header > div > span {
   opacity: 0;
   pointer-events: none;
 }
@@ -143,6 +142,13 @@
   padding: 16px 0 0 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 16px,
+    black 16px,
+    black 100%
+  );
 }
 
 .Content::-webkit-scrollbar {
@@ -165,7 +171,7 @@
 }
 
 /* No special padding needed for children, parent handles it */
-.Footer>*:not(.FooterSeparator) {
+.Footer > *:not(.FooterSeparator) {
   padding-left: 0;
   padding-right: 0;
 }
@@ -457,10 +463,13 @@
 .MenuSub {
   display: flex;
   flex-direction: column;
-  gap: spacing(0.5);
-  padding-left: var(--sidebar-icon-wrapper-size);
+  gap: 0;
+  padding-left: 0;
+  margin-left: 12px;
   list-style: none;
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: hidden;
 }
 
 .MenuSubItem {
@@ -469,12 +478,40 @@
 
 .MenuSubButton {
   composes: MenuButton;
-  height: 28px;
-  padding-left: spacing(2);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.MenuSubButton .MenuButtonInner {
+  padding: 6px 12px;
+  height: auto;
 }
 
 /* Submenu visibility */
 .MenuSub[data-state="closed"] {
+  display: none;
+}
+
+/* Chevron toggle icon */
+.MenuChevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  color: var(--color-text-tertiary);
+  transition: transform 0.15s ease-out;
+  flex-shrink: 0;
+}
+
+/* Rotate chevron when parent is expanded */
+[data-expanded="true"] .MenuChevron {
+  transform: rotate(90deg);
+}
+
+/* Hide chevron in collapsed sidebar */
+:global([data-sidebar="collapsed"]) .MenuChevron {
   display: none;
 }
 
@@ -511,11 +548,13 @@
   position: absolute;
   inset: 0;
   animation: sidebar-skeleton-shimmer 1.2s infinite linear;
-  background: linear-gradient(45deg,
-      transparent 0%,
-      rgb(255 255 255 / 20%) 20%,
-      rgb(255 255 255 / 50%) 60%,
-      transparent 100%);
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    rgb(255 255 255 / 20%) 20%,
+    rgb(255 255 255 / 50%) 60%,
+    transparent 100%
+  );
   content: "";
   transform: translateX(-100%);
 }
@@ -944,7 +983,7 @@
 }
 
 /* Staggered children animation */
-.MobileSidebar>* {
+.MobileSidebar > * {
   opacity: 0;
   transform: translateY(-6px);
   transition:
@@ -952,24 +991,26 @@
     transform var(--sidebar-mobile-exit-duration) var(--cubic-exit);
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar>* {
+:global([data-mobile-menu="visible"]) .MobileSidebar > * {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity var(--sidebar-mobile-enter-opacity-duration) var(--cubic-enter) var(--sidebar-mobile-enter-delay),
-    transform var(--sidebar-mobile-enter-transform-duration) var(--cubic-enter) var(--sidebar-mobile-enter-delay);
+    opacity var(--sidebar-mobile-enter-opacity-duration) var(--cubic-enter)
+      var(--sidebar-mobile-enter-delay),
+    transform var(--sidebar-mobile-enter-transform-duration) var(--cubic-enter)
+      var(--sidebar-mobile-enter-delay);
   will-change: opacity, transform;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(1) {
+:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(1) {
   transition-delay: 0.15s;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(2) {
+:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(2) {
   transition-delay: 0.21s;
 }
 
-:global([data-mobile-menu="visible"]) .MobileSidebar>*:nth-child(3) {
+:global([data-mobile-menu="visible"]) .MobileSidebar > *:nth-child(3) {
   transition-delay: 0.27s;
 }
 
