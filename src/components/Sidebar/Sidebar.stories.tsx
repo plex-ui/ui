@@ -1391,7 +1391,7 @@ export const Scrollable = () => {
   return (
     <SidebarProvider>
       <SidebarLayout style={{ height: 500 }}>
-        <Sidebar side="left" variant="sidebar">
+        <Sidebar side="left">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
@@ -1709,4 +1709,77 @@ HeaderSizes.argTypes = {
 
 HeaderSizes.parameters = {
   controls: { include: ["size"] },
+}
+
+// =============================================
+// With Badges
+// =============================================
+
+export const WithBadges = (args: { pill: boolean }) => {
+  const [activeItem, setActiveItem] = useState("Overview")
+
+  const menuItems = [
+    { label: "Overview", icon: Home },
+    { label: "API Reference", icon: Code, badge: { text: "New", color: "success" as const } },
+    { label: "Playground", icon: Terminal, badge: { text: "Beta", color: "warning" as const } },
+    { label: "Fine-tuning", icon: SettingsCog, badge: { text: "3", color: "info" as const } },
+    { label: "Batch API", icon: Storage, badge: { text: "Updated", color: "discovery" as const } },
+    { label: "Legacy Models", icon: FileDocument, badge: { text: "Deprecated", color: "danger" as const } },
+    { label: "Usage", icon: Analytics, badge: { text: "12", color: "caution" as const } },
+    { label: "Billing", icon: CreditCard },
+  ]
+
+  return (
+    <SidebarProvider collapsible="none">
+      <SidebarLayout style={{ height: 400 }}>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.label}
+                        onClick={() => setActiveItem(item.label)}
+                      >
+                        <SidebarMenuButtonIcon>
+                          <item.icon />
+                        </SidebarMenuButtonIcon>
+                        <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                        {item.badge && (
+                          <SidebarMenuBadge>
+                            <Badge size="sm" color={item.badge.color} pill={args.pill}>
+                              {item.badge.text}
+                            </Badge>
+                          </SidebarMenuBadge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              Badges indicate status, counts, or special states for menu items.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
+
+WithBadges.args = {
+  pill: false,
+}
+
+WithBadges.parameters = {
+  controls: { include: ["pill"] },
 }

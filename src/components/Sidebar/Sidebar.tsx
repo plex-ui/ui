@@ -13,7 +13,7 @@
  *
  * Sidebar
  *   - side?: "left" | "right" (default: "left")
- *   - variant?: "sidebar" | "floating" | "inset" | "dual-tier" | "docs" (default: "sidebar")
+ *   - variant?: "sidebar" | "docs" (default: "sidebar")
  *
  * SidebarHeader / SidebarContent / SidebarFooter
  *   - Standard container props

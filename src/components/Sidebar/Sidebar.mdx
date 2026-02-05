@@ -1,32 +1,38 @@
 import { Meta, Subtitle, Title, ArgTypes, Controls } from '@storybook/blocks';
 import { CollapsibleCanvas, CollapsibleSource } from '@storybookComponents/CollapsibleCanvas';
 import { linkTo } from '@storybook/addon-links';
-import { Hero } from '@storybookComponents/Hero';
 
 import * as SidebarStories from './Sidebar.stories';
-import { Sidebar, SidebarProvider, SidebarMenuButton } from "./Sidebar";
+import {
+  Sidebar,
+  SidebarProvider,
+  SidebarMenuButton,
+  SidebarGroupLabel,
+  SidebarMenuSub,
+  SidebarCard,
+} from "./Sidebar";
 
 <Meta of={SidebarStories} />
 
 <Title>Sidebar</Title>
 <Subtitle>Composable navigation sidebar for application layouts</Subtitle>
 
-<Hero className="block w-full max-w-lg text-center">
-  {/* Visual representation of Sidebar would go here, matching Hero standard */}
-</Hero>
-
 ## Usage
 
 ```jsx
 import {
   SidebarProvider,
+  SidebarLayout,
   Sidebar,
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarInset,
   SidebarTrigger,
 } from "@plexui/ui/components/Sidebar";
 ```
@@ -36,29 +42,100 @@ import {
 ]} />
 <CollapsibleSource of={SidebarStories.Base} />
 
+## Structure
+
+A Sidebar is composed of the following parts:
+
+- `SidebarProvider` &ndash; Handles collapsible state and provides context to all child components.
+- `SidebarLayout` &ndash; Wrapper for sidebar and main content.
+- `Sidebar` &ndash; The sidebar container.
+- `SidebarHeader` / `SidebarFooter` &ndash; Sticky at the top and bottom of the sidebar.
+- `SidebarContent` &ndash; Scrollable content area.
+- `SidebarGroup` &ndash; Section within the content, with optional label.
+- `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton` &ndash; Navigation menu items.
+- `SidebarMenuSub` / `SidebarMenuSubButton` &ndash; Nested submenu items.
+- `SidebarInset` &ndash; Main content area next to the sidebar.
+- `SidebarTrigger` &ndash; Toggle button for collapsing the sidebar.
+
+Use `Cmd+B` (Mac) or `Ctrl+B` (Windows/Linux) to toggle the sidebar with keyboard.
+
+## Reference
+
+<h3 id="sidebar-provider" data-heading-label="Provider">`SidebarProvider`</h3>
+
+Handles sidebar state and provides context to all child components. Wrap your application layout in this provider.
+
+<ArgTypes of={SidebarProvider} />
+
+<h3 id="sidebar-root" data-heading-label="Sidebar">`Sidebar`</h3>
+
+The main sidebar container. Renders as an `<aside>` element.
+
+<ArgTypes of={Sidebar} />
+
+<h3 id="sidebar-menu-button" data-heading-label="MenuButton">`SidebarMenuButton`</h3>
+
+Renders a menu item button. Use `isActive` to highlight the current page.
+
+<ArgTypes of={SidebarMenuButton} />
+
+<h3 id="sidebar-group-label" data-heading-label="GroupLabel">`SidebarGroupLabel`</h3>
+
+Renders a section label within a `SidebarGroup`. Supports two size variants.
+
+<ArgTypes of={SidebarGroupLabel} />
+
+<h3 id="sidebar-menu-sub" data-heading-label="MenuSub">`SidebarMenuSub`</h3>
+
+Renders a collapsible submenu container for nested navigation.
+
+<ArgTypes of={SidebarMenuSub} />
+
+<h3 id="sidebar-card" data-heading-label="Card">`SidebarCard`</h3>
+
+Renders a promotional card in the sidebar footer for CTAs, upgrades, or announcements.
+
+<ArgTypes of={SidebarCard} />
+
+<h3 id="use-sidebar" data-heading-label="useSidebar">`useSidebar`</h3>
+
+Hook to access sidebar state and controls from any component within `SidebarProvider`.
+
+- `state` &ndash; Current state: `"expanded"` or `"collapsed"`
+- `open` / `setOpen` &ndash; Desktop sidebar open state
+- `openMobile` / `setOpenMobile` &ndash; Mobile menu open state
+- `isMobile` &ndash; Whether the viewport is mobile
+- `collapsible` &ndash; Current collapsible mode
+- `toggleSidebar` &ndash; Toggle function for both desktop and mobile
+
 ## Examples
 
-### Vertical Scroll
+### Scrollable Content
 
-If the content is taller than the sidebar, it will scroll vertically.
+When the content is taller than the sidebar, it will scroll vertically.
 
 <CollapsibleCanvas of={SidebarStories.Scrollable} />
 
-### Text Only
+### Text-Only Navigation
 
 A text-only sidebar without icons. Uses `collapsible="none"` since there are no icons to collapse to.
 
 <CollapsibleCanvas of={SidebarStories.TextOnly} />
 
-### Collapsibility
+### Collapse Modes
 
-The sidebar supports different collapse behaviors to fit various application needs.
+The sidebar supports different collapse behaviors via the `collapsible` prop on `SidebarProvider`:
 
-- **offcanvas** (default): On mobile, works as a drawer. On desktop, collapses completely.
-- **icon**: Collapses to an icon-only rail.
-- **none**: Static sidebar that cannot be collapsed.
+- **offcanvas** (default) &ndash; On mobile, works as a drawer. On desktop, collapses completely.
+- **icon** &ndash; Collapses to an icon-only rail.
+- **none** &ndash; Static sidebar that cannot be collapsed.
+
+Use the `open` control below to toggle the sidebar state programmatically (controlled mode).
 
 <CollapsibleCanvas of={SidebarStories.CollapsibleIcon} />
+<div className="canvas-controls-only">
+<Controls of={SidebarStories.CollapsibleIcon}/>
+</div>
 
 ### Nested Navigation
 
@@ -69,7 +146,7 @@ Build collapsible nested menus with chevron toggles for documentation and API re
 <Controls of={SidebarStories.CollapsibleNested}/>
 </div>
 
-### Mobile Support
+### Mobile Menu
 
 Mobile behavior is handled automatically when using `SidebarProvider`. The `SidebarMobileMenuButton` provides a standard animated hamburger trigger.
 
@@ -78,28 +155,42 @@ Mobile behavior is handled automatically when using `SidebarProvider`. The `Side
 <Controls of={SidebarStories.Mobile}/>
 </div>
 
-### Search & Skeleton
+### Search
 
-The sidebar provides dedicated components for common patterns like search inputs and loading states.
+The sidebar provides a dedicated `SidebarInput` component for search functionality.
 
 <CollapsibleCanvas of={SidebarStories.WithSearch} />
+
+### Skeleton
+
+Loading skeleton states while navigation data is loading.
+
 <CollapsibleCanvas of={SidebarStories.LoadingSkeleton} />
 
-### Header Sizes
+### Group Label Sizes
 
-`SidebarGroupLabel` supports two size variants to fit different navigation contexts:
+`SidebarGroupLabel` supports two size variants:
 
-| Size | Style | Use case |
-|------|-------|----------|
-| `sm` | Compact, tertiary color | Dashboard navigation, settings panels, sidebars with fewer items |
-| `lg` | Larger, primary color, more spacing | Documentation, API reference, content-heavy sections with many items |
+- **sm** &ndash; Compact, tertiary color. For dashboard navigation, settings panels, sidebars with fewer items.
+- **lg** (default) &ndash; Larger, primary color, more spacing. For documentation, API reference, content-heavy sections.
 
-```jsx
-// Small header - for compact sidebars
-<SidebarGroupLabel size="sm">Settings</SidebarGroupLabel>
+<CollapsibleCanvas of={SidebarStories.HeaderSizes} />
+<div className="canvas-controls-only">
+<Controls of={SidebarStories.HeaderSizes}/>
+</div>
 
-// Large header - for documentation (default)
-<SidebarGroupLabel size="lg">API Reference</SidebarGroupLabel>
-```
+### Badges
 
-The default is `lg` for documentation-style sidebars. Use `sm` for dashboard and settings pages where space is limited.
+Use `SidebarMenuBadge` with the `Badge` component to display status indicators, counts, or labels alongside menu items.
+
+<CollapsibleCanvas of={SidebarStories.WithBadges} />
+<div className="canvas-controls-only">
+<Controls of={SidebarStories.WithBadges}/>
+</div>
+
+### Footer Cards
+
+Use `SidebarCard` to display promotional content, upgrade CTAs, or announcements in the sidebar footer.
+
+<CollapsibleCanvas of={SidebarStories.FooterCards} />
+<CollapsibleSource of={SidebarStories.FooterCards} />

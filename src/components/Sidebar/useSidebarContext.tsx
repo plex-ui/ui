@@ -23,7 +23,7 @@ const MOBILE_BREAKPOINT = 768
 export type SidebarState = "expanded" | "collapsed"
 export type SidebarCollapsible = "offcanvas" | "icon" | "none"
 export type SidebarSide = "left" | "right"
-export type SidebarVariant = "sidebar" | "floating" | "inset" | "dual-tier" | "docs"
+export type SidebarVariant = "sidebar" | "docs"
 
 export type SidebarContextValue = {
   state: SidebarState

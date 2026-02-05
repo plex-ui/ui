@@ -34,48 +34,6 @@
   width: var(--sidebar-width-icon);
 }
 
-/* Sidebar variants */
-.Sidebar[data-variant="floating"] {
-  margin: spacing(2);
-  height: calc(100% - spacing(4));
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-300);
-}
-
-.Sidebar[data-variant="inset"] {
-  background: var(--sidebar-background-secondary);
-}
-
-/* Dual-tier rail - always icon-only style */
-.Sidebar[data-variant="dual-tier"] {
-  width: var(--sidebar-width-icon);
-  border-right: 1px solid var(--color-border);
-}
-
-.Sidebar[data-variant="dual-tier"] .Header {
-  padding: 0;
-}
-
-.Sidebar[data-variant="dual-tier"] .Content {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.Sidebar[data-variant="dual-tier"] .MenuButton {
-  padding: 0;
-  width: 100%;
-}
-
-.Sidebar[data-variant="dual-tier"] .MenuButtonLabel {
-  opacity: 0;
-}
-
-.Sidebar[data-variant="dual-tier"] .MenuButtonIcon {
-  margin: 0;
-  width: 32px;
-  height: 32px;
-}
-
 /* Right side */
 .Sidebar[data-side="right"] {
   order: 1;
