@@ -692,7 +692,6 @@ export const Scrollable = () => {
     <SidebarProvider>
       <SidebarLayout style={{ height: 500 }}>
         <Sidebar side="left" variant="sidebar">
-          <SidebarHeader style={{ minHeight: 16 }} />
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Project</SidebarGroupLabel>
