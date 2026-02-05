@@ -339,10 +339,9 @@
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition:
-    opacity var(--sidebar-collapse-duration) var(--cubic-move),
-    width var(--sidebar-collapse-duration) var(--cubic-move),
-    flex-grow var(--sidebar-collapse-duration) var(--cubic-move);
+  min-width: 0;
+  transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+  will-change: opacity, width;
 }
 
 /* Hide label when collapsed */
@@ -395,7 +394,6 @@
 .MenuBadge {
   position: relative;
   z-index: 1;
-  margin-left: auto;
   padding-left: spacing(2);
   transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
   transition-delay: 0.2s;
