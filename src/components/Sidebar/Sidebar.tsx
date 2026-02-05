@@ -91,7 +91,15 @@ export type { SidebarCollapsible, SidebarSide, SidebarVariant }
 // =============================================
 
 export type SidebarProps = ComponentProps<"aside"> & {
+  /**
+   * The side the sidebar is on.
+   * @default "left"
+   */
   side?: SidebarSide
+  /**
+   * The visual variant of the sidebar.
+   * @default "sidebar"
+   */
   variant?: SidebarVariant
 }
 
@@ -167,8 +175,18 @@ SidebarRail.displayName = "SidebarRail"
 // =============================================
 
 export type SidebarGroupProps = ComponentProps<"div"> & {
+  /**
+   * Whether the group is open by default.
+   * @default true
+   */
   defaultOpen?: boolean
+  /**
+   * Controlled open state.
+   */
   open?: boolean
+  /**
+   * Callback called when the group open state changes.
+   */
   onOpenChange?: (open: boolean) => void
 }
 
@@ -261,9 +279,24 @@ SidebarMenuItem.displayName = "SidebarMenuItem"
 // =============================================
 
 export type SidebarMenuButtonProps = ComponentProps<"button"> & {
+  /**
+   * Whether the button is in an active/highlighted state.
+   * @default false
+   */
   isActive?: boolean
+  /**
+   * The size of the button.
+   * @default "md"
+   */
   size?: "sm" | "md" | "lg"
+  /**
+   * Optional tooltip to show when the sidebar is collapsed.
+   */
   tooltip?: string | ReactNode
+  /**
+   * Whether to render the button as a custom element via Slot.
+   * @default false
+   */
   asChild?: boolean
 }
 

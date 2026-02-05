@@ -251,7 +251,7 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--sidebar-foreground);
+  color: var(--color-text-secondary);
   font-size: var(--sidebar-menu-item-font-size);
   line-height: var(--sidebar-menu-item-line-height);
   text-decoration: none;
@@ -259,7 +259,7 @@
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
-  transition: color var(--transition-duration-basic) var(--cubic-enter);
+  transition: color 0.15s var(--cubic-enter);
 }
 
 .MenuButton:focus {
@@ -276,7 +276,7 @@
   content: "";
   opacity: 0;
   transform: scale(0.98);
-  transition-duration: var(--transition-duration-basic);
+  transition-duration: 0.15s;
   transition-property: opacity, background-color, transform;
   transition-timing-function: var(--cubic-enter);
   will-change: opacity, transform;
@@ -284,15 +284,24 @@
 
 /* Hover state */
 @media (hover: hover) and (pointer: fine) {
+  .MenuButton:hover {
+    color: var(--color-text);
+  }
+
   .MenuButton:hover::before {
     opacity: 0.5;
     transform: scale(1);
   }
 }
 
-/* Active (selected) state */
+/* Active (selected) state - mapping to rZ3k- in reference */
+.MenuButton[data-active="true"] {
+  color: var(--color-text);
+  cursor: default;
+}
+
 .MenuButton[data-active="true"]::before {
-  opacity: 0.5;
+  opacity: 1;
   transform: scale(1);
 }
 
@@ -641,7 +650,7 @@
   content: "";
   opacity: 0;
   transform: scale(1);
-  transition-duration: var(--transition-duration-basic);
+  transition-duration: 0.15s;
   transition-property: opacity, background-color, transform;
   transition-timing-function: var(--cubic-enter);
   will-change: opacity, transform;
