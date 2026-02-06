@@ -74,6 +74,7 @@ WithClearButton.args = {
 }
 
 WithClearButton.parameters = {
+  controls: { include: ["label", "disabled", "readOnly"] },
   docs: {
     source: {
       code: `const [value, setValue] = useState("clearable@example.com")

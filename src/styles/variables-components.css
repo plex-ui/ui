@@ -391,8 +391,8 @@
     --sidebar-footer-padding: var(--sidebar-gutter-sm) var(--sidebar-gutter);
     --sidebar-footer-shadow: 0 -2px 10px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 35%));
 
-    /* Main content area (Inset) – soft shadow only, no outline */
-    --sidebar-inset-shadow: 0 0 10px light-dark(rgb(0 0 0 / 8%), rgb(0 0 0 / 35%));
+    /* Main content area (Inset) – no shadow, matching reference (.mO2WL) */
+    --sidebar-inset-shadow: none;
 
     /* Card */
     --sidebar-card-padding: spacing(4);

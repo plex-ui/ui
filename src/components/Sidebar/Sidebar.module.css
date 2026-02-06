@@ -152,6 +152,11 @@
   width: calc(100% + 2 * var(--sidebar-gutter));
 }
 
+/* Hide separator above collapse when sidebar has no vertical scroll */
+.Sidebar:not([data-content-scrollable="true"]) .FooterSeparator {
+  display: none;
+}
+
 /* No special padding needed for children, parent handles it (except Card) */
 .Footer > *:not(.FooterSeparator):not(.Card) {
   padding-left: 0;

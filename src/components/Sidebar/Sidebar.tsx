@@ -67,7 +67,14 @@
 
 import { Slot } from "@radix-ui/react-slot"
 import clsx from "clsx"
-import { forwardRef, useState, type ComponentProps, type ReactNode } from "react"
+import {
+  forwardRef,
+  useCallback,
+  useLayoutEffect,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react"
 
 import { Button } from "../Button"
 import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon"
@@ -143,9 +150,34 @@ SidebarHeader.displayName = "SidebarHeader"
 export type SidebarContentProps = ComponentProps<"div">
 
 export const SidebarContent = forwardRef<HTMLDivElement, SidebarContentProps>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.Content, className)} {...props} />
-  ),
+  ({ className, ...props }, ref) => {
+    const [contentEl, setContentEl] = useState<HTMLDivElement | null>(null)
+    const setRef = useCallback(
+      (el: HTMLDivElement | null) => {
+        setContentEl(el)
+        if (typeof ref === "function") ref(el)
+        else if (ref) (ref as { current: HTMLDivElement | null }).current = el
+      },
+      [ref],
+    )
+
+    useLayoutEffect(() => {
+      if (!contentEl) return
+      const sidebar = contentEl.parentElement
+      if (!sidebar) return
+
+      const update = () => {
+        const hasOverflow = contentEl.scrollHeight > contentEl.clientHeight
+        sidebar.setAttribute("data-content-scrollable", hasOverflow ? "true" : "false")
+      }
+      update()
+      const ro = new ResizeObserver(update)
+      ro.observe(contentEl)
+      return () => ro.disconnect()
+    }, [contentEl])
+
+    return <div ref={setRef} className={clsx(s.Content, className)} {...props} />
+  },
 )
 SidebarContent.displayName = "SidebarContent"
 
@@ -311,6 +343,7 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
       <Comp
         ref={ref}
         data-active={isActive ? "true" : "false"}
+        aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuButton, className)}
         {...props}
       >
@@ -480,6 +513,7 @@ export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSub
       <Comp
         ref={ref}
         data-active={isActive ? "true" : "false"}
+        aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuSubButton, s[`indent${indent}`], className)}
         {...props}
       />

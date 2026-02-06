@@ -87,7 +87,15 @@ const resourcesNavItems = [
 // Shared Content Components
 // =============================================
 
-const SidebarStandardGroups = () => (
+type SidebarStandardGroupsProps = {
+  activeItem?: string
+  onItemClick?: (label: string) => void
+}
+
+const SidebarStandardGroups = ({
+  activeItem: controlledActive,
+  onItemClick,
+}: SidebarStandardGroupsProps = {}) => (
   <>
     <SidebarGroup>
       <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
@@ -95,7 +103,11 @@ const SidebarStandardGroups = () => (
         <SidebarMenu>
           {mainNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton isActive={item.active} tooltip={item.label}>
+              <SidebarMenuButton
+                isActive={controlledActive !== undefined ? controlledActive === item.label : item.active}
+                tooltip={item.label}
+                onClick={onItemClick ? () => onItemClick(item.label) : undefined}
+              >
                 <SidebarMenuButtonIcon>
                   <item.icon />
                 </SidebarMenuButtonIcon>
@@ -120,7 +132,11 @@ const SidebarStandardGroups = () => (
         <SidebarMenu>
           {systemNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <SidebarMenuButton tooltip={item.label}>
+              <SidebarMenuButton
+                isActive={controlledActive !== undefined ? controlledActive === item.label : false}
+                tooltip={item.label}
+                onClick={onItemClick ? () => onItemClick(item.label) : undefined}
+              >
                 <SidebarMenuButtonIcon>
                   <item.icon />
                 </SidebarMenuButtonIcon>
@@ -612,44 +628,52 @@ CollapsibleNested.parameters = {
   controls: { include: ["icons"] },
 }
 
-export const FooterCards = () => (
-  <SidebarProvider collapsible="icon">
-    <SidebarLayout style={{ height: 600 }}>
-      <Sidebar>
-        <SidebarContent>
-          <SidebarStandardGroups />
-        </SidebarContent>
+export const FooterCards = () => {
+  const [activeItem, setActiveItem] = useState("Overview")
 
-        <SidebarFooter>
-          <SidebarCard dismissible onDismiss={() => {}}>
-            <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
-            <SidebarCardContent>
-              Unlock higher rate limits, priority support, and advanced features.
-            </SidebarCardContent>
-            <SidebarCardFooter>
-              <Button size="sm" pill color="primary">
-                View Plans
-              </Button>
-            </SidebarCardFooter>
-          </SidebarCard>
-          <SidebarTrigger />
-        </SidebarFooter>
-      </Sidebar>
+  return (
+    <SidebarProvider collapsible="icon">
+      <SidebarLayout style={{ height: 600 }}>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarStandardGroups
+              activeItem={activeItem}
+              onItemClick={setActiveItem}
+            />
+          </SidebarContent>
 
-      <SidebarInset>
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Footer Cards</h1>
-          <p className="text-secondary">
-            The sidebar footer can contain promotional cards or CTAs. Cards are hidden when the
-            sidebar is collapsed.
-          </p>
-        </div>
-      </SidebarInset>
-    </SidebarLayout>
-  </SidebarProvider>
-)
+          <SidebarFooter>
+            <SidebarCard dismissible onDismiss={() => {}}>
+              <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+              <SidebarCardContent>
+                Unlock higher rate limits, priority support, and advanced features.
+              </SidebarCardContent>
+              <SidebarCardFooter>
+                <Button size="sm" pill color="primary">
+                  View Plans
+                </Button>
+              </SidebarCardFooter>
+            </SidebarCard>
+            <SidebarTrigger />
+          </SidebarFooter>
+        </Sidebar>
+
+        <SidebarInset>
+          <div className="p-6">
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <p className="text-secondary">
+              The sidebar footer can contain promotional cards or CTAs. Cards are hidden when the
+              sidebar is collapsed.
+            </p>
+          </div>
+        </SidebarInset>
+      </SidebarLayout>
+    </SidebarProvider>
+  )
+}
 
 export const TextOnlySettings = () => {
+  const [activeItem, setActiveItem] = useState("Profile")
   const settingsCategories = [
     {
       label: "Account",
@@ -675,9 +699,12 @@ export const TextOnlySettings = () => {
                 <SidebarGroupLabel size="sm">{category.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {category.items.map((item, idx) => (
+                    {category.items.map((item) => (
                       <SidebarMenuItem key={item}>
-                        <SidebarMenuButton isActive={category.label === "Account" && idx === 0}>
+                        <SidebarMenuButton
+                          isActive={activeItem === item}
+                          onClick={() => setActiveItem(item)}
+                        >
                           <SidebarMenuButtonLabel>{item}</SidebarMenuButtonLabel>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -691,7 +718,7 @@ export const TextOnlySettings = () => {
 
         <SidebarInset>
           <div className="p-6">
-            <h1 className="text-2xl font-semibold mb-4">Text-Only Settings</h1>
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
             <p className="text-secondary">
               This is a documentation-style sidebar without icons. It uses{" "}
               <code>collapsible=&quot;none&quot;</code> so no collapse button is rendered.
@@ -741,6 +768,7 @@ export const LoadingSkeleton = () => (
 
 export const Controlled = () => {
   const [open, setOpen] = useState(true)
+  const [activeItem, setActiveItem] = useState("Overview")
 
   return (
     <div>
@@ -755,14 +783,17 @@ export const Controlled = () => {
         <SidebarLayout style={{ height: 600 }}>
           <Sidebar>
             <SidebarContent>
-              <SidebarStandardGroups />
+              <SidebarStandardGroups
+                activeItem={activeItem}
+                onItemClick={setActiveItem}
+              />
             </SidebarContent>
             <SidebarStandardFooter />
           </Sidebar>
 
           <SidebarInset>
             <div className="p-6">
-              <h1 className="text-2xl font-semibold mb-4">Controlled Mode</h1>
+              <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
               <p className="text-secondary">
                 The sidebar state is controlled externally via props. Use <code>open</code> and{" "}
                 <code>onOpenChange</code> for full control.
@@ -775,8 +806,12 @@ export const Controlled = () => {
   )
 }
 
+function activeId(sectionLabel: string, item: string) {
+  return `${sectionLabel}::${item}`
+}
+
 export const WithSearch = () => {
-  const [activeItem, setActiveItem] = useState("Overview")
+  const [activeIdState, setActiveIdState] = useState("Get started::Overview")
   const [searchValue, setSearchValue] = useState("")
 
   const docsSections = [
@@ -810,6 +845,8 @@ export const WithSearch = () => {
     },
   ]
 
+  const activeItemLabel = activeIdState.includes("::") ? activeIdState.split("::")[1] : activeIdState
+
   return (
     <SidebarProvider collapsible="none">
       <SidebarLayout style={{ height: 600 }}>
@@ -830,11 +867,11 @@ export const WithSearch = () => {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {section.items.map((item) => (
-                      <SidebarMenuItem key={item}>
+                      <SidebarMenuItem key={`${section.label}-${item}`}>
                         <SidebarMenuSubButton
                           indent={0}
-                          isActive={activeItem === item}
-                          onClick={() => setActiveItem(item)}
+                          isActive={activeIdState === activeId(section.label, item)}
+                          onClick={() => setActiveIdState(activeId(section.label, item))}
                         >
                           {item}
                         </SidebarMenuSubButton>
@@ -849,9 +886,10 @@ export const WithSearch = () => {
 
         <SidebarInset>
           <div className="p-6">
-            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <h1 className="text-2xl font-semibold mb-4">{activeItemLabel}</h1>
             <p className="text-secondary">
-              The sidebar includes a search input that stays fixed at the top while content scrolls.
+              Use the search field above to find documentation. The sidebar content scrolls while the
+              search input stays fixed at the top.
             </p>
           </div>
         </SidebarInset>
@@ -862,6 +900,7 @@ export const WithSearch = () => {
 
 export const DocsVariant = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>(["getting-started", "components"])
+  const [activeItem, setActiveItem] = useState("Introduction")
 
   const toggleItem = (id: string) => {
     setExpandedItems((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
@@ -917,7 +956,10 @@ export const DocsVariant = () => {
                   <SidebarMenuSub>
                     {section.items.map((item) => (
                       <SidebarMenuSubItem key={item}>
-                        <SidebarMenuSubButton isActive={item === "Sidebar"}>
+                        <SidebarMenuSubButton
+                          isActive={activeItem === item}
+                          onClick={() => setActiveItem(item)}
+                        >
                           {item}
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -931,7 +973,7 @@ export const DocsVariant = () => {
 
         <SidebarInset>
           <div className="p-6">
-            <h1 className="text-2xl font-semibold mb-4">Documentation Variant</h1>
+            <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
             <p className="text-secondary">
               A documentation-style sidebar with collapsible sections and a distinct visual style.
             </p>

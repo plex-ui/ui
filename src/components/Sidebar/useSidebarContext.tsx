@@ -151,6 +151,10 @@ export const SidebarProvider = ({
       // Skip if collapsible is "none"
       if (collapsible === "none") return
 
+      // Don't trigger when focus is in an editable element (input, textarea, contenteditable)
+      const target = event.target as HTMLElement | null
+      if (target?.closest?.("input, textarea") || target?.isContentEditable) return
+
       // Check for Cmd (Mac) or Ctrl (Windows/Linux) + B
       if (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&

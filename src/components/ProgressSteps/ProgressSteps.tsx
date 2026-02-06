@@ -103,6 +103,10 @@ export const ProgressSteps = ({
     return (
       <nav
         aria-label="Progress"
+        role="progressbar"
+        aria-valuenow={current}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
         className={clsx(s.ProgressSteps, s.Minimal, className)}
         data-size={size}
         data-color={color}
@@ -165,7 +169,11 @@ const Step = ({ children, icon, _index = 0 }: StepProps) => {
   const isLast = _index === totalSteps - 1
 
   return (
-    <li className={s.Step} data-state={state}>
+    <li
+      className={s.Step}
+      data-state={state}
+      aria-current={state === "active" ? "step" : undefined}
+    >
       <div className={s.StepIndicator}>
         {state === "completed" ? <CheckMd data-no-autosize /> : icon ?? _index + 1}
       </div>

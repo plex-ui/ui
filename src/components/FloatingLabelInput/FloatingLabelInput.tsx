@@ -1,7 +1,7 @@
 "use client"
 
 import clsx from "clsx"
-import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 
 import { FieldError } from "../FieldError"
@@ -46,13 +46,10 @@ export type FloatingLabelInputProps = {
    * @default false
    */
   allowAutofillExtensions?: boolean
-  /**
-   * Ref for the input element
-   */
-  ref?: React.Ref<HTMLInputElement | null>
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "placeholder">
 
-export function FloatingLabelInput(props: FloatingLabelInputProps) {
+export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
+  function FloatingLabelInput(props, ref) {
   const {
     label,
     errorMessage,
@@ -73,7 +70,6 @@ export function FloatingLabelInput(props: FloatingLabelInputProps) {
     onBlur,
     onAnimationStart,
     "aria-describedby": ariaDescribedByProp,
-    ref,
     ...restProps
   } = props
 
@@ -212,4 +208,6 @@ export function FloatingLabelInput(props: FloatingLabelInputProps) {
       {errorMessage && <FieldError id={errorId}>{errorMessage}</FieldError>}
     </div>
   )
-}
+})
+
+FloatingLabelInput.displayName = "FloatingLabelInput"
