@@ -208,11 +208,7 @@ WithNavigation.parameters = {
 }
 
 export const Minimal = (args: ProgressStepsProps) => (
-  <div className="flex items-center justify-between w-full max-w-xl p-4">
-    <div className="w-8 h-8 bg-surface-elevated rounded-full" />
-    <ProgressSteps variant="minimal" current={args.current} total={4} color={args.color} />
-    <div className="w-8 h-8 bg-surface-elevated rounded-full" />
-  </div>
+  <ProgressSteps variant="minimal" current={args.current} total={4} color={args.color} />
 )
 Minimal.args = {
   current: 3,

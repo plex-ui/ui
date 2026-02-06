@@ -1,5 +1,7 @@
 .Root {
   position: relative;
+  --field-error-padding-inline: 0;
+  --field-error-gap: calc(var(--floating-input-gutter) - var(--field-error-icon-size));
 }
 
 .Root:has(:disabled) {

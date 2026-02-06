@@ -5,22 +5,8 @@ const ExclamationMarkCircleFilled = (props: SVGProps<SVGSVGElement>) => (
     <path
       fillRule="evenodd"
       clipRule="evenodd"
-      d="M8 14.667A6.667 6.667 0 1 0 8 1.333a6.667 6.667 0 0 0 0 13.334z"
+      d="M8 14.667A6.667 6.667 0 1 0 8 1.333a6.667 6.667 0 0 0 0 13.334z M8 4.583a.75.75 0 0 1 .75.75V8a.75.75 0 0 1-1.5 0V5.333a.75.75 0 0 1 .75-.75z M8.667 10.667a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0z"
       fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M8 4.583a.75.75 0 0 1 .75.75V8a.75.75 0 0 1-1.5 0V5.333a.75.75 0 0 1 .75-.75z"
-      fill="var(--exclamation-mark-color, white)"
-    />
-    <path
-      d="M8.667 10.667a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0z"
-      fill="var(--exclamation-mark-color, white)"
     />
   </svg>
 )

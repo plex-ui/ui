@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   gap: var(--field-error-gap);
+  padding-inline-start: var(--field-error-padding-inline);
   color: var(--field-error-color);
   font-size: var(--field-error-font-size);
   line-height: var(--field-error-line-height);
@@ -21,5 +22,9 @@
 }
 
 .Icon {
-  --exclamation-mark-color: white;
+  width: var(--field-error-icon-size);
+  height: var(--field-error-icon-size);
+  display: block;
+  align-self: center;
+  margin-top: -0.1em;
 }

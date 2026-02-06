@@ -109,9 +109,11 @@
     --field-error-color: light-dark(#d00e17, #ff6b6b);
     --field-error-font-size: 0.75rem;
     --field-error-line-height: 1.4;
+    --field-error-icon-size: 1rem;
     --field-error-gap: spacing(2);
-    --field-error-margin-top: spacing(1);
+    --field-error-margin-top: 0.5rem;
     --field-error-margin-bottom: spacing(3);
+    --field-error-padding-inline: 0;
 
     /* =============================================
       FloatingLabelInput
@@ -286,14 +288,14 @@
     --progress-steps-connector-width: 2px;
     --progress-steps-connector-dash-length: 4px;
     --progress-steps-connector-dash-gap: 4px;
-    --progress-steps-connector-color: light-dark(var(--gray-100), var(--gray-800));
-    --progress-steps-connector-color-completed: light-dark(var(--gray-900), var(--gray-100));
-    --progress-steps-indicator-background: light-dark(var(--gray-100), var(--gray-800));
-    --progress-steps-indicator-background-active: light-dark(var(--gray-900), var(--gray-0));
-    --progress-steps-indicator-background-completed: light-dark(var(--gray-900), var(--gray-0));
+    --progress-steps-connector-color: var(--gray-100);
+    --progress-steps-connector-color-completed: var(--gray-900);
+    --progress-steps-indicator-background: var(--gray-100);
+    --progress-steps-indicator-background-active: var(--gray-900);
+    --progress-steps-indicator-background-completed: var(--gray-900);
     --progress-steps-indicator-text: var(--color-text-secondary);
-    --progress-steps-indicator-text-active: light-dark(var(--gray-0), var(--gray-900));
-    --progress-steps-indicator-text-completed: light-dark(var(--gray-0), var(--gray-900));
+    --progress-steps-indicator-text-active: var(--gray-0);
+    --progress-steps-indicator-text-completed: var(--gray-0);
     --progress-steps-title-font-weight: var(--font-weight-medium);
     --progress-steps-title-color: var(--color-text);
     --progress-steps-title-color-inactive: var(--color-text-tertiary);
@@ -313,8 +315,8 @@
     --progress-steps-minimal-width-md: 24px;
     --progress-steps-minimal-width-lg: 32px;
     --progress-steps-minimal-radius: var(--radius-full);
-    --progress-steps-minimal-color-completed: light-dark(var(--gray-900), var(--gray-100));
-    --progress-steps-minimal-color-upcoming: light-dark(var(--gray-100), var(--gray-800));
+    --progress-steps-minimal-color-completed: var(--gray-900);
+    --progress-steps-minimal-color-upcoming: var(--gray-100);
 
     /* =============================================
       Sidebar
