@@ -62,10 +62,10 @@ Block.parameters = {
   controls: { include: ["block"] },
   docs: {
     source: {
-      code: `<SegmentedControl block>
-  <SegmentedControl.Option />
-  <SegmentedControl.Option />
-  <SegmentedControl.Option />
+      code: `<SegmentedControl block value={view} onChange={setView} aria-label="Select view">
+  <SegmentedControl.Option value="all">All</SegmentedControl.Option>
+  <SegmentedControl.Option value="failed">Failed</SegmentedControl.Option>
+  <SegmentedControl.Option value="successful">Successful</SegmentedControl.Option>
 </SegmentedControl>`,
     },
   },
@@ -81,10 +81,10 @@ Disabled.parameters = {
   controls: { include: ["disabled"] },
   docs: {
     source: {
-      code: `<SegmentedControl disabled>
-  <SegmentedControl.Option />
-  <SegmentedControl.Option />
-  <SegmentedControl.Option />
+      code: `<SegmentedControl disabled value={view} onChange={setView} aria-label="Select view">
+  <SegmentedControl.Option value="all">All</SegmentedControl.Option>
+  <SegmentedControl.Option value="failed">Failed</SegmentedControl.Option>
+  <SegmentedControl.Option value="successful">Successful</SegmentedControl.Option>
 </SegmentedControl>`,
     },
   },
@@ -117,10 +117,10 @@ DisabledOption.parameters = {
   controls: { include: ["disabled"] },
   docs: {
     source: {
-      code: `<SegmentedControl>
-  <SegmentedControl.Option />
-  <SegmentedControl.Option />
-  <SegmentedControl.Option disabled />
+      code: `<SegmentedControl value={view} onChange={setView} aria-label="Select view">
+  <SegmentedControl.Option value="all">All</SegmentedControl.Option>
+  <SegmentedControl.Option value="failed">Failed</SegmentedControl.Option>
+  <SegmentedControl.Option value="successful" disabled>Successful</SegmentedControl.Option>
 </SegmentedControl>`,
     },
   },
@@ -236,7 +236,7 @@ IconOnly.parameters = {
     source: {
       code: `<SegmentedControl>
   <SegmentedControl.Option value="grid" icon={<Grid />} aria-label="Grid view" />
-  <SegmentedControl.Option value="list" icon={<List />} aria-label="List view" />
+  <SegmentedControl.Option value="list" icon={<Menu />} aria-label="List view" />
 </SegmentedControl>`,
     },
   },

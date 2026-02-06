@@ -51,7 +51,7 @@ export type SegmentedControlProps<T extends string> = {
   "block"?: boolean
   /**
    * Determines if the segment control, and its options, should be a fully rounded pill shape.
-   * @default false
+   * @default true
    */
   "pill"?: boolean
   "className"?: string
