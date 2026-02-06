@@ -1605,7 +1605,7 @@ const MobileStoryContent = ({
           style={{
             margin: 8,
             marginTop: 0,
-            boxShadow: "var(--shadow-hairline)",
+            boxShadow: "var(--sidebar-inset-shadow)",
             borderRadius: 8,
             height: "calc(100% - 54px - 8px)",
             overflow: "auto",

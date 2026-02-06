@@ -710,7 +710,7 @@
   min-width: 0;
   margin: var(--sidebar-gutter-sm);
   margin-left: 0;
-  box-shadow: var(--shadow-hairline);
+  box-shadow: var(--sidebar-inset-shadow);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
 }
