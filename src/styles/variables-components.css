@@ -335,11 +335,11 @@
     --sidebar-border: var(--color-border);
     --sidebar-accent: light-dark(var(--alpha-08), var(--alpha-12));
     --sidebar-accent-hover: light-dark(var(--alpha-12), var(--alpha-16));
-    --sidebar-menu-text: var(--gray-750);
+    --sidebar-menu-text: light-dark(var(--gray-750), var(--gray-850));
     --sidebar-menu-text-active: var(--gray-900);
 
     /* Group label */
-    --sidebar-group-label-color: var(--color-text-primary);
+    --sidebar-group-label-color: var(--color-text-tertiary);
     --sidebar-group-label-font-size: 14px;
     --sidebar-group-label-font-weight: var(--font-weight-semibold);
     --sidebar-group-label-margin: 24px 0 2px;

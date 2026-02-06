@@ -1254,6 +1254,17 @@ const MobileStoryContent = ({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <SidebarCard dismissible onDismiss={() => {}}>
+          <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardContent>
+            Unlock higher rate limits, priority support, and advanced features.
+          </SidebarCardContent>
+          <SidebarCardFooter>
+            <Button size="sm" pill color="primary">
+              View Plans
+            </Button>
+          </SidebarCardFooter>
+        </SidebarCard>
         <SidebarTrigger />
       </SidebarFooter>
     </Sidebar>
@@ -1322,6 +1333,17 @@ const MobileStoryContent = ({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <SidebarCard dismissible onDismiss={() => {}}>
+          <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardContent>
+            Unlock higher rate limits, priority support, and advanced features.
+          </SidebarCardContent>
+          <SidebarCardFooter>
+            <Button size="sm" pill color="primary">
+              View Plans
+            </Button>
+          </SidebarCardFooter>
+        </SidebarCard>
         <SidebarTrigger />
       </SidebarFooter>
     </Sidebar>
@@ -1577,13 +1599,13 @@ const MobileStoryContent = ({
           <SidebarMobileMenuButton />
         </header>
 
-        {/* Main content area - white background with border */}
+        {/* Main content area - white background with shadow */}
         <div
           className="bg-surface"
           style={{
             margin: 8,
             marginTop: 0,
-            border: "1px solid var(--sidebar-border)",
+            boxShadow: "var(--shadow-hairline)",
             borderRadius: 8,
             height: "calc(100% - 54px - 8px)",
             overflow: "auto",
@@ -1591,7 +1613,22 @@ const MobileStoryContent = ({
         >
           {openMobile ? (
             // Menu content - replaces page content when open
-            <div className={styles.MobileMenuContent}>{renderMobileContent()}</div>
+            <div className={styles.MobileMenuContent}>
+              {renderMobileContent()}
+              {!nested && (
+                <SidebarCard dismissible onDismiss={() => {}}>
+                  <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+                  <SidebarCardContent>
+                    Unlock higher rate limits, priority support, and advanced features.
+                  </SidebarCardContent>
+                  <SidebarCardFooter>
+                    <Button size="sm" pill color="primary">
+                      View Plans
+                    </Button>
+                  </SidebarCardFooter>
+                </SidebarCard>
+              )}
+            </div>
           ) : (
             // Page content
             <div style={{ padding: 24 }}>
@@ -1765,7 +1802,7 @@ export const TextOnly = () => {
         <Sidebar variant="docs" style={{ width: "180px" }}>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel size="sm">Settings</SidebarGroupLabel>
+              <SidebarGroupLabel size="lg">Settings</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {settingsNavItems.map((item) => (
@@ -1784,7 +1821,7 @@ export const TextOnly = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel size="sm">Organization</SidebarGroupLabel>
+              <SidebarGroupLabel size="lg">Organization</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {organizationNavItems.map((item) => (
@@ -1803,7 +1840,7 @@ export const TextOnly = () => {
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarGroupLabel size="sm">People</SidebarGroupLabel>
+              <SidebarGroupLabel size="lg">People</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {peopleNavItems.map((item) => (
