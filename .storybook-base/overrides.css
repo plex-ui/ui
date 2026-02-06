@@ -718,9 +718,7 @@ input[type="range"]:hover::-moz-range-thumb {
   border-color: var(--alpha-10) !important;
   border-radius: var(--radius-md) !important;
   margin-bottom: 32px !important;
-  box-shadow:
-    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
-    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+  box-shadow: none !important;
 
   /* When followed by controls or code, remove bottom styling for unified look */
   &:has(+ .canvas-controls-only),
@@ -728,7 +726,6 @@ input[type="range"]:hover::-moz-range-thumb {
     border-bottom: 0 !important;
     border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
     margin-bottom: 0 !important;
-    box-shadow: none !important;
   }
 
   .docs-story {
@@ -940,16 +937,13 @@ input[type="range"]:hover::-moz-range-thumb {
   border: 1px solid var(--alpha-10) !important;
   border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
   margin: 0 0 40px !important;
-  box-shadow:
-    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
-    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+  box-shadow: none !important;
 
   /* When followed by code, remove bottom styling for unified look */
   &:has(+ [data-collapsible-source]) {
     border-bottom: 0 !important;
     border-radius: 0 !important;
     margin-bottom: 0 !important;
-    box-shadow: none !important;
   }
 
   .docblock-argstable {
@@ -998,18 +992,14 @@ input[type="range"]:hover::-moz-range-thumb {
   border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
   margin-top: 0 !important;
   margin-bottom: 40px !important;
-  box-shadow:
-    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
-    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+  box-shadow: none !important;
 }
 
 .canvas-controls-only + [data-collapsible-source] {
   border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
   margin-top: 0 !important;
   margin-bottom: 40px !important;
-  box-shadow:
-    0 4px 12px -3px light-dark(rgba(0 0 0 / 12%), rgba(0 0 0 / 60%)),
-    0 4px 4px -4px light-dark(rgba(0 0 0 / 15%), rgba(0 0 0 / 60%)) !important;
+  box-shadow: none !important;
 }
 
 .story-example {
