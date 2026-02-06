@@ -104,7 +104,9 @@ const SidebarStandardGroups = ({
           {mainNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
-                isActive={controlledActive !== undefined ? controlledActive === item.label : item.active}
+                isActive={
+                  controlledActive !== undefined ? controlledActive === item.label : item.active
+                }
                 tooltip={item.label}
                 onClick={onItemClick ? () => onItemClick(item.label) : undefined}
               >
@@ -636,10 +638,7 @@ export const FooterCards = () => {
       <SidebarLayout style={{ height: 600 }}>
         <Sidebar>
           <SidebarContent>
-            <SidebarStandardGroups
-              activeItem={activeItem}
-              onItemClick={setActiveItem}
-            />
+            <SidebarStandardGroups activeItem={activeItem} onItemClick={setActiveItem} />
           </SidebarContent>
 
           <SidebarFooter>
@@ -783,10 +782,7 @@ export const Controlled = () => {
         <SidebarLayout style={{ height: 600 }}>
           <Sidebar>
             <SidebarContent>
-              <SidebarStandardGroups
-                activeItem={activeItem}
-                onItemClick={setActiveItem}
-              />
+              <SidebarStandardGroups activeItem={activeItem} onItemClick={setActiveItem} />
             </SidebarContent>
             <SidebarStandardFooter />
           </Sidebar>
@@ -845,7 +841,9 @@ export const WithSearch = () => {
     },
   ]
 
-  const activeItemLabel = activeIdState.includes("::") ? activeIdState.split("::")[1] : activeIdState
+  const activeItemLabel = activeIdState.includes("::")
+    ? activeIdState.split("::")[1]
+    : activeIdState
 
   return (
     <SidebarProvider collapsible="none">
@@ -888,8 +886,8 @@ export const WithSearch = () => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold mb-4">{activeItemLabel}</h1>
             <p className="text-secondary">
-              Use the search field above to find documentation. The sidebar content scrolls while the
-              search input stays fixed at the top.
+              Use the search field above to find documentation. The sidebar content scrolls while
+              the search input stays fixed at the top.
             </p>
           </div>
         </SidebarInset>

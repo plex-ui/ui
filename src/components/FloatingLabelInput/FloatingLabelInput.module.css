@@ -1,7 +1,7 @@
 .Root {
   position: relative;
   --field-error-padding-inline: 0;
-  --field-error-gap: calc(var(--floating-input-gutter) - var(--field-error-icon-size));
+  --field-error-margin-top: 0.25rem;
 }
 
 .Root:has(:disabled) {
@@ -161,6 +161,11 @@
 
 .ClearButton:hover {
   color: var(--color-text);
+}
+
+/* Error message spacing */
+.ErrorMessage {
+  margin-top: var(--field-error-margin-top);
 }
 
 /* Reduced motion preference */
