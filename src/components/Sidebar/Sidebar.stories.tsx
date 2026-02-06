@@ -643,7 +643,9 @@ export const FooterCards = () => {
 
           <SidebarFooter>
             <SidebarCard dismissible onDismiss={() => {}}>
-              <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+              <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
+                  Upgrade to Pro
+                </SidebarCardTitleLink>
               <SidebarCardContent>
                 Unlock higher rate limits, priority support, and advanced features.
               </SidebarCardContent>
@@ -1295,7 +1297,9 @@ const MobileStoryContent = ({
       </SidebarContent>
       <SidebarFooter>
         <SidebarCard dismissible onDismiss={() => {}}>
-          <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
+                  Upgrade to Pro
+                </SidebarCardTitleLink>
           <SidebarCardContent>
             Unlock higher rate limits, priority support, and advanced features.
           </SidebarCardContent>
@@ -1374,7 +1378,9 @@ const MobileStoryContent = ({
       </SidebarContent>
       <SidebarFooter>
         <SidebarCard dismissible onDismiss={() => {}}>
-          <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
+                  Upgrade to Pro
+                </SidebarCardTitleLink>
           <SidebarCardContent>
             Unlock higher rate limits, priority support, and advanced features.
           </SidebarCardContent>
@@ -1657,7 +1663,9 @@ const MobileStoryContent = ({
               {renderMobileContent()}
               {!nested && (
                 <SidebarCard dismissible onDismiss={() => {}}>
-                  <SidebarCardTitleLink href="#">Upgrade to Pro</SidebarCardTitleLink>
+                  <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
+                  Upgrade to Pro
+                </SidebarCardTitleLink>
                   <SidebarCardContent>
                     Unlock higher rate limits, priority support, and advanced features.
                   </SidebarCardContent>
