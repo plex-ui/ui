@@ -33,6 +33,7 @@ export {
   SidebarMenuButton,
   SidebarMenuButtonIcon,
   SidebarMenuButtonLabel,
+  SidebarMenuChevron,
   SidebarMenuItem,
   SidebarMenuSkeleton,
   // Submenu
@@ -80,6 +81,7 @@ export type {
   SidebarMenuButtonIconProps,
   SidebarMenuButtonLabelProps,
   SidebarMenuButtonProps,
+  SidebarMenuChevronProps,
   SidebarMenuItemProps,
   SidebarMenuProps,
   SidebarMenuSkeletonProps,

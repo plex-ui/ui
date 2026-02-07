@@ -54,7 +54,7 @@ export const SimpleWidth = () => {
         >
           {show && <Primary key="box" className="w-[200px] h-[200px]" />}
         </AnimateLayout>
-        <Secondary className="w-[200px] h-[1200px00px] ml-6" />
+        <Secondary className="w-[200px] h-[1200px] ml-6" />
       </div>
     </div>
   )

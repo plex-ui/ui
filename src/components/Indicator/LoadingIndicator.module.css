@@ -1,4 +1,5 @@
 .LoadingIndicator {
+  display: inline-block;
   position: relative;
   width: var(--indicator-size, 1em);
   height: var(--indicator-size, 1em);

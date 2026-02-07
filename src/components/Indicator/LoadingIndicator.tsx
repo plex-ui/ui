@@ -14,7 +14,7 @@ export type LoadingIndicatorProps = {
    * @default 2
    */
   strokeWidth?: number
-} & Omit<ComponentProps<"div">, "children">
+} & Omit<ComponentProps<"span">, "children">
 
 export const LoadingIndicator = ({
   className,
@@ -24,7 +24,7 @@ export const LoadingIndicator = ({
   ...restProps
 }: LoadingIndicatorProps) => {
   return (
-    <div
+    <span
       {...restProps}
       className={clsx(s.LoadingIndicator, className)}
       style={

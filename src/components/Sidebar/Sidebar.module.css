@@ -483,10 +483,74 @@
 }
 
 .MenuSubButton {
-  composes: MenuButton;
+  /* Inherits MenuButton base styles (replaced composes for Turbopack compatibility) */
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  margin: var(--sidebar-menu-item-margin);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sidebar-menu-text);
   font-size: 14px;
   line-height: 20px;
-  padding: 8px 12px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: color 0.15s var(--cubic-enter);
+}
+
+.MenuSubButton:focus {
+  outline: none;
+}
+
+.MenuSubButton::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: var(--sidebar-menu-item-radius);
+  background: var(--sidebar-accent);
+  content: "";
+  opacity: 0;
+  transform: scale(0.98);
+  transition-duration: 0.15s;
+  transition-property: opacity, background-color, transform;
+  transition-timing-function: var(--cubic-enter);
+  will-change: opacity, transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .MenuSubButton:hover {
+    color: var(--sidebar-menu-text-active);
+  }
+
+  .MenuSubButton:hover::before {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+.MenuSubButton[data-active="true"] {
+  color: var(--sidebar-menu-text-active);
+  cursor: default;
+}
+
+.MenuSubButton[data-active="true"]::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.MenuSubButton:active:not([data-active="true"])::before {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+.MenuSubButton:focus-visible::before {
+  box-shadow: 0 0 0 2px var(--color-ring);
 }
 
 @media (min-width: 768px) {

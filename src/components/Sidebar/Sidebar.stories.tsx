@@ -644,8 +644,8 @@ export const FooterCards = () => {
           <SidebarFooter>
             <SidebarCard dismissible onDismiss={() => {}}>
               <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
-                  Upgrade to Pro
-                </SidebarCardTitleLink>
+                Upgrade to Pro
+              </SidebarCardTitleLink>
               <SidebarCardContent>
                 Unlock higher rate limits, priority support, and advanced features.
               </SidebarCardContent>
@@ -1298,8 +1298,8 @@ const MobileStoryContent = ({
       <SidebarFooter>
         <SidebarCard dismissible onDismiss={() => {}}>
           <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
-                  Upgrade to Pro
-                </SidebarCardTitleLink>
+            Upgrade to Pro
+          </SidebarCardTitleLink>
           <SidebarCardContent>
             Unlock higher rate limits, priority support, and advanced features.
           </SidebarCardContent>
@@ -1379,8 +1379,8 @@ const MobileStoryContent = ({
       <SidebarFooter>
         <SidebarCard dismissible onDismiss={() => {}}>
           <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
-                  Upgrade to Pro
-                </SidebarCardTitleLink>
+            Upgrade to Pro
+          </SidebarCardTitleLink>
           <SidebarCardContent>
             Unlock higher rate limits, priority support, and advanced features.
           </SidebarCardContent>
@@ -1664,8 +1664,8 @@ const MobileStoryContent = ({
               {!nested && (
                 <SidebarCard dismissible onDismiss={() => {}}>
                   <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
-                  Upgrade to Pro
-                </SidebarCardTitleLink>
+                    Upgrade to Pro
+                  </SidebarCardTitleLink>
                   <SidebarCardContent>
                     Unlock higher rate limits, priority support, and advanced features.
                   </SidebarCardContent>
