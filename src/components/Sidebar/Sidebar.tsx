@@ -89,6 +89,12 @@ import {
   type SidebarVariant,
 } from "./useSidebarContext"
 
+// Helper to filter out props that shouldn't be spread to the DOM (e.g. injected by MDX)
+const cleanProps = (props: any) => {
+  const { "data-toggle": _, ...rest } = props
+  return rest
+}
+
 // Re-export provider and hook
 export { SidebarProvider, useSidebar }
 export type { SidebarCollapsible, SidebarSide, SidebarVariant }
@@ -125,7 +131,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(
         data-side={side}
         data-variant={variant}
         className={clsx(s.Sidebar, className)}
-        {...props}
+        {...cleanProps(props)}
       >
         {children}
       </aside>
@@ -142,7 +148,7 @@ export type SidebarHeaderProps = ComponentProps<"div">
 
 export const SidebarHeader = forwardRef<HTMLDivElement, SidebarHeaderProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.Header, className)} {...props} />
+    <div ref={ref} className={clsx(s.Header, className)} {...cleanProps(props)} />
   ),
 )
 SidebarHeader.displayName = "SidebarHeader"
@@ -176,7 +182,7 @@ export const SidebarContent = forwardRef<HTMLDivElement, SidebarContentProps>(
       return () => ro.disconnect()
     }, [contentEl])
 
-    return <div ref={setRef} className={clsx(s.Content, className)} {...props} />
+    return <div ref={setRef} className={clsx(s.Content, className)} {...cleanProps(props)} />
   },
 )
 SidebarContent.displayName = "SidebarContent"
@@ -185,7 +191,7 @@ export type SidebarFooterProps = ComponentProps<"div">
 
 export const SidebarFooter = forwardRef<HTMLDivElement, SidebarFooterProps>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.Footer, className)} {...props}>
+    <div ref={ref} className={clsx(s.Footer, className)} {...cleanProps(props)}>
       <div className={s.FooterSeparator} />
       {children}
     </div>
@@ -197,7 +203,7 @@ export type SidebarRailProps = ComponentProps<"div">
 
 export const SidebarRail = forwardRef<HTMLDivElement, SidebarRailProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.Rail, className)} {...props} />
+    <div ref={ref} className={clsx(s.Rail, className)} {...cleanProps(props)} />
   ),
 )
 SidebarRail.displayName = "SidebarRail"
@@ -240,9 +246,8 @@ export const SidebarGroup = forwardRef<HTMLDivElement, SidebarGroupProps>(
       <div
         ref={ref}
         data-state={open ? "open" : "closed"}
-        data-toggle={handleToggle}
         className={clsx(s.Group, className)}
-        {...props}
+        {...cleanProps(props)}
       />
     )
   },
@@ -263,7 +268,14 @@ export type SidebarGroupLabelProps = ComponentProps<"span"> & {
 export const SidebarGroupLabel = forwardRef<HTMLSpanElement, SidebarGroupLabelProps>(
   ({ asChild = false, size = "lg", className, ...props }, ref) => {
     const Comp = asChild ? Slot : "span"
-    return <Comp ref={ref} data-size={size} className={clsx(s.GroupLabel, className)} {...props} />
+    return (
+      <Comp
+        ref={ref}
+        data-size={size}
+        className={clsx(s.GroupLabel, className)}
+        {...cleanProps(props)}
+      />
+    )
   },
 )
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
@@ -272,7 +284,7 @@ export type SidebarGroupActionProps = ComponentProps<"div">
 
 export const SidebarGroupAction = forwardRef<HTMLDivElement, SidebarGroupActionProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.GroupAction, className)} {...props} />
+    <div ref={ref} className={clsx(s.GroupAction, className)} {...cleanProps(props)} />
   ),
 )
 SidebarGroupAction.displayName = "SidebarGroupAction"
@@ -281,7 +293,7 @@ export type SidebarGroupContentProps = ComponentProps<"div">
 
 export const SidebarGroupContent = forwardRef<HTMLDivElement, SidebarGroupContentProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.GroupContent, className)} {...props} />
+    <div ref={ref} className={clsx(s.GroupContent, className)} {...cleanProps(props)} />
   ),
 )
 SidebarGroupContent.displayName = "SidebarGroupContent"
@@ -293,7 +305,9 @@ SidebarGroupContent.displayName = "SidebarGroupContent"
 export type SidebarMenuProps = ComponentProps<"ul">
 
 export const SidebarMenu = forwardRef<HTMLUListElement, SidebarMenuProps>(
-  ({ className, ...props }, ref) => <ul ref={ref} className={clsx(s.Menu, className)} {...props} />,
+  ({ className, ...props }, ref) => (
+    <ul ref={ref} className={clsx(s.Menu, className)} {...cleanProps(props)} />
+  ),
 )
 SidebarMenu.displayName = "SidebarMenu"
 
@@ -307,7 +321,7 @@ export const SidebarMenuItem = forwardRef<HTMLLIElement, SidebarMenuItemProps>(
       ref={ref}
       data-expanded={expanded ? "true" : undefined}
       className={clsx(s.MenuItem, className)}
-      {...props}
+      {...cleanProps(props)}
     />
   ),
 )
@@ -345,7 +359,7 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
         data-active={isActive ? "true" : "false"}
         aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuButton, className)}
-        {...props}
+        {...cleanProps(props)}
       >
         <span className={s.MenuButtonInner}>{children}</span>
       </Comp>
@@ -373,7 +387,7 @@ export type SidebarMenuButtonIconProps = ComponentProps<"span">
 
 export const SidebarMenuButtonIcon = forwardRef<HTMLSpanElement, SidebarMenuButtonIconProps>(
   ({ className, ...props }, ref) => (
-    <span ref={ref} className={clsx(s.MenuButtonIcon, className)} {...props} />
+    <span ref={ref} className={clsx(s.MenuButtonIcon, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMenuButtonIcon.displayName = "SidebarMenuButtonIcon"
@@ -389,7 +403,7 @@ export const SidebarMenuButtonLabel = forwardRef<HTMLSpanElement, SidebarMenuBut
         ref={ref}
         data-long-label="true"
         className={clsx(s.MenuButtonLabel, className)}
-        {...props}
+        {...cleanProps(props)}
       >
         {children}
       </span>
@@ -411,7 +425,7 @@ export type SidebarMenuChevronProps = ComponentProps<"span">
 
 export const SidebarMenuChevron = forwardRef<HTMLSpanElement, SidebarMenuChevronProps>(
   ({ className, ...props }, ref) => (
-    <span ref={ref} className={clsx(s.MenuChevron, className)} {...props}>
+    <span ref={ref} className={clsx(s.MenuChevron, className)} {...cleanProps(props)}>
       <ChevronRightMd />
     </span>
   ),
@@ -426,7 +440,7 @@ export type SidebarMenuBadgeProps = ComponentProps<"span">
 
 export const SidebarMenuBadge = forwardRef<HTMLSpanElement, SidebarMenuBadgeProps>(
   ({ className, ...props }, ref) => (
-    <span ref={ref} className={clsx(s.MenuBadge, className)} {...props} />
+    <span ref={ref} className={clsx(s.MenuBadge, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMenuBadge.displayName = "SidebarMenuBadge"
@@ -435,7 +449,7 @@ export type SidebarMenuActionProps = ComponentProps<"div">
 
 export const SidebarMenuAction = forwardRef<HTMLDivElement, SidebarMenuActionProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.MenuAction, className)} {...props} />
+    <div ref={ref} className={clsx(s.MenuAction, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMenuAction.displayName = "SidebarMenuAction"
@@ -452,7 +466,12 @@ export type SidebarMenuSkeletonProps = ComponentProps<"div"> & {
 
 export const SidebarMenuSkeleton = forwardRef<HTMLDivElement, SidebarMenuSkeletonProps>(
   ({ showIcon = true, labelWidth = "60%", className, ...props }, ref) => (
-    <div ref={ref} data-skeleton className={clsx(s.MenuSkeleton, className)} {...props}>
+    <div
+      ref={ref}
+      data-skeleton
+      className={clsx(s.MenuSkeleton, className)}
+      {...cleanProps(props)}
+    >
       {showIcon && <div className={s.MenuSkeletonIcon} />}
       <div className={s.MenuSkeletonLabel} style={{ width: labelWidth }} />
     </div>
@@ -480,7 +499,7 @@ export const SidebarMenuSub = forwardRef<HTMLUListElement, SidebarMenuSubProps>(
       data-state={open ? "open" : "closed"}
       data-has-icons={hasIcons ? "true" : undefined}
       className={clsx(s.MenuSub, className)}
-      {...props}
+      {...cleanProps(props)}
     />
   ),
 )
@@ -490,7 +509,7 @@ export type SidebarMenuSubItemProps = ComponentProps<"li">
 
 export const SidebarMenuSubItem = forwardRef<HTMLLIElement, SidebarMenuSubItemProps>(
   ({ className, ...props }, ref) => (
-    <li ref={ref} className={clsx(s.MenuSubItem, className)} {...props} />
+    <li ref={ref} className={clsx(s.MenuSubItem, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
@@ -515,7 +534,7 @@ export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSub
         data-active={isActive ? "true" : "false"}
         aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuSubButton, s[`indent${indent}`], className)}
-        {...props}
+        {...cleanProps(props)}
       />
     )
   },
@@ -530,7 +549,7 @@ export type SidebarSeparatorProps = ComponentProps<"hr">
 
 export const SidebarSeparator = forwardRef<HTMLHRElement, SidebarSeparatorProps>(
   ({ className, ...props }, ref) => (
-    <hr ref={ref} className={clsx(s.Separator, className)} {...props} />
+    <hr ref={ref} className={clsx(s.Separator, className)} {...cleanProps(props)} />
   ),
 )
 SidebarSeparator.displayName = "SidebarSeparator"
@@ -547,7 +566,12 @@ export type SidebarCardProps = ComponentProps<"div"> & {
 
 export const SidebarCard = forwardRef<HTMLDivElement, SidebarCardProps>(
   ({ variant = "default", dismissible = false, onDismiss, className, children, ...props }, ref) => (
-    <div ref={ref} data-variant={variant} className={clsx(s.Card, className)} {...props}>
+    <div
+      ref={ref}
+      data-variant={variant}
+      className={clsx(s.Card, className)}
+      {...cleanProps(props)}
+    >
       {dismissible && (
         <Button
           uniform
@@ -571,7 +595,7 @@ export type SidebarCardHeaderProps = ComponentProps<"div">
 
 export const SidebarCardHeader = forwardRef<HTMLDivElement, SidebarCardHeaderProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.CardHeader, className)} {...props} />
+    <div ref={ref} className={clsx(s.CardHeader, className)} {...cleanProps(props)} />
   ),
 )
 SidebarCardHeader.displayName = "SidebarCardHeader"
@@ -580,7 +604,7 @@ export type SidebarCardTitleProps = ComponentProps<"div">
 
 export const SidebarCardTitle = forwardRef<HTMLDivElement, SidebarCardTitleProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.CardTitle, className)} {...props} />
+    <div ref={ref} className={clsx(s.CardTitle, className)} {...cleanProps(props)} />
   ),
 )
 SidebarCardTitle.displayName = "SidebarCardTitle"
@@ -589,7 +613,7 @@ export type SidebarCardTitleLinkProps = ComponentProps<"a">
 
 export const SidebarCardTitleLink = forwardRef<HTMLAnchorElement, SidebarCardTitleLinkProps>(
   ({ className, children, ...props }, ref) => (
-    <a ref={ref} className={clsx(s.CardTitleLink, className)} {...props}>
+    <a ref={ref} className={clsx(s.CardTitleLink, className)} {...cleanProps(props)}>
       {children}
       <ChevronRightMd className={s.CardTitleChevron} />
     </a>
@@ -601,7 +625,7 @@ export type SidebarCardContentProps = ComponentProps<"div">
 
 export const SidebarCardContent = forwardRef<HTMLDivElement, SidebarCardContentProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.CardContent, className)} {...props} />
+    <div ref={ref} className={clsx(s.CardContent, className)} {...cleanProps(props)} />
   ),
 )
 SidebarCardContent.displayName = "SidebarCardContent"
@@ -610,7 +634,7 @@ export type SidebarCardFooterProps = ComponentProps<"div">
 
 export const SidebarCardFooter = forwardRef<HTMLDivElement, SidebarCardFooterProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.CardFooter, className)} {...props} />
+    <div ref={ref} className={clsx(s.CardFooter, className)} {...cleanProps(props)} />
   ),
 )
 SidebarCardFooter.displayName = "SidebarCardFooter"
@@ -623,7 +647,7 @@ export type SidebarInsetProps = ComponentProps<"main">
 
 export const SidebarInset = forwardRef<HTMLElement, SidebarInsetProps>(
   ({ className, ...props }, ref) => (
-    <main ref={ref} className={clsx(s.Inset, className)} {...props} />
+    <main ref={ref} className={clsx(s.Inset, className)} {...cleanProps(props)} />
   ),
 )
 SidebarInset.displayName = "SidebarInset"
@@ -636,7 +660,7 @@ export type SidebarLayoutProps = ComponentProps<"div">
 
 export const SidebarLayout = forwardRef<HTMLDivElement, SidebarLayoutProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.SidebarLayout, className)} {...props} />
+    <div ref={ref} className={clsx(s.SidebarLayout, className)} {...cleanProps(props)} />
   ),
 )
 SidebarLayout.displayName = "SidebarLayout"
@@ -670,7 +694,7 @@ export const SidebarTrigger = forwardRef<HTMLButtonElement, SidebarTriggerProps>
         aria-label={
           isMobile ? "Open menu" : state === "expanded" ? "Collapse sidebar" : "Expand sidebar"
         }
-        {...props}
+        {...cleanProps(props)}
       >
         <span className={s.TriggerInner}>
           <span className={s.TriggerIcon}>{children ?? defaultIcon}</span>
@@ -699,7 +723,7 @@ export const SidebarMobileMenuButton = forwardRef<HTMLButtonElement, SidebarMobi
         className={clsx(s.MobileMenuButton, className)}
         onClick={() => setOpenMobile(!openMobile)}
         aria-label={openMobile ? "Close menu" : "Open menu"}
-        {...props}
+        {...cleanProps(props)}
       >
         <span className={s.MobileMenuIcon}>
           <span className={s.MobileMenuLine} data-top />
@@ -739,7 +763,7 @@ export const SidebarMobile = forwardRef<HTMLDivElement, SidebarMobileProps>(
         <div
           ref={ref}
           className={clsx(s.MobileSidebar, contained && s.contained, className)}
-          {...props}
+          {...cleanProps(props)}
         >
           {children}
         </div>
@@ -753,7 +777,7 @@ export type SidebarMobileHeaderProps = ComponentProps<"div">
 
 export const SidebarMobileHeader = forwardRef<HTMLDivElement, SidebarMobileHeaderProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.MobileHeader, className)} {...props} />
+    <div ref={ref} className={clsx(s.MobileHeader, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMobileHeader.displayName = "SidebarMobileHeader"
@@ -762,7 +786,7 @@ export type SidebarMobileFooterProps = ComponentProps<"div">
 
 export const SidebarMobileFooter = forwardRef<HTMLDivElement, SidebarMobileFooterProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.MobileFooter, className)} {...props} />
+    <div ref={ref} className={clsx(s.MobileFooter, className)} {...cleanProps(props)} />
   ),
 )
 SidebarMobileFooter.displayName = "SidebarMobileFooter"
@@ -776,7 +800,12 @@ export type SidebarInputProps = InputProps
 export const SidebarInput = forwardRef<HTMLInputElement, SidebarInputProps>(
   ({ className, ...props }, ref) => (
     <div className={s.Input}>
-      <Input ref={ref} className={className} startAdornment={<SearchIcon />} {...props} />
+      <Input
+        ref={ref}
+        className={className}
+        startAdornment={<SearchIcon />}
+        {...cleanProps(props)}
+      />
     </div>
   ),
 )
@@ -790,7 +819,7 @@ export type SidebarFooterLinksProps = ComponentProps<"div">
 
 export const SidebarFooterLinks = forwardRef<HTMLDivElement, SidebarFooterLinksProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx(s.FooterLinks, className)} {...props} />
+    <div ref={ref} className={clsx(s.FooterLinks, className)} {...cleanProps(props)} />
   ),
 )
 SidebarFooterLinks.displayName = "SidebarFooterLinks"
