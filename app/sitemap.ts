@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { source, componentsSource, iconsSource, blog } from '@/lib/source';
 
 // Build-time stamp for routes that don't have a per-page lastModified
-// (the homepage, /pricing, /bridge, /compare/*, /blog index — these
+// (the homepage, /compare/*, /blog index — these
 // are all hand-built React pages without an MDX `lastModified`
 // frontmatter, so they get the deploy date instead of the old
 // hardcoded fallback). Crawlers use this to prioritise re-crawl
@@ -20,8 +20,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: STATIC_UPDATED, changeFrequency: 'weekly', priority: 1.0 },
-    { url: `${baseUrl}/pricing`, lastModified: STATIC_UPDATED, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/bridge`, lastModified: STATIC_UPDATED, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/compare/shadcn-ui`, lastModified: STATIC_UPDATED, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/compare/untitled-ui`, lastModified: STATIC_UPDATED, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/compare/radix-ui`, lastModified: STATIC_UPDATED, changeFrequency: 'monthly', priority: 0.8 },

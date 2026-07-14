@@ -13,15 +13,13 @@ Here are the libraries worth evaluating in 2026, what each does well, and where 
 
 ## Plex UI
 
-[Plex UI](/components) ships {COMPONENTS_COUNT} accessible React components built on Radix primitives and Tailwind CSS 4. The differentiator is a three-layer design token system — primitive, semantic, and component-level — that maps one-to-one between React and a commercial Figma kit with 22,000+ variants.
+[Plex UI](/components) ships {COMPONENTS_COUNT} accessible React components built on Radix primitives and Tailwind CSS 4. The differentiator is a three-layer design token system — primitive, semantic, and component-level — that maps one-to-one between the React components and their Figma source.
 
 Every component uses a 9-step size scale from `3xs` to `3xl`. That scale is consistent across buttons, inputs, selects, menus, and every other control. Spacing, radius, and typography follow the same token structure, which means AI code editors can generate UI that stays on-system because the constraints are baked into the component API rather than left to convention.
 
-The [AI Bridge](/bridge) exposes Figma read/write access to any model that supports tool use — Claude, Cursor, Codex — so generated code and design stay synchronized.
-
 **Strengths:** Token parity between code and Figma. Consistent sizing across all components. Built for AI-assisted workflows. Full dark mode via CSS `light-dark()`.
 
-**Weaknesses:** Smaller community than established libraries. Fewer components than MUI or Ant Design. The Figma kit is a paid product, which limits adoption for teams that only need the React side.
+**Weaknesses:** Smaller community than established libraries. Fewer components than MUI or Ant Design.
 
 **Best for:** Teams that need strict design-to-code parity, especially those using AI editors for UI generation.
 
@@ -125,9 +123,9 @@ If your project already uses Tailwind and you need a handful of accessible inter
 
 ## Comparison table
 
-| Library | Components | Styling | Design tokens | Figma kit | Dark mode | Bundle size |
+| Library | Components | Styling | Design tokens | Figma parity | Dark mode | Bundle size |
 |---|---|---|---|---|---|---|
-| Plex UI | {COMPONENTS_COUNT} | Tailwind CSS 4 | Three-layer system | Paid (22k variants) | CSS light-dark() | Small |
+| Plex UI | {COMPONENTS_COUNT} | Tailwind CSS 4 | Three-layer system | Exact, first-party | CSS light-dark() | Small |
 | shadcn/ui | 40+ | Tailwind CSS | CSS variables | Community | CSS variables | Zero (copy-paste) |
 | Radix UI | 30+ | Unstyled | None | None | N/A | Small |
 | MUI | 50+ | Emotion / CSS | Theme object | MUI Store | Theme provider | Large |
@@ -140,7 +138,7 @@ If your project already uses Tailwind and you need a handful of accessible inter
 
 Start from your constraints, not from feature lists.
 
-**You need design-code parity with AI workflows.** Plex UI's token system and [AI Bridge](/bridge) are built for this. No other library offers bidirectional Figma synchronization through AI tool use.
+**You need design-code parity with AI workflows.** Plex UI's three-layer token system is built for this: every Figma value has a named counterpart in the React API, so the model has one vocabulary to work in.
 
 **You want full code ownership.** shadcn/ui lets you copy and own everything. You trade automatic updates for total control.
 

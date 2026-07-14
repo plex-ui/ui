@@ -5,7 +5,7 @@ author: Sergey
 date: 2026-04-01
 ---
 
-<script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does AI-generated CSS break in dark mode?","acceptedAnswer":{"@type":"Answer","text":"AI tools extract raw hex color values from designs and hardcode them into CSS. These values carry no semantic meaning, so when dark mode activates and color roles invert, nothing adapts — text becomes invisible and backgrounds collapse."}},{"@type":"Question","name":"How to fix dark mode in AI-generated CSS?","acceptedAnswer":{"@type":"Answer","text":"Replace hardcoded hex values with CSS custom properties that reference design tokens. Use a tool like AI Bridge to give your AI access to the semantic variable layer in Figma, so it outputs var(--color-surface) instead of #ffffff."}},{"@type":"Question","name":"Can AI code editors handle dark mode correctly?","acceptedAnswer":{"@type":"Answer","text":"Yes, if given access to design tokens. When AI reads semantic variable bindings from Figma instead of raw pixel values, it generates CSS with custom properties that automatically adapt to both light and dark modes."}}]})}} />
+<script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does AI-generated CSS break in dark mode?","acceptedAnswer":{"@type":"Answer","text":"AI tools extract raw hex color values from designs and hardcode them into CSS. These values carry no semantic meaning, so when dark mode activates and color roles invert, nothing adapts — text becomes invisible and backgrounds collapse."}},{"@type":"Question","name":"How to fix dark mode in AI-generated CSS?","acceptedAnswer":{"@type":"Answer","text":"Replace hardcoded hex values with CSS custom properties that reference design tokens. Give your AI access to the semantic variable layer of your design system, so it outputs var(--color-surface) instead of #ffffff."}},{"@type":"Question","name":"Can AI code editors handle dark mode correctly?","acceptedAnswer":{"@type":"Answer","text":"Yes, if given access to design tokens. When AI reads semantic variable bindings from Figma instead of raw pixel values, it generates CSS with custom properties that automatically adapt to both light and dark modes."}}]})}} />
 
 Your AI writes beautiful CSS in light mode. Clean layout, correct spacing, proper typography. You toggle dark mode and half the UI disappears. Text becomes invisible against the background. Borders vanish. Cards collapse into the page.
 
@@ -83,11 +83,11 @@ This is a tooling problem, not a model problem.
 
 The solution is not better prompts. It is better input.
 
-When your [Figma bridge](/bridge) returns actual variable bindings instead of computed values, the AI generates token-aware CSS by default. Instead of reading `#181818`, it reads `background/primary/solid` and writes `var(--color-background-primary-solid)`.
+When your design tooling returns actual variable bindings instead of computed values, the AI generates token-aware CSS by default. Instead of reading `#181818`, it reads `background/primary/solid` and writes `var(--color-background-primary-solid)`.
 
 Dark mode works automatically because the CSS variable resolves to the correct value in each mode. The AI never needed to know what dark mode looks like — it only needed to reference the right semantic name.
 
-This is the core idea behind [design tokens, not just pixels](/blog/figma-code-design-bridge-any-model). Raw values are rendering artifacts. Tokens are the actual design decisions. AI needs the decisions, not the artifacts.
+The idea is simple: raw values are rendering artifacts. Tokens are the actual design decisions. AI needs the decisions, not the artifacts.
 
 ## Everything else that breaks without tokens
 
@@ -122,8 +122,8 @@ Every hit is a value that will not adapt to mode changes, theme changes, or dens
 
 Dark mode support is not really about dark mode. It is a test of whether your CSS architecture uses semantic abstraction or hardcoded rendering values.
 
-AI tools will always produce hardcoded values if that is what they receive as input. Give them [semantic token bindings](/bridge) and they produce adaptive CSS automatically — no special dark mode logic, no override sheets, no manual fixups.
+AI tools will always produce hardcoded values if that is what they receive as input. Give them semantic token bindings and they produce adaptive CSS automatically — no special dark mode logic, no override sheets, no manual fixups.
 
-The fix is not in the model. It is in what you feed it. If your design tooling returns raw hex values, you will keep fixing dark mode bugs by hand. If it returns [design tokens](/blog/figma-code-design-bridge-any-model), the problem disappears at the source.
+The fix is not in the model. It is in what you feed it. If your design tooling returns raw hex values, you will keep fixing dark mode bugs by hand. If it returns design tokens, the problem disappears at the source.
 
-Build the bridge. Stop fixing the symptoms. Read more about [why your AI editor needs a design system](/blog/why-ai-needs-design-system).
+Fix the input. Stop fixing the symptoms. Read more about [why your AI editor needs a design system](/blog/why-ai-needs-design-system).

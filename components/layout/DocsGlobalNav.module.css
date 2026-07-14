@@ -150,41 +150,6 @@ html.dark .GitHubLink:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* Figma Kit — black pill CTA */
-.FigmaButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 16px;
-  background: #000000;
-  color: #ffffff !important;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 14px;
-  white-space: nowrap;
-  text-decoration: none;
-  border: none;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.FigmaButton:hover {
-  opacity: 0.85;
-}
-
-[data-theme='dark'] .FigmaButton,
-html.dark .FigmaButton {
-  background: #ffffff;
-  color: #000000 !important;
-}
-
-[data-theme='dark'] .FigmaButton:hover,
-html.dark .FigmaButton:hover {
-  opacity: 0.85;
-}
-
 /* Theme toggle */
 .ThemeToggle {
   display: inline-flex;
@@ -316,10 +281,6 @@ html.dark .MenuButton:hover {
   }
 
   .NavLinks {
-    display: none;
-  }
-
-  .FigmaButton {
     display: none;
   }
 

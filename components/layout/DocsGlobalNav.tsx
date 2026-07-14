@@ -80,8 +80,7 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
         </div>
 
         {/* Center column: nav links (desktop only) */}
-        {/* Order: Components → Bridge → Icons → Docs → Blog. Bridge sits second
-            because it is the paid product and the highest-conversion link. */}
+        {/* Order: Components → Icons → Docs → Blog. */}
         <nav className={s.NavLinks} aria-label="Primary">
           {(() => {
             const componentsLink = navLinks.find((item) => item.slug === 'components');
@@ -106,12 +105,6 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
                     {componentsLink.label}
                   </Link>
                 )}
-                <Link
-                  href="/bridge"
-                  className={`${s.NavLink} ${isActivePath(pathname, '/bridge') ? s.NavLinkActive : ''}`.trim()}
-                >
-                  Bridge
-                </Link>
                 <Link
                   href="/icons"
                   className={`${s.NavLink} ${iconsActive ? s.NavLinkActive : ''}`.trim()}
@@ -138,7 +131,7 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
           })()}
         </nav>
 
-        {/* Right column: search + GitHub + CTA + theme toggle + menu */}
+        {/* Right column: search + GitHub + theme toggle + menu */}
         <div className={s.Right}>
           <button
             type="button"
@@ -177,10 +170,6 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
               <path d="M10.7836 0.470481C10.9676 0.765118 10.9855 1.13415 10.8309 1.44525C10.2994 2.51497 10 3.7211 10 5.00001C10 9.41829 13.5817 13 18 13L18.0575 12.9998C18.4049 12.9974 18.7287 13.1754 18.9127 13.47C19.0968 13.7647 19.1147 14.1337 18.9601 14.4448C17.325 17.7352 13.9279 20 10 20C4.47715 20 0 15.5229 0 10C0 4.50107 4.43841 0.038857 9.92838 0.000268937C10.2758 -0.00217271 10.5995 0.175844 10.7836 0.470481ZM8.40989 2.15803C4.75344 2.8954 2 6.12619 2 10C2 14.4183 5.58172 18 10 18C12.587 18 14.8886 16.7721 16.3516 14.8648C11.6131 14.0789 8 9.96139 8 5.00001C8 4.01361 8.1431 3.05953 8.40989 2.15803Z" fill="currentColor" />
             </svg>
           </button>
-
-          <Link href="/pricing" className={s.FigmaButton}>
-            Figma Kit
-          </Link>
 
           {/* Mobile menu trigger — toggles between PanelLeft and X */}
           <SidebarTrigger className={s.MenuButton} aria-label={open ? 'Close menu' : 'Open menu'} data-plex-nav-trigger="">

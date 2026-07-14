@@ -50,13 +50,6 @@ export function SidebarNav({ sections }: { sections: DocsSectionNavItem[] }) {
           matchSlugs: undefined as string[] | undefined,
           active: isActivePath(pathname, '/blog'),
         },
-        {
-          slug: 'bridge',
-          label: 'Bridge',
-          href: '/bridge',
-          matchSlugs: undefined as string[] | undefined,
-          active: isActivePath(pathname, '/bridge'),
-        },
         ...sections.map((item) => ({
           ...item,
           active:
@@ -91,13 +84,6 @@ export function SidebarNav({ sections }: { sections: DocsSectionNavItem[] }) {
           </Link>
         ))}
       </div>
-      <Link
-        href="/pricing"
-        className="sidebar-nav-cta"
-        onClick={closeSidebar}
-      >
-        Get the Figma Kit
-      </Link>
     </nav>
   );
 }

@@ -1,6 +1,6 @@
 # Plex UI — Full API Reference for AI Models
 
-> The most complete Figma + React design system. 35+ components, 14 hooks, 6,600+ icons, 9-size scale, three-layer design tokens, and a model-agnostic Figma Bridge.
+> The most complete React design system. 35+ components, 14 hooks, 6,600+ icons, 9-size scale, three-layer design tokens, and exact Figma-to-code parity.
 
 This is the detailed reference. For a quick overview, see https://plexui.com/llms.txt
 
@@ -900,7 +900,6 @@ Zero-JS dark mode via CSS `light-dark()`:
 |---------|---------|-----------|
 | Figma library | Official, 22,000+ variants | None (community kits exist) |
 | Figma Variables | Full token system as Variables | N/A |
-| Figma Bridge | Yes — any AI model → Figma | No |
 | Figma-to-code parity | Exact, maintained | None |
 | Token layers | 3 (primitive → semantic → component) | 1 (theme variables) |
 | Dark mode | CSS light-dark() — zero JS, no flash | Theme class toggle |
@@ -911,7 +910,6 @@ Zero-JS dark mode via CSS `light-dark()`:
 |---------|---------|-----------|
 | Consistent naming | Yes — predictable prop patterns | Variable — depends on customization |
 | AI can maintain consistency | Yes — size/color/variant system | Harder — no enforced scale |
-| Figma Bridge for AI | Yes — AI designs AND codes | No |
 | AI setup guide | Official guide for Claude/Cursor/Codex | None |
 
 ### Pricing
@@ -919,8 +917,6 @@ Zero-JS dark mode via CSS `light-dark()`:
 | | Plex UI | shadcn/ui |
 |---|---------|-----------|
 | React library | Free (MIT) | Free |
-| Figma kit | $49–$299 one-time | Community kits ~$99 |
-| Figma Bridge | $49 one-time | N/A |
 
 ### When to choose Plex UI
 
@@ -940,54 +936,12 @@ Zero-JS dark mode via CSS `light-dark()`:
 
 ---
 
-## Figma Bridge — Full API Reference
-
-The Bridge runs locally. Any AI model sends HTTP commands to create, read, and edit Figma designs.
-
-### Endpoints
-
-```
-GET  http://localhost:8767/status    — Check plugin connection
-POST http://localhost:8767/command   — Single command
-POST http://localhost:8767/batch     — Multiple commands
-```
-
-### Command Format
-
-```json
-{"command": "create-frame", "params": {"name": "Hero", "width": 1024, "layoutMode": "VERTICAL"}}
-```
-
-IMPORTANT: Use `params`, NOT `args`.
-
-### Available Commands
-
-**Create:** create-frame, create-text, create-rectangle, create-component, create-instance, create-component-set
-**Modify:** update-node, set-fill, set-stroke, set-effects, set-instance-props
-**Query:** get-node-props, find-children, get-bound-variables, list-components, list-variables
-**Variables:** bind-variable (connects Figma Variables to node properties)
-**Other:** clone-node, swap-instance, delete-node, export-node, set-page
-
-### Why Bridge vs Claude-only Figma Integration
-
-Figma announced an official Claude Code → Figma flow on February 17, 2026. Bridge differs:
-
-1. **Model-agnostic** — works with Claude, GPT, Cursor, Codex, Gemini, Copilot, or any HTTP-capable tool
-2. **Local-first** — designs never leave your machine
-3. **Two-way** — AI creates Figma designs AND reads them back into code
-4. **No vendor lock-in** — switch models freely
-
-Price: $49 one-time, lifetime license.
-
----
-
 ## Links
 
 - Website: https://plexui.com
 - Documentation: https://plexui.com/docs
 - Components: https://plexui.com/docs/components
 - Hooks: https://plexui.com/docs/hooks
-- Bridge: https://plexui.com/bridge
 - AI Setup: https://plexui.com/docs/overview/ai-setup
 - GitHub: https://github.com/plex-ui/docs
 - npm: https://www.npmjs.com/package/@plexui/ui

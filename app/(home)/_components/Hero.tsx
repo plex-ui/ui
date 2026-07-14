@@ -26,31 +26,22 @@ export function Hero() {
 
         {/* Subtitle */}
         <p className="mt-6 max-w-[42rem] text-lg leading-7 text-fd-muted-foreground">
-          A Figma kit and React components your AI editor actually follows.
-          Variables, 9-size scale, dark mode, and a registry that Claude, Cursor,
-          and Codex respect. Start with the system, then make it yours.
-          Designed in Figma. Built for AI.
+          React components your AI editor actually follows. Design tokens, a
+          9-size scale, dark mode, and a registry that Claude, Cursor, and Codex
+          respect. Start with the system, then make it yours. Designed in Figma.
+          Built for AI.
         </p>
 
-        {/* CTAs */}
+        {/* CTA */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <ButtonLink
             href="/components"
-            color="primary"
-            variant="outline"
-            size="lg"
-            pill
-          >
-            Explore components
-          </ButtonLink>
-          <ButtonLink
-            href="/pricing"
             color="primary"
             variant="solid"
             size="lg"
             pill
           >
-            Get the Figma Kit
+            Explore components
           </ButtonLink>
         </div>
 

@@ -23,7 +23,7 @@ const rows: ComparisonRow[] = [
   },
   {
     feature: 'Figma design system',
-    plexui: 'Official paid kit',
+    plexui: 'Official Figma library',
     competitor: 'Official free Figma resources',
   },
   {
@@ -73,7 +73,7 @@ const rows: ComparisonRow[] = [
   },
   {
     feature: 'Pricing',
-    plexui: 'React free; Figma from €49',
+    plexui: 'Free and open-source',
     competitor: 'Fully free (Pro components paid)',
   },
   {
@@ -268,8 +268,7 @@ export default function AntDesignComparisonPage() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
             Both React libraries are free. Ant Design is fully open source, with paid Pro components (Ant Design Pro) for
-            enterprise dashboards. Plex UI offers a first-party Figma design system starting at €49 for teams that need
-            design-engineering alignment.
+            enterprise dashboards. Plex UI has no paid tier — every component ships in the open-source package.
           </p>
         </section>
 
@@ -297,20 +296,14 @@ export default function AntDesignComparisonPage() {
             Explore Plex UI
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-            Review the component docs, then compare plan details if you also want the full Figma design system.
+            Browse the component docs and see how the token system, size scale, and props hold up in practice.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/components"
-              className="rounded-md border border-fd-border bg-fd-background px-4 py-2 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-muted"
-            >
-              View docs
-            </Link>
-            <Link
-              href="/pricing"
               className="rounded-md border border-fd-primary bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
             >
-              See pricing
+              Explore components
             </Link>
           </div>
         </section>

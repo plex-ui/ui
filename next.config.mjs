@@ -28,13 +28,49 @@ const OVERVIEW_FLATTENED_PAGES = [
   ['changelog', 'changelog'],
 ];
 
+// Blog posts that existed only to sell the Figma AI Bridge plugin. Removed
+// along with the product; the slugs still hold search rankings, so send them
+// to the blog index instead of 404ing.
+const RETIRED_BRIDGE_POSTS = [
+  'connect-claude-code-to-figma',
+  'connect-codex-to-figma',
+  'connect-cursor-to-figma',
+  'figma-mcp-vs-ai-bridge',
+  'best-figma-plugins-ai-code-generation',
+  'figma-code-design-bridge-any-model',
+  'figma-to-react-with-ai',
+];
+
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
   async redirects() {
     return [
+      // The paid Figma kit (/pricing) and the Figma AI Bridge plugin
+      // (/bridge) were retired. Both ranked, so their traffic goes to the
+      // components docs rather than a 404.
+      {
+        source: '/pricing',
+        destination: '/components',
+        permanent: true,
+      },
+      {
+        source: '/bridge',
+        destination: '/components',
+        permanent: true,
+      },
+      {
+        source: '/bridge/:path*',
+        destination: '/components',
+        permanent: true,
+      },
+      ...RETIRED_BRIDGE_POSTS.map((slug) => ({
+        source: `/blog/${slug}`,
+        destination: '/blog',
+        permanent: true,
+      })),
       // /docs/components/* and /docs/icons/* moved out of /docs to be
-      // top-level peers of /docs, /bridge, /blog (matches the top-nav
+      // top-level peers of /docs and /blog (matches the top-nav
       // structure where Components / Icons are siblings of Docs).
       // Catch-alls so every old bookmark, search-engine index, and
       // external link continues to resolve.

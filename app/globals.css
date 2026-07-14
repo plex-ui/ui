@@ -370,36 +370,6 @@ html.dark .sidebar-nav-link-active {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.sidebar-nav-cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-  height: 36px;
-  padding: 0 16px;
-  background: #000000;
-  color: #ffffff !important;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 14px;
-  white-space: nowrap;
-  text-decoration: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.sidebar-nav-cta:hover {
-  opacity: 0.85;
-}
-
-[data-theme='dark'] .sidebar-nav-cta,
-html.dark .sidebar-nav-cta {
-  background: #ffffff;
-  color: #000000 !important;
-}
-
 /* Show sidebar nav only on mobile (drawer mode) */
 @media (max-width: 767.9px) {
   .sidebar-nav {

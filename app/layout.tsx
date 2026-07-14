@@ -8,9 +8,9 @@ import { COMPONENTS_COUNT } from '@/lib/counts';
 import packageJson from '../packages/ui/package.json';
 import './globals.css';
 
-const homeTitle = 'Plex UI — Figma & React Design System for AI Code Editors';
-const homeDescription = `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale (3xs–3xl), three-layer design tokens, and 6,600+ icons. Free MIT React library plus 22,000+ Figma variant kit. Figma Bridge lets any AI model design in Figma. Built for Claude, Cursor, Codex.`;
-const homeShortDescription = `${COMPONENTS_COUNT} React components with 9-size scale, three-layer design tokens, 6,600+ icons, and Figma Bridge for any AI model. Free React library. 22,000+ Figma variants.`;
+const homeTitle = 'Plex UI — React Design System for AI Code Editors';
+const homeDescription = `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale (3xs–3xl), three-layer design tokens, and 6,600+ icons. Free MIT React library with pixel-perfect Figma parity. Built for Claude, Cursor, Codex.`;
+const homeShortDescription = `${COMPONENTS_COUNT} React components with 9-size scale, three-layer design tokens, and 6,600+ icons. Free, open-source, and built for AI code editors.`;
 
 export const metadata: Metadata = {
   // `default` is used on the home page; deeper pages set their own
@@ -69,7 +69,7 @@ const jsonLd = {
       '@id': 'https://plexui.com/#website',
       url: 'https://plexui.com',
       name: 'Plex UI',
-      description: `Production-grade Figma & React design system with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, 6,600+ icons, and Figma Bridge for any AI model. Free React library, paid Figma kit.`,
+      description: `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, and 6,600+ icons. Free and open-source, with pixel-perfect Figma parity.`,
       publisher: { '@id': 'https://plexui.com/#organization' },
     },
     {

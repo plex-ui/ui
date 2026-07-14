@@ -68,7 +68,7 @@ const rows: ComparisonRow[] = [
   },
   {
     feature: 'Pricing',
-    plexui: 'React free; Figma from €49',
+    plexui: 'Free and open-source',
     competitor: 'Figma kits from $79; React in higher-tier bundles',
   },
 ];
@@ -254,8 +254,8 @@ export default function UntitledUiComparisonPage() {
             Pricing comparison: Plex UI vs Untitled UI
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-            Plex UI keeps React components free on npm and monetizes the first-party Figma system from €49. Untitled UI
-            offers lower-cost design kits, while React code access is generally tied to higher-priced bundles.
+            Plex UI ships every React component free on npm, with no paid tier. Untitled UI sells design kits, and React
+            code access is generally tied to higher-priced bundles.
           </p>
         </section>
 
@@ -274,7 +274,7 @@ export default function UntitledUiComparisonPage() {
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>One system shared by designers and engineers with exact parity.</li>
              <li>Fine-grained sizing flexibility across real product surfaces.</li>
-             <li>A free React starting point with optional paid Figma expansion.</li>
+             <li>A free, open-source React library with exact Figma-to-code parity.</li>
            </ul>
          </section>
 
@@ -283,20 +283,14 @@ export default function UntitledUiComparisonPage() {
             Compare by trying the docs
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-            Browse components and sizing behavior first, then review the Figma plans if you need design assets.
+            Browse the components and see how the sizing behavior holds up across real product surfaces.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/components"
-              className="rounded-md border border-fd-border bg-fd-background px-4 py-2 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-muted"
-            >
-              View docs
-            </Link>
-            <Link
-              href="/pricing"
               className="rounded-md border border-fd-primary bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-opacity hover:opacity-90"
             >
-              See pricing
+              Explore components
             </Link>
           </div>
         </section>
