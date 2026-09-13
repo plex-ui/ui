@@ -154,6 +154,8 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 
 ## Reference
 
+Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
+
 <PropsTable data={[
   { prop: "options", type: "Options<T>", description: "Array of options or grouped options" },
   { prop: "value", type: "string | string[]", description: "Selected value (single) or values (multiple)" },

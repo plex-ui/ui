@@ -10,7 +10,7 @@ import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { DateCalendar } from "./Calendar"
 import { DateContext, type DateContextValue } from "./context"
 
-export type DatePickerProps = {
+export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid"> & {
   /**
    * Allow targeting the input for forms and accessibility.
    */
@@ -131,6 +131,10 @@ export type DatePickerProps = {
 export const DatePicker = (props: DatePickerProps) => {
   const {
     id,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     value,
     onChange,
     min,
@@ -215,6 +219,10 @@ export const DatePicker = (props: DatePickerProps) => {
         <Popover.Trigger>
           <SelectControl
             id={id}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy ? `${ariaLabelledBy} ${id}-value` : undefined}
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
             className={triggerClassName}
             selected={!!value}
             variant={variant}
@@ -226,7 +234,9 @@ export const DatePicker = (props: DatePickerProps) => {
             dropdownIconType={dropdownIconType}
             onClearClick={clearable ? handleClearClick : undefined}
           >
-            {value?.toFormat(triggerDateFormat) ?? placeholder}
+            {ariaLabelledBy ? (
+              <span id={`${id}-value`}>{value?.toFormat(triggerDateFormat) ?? placeholder}</span>
+            ) : value?.toFormat(triggerDateFormat) ?? placeholder}
           </SelectControl>
         </Popover.Trigger>
         <Popover.Content

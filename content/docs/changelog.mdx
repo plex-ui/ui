@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- Select and DatePicker now forward accessible labels, descriptions and invalid state to their interactive triggers. `aria-labelledby` includes the visible selected value or placeholder, keeping both the field name and current selection available to assistive technology.
+
 ## 0.18.1 — 2026-06-20
 
 ### Fixed
@@ -1021,4 +1027,3 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Removed <code>user-select: none</code> from Field label, allowing users to select and copy label text.
   </li>
 </ul>
-

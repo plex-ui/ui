@@ -106,7 +106,9 @@ type MultiSelectProps<T extends Option> = {
   TriggerView?: React.FC<MultiSelectTriggerViewProps<T>>
 }
 
-export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectProps<T>) & {
+type SelectAccessibilityProps = Pick<SelectControlProps, "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid">
+
+export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectProps<T>) & SelectAccessibilityProps & {
   options: Options<T> // Should be passed as a stable reference
   /**
    * Disables the select visually and from interactions
@@ -269,7 +271,7 @@ type MultiSelectContextValue<T extends Option> = {
 type SelectContextValue<T extends Option> = (
   | SingleSelectContextValue<T>
   | MultiSelectContextValue<T>
-) & {
+) & SelectAccessibilityProps & {
   triggerId: string
   // Props
   name?: string
@@ -345,6 +347,10 @@ const DefaultMultiTriggerView = <T extends Option>({
 export const Select = <T extends Option>(props: SelectProps<T>) => {
   const {
     id,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     required,
     value,
     name,
@@ -462,6 +468,10 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       ...dynamicContextProps,
       triggerId,
       id,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-describedby": ariaDescribedBy,
+      "aria-invalid": ariaInvalid,
       // Forward props
       name,
       required,
@@ -503,6 +513,10 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       dynamicContextProps,
       triggerId,
       id,
+      ariaLabel,
+      ariaLabelledBy,
+      ariaDescribedBy,
+      ariaInvalid,
       required,
       name,
       options,
@@ -562,6 +576,10 @@ type SelectTriggerProps = {
 export const SelectTrigger = (props: SelectTriggerProps) => {
   const {
     triggerId,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     id,
     required,
     value,
@@ -655,6 +673,10 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
   return (
     <SelectControl
       id={triggerId}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy ? `${ariaLabelledBy} ${triggerId}-value` : undefined}
+      aria-describedby={ariaDescribedBy}
+      aria-invalid={ariaInvalid}
       className={triggerClassName}
       selected={!isPlaceholder}
       variant={variant}
@@ -671,7 +693,11 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
       onKeyDown={handleKeyDown}
       {...restProps}
     >
-      {multiple ? <TriggerView {...multipleTriggerViewProps} /> : <TriggerView {...selectedItem} />}
+      {ariaLabelledBy ? (
+        <span id={`${triggerId}-value`}>
+          {multiple ? <TriggerView {...multipleTriggerViewProps} /> : <TriggerView {...selectedItem} />}
+        </span>
+      ) : multiple ? <TriggerView {...multipleTriggerViewProps} /> : <TriggerView {...selectedItem} />}
       {(name || id) && (
         <input
           id={id}
@@ -757,7 +783,7 @@ const CustomSelect = () => {
       modal={false}
     >
       <Popover.Trigger asChild>
-        {trigger ? trigger({ open, onToggle: () => handleOpenChange() }) : <SelectTrigger onOpenChange={handleOpenChange} />}
+        {trigger ? trigger({ open, onToggle: () => setOpen((current) => !current) }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
         <TransitionGroup
@@ -799,7 +825,7 @@ const CustomSelect = () => {
 }
 
 type CustomSelectMenuContextValue = {
-  valueRef: React.RefObject<string | null>
+  openingValue: string
   listId: string
   requestCloseRef: React.RefObject<() => void | null>
   listRef: React.RefObject<HTMLDivElement | null>
@@ -844,8 +870,8 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
   const listId = `select-list-${internalListId}`
 
   // Lock `value` for a given open to prevent janky change during close animation
-  // NOTE: This ref has no use in MultiSelect cases, set to empty string as a no-op
-  const valueRef = useRef<string>(multiple ? "" : value)
+  // MultiSelect reads its live selection instead of this per-open snapshot.
+  const [openingValue] = useState<string>(() => multiple ? "" : value)
 
   // Trim and lowercase search value
   const literalSearchTerm = useMemo(() => searchTerm.trim().toLocaleLowerCase(), [searchTerm])
@@ -1018,7 +1044,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
 
   const store = useMemo(
     () => ({
-      valueRef,
+      openingValue,
       listId,
       highlightedValue,
       setHighlightedValue,
@@ -1028,7 +1054,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
       searchInputRef,
       listRef,
     }),
-    [listId, highlightedValue, setHighlightedValue, searchTerm, setSearchTerm],
+    [openingValue, listId, highlightedValue, setHighlightedValue, searchTerm, setSearchTerm],
   )
 
   // On mount behavior
@@ -1313,14 +1339,13 @@ const CustomSelectOption = (option: Option) => {
     onSelectRef,
     checkPosition,
   } = useSelectContext()
-  const { valueRef, requestCloseRef, highlightedValue, setHighlightedValue } =
+  const { openingValue, requestCloseRef, highlightedValue, setHighlightedValue } =
     useCustomSelectMenuContext()
   const { value, disabled, tooltip } = option
 
-  // NOTE: SingleSelect mode looks at the ref instead of the live `propValue` intentionally
+  // NOTE: SingleSelect mode keeps the opening value instead of the live `propsValue`
   // to avoid selecting the item as the select closes.
-  const currentValue = valueRef.current
-  const isSelected = multiple ? propsValue.includes(value) : value === currentValue
+  const isSelected = multiple ? propsValue.includes(value) : value === openingValue
   const isHighlighted = value === highlightedValue
 
   const handlePointerUp = () => {

@@ -1,4 +1,7 @@
 import { createMDX } from 'fumadocs-mdx/next';
+import { fileURLToPath } from 'node:url';
+
+const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 
 const LEGACY_HOOK_PAGES = [
   'use-animated-scroll-to',
@@ -44,6 +47,8 @@ const RETIRED_BRIDGE_POSTS = [
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  outputFileTracingRoot: projectRoot,
+  turbopack: { root: projectRoot },
   async redirects() {
     return [
       // The paid Figma kit (/pricing) and the Figma AI Bridge plugin

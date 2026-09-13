@@ -112,6 +112,8 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 
 ## Reference
 
+Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
+
 <PropsTable data={[
   { prop: "value", type: "DateTime | null", description: "Selected date (luxon)" },
   { prop: "onChange", type: "(date: DateTime | null) => void", description: "Called when date changes" },
