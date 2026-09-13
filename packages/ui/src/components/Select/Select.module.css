@@ -171,10 +171,13 @@
 }
 
 .OptionIndicatorSlot {
+  display: flex;
+  align-items: center;
   flex-grow: 0;
   flex-shrink: 0;
   width: 16px;
-  height: 16px;
+  /* Follow the title's first line box, independently of description height. */
+  height: 1lh;
 }
 
 .OptionDescription {
