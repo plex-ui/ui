@@ -236,32 +236,8 @@
   pointer-events: none;
 }
 
-.DropdownSelect {
-  height: 28px;
-  padding: 0 18px 0 8px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  appearance: none;
-  background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: right 4px center;
-  background-repeat: no-repeat;
-  color: var(--color-text);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
+.DropdownCaption > * {
   pointer-events: auto;
-  transition: background-color 0.15s var(--cubic-enter);
-
-  @mixin hover {
-    background-color: light-dark(var(--alpha-04), var(--alpha-06));
-  }
-
-  &:focus-visible {
-    border-radius: var(--radius-sm);
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: -2px;
-  }
 }
 
 .TimeFooter {

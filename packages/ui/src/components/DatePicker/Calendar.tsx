@@ -7,6 +7,7 @@ import { waitForAnimationFrame } from "../../lib/helpers"
 import { Button } from "../Button"
 import { ChevronLeft, ChevronRight } from "../Icon"
 import { usePopoverClose } from "../Popover/usePopoverController"
+import { Select } from "../Select"
 import { TransitionGroup } from "../Transition"
 import s from "./Calendar.module.css"
 import { useDateContext } from "./context"
@@ -15,8 +16,9 @@ const CALENDAR_WIDTH_PX = 210
 const CALENDAR_GAP_PX = 32
 const STEP_DISTANCE_PX = CALENDAR_WIDTH_PX + CALENDAR_GAP_PX
 
-const SHORT_MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
-  DateTime.local(2024, i + 1, 1).monthShort!,
+const SHORT_MONTH_NAMES = Array.from(
+  { length: 12 },
+  (_, i) => DateTime.local(2024, i + 1, 1).monthShort!,
 )
 
 export const DateCalendar = () => {
@@ -152,7 +154,11 @@ export const DateCalendar = () => {
 
   return (
     <div className={s.CalendarWrapper} key={`stable-view-${forceRenderIncrement}`}>
-      <div ref={calendarContainerRef} className={s.CalendarContainer} data-dropdown={isDropdown ? "" : undefined}>
+      <div
+        ref={calendarContainerRef}
+        className={s.CalendarContainer}
+        data-dropdown={isDropdown ? "" : undefined}
+      >
         <div className={s.Previous}>
           <Button
             variant="ghost"
@@ -233,11 +239,7 @@ export const DateCalendar = () => {
         </div>
       </div>
       {showTime && (
-        <TimeInput
-          hour={pendingHour}
-          minute={pendingMinute}
-          onChange={handleTimeChange}
-        />
+        <TimeInput hour={pendingHour} minute={pendingMinute} onChange={handleTimeChange} />
       )}
     </div>
   )
@@ -274,28 +276,28 @@ const DropdownCaption = ({
 
   return (
     <div className={s.DropdownCaption}>
-      <select
-        className={s.DropdownSelect}
-        value={date.month}
-        onChange={(e) => onMonthChange(Number(e.target.value))}
-      >
-        {SHORT_MONTH_NAMES.map((name, i) => (
-          <option key={name} value={i + 1}>
-            {name}
-          </option>
-        ))}
-      </select>
-      <select
-        className={s.DropdownSelect}
-        value={date.year}
-        onChange={(e) => onYearChange(Number(e.target.value))}
-      >
-        {years.map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
-      </select>
+      <Select
+        aria-label="Month"
+        listMinWidth="auto"
+        listWidth="auto"
+        variant="ghost"
+        size="sm"
+        dropdownIconType="chevronDown"
+        value={String(date.month)}
+        options={SHORT_MONTH_NAMES.map((label, index) => ({ value: String(index + 1), label }))}
+        onChange={(option) => onMonthChange(Number(option.value))}
+      />
+      <Select
+        aria-label="Year"
+        listMinWidth="auto"
+        listWidth="auto"
+        variant="ghost"
+        size="sm"
+        dropdownIconType="chevronDown"
+        value={String(date.year)}
+        options={years.map((year) => ({ value: String(year), label: String(year) }))}
+        onChange={(option) => onYearChange(Number(option.value))}
+      />
     </div>
   )
 }
@@ -309,20 +311,8 @@ type TimeInputProps = {
 const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
   const hourRef = useRef<HTMLInputElement>(null)
   const minuteRef = useRef<HTMLInputElement>(null)
-  const [hourText, setHourText] = useState(() => String(hour).padStart(2, "0"))
-  const [minuteText, setMinuteText] = useState(() => String(minute).padStart(2, "0"))
-
-  useEffect(() => {
-    if (document.activeElement !== hourRef.current) {
-      setHourText(String(hour).padStart(2, "0"))
-    }
-  }, [hour])
-
-  useEffect(() => {
-    if (document.activeElement !== minuteRef.current) {
-      setMinuteText(String(minute).padStart(2, "0"))
-    }
-  }, [minute])
+  const [hourText, setHourText] = useState<string | null>(null)
+  const [minuteText, setMinuteText] = useState<string | null>(null)
 
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, "").slice(0, 2)
@@ -338,7 +328,7 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
     const raw = e.currentTarget.value.replace(/\D/g, "").slice(0, 2)
     const h = Math.min(23, Number(raw) || 0)
     onChange(h, minute)
-    setHourText(String(h).padStart(2, "0"))
+    setHourText(null)
   }
 
   const handleMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -353,13 +343,10 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
     const raw = e.currentTarget.value.replace(/\D/g, "").slice(0, 2)
     const m = Math.min(59, Number(raw) || 0)
     onChange(hour, m)
-    setMinuteText(String(m).padStart(2, "0"))
+    setMinuteText(null)
   }
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    type: "hour" | "minute",
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: "hour" | "minute") => {
     const step = e.shiftKey ? 10 : 1
     if (e.key === "ArrowUp") {
       e.preventDefault()
@@ -395,10 +382,13 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
           className={s.TimeField}
           type="text"
           inputMode="numeric"
-          value={hourText}
+          value={hourText ?? String(hour).padStart(2, "0")}
           onChange={handleHourChange}
           onBlur={handleHourBlur}
-          onFocus={(e) => e.target.select()}
+          onFocus={(e) => {
+            setHourText(e.target.value)
+            e.target.select()
+          }}
           onKeyDown={(e) => handleKeyDown(e, "hour")}
           maxLength={2}
           aria-label="Hour"
@@ -409,10 +399,13 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
           className={s.TimeField}
           type="text"
           inputMode="numeric"
-          value={minuteText}
+          value={minuteText ?? String(minute).padStart(2, "0")}
           onChange={handleMinuteChange}
           onBlur={handleMinuteBlur}
-          onFocus={(e) => e.target.select()}
+          onFocus={(e) => {
+            setMinuteText(e.target.value)
+            e.target.select()
+          }}
           onKeyDown={(e) => handleKeyDown(e, "minute")}
           maxLength={2}
           aria-label="Minute"
