@@ -156,6 +156,8 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
 
+Searchable menus name their input `Search options` by default. Set `searchAriaLabel` for a more specific search label without changing the trigger's accessible name or the visible placeholder.
+
 <PropsTable data={[
   { prop: "options", type: "Options<T>", description: "Array of options or grouped options" },
   { prop: "value", type: "string | string[]", description: "Selected value (single) or values (multiple)" },
@@ -172,6 +174,7 @@ Use `aria-labelledby` with the ID of a visible field label. The default trigger 
   { prop: "OptionView", type: "React.FC", description: "Custom option render" },
   { prop: "TriggerView", type: "React.FC", description: "Custom trigger render (multi)" },
   { prop: "searchPlaceholder", type: "string", description: "Search input placeholder" },
+  { prop: "searchAriaLabel", type: "string", default: '"Search options"', description: "Accessible name of the search input, independent of the trigger label" },
 ]} />
 
 Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.

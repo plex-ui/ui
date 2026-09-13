@@ -237,6 +237,8 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   searchPredicate?: SearchPredicate<T>
   /** Placeholder of the search input */
   searchPlaceholder?: string
+  /** Accessible name of the search input, independent of the trigger label. */
+  searchAriaLabel?: string
   /**
    * Message displayed when search results are empty. Can be a simple string, or custom JSX.
    */
@@ -289,6 +291,7 @@ type SelectContextValue<T extends Option> = (
   loadingPlaceholder: string
   searchEmptyMessage: ReactNode
   searchPlaceholder: string
+  searchAriaLabel: string
   TriggerStartIcon?: SelectControlProps["StartIcon"]
   triggerClassName?: string
   opticallyAlign?: "start" | "end"
@@ -377,6 +380,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     opticallyAlign,
     TriggerView: TriggerViewFromProps,
     searchPlaceholder = "",
+    searchAriaLabel = "Search options",
     searchPredicate = defaultSearchPredicate,
     searchEmptyMessage = "No results found.",
     listMaxWidth = "auto",
@@ -493,6 +497,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       listMinWidth,
       listMaxWidth,
       searchPlaceholder,
+      searchAriaLabel,
       searchEmptyMessage,
       TriggerStartIcon,
       triggerClassName,
@@ -537,6 +542,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       listMinWidth,
       listMaxWidth,
       searchPlaceholder,
+      searchAriaLabel,
       searchEmptyMessage,
       TriggerStartIcon,
       triggerClassName,
@@ -1124,7 +1130,7 @@ type CustomSelectSearchProps = {
 }
 
 const CustomSelectSearch = ({ value, onChange }: CustomSelectSearchProps) => {
-  const { searchPlaceholder } = useSelectContext()
+  const { searchPlaceholder, searchAriaLabel } = useSelectContext()
   const { listId, searchInputRef } = useCustomSelectMenuContext()
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -1145,6 +1151,7 @@ const CustomSelectSearch = ({ value, onChange }: CustomSelectSearchProps) => {
         ref={searchInputRef}
         value={value}
         placeholder={searchPlaceholder}
+        aria-label={searchAriaLabel}
         onChange={handleChange}
         autoComplete="off"
         autoCorrect="off"

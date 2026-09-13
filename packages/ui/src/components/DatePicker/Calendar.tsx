@@ -131,7 +131,7 @@ export const DateCalendar = () => {
         const height = element.clientHeight
 
         // Ignore calendars that are exiting
-        if (element.closest("[data-exiting")) {
+        if (element.closest("[data-exiting]")) {
           return
         }
 
@@ -289,6 +289,7 @@ const DropdownCaption = ({
       />
       <Select
         aria-label="Year"
+        searchAriaLabel="Search year"
         listMinWidth="auto"
         listWidth="auto"
         variant="ghost"
