@@ -15,6 +15,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- Select menus are never narrower than the field they belong to. `listWidth="auto"` still grows with the content, but the menu's `min-width` now falls back to the trigger's width instead of collapsing to nothing.
+- Select menus line up with their trigger's edge. `align="start"`/`"end"` no longer apply a hidden -5px offset that pushed the menu outside the field.
 - Select search inputs have a default accessible name and support `searchAriaLabel` independently of the trigger label. DatePicker's year search is named `Search year`.
 - DatePicker uses a complete attribute selector when excluding exiting calendars from its height calculation.
 - DatePicker month and year menus use Plex UI Select, with accessible names and consistent keyboard navigation and styling across browsers.

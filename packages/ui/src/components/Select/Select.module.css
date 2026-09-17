@@ -9,7 +9,7 @@
   z-index: 50;
   /* Default to the width of the trigger */
   width: var(--select-list-width, var(--radix-popover-trigger-width));
-  min-width: var(--select-list-min-width, 300px);
+  min-width: var(--select-list-min-width, var(--radix-popover-trigger-width));
   max-width: var(--select-list-max-width, none);
   border-radius: var(--menu-radius);
   background: var(--color-surface-elevated);

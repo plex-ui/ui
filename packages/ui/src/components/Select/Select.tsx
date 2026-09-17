@@ -225,7 +225,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   listWidth?: number | "auto"
   /**
    * Defines the `min-width` property of the custom select menu, in pixels.
-   * @default auto
+   * @default the width of the trigger
    */
   listMinWidth?: number | "auto"
   /**
@@ -305,7 +305,7 @@ type SelectContextValue<T extends Option> = (
   alignOffset: number
   avoidCollisions: boolean
   listWidth?: number | "auto" // Default when not passed is to match the width of the trigger
-  listMinWidth: number | "auto"
+  listMinWidth?: number | "auto" // Default when not passed is the width of the trigger
   listMaxWidth?: number | "auto"
   // References
   onSelectRef: React.MutableRefObject<(option: T, removeOption?: boolean) => void>
@@ -391,9 +391,14 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   const block = props.block ?? variant !== "ghost"
   // Align default is dynamic, based on `block`
   const align = props.align ?? (block ? "center" : "start")
-  const alignOffset = props.alignOffset ?? (align === "center" ? 0 : -5)
-  // Default to "auto" for block selects and 300 for inline selects.
-  const listMinWidth = props.listMinWidth ?? (block ? "auto" : 300)
+  // Flush with the trigger's edge, as the prop documents. The old -5 nudge for
+  // "start"/"end" tried to line the option labels up with the trigger's text and
+  // instead left the menu hanging past the field it belongs to.
+  const alignOffset = props.alignOffset ?? 0
+  // A menu is never narrower than the field it belongs to, so `listWidth="auto"`
+  // grows with the content but does not shrink below the trigger (the CSS
+  // fallback reads the trigger width). Inline selects keep their 300px floor.
+  const listMinWidth = props.listMinWidth ?? (block ? undefined : 300)
 
   // Create stable, mutable references to avoid memoization requirements from consumers
   const onSelectRef = useLatestValue((selectedOption: T, removeOption?: boolean) => {
