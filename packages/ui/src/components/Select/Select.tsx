@@ -1305,6 +1305,7 @@ const CustomSelectExpandableLimit = ({
   label,
   onPointerUp,
 }: CustomSelectExpandableLimitProps) => {
+  const { checkPosition } = useSelectContext()
   const { highlightedValue, setHighlightedValue } = useCustomSelectMenuContext()
 
   const isHighlighted = value === highlightedValue
@@ -1340,7 +1341,9 @@ const CustomSelectExpandableLimit = ({
       onPointerLeave={handlePointerLeave}
     >
       <div className={clsx(s.PressableInner, s.OptionInner)}>
-        <div className={s.OptionIndicatorSlot} />
+        {/* The row lines up with the option labels above it, so it borrows their
+            indicator column. Without a column there is nothing to line up to. */}
+        {checkPosition === 'start' && <div className={s.OptionIndicatorSlot} />}
         {label}
       </div>
     </div>
