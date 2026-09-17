@@ -1250,10 +1250,10 @@ const CustomSelectGroup = <T extends Option>({
   return (
     // NOTE: Important for crawling that groups are flat
     <>
-      <div className={s.OptionGroupHeading}>
-        <div className={s.OptionIndicatorSlot} />
-        {label}
-      </div>
+      {/* No indicator slot: the heading labels the whole section, so it starts
+          at the row's content edge — above the check column, not indented to
+          the option labels. Same alignment a grouped menu uses on GitHub. */}
+      <div className={s.OptionGroupHeading}>{label}</div>
       {maybeLimitedOptions.map((limitedOptions) => (
         <CustomSelectOption key={limitedOptions.value} {...limitedOptions} />
       ))}

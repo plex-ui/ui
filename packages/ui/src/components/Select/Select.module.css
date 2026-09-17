@@ -185,14 +185,32 @@
   color: var(--color-text-secondary);
 }
 
+/* Group heading — a section label, not an option. Same size and weight as the
+   options made it read as a disabled row, so it carries its own type level:
+   smaller, semibold, secondary color. A rule between sections and the extra
+   space above it do the separating, the way a grouped menu does it on GitHub
+   (Sort by / Order). The rule bleeds past the list gutter to the popover edge
+   and the first section never gets one. */
 .OptionGroupHeading {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: var(--menu-item-gap);
   padding: var(--menu-item-padding);
-  margin-top: spacing(1.5);
+  margin-top: spacing(2);
+  font-size: var(--font-text-xs-size);
+  line-height: var(--font-text-xs-line-height);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
+
+  &:not(:first-child)::before {
+    position: absolute;
+    top: calc(spacing(1) * -1);
+    inset-inline: calc(var(--menu-gutter) * -1);
+    border-top: 1px solid var(--menu-separator-background-color);
+    content: "";
+  }
 
   &:first-child {
     margin-top: 0;
