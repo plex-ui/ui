@@ -89,10 +89,7 @@ export function MenuBaseDemo() {
           </Button>
         </Menu.Trigger>
         <Menu.Content width={210} minWidth={210}>
-          <Menu.Item>
-            <p className="font-semibold">Sam Smith</p>
-            <p className="text-secondary">sam.smith@gmail.com</p>
-          </Menu.Item>
+          <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
           <Menu.Separator />
           <Menu.Link href="/settings">Your profile</Menu.Link>
           <Menu.Link href="#">Terms & policies</Menu.Link>

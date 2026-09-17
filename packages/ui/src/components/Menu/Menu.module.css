@@ -57,6 +57,11 @@
 
 .MenuItemContent {
   padding: var(--menu-item-padding);
+
+  /* Same "item + subtitle" pattern as the pressable item below. */
+  &:has(.ItemDescription) {
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
 .MenuItem {
@@ -69,6 +74,13 @@
   color: var(--color-text);
   cursor: pointer;
   user-select: none;
+
+  /* An item with a description keeps its label semibold in every state, so
+     consumers never have to remember a className for the "item + subtitle"
+     pattern. The description's own rule keeps the second line normal. */
+  &:has(.ItemDescription) {
+    font-weight: var(--font-weight-semibold);
+  }
 
   &:focus {
     outline: none;
@@ -122,6 +134,20 @@
       display: none;
     }
   }
+}
+
+/* Two-line item: label over description, the same anatomy a Select option
+   with a description uses (OptionLeading / OptionDescription there). */
+.ItemLeading {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.ItemDescription {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
 }
 
 .PressableInner {

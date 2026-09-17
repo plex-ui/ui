@@ -251,10 +251,13 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
    * NOTE: Must be passed as a stable reference, not created inline.
    */
   /**
-   * Position of the check indicator in the option list
+   * Position of the check indicator in the option list. `none` removes the
+   * indicator column altogether — for a list that never carries a selection
+   * (one-shot actions) or whose option view states the selection itself, an
+   * empty 16px column is dead space in every row.
    * @default start
    */
-  checkPosition?: 'start' | 'end'
+  checkPosition?: 'start' | 'end' | 'none'
   trigger?: (props: { open: boolean; onToggle: () => void }) => ReactNode
 }
 
@@ -312,7 +315,7 @@ type SelectContextValue<T extends Option> = (
   searchPredicateRef: React.MutableRefObject<SearchPredicate<T>>
   // Derived
   searchable: boolean
-  checkPosition: 'start' | 'end'
+  checkPosition: 'start' | 'end' | 'none'
   // Custom trigger
   trigger?: (props: { open: boolean; onToggle: () => void }) => ReactNode
 }
@@ -1279,9 +1282,13 @@ type CustomSelectHardLimitProps = {
 }
 
 const CustomSelectHardLimit = ({ numHidden }: CustomSelectHardLimitProps) => {
+  const { checkPosition } = useSelectContext()
+
   return (
     <div className={s.OptionHardLimitHeading}>
-      <div className={s.OptionIndicatorSlot} />
+      {/* The note lines up with the option labels above it, so it borrows their
+          indicator column. Without a column there is nothing to line up to. */}
+      {checkPosition === 'start' && <div className={s.OptionIndicatorSlot} />}
       {`…and ${numHidden.toLocaleString()} more options. Use search to refine results further.`}
     </div>
   )

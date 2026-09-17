@@ -26,10 +26,7 @@ import {
     <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
   </Menu.Trigger>
   <Menu.Content width={210} minWidth={210}>
-    <Menu.Item>
-      <p className="font-semibold">Sam Smith</p>
-      <p className="text-secondary">sam.smith@gmail.com</p>
-    </Menu.Item>
+    <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
     <Menu.Separator />
     <Menu.Link href="/settings">Your profile</Menu.Link>
     <Menu.Link href="#">Terms & policies</Menu.Link>
@@ -278,6 +275,7 @@ return (
 **Menu.Item** — List item. Use `onSelect` for actions; omit for non-interactive content.
 
 <PropsTable data={[
+  { prop: "description", type: "ReactNode", description: "Second line under the label. The label turns semibold on its own" },
   { prop: "onSelect", type: "(event: Event) => void", description: "Called when item is selected" },
   { prop: "disabled", type: "boolean", description: "Disable the item" },
 ]} />

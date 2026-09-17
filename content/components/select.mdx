@@ -171,6 +171,7 @@ Searchable menus name their input `Search options` by default. Set `searchAriaLa
   { prop: "block", type: "boolean", default: "true", description: "Full width trigger" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable select" },
   { prop: "actions", type: "array", description: "Actions below options list" },
+  { prop: "checkPosition", type: '"start" | "end" | "none"', default: '"start"', description: 'Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection' },
   { prop: "OptionView", type: "React.FC", description: "Custom option render" },
   { prop: "TriggerView", type: "React.FC", description: "Custom trigger render (multi)" },
   { prop: "searchPlaceholder", type: "string", description: "Search input placeholder" },

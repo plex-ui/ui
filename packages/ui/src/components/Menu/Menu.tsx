@@ -99,6 +99,12 @@ export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: Me
 export type MenuItemProps = {
   className?: string
   children: React.ReactNode
+  /**
+   * Second line under the item's label: what this action does, or which
+   * value it carries. The label goes semibold on its own, the same way a
+   * Select option with a description does — same pattern, same anatomy.
+   */
+  description?: ReactNode
   /** Callback triggered when the item is pressed */
   onSelect?: DropdownMenu.DropdownMenuItemProps["onSelect"]
   /** Callback triggered when the item is clicked */
@@ -107,7 +113,7 @@ export type MenuItemProps = {
   disabled?: boolean
 }
 
-const Item = ({ className, children, disabled, onSelect, onClick }: MenuItemProps) => {
+const Item = ({ className, children, description, disabled, onSelect, onClick }: MenuItemProps) => {
   const { open } = useMenuContext()
 
   // This handler patches over focus races with core Radix primitives
@@ -118,6 +124,18 @@ const Item = ({ className, children, disabled, onSelect, onClick }: MenuItemProp
       evt.preventDefault()
     }
   }
+
+  // A described item stacks its two lines; without a description the item
+  // keeps the plain flex row that icons and ItemActions rely on.
+  const content =
+    description === undefined ? (
+      children
+    ) : (
+      <div className={s.ItemLeading}>
+        <div>{children}</div>
+        <div className={s.ItemDescription}>{description}</div>
+      </div>
+    )
 
   // Custom click handlers
   if (onSelect) {
@@ -130,13 +148,13 @@ const Item = ({ className, children, disabled, onSelect, onClick }: MenuItemProp
         onPointerMove={handlePreventAfterClose}
         onPointerLeave={handlePreventAfterClose}
       >
-        <div className={s.PressableInner}>{children}</div>
+        <div className={s.PressableInner}>{content}</div>
       </DropdownMenu.Item>
     )
   }
 
   // Read-only content - will not appear interactive.
-  return <div className={clsx(s.MenuItemContent, className)}>{children}</div>
+  return <div className={clsx(s.MenuItemContent, className)}>{content}</div>
 }
 
 const ItemActions = ({ className, children }: { className?: string; children: ReactNode }) => {

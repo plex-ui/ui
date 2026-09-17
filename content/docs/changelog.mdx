@@ -9,6 +9,11 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- `Menu.Item` takes a `description` — a second line under the label, with the label going semibold on its own. Same "item + subtitle" anatomy a Select option with a description already had, so a two-line menu item no longer needs hand-written typography.
+- Select accepts `checkPosition="none"`, which removes the indicator column from the list. A menu of one-shot actions, or a list whose option view states the selection itself, no longer reserves an empty 16px column in every row.
+
 ### Changed
 
 - Grouped Select menus separate their sections. A group heading is now smaller and semibold in the secondary color instead of an option-sized muted row, a rule runs between sections, and the heading starts at the row's content edge instead of being indented to the option labels.
