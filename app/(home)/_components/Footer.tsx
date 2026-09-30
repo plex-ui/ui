@@ -203,7 +203,16 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center gap-2 border-t border-fd-border pt-6 text-sm text-fd-muted-foreground">
           <div>
-            Built by Plex UI. The source code is available on{' '}
+            Designed and built by{' '}
+            <a
+              href="https://www.linkedin.com/in/stomashevsky/"
+              target="_blank"
+              rel="author noopener noreferrer"
+              className="underline hover:text-fd-foreground"
+            >
+              Siarhei Tamasheuski
+            </a>
+            . The source code is available on{' '}
             <a
               href="https://github.com/plex-ui/docs"
               target="_blank"
@@ -213,6 +222,18 @@ export function Footer() {
               GitHub
             </a>
             .
+          </div>
+          <div>
+            Also by Siarhei:{' '}
+            <a
+              href="https://github.com/stomashevsky/keyhole"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-fd-foreground"
+            >
+              keyhole
+            </a>
+            , context discipline for Claude Code and Codex.
           </div>
           <a
             href="mailto:plexuikit@gmail.com"

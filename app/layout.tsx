@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     template: '%s — Plex UI',
   },
   description: homeDescription,
+  authors: [{ name: 'Siarhei Tamasheuski', url: 'https://www.linkedin.com/in/stomashevsky/' }],
+  creator: 'Siarhei Tamasheuski',
   metadataBase: new URL('https://plexui.com'),
   icons: {
     icon: [
@@ -57,12 +59,20 @@ const jsonLd = {
       url: 'https://plexui.com',
       logo: 'https://plexui.com/favicon.svg',
       email: 'plexuikit@gmail.com',
+      founder: { '@id': 'https://plexui.com/#founder' },
       sameAs: [
         'https://github.com/plex-ui/docs',
         'https://www.threads.net/@plexuikit',
         'https://www.npmjs.com/package/@plexui/ui',
         'https://www.figma.com/community/file/1605261673441035444',
       ],
+    },
+    {
+      '@type': 'Person',
+      '@id': 'https://plexui.com/#founder',
+      name: 'Siarhei Tamasheuski',
+      url: 'https://www.linkedin.com/in/stomashevsky/',
+      sameAs: ['https://www.figma.com/@stomashevsky', 'https://github.com/stomashevsky'],
     },
     {
       '@type': 'WebSite',
