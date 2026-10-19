@@ -233,7 +233,7 @@ export function SidebarBaseDemo() {
          [data-demo-stage] aside[class*="Sidebar-module"] [class*="GroupLabel"] { margin-top: 0; padding-bottom: 6px; }
          [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"]:has(.demo-sidebar-wordmark) { padding-left: 12px; padding-right: 0; gap: 4px; transition: padding var(--sidebar-collapse-duration) var(--cubic-move); }
          [data-demo-stage][data-bordered="false"] [class*="SidebarLayout"] { background: var(--color-surface); }
-         [data-demo-stage][data-bordered="false"] aside[class*="Sidebar-module"] { background: var(--color-surface-tertiary); }
+         [data-demo-stage][data-bordered="false"] aside[class*="Sidebar-module"] { background: var(--color-surface-secondary); }
          [data-demo-stage][data-bordered="false"] [class*="Inset"] { margin: 0; box-shadow: none; border-radius: 0; }
          [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] { width: auto; margin-left: auto; flex: 0 0 auto; }
          [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] span { opacity: 1 !important; pointer-events: auto !important; }
