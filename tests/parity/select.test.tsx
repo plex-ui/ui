@@ -184,6 +184,27 @@ const aGroups = [
   { label: "B", options: [{ label: "Apricot", value: "apricot" }, { label: "Banana", value: "banana" }] },
 ]
 
+// Group boundaries with a disabled option on each side, and a last group of one
+const edgeGroups = [
+  {
+    label: "Fruits",
+    options: [
+      { label: "Apple", value: "apple" },
+      { label: "Banana", value: "banana" },
+      { label: "Cherry", value: "cherry", disabled: true },
+    ],
+  },
+  {
+    label: "Vegetables",
+    options: [
+      { label: "Daikon", value: "daikon", disabled: true },
+      { label: "Eggplant", value: "eggplant" },
+      { label: "Fennel", value: "fennel" },
+    ],
+  },
+  { label: "Herbs", options: [{ label: "Garlic", value: "garlic" }] },
+]
+
 // Values that are not valid in a CSS selector unescaped
 const quoted: Opt[] = [
   { label: "Say hi", value: 'say "hi"' },
@@ -206,6 +227,7 @@ type OptionSet =
   | "empty"
   | "quoted"
   | "aGroups"
+  | "edgeGroups"
 
 const optionSet = (name: OptionSet, framework: "react" | "vue") => {
   switch (name) {
@@ -235,6 +257,8 @@ const optionSet = (name: OptionSet, framework: "react" | "vue") => {
       return quoted
     case "aGroups":
       return aGroups
+    case "edgeGroups":
+      return edgeGroups
   }
 }
 
@@ -885,6 +909,43 @@ describe("Select keyboard behaviour parity", () => {
     expect(result.react[4]).not.toContain('role="dialog"')
   })
 
+  test("groups: arrows cross group boundaries both ways, skipping disabled options at the edges", async () => {
+    const result = await walk({ options: "edgeGroups", value: "banana", controlled: true }, async ({ open, key, advance, snapshot }) => {
+      await open()
+      await advance(50)
+      snapshot() // banana
+      await key("ArrowDown")
+      snapshot() // eggplant: past disabled Cherry, the Vegetables heading and disabled Daikon
+      await key("ArrowDown")
+      await key("ArrowDown")
+      snapshot() // garlic, in the last group
+      await key("ArrowDown")
+      snapshot() // stays at the end
+      await key("ArrowUp")
+      await key("ArrowUp")
+      snapshot() // eggplant
+      await key("ArrowUp")
+      snapshot() // back across the boundary to banana
+      await key("ArrowUp")
+      await key("ArrowUp")
+      snapshot() // apple, then stays at the start
+      await key("ArrowDown")
+      await key("ArrowDown")
+      await key("Enter")
+      snapshot() // eggplant selected
+    })
+    expect(result.vue).toEqual(result.react)
+    // 7 options: not searchable, the list holds the active option
+    const active = result.react.map((dom) => activeOptionOf(dom, LISTBOX_LINE))
+    expect(active.slice(0, 7)).toEqual(["banana", "eggplant", "garlic", "garlic", "eggplant", "banana", "apple"])
+    for (const [i, value] of active.slice(0, 7).entries()) {
+      expect(result.react[i]).toMatch(new RegExp(`data-highlight=""[^\\n]*data-option-id="${value}"`))
+    }
+    expect(result.react[1]).toContain("scrolls: eggplant:nearest")
+    expect(result.react[5]).toContain("scrolls: banana:nearest")
+    expect(result.react[7]).toContain('change {"value":"eggplant","label":"Eggplant"}')
+  })
+
   test("ArrowUp and Space open; Space selects; Enter on the trigger does nothing", async () => {
     const result = await walk({ value: "apple", controlled: true }, async ({ focus, key, advance, snapshot }) => {
       await focus(TRIGGER)
@@ -1078,18 +1139,42 @@ describe("Select search behaviour parity", () => {
     expect(result.react[1]).not.toContain("group-limit-")
   })
 
-  test("groups: keyboard moves through headings to the Show all row", async () => {
+  test("groups: keyboard moves to the Show all row and on into the next group", async () => {
     const result = await walk({ options: "grouped", value: "6" }, async ({ open, key, snapshot }) => {
       await open()
       await key("ArrowDown")
       snapshot() // Show all row
       await key("ArrowDown")
-      snapshot() // crosses the heading into the next group
+      snapshot() // crosses into the next group
       await key("ArrowUp")
       await key("Enter")
       snapshot() // Enter on the Show all row expands it
     })
     expect(result.vue).toEqual(result.react)
+    // 16 options: searchable, the combobox holds the active option
+    expect(result.react.map((dom) => activeOptionOf(dom, COMBOBOX_LINE))).toEqual(["group-limit-[id]", "ft1", "7"])
+    expect(result.react[1]).toContain("scrolls: ft1:nearest")
+  })
+
+  test("groups: Show all inside a group expands that group and highlights its first new option", async () => {
+    const rows: string[][] = []
+    const result = await walk({ options: "grouped", value: "6" }, async ({ open, key, snapshot }) => {
+      await open()
+      await key("ArrowDown")
+      await key("Enter")
+      snapshot() // expanded: Free, the first newly shown option
+      rows.push(groupsOf().map((group) => group.rows.join(" ")))
+      await key("ArrowDown")
+      snapshot() // the next new option
+      for (let i = 0; i < 4; i++) await key("ArrowDown")
+      snapshot() // past the last new option into the next group
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(rows[1]).toEqual(rows[0])
+    expect(rows[0]).toEqual(["1 1o 2 3 4 5 6 7 4a 4b 4c 4d", "ft1 ft2 ft3 ft4"])
+    expect(result.react.map((dom) => activeOptionOf(dom, COMBOBOX_LINE))).toEqual(["7", "4a", "ft1"])
+    expect(result.react[0]).toMatch(/data-highlight=""[^\n]*data-option-id="7"/)
+    expect(result.react[0]).not.toContain('data-option-id="group-limit-')
   })
 })
 
@@ -1378,6 +1463,18 @@ const selectedOptionsOf = (dom: string) =>
     .split("\n")
     .filter((line) => line.includes('role="option"') && line.includes('aria-selected="true"'))
     .map((line) => attrOf(line, "data-option-id"))
+/** The open list's groups, from the live DOM: the name their aria-labelledby resolves to, and their rows */
+const groupsOf = () =>
+  Array.from(document.querySelectorAll(`${LIST} [role="group"]`)).map((group) => {
+    const heading = document.getElementById(group.getAttribute("aria-labelledby") ?? "")
+    return {
+      name: heading?.textContent,
+      heading: heading === group.firstElementChild ? heading?.className : "not the first child",
+      rows: Array.from(group.children)
+        .slice(1)
+        .map((row) => row.getAttribute("data-option-id")?.replace(/^group-limit-.*/, "group-limit-[id]") ?? row.className),
+    }
+  })
 
 describe("Select listbox semantics parity", () => {
   test("the options are a listbox named by the trigger; aria-selected is the selection, aria-activedescendant the highlight", async () => {
@@ -1482,6 +1579,59 @@ describe("Select listbox semantics parity", () => {
     // 16 options: searchable, the combobox holds the active option
     expect(activeOptionOf(result.react[0]!, COMBOBOX_LINE)).toBe("group-limit-[id]")
     expect(lineOf(result.react[0]!, /data-option-id="group-limit-/)).not.toContain("aria-selected")
+  })
+
+  test("option groups: each group is a group named by its heading; ungrouped lists have no groups", async () => {
+    const facts: Array<{ children: string[]; groups: ReturnType<typeof groupsOf> }> = []
+    const collect = async ({ open, snapshot }: Tools) => {
+      await open()
+      snapshot()
+      const children = Array.from(document.querySelector(LIST)!.children)
+      facts.push({ children: children.map((child) => child.getAttribute("role") ?? child.className), groups: groupsOf() })
+    }
+    const grouped = await walk({ options: "grouped", value: "2" }, collect)
+    const edges = await walk({ options: "edgeGroups" }, collect)
+    const hugeInGroup = await walk({ options: "hugeGroup" }, collect)
+    const flat = await walk({ value: "apple" }, collect)
+    const flatHuge = await walk({ options: "huge" }, collect)
+    for (const result of [grouped, edges, hugeInGroup, flat, flatHuge]) expect(result.vue).toEqual(result.react)
+    // React's facts, then Vue's, per walk
+    for (let i = 0; i < facts.length; i += 2) expect(facts[i + 1]).toEqual(facts[i])
+    const [groupedFacts, , edgeFacts, , hugeFacts, , flatFacts, , flatHugeFacts] = facts
+
+    // The list holds only groups; each opens with the heading that names it,
+    // then that group's options and its Show all row or hard-limit note
+    expect(groupedFacts!.children).toEqual(["group", "group"])
+    expect(groupedFacts!.groups).toEqual([
+      { name: "Plans", heading: "OptionGroupHeading", rows: ["1", "1o", "2", "3", "4", "5", "6", "group-limit-[id]"] },
+      { name: "Custom Deployments", heading: "OptionGroupHeading", rows: ["ft1", "ft2", "ft3", "ft4"] },
+    ])
+    expect(edgeFacts!.groups.map(({ name, rows }) => `${name}: ${rows.join(" ")}`)).toEqual([
+      "Fruits: apple banana cherry",
+      "Vegetables: daikon eggplant fennel",
+      "Herbs: garlic",
+    ])
+    expect(hugeFacts!.groups).toHaveLength(1)
+    expect(hugeFacts!.groups[0]!.rows).toHaveLength(301)
+    expect(hugeFacts!.groups[0]!.rows.at(-1)).toBe("OptionHardLimitHeading")
+
+    // The group carries only its class, role and name; the heading's
+    // generated id is what names it
+    const dom = grouped.react[0]!
+    const groupLines = dom.split("\n").filter((line) => line.includes('role="group"'))
+    expect(groupLines).toHaveLength(2)
+    for (const line of groupLines) {
+      expect(line.trim()).toMatch(/^<div aria-labelledby="gen-\d+" class="OptionGroup" role="group">$/)
+      const heading = lineOf(dom, new RegExp(` id="${attrOf(line, "aria-labelledby")}"`))
+      expect(heading.trim()).toMatch(/^<div class="OptionGroupHeading" id="gen-\d+">$/)
+    }
+
+    // Ungrouped: options straight in the list (then the hard-limit note), no group
+    expect(flatFacts!.children).toEqual(fruits.map(() => "option"))
+    expect(flatFacts!.groups).toEqual([])
+    expect(flatHugeFacts!.children).toHaveLength(301)
+    expect(flatHugeFacts!.children.slice(-2)).toEqual(["option", "OptionHardLimitHeading"])
+    for (const result of [flat, flatHuge]) expect(result.react[0]).not.toMatch(/role="group"|OptionGroupHeading/)
   })
 })
 

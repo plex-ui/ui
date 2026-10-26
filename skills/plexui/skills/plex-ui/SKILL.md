@@ -314,5 +314,5 @@ import { Button } from "@plexui/ui";  // WRONG
 - [Design Tokens](https://plexui.com/docs/foundations/design-tokens)
 - [Colors](https://plexui.com/docs/foundations/colors)
 - [Icons](https://plexui.com/icons/plex)
-- [Dark Mode](https://plexui.com/docs/concepts/dark-mode)
+- [Dark Mode](https://plexui.com/docs/concepts#dark-mode)
 - [Typography](https://plexui.com/docs/foundations/typography)

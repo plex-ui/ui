@@ -758,8 +758,8 @@ Props:
     - style (StyleValue) — Style of the provider's wrapper, e.g. --sidebar-width
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
   SidebarGroup:
-    - default-open (boolean) default: true — Initial data-state of the group
-    - open (boolean) — Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open
+    - default-open (boolean) default: true — Whether the group is open initially. A closed group hides its SidebarGroupContent
+    - open (boolean) — Controlled open state, also exposed as data-state. The group has no toggle of its own: change open from your own control
   SidebarGroupLabel:
     - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
     - as-child (boolean) default: false — Render the single child element as the label

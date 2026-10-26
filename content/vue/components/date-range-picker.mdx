@@ -80,6 +80,8 @@ export const monthStepper = `<div style="width: fit-content">
 
 ## API
 
+In the calendars, the arrow keys move focus by a day or a week, Home and End move it to the Sunday or Saturday of the week, and Page Up and Page Down move it by a month (January 31 goes to the last day of February). Focus moves across the visible months, and a day past them turns the calendars by a month first. Focus stays put when the day it would move to is disabled: outside `min` and `max`, or past `max-range-days` while a range is being picked. Enter and Space pick the focused day.
+
 <PropsTable data={[
   { prop: "value / v-model:value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
   { prop: "@change", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Emitted when the range changes" },

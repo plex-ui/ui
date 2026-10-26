@@ -46,7 +46,7 @@ applyDocumentTheme("dark");
 const currentTheme = getDocumentTheme(); // "light" | "dark"
 
 function Sample() {
-  const theme = useDocumentTheme(); // live value from html[data-theme]
+  const theme = useDocumentTheme(); // live value from html[data-theme]; "light" on the server and during hydration
   return null;
 }
 ```

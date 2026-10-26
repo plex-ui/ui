@@ -96,7 +96,7 @@ const roles = [
 
 ### Grouped options
 
-<ComponentPreview details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={`<Select
+<ComponentPreview details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={`<Select
   value={value}
   options={groupedItems}
   onChange={(v) => setValue(v.value)}
@@ -177,7 +177,7 @@ return (
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
 
-The open list is a `listbox` (`aria-multiselectable` with `multiple`) named by `aria-labelledby`, then `aria-label`, then the default trigger; with a custom `trigger`, pass one of the two so the list has a name. `aria-selected` follows the selection and `aria-activedescendant` the highlighted option. Typing a letter moves to the next matching option; Ctrl, Cmd and Alt shortcuts are left alone. After an option is chosen or Escape is pressed, focus returns to the trigger, a custom one included.
+The open list is a `listbox` (`aria-multiselectable` with `multiple`) named by `aria-labelledby`, then `aria-label`, then the default trigger; with a custom `trigger`, pass one of the two so the list has a name. `aria-selected` follows the selection and `aria-activedescendant` the highlighted option. Each option group is a `group` named by its label, so screen readers announce the group, and the arrow keys move through the options of every group in order. Typing a letter moves to the next matching option; Ctrl, Cmd and Alt shortcuts are left alone. After an option is chosen or Escape is pressed, focus returns to the trigger, a custom one included.
 
 Searchable menus name their input `Search options` by default. Set `searchAriaLabel` for a more specific search label without changing the trigger's accessible name or the visible placeholder.
 

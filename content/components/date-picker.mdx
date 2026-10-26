@@ -225,6 +225,8 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
 
+In the calendar, the arrow keys move focus by a day or a week, Home and End move it to the Sunday or Saturday of the week, and Page Up and Page Down move it by a month (January 31 goes to the last day of February). A day in another month turns the calendar to that month first. Focus stays put when the day it would move to is outside `min` and `max`. Enter and Space select the focused day.
+
 <PropsTable data={[
   { prop: "value", type: "DateTime | null", description: "Required. Selected date (luxon)" },
   { prop: "onChange", type: "(date: DateTime | null) => void", description: "Required. Called when the date changes" },

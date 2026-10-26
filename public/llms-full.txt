@@ -5478,7 +5478,7 @@ actions={[
 ```
 
 ### Grouped options
-Select supports option groups, similar to the native &lt;optgroup&gt; element. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
+Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
 ```tsx
 <Select
 value={value}
@@ -5689,8 +5689,8 @@ Props:
     - className (string) — Class of the provider's wrapper
     - style (CSSProperties) — Style of the provider's wrapper, e.g. --sidebar-width
   SidebarGroup:
-    - defaultOpen (boolean) default: true — Initial data-state of the group
-    - open (boolean) — Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not call onOpenChange
+    - defaultOpen (boolean) default: true — Whether the group is open initially. A closed group hides its SidebarGroupContent
+    - open (boolean) — Controlled open state, also exposed as data-state. The group has no toggle of its own: change open from your own control
   SidebarGroupLabel:
     - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
     - asChild (boolean) default: false — Render the single child element as the label

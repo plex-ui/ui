@@ -1,4 +1,5 @@
 import { Comment, Fragment, Text, cloneVNode, type VNode, type VNodeArrayChildren } from "vue"
+import { isDev } from "../../lib/environment.js"
 
 // Internal: Radix's `asChild` / `Slot` merge for slot vnodes, shared by the
 // Tooltip and Popover triggers. Reka's slot merges the other way round (its
@@ -42,11 +43,19 @@ export const flattenSlot = (nodes: VNodeArrayChildren | undefined) => flatten(no
 
 /**
  * The element a Radix slot clones: the first child, when it is an element or
- * a component. Radix renders nothing for a text child, so neither does this.
+ * a component. React's Slot throws for a text child (radix-ui 1.8); this
+ * renders nothing instead and warns in development.
  */
 export const firstElementChild = (nodes: VNodeArrayChildren | undefined): VNode | undefined => {
   const [first] = flattenSlot(nodes)
-  return first && first.type !== Text ? first : undefined
+  if (first?.type !== Text) return first
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[plexui] Slot failed to slot onto its children. Expected a single element or component child, not text.",
+    )
+  }
+  return undefined
 }
 
 /** Radix's `concatAriaDescribedby`: the ids of every value, once each, in order. */

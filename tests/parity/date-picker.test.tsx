@@ -164,6 +164,26 @@ const day = (n: number, monthLabel?: string) => () =>
 const button = (label: string) => `[aria-label="${label}"]`
 const option = (value: string) => `[data-option-id="${value}"]`
 
+/** A day's accessible name, and the name of the focused element */
+const dayName = (date: DateTime) => date.toLocaleString(DateTime.DATE_HUGE)
+const focused = () => document.activeElement?.getAttribute("aria-label") ?? null
+
+/** Month labels of the visible (not exiting) calendars */
+const visibleMonths = () =>
+  Array.from(document.querySelectorAll(".Calendar"))
+    .filter((calendar) => !calendar.closest("[data-exiting]"))
+    .map((calendar) => calendar.querySelector(".MonthLabel")?.textContent)
+
+const eventsLine = (snapshot: string) => snapshot.split("\n").at(-1)
+
+/** Records each keydown (and whether its default was prevented) into `events` */
+const recordKeys = () => {
+  const listener = (event: KeyboardEvent) =>
+    events.push(`key ${JSON.stringify(event.key)}${event.defaultPrevented ? " prevented" : ""}`)
+  document.addEventListener("keydown", listener)
+  return () => document.removeEventListener("keydown", listener)
+}
+
 const walk = async (initial: Case, steps: (tools: Tools) => Promise<void>) => {
   let current: Case = { ...initial }
   const listeners = new Set<() => void>()
@@ -355,6 +375,193 @@ describe("DatePicker parity: markup", () => {
         tools.snapshot()
       }),
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Calendar keyboard: arrows, Home/End and PageUp/PageDown move focus between
+// days; a day in another month moves the view first and takes focus a frame
+// later, once that month has rendered
+
+describe("DatePicker parity: calendar keyboard", () => {
+  test("arrows move a day and a week within the month; other keys are left alone", async () => {
+    const result = await walk({ value: oct20 }, async (tools) => {
+      const stop = recordKeys()
+      try {
+        await tools.open()
+        await tools.focus(day(20))
+        await tools.key("ArrowRight")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 21)))
+        await tools.key("ArrowDown")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 28)))
+        await tools.key("ArrowLeft")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 27)))
+        await tools.key("ArrowUp")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 20)))
+        tools.snapshot()
+        // Enter and Space stay with the button; a modified arrow is not a grid key
+        await tools.key("Enter")
+        await tools.key(" ")
+        await tools.key("Tab")
+        await tools.key("ArrowRight", undefined, { metaKey: true })
+        await tools.key("ArrowLeft", undefined, { altKey: true })
+        expect(focused()).toBe(dayName(oct20))
+        tools.snapshot()
+        await tools.key("Escape")
+        await tools.advance(100)
+        tools.snapshot()
+      } finally {
+        stop()
+      }
+    })
+    expectSame(result)
+    expect(eventsLine(result.react[0])).toBe(
+      'events: key "ArrowRight" prevented | key "ArrowDown" prevented | key "ArrowLeft" prevented | key "ArrowUp" prevented',
+    )
+    expect(eventsLine(result.react[1])).toBe('events: key "Enter" | key " " | key "Tab" | key "ArrowRight" | key "ArrowLeft"')
+  })
+
+  test.each([true, false])("arrows cross into the next and previous month (animations %s)", async (animated) => {
+    animation.disabled = !animated
+    const result = await walk({ value: oct20 }, async (tools) => {
+      await tools.open()
+      await tools.focus(day(31))
+      await tools.key("ArrowRight")
+      // The view has moved; the day takes focus a frame later (with
+      // animations, October 31 keeps it until then on the leaving calendar)
+      expect(visibleMonths()).toEqual(["November 2026"])
+      if (animated) expect(focused()).toBe(dayName(DateTime.local(2026, 10, 31)))
+      tools.snapshot()
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(DateTime.local(2026, 11, 1)))
+      tools.snapshot()
+      await tools.advance(400)
+      await tools.key("ArrowUp")
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(DateTime.local(2026, 10, 25)))
+      expect(visibleMonths()).toEqual(["October 2026"])
+      tools.snapshot()
+      await tools.advance(400)
+      // Two keys before the frame. With animations October 25 keeps focus on
+      // the leaving calendar, and the second key starts from November 1, where
+      // the first is going. Without, that calendar is gone and so is focus
+      await tools.key("ArrowDown")
+      await tools.key("ArrowLeft")
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(animated ? DateTime.local(2026, 10, 31) : DateTime.local(2026, 11, 1)))
+      expect(visibleMonths()).toEqual([animated ? "October 2026" : "November 2026"])
+      tools.snapshot()
+      await tools.advance(400)
+      tools.snapshot()
+    })
+    expectSame(result)
+  })
+
+  test("Home and End move to the Sunday and Saturday of the week, across months too", async () => {
+    expectSame(
+      await walk({ value: oct20 }, async (tools) => {
+        await tools.open()
+        await tools.focus(day(20))
+        await tools.key("Home")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 18)))
+        await tools.key("End")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 24)))
+        await tools.key("End")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 24)))
+        tools.snapshot()
+        await tools.focus(day(1))
+        await tools.key("Home")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 9, 27)))
+        expect(visibleMonths()).toEqual(["September 2026"])
+        tools.snapshot()
+        await tools.focus(day(30))
+        await tools.key("End")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 3)))
+        expect(visibleMonths()).toEqual(["October 2026"])
+        tools.snapshot()
+      }),
+    )
+  })
+
+  test("PageUp and PageDown move a month and clamp the day (Jan 31 to Feb 28)", async () => {
+    expectSame(
+      await walk({ value: DateTime.local(2027, 1, 31) }, async (tools) => {
+        await tools.open()
+        await tools.focus(day(31))
+        await tools.key("PageDown")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2027, 2, 28)))
+        expect(visibleMonths()).toEqual(["February 2027"])
+        tools.snapshot()
+        await tools.key("PageUp")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2027, 1, 28)))
+        await tools.key("PageUp")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 12, 28)))
+        expect(visibleMonths()).toEqual(["December 2026"])
+        tools.snapshot()
+      }),
+    )
+  })
+
+  test("a day outside min/max keeps focus and the view", async () => {
+    const result = await walk(
+      { value: oct20, props: { min: DateTime.local(2026, 10, 10, 15), max: DateTime.local(2026, 11, 3, 9) } },
+      async (tools) => {
+        await tools.open()
+        await tools.focus(day(10))
+        await tools.key("ArrowLeft")
+        await tools.key("ArrowUp")
+        await tools.key("Home")
+        await tools.key("PageUp")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 10)))
+        expect(visibleMonths()).toEqual(["October 2026"])
+        tools.snapshot()
+        // November 3 is the max day; November 7 and December are past it
+        await tools.focus(day(31))
+        await tools.key("ArrowDown")
+        await tools.key("PageDown")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 31)))
+        expect(visibleMonths()).toEqual(["October 2026"])
+        await tools.key("End")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 10, 31)))
+        await tools.key("ArrowRight")
+        await tools.advance(100)
+        expect(focused()).toBe(dayName(DateTime.local(2026, 11, 1)))
+        await tools.key("ArrowRight")
+        await tools.key("ArrowRight")
+        await tools.key("ArrowRight")
+        expect(focused()).toBe(dayName(DateTime.local(2026, 11, 3)))
+        tools.snapshot()
+      },
+    )
+    expectSame(result)
+  })
+
+  test("dropdown caption: a day in another month re-renders the view and takes focus", async () => {
+    const result = await walk({ value: oct20, props: { captionLayout: "dropdown", yearRange: [2020, 2030] } }, async (tools) => {
+      await tools.open()
+      await tools.focus(day(31))
+      await tools.key("ArrowRight")
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(DateTime.local(2026, 11, 1)))
+      expect(document.querySelector(button("Month"))?.textContent).toBe("Nov")
+      tools.snapshot()
+      await tools.key("PageUp")
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(DateTime.local(2026, 10, 1)))
+      await tools.key("ArrowLeft")
+      await tools.advance(100)
+      expect(focused()).toBe(dayName(DateTime.local(2026, 9, 30)))
+      expect(document.querySelector(button("Month"))?.textContent).toBe("Sep")
+      tools.snapshot()
+    })
+    expectSame(result)
   })
 })
 
@@ -718,22 +925,6 @@ describe("DatePicker parity: behaviour", () => {
     expectSame(result)
     expect(result.react[0]).toMatch(/aria-labelledby="dob-label gen-\d+"/)
     expect(result.react[0]).not.toContain("undefined")
-  })
-
-  test("calendar grid: day buttons have no key handling of their own", async () => {
-    expectSame(
-      await walk({ value: oct20 }, async (tools) => {
-        await tools.open()
-        await tools.focus(day(20))
-        await tools.key("ArrowRight")
-        await tools.key("ArrowDown")
-        await tools.key("PageDown")
-        tools.snapshot()
-        await tools.key("Escape")
-        await tools.advance(100)
-        tools.snapshot()
-      }),
-    )
   })
 
   test("ref() holding a DateTime (deep reactive proxy) works like a plain value", async () => {

@@ -216,33 +216,21 @@ SidebarRail.displayName = "SidebarRail"
 
 export type SidebarGroupProps = ComponentProps<"div"> & {
   /**
-   * Whether the group is open by default.
+   * Whether the group is open initially. A closed group hides its `SidebarGroupContent`.
    * @default true
    */
   defaultOpen?: boolean
   /**
-   * Controlled open state.
+   * Controlled open state. The group has no toggle of its own: change `open` from your own control.
    */
   open?: boolean
-  /**
-   * Callback called when the group open state changes.
-   */
-  onOpenChange?: (open: boolean) => void
 }
 
 export const SidebarGroup = forwardRef<HTMLDivElement, SidebarGroupProps>(
-  ({ defaultOpen = true, open: openProp, onOpenChange, className, ...props }, ref) => {
-    const [_open, _setOpen] = useState(defaultOpen)
-    const open = openProp ?? _open
-
-    const handleToggle = () => {
-      const newState = !open
-      if (onOpenChange) {
-        onOpenChange(newState)
-      } else {
-        _setOpen(newState)
-      }
-    }
+  ({ defaultOpen = true, open: openProp, className, ...props }, ref) => {
+    // The initial value only, like an uncontrolled input's defaultValue
+    const [initialOpen] = useState(defaultOpen)
+    const open = openProp ?? initialOpen
 
     return (
       <div

@@ -684,8 +684,8 @@ The main sidebar container. Renders as an `<aside>` element.
 A section within `SidebarContent`.
 
 <PropsTable data={[
-  { prop: "default-open", type: "boolean", default: "true", description: "Initial data-state of the group" },
-  { prop: "open", type: "boolean", description: "Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open" },
+  { prop: "default-open", type: "boolean", default: "true", description: "Whether the group is open initially. A closed group hides its SidebarGroupContent" },
+  { prop: "open", type: "boolean", description: "Controlled open state, also exposed as data-state. The group has no toggle of its own: change open from your own control" },
 ]} />
 
 ### SidebarGroupLabel

@@ -5,6 +5,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  Text,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
   type DefineComponent,
@@ -191,20 +192,13 @@ const SidebarGroupComponent = defineComponent({
   name: "SidebarGroup",
   inheritAttrs: false,
   props: {
-    /** Whether the group is open by default. @default true */
+    /** Whether the group is open initially. A closed group hides its `SidebarGroupContent`. @default true */
     defaultOpen: { type: Boolean, default: true },
-    /** Controlled open state (`v-model:open`) */
+    /** Controlled open state. The group has no toggle of its own: change `open` from your own control. */
     open: { type: Boolean, default: undefined },
   },
-  emits: {
-    /**
-     * The group open state changes. Declared as in React, where nothing in the
-     * group calls `onOpenChange` either.
-     */
-    "update:open": (_open: boolean) => true,
-  },
   setup(props, { attrs, slots }) {
-    // React keeps the state but never changes it (its toggle handler is unused)
+    // The initial value only, like an uncontrolled input's defaultValue
     const internalOpen = ref(props.defaultOpen)
 
     return () => {
@@ -359,8 +353,9 @@ const SidebarMenuButtonComponent = defineComponent({
         // With asChild the child element is the button, so the inner wrapper
         // goes inside it. Wrapping the child instead would merge the button
         // attributes onto the wrapper span.
+        // A lone text child is wrapped below rather than slotted
         const nodes = flattenSlot(content)
-        const child = nodes.length === 1 ? firstElementChild(nodes) : undefined
+        const child = nodes.length === 1 && nodes[0].type !== Text ? nodes[0] : undefined
         button = mergeSlotProps(child ? wrapChildContent(child, wrap) : wrap(content), ownProps)
       } else {
         button = h("button", ownProps, [wrap(content)])

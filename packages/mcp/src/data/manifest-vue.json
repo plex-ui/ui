@@ -4251,7 +4251,7 @@
         {
           "name": "Grouped options",
           "code": "<div style=\"width: 200px\">\n  <Select\n    variant=\"outline\"\n    v-model:value=\"value\"\n    side=\"bottom\"\n    size=\"lg\"\n    :options=\"groupedItems\"\n    :list-min-width=\"300\"\n    search-placeholder=\"Select an option...\"\n    clearable\n  />\n</div>",
-          "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options."
+          "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options."
         },
         {
           "name": "Multiple selection",
@@ -4681,12 +4681,12 @@
               "name": "default-open",
               "type": "boolean",
               "default": "true",
-              "description": "Initial data-state of the group"
+              "description": "Whether the group is open initially. A closed group hides its SidebarGroupContent"
             },
             {
               "name": "open",
               "type": "boolean",
-              "description": "Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open"
+              "description": "Controlled open state, also exposed as data-state. The group has no toggle of its own: change open from your own control"
             }
           ]
         },
@@ -6420,5 +6420,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T17:15:29.484Z"
+  "generatedAt": "2026-10-26T18:45:29.273Z"
 }

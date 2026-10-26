@@ -190,6 +190,15 @@
   color: var(--color-text-secondary);
 }
 
+/* Option group: the `group` around a heading and its rows. No box of its own:
+   a plain block in the list's block flow, with no padding or border, so the
+   rows sit exactly where they would as the list's own children and the
+   heading's top margin collapses through it. The heading always opens its
+   group, so "first section" is the group's position, not the heading's. */
+.OptionGroup {
+  display: block;
+}
+
 /* Group heading — a section label, not an option. Same size and weight as the
    options made it read as a disabled row, so it carries its own type level:
    smaller, semibold, secondary color. A rule between sections and the extra
@@ -209,7 +218,7 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
 
-  &:not(:first-child)::before {
+  .OptionGroup:not(:first-child) > &::before {
     position: absolute;
     top: calc(spacing(1) * -1);
     inset-inline: calc(var(--menu-gutter) * -1);
@@ -217,7 +226,7 @@
     content: "";
   }
 
-  &:first-child {
+  .OptionGroup:first-child > & {
     margin-top: 0;
   }
 }

@@ -1289,6 +1289,7 @@ const CustomSelectGroup = <T extends Option>({
   optionsLimit = DEFAULT_OPTIONS_LIMIT,
 }: OptionGroup<T>) => {
   const groupId = useId()
+  const headingId = useId()
   const { searchTerm, setHighlightedValue } = useCustomSelectMenuContext()
   const [limitExpanded, setLimitExpanded] = useState<boolean>(false)
 
@@ -1311,12 +1312,13 @@ const CustomSelectGroup = <T extends Option>({
   }
 
   return (
-    // NOTE: Important for crawling that groups are flat
-    <>
+    // A group named by its heading. NOTE: The arrow keys walk every option in
+    // document order (findNextOption), so they cross from group to group.
+    <div role="group" aria-labelledby={headingId} className={s.OptionGroup}>
       {/* No indicator slot: the heading labels the whole section, so it starts
           at the row's content edge — above the check column, not indented to
           the option labels. Same alignment a grouped menu uses on GitHub. */}
-      <div className={s.OptionGroupHeading}>{label}</div>
+      <div id={headingId} className={s.OptionGroupHeading}>{label}</div>
       {maybeLimitedOptions.map((limitedOptions) => (
         <CustomSelectOption key={limitedOptions.value} {...limitedOptions} />
       ))}
@@ -1328,7 +1330,7 @@ const CustomSelectGroup = <T extends Option>({
         />
       )}
       {hasHardLimit && <CustomSelectHardLimit numHidden={options.length - HARD_OPTIONS_LIMIT} />}
-    </>
+    </div>
   )
 }
 
@@ -1673,37 +1675,37 @@ const findOptionByValue = (currentValue: string, container: HTMLElement) =>
 
 const isValidOptionNode = (node: Element) => node.matches("[data-option-id]:not([data-disabled])")
 
-const findNextOption = (currentValue: string, container: HTMLElement) => {
+// Steps from the current option to the nearest enabled one, one option row at a
+// time in document order: across groups (siblings would stop at a group's
+// edge), skipping disabled rows, at most MAX_DOM_CRAWLS rows away
+const findAdjacentOption = (currentValue: string, container: HTMLElement, step: 1 | -1) => {
   const currentOption = findOptionByValue(currentValue, container)
+  const rows = Array.from(container.querySelectorAll("[data-option-id]"))
 
-  let nextNode = currentOption?.nextElementSibling
-  let maxSteps = 0
+  let index = currentOption ? rows.indexOf(currentOption) : -1
+  if (index === -1) {
+    return undefined
+  }
 
-  while (nextNode && maxSteps < MAX_DOM_CRAWLS) {
+  for (let maxSteps = 0; maxSteps < MAX_DOM_CRAWLS; maxSteps += 1) {
+    index += step
+    const nextNode = rows[index]
+
+    if (!nextNode) {
+      return undefined
+    }
+
     if (isValidOptionNode(nextNode)) {
       return nextNode
     }
-
-    nextNode = nextNode.nextElementSibling
-    maxSteps += 1
   }
 }
 
-const findPreviousOption = (currentValue: string, container: HTMLElement) => {
-  const currentOption = findOptionByValue(currentValue, container)
+const findNextOption = (currentValue: string, container: HTMLElement) =>
+  findAdjacentOption(currentValue, container, 1)
 
-  let nextNode = currentOption?.previousElementSibling
-  let maxSteps = 0
-
-  while (nextNode && maxSteps < MAX_DOM_CRAWLS) {
-    if (isValidOptionNode(nextNode)) {
-      return nextNode
-    }
-
-    nextNode = nextNode.previousElementSibling
-    maxSteps += 1
-  }
-}
+const findPreviousOption = (currentValue: string, container: HTMLElement) =>
+  findAdjacentOption(currentValue, container, -1)
 
 const createTypeahead = () => {
   let currentValue: string = ""

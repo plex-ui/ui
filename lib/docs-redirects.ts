@@ -2,10 +2,10 @@
  * Docs URLs that redirect to an anchor on their section's single page.
  *
  * Hooks and Concepts are one page each, so a leaf URL such as
- * `/docs/concepts/dark-mode` (an old link, or a leaf MDX file that still
- * exists) is sent to `/docs/concepts#dark-mode`. The docs route redirects
- * these, and the sitemap and the search index leave them out so crawlers
- * and search results only see the page that actually renders.
+ * `/docs/concepts/dark-mode` (an old link) is sent to
+ * `/docs/concepts#dark-mode`. The docs route redirects these, and the
+ * sitemap and the search index leave them out so crawlers and search
+ * results only see the page that actually renders.
  */
 export function getDocsSectionRedirect(slug?: string[]): string | null {
   // /docs is the Introduction page itself, so no redirect is needed.

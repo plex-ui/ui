@@ -273,7 +273,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
 
 ## API
 
-Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`). The control renders the trigger; you provide the dropdown content. The default slot is the control's content. Attributes and listeners that are not props land on the control's `<span role="button">`; `@keydown` receives only the keys the control does not handle itself.
+Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`). The control renders the trigger; you provide the dropdown content. The default slot is the control's content. Attributes and listeners that are not props land on the control's `<span role="button">`; `@keydown` receives only the keys the control does not handle itself. To decide when the control opens (or to keep it closed), listen to `@interact` and control the dropdown's `open` state yourself: the wrapping trigger then no longer opens on its own.
 
 <PropsTable data={[
   { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected (affects placeholder styling)" },

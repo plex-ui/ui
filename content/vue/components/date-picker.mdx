@@ -186,6 +186,8 @@ export const disabled = `<DatePicker
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
 
+In the calendar, the arrow keys move focus by a day or a week, Home and End move it to the Sunday or Saturday of the week, and Page Up and Page Down move it by a month (January 31 goes to the last day of February). A day in another month turns the calendar to that month first. Focus stays put when the day it would move to is outside `min` and `max`. Enter and Space select the focused day.
+
 <PropsTable data={[
   { prop: "value / v-model:value", type: "DateTime | null", default: "null", description: "Selected date (luxon)" },
   { prop: "@change", type: "(date: DateTime | null) => void", description: "Emitted when the date changes, with the same value as update:value" },

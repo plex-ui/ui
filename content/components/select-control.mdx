@@ -380,7 +380,7 @@ function PhoneForm() {
 
 ## API
 
-Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control renders the trigger; you provide the dropdown content. `children` is the control's content. Other props land on the control's `<span role="button">`; `onKeyDown` receives only the keys the control does not handle itself.
+Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control renders the trigger; you provide the dropdown content. `children` is the control's content. Other props land on the control's `<span role="button">`; `onKeyDown` receives only the keys the control does not handle itself. To decide when the control opens (or to keep it closed), pass `onInteract` and control the dropdown's `open` state yourself: the wrapping trigger then no longer opens on its own.
 
 <PropsTable data={[
   { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected (affects placeholder styling)" },

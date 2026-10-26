@@ -565,7 +565,7 @@ describe("Sidebar markup", () => {
     expect(react).toMatch(/data-state="closed" inert=""/)
   })
 
-  test("asChild with a text child: React's Slot throws (radix-ui 1.8.1), Vue renders nothing", async () => {
+  test("asChild with a text child: React's Slot throws (radix-ui 1.8.1), Vue renders nothing and warns", async () => {
     const spec = n("SidebarProvider", null, n("SidebarGroupLabel", { asChild: true }, "Text"))
     const error = vi.spyOn(console, "error").mockImplementation(() => {})
     try {
@@ -578,11 +578,33 @@ describe("Sidebar markup", () => {
       error.mockRestore()
       cleanup()
     }
-    const { unmount } = mountVue(() => vueTree(spec))
-    await flushVue()
-    expect(document.body.textContent).toBe("")
-    expect(document.body.querySelector("[data-size]")).toBeNull()
-    unmount()
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    try {
+      const { unmount } = mountVue(() => vueTree(spec))
+      await flushVue()
+      expect(document.body.textContent).toBe("")
+      expect(document.body.querySelector("[data-size]")).toBeNull()
+      expect(warn.mock.calls.map((call) => String(call[0]))).toContainEqual(
+        expect.stringMatching(/failed to slot onto its children/),
+      )
+      unmount()
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  test("SidebarMenuButton asChild with a lone text child wraps it without a warning", async () => {
+    const spec = n("SidebarProvider", null, n("SidebarMenuButton", { asChild: true }, "Text"))
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    try {
+      const { unmount } = mountVue(() => vueTree(spec))
+      await flushVue()
+      expect(document.body.textContent).toBe("Text")
+      expect(warn.mock.calls.map((call) => String(call[0])).join("\n")).not.toMatch(/failed to slot/)
+      unmount()
+    } finally {
+      warn.mockRestore()
+    }
   })
 
   test("SidebarInput passes slots and the start adornment can be replaced", async () => {
@@ -815,28 +837,31 @@ describe("Sidebar collapse state", () => {
     expect(react[2]).toBe("click,mobile,click,mobile")
   })
 
-  test("SidebarGroup open / onOpenChange only set data-state", async () => {
-    const calls: string[] = []
+  test("SidebarGroup: open sets data-state; a click inside does not toggle it", async () => {
     const { react, vue } = await walkSpec(
       { open: false },
       (state) =>
         n(
           "SidebarProvider",
           null,
-          n("SidebarGroup", { open: state.open, onOpenChange: (open: boolean) => calls.push(String(open)) }, n("button", { "data-testid": "inside" }, "Inside")),
+          n("SidebarGroup", { open: state.open }, n("button", { "data-testid": "inside" }, "Inside")),
         ),
-      async ({ snapshot, fire, set, note }) => {
+      async ({ snapshot, fire, set }) => {
         snapshot()
         await fire('[data-testid="inside"]', "click")
+        snapshot()
         await set({ open: true })
         snapshot()
-        note(calls.join(","))
       },
     )
     expect(vue).toEqual(react)
     expect(react[0]).toContain('data-state="closed"')
-    expect(react[1]).toContain('data-state="open"')
-    expect(react[2]).toBe("")
+    expect(react[1]).toContain('data-state="closed"')
+    expect(react[2]).toContain('data-state="open"')
+  })
+
+  test("Vue SidebarGroup declares no update:open event (React has no onOpenChange)", () => {
+    expect(VueSidebar.SidebarGroup.emits).toBeUndefined()
   })
 
   test("useSidebar: setOpen, setOpenMobile and toggleSidebar from a consumer", async () => {

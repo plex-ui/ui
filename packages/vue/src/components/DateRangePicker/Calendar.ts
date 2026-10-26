@@ -15,16 +15,43 @@ import { type DateRange, type DateRangeShortcut } from "./types.js"
 //   effect runs on mount and when the left month changes, after render.
 // - The `stable-view-N` key on the wrapper remounts the calendar view, as in
 //   React, when the value jumps out of view.
+// - React's pending-focus effect is a post watcher on the left month; its
+//   cleanup cancels the frame, as the effect's does.
 // - Below the `sm` breakpoint the right calendar is a placeholder, as React's
 //   `{isSmallUp && ...}`: TransitionGroup still renders its (empty) wrapper
 //   when animations are off.
-// - React quirks kept: the day buttons have no `type`, and the height
-//   measurement skips exiting calendars with the selector `[data-exiting`
-//   (unclosed, which browsers and jsdom accept).
+// - React quirk kept: the day buttons have no `type`.
 
 const CALENDAR_WIDTH_PX = 210
 const CALENDAR_GAP_PX = 32
 const STEP_DISTANCE_PX = CALENDAR_WIDTH_PX + CALENDAR_GAP_PX
+
+// The day a grid key moves to: a day, a week, the Sunday or Saturday of the
+// week (rows start on Sunday), or a month (Luxon clamps Jan 31 to Feb 28/29)
+const getKeyTarget = (key: string, day: DateTime): DateTime | null => {
+  switch (key) {
+    case "ArrowLeft":
+      return day.minus({ days: 1 })
+    case "ArrowRight":
+      return day.plus({ days: 1 })
+    case "ArrowUp":
+      return day.minus({ days: 7 })
+    case "ArrowDown":
+      return day.plus({ days: 7 })
+    case "Home":
+      return day.minus({ days: day.weekday % 7 })
+    case "End":
+      return day.plus({ days: 6 - (day.weekday % 7) })
+    case "PageUp":
+      return day.minus({ months: 1 })
+    case "PageDown":
+      return day.plus({ months: 1 })
+    default:
+      return null
+  }
+}
+
+const monthIndex = (date: DateTime) => date.year * 12 + date.month
 
 export const DateRangeCalendar = defineComponent({
   name: "DateRangeCalendar",
@@ -32,6 +59,8 @@ export const DateRangeCalendar = defineComponent({
     const context = useDateRangeContext()
     const isSmallUp = useBreakpoint("sm")
     const calendarContainerRef = shallowRef<HTMLDivElement | null>(null)
+    // The day to focus once a key has moved the view to its month
+    let pendingFocus: DateTime | null = null
     const selectionRange = shallowRef<DateRange | null>(null)
     const calendarSteps = ref(0)
     const forceRenderIncrement = ref(0)
@@ -46,6 +75,9 @@ export const DateRangeCalendar = defineComponent({
         ? leftCalendarDate.value.plus({ months: 1 }).startOf("month")
         : leftCalendarDate.value.startOf("month"),
     )
+
+    const canGoBack = () => !context.min || isBefore(context.min, leftCalendarDate.value.startOf("month"))
+    const canGoForward = () => !context.max || isBefore(rightCalendarDate.value.endOf("month"), context.max)
 
     const handleNext = () => {
       calendarSteps.value += 1
@@ -107,6 +139,66 @@ export const DateRangeCalendar = defineComponent({
       selectionRange.value = [currentStartDate, currentStartDate]
     }
 
+    // Days are named by their full date; skip calendars that are leaving
+    const focusDay = (day: DateTime) => {
+      const label = day.toLocaleString(DateTime.DATE_HUGE)
+      const buttons = calendarContainerRef.value?.querySelectorAll<HTMLButtonElement>(`button[aria-label="${label}"]`)
+      Array.from(buttons ?? [])
+        .find((button) => !button.closest("[data-exiting]"))
+        ?.focus()
+    }
+
+    const handleDayKeyDown = (event: KeyboardEvent, day: DateTime) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+        return
+      }
+
+      // While a move waits for its month to render, the next key starts from
+      // the day it is moving to (key repeat), not the day that still has focus
+      const target = getKeyTarget(event.key, pendingFocus ?? day)
+      if (!target) {
+        return
+      }
+
+      event.preventDefault()
+
+      // A disabled day (outside min/max, or past maxRangeDays while selecting)
+      // keeps focus where it is
+      const { min, max, maxRangeDays } = context
+      const selection = selectionRange.value
+      const rangeEndLimit =
+        selection && maxRangeDays != null ? selection[0].plus({ days: maxRangeDays - 1 }) : undefined
+      if (
+        (min && isBefore(target, min.startOf("day"))) ||
+        (max && isAfter(target, max.endOf("day"))) ||
+        (rangeEndLimit && isAfter(target, rangeEndLimit))
+      ) {
+        return
+      }
+
+      const monthsBefore = monthIndex(leftCalendarDate.value) - monthIndex(target)
+      const monthsAfter = monthIndex(target) - monthIndex(rightCalendarDate.value)
+      if (monthsBefore <= 0 && monthsAfter <= 0) {
+        pendingFocus = null
+        focusDay(target)
+        return
+      }
+
+      // Step the view like the month buttons; a day within min/max keeps every step in bounds
+      if (monthsAfter > 0 ? !canGoForward() : !canGoBack()) {
+        return
+      }
+
+      pendingFocus = target
+      for (let step = 0; step < Math.max(monthsBefore, monthsAfter); step++) {
+        if (monthsAfter > 0) {
+          handleNext()
+        } else {
+          handlePrevious()
+        }
+      }
+    }
+
     // Force re-renders when `value` changes out of brand from direct user-selection
     watch(
       () => context.value,
@@ -155,7 +247,7 @@ export const DateRangeCalendar = defineComponent({
           const height = element.clientHeight
 
           // Ignore calendars that are exiting
-          if (element.closest("[data-exiting")) {
+          if (element.closest("[data-exiting]")) {
             return
           }
 
@@ -178,6 +270,28 @@ export const DateRangeCalendar = defineComponent({
     onMounted(measureHeight)
     watch(leftCalendarDate, measureHeight, { flush: "post" })
 
+    // Focus a pending day once its month has rendered. TransitionGroup marks
+    // the leaving calendar after this render, so wait a frame like the height does
+    watch(
+      leftCalendarDate,
+      (_date, _previous, onCleanup) => {
+        if (!pendingFocus) {
+          return
+        }
+
+        onCleanup(
+          waitForAnimationFrame(() => {
+            const target = pendingFocus
+            pendingFocus = null
+            if (target) {
+              focusDay(target)
+            }
+          }),
+        )
+      },
+      { flush: "post" },
+    )
+
     const setContainer = (el: unknown) => {
       calendarContainerRef.value = (el as HTMLDivElement | null) ?? null
     }
@@ -186,8 +300,6 @@ export const DateRangeCalendar = defineComponent({
       const { value, min, max, maxRangeDays } = context
       const left = leftCalendarDate.value
       const right = rightCalendarDate.value
-      const canGoBack = !min || isBefore(min, left.startOf("month"))
-      const canGoForward = !max || isBefore(right.endOf("month"), max)
       const selection = selectionRange.value
       const selectedDisplayValue = selection || value
       const viewProps = {
@@ -199,6 +311,7 @@ export const DateRangeCalendar = defineComponent({
         isSelecting: !!selection,
         onDateSelect: handleDateSelect,
         onDateMouseEnter: handleDateMouseEnter,
+        onDayKeyDown: handleDayKeyDown,
       }
 
       return h("div", { key: `stable-view-${forceRenderIncrement.value}`, class: s.CalendarWrapper }, [
@@ -214,7 +327,7 @@ export const DateRangeCalendar = defineComponent({
                 "gutterSize": "2xs",
                 "iconSize": "sm",
                 "onClick": handlePrevious,
-                "disabled": !canGoBack,
+                "disabled": !canGoBack(),
                 "aria-label": "Previous month",
               },
               { default: () => [h(ChevronLeft)] },
@@ -231,7 +344,7 @@ export const DateRangeCalendar = defineComponent({
                 "gutterSize": "2xs",
                 "iconSize": "sm",
                 "onClick": handleNext,
-                "disabled": !canGoForward,
+                "disabled": !canGoForward(),
                 "aria-label": "Next month",
               },
               { default: () => [h(ChevronRight)] },
@@ -284,6 +397,7 @@ const CalendarView = defineComponent({
     selectedDates: { type: Array as unknown as PropType<DateRange | null>, default: undefined },
     onDateSelect: Function as PropType<(dt: DateTime) => void>,
     onDateMouseEnter: Function as PropType<(dt: DateTime) => void>,
+    onDayKeyDown: Function as PropType<(event: KeyboardEvent, dt: DateTime) => void>,
     min: Object as PropType<DateTime>,
     max: Object as PropType<DateTime>,
     selectionStart: { type: Object as PropType<DateTime | null>, default: undefined },
@@ -394,6 +508,7 @@ const CalendarView = defineComponent({
                       "aria-current": dayIsToday ? "date" : undefined,
                       "onClick": () => d && props.onDateSelect?.(d),
                       "onMouseenter": () => d && props.onDateMouseEnter?.(d),
+                      "onKeydown": (event: KeyboardEvent) => d && props.onDayKeyDown?.(event, d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],
                   ),

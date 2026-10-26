@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon"
 import { computed, defineComponent, h, nextTick, onMounted, ref, shallowRef, watch, type PropType } from "vue"
-import { chunkIntoWeeks, getDaysOfMonth, isBefore, isSameDay, isToday } from "../../lib/dateUtils.js"
+import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { ChevronLeft, ChevronRight } from "../Icon/index.js"
@@ -15,6 +15,8 @@ import { useDateContext } from "./context.js"
 //   effect runs on mount and when the visible month changes, after render.
 // - The `stable-view-N` key on the wrapper remounts the calendar view, as in
 //   React, when the value jumps out of view or the dropdowns change month.
+// - React's pending-focus effect is a post watcher on the month; its cleanup
+//   cancels the frame, as the effect's does.
 // - The time fields are React controlled inputs: a typed value the state
 //   does not take is put back, and the `value` attribute follows the shown
 //   value (React syncs it for controlled inputs).
@@ -25,12 +27,46 @@ const STEP_DISTANCE_PX = CALENDAR_WIDTH_PX + CALENDAR_GAP_PX
 
 const SHORT_MONTH_NAMES = Array.from({ length: 12 }, (_, i) => DateTime.local(2024, i + 1, 1).monthShort!)
 
+// The day a grid key moves to: a day, a week, the Sunday or Saturday of the
+// week (rows start on Sunday), or a month (Luxon clamps Jan 31 to Feb 28/29)
+const getKeyTarget = (key: string, day: DateTime): DateTime | null => {
+  switch (key) {
+    case "ArrowLeft":
+      return day.minus({ days: 1 })
+    case "ArrowRight":
+      return day.plus({ days: 1 })
+    case "ArrowUp":
+      return day.minus({ days: 7 })
+    case "ArrowDown":
+      return day.plus({ days: 7 })
+    case "Home":
+      return day.minus({ days: day.weekday % 7 })
+    case "End":
+      return day.plus({ days: 6 - (day.weekday % 7) })
+    case "PageUp":
+      return day.minus({ months: 1 })
+    case "PageDown":
+      return day.plus({ months: 1 })
+    default:
+      return null
+  }
+}
+
+// Whole-day bounds, as the day buttons' disabled state
+const isDayWithinLimits = (day: DateTime, min?: DateTime, max?: DateTime) =>
+  !(min && isBefore(day, min.startOf("day"))) && !(max && isAfter(day, max.endOf("day")))
+
+const monthIndex = (date: DateTime) => date.year * 12 + date.month
+
 export const DateCalendar = defineComponent({
   name: "DateCalendar",
   setup() {
     const context = useDateContext()
     const closePopover = usePopoverClose()
     const calendarContainerRef = shallowRef<HTMLDivElement | null>(null)
+    // The day to focus once a key has moved the view to its month. It lives
+    // here, outside the wrapper that the dropdown layout re-keys
+    let pendingFocus: DateTime | null = null
     const calendarSteps = ref(0)
     const forceRenderIncrement = ref(0)
     const calendarDate = shallowRef<DateTime>(context.value ?? DateTime.now())
@@ -49,6 +85,9 @@ export const DateCalendar = defineComponent({
     )
 
     const isDropdown = () => context.captionLayout === "dropdown"
+
+    const canGoBack = () => !context.min || isBefore(context.min, calendarDate.value.startOf("month"))
+    const canGoForward = () => !context.max || isBefore(calendarDate.value.endOf("month"), context.max)
 
     const handleNext = () => {
       if (isDropdown()) {
@@ -107,6 +146,56 @@ export const DateCalendar = defineComponent({
     const handleDropdownYearChange = (year: number) => {
       calendarDate.value = DateTime.local(year, calendarDate.value.month, 1)
       forceRenderIncrement.value += 1
+    }
+
+    // Days are named by their full date; skip a calendar that is leaving
+    const focusDay = (day: DateTime) => {
+      const label = day.toLocaleString(DateTime.DATE_HUGE)
+      const buttons = calendarContainerRef.value?.querySelectorAll<HTMLButtonElement>(`button[aria-label="${label}"]`)
+      Array.from(buttons ?? [])
+        .find((button) => !button.closest("[data-exiting]"))
+        ?.focus()
+    }
+
+    const handleDayKeyDown = (event: KeyboardEvent, day: DateTime) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+        return
+      }
+
+      // While a move waits for its month to render, the next key starts from
+      // the day it is moving to (key repeat), not the day that still has focus
+      const target = getKeyTarget(event.key, pendingFocus ?? day)
+      if (!target) {
+        return
+      }
+
+      event.preventDefault()
+
+      // A disabled day keeps focus where it is
+      if (!isDayWithinLimits(target, context.min, context.max)) {
+        return
+      }
+
+      const months = monthIndex(target) - monthIndex(calendarDate.value)
+      if (months === 0) {
+        pendingFocus = null
+        focusDay(target)
+        return
+      }
+
+      // Step the view like the month buttons; a day within min/max keeps every step in bounds
+      if (months > 0 ? !canGoForward() : !canGoBack()) {
+        return
+      }
+
+      pendingFocus = target
+      for (let step = 0; step < Math.abs(months); step++) {
+        if (months > 0) {
+          handleNext()
+        } else {
+          handlePrevious()
+        }
+      }
     }
 
     // Force re-renders when `value` changes out of band from direct user-selection
@@ -174,6 +263,28 @@ export const DateCalendar = defineComponent({
     onMounted(measureHeight)
     watch(calendarDate, measureHeight, { flush: "post" })
 
+    // Focus a pending day once its month has rendered. TransitionGroup marks
+    // the leaving calendar after this render, so wait a frame like the height does
+    watch(
+      calendarDate,
+      (_date, _previous, onCleanup) => {
+        if (!pendingFocus) {
+          return
+        }
+
+        onCleanup(
+          waitForAnimationFrame(() => {
+            const target = pendingFocus
+            pendingFocus = null
+            if (target) {
+              focusDay(target)
+            }
+          }),
+        )
+      },
+      { flush: "post" },
+    )
+
     const setContainer = (el: unknown) => {
       calendarContainerRef.value = (el as HTMLDivElement | null) ?? null
     }
@@ -182,8 +293,6 @@ export const DateCalendar = defineComponent({
       const dropdown = isDropdown()
       const date = calendarDate.value
       const { value, min, max } = context
-      const canGoBack = !min || isBefore(min, date.startOf("month"))
-      const canGoForward = !max || isBefore(date.endOf("month"), max)
       const viewKey = date.toLocaleString({ month: "long", year: "numeric" })
 
       return h("div", { key: `stable-view-${forceRenderIncrement.value}`, class: s.CalendarWrapper }, [
@@ -202,7 +311,7 @@ export const DateCalendar = defineComponent({
                   "pill": false,
                   "iconSize": "sm",
                   "onClick": handlePrevious,
-                  "disabled": !canGoBack,
+                  "disabled": !canGoBack(),
                   "aria-label": "Previous month",
                 },
                 { default: () => [h(ChevronLeft)] },
@@ -219,7 +328,7 @@ export const DateCalendar = defineComponent({
                   "pill": false,
                   "iconSize": "sm",
                   "onClick": handleNext,
-                  "disabled": !canGoForward,
+                  "disabled": !canGoForward(),
                   "aria-label": "Next month",
                 },
                 { default: () => [h(ChevronRight)] },
@@ -258,6 +367,7 @@ export const DateCalendar = defineComponent({
                             min,
                             max,
                             onDateSelect: handleDateSelect,
+                            onDayKeyDown: handleDayKeyDown,
                             hideMonthLabel: false,
                           }),
                         ],
@@ -271,6 +381,7 @@ export const DateCalendar = defineComponent({
                       min,
                       max,
                       onDateSelect: handleDateSelect,
+                      onDayKeyDown: handleDayKeyDown,
                       hideMonthLabel: true,
                     }),
               ],
@@ -487,6 +598,7 @@ const CalendarView = defineComponent({
     date: { type: Object as PropType<DateTime>, required: true },
     selectedDate: { type: Object as PropType<DateTime | null>, default: undefined },
     onDateSelect: Function as PropType<(dt: DateTime) => void>,
+    onDayKeyDown: Function as PropType<(event: KeyboardEvent, dt: DateTime) => void>,
     min: Object as PropType<DateTime>,
     max: Object as PropType<DateTime>,
     stepPosition: { type: Number, required: true },
@@ -566,6 +678,7 @@ const CalendarView = defineComponent({
                       "aria-pressed": isSelected ? "true" : "false",
                       "aria-current": dayIsToday ? "date" : undefined,
                       "onClick": () => d && props.onDateSelect?.(d),
+                      "onKeydown": (event: KeyboardEvent) => d && props.onDayKeyDown?.(event, d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],
                   ),
