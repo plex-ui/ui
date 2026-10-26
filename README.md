@@ -2,67 +2,65 @@
 
 # Plex UI
 
-**The design system for React and Vue that your AI agent actually understands.**
+**Design system for React and Vue, built for AI agents.**
 
-[![npm](https://img.shields.io/npm/v/@plexui/ui?color=black&label=%40plexui%2Fui)](https://www.npmjs.com/package/@plexui/ui)
-[![npm downloads](https://img.shields.io/npm/dm/@plexui/ui?color=black)](https://www.npmjs.com/package/@plexui/ui)
-[![GitHub stars](https://img.shields.io/github/stars/plex-ui/ui?style=flat&color=black)](https://github.com/plex-ui/ui/stargazers)
+[![@plexui/ui](https://img.shields.io/npm/v/@plexui/ui?color=black&label=%40plexui%2Fui)](https://www.npmjs.com/package/@plexui/ui)
+[![@plexui/vue](https://img.shields.io/npm/v/@plexui/vue?color=black&label=%40plexui%2Fvue)](https://www.npmjs.com/package/@plexui/vue)
 [![MIT License](https://img.shields.io/badge/license-MIT-black.svg)](./packages/ui/LICENSE)
-[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-black)](https://plexui.com/docs/skills)
 [![MCP server](https://img.shields.io/badge/MCP-server-black)](https://plexui.com/docs/mcp)
 
-[Docs](https://plexui.com) &nbsp;·&nbsp; [Components](https://plexui.com/components) &nbsp;·&nbsp; [AI Skill](https://plexui.com/docs/skills) &nbsp;·&nbsp; [Threads](https://www.threads.com/@plex_uikit)
+[Docs](https://plexui.com) · [Components](https://plexui.com/components) · [Vue guide](https://plexui.com/docs/vue) · [Changelog](https://plexui.com/docs/changelog)
 
 </div>
 
----
-
-Production-grade components for React (`@plexui/ui`) and Vue (`@plexui/vue`) with the same props, markup and styles, plus an MCP server, a skill and a shadcn registry so Claude and Codex build with them correctly.
-
 ## Why Plex UI
 
-- 🧑‍💻 **~50 accessible components** on Radix primitives, zero Tailwind dependency
-- 🤖 **Installable AI skill** — Claude Code plugin + Codex skill + MCP server, all official
-- 🎨 **Three-layer design tokens** — primitive → semantic → component, full dark mode
-- 🧩 **shadcn-compatible registry** — mix with existing shadcn projects in one command
-- 🟢 **Vue 3 too**: [`@plexui/vue`](./packages/vue) has every component with the same props, markup and styles
-- 📦 **~40K-token skill** fits the context window without blowing up your prompts
+- **50 accessible components** with one 9-size scale (3xs to 3xl) across every control
+- **React and Vue** render the same markup from the same CSS, checked by parity tests
+- **Design tokens** in three layers (primitive, semantic, component) with dark mode
+- **Built for Claude and Codex**: MCP server, agent skill, `llms.txt` and a shadcn registry
+
+## Packages
+
+| Package | |
+| --- | --- |
+| [`@plexui/ui`](./packages/ui) | React 19 components on Radix |
+| [`@plexui/vue`](./packages/vue) | Vue 3 components on Reka UI, same API |
+| [`@plexui/styles`](./packages/styles) | Shared tokens and component CSS |
+| [`@plexui/mcp`](https://plexui.com/docs/mcp) | MCP server with the component API for AI agents |
 
 ## Quick start
+
+**React**
 
 ```bash
 npm install @plexui/ui
 ```
 
 ```css
-/* app/globals.css */
+@layer theme, base, components, utilities;
+@import "tailwindcss";
 @import "@plexui/ui/css";
+@source "../node_modules/@plexui/ui";
 ```
 
 ```tsx
 import { Button } from "@plexui/ui/components/Button";
 
-export function Example() {
-  return <Button color="primary">Ship it</Button>;
-}
+<Button color="primary">Ship it</Button>
 ```
 
-### With shadcn CLI
-
-If your project uses shadcn/ui, pull Plex UI components with one command each:
+**Vue**
 
 ```bash
-npx shadcn@latest add https://plexui.com/r/styles.json
-npx shadcn@latest add https://plexui.com/r/button.json
-# then: import { Button } from "@/components/ui/button"
+npm install @plexui/vue @plexui/styles
 ```
 
-See [shadcn Registry docs](https://plexui.com/docs/registry) for the full list.
-
-### Vue
-
-```bash
-npm install @plexui/vue
+```css
+@layer theme, base, components, utilities;
+@import "tailwindcss";
+@import "@plexui/styles/css";
+@source "../node_modules/@plexui/vue";
 ```
 
 ```vue
@@ -75,9 +73,9 @@ import { Button } from "@plexui/vue/components/Button"
 </template>
 ```
 
-Setup (styles, Vite plugin, SSR) is in the [Vue guide](https://plexui.com/docs/vue).
+Requires Tailwind CSS 4. Full setup, including the Vite plugin and SSR: [Installation](https://plexui.com/docs/installation), [Vue guide](https://plexui.com/docs/vue).
 
-### With AI coding agents
+## AI agents
 
 ```bash
 # Claude Code
@@ -88,45 +86,17 @@ Setup (styles, Vite plugin, SSR) is in the [Vue guide](https://plexui.com/docs/v
 npx degit plex-ui/ui/skills/plexui/skills/plex-ui .agents/skills/plex-ui
 ```
 
-See [Skills](https://plexui.com/docs/skills) for Cursor, Windsurf, Copilot, and any other Agent-Skills-compatible editor.
+Also: [MCP server](https://plexui.com/docs/mcp), [`llms.txt`](https://plexui.com/llms.txt), and the [shadcn registry](https://plexui.com/docs/registry) (`npx shadcn@latest add https://plexui.com/r/button.json`, Vue: `https://plexui.com/r/vue/button.json`).
 
-## What you get
-
-| | Humans | Agents |
-|---|---|---|
-| **Components** | React + TypeScript | Typed skill with prop signatures |
-| **Styling** | CSS modules + tokens | Tokens documented for generation |
-| **Docs** | [plexui.com](https://plexui.com) | Indexed by skill / MCP |
-| **Examples** | MDX with live preview | Copy-paste-ready in skill |
-
-## Components (excerpt)
-
-Alert · Avatar · Badge · Button · Checkbox · CodeBlock · DataTable · DateInput · DatePicker · Dialog · EmptyMessage · Field · FileUpload · FloatingLabelInput · Input · Markdown · Menu · OTPInput · Popover · RadioGroup · SegmentedControl · Select · Sidebar · Skeleton · Switch · Tabs · TagInput · Textarea · Tooltip · …
-
-See the [full list →](https://plexui.com/components)
-
-## Star ⭐ if you find this useful
-
-Stars help other developers find Plex UI in GitHub search and signal that the project is worth following. If you've shipped anything with it — or just want to see where it goes — a star takes one click and means a lot.
-
-## Community & support
-
-- 🐛 [Report an issue](https://github.com/plex-ui/ui/issues/new/choose)
-- 💡 [Request a component](https://github.com/plex-ui/ui/issues/new?labels=component-request)
-- 📬 [Discussions](https://github.com/plex-ui/ui/discussions) — questions, ideas, show & tell
-- 🧵 [@plex_uikit on Threads](https://www.threads.com/@plex_uikit)
-- 📧 [plexuikit@gmail.com](mailto:plexuikit@gmail.com)
-- 🔐 [Security policy](./SECURITY.md)
-- 🤝 [Contributing guide](./CONTRIBUTING.md)
-
-## Local development
+## Contributing
 
 ```bash
 npm install
-npm run dev
+npm run dev          # docs site
+npm run test:parity  # React vs Vue parity tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+[Contributing guide](./CONTRIBUTING.md) · [Issues](https://github.com/plex-ui/ui/issues) · [Discussions](https://github.com/plex-ui/ui/discussions) · [Security](./SECURITY.md)
 
 ## License
 
