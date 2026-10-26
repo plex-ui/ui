@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { source, componentsSource, iconsSource, blog } from '@/lib/source';
+import { source, componentsSource, iconsSource, vueComponentsSource, blog } from '@/lib/source';
 import {
   OG_IMAGE_CONTENT_TYPE,
   OG_IMAGE_SIZE,
@@ -19,7 +19,7 @@ import {
  * (`[[...slug]]`), which is the URL shape every section here uses.
  *
  * Query params:
- *   type=components|docs|icons|blog (required)
+ *   type=components|vue-components|docs|icons|blog (required)
  *   slug=path/to/page              (optional — empty maps to section index)
  *
  * Runs on the Node.js runtime (not edge) because the fumadocs source
@@ -30,6 +30,7 @@ export const runtime = 'nodejs';
 
 const SECTION_LABELS = {
   components: 'Components',
+  'vue-components': 'Vue components',
   docs: 'Docs',
   icons: 'Icons',
   blog: 'Blog',
@@ -58,6 +59,14 @@ export async function GET(request: NextRequest) {
   switch (type) {
     case 'components': {
       const page = componentsSource.getPage(slug);
+      if (page) {
+        title = page.data.title;
+        description = page.data.description;
+      }
+      break;
+    }
+    case 'vue-components': {
+      const page = vueComponentsSource.getPage(slug);
       if (page) {
         title = page.data.title;
         description = page.data.description;

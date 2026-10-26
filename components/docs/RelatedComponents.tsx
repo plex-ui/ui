@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { componentsSource } from '@/lib/source';
+import { componentsSource, vueComponentsSource } from '@/lib/source';
 import { getRelatedComponents } from '@/lib/related-components';
 import s from './RelatedComponents.module.css';
 
@@ -12,16 +12,25 @@ import s from './RelatedComponents.module.css';
  * Distributes link equity, increases time on site, and helps users
  * discover the catalog from any single component page they landed on.
  */
-export function RelatedComponents({ slug }: { slug: string }) {
+export function RelatedComponents({
+  slug,
+  framework = 'react',
+}: {
+  slug: string;
+  /** On Vue pages, related components that have a Vue page link to it */
+  framework?: 'react' | 'vue';
+}) {
   const relatedSlugs = getRelatedComponents(slug, 4);
   if (relatedSlugs.length === 0) return null;
 
   const items = relatedSlugs
     .map((relatedSlug) => {
-      const page = componentsSource.getPage([relatedSlug]);
+      const vuePage = framework === 'vue' ? vueComponentsSource.getPage([relatedSlug]) : undefined;
+      const page = vuePage ?? componentsSource.getPage([relatedSlug]);
       if (!page) return null;
       return {
         slug: relatedSlug,
+        href: vuePage ? `/vue/components/${relatedSlug}` : `/components/${relatedSlug}`,
         title: page.data.title,
         description: page.data.description,
       };
@@ -39,7 +48,7 @@ export function RelatedComponents({ slug }: { slug: string }) {
         {items.map((item) => (
           <Link
             key={item.slug}
-            href={`/components/${item.slug}`}
+            href={item.href}
             className={s.Card}
           >
             <span className={s.Title}>{item.title}</span>

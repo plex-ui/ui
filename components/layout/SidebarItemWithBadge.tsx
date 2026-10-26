@@ -7,6 +7,7 @@ import type * as PageTree from 'fumadocs-core/page-tree';
 import { Badge } from '@plexui/ui/components/Badge';
 import { SidebarMenuBadge } from '@plexui/ui/components/Sidebar';
 import { NEW_COMPONENT_SLUGS } from '@/lib/docs-new-badges';
+import { frameworkUrl } from '@/lib/framework-urls';
 
 /* Minimal base — all visual states are handled by globals.css sidebar rules */
 const SIDEBAR_ITEM_BASE =
@@ -29,7 +30,7 @@ function normalizePath(p: string): string {
  * Same applies to `/docs` (Introduction) — otherwise it would light up on
  * every page in docs because every URL is a prefix of `/docs`.
  */
-const EXACT_MATCH_URLS = new Set(['/docs', '/components']);
+const EXACT_MATCH_URLS = new Set(['/docs', '/components', '/vue/components']);
 
 /**
  * Active when the current pathname IS the link's URL or sits under it
@@ -52,11 +53,12 @@ export const SidebarItemWithBadge: FC<{ item: PageTree.Item }> = ({ item }) => {
   const pathname = usePathname();
   const slug = slugFromUrl(item.url);
   const isNew = (NEW_COMPONENT_SLUGS as readonly string[]).includes(slug);
-  const active = isActivePath(pathname, item.url);
+  const href = frameworkUrl(pathname, item.url);
+  const active = isActivePath(pathname, href);
 
   return (
     <Link
-      href={item.url}
+      href={href}
       data-active={active ? 'true' : 'false'}
       className={SIDEBAR_ITEM_BASE}
     >

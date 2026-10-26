@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { source, componentsSource, iconsSource, blog } from '@/lib/source';
+import { source, componentsSource, iconsSource, vueComponentsSource, blog } from '@/lib/source';
 
 // Build-time stamp for routes that don't have a per-page lastModified
 // (the homepage, /compare/*, /blog index — these
@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const fromSource = (
-    src: typeof source | typeof componentsSource | typeof iconsSource,
+    src: typeof source | typeof componentsSource | typeof iconsSource | typeof vueComponentsSource,
   ): MetadataRoute.Sitemap =>
     src.getPages().map((page) => ({
       url: `${baseUrl}${page.url}`,
@@ -37,11 +37,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     }));
 
-  // vueComponentsSource is left out on purpose: the Vue pages are a
-  // noindex proof of concept until more components ship.
   const docsPages = [
     ...fromSource(source),
     ...fromSource(componentsSource),
+    ...fromSource(vueComponentsSource),
     ...fromSource(iconsSource),
   ];
 

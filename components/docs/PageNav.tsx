@@ -4,6 +4,7 @@ import { ButtonLink } from '@plexui/ui/components/Button';
 import { ArrowLeftSm, ArrowRightSm } from '@plexui/ui/components/Icon';
 import { usePathname } from 'fumadocs-core/framework';
 import { useFooterItems } from 'fumadocs-ui/utils/use-footer-items';
+import { frameworkUrl, reactPath } from '@/lib/framework-urls';
 import s from './PageNav.module.css';
 
 function normalizePath(path: string) {
@@ -19,9 +20,13 @@ export function PageNav({
   compact?: boolean;
 }) {
   const pathname = normalizePath(usePathname());
-  const items = useFooterItems().filter((item) => typeof item.url === 'string');
+  // Vue pages navigate through the same (React) tree, with links mapped to
+  // the Vue pages that exist
+  const items = useFooterItems()
+    .filter((item) => typeof item.url === 'string')
+    .map((item) => ({ ...item, url: frameworkUrl(pathname, item.url!) }));
   const currentIndex = items.findIndex(
-    (item) => normalizePath(item.url ?? '') === pathname
+    (item) => reactPath(normalizePath(item.url ?? '')) === reactPath(pathname)
   );
 
   if (currentIndex === -1) return null;

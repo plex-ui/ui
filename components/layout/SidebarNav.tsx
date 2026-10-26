@@ -5,6 +5,7 @@ import { usePathname } from 'fumadocs-core/framework';
 import { useSidebar } from 'fumadocs-ui/components/sidebar/base';
 import { useEffect, useMemo } from 'react';
 import type { DocsSectionNavItem } from '@/lib/docs-navigation';
+import { reactPath } from '@/lib/framework-urls';
 
 function normalizePath(pathname: string) {
   if (!pathname) return '/';
@@ -12,7 +13,8 @@ function normalizePath(pathname: string) {
 }
 
 function isActivePath(currentPath: string, href: string) {
-  const current = normalizePath(currentPath);
+  // Vue component pages (/vue/components/*) belong to the Components section
+  const current = reactPath(normalizePath(currentPath));
   const target = normalizePath(href);
   return current === target || current.startsWith(`${target}/`);
 }
