@@ -82,9 +82,8 @@ const resolveUpdater = <T,>(updater: Updater<T>, value: T): T => {
 }
 
 // One piece of table state: controlled when `controlled` is defined, otherwise
-// held here, with `onChange` as a notification either way. Updaters dispatched
-// together (one event) build on each other; every new batch starts from the
-// current value, so a change the parent rejected or rewrote does not leak in.
+// held here, with `onChange` as a notification either way. Successive
+// updaters build on each other instead of on the value captured at render.
 const useTableState = <T,>(
   controlled: T | undefined,
   initial: T,
@@ -92,20 +91,29 @@ const useTableState = <T,>(
 ): [T, OnChangeFn<T>] => {
   const [internal, setInternal] = useState<T>(initial)
   const value = controlled ?? internal
+  // Uncontrolled: only this handler writes the state, so the last value it set
+  // is current even before React renders it (also across awaits)
+  const latestInternal = useRef(internal)
+  // Controlled: the parent may reject or rewrite a change, so accumulate only
+  // within one batch and start every new batch from the current prop
   const batch = useRef<{ base: T; next: T } | null>(null)
 
   const handleChange: OnChangeFn<T> = (updater) => {
-    const pending = batch.current
-    const previous = pending && pending.base === value ? pending.next : value
-    const next = resolveUpdater(updater, previous)
-    if (!pending) {
-      queueMicrotask(() => {
-        batch.current = null
-      })
-    }
-    batch.current = { base: value, next }
+    let next: T
     if (controlled === undefined) {
+      next = resolveUpdater(updater, latestInternal.current)
+      latestInternal.current = next
       setInternal(next)
+    } else {
+      const pending = batch.current
+      const previous = pending && pending.base === controlled ? pending.next : controlled
+      next = resolveUpdater(updater, previous)
+      if (!pending) {
+        queueMicrotask(() => {
+          batch.current = null
+        })
+      }
+      batch.current = { base: controlled, next }
     }
     onChange?.(next)
   }
