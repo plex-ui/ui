@@ -26,15 +26,19 @@ export type VueDemoLoop = { name: string; every: number; holdFor: number };
 export function VueDemo({
   template,
   controls = [],
+  state,
   loop,
   stageClassName = 'flex-1 flex flex-col items-center justify-center py-12 w-full',
 }: {
   template: string;
   controls?: VueDemoControl[];
+  /** Initial values the template reads and may change (`v-model:value="value"`) */
+  state?: Record<string, unknown>;
   loop?: VueDemoLoop;
   stageClassName?: string;
 }) {
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
+    ...state,
     ...Object.fromEntries(controls.map((control) => [control.name, control.default])),
     ...(loop ? { [loop.name]: false } : {}),
   }));

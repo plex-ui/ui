@@ -1,0 +1,115 @@
+---
+title: Tag Input
+description: Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
+metaDescription: Vue 3 tag input component for entering multiple unique values as chip-style tokens, with suggestion buttons, validation, and keyboard editing.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div class="w-[480px]">
+  <TagInput placeholder="Add a tag..." :size="size" :rows="Number(rows)" :pill="pill" />
+</div>`
+
+export const suggestions = `<div class="flex w-full max-w-sm flex-col gap-3">
+  <TagInput v-model:value="tags" placeholder="Add a skill..." :size="size" :pill="pill" />
+  <div v-if="suggestions.some((s) => !tags.some((t) => t.value === s))" class="flex flex-wrap gap-1.5">
+    <template v-for="s in suggestions" :key="s">
+      <Button
+        v-if="!tags.some((t) => t.value === s)"
+        size="xs"
+        color="secondary"
+        variant="soft"
+        :pill="pill"
+        @click="tags = [...tags, { value: s, valid: true }]"
+      >
+        {{ s }}
+      </Button>
+    </template>
+  </div>
+</div>`
+
+export const suggestionsCode = `<script setup lang="ts">
+import { computed, ref } from "vue"
+import { Button } from "@plexui/vue/components/Button"
+import { TagInput, type Tag } from "@plexui/vue/components/TagInput"
+
+const SUGGESTIONS = ["React", "TypeScript", "Next.js", "Tailwind CSS", "Node.js", "GraphQL", "PostgreSQL", "Redis", "Docker", "AWS"]
+
+const tags = ref<Tag[]>([
+  { value: "React", valid: true },
+  { value: "TypeScript", valid: true },
+])
+
+const available = computed(() => {
+  const selected = new Set(tags.value.map((t) => t.value))
+  return SUGGESTIONS.filter((s) => !selected.has(s))
+})
+</script>
+
+<template>
+  <div class="flex flex-col gap-3">
+    <TagInput v-model:value="tags" placeholder="Add a skill..." />
+    <div v-if="available.length > 0" class="flex flex-wrap gap-1.5">
+      <Button
+        v-for="s in available"
+        :key="s"
+        size="xs"
+        color="secondary"
+        variant="soft"
+        :pill="false"
+        @click="tags = [...tags, { value: s, valid: true }]"
+      >
+        {{ s }}
+      </Button>
+    </div>
+  </div>
+</template>`
+
+<UsageBlock>{`import { TagInput } from "@plexui/vue/components/TagInput";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo
+    template={overview}
+    controls={[
+      { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+      { name: "rows", type: "select", options: ["1", "2", "3"], default: "1" },
+      { name: "pill", type: "boolean", default: false },
+    ]}
+  />
+</ComponentPreview>
+
+### Suggestions
+
+<ComponentPreview language="vue" details={<>Combine <code>TagInput</code> with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.</>} code={suggestionsCode} previewMinHeight={168}>
+  <VueDemo
+    template={suggestions}
+    state={{
+      tags: [{ value: "React", valid: true }, { value: "TypeScript", valid: true }],
+      suggestions: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Node.js", "GraphQL", "PostgreSQL", "Redis", "Docker", "AWS"],
+    }}
+    controls={[
+      { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+      { name: "pill", type: "boolean", default: false },
+    ]}
+  />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "value / v-model:value", type: "Tag[]", description: "Controlled value; `update:value` fires on every change" },
+  { prop: "default-value", type: "Tag[]", description: "Uncontrolled initial tags" },
+  { prop: "@change", type: "(tags: Tag[]) => void", description: "Fires when the tags change" },
+  { prop: "placeholder", type: "string", description: "Input placeholder" },
+  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag; invalid tags shown in red" },
+  { prop: "max-tags", type: "number", description: "Max tags before input is disabled" },
+  { prop: "rows", type: "number", default: "1", description: "Min rows" },
+  { prop: "size", type: "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'", default: "xl", description: "Control height when rows=1; matches Input height of the same size" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully-rounded container and chips; matches Input/SelectControl pill" },
+  { prop: "delimiters", type: "string[]", default: '[",", " "]', description: "Characters that commit the current text as a tag" },
+  { prop: "auto-focus", type: "boolean", default: "false", description: "Focus on mount" },
+]} />

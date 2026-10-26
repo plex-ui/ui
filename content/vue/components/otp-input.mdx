@@ -1,0 +1,65 @@
+---
+title: OTP Input
+description: Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
+metaDescription: Vue 3 OTP input component for one-time password and verification code entry, with split digit cells, grouped layouts, error states, and autofill.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<OTPInput v-model:value="value" />`
+
+export const filled = `<OTPInput v-model:value="value" />`
+
+export const grouped = `<OTPInput v-model:value="value" :grouping="[3, 3]" />`
+
+export const error = `<OTPInput v-model:value="value" invalid error-message="Invalid verification code." />`
+
+export const disabled = `<OTPInput value="488030" disabled />`
+
+<UsageBlock>{`import { OTPInput } from "@plexui/vue/components/OTPInput";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} stageClassName="py-10 flex justify-center" state={{ value: "" }} />
+</ComponentPreview>
+
+### Filled state
+
+<ComponentPreview language="vue" code={filled} previewMinHeight={168}>
+  <VueDemo template={filled} stageClassName="py-10 flex justify-center" state={{ value: "488030" }} />
+</ComponentPreview>
+
+### Grouped (3+3)
+
+<ComponentPreview language="vue" code={grouped} previewMinHeight={168}>
+  <VueDemo template={grouped} stageClassName="py-10 flex justify-center" state={{ value: "" }} />
+</ComponentPreview>
+
+### With error
+
+<ComponentPreview language="vue" code={error} previewMinHeight={168}>
+  <VueDemo template={error} stageClassName="py-10 flex justify-center" state={{ value: "48803" }} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} stageClassName="py-10 flex justify-center" />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "length", type: "number", default: "6", description: "Number of digit cells" },
+  { prop: "value / v-model:value", type: "string", description: "Controlled value; `update:value` fires on every change" },
+  { prop: "@change", type: "(value: string) => void", description: "Fires when the value changes" },
+  { prop: "@complete", type: "(value: string) => void", description: "Fires when all digits are filled" },
+  { prop: "grouping", type: "number[]", description: "Grouping pattern with extra gap (e.g. [3,3])" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid visual state" },
+  { prop: "error-message", type: "string", description: "Error message below the input" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
+  { prop: "auto-focus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
+]} />

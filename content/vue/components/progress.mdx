@@ -1,0 +1,57 @@
+---
+title: Progress
+description: A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+metaDescription: Vue 3 progress bar component built on Reka UI for showing task completion, with labelled, reactive, and indeterminate modes and smooth value transitions.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueProgressOverviewDemo, vueProgressOverviewCode } from "@/components/docs/vue/VueProgressDemos"
+
+export const withLabel = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+    <Label for="progress-upload">Uploading plex-ui.zip</Label>
+    <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
+  </div>
+  <Progress id="progress-upload" :value="67" />
+</div>`
+
+<UsageBlock>{`import { Progress } from "@plexui/vue/components/Progress";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={vueProgressOverviewCode}>
+  <VueProgressOverviewDemo />
+</ComponentPreview>
+
+### With label
+
+<ComponentPreview language="vue" details={<>Pair a <a href="/vue/components/label"><code>Label</code></a> with a value readout above the bar, the typical upload or onboarding progress pattern.</>} code={withLabel}>
+  <VueDemo template={withLabel} />
+</ComponentPreview>
+
+## API
+
+### Progress
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number \| null` | `null` | Current progress between `0` and `max`. Pass `null` for indeterminate. |
+| `max` | `number` | `100` | Maximum progress value |
+| `get-value-label` | `(value: number, max: number) => string` | | Accessible value text (`aria-valuetext`). Defaults to the rounded percentage, e.g. `"67%"`. |
+| `class` | `string` | | Applied to the root `<div>` |
+
+Built on [Reka UI Progress](https://reka-ui.com/docs/components/progress). Other attributes are forwarded to the root `<div>`.
+
+## Styling
+
+Component tokens:
+
+- `--progress-height`: track height (defaults to `4px`)
+- `--progress-track-color`: track background (defaults to `--color-background-secondary-soft`)
+- `--progress-indicator-color`: fill color (defaults to `--color-text`)
+- `--progress-radius`: corner radius (defaults to `--radius-full`)
+- `--progress-indeterminate-duration`: sweep duration (defaults to `1.5s`)
+
+Override at any scope to change the bar's look without subclassing.

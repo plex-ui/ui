@@ -1,0 +1,147 @@
+---
+title: Avatar
+description: An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
+metaDescription: Vue 3 avatar component for user identities with initials, photo or icon fallback, overflow counts, semantic colors, and roundness options.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueAvatarDemo } from "@/components/docs/vue/VueAvatarDemos"
+
+export const overview = `<div class="flex gap-4">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
+  <Avatar name="Will" :size="48" />
+  <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
+</div>`
+
+export const text = `<Avatar name="David" :size="48" />`
+
+export const image = `<Avatar
+  name="Tyler"
+  image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
+  :size="48"
+/>`
+
+export const icon = `<Avatar
+  :Icon="Robot"
+  :size="48"
+/>`
+
+export const overflowCount = `<Avatar :overflow-count="overflowCount" :size="size" />`
+
+export const sizing = `<Avatar name="David" :size="size" />`
+
+export const colors = `<div
+  class="grid items-center gap-x-8 gap-y-5"
+  style="grid-template-columns: repeat(2, minmax(0, auto)) auto; justify-items: center"
+>
+  <div
+    v-for="variant in ['soft', 'solid']"
+    :key="variant"
+    class="text-sm font-medium"
+    style="color: var(--color-text-tertiary)"
+  >{{ variant }}</div>
+  <div />
+  <template v-for="(color, idx) in ['primary', 'secondary', 'success', 'danger', 'info', 'discovery']" :key="color">
+    <Avatar
+      v-for="variant in ['soft', 'solid']"
+      :key="variant"
+      :name="String.fromCharCode(65 + idx)"
+      :color="color"
+      :variant="variant"
+      :size="size"
+    />
+    <div class="text-sm font-medium justify-self-start" style="color: var(--color-text-tertiary)">{{ color }}</div>
+  </template>
+</div>`
+
+export const roundness = `<Avatar
+  name="Acme, co."
+  color="primary"
+  variant="solid"
+  :size="size"
+  :class="'rounded-' + roundness"
+/>`
+
+export const interactive = `<div class="flex items-center gap-4">
+  <Avatar name="Will" :size="48" @click="saySup" />
+  <Avatar
+    image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
+    name="Tyler"
+    :size="48"
+    @click="saySup"
+  />
+  <Avatar name="Tech support" :Icon="Robot" :size="48" color="info" @click="saySup" />
+</div>`
+
+<UsageBlock>{`import { Avatar } from "@plexui/vue/components/Avatar";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>A variety of avatar types: text, image, icon, and overflow.</>} code={overview} previewMinHeight={168}>
+  <VueAvatarDemo template={overview} />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview language="vue" details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component.</>} code={text} previewMinHeight={168}>
+  <VueDemo template={text} />
+</ComponentPreview>
+
+### Image
+
+<ComponentPreview language="vue" details={<>To display an image avatar, provide an absolute URL to the image with <code>image-url</code>. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.</>} code={image} previewMinHeight={168}>
+  <VueDemo template={image} />
+</ComponentPreview>
+
+### Icon
+
+<ComponentPreview language="vue" details={<>To display an icon avatar, pass an icon component to the <code>Icon</code> prop, for example <code>Robot</code> imported from <code>@plexui/vue/components/Icon</code>. The <code>name</code> prop is not used in this case, and can be omitted.</>} code={icon} previewMinHeight={168}>
+  <VueAvatarDemo template={icon} />
+</ComponentPreview>
+
+### Overflow count
+
+<ComponentPreview language="vue" details={<>To display an overflow avatar, provide a number to the <code>overflow-count</code> prop. The number will be automatically formatted and scaled to fit.</>} code={overflowCount} previewMinHeight={228}>
+  <VueDemo template={overflowCount} stageClassName="flex-1 w-full py-12 flex items-center justify-center" controls={[{ name: "overflowCount", type: "range", min: 1, max: 999, step: 1, default: 9 }, { name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
+</ComponentPreview>
+
+### Sizing
+
+<ComponentPreview language="vue" details={<>To size the avatar, pass a <code>number</code> to the <code>size</code> prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.</>} code={sizing} previewMinHeight={228}>
+  <VueDemo template={sizing} stageClassName="flex-1 w-full py-12 flex items-center justify-center" controls={[{ name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
+</ComponentPreview>
+
+### Colors & variants
+
+<ComponentPreview language="vue" details={<>You can stylize the display of the avatar using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={168}>
+  <VueDemo template={colors} stageClassName="flex-1 w-full py-8 flex items-center justify-center" controls={[{ name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
+</ComponentPreview>
+
+### Roundness
+
+<ComponentPreview language="vue" details={<>By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to <code>class</code>.</>} code={roundness} previewMinHeight={208}>
+  <VueDemo template={roundness} stageClassName="flex-1 w-full py-12 flex items-center justify-center" controls={[{ name: "roundness", type: "select", options: ["full", "xl", "lg", "md", "sm", "none"], default: "lg" }, { name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
+</ComponentPreview>
+
+### Interactive
+
+<ComponentPreview language="vue" details={<>Avatars can be used as interactive elements by listening to <code>@click</code> (or <code>@pointerdown</code>). The avatar then renders a <code>button</code> and applies semantic and visual interaction styles.</>} code={interactive} previewMinHeight={168}>
+  <VueAvatarDemo template={interactive} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "name", type: "string", description: "Display name; used for text initial when no image/icon" },
+  { prop: "image-url", type: "string", description: "Absolute URL for image avatar" },
+  { prop: "Icon", type: "Component", description: "Icon component for icon avatar, bound as :Icon" },
+  { prop: "size", type: "number", description: "Width and height in pixels" },
+  { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color for text/icon avatar" },
+  { prop: "variant", type: '"soft" | "solid"', default: '"soft"', description: "Style variant" },
+  { prop: "overflow-count", type: "number", description: "Show overflow count (e.g. +9)" },
+  { prop: "class", type: "string", description: "Applied to the avatar root" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Makes avatar interactive (renders a button)" },
+  { prop: "@pointerdown", type: "(event: PointerEvent) => void", description: "Makes avatar interactive (renders a button)" },
+]} />

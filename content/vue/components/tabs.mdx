@@ -1,0 +1,282 @@
+---
+title: Tabs
+description: Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
+metaDescription: Vue 3 tabs component for switching between grouped views, with segmented and underline styles, icon-only triggers, and badge counts on each tab.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+
+export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+export const VARIANTS = ["segmented", "underline"]
+export const ORIENTATIONS = ["horizontal", "vertical"]
+export const STAGE = "flex-1 flex items-center justify-center py-12 w-full"
+
+export const overview = `<Tabs
+  v-model:value="tab"
+  :variant="variant"
+  :orientation="orientation"
+  :size="size"
+  :pill="pill"
+  :flush="flush"
+  :block="block"
+  :disabled="disabled"
+  aria-label="Demo tabs"
+>
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>`
+
+export const segmentedIcons = `<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>`
+
+export const iconOnly = `<Tabs v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
+  <TabsTab value="home" aria-label="Home"><template #icon><Home /></template></TabsTab>
+  <TabsTab value="settings" aria-label="Settings"><template #icon><SettingsCog /></template></TabsTab>
+  <TabsTab value="notifications" aria-label="Notifications"><template #icon><Bell /></template></TabsTab>
+</Tabs>`
+
+export const segmentedBadge = `<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
+  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
+  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
+  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
+</Tabs>`
+
+export const underline = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>`
+
+export const underlineFlush = `<Tabs v-model:value="tab" variant="underline" flush :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>`
+
+export const underlineBlock = `<Tabs v-model:value="tab" variant="underline" block :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+</Tabs>`
+
+export const underlineIcons = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>`
+
+export const underlineBadge = `<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
+  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
+  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
+  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
+</Tabs>`
+
+export const verticalSegmented = `<Tabs v-model:value="tab" orientation="vertical" :size="size" aria-label="Settings">
+  <TabsTab value="account">Account</TabsTab>
+  <TabsTab value="password">Password</TabsTab>
+  <TabsTab value="notifications">Notifications</TabsTab>
+  <TabsTab value="display">Display</TabsTab>
+</Tabs>`
+
+export const verticalUnderline = `<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Settings">
+  <TabsTab value="account">Account</TabsTab>
+  <TabsTab value="password">Password</TabsTab>
+  <TabsTab value="notifications">Notifications</TabsTab>
+  <TabsTab value="display">Display</TabsTab>
+</Tabs>`
+
+export const verticalUnderlineIcons = `<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>`
+
+export const disabledTab = `<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports" disabled>Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>`
+
+export const sizing = `<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+</Tabs>`
+
+export const scrollable = `<div class="max-w-[400px] flex">
+  <Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
+    <TabsTab value="1">Overview</TabsTab>
+    <TabsTab value="2">Analytics</TabsTab>
+    <TabsTab value="3">Reports</TabsTab>
+    <TabsTab value="4">Settings</TabsTab>
+    <TabsTab value="5">Members</TabsTab>
+    <TabsTab value="6">Billing</TabsTab>
+    <TabsTab value="7">Security</TabsTab>
+    <TabsTab value="8">Integrations</TabsTab>
+  </Tabs>
+</div>`
+
+<UsageBlock>{`import { Tabs, TabsTab } from "@plexui/vue/components/Tabs";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+  <VueDemo stageClassName={STAGE} template={overview} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: true }, { name: "flush", type: "boolean", default: false }, { name: "block", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Segmented with icons
+
+<ComponentPreview language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={segmentedIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Icon only
+
+<ComponentPreview language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={iconOnly} state={{ tab: "home" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Segmented with badge
+
+<ComponentPreview language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, and <code>variant</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={segmentedBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Underline
+
+<ComponentPreview language="vue" details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.</>} code={underline} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={underline} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Underline flush
+
+<ComponentPreview language="vue" details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.</>} code={underlineFlush} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={underlineFlush} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Underline block
+
+<ComponentPreview language="vue" details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container.</>} code={underlineBlock} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={underlineBlock} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Underline with icons
+
+<ComponentPreview language="vue" details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> slot on individual tabs.</>} code={underlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={underlineIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }]} />
+</ComponentPreview>
+
+### Underline with badge
+
+<ComponentPreview language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, and <code>variant</code>.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={underlineBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Vertical segmented
+
+<ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down.</>} code={verticalSegmented} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo stageClassName={STAGE} template={verticalSegmented} state={{ tab: "account" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Vertical underline
+
+<ComponentPreview language="vue" details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side.</>} code={verticalUnderline} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo stageClassName={STAGE} template={verticalUnderline} state={{ tab: "account" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Vertical underline with icons
+
+<ComponentPreview language="vue" details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={verticalUnderlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo stageClassName={STAGE} template={verticalUnderlineIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }]} />
+</ComponentPreview>
+
+### Disabled tab
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> on individual <code>TabsTab</code> elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected.</>} code={disabledTab} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={disabledTab} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Sizing
+
+<ComponentPreview language="vue" details={<>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</>} code={sizing} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={sizing} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Scrollable
+
+<ComponentPreview language="vue" details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={scrollable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={scrollable} state={{ tab: "1" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.
+
+### Migration from SegmentedControl
+
+`Tabs` replaces and extends `SegmentedControl`. As in the React package, the old import still works as an alias:
+
+```vue
+<script setup lang="ts">
+// Old (still works)
+import { SegmentedControl, SegmentedControlOption } from "@plexui/vue/components/SegmentedControl"
+// New (recommended)
+import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
+</script>
+
+<template>
+  <SegmentedControl v-model:value="mode" aria-label="Mode">
+    <SegmentedControlOption value="a">A</SegmentedControlOption>
+  </SegmentedControl>
+
+  <Tabs v-model:value="mode" aria-label="Mode">
+    <TabsTab value="a">A</TabsTab>
+  </Tabs>
+</template>
+```
+
+`TabsTab` and `TabsOption` are the same component, and so are `SegmentedControlOption` and `SegmentedControlTab`. The `SegmentedControl` alias defaults to `variant="segmented"`.
+
+## Reference
+
+**Tabs** (root)
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group" },
+  { prop: "variant", type: '"segmented" | "underline"', default: '"segmented"', description: "Visual style: segmented (background highlight) or underline (line indicator)" },
+  { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the tab group" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height (3xs through 3xl)" },
+  { prop: "gutter-size", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding of tabs" },
+  { prop: "pill", type: "boolean", default: "true", description: "Fully rounded control (segmented variant only)" },
+  { prop: "flush", type: "boolean", default: "false", description: "Text-width indicator, no border, gap spacing (underline variant only)" },
+  { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
+  { prop: "aria-label", type: "string", description: "Accessible name (required)" },
+  { prop: "class", type: "string", description: "Extra classes on the group element" },
+  { prop: "default slot", type: "VNode[]", description: "TabsTab children" },
+  { prop: "@update:value", type: "(value: string) => void", description: "Emitted when a tab is selected; powers v-model:value" },
+  { prop: "@change", type: "(value: string) => void", description: "Emitted with update:value, named after the React onChange prop" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on any click in the group, even when the selection does not change" },
+]} />
+
+**TabsTab**
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Tab value" },
+  { prop: "disabled", type: "boolean", description: "Disable this tab" },
+  { prop: "icon", type: "Component | VNode | string", description: "Icon before the label (sized automatically); the icon slot takes precedence" },
+  { prop: "badge", type: "number | string | VNode | { content; color?; variant?; pill?; loading? }", description: "Badge/count or custom badge config" },
+  { prop: "aria-label", type: "string", description: "Accessible name (required for icon-only tabs)" },
+  { prop: "default slot", type: "VNode[]", description: "Tab label" },
+  { prop: "icon slot", type: "VNode[]", description: "Icon before the label" },
+  { prop: "badge slot", type: "VNode[]", description: "Badge content; styling still comes from the badge object" },
+]} />

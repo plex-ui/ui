@@ -1,0 +1,136 @@
+---
+title: Table
+description: Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+metaDescription: Vue 3 table components with styled HTML table primitives for header, body, footer, rows, cells, and captions.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead class="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow
+      v-for="invoice in [
+        { invoice: 'INV001', status: 'Paid', method: 'Credit Card', amount: '$250.00' },
+        { invoice: 'INV002', status: 'Pending', method: 'PayPal', amount: '$150.00' },
+        { invoice: 'INV003', status: 'Unpaid', method: 'Bank Transfer', amount: '$350.00' },
+        { invoice: 'INV004', status: 'Paid', method: 'Credit Card', amount: '$450.00' },
+        { invoice: 'INV005', status: 'Paid', method: 'PayPal', amount: '$550.00' },
+      ]"
+      :key="invoice.invoice"
+    >
+      <TableCell class="font-medium">{{ invoice.invoice }}</TableCell>
+      <TableCell>{{ invoice.status }}</TableCell>
+      <TableCell>{{ invoice.method }}</TableCell>
+      <TableCell class="text-right">{{ invoice.amount }}</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell colspan="3">Total</TableCell>
+      <TableCell class="text-right">$1,750.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>`
+
+export const footer = `<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Product</TableHead>
+      <TableHead class="text-right">Qty</TableHead>
+      <TableHead class="text-right">Price</TableHead>
+      <TableHead class="text-right">Total</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell class="font-medium">Pro Plan</TableCell>
+      <TableCell class="text-right">3</TableCell>
+      <TableCell class="text-right">$29.00</TableCell>
+      <TableCell class="text-right">$87.00</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell class="font-medium">Storage Add-on</TableCell>
+      <TableCell class="text-right">1</TableCell>
+      <TableCell class="text-right">$9.00</TableCell>
+      <TableCell class="text-right">$9.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell colspan="3">Subtotal</TableCell>
+      <TableCell class="text-right font-semibold">$96.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>`
+
+export const minimal = `<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Title</TableHead>
+      <TableHead>Email</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow
+      v-for="person in [
+        { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay@example.com' },
+        { name: 'Courtney Henry', title: 'Designer', email: 'courtney@example.com' },
+        { name: 'Tom Cook', title: 'Director of Product', email: 'tom@example.com' },
+      ]"
+      :key="person.email"
+    >
+      <TableCell class="font-medium">{{ person.name }}</TableCell>
+      <TableCell>{{ person.title }}</TableCell>
+      <TableCell>{{ person.email }}</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>`
+
+<UsageBlock>{`import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table";`}</UsageBlock>
+
+## Table Primitives
+
+### Overview
+
+<ComponentPreview language="vue" details={<>A complete table with header, body, footer, and caption showing invoice data.</>} code={overview}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### With footer
+
+<ComponentPreview language="vue" details={<>A table with a footer row displaying subtotal information.</>} code={footer}>
+  <VueDemo template={footer} />
+</ComponentPreview>
+
+### Minimal
+
+<ComponentPreview language="vue" details={<>A simple table without caption or footer, showing a list of people.</>} code={minimal}>
+  <VueDemo template={minimal} />
+</ComponentPreview>
+
+## Reference
+
+### Table Primitives
+
+<PropsTable data={[
+  { prop: "Table", type: "table", description: "Root table container with horizontal scroll wrapper; attributes go to the <table>" },
+  { prop: "TableHeader", type: "thead", description: "Table header group" },
+  { prop: "TableBody", type: "tbody", description: "Table body group" },
+  { prop: "TableFooter", type: "tfoot", description: "Table footer group" },
+  { prop: "TableRow", type: "tr", description: "Table row" },
+  { prop: "TableHead", type: "th", description: "Table header cell" },
+  { prop: "TableCell", type: "td", description: "Table data cell" },
+  { prop: "TableCaption", type: "caption", description: "Table caption" },
+]} />
+
+Every part renders its native element with the default slot as content, merges `class` after its own, and forwards all other attributes and listeners (`colspan`, `scope`, `@click`, ...).

@@ -1,0 +1,100 @@
+---
+title: Dialog
+description: Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+metaDescription: Accessible Vue 3 modal dialog component for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Open dialog</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Unsaved changes</DialogTitle>
+    </DialogHeader>
+    <p class="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Save changes</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
+export const destructive = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="danger" variant="outline">Delete</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Delete assistant?</DialogTitle>
+    </DialogHeader>
+    <p class="text-sm text-secondary">
+      This change will affect all API integrations using
+      <span class="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+      It cannot be undone.
+    </p>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="secondary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="danger" @click="open = false">Delete</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
+<UsageBlock>{`import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@plexui/vue/components/Dialog";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={120}>
+  <VueDemo template={overview} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+</ComponentPreview>
+
+### Destructive confirmation
+
+<ComponentPreview language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
+  <VueDemo template={destructive} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+</ComponentPreview>
+
+## Reference
+
+**Dialog** (root)
+
+<PropsTable data={[
+  { prop: "open / v-model:open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
+  { prop: "@update:open", type: "(open: boolean) => void", description: "Fires when the dialog opens or closes" },
+]} />
+
+**DialogContent**
+
+<PropsTable data={[
+  { prop: "width", type: "number | string", default: "480", description: "Panel width" },
+  { prop: "show-close", type: "boolean", default: "true", description: "Show close button in top-right corner" },
+  { prop: "class", type: "string", description: "Additional CSS class on the panel" },
+]} />
+
+**DialogTrigger**: opens the dialog; renders its child element (Reka's `as-child`).
+
+**DialogHeader**: wrapper for title and description.
+
+**DialogTitle**: accessible heading for the dialog.
+
+**DialogDescription**: supporting text under the title.
+
+**DialogFooter**: footer area for action buttons.
+
+**DialogClose**: closes the dialog when its child is activated.

@@ -1,0 +1,203 @@
+---
+title: Accordion
+description: Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+metaDescription: Vue 3 accordion component built on Reka UI with vertically stacked panels that expand to reveal content, single or multiple open items, and keyboard navigation.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<Accordion type="single" collapsible default-value="shipping" style="width: 100%; max-width: 384px">
+  <AccordionItem value="shipping">
+    <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+    <AccordionContent>
+      We offer standard (5–7 business days), express (2–3 days), and
+      overnight shipping. Free standard shipping on orders over $50.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="returns">
+    <AccordionTrigger>What is your return policy?</AccordionTrigger>
+    <AccordionContent>
+      Returns are accepted within 30 days of delivery. Items must be unused
+      and in original packaging. Refunds are processed within 5–7 business
+      days of receipt.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="support">
+    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+    <AccordionContent>
+      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
+      ET. Weekend tickets are handled within 24 hours.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>`
+
+export const single = `<Accordion type="single" collapsible default-value="trial" style="width: 100%; max-width: 384px">
+  <AccordionItem
+    v-for="item in [
+      {
+        value: 'trial',
+        trigger: 'How long is the free trial?',
+        content: '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',
+      },
+      {
+        value: 'plan',
+        trigger: 'Can I change plans mid-cycle?',
+        content: 'Yes. Upgrades are prorated immediately; downgrades take effect at the next billing date. Invoices always reflect the exact span each plan was active.',
+      },
+      {
+        value: 'invoices',
+        trigger: 'Where can I find past invoices?',
+        content: 'Billing → Invoices in your workspace settings. Every PDF is archived for seven years and can be pulled via the Billing API.',
+      },
+    ]"
+    :key="item.value"
+    :value="item.value"
+  >
+    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+    <AccordionContent>{{ item.content }}</AccordionContent>
+  </AccordionItem>
+</Accordion>`
+
+export const multiple = `<Accordion type="multiple" :default-value="['notifications']" style="width: 100%; max-width: 384px">
+  <AccordionItem
+    v-for="item in [
+      {
+        value: 'notifications',
+        trigger: 'Notification settings',
+        content: 'Pick which events trigger email, push, or in-app alerts. Release-blocker incidents always page the on-call regardless of quiet hours.',
+      },
+      {
+        value: 'privacy',
+        trigger: 'Privacy & security',
+        content: 'Turn on two-factor, review active sessions, and manage connected apps. Workspace admins can also enforce SSO and hardware-key policies org-wide.',
+      },
+      {
+        value: 'billing',
+        trigger: 'Billing & subscription',
+        content: 'View your current plan, payment method, and upcoming renewal. Seat changes apply immediately; the next invoice will include a prorated adjustment.',
+      },
+    ]"
+    :key="item.value"
+    :value="item.value"
+  >
+    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+    <AccordionContent>{{ item.content }}</AccordionContent>
+  </AccordionItem>
+</Accordion>`
+
+export const disabled = `<Accordion type="single" collapsible default-value="history" style="width: 100%; max-width: 384px">
+  <AccordionItem value="history">
+    <AccordionTrigger>Can I see my usage history?</AccordionTrigger>
+    <AccordionContent>
+      Yes, the Activity tab logs every API call, deploy, and admin action
+      for the last 90 days. Longer retention requires the Enterprise plan.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="audit" disabled>
+    <AccordionTrigger>Audit log export (Enterprise only)</AccordionTrigger>
+    <AccordionContent>
+      Upgrade to Enterprise to stream audit events to S3, Splunk, or your
+      SIEM of choice.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="two-factor">
+    <AccordionTrigger>How do I enable two-factor auth?</AccordionTrigger>
+    <AccordionContent>
+      Settings → Security → Two-factor. You can use an authenticator app or
+      a FIDO2 hardware key. Recovery codes are issued once at enrollment.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>`
+
+<UsageBlock>{`import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@plexui/vue/components/Accordion";`}</UsageBlock>
+
+Compose with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Built on Reka UI Accordion, with the same keyboard navigation, focus management, and WAI-ARIA semantics as the React version.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Single
+
+<ComponentPreview language="vue" details={<>Default shape. <code>type="single"</code> + <code>collapsible</code> lets users close the currently open item; without <code>collapsible</code>, one item is always open.</>} code={single}>
+  <VueDemo template={single} />
+</ComponentPreview>
+
+### Multiple
+
+<ComponentPreview language="vue" details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={multiple}>
+  <VueDemo template={multiple} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Pass <code>disabled</code> to an <code>AccordionItem</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={disabled}>
+  <VueDemo template={disabled} />
+</ComponentPreview>
+
+## API
+
+### Accordion
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `type` | `"single" \| "multiple"` | | Required. Whether one item or many can be open at a time |
+| `v-model:value` / `value` | `string \| string[]` | | Controlled open item(s), named like the React prop |
+| `default-value` | `string \| string[]` | | Uncontrolled initial open item(s) |
+| `collapsible` | `boolean` | `false` | When `type="single"`, allow closing the open item |
+| `disabled` | `boolean` | `false` | Disable every item |
+| `dir` | `"ltr" \| "rtl"` | `"ltr"` | Reading direction |
+| `orientation` | `"horizontal" \| "vertical"` | `"vertical"` | Layout axis |
+| `class` | `string` | | Applied to the root `<div>` |
+| `@update:value` | `(value: string \| string[]) => void` | | Fires when the open item(s) change; closing the open item of a single accordion reports `""` |
+
+### AccordionItem
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | | Required. Unique identifier used by `value` / `default-value` |
+| `disabled` | `boolean` | `false` | Disable this item |
+| `class` | `string` | | Applied to the item wrapper |
+
+### AccordionTrigger
+
+Renders a `<button>` inside an `<h3>` header, with a chevron that rotates when the item opens. The default slot is the label; `class`, other attributes, and listeners such as `@click` go to the `<button>`.
+
+### AccordionContent
+
+Renders the collapsible panel; the default slot is its content. It sets `--radix-accordion-content-height` (the same variable as React, so the shared CSS animates both) to interpolate the open/close animation from `0` to the measured content height. `force-mount` keeps a closed panel mounted and visible for custom animations.
+
+## Styling
+
+Colors, spacing, and transitions are controlled by component tokens:
+
+- `--accordion-item-divider-color`: border between items (defaults to `--color-border`)
+- `--accordion-item-divider-width`: divider thickness (defaults to `1px`)
+- `--accordion-item-disabled-opacity`: disabled item opacity (defaults to `0.5`)
+- `--accordion-trigger-color`: trigger text color
+- `--accordion-trigger-font-size` / `--accordion-trigger-font-weight` / `--accordion-trigger-line-height`: trigger typography
+- `--accordion-trigger-padding-block`: trigger vertical padding
+- `--accordion-trigger-gap`: space between label and chevron
+- `--accordion-trigger-focus-ring-color`: focus ring color
+- `--accordion-icon-color` / `--accordion-icon-size`: chevron color and size
+- `--accordion-content-color` / `--accordion-content-font-size` / `--accordion-content-line-height`: content typography
+- `--accordion-content-padding-bottom`: space between content text and the next divider
+- `--accordion-transition-duration` / `--accordion-transition-ease`: open/close animation
+
+Override at any scope to tune the look:
+
+```css
+.my-faq {
+  --accordion-trigger-font-size: var(--font-text-base-size);
+  --accordion-item-divider-color: var(--color-border-strong);
+}
+```

@@ -1,0 +1,132 @@
+---
+title: Textarea
+description: Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
+metaDescription: Vue 3 textarea component for multi-line text input with v-model:value, auto-resize, a configurable size scale, autofill extension control, and invalid state styling.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const base = `<div class="w-[400px]">
+  <Textarea placeholder="Enter text..." auto-resize :rows="3" />
+</div>`
+
+export const variants = `<div class="w-[400px]">
+  <div class="flex flex-col gap-6">
+    <div v-for="variant in ['outline', 'soft']" :key="variant" class="flex items-center">
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+      <div class="flex-1">
+        <Textarea placeholder="Enter text..." class="w-full" :variant="variant" :rows="3" />
+      </div>
+    </div>
+  </div>
+</div>`
+
+export const autoResize = `<div class="w-[400px]">
+  <Textarea
+    v-model:value="value"
+    placeholder="Type to grow..."
+    :auto-resize="autoResize"
+    :rows="Number(rows)"
+    :max-rows="Number(maxRows)"
+  />
+</div>`
+
+export const sizing = `<div class="w-[400px]">
+  <Textarea placeholder="Write a message..." :size="size" :gutter-size="gutterSize" />
+</div>`
+
+export const disabled = `<div class="w-[400px]">
+  <Textarea :disabled="disabled" default-value="Jane Doe" />
+</div>`
+
+export const invalid = `<div class="w-[400px]">
+  <Textarea :invalid="invalid" placeholder="Invalid textarea" />
+</div>`
+
+export const autoSelect = `<div class="w-[400px]">
+  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" />
+</div>`
+
+export const autofillExtensions = `<div class="w-[400px]">
+  <Textarea
+    :key="String(allowAutofillExtensions)"
+    name="email"
+    :allow-autofill-extensions="allowAutofillExtensions"
+    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+  />
+</div>`
+
+<UsageBlock>{`import { Textarea } from "@plexui/vue/components/Textarea";`}</UsageBlock>
+
+## Examples
+
+### Base
+
+<ComponentPreview language="vue" code={base} previewMinHeight={168}>
+  <VueDemo template={base} />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>Use <code>variant</code> to stylize the textarea.</>} code={variants} previewMinHeight={168}>
+  <VueDemo template={variants} />
+</ComponentPreview>
+
+### Auto resize
+
+<ComponentPreview language="vue" details={<>Enable <code>auto-resize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>max-rows</code>. Bind the text with <code>v-model:value</code>.</>} code={autoResize} previewMinHeight={168}>
+  <VueDemo template={autoResize} state={{ value: "Line 1\nLine 2\nLine 3" }} controls={[{ name: "autoResize", type: "boolean", default: true }, { name: "rows", type: "select", options: ["2", "3", "4", "5"], default: "3" }, { name: "maxRows", type: "select", options: ["4", "6", "8", "10"], default: "8" }]} />
+</ComponentPreview>
+
+### Sizing
+
+<ComponentPreview language="vue" details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutter-size</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutter-size</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutter-size</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={sizing} previewMinHeight={168}>
+  <VueDemo template={sizing} controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" }, { name: "gutterSize", type: "select", options: ["2xs", "xs", "sm", "md", "lg", "xl"], default: "md" }]} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Invalid
+
+<ComponentPreview language="vue" details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>@focus</code>, <code>@input</code>, a submit handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={invalid} previewMinHeight={168}>
+  <VueDemo template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Auto select text
+
+<ComponentPreview language="vue" details={<>Pass <code>auto-select</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={autoSelect} previewMinHeight={168}>
+  <VueDemo template={autoSelect} controls={[{ name: "autoSelect", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Autofill extensions
+
+<ComponentPreview language="vue" details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allow-autofill-extensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={autofillExtensions} previewMinHeight={168}>
+  <VueDemo template={autofillExtensions} controls={[{ name: "allowAutofillExtensions", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "value / v-model:value", type: "string | number", description: "Controlled value; uncontrolled when omitted" },
+  { prop: "default-value", type: "string | number", description: "Initial value when uncontrolled" },
+  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the textarea" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height for single-line equivalent" },
+  { prop: "gutter-size", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding; defaults from size" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the textarea" },
+  { prop: "read-only", type: "boolean", default: "false", description: "Make the textarea read-only (the native readonly attribute works too)" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
+  { prop: "allow-autofill-extensions", type: "boolean", default: "false", description: "Allow autofill extensions; true by default when name is set" },
+  { prop: "auto-select", type: "boolean", default: "false", description: "Select all contents when mounted" },
+  { prop: "rows", type: "number", default: "3", description: "Initial row count" },
+  { prop: "auto-resize", type: "boolean", default: "false", description: "Grow/shrink with content" },
+  { prop: "max-rows", type: "number", description: "Max rows when auto-resize; defaults to the larger of rows and 10" },
+  { prop: "class", type: "string", description: "Applied to the container <div>" },
+  { prop: "@update:value", type: "(value: string) => void", description: "Emitted on every input" },
+  { prop: "@autofill", type: "() => void", description: "Emitted when the browser autofills the textarea" },
+]} />
+
+Every other attribute and listener (`placeholder`, `name`, `id`, `style`, `@input`, `@focus`, `@blur`, ...) goes to the `<textarea>`.

@@ -1,0 +1,227 @@
+---
+title: Float Input
+description: Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
+metaDescription: Vue 3 floating label input component with validation messages, helper text, clear button, password reveal toggle, and an auto-growing textarea variant.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" />
+</div>`
+
+export const filled = `<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
+</div>`
+
+export const textarea = `<div class="w-[360px]">
+  <FloatingLabelInput
+    :key="String(multiline)"
+    v-model:value="value"
+    label="Message"
+    :multiline="multiline"
+  />
+</div>`
+
+export const error = `<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+  />
+</div>`
+
+export const description = `<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    description="We'll never share your email with anyone else."
+  />
+</div>`
+
+export const descriptionError = `<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+    description="We'll never share your email with anyone else."
+  />
+</div>`
+
+export const clearButton = `<div class="w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :disabled="disabled"
+    :read-only="readOnly"
+    @clear="value = ''"
+  />
+</div>`
+
+export const disabled = `<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="disabled@example.com" :disabled="disabled" />
+</div>`
+
+export const readOnly = `<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" read-only />
+</div>`
+
+export const allStates = `<div class="flex flex-col items-center gap-8 py-8">
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+    <FloatingLabelInput label="Email address" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+    <FloatingLabelInput label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+    <FloatingLabelInput invalid label="Email address" default-value="invalid@email" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+    <FloatingLabelInput disabled label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
+    <FloatingLabelInput read-only label="Email address" default-value="readonly@gmail.com" class="w-[320px]" />
+  </div>
+</div>`
+
+export const password = `<div class="w-[360px]">
+  <FloatingLabelInput label="Password" type="password" />
+</div>`
+
+export const birthdayValidation = `<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Birthday"
+    default-value="02 / 30 / 2001"
+    invalid
+    error-message="Please enter a valid date."
+  />
+</div>`
+
+export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8">
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+    <FloatingLabelInput label="Birthday" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+    <FloatingLabelInput label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+    <FloatingLabelInput invalid label="Birthday" default-value="02 / 30 / 2001" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+    <FloatingLabelInput disabled label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  </div>
+</div>`
+
+<UsageBlock>{`import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Filled state
+
+<ComponentPreview language="vue" details={<>When the input has a value, the label stays floated above the input.</>} code={filled} previewMinHeight={168}>
+  <VueDemo template={filled} />
+</ComponentPreview>
+
+### Textarea
+
+<ComponentPreview language="vue" details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.</>} code={textarea}>
+  <VueDemo template={textarea} stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### With error message
+
+<ComponentPreview language="vue" details={<>Use the <code>error-message</code> prop to display a validation error below the input. When <code>error-message</code> is provided, the input automatically enters the invalid state.</>} code={error} previewMinHeight={168}>
+  <VueDemo template={error} />
+</ComponentPreview>
+
+### With description
+
+<ComponentPreview language="vue" details={<>Use the <code>description</code> prop (or the <code>description</code> slot) to display helper text below the input.</>} code={description} previewMinHeight={168}>
+  <VueDemo template={description} />
+</ComponentPreview>
+
+### With description and error
+
+<ComponentPreview language="vue" details={<>When both <code>description</code> and <code>error-message</code> are provided, the error appears first (closest to the input), followed by the description.</>} code={descriptionError} previewMinHeight={168}>
+  <VueDemo template={descriptionError} />
+</ComponentPreview>
+
+### Clear button
+
+<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
+  <VueDemo template={clearButton} stageClassName="py-10" state={{ value: "clearable@example.com" }} controls={[{ name: "disabled", type: "boolean", default: false }, { name: "readOnly", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} stageClassName="py-10" controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Read only
+
+<ComponentPreview language="vue" details={<>Use the <code>read-only</code> prop to make the input read-only. The user can still select and copy the text.</>} code={readOnly} previewMinHeight={168}>
+  <VueDemo template={readOnly} />
+</ComponentPreview>
+
+### All states
+
+<ComponentPreview language="vue" details={<>Overview of all input states.</>} code={allStates} previewMinHeight={168}>
+  <VueDemo template={allStates} />
+</ComponentPreview>
+
+### Password input
+
+<ComponentPreview language="vue" details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it.</>} code={password} previewMinHeight={168}>
+  <VueDemo template={password} />
+</ComponentPreview>
+
+### Birthday with validation
+
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> and <code>error-message</code> to display the birthday validation state.</>} code={birthdayValidation} previewMinHeight={168}>
+  <VueDemo template={birthdayValidation} />
+</ComponentPreview>
+
+### Birthday states
+
+<ComponentPreview language="vue" details={<>Overview of birthday input states.</>} code={birthdayStates} previewMinHeight={168}>
+  <VueDemo template={birthdayStates} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "Label text for the floating label" },
+  { prop: "value / v-model:value", type: "string", description: "Controlled value; `update:value` fires on input" },
+  { prop: "default-value", type: "string", description: "Initial value when uncontrolled" },
+  { prop: "error-message", type: "string", description: "Error message to display below the input" },
+  { prop: "invalid", type: "boolean", default: "false (true if error-message)", description: "Mark the input as invalid" },
+  { prop: "description", type: "string | slot", description: "Helper text below the input" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the input" },
+  { prop: "read-only", type: "boolean", default: "false", description: "Makes the input read-only" },
+  { prop: "type", type: "string", default: '"text"', description: "Input type; password gets a reveal toggle" },
+  { prop: "revealable", type: "boolean", default: "true for password without an end adornment", description: "Built-in reveal toggle" },
+  { prop: "multiline", type: "boolean", default: "false", description: "Render an auto-growing textarea" },
+  { prop: "rows", type: "number", default: "2", description: "Visible lines when multiline" },
+  { prop: "allow-autofill-extensions", type: "boolean", default: "false", description: "Let password-manager extensions decorate the input" },
+  { prop: "start-adornment / end-adornment", type: "slots", description: "Content before or after the input" },
+  { prop: "@clear", type: "() => void", description: "Shows the clear button and fires when it is clicked" },
+  { prop: "@revealed-change", type: "(revealed: boolean) => void", description: "Fires when the reveal toggle is clicked" },
+  { prop: "@autofill", type: "() => void", description: "Fires when the browser autofills the input" },
+]} />

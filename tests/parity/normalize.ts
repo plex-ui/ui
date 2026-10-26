@@ -8,7 +8,7 @@
 // - comments and empty text nodes (Vue fragment and teleport anchors)
 // - attribute order and inline-style declaration order
 // - generated ids (`radix-*`, `reka-*`, React/Vue useId) become `gen-1`, `gen-2`, ... in
-//   document order, and id references (`aria-labelledby`, ...) are rewritten
+//   document order, and id references (`aria-labelledby`, `for`, ...) are rewritten
 //   to match, so a swapped label/description still shows. Explicit ids are
 //   kept as they are.
 // - the one allowed dangling reference: Radix points a closed dialog
@@ -16,7 +16,7 @@
 //   Any other reference to a missing element is printed as "[missing]".
 
 const DROPPED_ATTRIBUTE = /^(data-radix-.*|data-reka-.*|data-dismissable-layer|data-v-app)$/
-const ID_REFERENCE = new Set(["aria-labelledby", "aria-describedby", "aria-controls"])
+const ID_REFERENCE = new Set(["aria-labelledby", "aria-describedby", "aria-controls", "aria-activedescendant", "for"])
 // Library ids (radix-*, reka-*) and ids built from React's useId (`_r_0_`,
 // `_R_0_`, older `«r0»` / `:r0:`) or Vue's useId (`v-0`, `v-1-2`), alone or
 // inside a component's own id (`floating-label-input-_r_0_-description`)

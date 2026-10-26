@@ -1,0 +1,217 @@
+---
+title: Checkbox
+description: Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+metaDescription: Vue 3 checkbox component built on Reka UI with solid, pill, and ghost variants, an indeterminate state, v-model:checked binding, and rich label slots.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const stage = "flex-1 flex items-center justify-center py-12 w-full"
+
+export const overview = `<div class="flex flex-col gap-3">
+  <Checkbox label="Same as billing address" :variant="variant" :pill="pill" :disabled="disabled" />
+  <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
+</div>`
+
+export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
+  <div
+    v-for="group in [
+      { name: 'solid' },
+      { name: 'solid pill', pill: true },
+      { name: 'ghost', variant: 'ghost' },
+    ]"
+    :key="group.name"
+    class="flex flex-col gap-3 items-start"
+  >
+    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
+    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" :disabled="disabled" />
+    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" :disabled="disabled" default-checked />
+    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" :disabled="disabled" checked="indeterminate" />
+  </div>
+</div>`
+
+export const pill = `<div class="flex flex-col gap-3">
+  <Checkbox label="Unchecked" :pill="pill" />
+  <Checkbox label="Checked" :pill="pill" default-checked />
+  <Checkbox label="Indeterminate" :pill="pill" checked="indeterminate" />
+</div>`
+
+export const ghost = `<div class="flex flex-col gap-3">
+  <Checkbox label="Unchecked" variant="ghost" :disabled="disabled" />
+  <Checkbox label="Checked" variant="ghost" :disabled="disabled" default-checked />
+  <Checkbox label="Indeterminate" variant="ghost" :disabled="disabled" checked="indeterminate" />
+</div>`
+
+export const withDescription = `<div class="flex flex-col gap-4 max-w-sm">
+  <Checkbox default-checked>
+    <template #label>
+      <div class="flex flex-col">
+        <span class="font-medium">Accept terms and conditions</span>
+        <span class="text-xs text-secondary mt-0.5">
+          By checking this box, you agree to our Terms of Service and Privacy Policy.
+        </span>
+      </div>
+    </template>
+  </Checkbox>
+  <Checkbox>
+    <template #label>
+      <div class="flex flex-col">
+        <span class="font-medium">Enable notifications</span>
+        <span class="text-xs text-secondary mt-0.5">
+          You can enable or disable notifications at any time from settings.
+        </span>
+      </div>
+    </template>
+  </Checkbox>
+</div>`
+
+export const indeterminate = `<Checkbox
+  :checked="checked"
+  @update:checked="checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'"
+  label="Select all"
+/>`
+
+export const disabled = `<div class="flex flex-wrap gap-x-12 gap-y-6">
+  <div
+    v-for="group in [
+      { name: 'solid' },
+      { name: 'solid pill', pill: true },
+      { name: 'ghost', variant: 'ghost' },
+    ]"
+    :key="group.name"
+    class="flex flex-col gap-3 items-start"
+  >
+    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
+    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" disabled />
+    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" disabled default-checked />
+    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" disabled checked="indeterminate" />
+  </div>
+</div>`
+
+export const orientation = `<Checkbox label="Accept terms and conditions" :orientation="orientation" />`
+
+export const withoutLabel = `<div class="flex gap-4">
+  <Checkbox />
+  <Checkbox default-checked />
+  <Checkbox checked="indeterminate" />
+</div>`
+
+export const group = `<div class="flex flex-col gap-3">
+  <Checkbox
+    label="Permissions"
+    :checked="items.every((i) => i.checked) ? true : items.some((i) => i.checked) ? 'indeterminate' : false"
+    @update:checked="(next) => items.forEach((i) => (i.checked = next))"
+  />
+  <div class="flex flex-col gap-3 pl-6">
+    <Checkbox
+      v-for="item in items"
+      :key="item.id"
+      :label="item.label"
+      v-model:checked="item.checked"
+    />
+  </div>
+</div>`
+
+<UsageBlock>{`import { Checkbox } from "@plexui/vue/components/Checkbox";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo
+    template={overview}
+    stageClassName={stage}
+    controls={[
+      { name: "variant", type: "select", options: ["solid", "ghost"], default: "solid" },
+      { name: "pill", type: "boolean", default: false },
+      { name: "disabled", type: "boolean", default: false },
+    ]}
+  />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill.</>} code={variants} previewMinHeight={240}>
+  <VueDemo template={variants} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Pill
+
+<ComponentPreview language="vue" details={<>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</>} code={pill} previewMinHeight={168}>
+  <VueDemo template={pill} stageClassName={stage} controls={[{ name: "pill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Ghost
+
+<ComponentPreview language="vue" details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.</>} code={ghost} previewMinHeight={168}>
+  <VueDemo template={ghost} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### With description
+
+<ComponentPreview language="vue" details={<>Pass rich content through the <code>label</code> slot to compose a label with secondary description text. This is useful for options that need additional context or explanation. For plain text, the <code>label</code> prop is enough.</>} code={withDescription} previewMinHeight={200}>
+  <VueDemo template={withDescription} />
+</ComponentPreview>
+
+### Indeterminate
+
+<ComponentPreview language="vue" details={<>Use <code>checked="indeterminate"</code> to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here <code>checked</code> starts as <code>"indeterminate"</code> and each click moves it to the next state.</>} code={indeterminate} previewMinHeight={168}>
+  <VueDemo template={indeterminate} state={{ checked: "indeterminate" }} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.</>} code={disabled} previewMinHeight={240}>
+  <VueDemo template={disabled} />
+</ComponentPreview>
+
+### Label orientation
+
+<ComponentPreview language="vue" details={<>By default the checkbox renders to the left of the label. Set <code>orientation="right"</code> to place the checkbox after the label.</>} code={orientation} previewMinHeight={168}>
+  <VueDemo template={orientation} stageClassName={stage} controls={[{ name: "orientation", type: "select", options: ["left", "right"], default: "left" }]} />
+</ComponentPreview>
+
+### Without label
+
+<ComponentPreview language="vue" details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={withoutLabel} previewMinHeight={168}>
+  <VueDemo template={withoutLabel} />
+</ComponentPreview>
+
+### Group with select all
+
+<ComponentPreview language="vue" details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked. Each child binds <code>v-model:checked</code> to its item in <code>items</code>.</>} code={group} previewMinHeight={240}>
+  <VueDemo
+    template={group}
+    state={{
+      items: [
+        { id: "read", label: "Read", checked: true },
+        { id: "write", label: "Write", checked: false },
+        { id: "execute", label: "Execute", checked: false },
+      ],
+    }}
+  />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "Visual style: solid (filled background) or ghost (checkmark only)" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded indicator corners" },
+  { prop: "checked / v-model:checked", type: 'boolean | "indeterminate"', description: "Controlled state" },
+  { prop: "default-checked", type: 'boolean | "indeterminate"', description: "Initial state (uncontrolled)" },
+  { prop: "label", type: "string", description: "Accessible label rendered next to the checkbox" },
+  { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
+  { prop: "required", type: "boolean", description: "Required for form submission" },
+  { prop: "name", type: "string", description: "Form field name" },
+  { prop: "value", type: "string", default: '"on"', description: "Value when submitted" },
+  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Checkbox position relative to the label" },
+  { prop: "class", type: "string", description: "CSS classes applied to the wrapper node" },
+  { prop: "id", type: "string", description: "The id of the checkbox element (generated when omitted)" },
+  { prop: "@update:checked", type: '(next: boolean | "indeterminate") => void', description: "Emitted with the next state when it changes (a click always emits a boolean)" },
+  { prop: "@focus", type: "(event: FocusEvent) => void", description: "Emitted when the checkbox gains focus" },
+  { prop: "@blur", type: "(event: FocusEvent) => void", description: "Emitted when the checkbox loses focus" },
+]} />
+
+Other attributes and listeners land on the checkbox `<button>`. Built on [Reka UI Checkbox](https://reka-ui.com/docs/components/checkbox). Inside a `<form>`, a hidden native checkbox mirrors the state so the value is submitted and a form reset restores the initial state.

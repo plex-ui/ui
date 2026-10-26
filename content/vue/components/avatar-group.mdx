@@ -1,0 +1,60 @@
+---
+title: Avatar Group
+description: Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
+metaDescription: Vue 3 avatar group component that stacks user avatars into a single overlapping cluster with configurable direction and group sizing.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueAvatarDemo } from "@/components/docs/vue/VueAvatarDemos"
+
+export const overview = `<AvatarGroup :size="42">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Jane" color="primary" variant="solid" />
+  <Avatar name="Tech support" :Icon="Robot" variant="solid" />
+  <Avatar :overflow-count="5" />
+</AvatarGroup>`
+
+export const direction = `<AvatarGroup :stack="stack" :size="42">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Will" />
+  <Avatar name="Tech support" :Icon="Robot" variant="solid" />
+  <Avatar :overflow-count="5" variant="soft" />
+</AvatarGroup>`
+
+export const sizing = `<AvatarGroup :size="size">
+  <Avatar name="Tyler" color="info" />
+  <Avatar name="Jane" color="discovery" />
+  <Avatar name="Will" color="danger" />
+  <Avatar :overflow-count="5" />
+</AvatarGroup>`
+
+<UsageBlock>{`import { Avatar, AvatarGroup } from "@plexui/vue/components/Avatar";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueAvatarDemo template={overview} />
+</ComponentPreview>
+
+### Stacking direction
+
+<ComponentPreview language="vue" details={<>You can control the stacking direction using the <code>stack</code> prop, as either <code>"start"</code> or <code>"end"</code>.</>} code={direction} previewMinHeight={168}>
+  <VueAvatarDemo template={direction} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "stack", type: "select", options: ["start", "end"], default: "end" }]} />
+</ComponentPreview>
+
+### Group sizing
+
+<ComponentPreview language="vue" details={<>You can control the size of all avatars in the group by passing <code>size</code> directly to the <code>&lt;AvatarGroup&gt;</code> component.</>} code={sizing} previewMinHeight={168}>
+  <VueDemo template={sizing} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "default slot", type: "VNode[]", description: "The avatars of the group" },
+  { prop: "size", type: "number", description: "Size of all avatars in the group" },
+  { prop: "stack", type: '"start" | "end"', default: '"start"', description: "Stacking direction" },
+  { prop: "class", type: "string", description: "Applied to the group container; other attributes are not forwarded" },
+]} />

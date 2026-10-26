@@ -1,0 +1,91 @@
+---
+title: Badge
+description: Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+metaDescription: Vue 3 badge component for status indicators and inline labels with semantic colors, multiple variants, icon support, and loading state. Same props and markup as the React Badge.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div class="flex gap-4 flex-wrap">
+  <Badge color="success" size="lg">Successful</Badge>
+  <Badge size="lg" class="gap-1.5"><LoadingIndicator /> In progress</Badge>
+  <Badge color="danger" size="lg">Failed</Badge>
+  <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
+  <Badge color="caution" size="lg">Caution</Badge>
+</div>`
+
+export const colors = `<div class="w-full overflow-x-auto">
+  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(7, min-content)">
+      <div />
+      <div
+        v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
+        :key="color"
+        class="text-center mb-1"
+        style="color: var(--color-text-tertiary); font-size: 0.875rem"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline']" :key="variant">
+        <div class="text-right mr-3" style="color: var(--color-text-tertiary); font-size: 0.875rem">{{ variant }}</div>
+        <div
+          v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
+          :key="color"
+          class="text-center"
+        >
+          <Badge :color="color" :variant="variant">Sample</Badge>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>`
+
+export const sizing = `<Badge color="info" :size="size" :pill="pill">New</Badge>`
+
+export const icon = `<Badge color="warning" size="lg"><Flask /> Beta</Badge>`
+
+export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
+  <LoadingIndicator /> In progress
+</Badge>`
+
+<UsageBlock>{`import { Badge } from "@plexui/vue/components/Badge";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Status badges in different colors and compositions.</>} code={overview}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Colors & variants
+
+<ComponentPreview language="vue" details={<>You can stylize the display of the badge using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={168}>
+  <VueDemo template={colors} />
+</ComponentPreview>
+
+### Size & roundness
+
+<ComponentPreview language="vue" details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={sizing} previewMinHeight={120}>
+  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Icon
+
+<ComponentPreview language="vue" details={<>Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.</>} code={icon} previewMinHeight={168}>
+  <VueDemo template={icon} />
+</ComponentPreview>
+
+### Loading
+
+<ComponentPreview language="vue" details={<>In this example, additional gap is added with a Tailwind <code>gap-1.5</code> class to provide the appropriate visual spacing.</>} code={loading} previewMinHeight={168}>
+  <VueDemo template={loading} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "default slot", type: "VNode[]", description: "Content inside the badge" },
+  { prop: "color", type: '"secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"', default: '"secondary"', description: "Semantic color" },
+  { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"soft"', description: "Style variant" },
+  { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "Badge size" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+]} />

@@ -5,7 +5,7 @@ metaDescription: Vue 3 button component with four variants (solid, soft, outline
 ---
 
 import { VuePreview } from "@/components/docs/VuePreview"
-import { VueButtonLoadingDemo, vueButtonLoadingTemplate } from "@/components/docs/VueButtonDemos"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const overview = `<div class="flex flex-wrap gap-3">
   <Button color="primary">Submit</Button>
@@ -15,48 +15,57 @@ export const overview = `<div class="flex flex-wrap gap-3">
   <Button variant="ghost" color="secondary" uniform><Clear /></Button>
 </div>`
 
-export const colors = `<div class="flex flex-col gap-3">
-  <div
-    v-for="variant in ['soft', 'solid', 'outline', 'ghost']"
-    :key="variant"
-    class="flex flex-wrap gap-3"
-  >
-    <Button
-      v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
-      :key="color"
-      :color="color"
-      :variant="variant"
-    >Submit</Button>
+export const colors = `<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+  <div class="pt-1 pb-6 px-8 w-max mx-auto">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
+      <div />
+      <div
+        v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+        :key="color"
+        class="text-center text-sm mb-1"
+        style="color: var(--color-text-tertiary)"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+        <div class="text-right text-sm mr-3" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+        <div
+          v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+          :key="color"
+          class="text-center"
+        >
+          <Button :color="color" :variant="variant" size="md">Submit</Button>
+        </div>
+      </template>
+    </div>
   </div>
 </div>`
 
-export const sizing = `<div class="flex flex-col gap-2 justify-start items-start">
-  <Button color="primary" size="xl" pill><Mail /> Button <ArrowRight /></Button>
-  <Button color="primary" size="xl" pill>Button <ArrowRight /></Button>
-  <Button color="primary" size="xl" pill><Mail /> Button</Button>
-  <Button color="primary" size="xl" pill>Button</Button>
-</div>`
+export const sizing = `<Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button <ArrowRight /></Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill">Button <ArrowRight /></Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button</Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill">Button</Button>`
 
-export const icons = `<Button color="secondary" size="lg" uniform variant="ghost">
+export const icons = `<Button
+  :color="color"
+  :size="size"
+  :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+  :icon-size="iconSize === 'auto' ? undefined : iconSize"
+  :uniform="uniform"
+  :variant="variant"
+>
   <PlusLg />
 </Button>`
 
-export const block = `<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <Button block size="lg">Continue</Button>
+export const block = `<div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <Button color="primary" size="lg" :block="block">Continue</Button>
 </div>`
 
-export const disabled = `<Button disabled>Submit</Button>`
+export const disabled = `<Button color="primary" :disabled="disabled">Submit</Button>`
 
-export const inert = `<Button inert>Submit</Button>`
+export const inert = `<Button color="primary" :inert="inert">Submit</Button>`
 
-export const selected = `<div class="flex flex-wrap gap-3">
-  <Button
-    v-for="variant in ['solid', 'soft', 'outline', 'ghost']"
-    :key="variant"
-    :variant="variant"
-    selected
-  >{{ variant }}</Button>
-</div>`
+export const loading = `<Button loading size="xl" pill><ArrowUp /> Click to load</Button>`
+
+export const selected = `<Button color="primary" :selected="selected" :variant="variant">Click to open</Button>`
 
 export const opticalAlignment = `<div class="flex flex-col gap-3">
   <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
@@ -68,6 +77,12 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
     <Button variant="ghost" optically-align="start">Ghost button</Button>
   </div>
 </div>`
+
+export const colorOptions = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"]
+
+export const variantOptions = ["solid", "soft", "outline", "ghost"]
+
+export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
 <UsageBlock>{`import { Button } from "@plexui/vue/components/Button";`}</UsageBlock>
 
@@ -81,7 +96,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
 
 ### Colors & variants
 
-<ComponentPreview language="vue" details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props.</>} className="justify-start" code={colors} previewMinHeight={168}>
   <VuePreview template={colors} />
 </ComponentPreview>
 
@@ -91,7 +106,16 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
   <p>Control height with <code>size</code> and horizontal padding with <code>gutter-size</code>. Use <code>pill</code> for fully rounded corners.</p>
   <p>Each <code>size</code> provides default values for <code>gutter-size</code> and <code>icon-size</code>, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
 </>} code={sizing} previewMinHeight={296}>
-  <VuePreview template={sizing} />
+  <VueDemo
+    template={sizing}
+    stageClassName="flex-1 flex flex-col gap-2 justify-center items-center py-12 w-full min-h-[312px]"
+    controls={[
+      { name: "size", type: "select", options: sizeOptions, default: "xl" },
+      { name: "variant", type: "select", options: variantOptions, default: "solid" },
+      { name: "color", type: "select", options: colorOptions, default: "primary" },
+      { name: "pill", type: "boolean", default: true },
+    ]}
+  />
 </ComponentPreview>
 
 ### Icons
@@ -100,25 +124,36 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
   <p>Add icons to the default slot. Sizing is automatic via the <code>icon-size</code> prop.</p>
   <p>For square icon buttons use <code>uniform</code>, which ignores <code>gutter-size</code>. Combine it with <code>pill</code> to make circular icons.</p>
 </>} code={icons} previewMinHeight={216}>
-  <VuePreview template={icons} />
+  <VueDemo
+    template={icons}
+    stageClassName="flex-1 flex items-center justify-center py-12 w-full"
+    controls={[
+      { name: "variant", type: "select", options: variantOptions, default: "solid" },
+      { name: "uniform", type: "boolean", default: false },
+      { name: "size", type: "select", options: sizeOptions, default: "lg" },
+      { name: "gutterSize", type: "select", options: ["auto", "2xs", "xs", "sm", "md", "lg", "xl"], default: "auto" },
+      { name: "iconSize", type: "select", options: ["auto", "sm", "md", "lg", "xl", "2xl"], default: "auto" },
+      { name: "color", type: "select", options: colorOptions, default: "primary" },
+    ]}
+  />
 </ComponentPreview>
 
 ### Block
 
 <ComponentPreview language="vue" details={<>Create full-width buttons with the <code>block</code> prop.</>} code={block} previewMinHeight={168} resizable>
-  <VuePreview template={block} />
+  <VueDemo template={block} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "block", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Disabled
 
 <ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable a button. Click events are not emitted.</>} code={disabled} previewMinHeight={168}>
-  <VuePreview template={disabled} />
+  <VueDemo template={disabled} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Inert
 
 <ComponentPreview language="vue" details={<>Use <code>inert</code> to accessibly disable a button <strong>without any visual changes</strong>.</>} code={inert} previewMinHeight={168}>
-  <VuePreview template={inert} />
+  <VueDemo template={inert} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "inert", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Loading
@@ -126,14 +161,21 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
 <ComponentPreview language="vue" details={<>
   <p>Use <code>loading</code> to display a loading indicator in the button, fading out the current content.</p>
   <p>Interactions are prevented during this state, because <code>inert</code> defaults to <code>loading</code>. Override it with <code>inert</code>, or use <code>disabled</code> to add visual disablement.</p>
-</>} code={vueButtonLoadingTemplate} previewMinHeight={168}>
-  <VueButtonLoadingDemo />
+</>} code={loading} previewMinHeight={168}>
+  <VuePreview template={loading} />
 </ComponentPreview>
 
 ### Selected
 
 <ComponentPreview language="vue" details={<>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</>} code={selected} previewMinHeight={168}>
-  <VuePreview template={selected} />
+  <VueDemo
+    template={selected}
+    stageClassName="flex-1 flex items-center justify-center py-12 w-full"
+    controls={[
+      { name: "selected", type: "boolean", default: true },
+      { name: "variant", type: "select", options: variantOptions, default: "solid" },
+    ]}
+  />
 </ComponentPreview>
 
 ### Optical alignment

@@ -15,8 +15,15 @@ export default function VuePreviewRuntime({ template, props }: VuePreviewProps) 
   const hostRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef(reactive<Record<string, unknown>>({ ...props }));
 
+  // Only push keys whose value changed: the template may own others
+  // (e.g. `v-model:value="value"` on demo state)
+  const previousRef = useRef(props);
   useEffect(() => {
-    Object.assign(stateRef.current, props);
+    const previous = previousRef.current ?? {};
+    for (const [key, value] of Object.entries(props ?? {})) {
+      if (previous[key] !== value) stateRef.current[key] = value;
+    }
+    previousRef.current = props;
   }, [props]);
 
   useEffect(() => {

@@ -1,0 +1,161 @@
+---
+title: Switch
+description: Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+metaDescription: Vue 3 switch component built on Reka UI for toggling settings, with v-model:checked, an optional label and description, and a configurable label position.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const base = `<Switch />`
+
+export const withLabel = `<Switch label="Notifications" />`
+
+export const withDescription = `<Switch
+  label="Disable user API keys"
+  description="Disable user-based API keys across your entire organization."
+/>`
+
+export const labelPosition = `<Switch label="Right aligned" label-position="start" />`
+
+export const labelPositionWithDescription = `<Switch
+  label="Dark mode"
+  description="Use dark theme across the entire application."
+  label-position="start"
+/>`
+
+export const defaultChecked = `<Switch label="Enable notifications" name="notifications" default-checked />`
+
+export const controlled = `<Switch label="Airplane mode" v-model:checked="checked" />`
+
+export const disabled = `<div class="flex gap-6">
+  <Switch disabled />
+  <Switch disabled checked />
+</div>`
+
+export const disabledWithLabel = `<div class="flex flex-col gap-4">
+  <Switch label="Notifications" disabled />
+  <Switch label="Notifications" disabled default-checked />
+</div>`
+
+export const disabledWithDescription = `<div class="flex flex-col gap-4">
+  <Switch
+    label="Enable SSO"
+    description="Requires an Enterprise plan to configure."
+    disabled
+  />
+  <Switch
+    label="Two-factor authentication"
+    description="Enforced by organization policy."
+    disabled
+    default-checked
+  />
+</div>`
+
+export const settingsPanel = `<div class="flex w-full max-w-lg flex-col gap-8">
+  <Switch
+    label="Enable custom providers for evals"
+    description="Allow eval runs to use third-party models you configure under Custom model providers."
+  />
+  <Switch
+    label="Enable OpenRouter models"
+    description="Make OpenRouter models available for evaluation runs."
+  />
+  <Switch
+    label="Disable user API keys"
+    description="Disable user-based API keys across your entire organization."
+    default-checked
+  />
+</div>`
+
+<UsageBlock>{`import { Switch } from "@plexui/vue/components/Switch";`}</UsageBlock>
+
+## Examples
+
+### Base
+
+<ComponentPreview language="vue" code={base} previewMinHeight={168}>
+  <VueDemo template={base} />
+</ComponentPreview>
+
+### With label
+
+<ComponentPreview language="vue" details={<>Add a label using the <code>label</code> prop. The label is automatically connected to the switch via <code>id</code>.</>} code={withLabel} previewMinHeight={168}>
+  <VueDemo template={withLabel} />
+</ComponentPreview>
+
+### With description
+
+<ComponentPreview language="vue" details={<>Add a <code>description</code> below the label for additional context. It is linked to the switch via <code>aria-describedby</code>.</>} code={withDescription} previewMinHeight={168}>
+  <VueDemo template={withDescription} />
+</ComponentPreview>
+
+### Label position
+
+<ComponentPreview language="vue" details={<>Set <code>label-position="start"</code> to place the label on the left side of the switch control.</>} code={labelPosition} previewMinHeight={168}>
+  <VueDemo template={labelPosition} />
+</ComponentPreview>
+
+### Label position with description
+
+<ComponentPreview language="vue" details={<>The <code>description</code> follows the label position, so both move together when <code>label-position="start"</code> is set.</>} code={labelPositionWithDescription} previewMinHeight={168}>
+  <VueDemo template={labelPositionWithDescription} />
+</ComponentPreview>
+
+### Default checked
+
+<ComponentPreview language="vue" details={<>Initialize the switch with <code>default-checked</code> when you don't need to control its state. Use the <code>name</code> prop to read the value on form submission.</>} code={defaultChecked} previewMinHeight={168}>
+  <VueDemo template={defaultChecked} />
+</ComponentPreview>
+
+### Controlled
+
+<ComponentPreview language="vue" details={<>Bind <code>v-model:checked</code> to manage the state in a controlled manner. Here <code>checked</code> starts as <code>false</code>.</>} code={controlled} previewMinHeight={168}>
+  <VueDemo template={controlled} state={{ checked: false }} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> to prevent the user from toggling the control.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} />
+</ComponentPreview>
+
+### Disabled with label
+
+<ComponentPreview language="vue" details={<>The disabled state works with labels: both the toggle and the label show a <code>not-allowed</code> cursor.</>} code={disabledWithLabel} previewMinHeight={168}>
+  <VueDemo template={disabledWithLabel} />
+</ComponentPreview>
+
+### Disabled with description
+
+<ComponentPreview language="vue" details={<>Combine <code>disabled</code> with <code>label</code> and <code>description</code> for read-only settings that need explanation.</>} code={disabledWithDescription} previewMinHeight={200}>
+  <VueDemo template={disabledWithDescription} />
+</ComponentPreview>
+
+### Settings panel
+
+<ComponentPreview language="vue" details={<>Combine <code>label</code> and <code>description</code> to build settings-style toggle panels.</>} code={settingsPanel} previewMinHeight={240}>
+  <VueDemo template={settingsPanel} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "checked / v-model:checked", type: "boolean", description: "Controlled state" },
+  { prop: "default-checked", type: "boolean", description: "Initial state (uncontrolled)" },
+  { prop: "label", type: "string", description: "Accessible label rendered next to the switch" },
+  { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
+  { prop: "description", type: "string", description: "Secondary text below the label, linked via aria-describedby" },
+  { prop: "description slot", type: "VNode[]", description: "Rich description content; takes precedence over the description prop" },
+  { prop: "label-position", type: '"start" | "end"', default: '"end"', description: "Label on the left (start) or right (end)" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
+  { prop: "required", type: "boolean", description: "Required for form submission" },
+  { prop: "name", type: "string", description: "Form field name" },
+  { prop: "value", type: "string", default: '"on"', description: "Value when submitted" },
+  { prop: "class", type: "string", description: "CSS classes applied to the wrapper node" },
+  { prop: "id", type: "string", description: "The id of the switch element (generated when omitted)" },
+  { prop: "@update:checked", type: "(next: boolean) => void", description: "Emitted with the next state when toggled" },
+  { prop: "@focus", type: "(event: FocusEvent) => void", description: "Emitted when the switch gains focus" },
+  { prop: "@blur", type: "(event: FocusEvent) => void", description: "Emitted when the switch loses focus" },
+]} />
+
+Other attributes and listeners land on the switch `<button>`. Built on [Reka UI Switch](https://reka-ui.com/docs/components/switch). Inside a `<form>`, a hidden native checkbox mirrors the state so the value is submitted with the form.

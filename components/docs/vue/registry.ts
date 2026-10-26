@@ -1,7 +1,11 @@
 import { compile, type CompilerOptions } from '@vue/compiler-dom';
 import * as Vue from 'vue';
 import { registerRuntimeCompiler, type Component, type RenderFunction } from 'vue';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@plexui/vue/components/Accordion';
+import { Avatar, AvatarGroup } from '@plexui/vue/components/Avatar';
+import { Badge } from '@plexui/vue/components/Badge';
 import { Button, ButtonLink, CopyButton } from '@plexui/vue/components/Button';
+import { Checkbox } from '@plexui/vue/components/Checkbox';
 import {
   Dialog,
   DialogClose,
@@ -12,13 +16,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@plexui/vue/components/Dialog';
+import { FieldError } from '@plexui/vue/components/FieldError';
+import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
 import { CircularProgress, LoadingDots, LoadingIndicator } from '@plexui/vue/components/Indicator';
 import { Image } from '@plexui/vue/components/Image';
 import { Label } from '@plexui/vue/components/Label';
+import { OTPInput } from '@plexui/vue/components/OTPInput';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
+import { Progress } from '@plexui/vue/components/Progress';
+import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
 import { Separator } from '@plexui/vue/components/Separator';
 import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
 import { Skeleton } from '@plexui/vue/components/Skeleton';
+import { Switch } from '@plexui/vue/components/Switch';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@plexui/vue/components/Table';
+import { Tabs, TabsOption, TabsTab } from '@plexui/vue/components/Tabs';
+import { TagInput } from '@plexui/vue/components/TagInput';
+import { Textarea } from '@plexui/vue/components/Textarea';
 import { TextLink } from '@plexui/vue/components/TextLink';
 import {
   Animate,
@@ -56,11 +79,19 @@ function compileToFunction(template: string | HTMLElement, options?: CompilerOpt
 registerRuntimeCompiler(compileToFunction as Parameters<typeof registerRuntimeCompiler>[0]);
 
 const components: Record<string, Component> = {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Animate,
   AnimateLayout,
   AnimateLayoutGroup,
+  Avatar,
+  AvatarGroup,
+  Badge,
   Button,
   ButtonLink,
+  Checkbox,
   CircularProgress,
   CopyButton,
   Dialog,
@@ -71,18 +102,39 @@ const components: Record<string, Component> = {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  FieldError,
+  FloatingLabelInput,
   Image,
   Label,
   LoadingDots,
   LoadingIndicator,
+  OTPInput,
   PlexUIProvider,
+  Progress,
+  SegmentedControl,
+  SegmentedControlOption,
+  SegmentedControlTab,
   Separator,
   ShimmerableText,
   ShimmerText,
   Skeleton,
+  Switch,
   // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
   PlexTransitionGroup,
   SlotTransitionGroup,
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Tabs,
+  TabsOption,
+  TabsTab,
+  TagInput,
+  Textarea,
   TextLink,
 };
 

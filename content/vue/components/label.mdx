@@ -1,0 +1,45 @@
+---
+title: Label
+description: Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
+metaDescription: Vue 3 label component built on Reka UI that links to any form control through the for attribute, with consistent typography and no double-click text selection.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div style="display: flex; align-items: center; gap: 8px">
+  <Checkbox id="label-demo-terms" v-model:checked="accepted" />
+  <Label for="label-demo-terms">Accept terms and conditions</Label>
+</div>`
+
+<UsageBlock>{`import { Label } from "@plexui/vue/components/Label";`}</UsageBlock>
+
+Pair a standalone `Label` with a checkbox, switch, or any control through its `id`, wherever a full field layout would be overkill.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Clicking the label toggles the checkbox it points at. Here <code>accepted</code> starts as <code>true</code>.</>} code={overview}>
+  <VueDemo template={overview} state={{ accepted: true }} />
+</ComponentPreview>
+
+## API
+
+### Label
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `for` | `string` | | `id` of the associated control. Clicks on the label focus or activate the control. |
+| `class` | `string` | | Applied to the root `<label>` element |
+| default slot | `VNode[]` | | Label content |
+
+Built on [Reka UI Label](https://reka-ui.com/docs/components/label), which prevents text selection on double-click and forwards clicks to the associated control. All other `<label>` attributes are forwarded.
+
+## Styling
+
+Component tokens:
+
+- `--label-color`: text color (defaults to `--color-text`)
+- `--label-font-size`: text size (defaults to `--font-text-sm-size`)
+- `--label-font-weight`: weight (defaults to `--font-weight-medium`)
+- `--label-line-height`: line height (defaults to `1`)
