@@ -68,9 +68,9 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 **Popover.Content**
 
 <PropsTable data={[
-  { prop: "width", type: "number | string", description: "Panel width (px or CSS value)" },
-  { prop: "minWidth", type: "number | string", default: "300", description: "Minimum panel width in px" },
-  { prop: "maxWidth", type: "number | string", description: "Maximum panel width" },
+  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
+  { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px" },
+  { prop: "maxWidth", type: "number", description: "Maximum panel width in px" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
   { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
   { prop: "sideOffset", type: "number", description: "Offset from trigger (px)" },

@@ -60,7 +60,7 @@ import {
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },
-  { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
+  { prop: "alignOffset", type: "number", default: 'align === "center" ? 0 : -5', description: "Offset from start/end alignment in pixels" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable picker interactions" },
   { prop: "placeholder", type: "string", default: '"Select date range..."', description: "Placeholder in trigger when value is empty" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger style variant" },

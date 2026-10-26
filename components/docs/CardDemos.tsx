@@ -80,19 +80,13 @@ export function CardLoginDemo() {
         <Button color="primary" variant="solid" block pill={false}>
           Log in
         </Button>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 14,
-            textAlign: 'center',
-            color: 'var(--color-text-tertiary)',
-          }}
-        >
+        {/* Description sits flush under a title by default; here it follows a button */}
+        <Card.Description className="text-center" style={{ margin: 0 }}>
           Don&apos;t have an account?{' '}
           <TextLink href="#" primary>
             Sign up
           </TextLink>
-        </p>
+        </Card.Description>
       </Card.Footer>
     </Card>
   );

@@ -157,6 +157,9 @@ export const Textarea = (props: TextareaProps) => {
         id={id || (allowAutofillExtensions ? undefined : onePasswordPreventionId)}
         className={s.Textarea}
         name={name}
+        autoComplete={autoComplete}
+        // Expose the visual invalid state to assistive tech; an explicit aria-invalid wins
+        aria-invalid={restProps["aria-invalid"] ?? (invalid || undefined)}
         readOnly={readOnly}
         disabled={disabled}
         rows={rows}

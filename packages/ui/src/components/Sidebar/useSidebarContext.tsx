@@ -122,18 +122,18 @@ export const SidebarProvider = ({
     (value: boolean | ((prev: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
 
-      if (setOpenProp) {
-        setOpenProp(openState)
-      } else {
+      // Controlled only when `open` is passed; onOpenChange alone is a notification
+      if (openProp === undefined) {
         _setOpen(openState)
       }
+      setOpenProp?.(openState)
 
       // Persist state in cookie for SSR
       if (typeof document !== "undefined") {
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
       }
     },
-    [setOpenProp, open],
+    [setOpenProp, openProp, open],
   )
 
   // Toggle function that handles both mobile and desktop

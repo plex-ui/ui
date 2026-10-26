@@ -297,7 +297,7 @@ const CollapsibleIconContent = ({ open }: { open: boolean }) => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
             <p className="text-secondary">
-              This sidebar uses <code>collapsible="icon"</code> mode. Toggle the <code>open</code>{" "}
+              This sidebar uses <code>collapsible=&quot;icon&quot;</code> mode. Toggle the <code>open</code>{" "}
               control below, or press <kbd className="kbd">Cmd+B</kbd> to expand/collapse.
             </p>
           </div>
@@ -1911,7 +1911,7 @@ export const TextOnly = () => {
           <div className="p-6">
             <h1 className="text-2xl font-semibold tracking-tight">{activeItem}</h1>
             <p className="text-secondary mt-2">
-              A text-only sidebar for settings pages. Uses collapsible="none" since there are no
+              A text-only sidebar for settings pages. Uses collapsible=&quot;none&quot; since there are no
               icons to collapse to.
             </p>
           </div>

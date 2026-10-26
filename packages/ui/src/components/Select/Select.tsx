@@ -1608,7 +1608,7 @@ const getOptionsByValues = <T extends Option>(options: Options<T>, values: strin
 const MAX_DOM_CRAWLS = 40
 
 const findOptionByValue = (currentValue: string, container: HTMLElement) =>
-  container.querySelector(`[data-option-id="${currentValue}"]`)
+  container.querySelector(`[data-option-id="${CSS.escape(currentValue)}"]`)
 
 const isValidOptionNode = (node: Element) => node.matches("[data-option-id]:not([data-disabled])")
 

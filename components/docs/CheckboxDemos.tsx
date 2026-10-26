@@ -273,9 +273,9 @@ export function CheckboxGroupDemo() {
 export function CheckboxWithoutLabelDemo() {
   return (
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full gap-4">
-      <Checkbox />
-      <Checkbox defaultChecked />
-      <Checkbox checked="indeterminate" />
+      <Checkbox aria-label="Accept terms" />
+      <Checkbox aria-label="Subscribe" defaultChecked />
+      <Checkbox aria-label="Select all" checked="indeterminate" />
     </div>
   );
 }

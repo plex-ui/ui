@@ -206,10 +206,10 @@ export function SelectBaseDemo() {
           </SegmentedControl>
         </SelectDemoControlRow>
         <SelectDemoControlRow name="clearable">
-          <Switch checked={clearable} onCheckedChange={setClearable} />
+          <Switch checked={clearable} onCheckedChange={setClearable} aria-label="clearable" />
         </SelectDemoControlRow>
         <SelectDemoControlRow name="multiple">
-          <Switch checked={multiple} onCheckedChange={setMultiple} />
+          <Switch checked={multiple} onCheckedChange={setMultiple} aria-label="multiple" />
         </SelectDemoControlRow>
       </div>
       <div
@@ -306,7 +306,7 @@ export function SelectCustomViewsDemo() {
           </SegmentedControl>
         </SelectDemoControlRow>
         <SelectDemoControlRow name="triggerIcon">
-          <Switch checked={showIcon} onCheckedChange={setShowIcon} />
+          <Switch checked={showIcon} onCheckedChange={setShowIcon} aria-label="triggerIcon" />
         </SelectDemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">

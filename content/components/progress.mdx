@@ -23,7 +23,7 @@ useEffect(() => {
   return () => clearTimeout(t);
 }, []);
 
-return <Progress value={value} />;`}>
+return <Progress value={value} aria-label="Loading" />;`}>
   <ProgressOverviewDemo />
 </ComponentPreview>
 
@@ -31,10 +31,10 @@ return <Progress value={value} />;`}>
 
 <ComponentPreview details={<>Pair a <a href="/components/label"><code>Label</code></a> with a value readout above the bar — typical upload / onboarding progress pattern.</>} code={`<div>
   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-    <Label htmlFor="progress-upload">Uploading plex-ui.zip</Label>
+    <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
     <span>3.2 / 4.8 MB</span>
   </div>
-  <Progress id="progress-upload" value={67} />
+  <Progress aria-labelledby="progress-upload-label" value={67} />
 </div>`}>
   <ProgressWithLabelDemo />
 </ComponentPreview>
@@ -45,7 +45,7 @@ return <Progress value={value} />;`}>
 
 return (
   <>
-    <Progress value={value} />
+    <Progress value={value} aria-label="Progress" />
     <Slider value={value} onChange={setValue} min={0} max={100} step={1} />
   </>
 );`}>

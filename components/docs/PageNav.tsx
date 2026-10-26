@@ -39,7 +39,7 @@ export function PageNav({
   if (compact) {
     return (
       <nav
-        aria-label="Page navigation"
+        aria-label="Page navigation (top)"
         className={`${s.NavRoot} ${s.Compact} ${className ?? ''}`.trim()}
       >
         <div className={s.Row}>

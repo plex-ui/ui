@@ -74,18 +74,34 @@ export const TextLink = ((
   // Visible link, but non-anchor element. Useful if you want a visual link
   // that cannot be naturally meta-clicked (e.g., inadvertently open a new tab)
   if (!href && !to) {
+    // With an onClick the span acts as a button, so it must be focusable and
+    // respond to Enter and Space like one
+    const actionable = !!restProps.onClick
+    const onKeyDown = restProps.onKeyDown as React.KeyboardEventHandler<HTMLElement> | undefined
     return (
       // the forwardedRef is lying here, but should be fine. :innocent:
-      <span {...sharedProps} role="button">
+      <span
+        {...sharedProps}
+        role="button"
+        tabIndex={restProps.tabIndex ?? (actionable ? 0 : undefined)}
+        onKeyDown={(evt) => {
+          onKeyDown?.(evt)
+          if (actionable && !evt.defaultPrevented && (evt.key === "Enter" || evt.key === " ")) {
+            evt.preventDefault()
+            evt.currentTarget.click()
+          }
+        }}
+      >
         {children}
       </span>
     )
   }
 
   const linkProps = {
+    // An explicit target wins, as in ButtonLink; external links default to _blank
     ...(isExternal
-      ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to }
-      : { href, to }),
+      ? { target: target ?? "_blank", rel: "noopener noreferrer", href: href ?? to }
+      : { href, to, target }),
     ...sharedProps,
   }
 

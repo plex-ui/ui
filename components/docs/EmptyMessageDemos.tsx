@@ -169,7 +169,7 @@ export function EmptyMessageErrorDemo() {
         <Mic />
       </EmptyMessage.Icon>
       <EmptyMessage.Title color="danger">
-        Enable microphone access in your browser's settings.
+        Enable microphone access in your browser&apos;s settings.
       </EmptyMessage.Title>
     </EmptyMessage>
   );

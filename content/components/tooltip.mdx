@@ -4,23 +4,23 @@ description: Brief informative text shown on hover or focus, for any trigger ele
 metaDescription: React tooltip component for brief informative hover text — supports any trigger element, conditional enabling, and a compact variant
 ---
 
-import { Tooltip } from "@plexui/ui/components/Tooltip"
-import { Button } from "@plexui/ui/components/Button"
-import { Copy } from "@plexui/ui/components/Icon"
-import { TooltipConditionalDemo } from "@/components/docs/TooltipDemos"
+import {
+  TooltipCompactDemo,
+  TooltipConditionalDemo,
+  TooltipOverviewDemo,
+  TooltipTriggersDemo,
+} from "@/components/docs/TooltipDemos"
 
 <UsageBlock>{`import { Tooltip } from "@plexui/ui/components/Tooltip";`}</UsageBlock>
 
 ## Examples
 
-### Base
+### Overview
 
 <ComponentPreview code={`<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
   <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
 </Tooltip>`} previewMinHeight={168}>
-  <Tooltip content="This is additional context that appears when the trigger is hovered or focused">
-    <Button color="secondary" variant="ghost">Simple text with tooltip</Button>
-  </Tooltip>
+  <TooltipOverviewDemo />
 </ComponentPreview>
 
 ### Different triggers
@@ -33,14 +33,7 @@ import { TooltipConditionalDemo } from "@/components/docs/TooltipDemos"
     <span>Inaccessible trigger</span>
   </Tooltip>
 </div>`} previewMinHeight={168}>
-  <div className="flex items-center gap-4">
-    <Tooltip content="Tooltip on button">
-      <Button color="primary" size="lg">Sample button</Button>
-    </Tooltip>
-    <Tooltip content="Tooltip on span">
-      <span>Inaccessible trigger</span>
-    </Tooltip>
-  </div>
+  <TooltipTriggersDemo />
 </ComponentPreview>
 
 ### Conditionally enabled
@@ -59,11 +52,9 @@ import { TooltipConditionalDemo } from "@/components/docs/TooltipDemos"
 ### Compact tooltips
 
 <ComponentPreview details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>{'compact={true}'}</code> for brief status messages.</>} code={`<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
 </Tooltip>`} previewMinHeight={168}>
-  <Tooltip content="Copy to clipboard" compact>
-    <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
-  </Tooltip>
+  <TooltipCompactDemo />
 </ComponentPreview>
 
 ## Reference
@@ -74,9 +65,9 @@ import { TooltipConditionalDemo } from "@/components/docs/TooltipDemos"
   { prop: "interactive", type: "boolean", default: "false", description: "Content is interactive, stays open when hovered" },
   { prop: "maxWidth", type: "number | \"none\"", default: "300", description: "Max width of tooltip" },
   { prop: "openDelay", type: "number", default: "150", description: "Delay before showing (ms)" },
-  { prop: "side", type: "string", default: '"top"', description: "Preferred side" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side" },
   { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger" },
-  { prop: "align", type: "string", default: '"center"', description: "Alignment" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment" },
   { prop: "alignOffset", type: "number", default: "0", description: "Alignment offset" },
   { prop: "gutterSize", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding" },
   { prop: "contentClassName", type: "string", description: "Class for tooltip content" },

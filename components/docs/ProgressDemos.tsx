@@ -24,7 +24,7 @@ export function ProgressOverviewDemo() {
 
   return (
     <div style={{ width: '60%', minWidth: 240 }}>
-      <Progress value={value} />
+      <Progress value={value} aria-label="Loading" />
     </div>
   );
 }
@@ -56,12 +56,12 @@ export function ProgressWithLabelDemo() {
           gap: 16,
         }}
       >
-        <Label htmlFor="progress-upload">Uploading plex-ui.zip</Label>
+        <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
         <span style={{ color: 'var(--color-text-tertiary)', fontSize: 14 }}>
           {uploaded} / {total} MB
         </span>
       </div>
-      <Progress id="progress-upload" value={pct} />
+      <Progress aria-labelledby="progress-upload-label" value={pct} />
     </div>
   );
 }
@@ -83,7 +83,7 @@ export function ProgressControlledDemo() {
         gap: 16,
       }}
     >
-      <Progress value={value} />
+      <Progress value={value} aria-label="Progress" />
       <Slider value={value} onChange={setValue} min={0} max={100} step={1} />
     </div>
   );

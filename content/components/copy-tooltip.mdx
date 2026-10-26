@@ -22,7 +22,7 @@ import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Trigger element (for example Tooltip.TriggerDecorator)" },
-  { prop: "copyValue", type: "string", default: '"Very cool content to copy"', description: "Content to copy to clipboard" },
+  { prop: "copyValue", type: "string", description: "Required. Content to copy to clipboard" },
   { prop: "openDelay", type: "number", default: "150", description: "Tooltip open delay in milliseconds" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred tooltip alignment against the trigger" },
   { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },

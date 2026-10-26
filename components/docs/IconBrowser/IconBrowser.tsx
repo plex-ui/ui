@@ -296,7 +296,7 @@ function IconDetailPanel({ catalog, selected, onClose }: IconDetailPanelProps) {
 
   const getSvgMarkup = (icon: CatalogIcon): string | null => {
     // Pick stroke vs outlined source. Outlined wins when toggled.
-    let baseSvg =
+    const baseSvg =
       outlined && icon.outlinedSvg ? icon.outlinedSvg : icon.svg ?? null;
     if (baseSvg) {
       let result = baseSvg;

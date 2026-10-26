@@ -265,8 +265,8 @@ return (
 **Menu.Content**
 
 <PropsTable data={[
-  { prop: "width", type: "number | string", description: "Panel width (px or CSS value)" },
-  { prop: "minWidth", type: "number | string", default: "auto", description: "Minimum panel width" },
+  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
+  { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px (vertical layout)" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
   { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
@@ -294,11 +294,11 @@ return (
 **Menu.CheckboxItem**
 
 <PropsTable data={[
-  { prop: "checked", type: "boolean", description: "Checked state" },
+  { prop: "checked", type: 'boolean | "indeterminate"', description: "Checked state" },
   { prop: "onCheckedChange", type: "(checked: boolean) => void", description: "When checkbox toggles" },
   { prop: "onSelect", type: "(event: Event) => void", description: "Use with preventDefault() to keep menu open" },
-  { prop: "indicatorPosition", type: '"start" | "end"', description: "Checkbox position" },
-  { prop: "indicatorVariant", type: "string", description: "Badge/indicator style (e.g. solid)" },
+  { prop: "indicatorPosition", type: '"start" | "end"', default: '"end"', description: "Checkbox position" },
+  { prop: "indicatorVariant", type: '"solid" | "ghost"', default: '"solid"', description: "Checkbox indicator style" },
 ]} />
 
 **Menu.RadioGroup** / **Menu.RadioItem** — Radio group: `value`, `onChange`; RadioItem: `value`, `disabled`.

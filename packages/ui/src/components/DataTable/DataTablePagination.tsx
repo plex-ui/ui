@@ -20,6 +20,7 @@ export const DataTablePagination = <TData,>({ table }: DataTablePaginationProps<
       <div className={s.PaginationLeft}>
         <span className={s.PaginationLabel}>Rows per page</span>
         <select
+          aria-label="Rows per page"
           className={s.PaginationSelect}
           value={pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -44,6 +45,7 @@ export const DataTablePagination = <TData,>({ table }: DataTablePaginationProps<
             uniform
             disabled={!table.getCanPreviousPage()}
             onClick={() => table.previousPage()}
+            aria-label="Previous page"
           >
             <ChevronLeftMd />
           </Button>
@@ -55,6 +57,7 @@ export const DataTablePagination = <TData,>({ table }: DataTablePaginationProps<
             uniform
             disabled={!table.getCanNextPage()}
             onClick={() => table.nextPage()}
+            aria-label="Next page"
           >
             <ChevronRightMd />
           </Button>

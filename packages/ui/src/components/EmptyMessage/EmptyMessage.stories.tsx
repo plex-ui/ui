@@ -14,7 +14,7 @@ export const Base = () => (
     </EmptyMessage.Icon>
     <EmptyMessage.Title>Your evaluations will appear here</EmptyMessage.Title>
     <EmptyMessage.Description>
-      Create an evaluation to assess your model's responses
+      Create an evaluation to assess your model&apos;s responses
     </EmptyMessage.Description>
     <EmptyMessage.ActionRow>
       <Button color="primary" onClick={() => {}} size="lg">
@@ -31,7 +31,7 @@ export const Error = () => (
       <Mic />
     </EmptyMessage.Icon>
     <EmptyMessage.Title color="danger">
-      Enable microphone access in your browser's settings.
+      Enable microphone access in your browser&apos;s settings.
     </EmptyMessage.Title>
   </EmptyMessage>
 )
@@ -60,7 +60,7 @@ export const Empty = () => (
       <Search />
     </EmptyMessage.Icon>
     <EmptyMessage.Description>
-      No icons found matching <span className="font-semibold">"pizza"</span>
+      No icons found matching <span className="font-semibold">&quot;pizza&quot;</span>
     </EmptyMessage.Description>
   </EmptyMessage>
 )

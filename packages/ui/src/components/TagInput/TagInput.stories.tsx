@@ -7,7 +7,7 @@ const meta: Meta<TagInputProps> = {
   component: TagInput,
   args: {
     placeholder: "example@example.com",
-    validator: (email) => EMAIL_REGEX.test(email),
+    validator: (email: string) => EMAIL_REGEX.test(email),
     rows: 3,
     autoFocus: true,
   },

@@ -23,7 +23,7 @@ export const EmptyMessage = ({ children, className, fill = "static" }: EmptyMess
 
 export type EmptyMessageIconProps = {
   /**
-   * @default sm
+   * @default md
    */
   size?: Sizes<"sm" | "md">
   /**

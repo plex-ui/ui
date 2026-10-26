@@ -169,6 +169,7 @@ export const DateCalendar = () => {
             iconSize="sm"
             onClick={handlePrevious}
             disabled={!canGoBack}
+            aria-label="Previous month"
           >
             <ChevronLeft />
           </Button>
@@ -183,6 +184,7 @@ export const DateCalendar = () => {
             iconSize="sm"
             onClick={handleNext}
             disabled={!canGoForward}
+            aria-label="Next month"
           >
             <ChevronRight />
           </Button>
@@ -448,7 +450,12 @@ const CalendarView = ({
     const daysInMonth = getDaysOfMonth(monthStart)
     const calendarCells = [...blankDays, ...daysInMonth]
 
-    const enabledDateInterval = Interval.fromDateTimes(min || monthStart, max || endOfMonth)
+    // Cells are start-of-day values and Interval excludes its end, so widen the
+    // bounds to whole days: min/max days themselves stay selectable.
+    const enabledDateInterval = Interval.fromDateTimes(
+      (min || monthStart).startOf("day"),
+      (max || endOfMonth).endOf("day"),
+    )
 
     return {
       startOfMonth: monthStart,

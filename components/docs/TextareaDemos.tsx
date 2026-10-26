@@ -174,7 +174,7 @@ export function TextareaDisabledDemo() {
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
         <div className="w-[400px]">
-          <Textarea disabled={disabled} defaultValue="Jane Doe" />
+          <Textarea disabled={disabled} defaultValue="Jane Doe" aria-label="Name" />
         </div>
       </div>
     </>
@@ -206,7 +206,7 @@ export function TextareaAutoSelectDemo() {
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
         <div className="w-[400px]">
-          <Textarea defaultValue="Toggle to auto select" autoSelect={autoSelect} />
+          <Textarea defaultValue="Toggle to auto select" autoSelect={autoSelect} aria-label="Notes" />
         </div>
       </div>
     </>

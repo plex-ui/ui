@@ -99,7 +99,7 @@ export const Accordion = () => {
           <TextLink underline color="secondary" href="#">
             usage tracking dashboard
           </TextLink>{" "}
-          . This dashboard will show you how many tokens you've used during the current and past
+          . This dashboard will show you how many tokens you&apos;ve used during the current and past
           billing cycles.
         </p>
       </AccordionItem>
@@ -109,7 +109,7 @@ export const Accordion = () => {
           <TextLink underline color="secondary" href="#">
             your billing settings
           </TextLink>
-          , after which we'll stop serving your requests. There may be a delay in enforcing the
+          , after which we&apos;ll stop serving your requests. There may be a delay in enforcing the
           limit, and you are responsible for any overage incurred. You can also configure an email
           notification threshold to receive an email alert once you cross that threshold each month.
           We recommend checking your{" "}

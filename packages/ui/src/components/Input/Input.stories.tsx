@@ -200,7 +200,7 @@ export const OpticalAlignment = (args: InputProps) => (
       </Button>
     </div>
     <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-      <div className="mb-4 text-secondary text-sm">opticallyAlign="start"</div>
+      <div className="mb-4 text-secondary text-sm">opticallyAlign=&quot;start&quot;</div>
       <label className="text-sm mb-1 block">Field 1</label>
       <Input {...args} opticallyAlign="start" pill />
       <label className="mt-3 text-sm mb-1 block">Field 2</label>

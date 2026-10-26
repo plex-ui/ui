@@ -26,16 +26,16 @@ import {
 <ComponentPreview details={<>A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.</>} code={`<div className="flex gap-3">
   <Button color="primary">Submit</Button>
   <Button variant="soft"><CompareArrows /> Compare</Button>
-  <Button color="danger" gutterSize="sm" pill={false}><Delete /></Button>
+  <Button color="danger" gutterSize="sm" pill={false} aria-label="Delete"><Delete /></Button>
   <Button variant="outline">Next <ArrowRight /></Button>
-  <Button variant="ghost" color="secondary" uniform><Clear /></Button>
+  <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
 </div>`} previewMinHeight={168}>
   <div className="flex flex-wrap gap-3">
     <Button color="primary">Submit</Button>
     <Button variant="soft"><CompareArrows /> Compare</Button>
-    <Button color="danger" gutterSize="sm" pill={false}><Delete /></Button>
+    <Button color="danger" gutterSize="sm" pill={false} aria-label="Delete"><Delete /></Button>
     <Button variant="outline">Next <ArrowRight /></Button>
-    <Button variant="ghost" color="secondary" uniform><Clear /></Button>
+    <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
   </div>
 </ComponentPreview>
 
@@ -84,7 +84,7 @@ import {
   <p>For icon-only buttons, there are two common approaches:</p>
   <p><strong>Square</strong> — create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutterSize</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
   <p><strong>Tighter gutters</strong> — applying a smaller <code>gutterSize</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
-</>} code={`<Button color="secondary" size="lg" uniform variant="ghost">
+</>} code={`<Button color="secondary" size="lg" uniform variant="ghost" aria-label="Add">
   <PlusLg />
 </Button>`} previewMinHeight={216}>
   <ButtonIconDemo />
@@ -170,14 +170,14 @@ Button shares the unified 9-step size scale with Input, Select, SelectControl, a
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Button style variant" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and default gutter/icon size" },
-  { prop: "pill", type: "boolean", default: "true", description: "Fully rounded corners" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded corners" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
   { prop: "uniform", type: "boolean", default: "false", description: "Square icon button (width equals height)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Visually and accessibly disabled" },
   { prop: "loading", type: "boolean", default: "false", description: "Shows loading indicator" },
-  { prop: "inert", type: "boolean", default: "false", description: "Accessibly disabled without visual change" },
+  { prop: "inert", type: "boolean", default: "loading", description: "Accessibly disabled without visual change" },
   { prop: "selected", type: "boolean", default: "false", description: "Selected state styling" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Offset gutter for optical alignment" },
-  { prop: "gutterSize", type: "string", description: "Horizontal padding size" },
-  { prop: "iconSize", type: "string", description: "Size of icons in children" },
+  { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
+  { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in children; defaults from size" },
 ]} />

@@ -208,6 +208,9 @@ const InputRoot = (props: InputProps) => {
         id={id || (allowAutofillExtensions ? undefined : onePasswordPreventionId)}
         className={s.Input}
         type={type}
+        autoComplete={autoComplete}
+        // Expose the visual invalid state to assistive tech; an explicit aria-invalid wins
+        aria-invalid={restProps["aria-invalid"] ?? (invalid || undefined)}
         name={name}
         value={value}
         defaultValue={defaultValue}

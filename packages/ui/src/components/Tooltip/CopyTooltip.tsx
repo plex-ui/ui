@@ -94,6 +94,14 @@ export const CopyTooltip = ({
           evt.preventDefault()
           evt.stopPropagation()
         }}
+        // Keyboard users copy with Enter or Space, like a click
+        onKeyDown={(evt) => {
+          if (evt.key === "Enter" || evt.key === " ") {
+            evt.preventDefault()
+            setOpen(true)
+            copy()
+          }
+        }}
       >
         {children}
       </Tooltip.Trigger>
