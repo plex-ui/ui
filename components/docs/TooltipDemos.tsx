@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { Button } from '@plexui/ui/components/Button';
+import { Copy } from '@plexui/ui/components/Icon';
 import { Switch } from '@plexui/ui/components/Switch';
 
 const controlsTableStyle: React.CSSProperties = {
@@ -66,6 +67,27 @@ export function TooltipOverviewDemo() {
   return (
     <Tooltip content="This is additional context that appears when the trigger is hovered or focused">
       <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
+    </Tooltip>
+  );
+}
+
+export function TooltipTriggersDemo() {
+  return (
+    <div className="flex items-center gap-4">
+      <Tooltip content="Tooltip on button">
+        <Button color="primary" size="lg">Sample button</Button>
+      </Tooltip>
+      <Tooltip content="Tooltip on span">
+        <span>Inaccessible trigger</span>
+      </Tooltip>
+    </div>
+  );
+}
+
+export function TooltipCompactDemo() {
+  return (
+    <Tooltip content="Copy to clipboard" compact>
+      <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
     </Tooltip>
   );
 }
