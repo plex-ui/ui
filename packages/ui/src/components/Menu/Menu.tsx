@@ -383,11 +383,11 @@ const Content = ({
 const Trigger = ({
   children,
   disabled,
-  asChild: _asChild,
   ...restProps
 }: DropdownMenu.DropdownMenuTriggerProps & { ref?: React.Ref<HTMLButtonElement> }) => {
-  // Always composes onto the child; other props (aria-*, handlers, ref) reach it
-  // through the Slot instead of being dropped
+  // Always composes onto the child (asChild after the spread wins over a
+  // caller's asChild); other props (aria-*, handlers, ref) reach it through
+  // the Slot instead of being dropped
   return (
     <DropdownMenu.Trigger {...restProps} asChild disabled={disabled}>
       {children}
