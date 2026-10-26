@@ -423,6 +423,7 @@ export const Slider = memo((props: SliderProps) => {
     </div>
   )
 })
+Slider.displayName = "Slider"
 
 type MarksProps = {
   marks: SliderMark[]
@@ -543,3 +544,4 @@ const SliderMarks = memo(({ marks, thumbRef, min, max }: MarksProps) => {
     </div>
   )
 })
+SliderMarks.displayName = "SliderMarks"
