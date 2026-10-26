@@ -90,7 +90,7 @@ import { Textarea } from "@plexui/ui/components/Textarea"
   { prop: "gutterSize", type: "string", description: "Horizontal padding; defaults from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the textarea" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
-  { prop: "allowAutofillExtensions", type: "boolean", default: "false", description: "Allow autofill extensions" },
+  { prop: "allowAutofillExtensions", type: "boolean", default: "!!name", description: "Allow autofill extensions" },
   { prop: "autoSelect", type: "boolean", default: "false", description: "Select all contents when mounted" },
   { prop: "rows", type: "number", default: "3", description: "Initial row count" },
   { prop: "autoResize", type: "boolean", default: "false", description: "Grow/shrink with content" },

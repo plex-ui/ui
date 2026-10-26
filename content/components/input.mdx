@@ -228,7 +228,7 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
   { prop: "gutterSize", type: "string", description: "Controls gutter on the edges; defaults to value from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables the input visually and from interactions" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark the input as invalid" },
-  { prop: "allowAutofillExtensions", type: "boolean", default: "false", description: "Allow autofill extensions to appear in the input" },
+  { prop: "allowAutofillExtensions", type: "boolean", default: 'type === "password" || !!name', description: "Allow autofill extensions to appear in the input" },
   { prop: "autoSelect", type: "boolean", default: "false", description: "Select all contents of the input when mounted" },
   { prop: "startAdornment", type: "ReactNode", description: "Content rendered at the start of the input" },
   { prop: "endAdornment", type: "ReactNode", description: "Content rendered at the end of the input" },
