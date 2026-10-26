@@ -135,7 +135,8 @@ export const StatCard = ({
         <div className={s.Label}>{label}</div>
         {tooltip && (
           <Tooltip content={tooltip}>
-            <span className={s.InfoIcon}>
+            {/* Focusable and named so keyboard and screen-reader users reach the tooltip */}
+            <span className={s.InfoIcon} tabIndex={0} role="img" aria-label="More information">
               <InfoCircle />
             </span>
           </Tooltip>
