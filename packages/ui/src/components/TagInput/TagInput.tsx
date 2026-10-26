@@ -216,27 +216,39 @@ export const TagInput = (props: TagInputProps) => {
   // Tag lifecycle functions
   // ============================================
 
-  const addTag = (tagValue: string) => {
-    const trimmed = tagValue.trim()
-    if (!trimmed) {
-      return
-    }
-    if (tags.has(trimmed)) {
-      setDuplicateTags((prevTags) => new Set(prevTags).add(trimmed))
-      setTimeout(
-        () =>
-          setDuplicateTags((prevTags) => {
-            const newTags = new Set(prevTags)
-            newTags.delete(trimmed)
-            return newTags
-          }),
-        SHAKE_ANIMATION_DURATION_MS,
-      )
-      return
-    }
-    const validTag = validatorLatest.current?.(trimmed) ?? true
+  // Adds every value in one update: a paste of "a,b" must not compute
+  // each addition from the same stale `tags` snapshot.
+  const addTags = (tagValues: string[]) => {
     const newSet = new Map(tags)
-    newSet.set(trimmed, { value: trimmed, valid: validTag })
+    let changed = false
+    for (const tagValue of tagValues) {
+      if (maxTags && newSet.size >= maxTags) {
+        break
+      }
+      const trimmed = tagValue.trim()
+      if (!trimmed) {
+        continue
+      }
+      if (newSet.has(trimmed)) {
+        setDuplicateTags((prevTags) => new Set(prevTags).add(trimmed))
+        setTimeout(
+          () =>
+            setDuplicateTags((prevTags) => {
+              const newTags = new Set(prevTags)
+              newTags.delete(trimmed)
+              return newTags
+            }),
+          SHAKE_ANIMATION_DURATION_MS,
+        )
+        continue
+      }
+      const validTag = validatorLatest.current?.(trimmed) ?? true
+      newSet.set(trimmed, { value: trimmed, valid: validTag })
+      changed = true
+    }
+    if (!changed) {
+      return
+    }
     const newTags = Array.from(newSet.values())
     onChangeLatest.current?.(newTags)
 
@@ -244,6 +256,8 @@ export const TagInput = (props: TagInputProps) => {
       setInternalTags(newTags)
     }
   }
+
+  const addTag = (tagValue: string) => addTags([tagValue])
 
   const removeTag = (tag: string) => {
     const newSet = new Map(tags)
@@ -365,7 +379,7 @@ export const TagInput = (props: TagInputProps) => {
 
     if (parts.length > 1) {
       e.preventDefault()
-      parts.forEach((part) => addTag(part))
+      addTags(parts)
     }
   }
 
