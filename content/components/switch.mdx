@@ -23,8 +23,8 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<Switch />`} previewMinHeight={168}>
-  <Switch />
+<ComponentPreview code={`<Switch aria-label="Notifications" />`} previewMinHeight={168}>
+  <Switch aria-label="Notifications" />
 </ComponentPreview>
 
 ### With label
@@ -74,12 +74,12 @@ import {
 ### Disabled
 
 <ComponentPreview details={<>Use <code>disabled</code> to prevent the user from toggling the control.</>} code={`<div className="flex gap-6">
-  <Switch disabled />
-  <Switch disabled checked />
+  <Switch disabled aria-label="Notifications" />
+  <Switch disabled checked aria-label="Dark mode" />
 </div>`} previewMinHeight={168}>
   <div className="flex gap-6">
-    <Switch disabled />
-    <Switch disabled checked />
+    <Switch disabled aria-label="Notifications" />
+    <Switch disabled checked aria-label="Dark mode" />
   </div>
 </ComponentPreview>
 

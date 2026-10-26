@@ -276,6 +276,7 @@ export function ButtonIconDemo() {
           iconSize={iconSize === 'auto' ? undefined : iconSize}
           uniform={uniform}
           variant={variant}
+          aria-label="Add"
         >
           <PlusLg />
         </Button>

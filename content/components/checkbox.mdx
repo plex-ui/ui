@@ -193,10 +193,10 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Without label
 
-<ComponentPreview details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={`<div className="flex gap-4">
-  <Checkbox />
-  <Checkbox defaultChecked />
-  <Checkbox checked="indeterminate" />
+<ComponentPreview details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control, so pass <code>aria-label</code> to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={`<div className="flex gap-4">
+  <Checkbox aria-label="Accept terms" />
+  <Checkbox aria-label="Subscribe" defaultChecked />
+  <Checkbox aria-label="Select all" checked="indeterminate" />
 </div>`} previewMinHeight={168}>
   <CheckboxWithoutLabelDemo />
 </ComponentPreview>

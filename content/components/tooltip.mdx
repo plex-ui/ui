@@ -51,7 +51,7 @@ import {
 ### Compact tooltips
 
 <ComponentPreview details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>{'compact={true}'}</code> for brief status messages.</>} code={`<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
 </Tooltip>`} previewMinHeight={168}>
   <TooltipCompactDemo />
 </ComponentPreview>

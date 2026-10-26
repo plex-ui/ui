@@ -87,7 +87,7 @@ export function TooltipTriggersDemo() {
 export function TooltipCompactDemo() {
   return (
     <Tooltip content="Copy to clipboard" compact>
-      <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+      <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
     </Tooltip>
   );
 }
