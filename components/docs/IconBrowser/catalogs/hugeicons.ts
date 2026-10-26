@@ -5,10 +5,12 @@ export const loadHugeiconsCatalog = createJsonCatalogLoader({
   outlinedFileSlug: 'hugeicons-outlined',
   id: 'hugeicons',
   label: 'Hugeicons',
+  // The stroke icons are icon data rendered through `<HugeiconsIcon>`, so the
+  // import brings both, matching the Copy JSX snippet.
   buildImport: (name, opts) =>
     opts?.outlined
       ? `import { ${name} } from '@plexui/icons-hugeicons-outlined';`
-      : `import { ${name} } from '@hugeicons/core-free-icons';`,
+      : `import { HugeiconsIcon } from '@hugeicons/react';\nimport { ${name} } from '@hugeicons/core-free-icons';`,
   buildJsx: (name, opts) => {
     if (opts?.outlined) return `<${name} />`;
     return opts?.strokeWidth !== undefined && opts.strokeWidth !== 2

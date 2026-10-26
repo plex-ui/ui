@@ -38,25 +38,47 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With Radio Group
 
-<ComponentPreview details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={`<div className="flex flex-col gap-6 w-full max-w-md">
+<ComponentPreview details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={`const channels = [
+  { value: "email", label: "Email", description: "Messages delivered to your inbox." },
+  { value: "sms", label: "SMS", description: "Text messages to your phone number." },
+  { value: "push", label: "Push", description: "Real-time alerts on your device." },
+]
+const topics = [
+  { label: "Product updates", description: "New features and improvements.", checked: true },
+  { label: "Security alerts", description: "Account activity and login notifications.", checked: true },
+  { label: "Community", description: "Events, meetups, and discussions.", checked: false },
+]
+
+<div className="flex flex-col gap-6 w-full max-w-md">
   <Field label="Notification channel" description="Choose how you'd like to be notified.">
     {() => (
       <RadioGroup direction="col" defaultValue="email" aria-label="Notification channel">
-        <RadioGroup.Item value="email">
-          <div className="flex flex-col">
-            <span className="font-medium">Email</span>
-            <span className="text-xs text-secondary mt-0.5">Messages delivered to your inbox.</span>
-          </div>
-        </RadioGroup.Item>
-        ...
+        {channels.map((channel) => (
+          <RadioGroup.Item key={channel.value} value={channel.value}>
+            <div className="flex flex-col">
+              <span className="font-medium">{channel.label}</span>
+              <span className="text-xs text-secondary mt-0.5">{channel.description}</span>
+            </div>
+          </RadioGroup.Item>
+        ))}
       </RadioGroup>
     )}
   </Field>
   <Field label="Topics" description="Select the topics you want to follow.">
     {() => (
       <div className="flex flex-col gap-2.5">
-        <Checkbox defaultChecked label={...} />
-        ...
+        {topics.map((topic) => (
+          <Checkbox
+            key={topic.label}
+            defaultChecked={topic.checked}
+            label={
+              <div className="flex flex-col">
+                <span className="font-medium">{topic.label}</span>
+                <span className="text-xs text-secondary mt-0.5">{topic.description}</span>
+              </div>
+            }
+          />
+        ))}
       </div>
     )}
   </Field>
@@ -66,7 +88,17 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Descriptions
 
-<ComponentPreview details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={`<div className="flex flex-col divide-y divide-alpha/15">
+<ComponentPreview details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={`const [settings, setSettings] = useState({
+  marketing: true,
+  security: true,
+  everything: false,
+  mentions: true,
+  nothing: false,
+})
+const toggle = (key: keyof typeof settings) => () =>
+  setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
+
+<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div className="pb-5">
     <Field label="Email notifications" description="Configure which emails you receive.">
       {() => (
@@ -78,9 +110,19 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
                 <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
               </div>
             }
-            defaultChecked
+            checked={settings.marketing}
+            onCheckedChange={toggle("marketing")}
           />
-          ...
+          <Checkbox
+            label={
+              <div className="flex flex-col">
+                <span className="font-medium">Security</span>
+                <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+              </div>
+            }
+            checked={settings.security}
+            onCheckedChange={toggle("security")}
+          />
         </div>
       )}
     </Field>
@@ -89,9 +131,9 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
     <Field label="Push notifications">
       {() => (
         <div className="flex flex-col gap-3">
-          <Checkbox label="Everything" />
-          <Checkbox label="Direct messages and mentions" defaultChecked />
-          <Checkbox label="Nothing" />
+          <Checkbox label="Everything" checked={settings.everything} onCheckedChange={toggle("everything")} />
+          <Checkbox label="Direct messages and mentions" checked={settings.mentions} onCheckedChange={toggle("mentions")} />
+          <Checkbox label="Nothing" checked={settings.nothing} onCheckedChange={toggle("nothing")} />
         </div>
       )}
     </Field>
@@ -102,39 +144,58 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Variants
 
-<ComponentPreview details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code> which renders only the checkmark without a border or background fill.</>} code={`{/* solid (default) */}
-<Checkbox label="Checked" defaultChecked />
-
-{/* solid pill */}
-<Checkbox label="Checked" pill defaultChecked />
-
-{/* ghost */}
-<Checkbox label="Checked" variant="ghost" defaultChecked />`} previewMinHeight={240}>
+<ComponentPreview details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill.</>} code={`<div className="flex flex-wrap gap-x-12 gap-y-6">
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">solid</span>
+    <Checkbox label="Unchecked" />
+    <Checkbox label="Checked" defaultChecked />
+    <Checkbox label="Indeterminate" checked="indeterminate" />
+  </div>
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
+    <Checkbox label="Unchecked" pill />
+    <Checkbox label="Checked" pill defaultChecked />
+    <Checkbox label="Indeterminate" pill checked="indeterminate" />
+  </div>
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">ghost</span>
+    <Checkbox label="Unchecked" variant="ghost" />
+    <Checkbox label="Checked" variant="ghost" defaultChecked />
+    <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
+  </div>
+</div>`} previewMinHeight={240}>
   <CheckboxVariantsDemo />
 </ComponentPreview>
 
 ### Pill
 
-<ComponentPreview details={<>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</>} code={`<Checkbox label="Checked" pill defaultChecked />`} previewMinHeight={168}>
+<ComponentPreview details={<>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</>} code={`<div className="flex flex-col gap-3">
+  <Checkbox label="Unchecked" pill />
+  <Checkbox label="Checked" pill defaultChecked />
+  <Checkbox label="Indeterminate" pill checked="indeterminate" />
+</div>`} previewMinHeight={168}>
   <CheckboxPillDemo />
 </ComponentPreview>
 
 ### Ghost
 
-<ComponentPreview details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.</>} code={`<Checkbox label="Checked" variant="ghost" defaultChecked />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>variant="ghost"</code> to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.</>} code={`<div className="flex flex-col gap-3">
+  <Checkbox label="Unchecked" variant="ghost" />
+  <Checkbox label="Checked" variant="ghost" defaultChecked />
+  <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
+</div>`} previewMinHeight={168}>
   <CheckboxGhostDemo />
 </ComponentPreview>
 
 ### With description
 
-<ComponentPreview details={<>The <code>label</code> prop accepts <code>ReactNode</code>, so you can compose a label with secondary description text. This is useful for options that need additional context or explanation.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>The <code>label</code> prop accepts <code>ReactNode</code>, so you can compose a label with secondary description text. This is useful for options that need additional context or explanation.</>} code={`<div className="flex flex-col gap-4 max-w-sm">
   <Checkbox
     label={
       <div className="flex flex-col">
-        <span>Accept terms and conditions</span>
+        <span className="font-medium">Accept terms and conditions</span>
         <span className="text-xs text-secondary mt-0.5">
-          By checking this box, you agree to our Terms of Service
-          and Privacy Policy.
+          By checking this box, you agree to our Terms of Service and Privacy Policy.
         </span>
       </div>
     }
@@ -143,10 +204,9 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   <Checkbox
     label={
       <div className="flex flex-col">
-        <span>Enable notifications</span>
+        <span className="font-medium">Enable notifications</span>
         <span className="text-xs text-secondary mt-0.5">
-          You can enable or disable notifications at any time
-          from settings.
+          You can enable or disable notifications at any time from settings.
         </span>
       </div>
     }
@@ -157,7 +217,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Indeterminate
 
-<ComponentPreview details={<>Use <code>checked="indeterminate"</code> to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked.</>} code={`const [checked, setChecked] = useState<boolean | "indeterminate">("indeterminate");
+<ComponentPreview details={<>Use <code>checked="indeterminate"</code> to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here <code>checked</code> starts as <code>"indeterminate"</code> and each click moves it to the next state.</>} code={`const [checked, setChecked] = useState<boolean | "indeterminate">("indeterminate");
 
 <Checkbox
   checked={checked}
@@ -171,18 +231,26 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Disabled
 
-<ComponentPreview details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. Works consistently across all variants: solid, pill, and ghost.</>} code={`{/* solid */}
-<Checkbox label="Unchecked" disabled />
-<Checkbox label="Checked" disabled defaultChecked />
-<Checkbox label="Indeterminate" disabled checked="indeterminate" />
-
-{/* solid pill */}
-<Checkbox label="Unchecked" pill disabled />
-<Checkbox label="Checked" pill disabled defaultChecked />
-
-{/* ghost */}
-<Checkbox label="Unchecked" variant="ghost" disabled />
-<Checkbox label="Checked" variant="ghost" disabled defaultChecked />`} previewMinHeight={240}>
+<ComponentPreview details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.</>} code={`<div className="flex flex-wrap gap-x-12 gap-y-6">
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">solid</span>
+    <Checkbox label="Unchecked" disabled />
+    <Checkbox label="Checked" disabled defaultChecked />
+    <Checkbox label="Indeterminate" disabled checked="indeterminate" />
+  </div>
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
+    <Checkbox label="Unchecked" pill disabled />
+    <Checkbox label="Checked" pill disabled defaultChecked />
+    <Checkbox label="Indeterminate" pill disabled checked="indeterminate" />
+  </div>
+  <div className="flex flex-col gap-3 items-start">
+    <span className="text-xs text-secondary font-mono mb-1">ghost</span>
+    <Checkbox label="Unchecked" variant="ghost" disabled />
+    <Checkbox label="Checked" variant="ghost" disabled defaultChecked />
+    <Checkbox label="Indeterminate" variant="ghost" disabled checked="indeterminate" />
+  </div>
+</div>`} previewMinHeight={240}>
   <CheckboxDisabledDemo />
 </ComponentPreview>
 
@@ -204,40 +272,38 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Group with select all
 
-<ComponentPreview details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked.</>} code={`const [items, setItems] = useState([
+<ComponentPreview details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked. Each child is controlled by its item in <code>items</code>.</>} code={`const [items, setItems] = useState([
   { id: "read", label: "Read", checked: true },
   { id: "write", label: "Write", checked: false },
   { id: "execute", label: "Execute", checked: false },
-]);
+])
 
-const allChecked = items.every(i => i.checked);
-const noneChecked = items.every(i => !i.checked);
-const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
+const allChecked = items.every((i) => i.checked)
+const noneChecked = items.every((i) => !i.checked)
+const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 
-<>
+<div className="flex flex-col gap-3">
   <Checkbox
     label="Permissions"
     checked={parentChecked}
     onCheckedChange={() => {
-      const next = !allChecked;
-      setItems(prev => prev.map(i => ({ ...i, checked: next })));
+      const next = !allChecked
+      setItems((prev) => prev.map((i) => ({ ...i, checked: next })))
     }}
   />
-  <div className="pl-6 flex flex-col gap-3">
-    {items.map(item => (
+  <div className="flex flex-col gap-3 pl-6">
+    {items.map((item) => (
       <Checkbox
         key={item.id}
         label={item.label}
         checked={item.checked}
-        onCheckedChange={next => {
-          setItems(prev =>
-            prev.map(i => i.id === item.id ? { ...i, checked: Boolean(next) } : i)
-          );
+        onCheckedChange={(next) => {
+          setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked: Boolean(next) } : i)))
         }}
       />
     ))}
   </div>
-</>`} previewMinHeight={240}>
+</div>`} previewMinHeight={240}>
   <CheckboxGroupDemo />
 </ComponentPreview>
 
@@ -258,14 +324,20 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
 
 ### With Field
 
-<ComponentPreview details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. The Field provides <code>aria-describedby</code> and <code>aria-invalid</code> linking automatically.</>} code={`<Field
+<ComponentPreview details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; the render-prop form receives them as arguments, so spread them onto the control that should carry them.</>} code={`const [agreed, setAgreed] = useState(false)
+
+<Field
   label="Terms"
   description="Please review and accept the terms before continuing."
   errorMessage={showError ? "You must accept the terms to continue." : undefined}
 >
   {() => (
     <div className="flex flex-col gap-3 mt-1">
-      <Checkbox label="I agree to the Terms of Service" />
+      <Checkbox
+        label="I agree to the Terms of Service"
+        checked={agreed}
+        onCheckedChange={(next) => setAgreed(Boolean(next))}
+      />
       <Checkbox label="Subscribe to product updates" />
     </div>
   )}
@@ -275,7 +347,17 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
 
 ### Grouped sections
 
-<ComponentPreview details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`<div className="divide-y">
+<ComponentPreview details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`const [settings, setSettings] = useState({
+  emailMarketing: true,
+  emailSecurity: true,
+  pushEverything: false,
+  pushMentions: true,
+  pushNothing: false,
+})
+const toggle = (key: keyof typeof settings) => () =>
+  setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
+
+<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
   <div className="pb-5">
     <Field label="Email notifications" description="Configure which emails you receive.">
       {() => (
@@ -283,24 +365,22 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
           <Checkbox
             label={
               <div className="flex flex-col">
-                <span>Marketing</span>
-                <span className="text-xs text-secondary mt-0.5">
-                  Receive emails about new products and features.
-                </span>
+                <span className="font-medium">Marketing</span>
+                <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
               </div>
             }
-            defaultChecked
+            checked={settings.emailMarketing}
+            onCheckedChange={toggle("emailMarketing")}
           />
           <Checkbox
             label={
               <div className="flex flex-col">
-                <span>Security</span>
-                <span className="text-xs text-secondary mt-0.5">
-                  Receive emails about account activity and security.
-                </span>
+                <span className="font-medium">Security</span>
+                <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
               </div>
             }
-            defaultChecked
+            checked={settings.emailSecurity}
+            onCheckedChange={toggle("emailSecurity")}
           />
         </div>
       )}
@@ -310,9 +390,9 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
     <Field label="Push notifications" description="Configure which push notifications you receive.">
       {() => (
         <div className="flex flex-col gap-3">
-          <Checkbox label="Everything" />
-          <Checkbox label="Direct messages and mentions" defaultChecked />
-          <Checkbox label="Nothing" />
+          <Checkbox label="Everything" checked={settings.pushEverything} onCheckedChange={toggle("pushEverything")} />
+          <Checkbox label="Direct messages and mentions" checked={settings.pushMentions} onCheckedChange={toggle("pushMentions")} />
+          <Checkbox label="Nothing" checked={settings.pushNothing} onCheckedChange={toggle("pushNothing")} />
         </div>
       )}
     </Field>
@@ -329,15 +409,17 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded indicator corners" },
   { prop: "checked", type: 'boolean | "indeterminate"', description: "Controlled state" },
   { prop: "defaultChecked", type: 'boolean | "indeterminate"', description: "Initial state (uncontrolled)" },
-  { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called when state changes" },
+  { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called with the next state when it changes" },
   { prop: "label", type: "ReactNode", description: "Accessible label. Accepts ReactNode for rich content" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
   { prop: "required", type: "boolean", description: "Required for form submission" },
   { prop: "name", type: "string", description: "Form field name" },
-  { prop: "value", type: "string", description: "Value when submitted" },
-  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Label position relative to checkbox" },
-  { prop: "className", type: "string", description: "CSS classes applied to wrapper node" },
-  { prop: "id", type: "string", description: "The id of the checkbox element" },
+  { prop: "value", type: "string", default: '"on"', description: "Value when submitted" },
+  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Checkbox position relative to the label" },
+  { prop: "className", type: "string", description: "CSS classes applied to the wrapper node" },
+  { prop: "id", type: "string", description: "The id of the checkbox element (generated when omitted)" },
+  { prop: "onFocus", type: "(event: FocusEvent) => void", description: "Called when the checkbox gains focus" },
+  { prop: "onBlur", type: "(event: FocusEvent) => void", description: "Called when the checkbox loses focus" },
 ]} />
 
 ## Styling

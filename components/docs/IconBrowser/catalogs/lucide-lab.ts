@@ -54,7 +54,12 @@ export async function loadLucideLabCatalog(): Promise<IconCatalog> {
     // name (`Burger` → `burger`).
     buildImport: (name) =>
       `import { Icon } from 'lucide-react';\nimport { ${pascalToCamel(name)} } from '@lucide/lab';`,
-    buildJsx: (name) => `<Icon iconNode={${pascalToCamel(name)}} />`,
+    // Same rule as the other stroke catalogs: emit `strokeWidth` only when
+    // the panel's value differs from Lucide's default (2).
+    buildJsx: (name, opts) =>
+      opts?.strokeWidth !== undefined && opts.strokeWidth !== 2
+        ? `<Icon iconNode={${pascalToCamel(name)}} strokeWidth={${opts.strokeWidth}} />`
+        : `<Icon iconNode={${pascalToCamel(name)}} />`,
     icons,
   };
   return cached;

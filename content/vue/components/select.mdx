@@ -113,7 +113,7 @@ export const columnConfig = `<Popover>
           @click="shown = shown.filter((c) => c !== col.id)"
         >
           <span class="text-sm">{{ col.label }}</span>
-          <Switch :checked="true" />
+          <Switch :checked="true" :aria-label="col.label" />
         </div>
       </div>
       <div v-if="shown.length < allColumns.length">
@@ -124,7 +124,7 @@ export const columnConfig = `<Popover>
           @click="shown = [...shown, col.id]"
         >
           <span class="text-sm text-tertiary">{{ col.label }}</span>
-          <Switch :checked="false" />
+          <Switch :checked="false" :aria-label="col.label" />
         </div>
       </div>
     </div>
@@ -171,9 +171,11 @@ export const columnConfig = `<Popover>
   <VueSelectDemo template={columnConfig} state={{ shown: ["name", "email", "role", "status"] }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
+
+The open list is a `listbox` (`aria-multiselectable` with `multiple`) named by `aria-labelledby`, then `aria-label`, then the default trigger; with a custom `trigger`, pass one of the two so the list has a name. `aria-selected` follows the selection and `aria-activedescendant` the highlighted option. Typing a letter moves to the next matching option; Ctrl, Cmd and Alt shortcuts are left alone. After an option is chosen or Escape is pressed, focus returns to the trigger, a custom one included.
 
 Searchable menus name their input `Search options` by default. Set `search-aria-label` for a more specific search label without changing the trigger's accessible name or the visible placeholder.
 
@@ -181,24 +183,50 @@ Searchable menus name their input `Search options` by default. Set `search-aria-
   { prop: "options", type: "Options<T>", description: "Array of options or grouped options" },
   { prop: "v-model:value", type: "string | string[]", description: "Selected value (single) or values (multiple)" },
   { prop: "@change", type: "(option | options) => void", description: "Called when selection changes, with the selected option (or options with multiple)" },
-  { prop: "multiple", type: "boolean", default: "false", description: "Allow multiple selection" },
+  { prop: "multiple", type: "boolean", default: "false", description: "Allow multiple selection. value, @change and @update:value are typed by it" },
   { prop: "placeholder", type: "string", default: '"Select..."', description: "Trigger placeholder" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger variant" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },
-  { prop: "disabled", type: "boolean", default: "false", description: "Disable select" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable select. A disabled select is not submitted or validated with its form" },
   { prop: "loading", type: "boolean", default: "false", description: "Loading state; shows loading-placeholder and keeps the menu closed" },
+  { prop: "loading-placeholder", type: "string", default: '"Loading..."', description: "Trigger text while loading" },
+  { prop: "name", type: "string", description: "Name of the hidden form input. With multiple, every selected value is submitted" },
+  { prop: "required", type: "boolean", description: "Required for native form validation" },
+  { prop: "id", type: "string", description: "Id of the hidden form input" },
   { prop: "actions", type: "array", description: "Actions below options list" },
   { prop: "check-position", type: '"start" | "end" | "none"', default: '"start"', description: 'Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection' },
   { prop: "#optionView / OptionView", type: "slot (option) | Component", description: "Custom option render" },
   { prop: "#triggerView / TriggerView", type: "slot | Component", description: "Custom trigger render: the selected option, or { values, selectedAll } with multiple" },
+  { prop: "TriggerStartIcon", type: "Component", description: "Icon at the start of the trigger" },
   { prop: "#trigger / trigger", type: "slot ({ open, onToggle }) | function", description: "Custom trigger element, wrapped as the popover trigger" },
-  { prop: "#searchEmptyMessage / search-empty-message", type: "slot | string", default: '"No results found."', description: "Shown when the search matches nothing" },
+  { prop: "dropdown-icon-type", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Indicator at the end of the trigger" },
+  { prop: "side", type: '"top" | "bottom"', default: '"bottom"', description: "Preferred side of the list" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center" when block, otherwise "start"', description: "Alignment of the list against the trigger" },
+  { prop: "list-width", type: 'number | "auto"', default: '"auto"', description: "Width of the list in px" },
+  { prop: "list-min-width", type: 'number | "auto"', default: "trigger width (300 when not block)", description: "Minimum width of the list in px" },
+  { prop: "list-max-width", type: 'number | "auto"', default: '"auto"', description: "Maximum width of the list in px" },
   { prop: "search-placeholder", type: "string", description: "Search input placeholder" },
   { prop: "search-aria-label", type: "string", default: '"Search options"', description: "Accessible name of the search input, independent of the trigger label" },
+  { prop: "#searchEmptyMessage / search-empty-message", type: "slot | string", default: '"No results found."', description: "Shown when the search matches nothing" },
   { prop: "search-predicate", type: "(option, term) => boolean", description: "Filters options while searching" },
+  { prop: "aria-label / aria-labelledby", type: "string", description: "Accessible name of the trigger and the list" },
 ]} />
 
 Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.
+
+## Styling
+
+Select reads these component tokens. Override them at any scope to restyle it:
+
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)
+- `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--menu-gutter`: gutter (default `spacing(1.5)`)
+- `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-item-gap`: item gap (default `spacing(1.5)`)
+- `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)
+- `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--menu-radius`: radius (default `var(--radius-xl)`)
+- `--menu-separator-background-color`: separator background color (default `var(--color-border)`)

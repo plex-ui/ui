@@ -130,7 +130,7 @@ export const disabled = `<DatePicker
 
 ### Limits
 
-<ComponentPreview language="vue" details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Here <code>minDate</code> is <code>{"today.minus({ days: 30 }).startOf('day')"}</code> and <code>maxDate</code> is <code>{"today.plus({ days: 30 }).endOf('day')"}</code>.</>} code={limits} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Here <code>minDate</code> is <code>{"today.minus({ days: 30 }).startOf('day')"}</code> and <code>maxDate</code> is <code>{"today.plus({ days: 30 }).endOf('day')"}</code>. Equal bounds leave one selectable day.</>} code={limits} previewMinHeight={168}>
   <VueDatePickerDemo template={limits} startAtToday />
 </ComponentPreview>
 
@@ -182,23 +182,43 @@ export const disabled = `<DatePicker
   <VueDatePickerDemo template={disabled} startAtToday />
 </ComponentPreview>
 
-## Reference
+## API
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
 
 <PropsTable data={[
-  { prop: "v-model:value", type: "DateTime | null", description: "Selected date (luxon)" },
-  { prop: "@change", type: "(date: DateTime | null) => void", description: "Called when date changes" },
-  { prop: "min", type: "DateTime", description: "Minimum selectable date" },
-  { prop: "max", type: "DateTime", description: "Maximum selectable date" },
+  { prop: "value / v-model:value", type: "DateTime | null", default: "null", description: "Selected date (luxon)" },
+  { prop: "@change", type: "(date: DateTime | null) => void", description: "Emitted when the date changes, with the same value as update:value" },
+  { prop: "id", type: "string", description: "Id of the trigger, for forms and labels" },
+  { prop: "min", type: "DateTime", description: "Earliest selectable date (inclusive)" },
+  { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "caption-layout", type: '"buttons" | "dropdown"', default: '"buttons"', description: "Calendar header mode. Use dropdown for date of birth" },
   { prop: "show-time", type: "boolean", default: "false", description: "Show time input below calendar" },
-  { prop: "year-range", type: "[number, number]", description: "Min/max years for dropdown caption" },
-  { prop: "size", type: "ControlSize", description: "Trigger size (3xs to 3xl)" },
-  { prop: "pill", type: "boolean", description: "Rounded trigger" },
-  { prop: "clearable", type: "boolean", description: "Show clear button" },
+  { prop: "year-range", type: "[number, number]", default: "last 120 years", description: "Min/max years for dropdown caption" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Trigger style" },
+  { prop: "pill", type: "boolean", default: "true", description: "Rounded trigger" },
+  { prop: "block", type: "boolean", default: "false", description: "Full-width trigger" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "trigger-show-icon", type: "boolean", default: "true", description: "Show calendar icon" },
   { prop: "trigger-date-format", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when show-time is enabled" },
-  { prop: "placeholder", type: "string", description: "Trigger placeholder" },
-  { prop: "disabled", type: "boolean", description: "Disable picker" },
+  { prop: "trigger-class-name", type: "string", description: "Class applied to the trigger" },
+  { prop: "dropdown-icon-type", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
+  { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable picker" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover" },
+  { prop: "side-offset", type: "number", default: "8", description: "Distance from the trigger in pixels" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment against the trigger" },
+  { prop: "align-offset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },
 ]} />
+
+## Styling
+
+Date Picker reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

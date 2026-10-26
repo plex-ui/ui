@@ -20,12 +20,16 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<Select
+<ComponentPreview code={`const [fruit, setFruit] = useState("")
+
+<Select
   value={fruit}
   options={fruits}
-  onChange={handleChange}
+  onChange={({ value }) => setFruit(value)}
   placeholder="Select a fruit..."
-  variant="solid"
+  name="fruits"
+  variant="outline"
+  size="md"
 />`} previewMinHeight={168}>
   <SelectBaseDemo />
 </ComponentPreview>
@@ -65,8 +69,8 @@ const roles = [
   placeholder="Select role..."
   align="start"
   listMinWidth={260}
-  variant="ghost"
-  size="lg"
+  variant="outline"
+  size="md"
   onChange={({ value }) => setRole(value)}
   TriggerStartIcon={role === "owner" ? UserLock : User}
 />`} previewMinHeight={168}>
@@ -92,7 +96,7 @@ const roles = [
 
 ### Grouped options
 
-<ComponentPreview details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are 15 or more options.</>} code={`<Select
+<ComponentPreview details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={`<Select
   value={value}
   options={groupedItems}
   onChange={(v) => setValue(v.value)}
@@ -124,32 +128,48 @@ const roles = [
 
 ### Column configuration
 
-<ComponentPreview details={<>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</>} code={`const [shown, setShown] = useState(['name', 'email', 'role', 'status'])
-const toggle = (id) => {
+<ComponentPreview details={<>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</>} code={`const [shown, setShown] = useState(["name", "email", "role", "status"])
+const toggle = (id: string) => {
   setShown((prev) =>
     prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
   )
 }
 const shownColumns = allColumns.filter((c) => shown.includes(c.id))
 const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
-  <Popover.Trigger>
-    <Button variant="outline" size="sm"><SettingsSlider /> Columns</Button>
-  </Popover.Trigger>
-  <Popover.Content minWidth={240} side="bottom" align="start">
-    {shownColumns.map((col) => (
-      <Row key={col.id} onClick={() => toggle(col.id)}>
-        <span>{col.label}</span>
-        <Switch checked />
-      </Row>
-    ))}
-    {hiddenColumns.map((col) => (
-      <Row key={col.id} onClick={() => toggle(col.id)}>
-        <span className="text-tertiary">{col.label}</span>
-        <Switch checked={false} />
-      </Row>
-    ))}
-  </Popover.Content>
-</Popover>`} previewMinHeight={168}>
+
+return (
+  <Popover>
+    <Popover.Trigger>
+      <Button color="secondary" variant="outline" size="sm">
+        <SettingsSlider width={15} height={15} /> Columns
+      </Button>
+    </Popover.Trigger>
+    <Popover.Content minWidth={240} side="bottom" align="start">
+      <div className="py-1.5">
+        {shownColumns.map((col) => (
+          <div
+            key={col.id}
+            className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+            onClick={() => toggle(col.id)}
+          >
+            <span className="text-sm">{col.label}</span>
+            <Switch checked aria-label={col.label} />
+          </div>
+        ))}
+        {hiddenColumns.map((col) => (
+          <div
+            key={col.id}
+            className="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+            onClick={() => toggle(col.id)}
+          >
+            <span className="text-sm text-tertiary">{col.label}</span>
+            <Switch checked={false} aria-label={col.label} />
+          </div>
+        ))}
+      </div>
+    </Popover.Content>
+  </Popover>
+)`} previewMinHeight={168}>
   <SelectColumnConfigDemo />
 </ComponentPreview>
 
@@ -157,12 +177,14 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
 
+The open list is a `listbox` (`aria-multiselectable` with `multiple`) named by `aria-labelledby`, then `aria-label`, then the default trigger; with a custom `trigger`, pass one of the two so the list has a name. `aria-selected` follows the selection and `aria-activedescendant` the highlighted option. Typing a letter moves to the next matching option; Ctrl, Cmd and Alt shortcuts are left alone. After an option is chosen or Escape is pressed, focus returns to the trigger, a custom one included.
+
 Searchable menus name their input `Search options` by default. Set `searchAriaLabel` for a more specific search label without changing the trigger's accessible name or the visible placeholder.
 
 <PropsTable data={[
   { prop: "options", type: "Options<T>", description: "Array of options or grouped options" },
   { prop: "value", type: "string | string[]", description: "Selected value (single) or values (multiple)" },
-  { prop: "onChange", type: "function", description: "Called when selection changes" },
+  { prop: "onChange", type: "(option: T) => void | (options: T[]) => void", description: "Called when selection changes, with the selected option (or options with multiple)" },
   { prop: "multiple", type: "boolean", default: "false", description: "Allow multiple selection" },
   { prop: "placeholder", type: "string", default: '"Select..."', description: "Trigger placeholder" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger variant" },
@@ -170,13 +192,29 @@ Searchable menus name their input `Search options` by default. Set `searchAriaLa
   { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },
-  { prop: "disabled", type: "boolean", default: "false", description: "Disable select" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable select. A disabled select is not submitted or validated with its form" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state; shows loadingPlaceholder and keeps the menu closed" },
+  { prop: "loadingPlaceholder", type: "string", default: '"Loading..."', description: "Trigger text while loading" },
+  { prop: "name", type: "string", description: "Name of the hidden form input. With multiple, every selected value is submitted" },
+  { prop: "required", type: "boolean", description: "Required for native form validation" },
+  { prop: "id", type: "string", description: "Id of the hidden form input" },
   { prop: "actions", type: "array", description: "Actions below options list" },
   { prop: "checkPosition", type: '"start" | "end" | "none"', default: '"start"', description: 'Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection' },
   { prop: "OptionView", type: "React.FC", description: "Custom option render" },
-  { prop: "TriggerView", type: "React.FC", description: "Custom trigger render (multi)" },
+  { prop: "TriggerView", type: "React.FC", description: "Custom trigger render: the selected option, or { values, selectedAll } with multiple" },
+  { prop: "TriggerStartIcon", type: "ComponentType", description: "Icon at the start of the trigger" },
+  { prop: "trigger", type: "({ open, onToggle }) => ReactNode", description: "Custom trigger element, wrapped as the popover trigger" },
+  { prop: "dropdownIconType", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Indicator at the end of the trigger" },
+  { prop: "side", type: '"top" | "bottom"', default: '"bottom"', description: "Preferred side of the list" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center" when block, otherwise "start"', description: "Alignment of the list against the trigger" },
+  { prop: "listWidth", type: 'number | "auto"', default: '"auto"', description: "Width of the list in px" },
+  { prop: "listMinWidth", type: 'number | "auto"', default: "trigger width (300 when not block)", description: "Minimum width of the list in px" },
+  { prop: "listMaxWidth", type: 'number | "auto"', default: '"auto"', description: "Maximum width of the list in px" },
   { prop: "searchPlaceholder", type: "string", description: "Search input placeholder" },
   { prop: "searchAriaLabel", type: "string", default: '"Search options"', description: "Accessible name of the search input, independent of the trigger label" },
+  { prop: "searchEmptyMessage", type: "ReactNode", default: '"No results found."', description: "Shown when the search matches nothing" },
+  { prop: "searchPredicate", type: "(option, term) => boolean", description: "Filters options while searching" },
+  { prop: "aria-label / aria-labelledby", type: "string", description: "Accessible name of the trigger and the list" },
 ]} />
 
 Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.

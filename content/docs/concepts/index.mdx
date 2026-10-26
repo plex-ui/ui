@@ -1,13 +1,13 @@
 ---
 title: Concepts
-description: Core Plex UI implementation concepts — dark mode setup, theme persistence, responsive breakpoints, and runtime helpers for adaptive React UIs
+description: Core Plex UI implementation concepts. Dark mode setup, theme persistence, responsive breakpoints, and runtime helpers for adaptive React UIs
 ---
 
 ## Dark mode
 
 Light and dark mode are fully supported, while your app controls how the value is applied and persisted.
 
-To set the current view mode, apply a `[data-theme]` attribute on the `html` element:
+To set the current view mode, apply a `[data-theme]` attribute on the `html` element. Without it, the light theme applies: Plex UI does not follow `prefers-color-scheme` on its own. `data-theme` sets `color-scheme` for the color tokens (they use `light-dark()`), switches the shadow tokens and drives Tailwind's `dark:` variant. Setting `color-scheme` yourself flips only the colors, so shadows and `dark:` utilities stay light.
 
 ```html
 <html data-theme="dark">
@@ -70,6 +70,8 @@ const store = create(
   }),
 );
 
+// Apply the saved (or system) theme once on startup, then on every change
+applyDocumentTheme(resolveTheme(store.getState().theme));
 store.subscribe((state) => applyDocumentTheme(resolveTheme(state.theme)));
 
 window
@@ -96,6 +98,8 @@ Write styles mobile-first: base styles apply to all sizes, then override upward 
 
 ### Default breakpoints
 
+`useBreakpoint` uses these values. Tailwind's responsive variants use them once you add the opt-in `@plexui/ui/styles/variables-tailwind-theme.css` import ([Installation](/docs/installation#using-the-full-plex-scale-in-your-tailwind-utilities-opt-in)); with the default import Tailwind keeps its own breakpoints (`sm` is 640px and there is no `xs`).
+
 | Name | Size | Common device | Example usage |
 |------|------|---------------|---------------|
 | `xs` | `380px` | Portrait mobile | Very small screen overrides |
@@ -114,10 +118,12 @@ Write styles mobile-first: base styles apply to all sizes, then override upward 
 ### React usage
 
 ```tsx
-import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoint";
+import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoints";
 
 function SampleComponent() {
   const isMedium = useBreakpoint("md");
   return null;
 }
 ```
+
+`useBreakpoint` returns `false` on the first render, on the server and the client alike, then follows the viewport. It reads the `--breakpoint-*` variables and falls back to the table above (with a console warning in development) when they are not defined.

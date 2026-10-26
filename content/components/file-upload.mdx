@@ -1,7 +1,7 @@
 ---
 title: File Upload
 description: Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
-metaDescription: Mobile-first React file upload component with drag-and-drop, MIME-type validation, multi-file selection, error states, and read-only file cards
+metaDescription: Mobile-first React file upload component with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
 ---
 
 import {
@@ -21,50 +21,56 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<FileUpload
-  accept=".pdf,.png,.jpg,.jpeg"
-  multiple
-  maxFiles={5}
-  maxSize={10 * 1024 * 1024}
-  value={files}
-  onValueChange={setFiles}
-/>`}>
+<ComponentPreview code={`const [files, setFiles] = useState<File[]>([])
+
+<div className="w-[360px]">
+  <FileUpload
+    accept=".pdf,.png,.jpg,.jpeg"
+    multiple
+    maxFiles={5}
+    maxSize={10 * 1024 * 1024}
+    value={files}
+    onValueChange={setFiles}
+  />
+</div>`}>
   <FileUploadDemo />
 </ComponentPreview>
 
 ### With files
 
-<ComponentPreview details={<>File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button.</>} code={`const files = [
-  new File([], "government-id-scan.pdf"),
-  new File([], "passport-photo.png"),
-  new File([], "non-citizen-travel-2026-approved-document.pdf"),
-];
+<ComponentPreview details={<>File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. <code>initialFiles</code> holds three <code>File</code> objects.</>} code={`const [files, setFiles] = useState<File[]>(initialFiles)
 
-<FileUpload
-  accept=".pdf,.png"
-  multiple
-  maxFiles={5}
-  value={files}
-  onValueChange={setFiles}
-/>`}>
+<div className="w-[360px]">
+  <FileUpload
+    accept=".pdf,.png"
+    multiple
+    maxFiles={5}
+    value={files}
+    onValueChange={setFiles}
+  />
+</div>`}>
   <FileUploadWithFilesDemo />
 </ComponentPreview>
 
 ### Error state
 
-<ComponentPreview code={`<FileUpload
-  accept=".pdf"
-  multiple
-  value={files}
-  onValueChange={setFiles}
-  errorMessage="Please upload at least 2 documents."
-/>`}>
+<ComponentPreview code={`<div className="w-[360px]">
+  <FileUpload
+    accept=".pdf"
+    multiple
+    value={files}
+    onValueChange={setFiles}
+    errorMessage="Please upload at least 2 documents."
+  />
+</div>`}>
   <FileUploadErrorDemo />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview code={`<FileUpload disabled />`}>
+<ComponentPreview code={`<div className="w-[360px]">
+  <FileUpload disabled />
+</div>`}>
   <FileUploadDisabledDemo />
 </ComponentPreview>
 
@@ -74,37 +80,57 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
 
 ### Read-only
 
-<ComponentPreview code={`<FileCardGroup>
-  <FileCard file={file} />
-</FileCardGroup>`}>
+<ComponentPreview code={`<div className="w-[360px]">
+  <FileCardGroup>
+    <FileCard file={file} />
+  </FileCardGroup>
+</div>`}>
   <FileCardDemo />
 </ComponentPreview>
 
 ### With remove
 
-<ComponentPreview code={`<FileCardGroup>
-  <FileCard file={file} onRemove={() => removeFile()} />
-</FileCardGroup>`}>
+<ComponentPreview code={`const [file, setFile] = useState<File | null>(initialFile)
+
+{file ? (
+  <div className="w-[360px]">
+    <FileCardGroup>
+      <FileCard file={file} onRemove={() => setFile(null)} />
+    </FileCardGroup>
+  </div>
+) : (
+  <div className="w-[360px] text-center text-sm text-tertiary">File removed</div>
+)}`}>
   <FileCardWithRemoveDemo />
 </ComponentPreview>
 
 ### Multiple files
 
-<ComponentPreview code={`<FileCardGroup>
-  {files.map((file, i) => (
-    <FileCard key={file.name} file={file} onRemove={() => removeFile(i)} />
-  ))}
-</FileCardGroup>`}>
+<ComponentPreview code={`const [files, setFiles] = useState<File[]>(initialFiles)
+
+<div className="w-[360px]">
+  <FileCardGroup>
+    {files.map((file, index) => (
+      <FileCard
+        key={\`\${file.name}-\${file.size}\`}
+        file={file}
+        onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
+      />
+    ))}
+  </FileCardGroup>
+</div>`}>
   <FileCardListDemo />
 </ComponentPreview>
 
 ### Read-only list
 
-<ComponentPreview code={`<FileCardGroup>
-  {files.map((file) => (
-    <FileCard key={file.name} file={file} />
-  ))}
-</FileCardGroup>`}>
+<ComponentPreview code={`<div className="w-[360px]">
+  <FileCardGroup>
+    {files.map((file) => (
+      <FileCard key={\`\${file.name}-\${file.size}\`} file={file} />
+    ))}
+  </FileCardGroup>
+</div>`}>
   <FileCardReadOnlyListDemo />
 </ComponentPreview>
 
@@ -115,7 +141,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "label", type: "string", description: "Button label text" },
   { prop: "description", type: "string", description: "Helper text below the icon (area variant only)" },
   { prop: "accept", type: "string", description: 'Accepted file types (e.g. ".pdf,.png,image/*")' },
-  { prop: "multiple", type: "boolean", default: "false", description: "Allow selecting multiple files" },
+  { prop: "multiple", type: "boolean", default: "false", description: "Allow selecting multiple files. Without it, a new pick replaces the current file" },
   { prop: "maxFiles", type: "number", description: "Maximum number of files. Button disables at limit." },
   { prop: "maxSize", type: "number", description: "Maximum file size in bytes" },
   { prop: "value", type: "File[]", description: "Controlled file list" },
@@ -124,7 +150,11 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "errorMessage", type: "string", description: "Error message. Sets the invalid visual state" },
   { prop: "invalid", type: "boolean", default: "false", description: "Invalid state (auto-set when errorMessage is provided)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all interactions" },
+  { prop: "id", type: "string", description: "Id of the hidden file input" },
+  { prop: "className", type: "string", description: "Additional CSS class" },
 ]} />
+
+Files are picked with the button (or the area); dropping files on it is not supported.
 
 ### FileCard
 

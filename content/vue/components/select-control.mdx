@@ -201,7 +201,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
 
 ### Selected
 
-<ComponentPreview language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.</>} code={selected} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you.</>} code={selected} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo stageClassName={NARROW_STAGE} template={selected} controls={[{ name: "selected", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -225,7 +225,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
 
 ### Loading
 
-<ComponentPreview language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, and the control ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={loading} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={loading} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo template={loading} controls={[{ name: "loading", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -249,7 +249,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
 
 ### Country selector
 
-<ComponentPreview language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code.</>} code={countrySelector} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={countrySelector} previewMinHeight={168}>
   <VueCountrySelectDemo stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -271,7 +271,7 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
   <VueSelectDemo stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`). The control renders the trigger; you provide the dropdown content. The default slot is the control's content. Attributes and listeners that are not props land on the control's `<span role="button">`; `@keydown` receives only the keys the control does not handle itself.
 
@@ -287,8 +287,20 @@ Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`).
   { prop: "invalid", type: "boolean", default: "false", description: "Invalid state" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable control" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
-  { prop: "loading", type: "boolean", default: "false", description: "Loading state" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state (aria-busy); hides the indicators and ignores interaction" },
   { prop: "optically-align", type: '"start" | "end"', description: "Optical alignment" },
+  { prop: "class", type: "string", description: "Applied to the control" },
 ]} />
 
 SelectControl shares the unified 9-step size scale with Button, Input, Select, and SegmentedControl.
+
+## Styling
+
+Select Control reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

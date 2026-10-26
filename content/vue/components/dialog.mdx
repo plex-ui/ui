@@ -70,7 +70,7 @@ export const destructive = `<Dialog v-model:open="open">
   <VueDemo template={destructive} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 **Dialog** (root)
 
@@ -98,3 +98,7 @@ export const destructive = `<Dialog v-model:open="open">
 **DialogFooter**: footer area for action buttons.
 
 **DialogClose**: closes the dialog when its child is activated.
+
+## Styling
+
+Dialog has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

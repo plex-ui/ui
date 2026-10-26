@@ -113,7 +113,7 @@ const [invertTrend, setInvertTrend] = useState(false)
 
 ### Accent border
 
-<ComponentPreview details={<>The accent variant adds a colored left border. Choose from six semantic colors.</>} code={`const [accentColor, setAccentColor] = useState("primary")
+<ComponentPreview details={<>The accent variant adds a colored left border. Choose from eight semantic colors.</>} code={`const [accentColor, setAccentColor] = useState("primary")
 
 <StatCard
   label="Total Revenue"
@@ -141,8 +141,8 @@ const [invertTrend, setInvertTrend] = useState(false)
 ## API
 
 <PropsTable data={[
-  { prop: "label", type: "string", required: true, description: "Label describing the metric" },
-  { prop: "value", type: "ReactNode", required: true, description: "The primary metric value" },
+  { prop: "label", type: "string", description: "Required. Label describing the metric" },
+  { prop: "value", type: "ReactNode", description: "Required. The primary metric value" },
   { prop: "description", type: "string", description: "Subtitle below the value" },
   { prop: "trend", type: "{ value: number; label?: string }", description: "Trend indicator with percentage" },
   { prop: "invertTrend", type: "boolean", default: "false", description: "Invert trend colors (positive = bad)" },
@@ -156,6 +156,7 @@ const [invertTrend, setInvertTrend] = useState(false)
   { prop: "tooltip", type: "string", description: "Shows an info icon next to the label with tooltip text" },
   { prop: "variant", type: '"default" | "accent"', default: '"default"', description: "Visual variant" },
   { prop: "accentColor", type: '"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning"', default: '"primary"', description: "Left border color (accent variant)" },
+  { prop: "className", type: "string", description: "Extra classes on the card element" },
 ]} />
 
 ## Styling

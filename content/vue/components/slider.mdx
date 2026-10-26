@@ -134,13 +134,13 @@ export const disabled = `<div style="width: 300px">
   <VueDemo template={disabled} stageClassName={stage} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "value", type: "number | number[]", description: "Current value; an array when range is set. Bind with v-model:value" },
-  { prop: "min", type: "number", description: "Minimum value" },
-  { prop: "max", type: "number", description: "Maximum value" },
-  { prop: "step", type: "number", description: "Step increment" },
+  { prop: "value", type: "number | number[]", description: "Required. Current value; an array when range is set. Bind with v-model:value" },
+  { prop: "min", type: "number", description: "Required. Minimum value" },
+  { prop: "max", type: "number", description: "Required. Maximum value" },
+  { prop: "step", type: "number", description: "Required. Step increment" },
   { prop: "range", type: "boolean", default: "false", description: "Enable multi-thumb range mode" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the slider" },
   { prop: "reset-value", type: "number", description: "Value for the reset option (single mode only)" },
@@ -149,6 +149,8 @@ export const disabled = `<div style="width: 300px">
   { prop: "prefix-unit", type: "string", description: "Unit displayed before the value (e.g. $)" },
   { prop: "label", type: "string", description: "Label text. Also names the slider thumbs for assistive technology" },
   { prop: "label slot", type: "VNode[]", description: "Rich label content (e.g. a tooltip); takes precedence over the label prop" },
+  { prop: "aria-label", type: "string", description: "Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)" },
+  { prop: "aria-labelledby", type: "string", description: "Id of an element that names the slider; takes precedence over label" },
   { prop: "marks", type: "Array<{ value: number, label: string }>", description: "Marks below the track (horizontal only)" },
   { prop: "track-color", type: "string", description: "Color of the slider track" },
   { prop: "range-color", type: "string", description: "Color of the filled part of the track" },
@@ -161,4 +163,11 @@ export const disabled = `<div style="width: 300px">
   { prop: "@blur", type: "(event: FocusEvent) => void", description: "Emitted when the value input or a thumb loses focus" },
 ]} />
 
-Typing in the value input reports the parsed value after 250ms; Enter, Escape or leaving the input commits it right away. Inside a `<form>`, a hidden input per thumb fires an `input` event when its value changes.
+Typing in the value input reports the parsed value after 250ms; Enter, Escape or leaving the input commits it right away, and Home, End and the arrow keys (Shift for ten steps) change it at once. The input accepts a minus sign when `min` is below zero. Inside a `<form>`, a hidden input per thumb fires an `input` event when its value changes.
+
+## Styling
+
+Slider reads these component tokens. Override them at any scope to restyle it:
+
+- `--slider-range-color`: range color (default `light-dark(var(--gray-450), var(--gray-600))`)
+- `--slider-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`)

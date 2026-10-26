@@ -24,7 +24,7 @@ import {
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview code={`<Card>
+<ComponentPreview code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Project activity</Card.Title>
     <Card.Description>
@@ -32,8 +32,8 @@ import {
     </Card.Description>
   </Card.Header>
   <Card.Footer>
-    <Button color="primary" size="sm" pill={false}>View report</Button>
-    <Button color="secondary" variant="outline" size="sm" pill={false}>Dismiss</Button>
+    <Button color="primary" variant="solid" size="sm">View report</Button>
+    <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
   </Card.Footer>
 </Card>`}>
   <CardOverviewDemo />
@@ -41,17 +41,31 @@ import {
 
 ### Login
 
-<ComponentPreview details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={`<Card>
+<ComponentPreview details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Log in to your account</Card.Title>
     <Card.Description>Enter your email below to log in to your account.</Card.Description>
   </Card.Header>
   <Card.Content>
-    <Field label="Email"><Input type="email" placeholder="you@example.com" /></Field>
-    <Field label="Password"><Input type="password" /></Field>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <Field label="Email">
+        <Input type="email" placeholder="you@example.com" />
+      </Field>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <Label htmlFor="card-login-password">Password</Label>
+          <TextLink href="#" primary>Forgot your password?</TextLink>
+        </div>
+        <Input id="card-login-password" type="password" />
+      </div>
+    </div>
   </Card.Content>
-  <Card.Footer>
-    <Button color="primary" block pill={false}>Log in</Button>
+  <Card.Footer style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}>
+    <Button color="primary" variant="solid" block>Log in</Button>
+    {/* Description sits flush under a title by default; here it follows a button */}
+    <Card.Description className="text-center" style={{ margin: 0 }}>
+      Don't have an account? <TextLink href="#" primary>Sign up</TextLink>
+    </Card.Description>
   </Card.Footer>
 </Card>`}>
   <CardLoginDemo />
@@ -59,20 +73,24 @@ import {
 
 ### Create project
 
-<ComponentPreview details={<>Right-aligned footer with Cancel / Submit: use <code>style=\{{justifyContent: 'flex-end'}}</code> on <code>Card.Footer</code>.</>} code={`<Card>
+<ComponentPreview details={<>Right-aligned footer with Cancel / Deploy. Use <code>{'style={{ justifyContent: "flex-end" }}'}</code> on <code>Card.Footer</code>.</>} code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Create project</Card.Title>
     <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>
   </Card.Header>
   <Card.Content>
-    <Field label="Name"><Input placeholder="billing-service" /></Field>
-    <Field label="Region" description="Where your functions and database will live.">
-      <Input placeholder="us-east-1" />
-    </Field>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <Field label="Name">
+        <Input placeholder="billing-service" />
+      </Field>
+      <Field label="Region" description="Where your functions and database will live.">
+        <Input placeholder="us-east-1" />
+      </Field>
+    </div>
   </Card.Content>
-  <Card.Footer style={{ justifyContent: 'flex-end' }}>
-    <Button variant="outline" size="sm" pill={false}>Cancel</Button>
-    <Button color="primary" size="sm" pill={false}>Deploy</Button>
+  <Card.Footer style={{ justifyContent: "flex-end" }}>
+    <Button color="secondary" variant="outline" size="sm">Cancel</Button>
+    <Button color="primary" variant="solid" size="sm">Deploy</Button>
   </Card.Footer>
 </Card>`}>
   <CardCreateProjectDemo />
@@ -80,47 +98,81 @@ import {
 
 ### Payment Method
 
-<ComponentPreview details={<>Full-fidelity payment form. <strong>Card Number</strong> + <strong>CVV</strong> share a 2fr/1fr row with a helper line; <strong>Month</strong>/<strong>Year</strong> use <code>Select</code>. Sections are divided by subtle <code>hr</code>s for Billing Address and Comments.</>} code={`<Card>
-  <Card.Header>
-    <Card.Title>Payment Method</Card.Title>
-    <Card.Description>All transactions are secure and encrypted</Card.Description>
-  </Card.Header>
-  <Card.Content>
-    <Field label="Name on Card"><Input placeholder="John Doe" /></Field>
-    {/* Card Number (2fr) + CVV (1fr) */}
-    <Field label="Card Number" description="Enter your 16-digit number.">
-      <Input placeholder="1234 5678 9012 3456" />
+<ComponentPreview details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={`const monthOptions = Array.from({ length: 12 }, (_, i) => {
+  const value = String(i + 1).padStart(2, "0")
+  return { label: value, value }
+})
+const yearOptions = Array.from({ length: 6 }, (_, i) => {
+  const value = String(2024 + i)
+  return { label: value, value }
+})
+
+const [month, setMonth] = useState("")
+const [year, setYear] = useState("")
+const [sameAsShipping, setSameAsShipping] = useState(true)
+
+<Card style={{ maxWidth: 420 }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <Card.Header>
+      <Card.Title>Payment Method</Card.Title>
+      <Card.Description>All transactions are secure and encrypted</Card.Description>
+    </Card.Header>
+
+    <Field label="Name on Card">
+      <Input placeholder="Aisha Cooper" />
     </Field>
-    <Field label="CVV"><Input placeholder="123" /></Field>
-    {/* Month + Year as Select dropdowns */}
-    <Field label="Month"><Select options={MONTH_OPTIONS} /></Field>
-    <Field label="Year"><Select options={YEAR_OPTIONS} /></Field>
-    <hr />
-    <section>
-      <h4>Billing Address</h4>
-      <p>The billing address associated with your payment method</p>
-      <Checkbox>Same as shipping address</Checkbox>
-    </section>
-    <hr />
-    <Field label="Comments"><Textarea placeholder="Add any additional comments" /></Field>
-  </Card.Content>
-  <Card.Footer>
-    <Button color="primary" pill={false}>Submit</Button>
-    <Button variant="outline" pill={false}>Cancel</Button>
-  </Card.Footer>
+
+    <Field label="Card Number" description="Enter your 16-digit card number">
+      <Input placeholder="1234 5678 9012 3456" inputMode="numeric" />
+    </Field>
+
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <Field label="Month">
+        <Select value={month} options={monthOptions} placeholder="MM" onChange={(option) => setMonth(option.value)} />
+      </Field>
+      <Field label="Year">
+        <Select value={year} options={yearOptions} placeholder="YYYY" onChange={(option) => setYear(option.value)} />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" inputMode="numeric" />
+      </Field>
+    </div>
+
+    <Separator />
+
+    <Card.Header>
+      <Card.Title>Billing Address</Card.Title>
+      <Card.Description>The billing address associated with your payment method</Card.Description>
+    </Card.Header>
+
+    <Checkbox checked={sameAsShipping} onCheckedChange={setSameAsShipping} label="Same as shipping address" />
+
+    <Separator />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" rows={3} />
+    </Field>
+
+    <div style={{ display: "flex", gap: 8 }}>
+      <Button color="primary" variant="solid">Submit</Button>
+      <Button color="secondary" variant="outline">Cancel</Button>
+    </div>
+  </div>
 </Card>`}>
   <CardPaymentMethodDemo />
 </ComponentPreview>
 
 ### No team members (empty state)
 
-<ComponentPreview details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={`<Card>
+<ComponentPreview details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
   <EmptyMessage>
-    <EmptyMessage.Icon><UserAdd /></EmptyMessage.Icon>
+    <EmptyMessage.Icon>
+      <UserAdd />
+    </EmptyMessage.Icon>
     <EmptyMessage.Title>No team members</EmptyMessage.Title>
     <EmptyMessage.Description>Invite your team to collaborate on this project.</EmptyMessage.Description>
     <EmptyMessage.ActionRow>
-      <Button color="primary" size="sm" pill={false}>Invite members</Button>
+      <Button color="primary" variant="solid" size="sm">Invite members</Button>
     </EmptyMessage.ActionRow>
   </EmptyMessage>
 </Card>`}>
@@ -129,7 +181,9 @@ import {
 
 ### How did you hear about us?
 
-<ComponentPreview details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={`<Card>
+<ComponentPreview details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={`const [source, setSource] = useState("social")
+
+<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>How did you hear about us?</Card.Title>
     <Card.Description>Select the option that best describes how you heard about us.</Card.Description>
@@ -142,20 +196,26 @@ import {
       <RadioGroup.Item value="other" block>Other</RadioGroup.Item>
     </RadioGroup>
   </Card.Content>
-  <Card.Footer><Button color="primary" block pill={false}>Submit</Button></Card.Footer>
+  <Card.Footer>
+    <Button color="primary" variant="solid" block>Submit</Button>
+  </Card.Footer>
 </Card>`}>
   <CardSurveyDemo />
 </ComponentPreview>
 
 ### Processing your request
 
-<ComponentPreview details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={`<Card>
+<ComponentPreview details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
   <EmptyMessage>
-    <EmptyMessage.Icon><LoadingIndicator size={24} /></EmptyMessage.Icon>
+    <div style={{ marginBottom: 12, color: "var(--color-text-tertiary)" }}>
+      <LoadingIndicator size={28} />
+    </div>
     <EmptyMessage.Title>Processing your request</EmptyMessage.Title>
-    <EmptyMessage.Description>Please wait while we process your request. Do not refresh the page.</EmptyMessage.Description>
+    <EmptyMessage.Description>
+      Please wait while we process your request. Do not refresh the page.
+    </EmptyMessage.Description>
     <EmptyMessage.ActionRow>
-      <Button variant="outline" size="sm" pill={false}>Cancel</Button>
+      <Button color="secondary" variant="outline" size="sm">Cancel</Button>
     </EmptyMessage.ActionRow>
   </EmptyMessage>
 </Card>`}>
@@ -164,16 +224,43 @@ import {
 
 ### Pricing
 
-<ComponentPreview details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={`<Card variant="solid">
-  <Card.Header>
-    <Card.Title>Pro</Card.Title>
-    <Card.Description>$19 / month</Card.Description>
-  </Card.Header>
-  <Card.Content>{/* features list */}</Card.Content>
-  <Card.Footer>
-    <Button color="primary" block pill={false}>Choose Pro</Button>
-  </Card.Footer>
-</Card>`}>
+<ComponentPreview details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={`const plans = [
+  { name: "Starter", price: "$0", highlighted: false, features: ["1 project", "Community support", "Plex UI core"] },
+  { name: "Pro", price: "$19", highlighted: true, features: ["Unlimited projects", "Priority support", "All Figma kits", "Early components"] },
+]
+
+<div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", maxWidth: 720 }}>
+  {plans.map((plan) => (
+    <Card key={plan.name} variant={plan.highlighted ? "solid" : "outline"}>
+      <Card.Header>
+        <Card.Title>{plan.name}</Card.Title>
+        <Card.Description>
+          <span style={{ fontSize: 28, fontWeight: 600, color: "var(--color-text)" }}>{plan.price}</span>
+          <span style={{ marginLeft: 4 }}>/ month</span>
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+          {plan.features.map((feature) => (
+            <li key={feature} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Check style={{ width: 16, height: 16, color: "var(--color-text-success-soft)" }} />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </Card.Content>
+      <Card.Footer style={{ marginTop: "auto", paddingTop: 4 }}>
+        <Button
+          color={plan.highlighted ? "primary" : "secondary"}
+          variant={plan.highlighted ? "solid" : "outline"}
+          block
+        >
+          Choose {plan.name}
+        </Button>
+      </Card.Footer>
+    </Card>
+  ))}
+</div>`}>
   <CardPricingDemo />
 </ComponentPreview>
 </div>

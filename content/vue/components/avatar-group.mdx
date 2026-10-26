@@ -50,7 +50,7 @@ export const sizing = `<AvatarGroup :size="size">
   <VueDemo template={sizing} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "size", type: "range", min: 14, max: 80, step: 2, default: 48 }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "The avatars of the group" },
@@ -58,3 +58,18 @@ export const sizing = `<AvatarGroup :size="size">
   { prop: "stack", type: '"start" | "end"', default: '"start"', description: "Stacking direction" },
   { prop: "class", type: "string", description: "Applied to the group container; other attributes are not forwarded" },
 ]} />
+
+## Styling
+
+Avatar Group reads these component tokens. Override them at any scope to restyle it:
+
+- `--avatar-font-size-scaling`: font size scaling (default `0.5`)
+- `--avatar-group-cutout-color`: cutout color (default `var(--color-surface)`)
+- `--avatar-group-cutout-width`: cutout width (default `3px`)
+- `--avatar-group-spacing`: spacing (default `-8px`)
+- `--avatar-image-border-color`: image border color (default `light-dark(var(--alpha-04), var(--alpha-15))`)
+- `--avatar-overflow-font-size-scaling-one`: overflow font size scaling one (default `0.45`)
+- `--avatar-overflow-font-size-scaling-three`: overflow font size scaling three (default `0.3`)
+- `--avatar-overflow-font-size-scaling-two`: overflow font size scaling two (default `0.37`)
+- `--avatar-radius`: radius (default `var(--radius-full)`)
+- `--avatar-size`: size (default `28px`)

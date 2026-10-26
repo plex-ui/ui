@@ -1,7 +1,7 @@
 ---
 title: Separator
 description: A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
-metaDescription: Accessible React separator component that divides content visually or semantically — horizontal and vertical orientation for menus and lists
+metaDescription: Accessible React separator component that divides content visually or semantically, with horizontal and vertical orientation for menus and lists
 ---
 
 import { Separator } from "@plexui/ui/components/Separator"
@@ -18,10 +18,10 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<div>
+<ComponentPreview code={`<div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 384 }}>
   <div>
     <div style={{ fontWeight: 500 }}>Aisha Cooper</div>
-    <div className="text-muted">Engineering · Platform team</div>
+    <div className="text-tertiary">Engineering · Platform team</div>
   </div>
   <Separator />
   <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>
@@ -46,17 +46,17 @@ import {
 <ComponentPreview details={<>Vertical separators between menu items with a short caption underneath each label.</>} code={`<div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
   <div>
     <div style={{ fontWeight: 500 }}>Starter</div>
-    <div className="text-muted">Free · 1 project</div>
+    <div className="text-tertiary">Free · 1 project</div>
   </div>
   <Separator orientation="vertical" />
   <div>
     <div style={{ fontWeight: 500 }}>Pro</div>
-    <div className="text-muted">$19/mo · Unlimited</div>
+    <div className="text-tertiary">$19/mo · Unlimited</div>
   </div>
   <Separator orientation="vertical" />
   <div>
     <div style={{ fontWeight: 500 }}>Enterprise</div>
-    <div className="text-muted">Custom · Priority SLA</div>
+    <div className="text-tertiary">Custom · Priority SLA</div>
   </div>
 </div>`}>
   <SeparatorMenuDemo />

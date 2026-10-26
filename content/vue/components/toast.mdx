@@ -135,7 +135,7 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
   <VueToastDemo template={persistent} />
 </ComponentPreview>
 
-## Reference
+## API
 
 ### Toaster
 
@@ -146,21 +146,11 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
   { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
 ]} />
 
-Remaining vue-sonner `Toaster` props (`expand`, `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, etc.) are forwarded untouched. The `success-icon`, `error-icon`, `warning-icon`, `info-icon`, `loading-icon` and `close-icon` slots replace the default icons.
+Remaining vue-sonner `Toaster` props (`expand`, `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, etc.) are forwarded untouched. `theme`, `rich-colors`, `toast-options`, `style` and `close-button` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync. The `success-icon`, `error-icon`, `warning-icon`, `info-icon`, `loading-icon` and `close-icon` slots replace the default icons.
 
 ### toast
 
 vue-sonner's `toast`, wrapped so a per-toast `descriptionClass` reaches the description as in React. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference. vue-sonner spells a few options the Vue way: `class` (sonner's `className`), `classes` (`classNames`) and `descriptionClass` (`descriptionClassName`), and `toast.custom` takes a component.
-
-### Types
-
-`Action`, `ExternalToast`, and `ToastT` are re-exported so you can type helpers without importing from `vue-sonner` directly.
-
-## Theme sync
-
-`<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light and dark rethemes toasts that are already on screen, with no extra theme dependency.
-
-## Differences from React
 
 The Vue Toaster wraps [vue-sonner](https://vue-sonner.vercel.app/) 2.0.9, the Vue port of the sonner library the React Toaster uses. Plex styles, icons, defaults and theme sync are the same, and the wrapper aligns the markup it can reach. A few differences come from vue-sonner itself:
 
@@ -175,4 +165,17 @@ The Vue Toaster wraps [vue-sonner](https://vue-sonner.vercel.app/) 2.0.9, the Vu
 - Updating a toast with a new `duration`, such as turning a `toast.loading()` with `duration: Infinity` into a success with `duration: 3000`, keeps its old timer, where React starts over with the new duration.
 - An `action` or `cancel` label given as a component prints as text, so pass a string label; React renders the element.
 - A per-toast `descriptionClass` comes after the Plex description class in the class list; React puts it first.
+
+### Types
+
+`Action`, `ExternalToast`, and `ToastT` are re-exported so you can type helpers without importing from `vue-sonner` directly.
+
+### Theme sync
+
+`<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light and dark rethemes toasts that are already on screen, with no extra theme dependency.
+
+## Styling
+
+Toast has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+
 </div>

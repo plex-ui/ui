@@ -17,7 +17,7 @@ export const overview = `<Menu>
   <MenuContent :width="210" :min-width="210">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuLink href="/settings">Your profile</MenuLink>
+    <MenuLink href="#">Your profile</MenuLink>
     <MenuLink href="#">Terms & policies</MenuLink>
     <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
     <MenuSeparator />
@@ -43,10 +43,10 @@ export const horizontalIcons = `<Menu>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </MenuTrigger>
   <MenuContent layout="horizontal" :size="size" min-width="auto">
-    <MenuItem @select="() => {}"><EditPencil /></MenuItem>
-    <MenuItem @select="() => {}"><SettingsCog /></MenuItem>
-    <MenuItem @select="() => {}"><Play /></MenuItem>
-    <MenuItem @select="() => {}"><UnfoldHorizontal /></MenuItem>
+    <MenuItem @select="() => {}"><EditPencil /><span class="sr-only">Edit</span></MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /><span class="sr-only">Settings</span></MenuItem>
+    <MenuItem @select="() => {}"><Play /><span class="sr-only">Play</span></MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
   </MenuContent>
 </Menu>`
 
@@ -205,7 +205,7 @@ export const itemActions = `<Menu>
 
 ### Horizontal (icons only)
 
-<ComponentPreview language="vue" details={<>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar.</>} code={horizontalIcons} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</>} code={horizontalIcons} previewMinHeight={168}>
   <VueDemo template={horizontalIcons} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
@@ -245,7 +245,7 @@ export const itemActions = `<Menu>
   <VueDemo template={itemActions} />
 </ComponentPreview>
 
-## Reference
+## API
 
 **Note:** Menu prevents `Tab` from advancing focus. For generic popover content use [Popover](/vue/components/popover) instead.
 
@@ -258,7 +258,7 @@ export const itemActions = `<Menu>
   { prop: "@close", type: "() => void", description: "Emitted when menu closes" },
 ]} />
 
-**MenuTrigger**: renders its child (e.g. a Button) as the element that toggles the menu.
+**MenuTrigger**: renders its child (e.g. a Button) as the element that toggles the menu. Other attributes and listeners reach the child.
 
 <PropsTable data={[
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent the menu from opening" },
@@ -267,28 +267,28 @@ export const itemActions = `<Menu>
 **MenuContent**
 
 <PropsTable data={[
-  { prop: "width", type: 'number | "auto"', description: "Panel width (numbers are pixels)" },
+  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width (numbers are pixels)" },
   { prop: "min-width", type: 'number | "auto"', default: "300", description: "Minimum panel width" },
   { prop: "max-height", type: "number", description: "Maximum panel height, in pixels" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement" },
   { prop: "side-offset", type: "number", default: "5", description: "Distance from the trigger, in pixels" },
-  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
-  { prop: "align-offset", type: "number", description: "Offset from the start or end alignment, in pixels" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
+  { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment, in pixels" },
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
 ]} />
 
-**MenuItem**: list item. Listen to `@select` for actions; without it the item is non-interactive content.
+**MenuItem**: list item. Listen to `@select` or `@click` for actions; without either the item is non-interactive content.
 
 <PropsTable data={[
   { prop: "description", type: "string", description: "Second line under the label (or the description slot). The label turns semibold on its own" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
   { prop: "@select", type: "(event: Event) => void", description: "Called when the item is selected; call event.preventDefault() to keep the menu open" },
-  { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted when the item is clicked" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Called when the item is clicked; also makes the item interactive" },
 ]} />
 
-**MenuLink**: item that navigates. Internal paths render the link component from `PlexUIProvider` (for example vue-router's `RouterLink`); absolute URLs open in a new tab. Pass `href` or `to`, `disabled`, `as` and link attributes.
+**MenuLink**: item that navigates. Internal paths render the link component from `PlexUIProvider` (for example vue-router's `RouterLink`); absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `as` and link attributes.
 
 **MenuSeparator**: divider between items. No props.
 
@@ -312,3 +312,24 @@ export const itemActions = `<Menu>
 **MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`) and `indicator-position`; MenuRadioItem takes `value`, `disabled` and `@select`.
 
 **MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
+
+## Styling
+
+Menu reads these component tokens. Override them at any scope to restyle it:
+
+- `--menu-checkbox-indicator-size`: checkbox indicator size (default `var(--font-text-lg-size)`)
+- `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--menu-gutter`: gutter (default `spacing(1.5)`)
+- `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-item-gap`: item gap (default `spacing(1.5)`)
+- `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)
+- `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--menu-radio-indicator-hole-size`: radio indicator hole size (default `var(--font-text-3xs-size)`)
+- `--menu-radio-indicator-size`: radio indicator size (default `var(--font-text-lg-size)`)
+- `--menu-radius`: radius (default `var(--radius-xl)`)
+- `--menu-separator-background-color`: separator background color (default `var(--color-border)`)
+- `--menu-separator-gutter`: separator gutter (default `var(--menu-gutter) calc(-1 * var(--menu-gutter))`)
+- `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)
+- `--radio-group-indicator-border-color`: indicator border color (default `var(--color-border-primary-outline)`)
+- `--radio-group-indicator-border-color-hover`: indicator border color hover (default `var(--alpha-25)`)
+- `--radio-group-indicator-hole-background-color`: indicator hole background color (default `var(--color-text-primary-solid)`)

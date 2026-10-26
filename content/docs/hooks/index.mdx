@@ -1,6 +1,6 @@
 ---
 title: Hooks
-description: Plex UI React hooks reference — useBreakpoint, useAutoGrowTextarea, useDocumentVisible, useEscCloseStack, useIsMounted, and other utility hooks
+description: Plex UI React hooks reference. useBreakpoint, useAutoGrowTextarea, useDocumentVisible, useEscCloseStack, useIsMounted, and other utility hooks
 ---
 
 All hooks are documented on this page so the section stays compact and scannable.
@@ -31,7 +31,7 @@ The module also exports `getAutoGrowTextareaHeight(element)` for imperative meas
 
 ## useBreakpoint
 
-Reads Plex UI breakpoints from CSS variables and returns whether the viewport is at or above the requested breakpoint.
+Reads Plex UI breakpoints from CSS variables and returns whether the viewport is at or above the requested breakpoint. It returns `false` on the first render, on the server and the client alike, then follows the viewport. Without the `--breakpoint-*` variables (they come from the opt-in Tailwind theme import) it uses the default values (`xs` 380px to `2xl` 1536px) and warns in development.
 
 ```tsx
 import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoints";
@@ -93,7 +93,7 @@ const latest = useLatestValue(value);
 
 ## usePrevious
 
-Returns the previous value from the prior render cycle.
+Returns the value `value` had before its latest change. Renders that keep the same `value` return the same previous value; on the first render it returns the current value.
 
 ```tsx
 import { usePrevious } from "@plexui/ui/hooks/usePrevious";

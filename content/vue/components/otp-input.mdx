@@ -50,7 +50,7 @@ export const disabled = `<OTPInput value="488030" disabled />`
   <VueDemo template={disabled} stageClassName="py-10 flex justify-center" />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "length", type: "number", default: "6", description: "Number of digit cells" },
@@ -62,4 +62,20 @@ export const disabled = `<OTPInput value="488030" disabled />`
   { prop: "error-message", type: "string", description: "Error message below the input" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
   { prop: "auto-focus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
+  { prop: "class", type: "string", description: "Applied to the root element" },
 ]} />
+
+Each digit stays in its own cell: typing into a later empty cell keeps the digit there, and clearing a cell in the middle does not move the others. The value is the filled digits in order. Pasting or typing several digits writes them from the focused cell onward.
+
+## Styling
+
+OTP Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--floating-input-background`: background (default `var(--color-surface)`)
+- `--floating-input-border-color`: border color
+- `--floating-input-border-color-focus`: border color focus (default `var(--alpha-50)`)
+- `--floating-input-border-color-hover`: border color hover
+- `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--floating-input-border-radius`: border radius (default `var(--radius-full)`)
+- `--floating-input-transition-duration`: transition duration (default `80ms`)

@@ -108,7 +108,7 @@ export const autofillExtensions = `<div class="w-[400px]">
   <VueDemo template={autofillExtensions} controls={[{ name: "allowAutofillExtensions", type: "boolean", default: true }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "value / v-model:value", type: "string | number", description: "Controlled value; uncontrolled when omitted" },
@@ -130,3 +130,15 @@ export const autofillExtensions = `<div class="w-[400px]">
 ]} />
 
 Every other attribute and listener (`placeholder`, `name`, `id`, `style`, `@input`, `@focus`, `@blur`, ...) goes to the `<textarea>`.
+
+## Styling
+
+Textarea reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)

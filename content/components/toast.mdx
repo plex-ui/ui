@@ -1,7 +1,7 @@
 ---
 title: Toast
 description: Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
-metaDescription: React toast notification component for transient feedback — semantic variants, descriptions, action buttons, promise integration, and persistent toasts
+metaDescription: React toast notification component for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
 ---
 
 import {
@@ -34,7 +34,8 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 
 ### Variants
 
-<ComponentPreview details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed. Variants retheme automatically with <code>data-theme</code>.</>} code={`toast.success("Inquiry ID copied")
+<ComponentPreview details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed, so variants retheme automatically with <code>data-theme</code>.</>} code={`toast("Changes saved")
+toast.success("Inquiry ID copied")
 toast.error("Failed to assign owner")
 toast.warning("Session expires in 2 minutes")
 toast.info("New version available")`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
@@ -60,7 +61,7 @@ toast.info("New version available")`} previewMinHeight={PREVIEW_MIN_HEIGHT.contr
 
 ### Promise
 
-<ComponentPreview details={<>Use <code>toast.promise</code> to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error.</>} code={`toast.promise(saveProfile(), {
+<ComponentPreview details={<>Use <code>toast.promise</code> to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here <code>saveProfile()</code> resolves with <code>{"{ name: \"Profile\" }"}</code> after 1.5 seconds.</>} code={`toast.promise(saveProfile(), {
   loading: "Saving…",
   success: (data) => \`\${data.name} saved\`,
   error: "Save failed",
@@ -71,7 +72,8 @@ toast.info("New version available")`} previewMinHeight={PREVIEW_MIN_HEIGHT.contr
 ### Long content
 
 <ComponentPreview code={`toast("Your deployment is still running", {
-  description: "This is a long message to show how the toast handles multi-line content…",
+  description:
+    "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.",
 })`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <ToastLongContentDemo />
 </ComponentPreview>
@@ -105,7 +107,7 @@ toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIG
   { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
 ]} />
 
-Remaining sonner `Toaster` props (`expand`, `visibleToasts`, `hotkey`, `dir`, `swipeDirections`, etc.) are forwarded untouched.
+Remaining sonner `Toaster` props (`expand`, `visibleToasts`, `hotkey`, `dir`, `swipeDirections`, etc.) are forwarded untouched. `theme`, `richColors`, `toastOptions`, `style` and `closeButton` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync.
 
 ### toast
 

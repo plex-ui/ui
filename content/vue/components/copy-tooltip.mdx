@@ -37,14 +37,18 @@ export const overview = `<CopyTooltip
   />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode", description: "Trigger element (for example TooltipTriggerDecorator)" },
-  { prop: "copyValue", type: "string", description: "Required. Content to copy to clipboard" },
-  { prop: "openDelay", type: "number", default: "150", description: "Tooltip open delay in milliseconds" },
+  { prop: "copy-value", type: "string", description: "Required. Content to copy to clipboard" },
+  { prop: "open-delay", type: "number", default: "150", description: "Tooltip open delay in milliseconds" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred tooltip alignment against the trigger" },
-  { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
+  { prop: "align-offset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
-  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger in pixels" },
+  { prop: "side-offset", type: "number", default: "5", description: "Distance from trigger in pixels" },
 ]} />
+
+## Styling
+
+Copy Tooltip has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

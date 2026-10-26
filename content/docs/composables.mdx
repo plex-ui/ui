@@ -3,7 +3,7 @@ title: Composables
 description: Plex UI Vue composables reference, the Vue counterparts of the React hooks, from useBreakpoint to useSimulatedProgress and useTextSelection.
 ---
 
-`@plexui/vue` ships the hooks that carry behaviour as Vue composables, one module per hook under `@plexui/vue/composables/<name>`. They accept refs and getters (`MaybeRefOrGetter`) where the React hook takes plain values, return refs where it returns state, and clean up when the calling component unmounts. Browser APIs are only touched after mount, so they are safe in SSR.
+`@plexui/vue` ships the hooks that carry behaviour as Vue composables, one module per hook under `@plexui/vue/composables/<name>`. They accept refs and getters (`MaybeRefOrGetter`) where the React hook takes plain values, return refs where it returns state, and clean up when the calling component unmounts. They are safe to call during SSR: listeners, observers, timers and media queries start once the component is mounted or its element ref is set. `useBreakpoint` is `false` on the server and in the client's first render, so hydration matches; `useDocumentVisible` is `true` on the server and reads `document.visibilityState` on the client.
 
 ## useAnimatedScrollTo
 
@@ -33,7 +33,7 @@ The module also exports `getAutoGrowTextareaHeight(element)` for imperative meas
 
 ## useBreakpoint
 
-Reads Plex UI breakpoints from CSS variables and returns a ref that is `true` when the viewport is at or above the requested breakpoint.
+Reads Plex UI breakpoints from CSS variables and returns a ref that is `true` when the viewport is at or above the requested breakpoint. The ref starts `false` and reads the media query on mount. Without the `--breakpoint-*` variables (they come from the opt-in Tailwind theme import) it uses the default values (`xs` 380px to `2xl` 1536px) and warns in development.
 
 ```ts
 import { useBreakpoint } from "@plexui/vue/composables/useBreakpoints";

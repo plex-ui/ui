@@ -29,7 +29,7 @@ import {
   <Menu.Content width={210} minWidth={210}>
     <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
     <Menu.Separator />
-    <Menu.Link href="/settings">Your profile</Menu.Link>
+    <Menu.Link href="#">Your profile</Menu.Link>
     <Menu.Link href="#">Terms & policies</Menu.Link>
     <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>
     <Menu.Separator />
@@ -58,15 +58,15 @@ import {
 
 ### Horizontal (icons only)
 
-<ComponentPreview details={<>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar.</>} code={`<Menu>
+<ComponentPreview details={<>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
-  <Menu.Content layout="horizontal" minWidth="auto">
-    <Menu.Item onSelect={() => {}}><EditPencil width={20} height={20} /></Menu.Item>
-    <Menu.Item onSelect={() => {}}><SettingsCog width={20} height={20} /></Menu.Item>
-    <Menu.Item onSelect={() => {}}><Play width={20} height={20} /></Menu.Item>
-    <Menu.Item onSelect={() => {}}><ExpandLg width={20} height={20} /></Menu.Item>
+  <Menu.Content layout="horizontal" size="md" minWidth="auto">
+    <Menu.Item onSelect={() => {}}><EditPencil /><span className="sr-only">Edit</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><SettingsCog /><span className="sr-only">Settings</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><Play /><span className="sr-only">Play</span></Menu.Item>
+    <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className="sr-only">Expand</span></Menu.Item>
   </Menu.Content>
 </Menu>`} previewMinHeight={168}>
   <MenuHorizontalIconsOnlyDemoWithControls />
@@ -78,11 +78,11 @@ import {
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
-  <Menu.Content layout="horizontal" minWidth="auto">
-    <Menu.Item onSelect={() => {}}><EditPencil width={20} height={20} /> Edit</Menu.Item>
-    <Menu.Item onSelect={() => {}}><SettingsCog width={20} height={20} /> Settings</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Play width={20} height={20} /> Play</Menu.Item>
-    <Menu.Item onSelect={() => {}}><ExpandLg width={20} height={20} /> Expand</Menu.Item>
+  <Menu.Content layout="horizontal" size="md" minWidth="auto">
+    <Menu.Item onSelect={() => {}}><EditPencil /> Edit</Menu.Item>
+    <Menu.Item onSelect={() => {}}><SettingsCog /> Settings</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>
+    <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>
   </Menu.Content>
 </Menu>`} previewMinHeight={168}>
   <MenuHorizontalWithLabelsDemoWithControls />
@@ -257,31 +257,41 @@ return (
   { prop: "forceOpen", type: "boolean", description: "Keep menu open (controlled)" },
   { prop: "onOpen", type: "() => void", description: "Called when menu opens" },
   { prop: "onClose", type: "() => void", description: "Called when menu closes" },
-  { prop: "modal", type: "boolean", description: "Whether menu is modal (focus trap)" },
+  { prop: "modal", type: "boolean", default: "false", description: "Whether menu is modal (focus trap)" },
 ]} />
 
-**Menu.Trigger**: The element that toggles the menu (e.g. a Button). No specific props.
+**Menu.Trigger**: Renders its child (e.g. a Button) as the element that toggles the menu. Other props (`aria-*`, handlers, `ref`) reach the child.
+
+<PropsTable data={[
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevent the menu from opening" },
+]} />
 
 **Menu.Content**
 
 <PropsTable data={[
   { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
   { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px (vertical layout)" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
-  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
+  { prop: "maxHeight", type: "number", description: "Maximum panel height in px" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from the trigger in px" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
+  { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment in px" },
   { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
+  { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
 ]} />
 
-**Menu.Item**: List item. Use `onSelect` for actions; omit for non-interactive content.
+**Menu.Item**: List item. Use `onSelect` or `onClick` for actions; without either the item is non-interactive content.
 
 <PropsTable data={[
   { prop: "description", type: "ReactNode", description: "Second line under the label. The label turns semibold on its own" },
-  { prop: "onSelect", type: "(event: Event) => void", description: "Called when item is selected" },
-  { prop: "disabled", type: "boolean", description: "Disable the item" },
+  { prop: "onSelect", type: "(event: Event) => void", description: "Called when item is selected; call event.preventDefault() to keep the menu open" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called when the item is clicked; also makes the item interactive" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
+  { prop: "className", type: "string", description: "Applied to the item" },
 ]} />
 
-**Menu.Link**: Item that navigates (uses your app link component). Pass `href` and link props.
+**Menu.Link**: Item that navigates. Internal paths render the link component from `PlexUIProvider`; absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `as` and link props.
 
 **Menu.Separator**: Divider between items. No props.
 
@@ -289,7 +299,7 @@ return (
 
 **Menu.Label**: Non-interactive label for a group. Accepts `className`.
 
-**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent**: Submenu wrapper, trigger, and content panel.
+**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent**: Submenu wrapper (with `forceOpen`, `onOpen` and `onClose`), trigger (with `disabled`), and content panel (with `width`, `minWidth`, `maxHeight`, `sideOffset` and `alignOffset`).
 
 **Menu.CheckboxItem**
 
@@ -299,11 +309,12 @@ return (
   { prop: "onSelect", type: "(event: Event) => void", description: "Use with preventDefault() to keep menu open" },
   { prop: "indicatorPosition", type: '"start" | "end"', default: '"end"', description: "Checkbox position" },
   { prop: "indicatorVariant", type: '"solid" | "ghost"', default: '"solid"', description: "Checkbox indicator style" },
+  { prop: "disabled", type: "boolean", description: "Disable the item" },
 ]} />
 
-**Menu.RadioGroup** / **Menu.RadioItem**: Radio group: `value`, `onChange`; RadioItem: `value`, `disabled`.
+**Menu.RadioGroup** / **Menu.RadioItem**: Radio group: `value`, `onChange` and `indicatorPosition` (default `"end"`); RadioItem: `value`, `disabled` and `onSelect`.
 
-**Menu.ItemActions** / **Menu.ItemAction**: ItemActions wraps hover actions; ItemAction accepts `onClick`.
+**Menu.ItemActions** / **Menu.ItemAction**: ItemActions wraps hover actions; ItemAction accepts `onClick` and closes the menu.
 
 ## Styling
 

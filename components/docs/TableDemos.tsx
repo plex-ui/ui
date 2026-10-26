@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import {
   DataTable,
   DataTableColumnHeader,
@@ -9,6 +9,7 @@ import {
   statusCell,
   tooltipHeader,
   type ColumnDef,
+  type RowSelectionState,
   type VisibilityState,
 } from '@plexui/ui/components/DataTable';
 import { Input } from '@plexui/ui/components/Input';
@@ -78,7 +79,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (value: boolean) => void;
 }) {
-  const controlId = 'demo-switch-' + name.toLowerCase().replace(/\s+/g, '-');
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -153,22 +154,50 @@ export function TableRowClickDemo() {
 
   return (
     <div data-demo-stage className="py-6 px-2 w-full">
-      <DataTable columns={columns} data={users.slice(0, 8)} onRowClick={setSelectedUser} pageSize={4} />
-      <div
-        style={{
-          marginTop: 12,
-          padding: '10px 12px',
-          border: '1px solid var(--color-fd-border)',
-          borderRadius: 8,
-          background: 'var(--docs-surface-elevated)',
-          color: 'var(--color-text-secondary)',
-          fontSize: '0.875rem',
-        }}
-      >
+      <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />
+      <p className="mt-3 text-sm text-secondary">
         {selectedUser
-          ? `Clicked: ${selectedUser.name} (${selectedUser.id}) - ${selectedUser.department}`
+          ? 'Clicked: ' + selectedUser.name + ' (' + selectedUser.id + ') - ' + selectedUser.department
           : 'Click a row to see selected user details.'}
-      </div>
+      </p>
+    </div>
+  );
+}
+
+export function TableRowSelectionDemo() {
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'name',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+      },
+      { accessorKey: 'role', header: 'Role' },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: statusCell<User>((row) => row.status),
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div data-demo-stage className="py-6 px-2 w-full">
+      <DataTable
+        columns={columns}
+        data={users}
+        pageSize={5}
+        enableRowSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(user) => user.id}
+      />
+      <p className="mt-3 text-sm text-secondary">
+        {Object.keys(rowSelection).length} of {users.length} rows selected
+      </p>
     </div>
   );
 }
@@ -215,6 +244,7 @@ export function TableCellVariantsDemo() {
 
 export function TableFilteringDemo() {
   const [globalFilter, setGlobalFilter] = useState('');
+  const filterInputId = useId();
 
   const columns: ColumnDef<User>[] = useMemo(
     () => [
@@ -238,12 +268,12 @@ export function TableFilteringDemo() {
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <div style={controlRowStyle}>
-          <label htmlFor="table-filter-input" style={controlLabelStyle}>
+          <label htmlFor={filterInputId} style={controlLabelStyle}>
             globalFilter
           </label>
           <div style={{ width: 'min(420px, 100%)' }}>
             <Input
-              id="table-filter-input"
+              id={filterInputId}
               value={globalFilter}
               onChange={(event) => setGlobalFilter(event.target.value)}
               placeholder="Search name, role, department..."

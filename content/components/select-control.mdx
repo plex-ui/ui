@@ -1,7 +1,7 @@
 ---
 title: Select Control
 description: Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
-metaDescription: Headless React select control primitive for building custom dropdowns — variants, sizing, start and dropdown icons, clearable, loading, and invalid states
+metaDescription: React select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
 ---
 
 import {
@@ -37,13 +37,16 @@ const placeholder = "Select date..."
 return (
   <Menu>
     <Menu.Trigger>
-      <SelectControl selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
+      <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
         {value || placeholder}
       </SelectControl>
     </Menu.Trigger>
-    <Menu.Content>
+    <Menu.Content minWidth={200} width={200}>
       <Menu.RadioGroup value={value} onChange={setValue}>
-        ...
+        <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+        <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+        <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+        <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
       </Menu.RadioGroup>
     </Menu.Content>
   </Menu>
@@ -83,7 +86,7 @@ return (
 
 ### Dropdown icon
 
-<ComponentPreview details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator.</>} code={`<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator.</>} code={`<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlDropdownIconDemo />
 </ComponentPreview>
 
@@ -97,7 +100,7 @@ return (
 
 ### Loading
 
-<ComponentPreview details={<>During loading, dropdown icon and clear actions are automatically hidden.<br/><br/>Interactions will be prevented by default during this state, by providing a default value for <code>inert</code> to <code>true</code>. You can override this behavior directly with <code>inert</code>, or use <code>disabled</code> to add visual disablement.</>} code={`<SelectControl loading>Loading models...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={`<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlLoadingDemo />
 </ComponentPreview>
 
@@ -116,23 +119,23 @@ return (
 ### Block
 
 <ComponentPreview details={<>Create full-width controls with the <code>block</code> prop.</>} code={`<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <SelectControl block size="lg">Select...</SelectControl>
+  <SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
 </div>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlBlockDemo />
 </ComponentPreview>
 
 ### Country selector
 
-<ComponentPreview details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields.</>} code={`const countries = [
+<ComponentPreview details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={`const countries = [
   { value: "us", label: "United States" },
   { value: "gb", label: "United Kingdom" },
   // ...60 countries
 ];
 
-const CountryView = ({ value }) => (
+const CountryView = ({ value, label }: Option) => (
   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-    <img src={\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\${value}.svg\`} width={20} />
-    {countries.find(c => c.value === value)?.label}
+    <img src={\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\${value}.svg\`} alt="" width={20} />
+    {label}
   </span>
 );
 
@@ -143,8 +146,9 @@ const CountryView = ({ value }) => (
   placeholder="Select country..."
   size="lg"
   block
-  searchable
+  searchPlaceholder="Search countries..."
   TriggerView={CountryView}
+  OptionView={CountryView}
   listMinWidth={300}
 />`} previewMinHeight={168}>
   <CountrySelectorDemo />
@@ -162,7 +166,7 @@ const CountryTriggerView = ({ value }) => {
   const country = lookup.get(value);
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-      <img src={\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\${value}.svg\`} width={20} />
+      <img src={\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\${value}.svg\`} alt="" width={20} />
       {country.label} ({country.dialCode})
     </span>
   );
@@ -190,7 +194,7 @@ import { Select, type Option } from '@plexui/ui/components/Select';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldError } from '@plexui/ui/components/FieldError';
 
-// Country data — include all 245 countries in production
+// Country data: include all 245 countries in production
 type Country = { value: string; label: string; dialCode: string; flag: string };
 
 const COUNTRIES: Country[] = [
@@ -240,7 +244,7 @@ function formatPhoneNumber(raw: string, countryCode?: string) {
   return groups.join(' ');
 }
 
-// Flag icon — SVG flags from lipis/flag-icons, all 4:3
+// Flag icon: SVG flags from lipis/flag-icons, all 4:3
 function FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {
   return (
     <span
@@ -355,11 +359,11 @@ function PhoneForm() {
             }
           />
           {showError && (
-        <FieldError className="mt-1.5">Phone number is not valid.</FieldError>
+            <FieldError className="mt-1.5">Phone number is not valid.</FieldError>
           )}
         </div>
       </div>
-  <Button type="submit" color="primary" variant="solid" size="lg" className="w-full mt-3">
+      <Button type="submit" color="primary" variant="solid" size="lg" className="w-full mt-3">
         Continue
       </Button>
     </form>
@@ -376,21 +380,23 @@ function PhoneForm() {
 
 ## API
 
-Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control renders the trigger; you provide the dropdown content.
+Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control renders the trigger; you provide the dropdown content. `children` is the control's content. Other props land on the control's `<span role="button">`; `onKeyDown` receives only the keys the control does not handle itself.
 
 <PropsTable data={[
-  { prop: "selected", type: "boolean", description: "Whether a value is selected (affects placeholder styling)" },
+  { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected (affects placeholder styling)" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Visual variant" },
-  { prop: "size", type: "ControlSize", description: "Control size (3xs to 3xl)" },
-  { prop: "pill", type: "boolean", description: "Fully rounded trigger" },
-  { prop: "StartIcon", type: "Component", description: "Icon at start" },
-  { prop: "onClearClick", type: "() => void", description: "Enables clear button when set" },
-  { prop: "dropdownIconType", type: '"chevronDown" | "dropdown" | "none"', description: "Dropdown indicator style" },
-  { prop: "invalid", type: "boolean", description: "Invalid state" },
-  { prop: "disabled", type: "boolean", description: "Disable control" },
-  { prop: "block", type: "boolean", description: "Full width" },
-  { prop: "loading", type: "boolean", description: "Loading state" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Control size (3xs to 3xl)" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded trigger" },
+  { prop: "StartIcon", type: "ComponentType", description: "Icon at start" },
+  { prop: "onClearClick", type: "() => void", description: "Enables the clear button when set" },
+  { prop: "onInteract", type: "() => void", description: "Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down" },
+  { prop: "dropdownIconType", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Dropdown indicator style" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid state" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable control" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state (aria-busy); hides the indicators and ignores interaction" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Optical alignment" },
+  { prop: "className", type: "string", description: "Applied to the control" },
 ]} />
 
 SelectControl shares the unified 9-step size scale with Button, Input, Select, and SegmentedControl.

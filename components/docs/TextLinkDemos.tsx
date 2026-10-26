@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { ArrowRight, ArrowUpRight } from '@plexui/ui/components/Icon';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import { Switch } from '@plexui/ui/components/Switch';
@@ -51,7 +51,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

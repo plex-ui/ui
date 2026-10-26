@@ -212,10 +212,14 @@ import {
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
   { prop: "required", type: "boolean", description: "Required for form submission" },
   { prop: "name", type: "string", description: "Form field name" },
-  { prop: "value", type: "string", description: "Value when submitted" },
+  { prop: "value", type: "string", default: '"on"', description: "Value when submitted" },
   { prop: "className", type: "string", description: "CSS classes applied to wrapper node" },
-  { prop: "id", type: "string", description: "The id of the switch element" },
+  { prop: "id", type: "string", description: "The id of the switch element (generated when omitted)" },
+  { prop: "onFocus", type: "FocusEventHandler<HTMLButtonElement>", description: "Called when the switch gains focus" },
+  { prop: "onBlur", type: "FocusEventHandler<HTMLButtonElement>", description: "Called when the switch loses focus" },
 ]} />
+
+Other props, such as `aria-label`, land on the switch `<button>`. Built on [Radix Switch](https://www.radix-ui.com/primitives/docs/components/switch). Inside a `<form>`, a hidden native checkbox mirrors the state so the value is submitted with the form.
 
 ## Styling
 

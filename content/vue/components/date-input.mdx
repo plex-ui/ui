@@ -71,7 +71,7 @@ export const disabled = `<div class="w-[200px]">
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value.</>} code={overview} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</>} code={overview} previewMinHeight={168}>
   <VueDateInputDemo template={overview} stageClassName="py-10" state={{ date: null }} controls={overviewControls} />
 </ComponentPreview>
 
@@ -123,7 +123,7 @@ export const disabled = `<div class="w-[200px]">
   <VueDateInputDemo template={disabled} dates={{ date: "2025-01-01" }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "value / v-model:value", type: "DateTime | null", description: "Selected date (Luxon DateTime)" },
@@ -139,9 +139,27 @@ export const disabled = `<div class="w-[200px]">
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button when input has a value" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Input size (3xs to 3xl)" },
   { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded corners" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable input" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
   { prop: "placeholder", type: "string", description: "Generated from the format if not set" },
 ]} />
 
 Other attributes, listeners and the `startAdornment` / `endAdornment` slots go to the underlying [Input](/vue/components/input). The mask is [Maskito](https://maskito.dev) (`@maskito/vue`), with the same options as the React component.
+
+## Styling
+
+Date Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-gap-lg`: gap lg (default `10px`)
+- `--input-gap-md`: gap md (default `8px`)
+- `--input-gap-sm`: gap sm (default `6px`)
+- `--input-gap-xs`: gap xs (default `4px`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

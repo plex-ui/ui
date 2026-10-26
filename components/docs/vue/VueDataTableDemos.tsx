@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type ComponentProps, type CSSProperties } from 'react';
+import { useId, useMemo, useState, type ComponentProps, type CSSProperties } from 'react';
 import { h, markRaw } from 'vue';
 import { Input } from '@plexui/ui/components/Input';
 import {
@@ -77,6 +77,7 @@ const COLUMNS = {
     { accessorKey: 'status', header: 'Status' },
   ],
   rowClick: [nameColumn, { accessorKey: 'email', header: 'Email' }, { accessorKey: 'role', header: 'Role' }],
+  rowSelection: [nameColumn, { accessorKey: 'role', header: 'Role' }, statusColumn],
   cellVariants: [
     { accessorKey: 'id', header: 'ID', cell: idCell<User>((row) => row.id) },
     { accessorKey: 'name', header: 'Name', cell: ({ row }) => h('span', { class: 'font-medium' }, row.original.name) },
@@ -112,7 +113,13 @@ const COLUMNS = {
 
 type Example = keyof typeof COLUMNS;
 
-const scopeOf = (example: Example) => ({ users, columns: markRaw(COLUMNS[example]) });
+// Functions live here, not in the page's `state`: an MDX page is a server
+// component and cannot pass functions to this client one
+const scopeOf = (example: Example) => ({
+  users,
+  columns: markRaw(COLUMNS[example]),
+  getRowId: (user: User) => user.id,
+});
 
 /** The <template> block of a single-file component. */
 const templateOf = (code: string) =>
@@ -151,18 +158,19 @@ const controlLabelStyle: CSSProperties = {
 export function VueDataTableFilteringDemo({ code }: { code: string }) {
   const [scope] = useState(() => scopeOf('filtering'));
   const [globalFilter, setGlobalFilter] = useState('');
+  const filterInputId = useId();
   const props = useMemo(() => ({ ...scope, globalFilter }), [scope, globalFilter]);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <div style={controlRowStyle}>
-          <label htmlFor="vue-table-filter-input" style={controlLabelStyle}>
+          <label htmlFor={filterInputId} style={controlLabelStyle}>
             globalFilter
           </label>
           <div style={{ width: 'min(420px, 100%)' }}>
             <Input
-              id="vue-table-filter-input"
+              id={filterInputId}
               value={globalFilter}
               onChange={(event) => setGlobalFilter(event.target.value)}
               placeholder="Search name, role, department..."

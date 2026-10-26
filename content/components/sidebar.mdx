@@ -106,9 +106,13 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Basic
 
-<ComponentPreview code={`<SidebarProvider>
+<ComponentPreview code={`<SidebarProvider collapsible="icon">
   <SidebarLayout style={{ height: 500 }}>
     <Sidebar>
+      <SidebarHeader>
+        <span>App</span>
+        <SidebarTrigger />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
@@ -118,6 +122,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
                 <SidebarMenuButton isActive tooltip="Overview">
                   <SidebarMenuButtonIcon><Home /></SidebarMenuButtonIcon>
                   <SidebarMenuButtonLabel>Overview</SidebarMenuButtonLabel>
+                  <SidebarMenuBadge><Badge size="sm" color="info">3</Badge></SidebarMenuBadge>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               ...
@@ -125,7 +130,6 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter><SidebarTrigger /></SidebarFooter>
     </Sidebar>
     <SidebarInset>...</SidebarInset>
   </SidebarLayout>
@@ -135,53 +139,85 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Collapsible Sections
 
-<ComponentPreview details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars.</>} code={`<SidebarProvider collapsible="none">
-  <SidebarLayout style={{ height: 500 }}>
-    <Sidebar variant="docs" style={{ width: "260px" }}>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenuItem expanded={isExpanded}>
-            <SidebarMenuButton onClick={() => toggle(id)}>
-              <SidebarMenuButtonLabel>Getting Started</SidebarMenuButtonLabel>
-              <ChevronRightSm className="ml-auto transition-transform" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuSub>
-            <SidebarMenuSubItem>
-              <SidebarMenuSubButton isActive>Introduction</SidebarMenuSubButton>
-            </SidebarMenuSubItem>
-            ...
-          </SidebarMenuSub>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
-  </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
+<ComponentPreview details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it.</>} code={`const [expanded, setExpanded] = useState<string[]>([]);
+const toggle = (id: string) =>
+  setExpanded((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+
+return (
+  <SidebarProvider collapsible="none">
+    <SidebarLayout style={{ height: 500 }}>
+      <Sidebar variant="docs">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>API Reference</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem expanded={expanded.includes("responses")}>
+                  <SidebarMenuSubButton onClick={() => toggle("responses")}>
+                    Responses
+                    <SidebarMenuChevron />
+                  </SidebarMenuSubButton>
+                  <SidebarMenuSub open={expanded.includes("responses")}>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton indent={1} isActive>Create</SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    ...
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+                ...
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>...</SidebarInset>
+    </SidebarLayout>
+  </SidebarProvider>
+);`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
   <SidebarNestedDemo />
 </ComponentPreview>
 
 ### Search and Filter
 
-<ComponentPreview details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A multi-select <code>Select</code> filters items by type.</>} code={`<SidebarProvider collapsible="none">
+<ComponentPreview details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type.</>} code={`<SidebarProvider collapsible="none">
   <SidebarLayout style={{ height: 650 }}>
-    <Sidebar style={{ width: "280px" }}>
+    <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-1.5">
-          <SidebarInput size="sm" placeholder="Search" ... />
-          <Select
-            multiple
-            clearable
-            placeholder="Filter"
-            variant="outline"
-            size="sm"
-            options={stepFilterOptions}
-            value={typeFilters}
-            onChange={(selected) =>
-              setTypeFilters(selected.map((o) => o.value))
-            }
-            block={false}
-          />
+        <div className="flex items-center gap-2 w-full">
+          <div className="flex-1">
+            <SidebarInput
+              variant="soft"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onClear={() => setSearch("")}
+            />
+          </div>
+          <Menu>
+            <Menu.Trigger>
+              <Button variant="soft" color="secondary" uniform aria-label="Filter by type">
+                {typeFilters.length > 0 ? <FilterBadge /> : <Filter />}
+              </Button>
+            </Menu.Trigger>
+            <Menu.Content minWidth="auto" align="end">
+              {stepFilterOptions.map((option) => (
+                <Menu.CheckboxItem
+                  key={option.value}
+                  checked={typeFilters.includes(option.value)}
+                  indicatorPosition="end"
+                  indicatorVariant="ghost"
+                  onCheckedChange={(checked) =>
+                    setTypeFilters((prev) =>
+                      checked ? [...prev, option.value] : prev.filter((v) => v !== option.value),
+                    )
+                  }
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  {option.label}
+                </Menu.CheckboxItem>
+              ))}
+            </Menu.Content>
+          </Menu>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -208,23 +244,36 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Tree with Hover Actions
 
-<ComponentPreview details={<>Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (<code>...</code> and <code>+</code>) appear on hover for parent items.</>} code={`<SidebarMenuItem className="group/action">
-  <SidebarMenuButton isActive onClick={() => setActiveItem(id)}>
-    <SidebarMenuChevron className="!ml-0 ..."
-      onClick={(e) => { e.stopPropagation(); toggleExpanded(id); }}
-    />
-    <SidebarMenuButtonIcon><Icon /></SidebarMenuButtonIcon>
-    <SidebarMenuButtonLabel>Label</SidebarMenuButtonLabel>
-    <span className="ml-auto opacity-0 group-hover/action:opacity-100">
-      <Button variant="ghost" size="xs" uniform>
-        <DotsHorizontal />
-      </Button>
-      <Button variant="ghost" size="xs" uniform>
-        <Plus />
-      </Button>
+<ComponentPreview details={<>Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a <code>+</code> menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.</>} code={`<SidebarMenuItem expanded={isExpanded}>
+  <div className="group/row relative">
+    <SidebarMenuButton isActive={activeItem === id} onClick={() => setActiveItem(id)}>
+      <span
+        role="none"
+        className="transition-transform"
+        style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleExpanded(id);
+        }}
+      >
+        <ChevronDownMd />
+      </span>
+      <SidebarMenuButtonIcon><Icon /></SidebarMenuButtonIcon>
+      <SidebarMenuButtonLabel>Label</SidebarMenuButtonLabel>
+    </SidebarMenuButton>
+    {/* A sibling of the row button, shown on hover */}
+    <span className="absolute right-1 top-0 bottom-0 flex items-center opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto">
+      <Menu>
+        <Menu.Trigger>
+          <Button variant="ghost" color="secondary" size="xs" uniform aria-label="Add">
+            <Plus />
+          </Button>
+        </Menu.Trigger>
+        <Menu.Content minWidth="auto" align="end">...</Menu.Content>
+      </Menu>
     </span>
-  </SidebarMenuButton>
-  <SidebarMenuSub open hasIcons>...</SidebarMenuSub>
+  </div>
+  <SidebarMenuSub open={isExpanded} hasIcons>...</SidebarMenuSub>
 </SidebarMenuItem>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarActionTreeDemo />
 </ComponentPreview>
@@ -252,11 +301,12 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Search Input
 
-<ComponentPreview details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality.</>} code={`<SidebarProvider collapsible="none">
+<ComponentPreview details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so control it with <code>value</code> and <code>onChange</code> and clear it with <code>onClear</code>.</>} code={`<SidebarProvider collapsible="none">
   <SidebarLayout style={{ height: 500 }}>
-    <Sidebar variant="docs" style={{ width: "220px" }}>
+    <Sidebar variant="docs">
       <SidebarHeader>
         <SidebarInput
+          variant="soft"
           placeholder="Search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
@@ -310,7 +360,9 @@ Handles sidebar state and provides context to all child components. Wrap your ap
   { prop: "collapsible", type: '"offcanvas" | "icon" | "none"', default: '"offcanvas"', description: "Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none" },
   { prop: "defaultOpen", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state" },
-  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when open state changes" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when open state changes. Without open the provider keeps its own state and still calls it" },
+  { prop: "className", type: "string", description: "Class of the provider's wrapper" },
+  { prop: "style", type: "CSSProperties", description: "Style of the provider's wrapper, e.g. --sidebar-width" },
 ]} />
 
 ### Sidebar
@@ -322,13 +374,13 @@ The main sidebar container. Renders as an `<aside>` element.
   { prop: "side", type: '"left" | "right"', default: '"left"', description: "Which side the sidebar is on" },
 ]} />
 
-### SidebarMenuButton
+### SidebarGroup
 
-Renders a menu item button. Use `isActive` to highlight the current page.
+A section within `SidebarContent`.
 
 <PropsTable data={[
-  { prop: "isActive", type: "boolean", default: "false", description: "Highlight the current page" },
-  { prop: "tooltip", type: "string | ReactNode", description: "Label shown on hover when collapsed (icon mode). Hidden on mobile." },
+  { prop: "defaultOpen", type: "boolean", default: "true", description: "Initial data-state of the group" },
+  { prop: "open", type: "boolean", description: "Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not call onOpenChange" },
 ]} />
 
 ### SidebarGroupLabel
@@ -337,6 +389,23 @@ Renders a section label within a `SidebarGroup`. Supports two size variants.
 
 <PropsTable data={[
   { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm: compact, tertiary. lg: larger, primary, more spacing" },
+  { prop: "asChild", type: "boolean", default: "false", description: "Render the single child element as the label" },
+]} />
+
+### SidebarMenuItem
+
+<PropsTable data={[
+  { prop: "expanded", type: "boolean", description: "Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub" },
+]} />
+
+### SidebarMenuButton
+
+Renders a menu item button. Use `isActive` to highlight the current page.
+
+<PropsTable data={[
+  { prop: "isActive", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
+  { prop: "tooltip", type: "string | ReactNode", description: "Label shown on hover when collapsed (icon mode). Hidden on mobile." },
+  { prop: "asChild", type: "boolean", default: "false", description: "Render the single child element (e.g. a router link) as the button. The button attributes go on the child and its content is wrapped like the button's" },
 ]} />
 
 ### SidebarMenuSub
@@ -344,16 +413,33 @@ Renders a section label within a `SidebarGroup`. Supports two size variants.
 Renders a collapsible submenu container for nested navigation.
 
 <PropsTable data={[
-  { prop: "open", type: "boolean", default: "true", description: "Whether submenu is expanded" },
+  { prop: "open", type: "boolean", default: "true", description: "Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree" },
   { prop: "hasIcons", type: "boolean", default: "false", description: "Align child items with parent text that has icons" },
 ]} />
+
+### SidebarMenuSubButton
+
+<PropsTable data={[
+  { prop: "isActive", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
+  { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left margin" },
+  { prop: "asChild", type: "boolean", default: "false", description: "Render the single child element (e.g. a router link) as the button" },
+]} />
+
+### SidebarTrigger
+
+Collapse button. Renders nothing when `collapsible="none"`. Children replace the default icon. An `onClick` runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the animated hamburger for the mobile menu, handles `onClick` the same way.
+
+### SidebarInput
+
+A search field: `Input` with a search icon as its start adornment. It takes every `Input` prop.
 
 ### SidebarCard
 
 Renders a promotional card in the sidebar footer for CTAs, upgrades, or announcements.
 
 <PropsTable data={[
-  { prop: "dismissible", type: "boolean", description: "Shows dismiss button" },
+  { prop: "variant", type: '"default" | "elevated"', default: '"default"', description: "Visual variant" },
+  { prop: "dismissible", type: "boolean", default: "false", description: "Shows dismiss button" },
   { prop: "onDismiss", type: "() => void", description: "Callback when dismissed" },
 ]} />
 
@@ -370,7 +456,7 @@ Hook to access sidebar state and controls from any component within `SidebarProv
 
 ## Styling
 
-Sidebar reads these component tokens. Override them at any scope to restyle it:
+Sidebar reads these component tokens. Override them at any scope to restyle it. `SidebarProvider` sets the three width tokens on its own element, so change those through its `style` (or on an element inside it):
 
 - `--sidebar-accent`: accent (default `light-dark(var(--alpha-08), var(--alpha-12))`)
 - `--sidebar-background`: background (default `none`)
@@ -411,8 +497,8 @@ Sidebar reads these component tokens. Override them at any scope to restyle it:
 - `--sidebar-mobile-line-transition-duration`: mobile line transition duration (default `0.2s`)
 - `--sidebar-mobile-z-index`: mobile z index (default `301`)
 - `--sidebar-transition-duration`: transition duration (default `0.3s`)
-- `--sidebar-width`: width (default `210px`)
-- `--sidebar-width-icon`: width icon (default `64px`)
-- `--sidebar-width-mobile`: width mobile (default `288px`)
+- `--sidebar-width`: width (`SidebarProvider` sets `240px`)
+- `--sidebar-width-icon`: width icon (`SidebarProvider` sets `64px`)
+- `--sidebar-width-mobile`: width mobile (`SidebarProvider` sets `288px`)
 - `--skeleton-background`: background (default `light-dark(var(--alpha-08), var(--alpha-12))`)
 - `--skeleton-radius`: radius (default `var(--radius-md)`)

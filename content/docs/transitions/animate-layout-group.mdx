@@ -95,7 +95,8 @@ Props are the same as in React. Render the items with <code>v-for</code> and a s
 ## Reference
 
 <PropsTable data={[
-  { prop: "className", type: "string", description: "Class applied to the wrapper element" },
+  { prop: "as", type: '"span" | "div"', default: '"span"', description: "Tag used for the wrapper and item elements" },
+  { prop: "className", type: "string", description: "Class applied to each item's wrapper element" },
   { prop: "transitionClassName", type: "string", description: "Class applied to the inner TransitionGroup" },
   { prop: "dimension", type: '"height" | "width"', default: '"height"', description: "Which property to animate" },
   { prop: "enter", type: "TransitionDefinition", description: "Enter transition" },
@@ -104,8 +105,10 @@ Props are the same as in React. Render the items with <code>v-for</code> and a s
   { prop: "layoutEnter", type: "LayoutTransitionDefinition", description: "Layout enter timing" },
   { prop: "layoutExit", type: "LayoutTransitionDefinition", description: "Layout exit timing" },
   { prop: "layoutMove", type: "LayoutTransitionDefinition", description: "Layout move timing" },
-  { prop: "hideOverflow", type: "boolean", default: "false", description: "Apply overflow: hidden" },
-  { prop: "itemAnchor", type: '"start" | "end"', default: '"start"', description: "Which side items pin to" },
+  { prop: "hideOverflow", type: "boolean", default: "false", description: "Apply overflow: hidden to each item's wrapper, the element that resizes" },
+  { prop: "itemAnchor", type: '"start" | "end"', default: '"start"', description: "Which side of its wrapper an item pins to during enter/exit" },
   { prop: "preventInitialTransition", type: "boolean", default: "true", description: "When false, run enter on initial mount" },
+  { prop: "insertMethod", type: '"append" | "prepend"', default: '"append"', description: "Whether new children are added after (append) or before (prepend) the existing ones" },
+
   { prop: "forceCompositeLayer", type: "boolean", default: "false", description: "Applies will-change; use with caution" },
 ]} />

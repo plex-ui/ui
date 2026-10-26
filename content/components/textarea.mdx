@@ -30,23 +30,29 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to stylize the textarea.</>} code={`<Textarea placeholder="Enter text..." variant="outline" className="w-[400px]" /> ... <Textarea placeholder="Enter text..." variant="soft" className="w-[400px]" />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>variant</code> to stylize the textarea.</>} code={`<div className="flex flex-col gap-6 w-[400px]">
+  <Textarea placeholder="Enter text..." variant="outline" rows={3} />
+  <Textarea placeholder="Enter text..." variant="soft" rows={3} />
+</div>`} previewMinHeight={168}>
   <TextareaVariantsDemo />
 </ComponentPreview>
 
 ### Auto resize
 
 <ComponentPreview details={<>Enable <code>autoResize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>maxRows</code>.</>} code={`const [value, setValue] = useState("Line 1\\nLine 2\\nLine 3")
-<div className="w-[400px]">
-  <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
-</div>`} previewMinHeight={168}>
+
+return (
+  <div className="w-[400px]">
+    <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+  </div>
+)`} previewMinHeight={168}>
   <TextareaAutoResizeDemo />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={`<div className="flex flex-col gap-2.5 justify-start items-start w-[400px]">
-  <Textarea placeholder="Write a message..." size="lg" />
+<ComponentPreview details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={`<div className="w-[400px]">
+  <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
 </div>`} previewMinHeight={168}>
   <TextareaSizingDemo />
 </ComponentPreview>
@@ -78,7 +84,7 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 ### Autofill extensions
 
 <ComponentPreview details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={`<div className="w-[400px]">
-  <Textarea key={String(allowAutofillExtensions)} name="email" placeholder={allowAutofillExtensions ? "Allowed" : "Not allowed"} allowAutofillExtensions={allowAutofillExtensions} />
+  <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
 </div>`} previewMinHeight={168}>
   <TextareaAutofillExtensionsDemo />
 </ComponentPreview>
@@ -86,17 +92,26 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 ## API
 
 <PropsTable data={[
+  { prop: "value", type: "string | number", description: "Controlled value; uncontrolled when omitted" },
+  { prop: "defaultValue", type: "string | number", description: "Initial value when uncontrolled" },
+  { prop: "onChange", type: "(event: ChangeEvent<HTMLTextAreaElement>) => void", description: "Called on every input" },
   { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the textarea" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height for single-line equivalent" },
   { prop: "gutterSize", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding; defaults from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the textarea" },
+  { prop: "readOnly", type: "boolean", default: "false", description: "Make the textarea read-only" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
   { prop: "allowAutofillExtensions", type: "boolean", default: "!!name", description: "Allow autofill extensions" },
   { prop: "autoSelect", type: "boolean", default: "false", description: "Select all contents when mounted" },
   { prop: "rows", type: "number", default: "3", description: "Initial row count" },
   { prop: "autoResize", type: "boolean", default: "false", description: "Grow/shrink with content" },
-  { prop: "maxRows", type: "number", description: "Max rows when autoResize" },
+  { prop: "maxRows", type: "number", description: "Max rows when autoResize; defaults to the larger of rows and 10" },
+  { prop: "onAutofill", type: "() => void", description: "Called when the browser autofills the textarea" },
+  { prop: "className", type: "string", description: "Applied to the container <div>" },
+  { prop: "ref", type: "Ref<HTMLTextAreaElement>", description: "Ref to the <textarea>" },
 ]} />
+
+Every other `<textarea>` attribute (`placeholder`, `name`, `id`, `onFocus`, `onBlur`, ...) goes to the `<textarea>`.
 
 ## Styling
 

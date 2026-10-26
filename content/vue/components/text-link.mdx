@@ -85,21 +85,25 @@ export const weight = `<TextLink href="#" class="font-semibold" :underline="fals
   <VueDemo template={weight} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "Link content" },
-  { prop: "href", type: "string", description: "URL" },
-  { prop: "to", type: "string | RouteLocationRaw", description: "Router link destination (internal)" },
+  { prop: "href", type: "string", description: "URL. An http:// or https:// URL is external" },
+  { prop: "to", type: "string | Record<string, unknown>", description: "Router link destination (internal), such as a vue-router location" },
   { prop: "primary", type: "boolean", default: "false", description: "Primary color, no default underline" },
   { prop: "underline", type: "boolean", default: "true", description: "Underline (default true unless primary)" },
   { prop: "force-external", type: "boolean", description: "Force external link behavior" },
   { prop: "as", type: "Component", description: "Link component (e.g. RouterLink, NuxtLink)" },
+  { prop: "target", type: "string", description: "Where to open the link. External links default to _blank" },
+  { prop: "class", type: "string", description: "Extra classes on the link" },
 ]} />
+
+External links render an `<a>` with `target="_blank"` (unless you pass `target`) and `rel="noopener noreferrer"`. Without `href` or `to`, `TextLink` renders a `<span role="button">`; with a `@click` listener it takes Tab and runs on Enter or Space. Other attributes and listeners are forwarded.
 
 ### Configure your Router
 
-Wrap your app in `PlexUIProvider` and pass your router's link component. You can also pass the link component to the `as` prop on `TextLink` for a component-level override.
+Wrap your app in `PlexUIProvider` and pass your router's link component. You can also pass the link component to the `as` prop on `TextLink` for a component-level override. A link component that declares a `to` prop, such as vue-router's `RouterLink` or `NuxtLink`, receives `href` as `to` when no `to` is given, so `<TextLink href="/help">` works with either.
 
 ```vue
 <script setup lang="ts">
@@ -119,3 +123,14 @@ import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider"
 
 <TextLink :as="NuxtLink" to="/dashboard">View Dashboard</TextLink>
 ```
+
+## Styling
+
+Text Link reads these component tokens. Override them at any scope to restyle it:
+
+- `--link-font-weight`: font weight (default `inherit`)
+- `--link-gap`: gap (default `spacing(0.5)`)
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)
+- `--link-primary-text-color-hover`: primary text color hover (default `light-dark(var(--blue-600), var(--blue-400))`)
+- `--link-radius`: radius (default `var(--radius-sm)`)
+- `--link-underline-decoration-offset`: underline decoration offset (default `0.1em`)

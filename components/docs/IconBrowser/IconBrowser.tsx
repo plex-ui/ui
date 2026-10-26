@@ -276,6 +276,9 @@ function IconDetailPanel({ catalog, selected, onClose }: IconDetailPanelProps) {
   }, [selected?.name]);
 
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // The panel's own preview: Plex icons are exported from its SVG, which
+  // stays mounted while the grid virtualizes the selected tile away.
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const flash = (action: Exclude<CopiedAction, null>) => {
     clearTimeout(flashTimer.current);
@@ -315,9 +318,10 @@ function IconDetailPanel({ catalog, selected, onClose }: IconDetailPanelProps) {
             '<svg xmlns="http://www.w3.org/2000/svg" '
           );
     }
-    // Plex catalog: lift SVG from the rendered DOM tile.
-    const node = document.querySelector(`[data-icon="${icon.name}"] svg`);
-    if (!node) return null;
+    // Plex catalog: lift the SVG the panel preview renders (its first
+    // child; the pixel grid comes after it).
+    const node = previewRef.current?.firstElementChild;
+    if (!(node instanceof SVGSVGElement) || node.classList.contains(s.PanelGrid)) return null;
     return node.outerHTML
       .replace(/ aria-hidden="true"/, '')
       .replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
@@ -383,7 +387,7 @@ function IconDetailPanel({ catalog, selected, onClose }: IconDetailPanelProps) {
       >
         <X />
       </button>
-      <div className={s.PanelPreview} aria-hidden>
+      <div ref={previewRef} className={s.PanelPreview} aria-hidden>
         <IconRender
           icon={selected}
           strokeWidth={!outlined ? strokeWidth : undefined}

@@ -10,9 +10,9 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 export const overview = `<div class="flex flex-wrap gap-3">
   <Button color="primary">Submit</Button>
   <Button variant="soft"><CompareArrows /> Compare</Button>
-  <Button color="danger" gutter-size="sm" :pill="false"><Delete /></Button>
+  <Button color="danger" gutter-size="sm" :pill="false" aria-label="Delete"><Delete /></Button>
   <Button variant="outline">Next <ArrowRight /></Button>
-  <Button variant="ghost" color="secondary" uniform><Clear /></Button>
+  <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
 </div>`
 
 export const colors = `<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -51,6 +51,7 @@ export const icons = `<Button
   :icon-size="iconSize === 'auto' ? undefined : iconSize"
   :uniform="uniform"
   :variant="variant"
+  aria-label="Add"
 >
   <PlusLg />
 </Button>`
@@ -111,7 +112,8 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 <ComponentPreview language="vue" details={<>
   <p>Control height with <code>size</code> and horizontal padding with <code>gutter-size</code>. Use <code>pill</code> for fully rounded corners.</p>
-  <p>Each <code>size</code> provides default values for <code>gutter-size</code> and <code>icon-size</code>, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
+  <p><code>size</code> sets the button to a specific control height, and <code>gutter-size</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutter-size</code> and <code>icon-size</code> props, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
+  <p>When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the button.</p>
 </>} code={sizing} previewMinHeight={296}>
   <VueDemo
     template={sizing}
@@ -129,7 +131,10 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 <ComponentPreview language="vue" details={<>
   <p>Add icons to the default slot. Sizing is automatic via the <code>icon-size</code> prop.</p>
-  <p>For square icon buttons use <code>uniform</code>, which ignores <code>gutter-size</code>. Combine it with <code>pill</code> to make circular icons.</p>
+  <p>Default values for <code>icon-size</code> are provided through the <code>size</code> prop, but you can pass the prop directly to change the defaults.</p>
+  <p>For icon-only buttons, there are two common approaches:</p>
+  <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutter-size</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
+  <p><strong>Tighter gutters</strong>: applying a smaller <code>gutter-size</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
 </>} code={icons} previewMinHeight={216}>
   <VueDemo
     template={icons}
@@ -153,13 +158,16 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 ### Disabled
 
-<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable a button. Click events are not emitted.</>} code={disabled} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable a button. Clicks do not emit <code>click</code>.</>} code={disabled} previewMinHeight={168}>
   <VueDemo template={disabled} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Inert
 
-<ComponentPreview language="vue" details={<>Use <code>inert</code> to accessibly disable a button <strong>without any visual changes</strong>.</>} code={inert} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>inert</code> to accessibly disable a button <strong>without any visual changes</strong>.</p>
+  <p><strong>Note:</strong> For accessibility reasons, <code>disabled</code> is used instead of applying <code>inert</code> directly to the button. Visual disablement in the <code>disabled</code> prop is applied via <code>[data-disabled]</code>.</p>
+</>} code={inert} previewMinHeight={168}>
   <VueDemo template={inert} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "inert", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -196,7 +204,7 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
 
-## Reference
+## API
 
 Props mirror the React Button. In Vue, pass classes with `class` (React's `className`) and listen with `@click`.
 
@@ -213,8 +221,17 @@ Props mirror the React Button. In Vue, pass classes with `class` (React's `class
   { prop: "inert", type: "boolean", default: "loading", description: "Accessibly disabled without visual change" },
   { prop: "selected", type: "boolean", default: "false", description: "Selected state styling" },
   { prop: "optically-align", type: '"start" | "end"', description: "Offset gutter for optical alignment" },
-  { prop: "gutter-size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size" },
-  { prop: "icon-size", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in the slot" },
+  { prop: "gutter-size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
+  { prop: "icon-size", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in the slot; defaults from size" },
   { prop: "type", type: '"button" | "submit" | "reset"', default: '"button"', description: "Native button type" },
   { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on click, unless disabled" },
 ]} />
+
+## Styling
+
+Button reads these component tokens. Override them at any scope to restyle it:
+
+- `--button-font-weight`: font weight (default `var(--font-weight-medium)`)
+- `--button-gap-lg`: gap lg (default `6px`)
+- `--button-gap-md`: gap md (default `4px`)
+- `--button-gap-sm`: gap sm (default `3px`)

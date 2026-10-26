@@ -5,10 +5,12 @@
 All icons are named exports from `@plexui/ui/components/Icon`:
 
 ```tsx
-import { IconSearch, IconCheck, IconChevronDown, IconPlus } from "@plexui/ui/components/Icon";
+import { Search, Check, ChevronDown, Plus } from "@plexui/ui/components/Icon";
 ```
 
-There are **460+ icons** available. The naming convention is `Icon` + PascalCase name.
+There are **652 icons** available. Names are plain PascalCase with no `Icon` prefix (`Search`, not `IconSearch`). Many glyphs come in size or style variants named by suffix: `CheckMd` / `CheckLg`, `ChevronDownSm` / `ChevronDownMd` / `ChevronDownLg`, `Bell` / `BellFilled`. A few short aliases also exist, e.g. `Check` (= `CheckMd`), `ChevronRight` (= `ChevronRightMd`), `Trash` and `Delete` (= `RemoveTrash`).
+
+Each icon renders an inline `<svg>` with `width="1em"`, `height="1em"`, `fill="currentColor"` and `aria-hidden="true"`, and accepts any SVG prop.
 
 ## Usage in Components
 
@@ -17,20 +19,20 @@ There are **460+ icons** available. The naming convention is `Icon` + PascalCase
 Icons auto-size to match the button's `size` prop. **Never add manual size classes.**
 
 ```tsx
-// Correct — icon auto-sizes
+// Correct: icon auto-sizes
 <Button color="primary" size="md">
-  <IconSearch />
+  <Search />
   Search
 </Button>
 
-// Correct — icon-only button
-<Button color="secondary" variant="ghost" size="md">
-  <IconPlus />
+// Correct: icon-only button (uniform makes it square)
+<Button color="secondary" variant="ghost" size="md" uniform aria-label="Add">
+  <Plus />
 </Button>
 
-// Wrong — manual sizing overrides the design system
+// Wrong: manual sizing overrides the design system
 <Button color="primary">
-  <IconSearch className="w-4 h-4" />
+  <Search className="w-4 h-4" />
   Search
 </Button>
 ```
@@ -41,23 +43,25 @@ When using icons outside of components, you can set size via className:
 
 ```tsx
 // Standalone icon with custom size
-<IconCheck className="w-5 h-5 text-primary" />
+<Check className="size-5 text-primary" />
 
 // Inside a custom container
 <div className="flex items-center gap-2">
-  <IconSearch className="w-4 h-4 text-secondary" />
+  <Search className="size-4 text-secondary" />
   <span>Search results</span>
 </div>
 ```
 
+Plex UI also ships `icon-xs`, `icon-sm`, `icon-md`, `icon-lg`, `icon-xl` and `icon-2xl` utilities (14px to 24px) that match the control icon sizes. Without a class, an icon is `1em`, so it scales with the surrounding font size.
+
 ### Override icon size in components
 
-Use the `iconSize` prop when the default icon size doesn't fit:
+Use the `iconSize` prop on `Button` / `ButtonLink` when the default icon size doesn't fit:
 
 ```tsx
 // Override icon size independently of control size
 <Button color="primary" size="lg" iconSize="sm">
-  <IconSearch />
+  <Search />
   Search
 </Button>
 ```
@@ -78,12 +82,12 @@ Icons inherit text color by default. Use Tailwind text color utilities for stand
 
 ```tsx
 // Inherits parent color
-<IconCheck />
+<Check />
 
 // Explicit color
-<IconCheck className="text-primary" />
-<IconCheck className="text-danger" />
-<IconCheck className="text-secondary" />
+<Check className="text-primary" />
+<Check className="text-danger" />
+<Check className="text-secondary" />
 ```
 
 Inside components like Button, icon color is handled automatically by the `color` and `variant` props.
@@ -92,24 +96,25 @@ Inside components like Button, icon color is handled automatically by the `color
 
 | Icon | Name | Usage |
 |------|------|-------|
-| Search | `IconSearch` | Search inputs, search actions |
-| Check | `IconCheck` | Success states, checkmarks |
-| Close/X | `IconX` | Close buttons, dismiss |
-| Plus | `IconPlus` | Add/create actions |
-| Chevron | `IconChevronDown`, `IconChevronRight` | Dropdowns, expand |
-| Arrow | `IconArrowLeft`, `IconArrowRight` | Navigation |
-| Settings | `IconSettings` | Settings/gear |
-| User | `IconUser` | Profile, accounts |
-| Trash | `IconTrash` | Delete actions |
-| Edit | `IconEdit` | Edit actions |
-| Copy | `IconCopy` | Copy to clipboard |
-| External link | `IconExternalLink` | External navigation |
+| Search | `Search` | Search inputs, search actions |
+| Check | `Check`, `CheckMd`, `CheckCircle` | Success states, checkmarks |
+| Close/X | `X` | Close buttons, dismiss |
+| Plus | `Plus` | Add/create actions |
+| Chevron | `ChevronDown`, `ChevronRight` (also `ChevronDownMd`, `ChevronRightMd`, ...) | Dropdowns, expand |
+| Arrow | `ArrowLeftSm`, `ArrowRightSm` (also `ArrowLeftLg`, `ArrowRightLg`) | Navigation |
+| Settings | `SettingsCog` | Settings/gear |
+| User | `User` | Profile, accounts |
+| Trash | `Trash` (alias of `RemoveTrash`) | Delete actions |
+| Edit | `EditPencil` | Edit actions |
+| Copy | `Copy` | Copy to clipboard |
+| External link | `ExternalLink` | External navigation |
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| `<IconSearch className="w-4 h-4" />` inside Button | Remove size classes — auto-sized by component |
-| `import { Search } from "lucide-react"` | Use `import { IconSearch } from "@plexui/ui/components/Icon"` |
-| String-based icon lookup | Pass icon components directly: `icon={IconCheck}` |
-| Manual SVG for common icons | Check the 460+ built-in icons first |
+| `import { IconSearch } from "@plexui/ui/components/Icon"` | `import { Search } from "@plexui/ui/components/Icon"` |
+| `<Search className="w-4 h-4" />` inside Button | Remove size classes; Button sizes its icons |
+| `import { Search } from "lucide-react"` | Use `import { Search } from "@plexui/ui/components/Icon"` |
+| String-based icon lookup | Render the component (`<Check />`), or pass it where a prop expects one (`<SelectControl StartIcon={Calendar}>`, `<Avatar Icon={User} />`) |
+| Manual SVG for common icons | Check the 652 built-in icons first |

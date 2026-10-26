@@ -1,7 +1,7 @@
 ---
 title: Markdown
 description: Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
-metaDescription: React markdown renderer for rich formatted content — headings, lists, tables, code blocks, and KaTeX math expressions out of the box
+metaDescription: React markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box
 ---
 
 import { Markdown } from "@plexui/ui/components/Markdown"
@@ -32,8 +32,20 @@ import { ComponentSource } from "@/components/docs/ComponentSource"
 ## API
 
 <PropsTable data={[
-  { prop: "children", type: "string", description: "Markdown source" },
+  { prop: "children", type: "string", description: "Required. Markdown source" },
   { prop: "includeMath", type: "boolean", default: "false", description: "Enable LaTeX math rendering" },
+  { prop: "breakNewLines", type: "boolean", default: "false", description: "Turn single newlines into line breaks" },
+  { prop: "copyableCodeBlocks", type: "boolean", default: "true", description: "Show a copy button on code blocks" },
+  { prop: "collapsibleCodeBlocks", type: "boolean", default: "true", description: "Render code blocks in the collapsible view with a View Code button" },
+  { prop: "components", type: "Record<string, MarkdownComponent>", description: "Tag name to component overrides, applied over the built-in ones" },
+  { prop: "directives", type: "MarkdownDirective[]", description: "Custom directives, each rendered by its own component" },
+  { prop: "remarkPlugins", type: "PluggableList", description: "Extra remark plugins, after the built-in ones" },
+  { prop: "rehypePlugins", type: "PluggableList", description: "Extra rehype plugins" },
+  { prop: "allowedElements", type: "string[]", description: "Only render these elements" },
+  { prop: "disallowedElements", type: "string[]", description: "Never render these elements" },
+  { prop: "skipHtml", type: "boolean", default: "false", description: "Ignore raw HTML in the source" },
+  { prop: "urlTransform", type: "(url: string) => string", description: "Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:" },
+  { prop: "className", type: "string", description: "Applied to the wrapping element" },
 ]} />
 
 ## Styling

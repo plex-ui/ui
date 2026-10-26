@@ -1,7 +1,7 @@
 ---
 title: Field
 description: Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
-metaDescription: Form field wrapper with label, description, error, and accessibility linking
+metaDescription: React form field component with a label, helper text, and an error message that wires id, aria-describedby, and aria-invalid onto its control.
 ---
 
 import { Field } from "@plexui/ui/components/Field"
@@ -41,47 +41,71 @@ import {
 
 ### Overview
 
-<ComponentPreview details={<>Field wraps a form control with a label, optional description, and error message. It automatically generates <code>htmlFor</code>, <code>aria-describedby</code>, and <code>aria-invalid</code> linking between the label, description, error, and child control.</>} code={`<Field label="Email">
-  <Input placeholder="Enter email..." />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Field wraps a form control with a label, optional description, and error message. It automatically generates <code>htmlFor</code>, <code>aria-describedby</code>, and <code>aria-invalid</code> linking between the label, description, error, and child control.</>} code={`<div className="w-full max-w-[320px]">
+  <Field
+    label="Email"
+    size="md"
+    description="We'll never share your email with anyone else."
+    errorMessage="Please enter a valid email address."
+    required
+    orientation="vertical"
+  >
+    <Input placeholder="Enter email..." size="md" />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldOverviewDemo />
 </ComponentPreview>
 
 ### With description
 
-<ComponentPreview details={<>Use <code>description</code> to display helper text below the label. The description is automatically linked to the control via <code>aria-describedby</code>.</>} code={`<Field label="Email" description="We'll never share your email with anyone else.">
-  <Input placeholder="Enter email..." />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>description</code> to display helper text below the label. The description is automatically linked to the control via <code>aria-describedby</code>.</>} code={`<div className="w-[320px]">
+  <Field label="Email" description="We'll never share your email with anyone else.">
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithDescriptionDemo />
 </ComponentPreview>
 
 ### With error message
 
-<ComponentPreview details={<>Use <code>errorMessage</code> to display a validation error. When provided, the child control automatically receives <code>aria-invalid="true"</code>. The error is rendered using the <code>FieldError</code> component with <code>role="alert"</code> for accessibility.</>} code={`<Field label="Email" errorMessage="Please enter a valid email address">
-  <Input placeholder="Enter email..." />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>errorMessage</code> to display a validation error. When provided, the child control automatically receives <code>aria-invalid="true"</code>. The error is rendered using the <code>FieldError</code> component with <code>role="alert"</code> for accessibility.</>} code={`<div className="w-[320px]">
+  <Field label="Email" errorMessage="Please enter a valid email address">
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithErrorDemo />
 </ComponentPreview>
 
 ### Required
 
-<ComponentPreview details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute. Pass <code>required</code> directly to the child control for form validation.</>} code={`<Field label="Email" required>
-  <Input placeholder="Enter email..." />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute: pass <code>required</code> directly to the child control for form validation.</>} code={`<div className="w-[320px]">
+  <Field label="Email" required>
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldRequiredDemo />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview details={<>Field accepts a <code>size</code> prop that scales the label and description font size to match the child control. Pass the same <code>size</code> to both Field and the child control.</>} code={`<Field label="Email" size="lg">
-  <Input placeholder="Enter email..." size="lg" />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Field accepts a <code>size</code> prop that scales the label and description font size to match the child control. Pass the same <code>size</code> to both Field and the child control.</>} code={`<div className="w-full max-w-[320px]">
+  <Field
+    label="Email"
+    size="md"
+    description="We'll never share your email with anyone else."
+    errorMessage="Please enter a valid email address."
+    required
+    orientation="vertical"
+  >
+    <Input placeholder="Enter email..." size="md" />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldOverviewDemo />
 </ComponentPreview>
 
 ### Horizontal layout
 
-<ComponentPreview details={<>Use <code>orientation="horizontal"</code> to render the label beside the control instead of above it.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>Use <code>orientation="horizontal"</code> to render the label beside the control instead of above it.</>} code={`<div className="w-full max-w-[480px] flex flex-col gap-4">
   <Field label="First name" orientation="horizontal">
     <Input placeholder="Jane" />
   </Field>
@@ -94,45 +118,59 @@ import {
 
 ### Textarea
 
-<ComponentPreview code={`<Field label="Bio" description="Write a short bio for your profile.">
-  <Textarea placeholder="Tell us about yourself..." rows={3} />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview code={`<div className="w-[320px]">
+  <Field label="Bio" description="Write a short bio for your profile.">
+    <Textarea placeholder="Tell us about yourself..." rows={3} />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithTextareaDemo />
 </ComponentPreview>
 
 ### Select
 
-<ComponentPreview details={<>For components like <code>Select</code> that may not forward all props via <code>cloneElement</code>, use the render prop pattern to explicitly pass field props.</>} code={`<Field label="Role" description="Select your primary role.">
-  {(fieldProps) => (
-    <Select
-      {...fieldProps}
-      placeholder="Select a role..."
-      options={[
-        { label: "Admin", value: "admin" },
-        { label: "Editor", value: "editor" },
-        { label: "Viewer", value: "viewer" },
-      ]}
-    />
-  )}
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>For components like <code>Select</code> that may not forward all props via <code>cloneElement</code>, use the render prop pattern to explicitly pass field props.</>} code={`const [role, setRole] = useState("")
+
+<div className="w-[320px]">
+  <Field label="Role" description="Select your primary role.">
+    {(fieldProps) => (
+      <Select
+        id={fieldProps.id}
+        placeholder="Select a role..."
+        value={role}
+        onChange={(option) => setRole(option.value)}
+        options={[
+          { label: "Admin", value: "admin" },
+          { label: "Editor", value: "editor" },
+          { label: "Viewer", value: "viewer" },
+        ]}
+      />
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithSelectDemo />
 </ComponentPreview>
 
 ### Slider
 
 <ComponentPreview details={<>Field works with any form control. Use the description to display the current slider value.</>} code={`const [price, setPrice] = useState([200, 800])
-<Field label="Price Range" description={\`Set your budget range ($\${price[0]} – $\${price[1]}).\`}>
-  <Slider range value={price} onChange={setPrice} min={0} max={1000} step={10} prefixUnit="$" />
-</Field>`} previewMinHeight={168}>
+
+<div className="w-[400px]">
+  <Field
+    label="Price Range"
+    description={\`Set your budget range ($\${price[0].toLocaleString()} – \${price[1].toLocaleString()}).\`}
+  >
+    <Slider range value={price} onChange={setPrice} min={0} max={1000} step={10} prefixUnit="$" />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithSliderDemo />
 </ComponentPreview>
 
 ### Fieldset
 
-<ComponentPreview details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={`<div>
+<ComponentPreview details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={`<div className="w-[400px]">
   <div className="mb-3">
     <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
-    <p className="text-sm text-secondary mt-1">We need your address to deliver your order.</p>
+    <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
   </div>
   <div className="flex flex-col gap-4">
     <Field label="Street Address">
@@ -153,47 +191,58 @@ import {
 
 ### Checkbox
 
-<ComponentPreview details={<>Wrap a group of checkboxes in a Field for a shared label and description.</>} code={`<Field label="Notifications" description="Choose which notifications you'd like to receive.">
-  {() => (
-    <div className="flex flex-col gap-3 mt-1">
-      <Checkbox label="Email notifications" />
-      <Checkbox label="Push notifications" />
-      <Checkbox label="SMS notifications" />
-    </div>
-  )}
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Wrap a group of checkboxes in a Field for a shared label and description. The render prop takes the field props, so Field renders the group as it is instead of wiring the props onto it.</>} code={`<div className="w-[320px]">
+  <Field label="Notifications" description="Choose which notifications you'd like to receive.">
+    {() => (
+      <div className="flex flex-col gap-3 mt-1">
+        <Checkbox label="Email notifications" />
+        <Checkbox label="Push notifications" />
+        <Checkbox label="SMS notifications" />
+      </div>
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithCheckboxGroupDemo />
 </ComponentPreview>
 
 ### Radio
 
-<ComponentPreview details={<>Use Field with <code>RadioGroup</code> for labeled radio selections.</>} code={`<Field label="Subscription plan" description="Select your preferred plan.">
-  {(fieldProps) => (
-    <RadioGroup aria-label="Subscription plan" value={plan} onChange={setPlan} direction="col">
-      <RadioGroup.Item value="free">Free</RadioGroup.Item>
-      <RadioGroup.Item value="pro">Pro — $9/mo</RadioGroup.Item>
-      <RadioGroup.Item value="enterprise">Enterprise — $29/mo</RadioGroup.Item>
-    </RadioGroup>
-  )}
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use Field with <code>RadioGroup</code> for labeled radio selections. Spread the field props onto the group so its <code>aria-describedby</code> points at the description.</>} code={`const [plan, setPlan] = useState("free")
+
+<div className="w-[320px]">
+  <Field label="Subscription plan" description="Select your preferred plan.">
+    {(fieldProps) => (
+      <RadioGroup aria-label="Subscription plan" {...fieldProps} value={plan} onChange={setPlan} direction="col">
+        <RadioGroup.Item value="free">Free</RadioGroup.Item>
+        <RadioGroup.Item value="pro">Pro, $9/mo</RadioGroup.Item>
+        <RadioGroup.Item value="enterprise">Enterprise, $29/mo</RadioGroup.Item>
+      </RadioGroup>
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithRadioGroupDemo />
 </ComponentPreview>
 
 ### Switch
 
-<ComponentPreview details={<>Pair a Field with a <code>Switch</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={`<Field label="Marketing emails" orientation="horizontal">
-  {(fieldProps) => (
-    <Switch id={fieldProps.id} checked={enabled} onCheckedChange={setEnabled} />
-  )}
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Pair a Field with a <code>Switch</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={`const [enabled, setEnabled] = useState(false)
+
+<div className="self-stretch mx-auto !max-w-[480px]">
+  <Field label="Marketing emails" orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+    {(fieldProps) => <Switch id={fieldProps.id} checked={enabled} onCheckedChange={setEnabled} />}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldWithSwitchDemo />
 </ComponentPreview>
 
 ### Field group
 
-<ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="divide-y divide-alpha/15">
+<ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="w-[400px] divide-y divide-alpha/15">
   <div className="pb-6">
-    <Field label="Responses" description="Get notified when the assistant responds to requests that take time.">
+    <Field
+      label="Responses"
+      description="Get notified when the assistant responds to requests that take time, like research or image generation."
+    >
       {() => (
         <div className="flex flex-col gap-3 mt-1">
           <Checkbox label="Push notifications" defaultChecked />
@@ -217,7 +266,12 @@ import {
 
 ### Validation and Errors
 
-<ComponentPreview details={<>Combine <code>required</code> and <code>errorMessage</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>Combine <code>required</code> and <code>errorMessage</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={`const [name, setName] = useState("")
+const [email, setEmail] = useState("bad-email")
+const nameError = showErrors && !name ? "Name is required" : undefined
+const emailError = showErrors && !email.includes("@") ? "Please enter a valid email address" : undefined
+
+<div className="w-[320px] flex flex-col gap-4">
   <Field label="Name" required errorMessage={nameError}>
     <Input placeholder="Enter your name" value={name} onChange={(evt) => setName(evt.target.value)} />
   </Field>
@@ -240,234 +294,538 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Optical alignment
 
-<ComponentPreview details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</>} code={`<div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
-  <div className="flex flex-col gap-5">
-    <Field label="Full name" opticallyAlign="start">
-      <Input placeholder="Jane Doe" pill />
-    </Field>
-    <Field label="Email" description="We'll never share your email." errorMessage="Please enter a valid email address." required opticallyAlign="start">
-      <Input placeholder="jane@example.com" pill />
-    </Field>
+<ComponentPreview details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</>} code={`<div className="w-[400px]">
+  <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
+    <div className="mb-5 text-secondary text-sm">opticallyAlign="start"</div>
+    <div className="flex flex-col gap-5">
+      <Field label="Full name" opticallyAlign="start">
+        <Input placeholder="Jane Doe" />
+      </Field>
+      <Field
+        label="Email"
+        description="We'll never share your email."
+        errorMessage="Please enter a valid email address."
+        required
+        opticallyAlign="start"
+      >
+        <Input placeholder="jane@example.com" />
+      </Field>
+    </div>
+    <Button className="mt-6" color="primary" variant="soft">Submit</Button>
   </div>
-  <Button className="mt-6" color="primary" variant="soft" pill>Submit</Button>
 </div>`} previewMinHeight={168}>
   <FieldOpticalAlignDemo />
 </ComponentPreview>
 
 ### Form example
 
-<ComponentPreview details={<>A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.</>} code={`<fieldset className="flex flex-col gap-5">
-  <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
-  <Field label="Name on Card">
-    <Input placeholder="Evil Rabbit" />
-  </Field>
-  <Field label="Card Number">
-    <Input placeholder="1234 5678 9012 3456" />
-  </Field>
-  <div className="grid grid-cols-3 gap-3">
-    <Field label="Month">
-      {(fp) => <Select id={fp.id} placeholder="MM" options={months} />}
+<ComponentPreview details={<>A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.</>} code={`const months = Array.from({ length: 12 }, (_, i) => {
+  const value = String(i + 1).padStart(2, "0")
+  return { label: value, value }
+})
+const years = Array.from({ length: 10 }, (_, i) => {
+  const value = String(2025 + i)
+  return { label: value, value }
+})
+const [month, setMonth] = useState("")
+const [year, setYear] = useState("")
+
+<div className="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
+      <p className="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
+    </div>
+
+    <Field label="Name on Card">
+      <Input placeholder="Evil Rabbit" autoComplete="off" />
     </Field>
-    <Field label="Year">
-      {(fp) => <Select id={fp.id} placeholder="YYYY" options={years} />}
+
+    <Field label="Card Number">
+      <Input placeholder="1234 5678 9012 3456" autoComplete="off" />
     </Field>
-    <Field label="CVV">
-      <Input placeholder="123" />
+
+    <div className="grid grid-cols-3 gap-3">
+      <Field label="Month">
+        {(fieldProps) => (
+          <Select id={fieldProps.id} placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} />
+        )}
+      </Field>
+      <Field label="Year">
+        {(fieldProps) => (
+          <Select id={fieldProps.id} placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} />
+        )}
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" />
+      </Field>
+    </div>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
+      <p className="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
+    </div>
+
+    <Checkbox label="Same as shipping address" defaultChecked />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" />
     </Field>
+  </fieldset>
+
+  <div className="flex gap-2">
+    <Button color="primary">Submit</Button>
+    <Button color="secondary" variant="outline">Cancel</Button>
   </div>
-</fieldset>
-
-<Checkbox label="Same as shipping address" defaultChecked />
-
-<Field label="Comments">
-  <Textarea placeholder="Add any additional comments" rows={3} />
-</Field>
-
-<div className="flex gap-2">
-  <Button color="primary">Submit</Button>
-  <Button color="secondary" variant="outline">Cancel</Button>
 </div>`} previewMinHeight={168}>
   <FieldFormExampleDemo />
 </ComponentPreview>
 
 ### Profile settings
 
-<ComponentPreview details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications), combining text inputs, select, radio group, and horizontal switch fields.</>} code={`<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
-    <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
-  </div>
-  <div className="grid grid-cols-2 gap-3">
-    <Field label="First name"><Input placeholder="Jane" /></Field>
-    <Field label="Last name"><Input placeholder="Doe" /></Field>
-  </div>
-  <Field label="Email" description="This is the email associated with your account.">
-    <Input placeholder="jane@example.com" />
-  </Field>
-  <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
-    <Textarea placeholder="Tell us about yourself..." rows={3} />
-  </Field>
-</fieldset>
+<ComponentPreview details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields.</>} code={`const [language, setLanguage] = useState("en")
+const [theme, setTheme] = useState("system")
 
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
-    <p className="text-xs text-tertiary mt-0.5">Customize your experience</p>
-  </div>
-  <Field label="Language">
-    {(fp) => <Select id={fp.id} value={language} options={languages} />}
-  </Field>
-  <Field label="Theme" description="Select your preferred appearance.">
-    {() => <RadioGroup value={theme} onChange={setTheme} direction="col">...</RadioGroup>}
-  </Field>
-</fieldset>
+<div className="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
+      <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
+    </div>
 
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
-    <p className="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
+    <div className="grid grid-cols-2 gap-3">
+      <Field label="First name">
+        <Input placeholder="Jane" defaultValue="Jane" />
+      </Field>
+      <Field label="Last name">
+        <Input placeholder="Doe" defaultValue="Doe" />
+      </Field>
+    </div>
+
+    <Field label="Email" description="This is the email associated with your account.">
+      <Input placeholder="jane@example.com" defaultValue="jane@example.com" />
+    </Field>
+
+    <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
+      <Textarea placeholder="Tell us about yourself..." rows={3} />
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
+      <p className="text-xs text-tertiary mt-0.5">Customize your experience</p>
+    </div>
+
+    <Field label="Language">
+      {(fieldProps) => (
+        <Select
+          id={fieldProps.id}
+          value={language}
+          onChange={(option) => setLanguage(option.value)}
+          options={[
+            { label: "English", value: "en" },
+            { label: "Spanish", value: "es" },
+            { label: "French", value: "fr" },
+            { label: "German", value: "de" },
+            { label: "Japanese", value: "ja" },
+          ]}
+        />
+      )}
+    </Field>
+
+    <Field label="Theme" description="Select your preferred appearance.">
+      {() => (
+        <RadioGroup aria-label="Theme" value={theme} onChange={setTheme} direction="col">
+          <RadioGroup.Item value="system">System</RadioGroup.Item>
+          <RadioGroup.Item value="light">Light</RadioGroup.Item>
+          <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
+        </RadioGroup>
+      )}
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
+      <p className="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
+    </div>
+
+    <Field label="Email notifications" description="Receive weekly digests and important updates." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
+    </Field>
+
+    <Field label="Push notifications" description="Get real-time alerts in your browser." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} />}
+    </Field>
+
+    <Field label="Marketing emails" description="Tips, product updates, and promotions." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} />}
+    </Field>
+  </fieldset>
+
+  <div className="flex gap-2">
+    <Button color="primary">Save changes</Button>
+    <Button color="secondary" variant="outline">Cancel</Button>
   </div>
-  <Field label="Email notifications" description="Receive weekly digests." orientation="horizontal">
-    {(fp) => <Switch id={fp.id} defaultChecked />}
-  </Field>
-</fieldset>`} previewMinHeight={168}>
+</div>`} previewMinHeight={168}>
   <FieldProfileSettingsDemo />
 </ComponentPreview>
 
 ### Create project
 
-<ComponentPreview details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={`<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
-    <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
-  </div>
-  <Field label="Project name" required>
-    <Input placeholder="my-project" />
-  </Field>
-  <Field label="Description" description="A short summary shown in project listings.">
-    <Textarea placeholder="What does this project do?" rows={3} />
-  </Field>
-  <Field label="Visibility" description="Controls who can see this project.">
-    {() => <RadioGroup value={visibility} onChange={setVisibility} direction="col">...</RadioGroup>}
-  </Field>
-</fieldset>
+<ComponentPreview details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={`const [visibility, setVisibility] = useState("private")
+const [region, setRegion] = useState("")
 
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
-    <p className="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
+<div className="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
+      <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
+    </div>
+
+    <Field label="Project name" required>
+      <Input placeholder="my-project" />
+    </Field>
+
+    <Field label="Description" description="A short summary shown in project listings.">
+      <Textarea placeholder="What does this project do?" rows={3} />
+    </Field>
+
+    <Field label="Visibility" description="Controls who can see this project.">
+      {() => (
+        <RadioGroup aria-label="Visibility" value={visibility} onChange={setVisibility} direction="col">
+          <RadioGroup.Item value="private">Private, only invited members</RadioGroup.Item>
+          <RadioGroup.Item value="internal">Internal, anyone in your organization</RadioGroup.Item>
+          <RadioGroup.Item value="public">Public, visible to everyone</RadioGroup.Item>
+        </RadioGroup>
+      )}
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
+      <p className="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
+    </div>
+
+    <Field label="Team members" description="Add people by email address.">
+      {(fieldProps) => (
+        <TagInput
+          id={fieldProps.id}
+          placeholder="Add email..."
+          defaultValue={[
+            { value: "alice@team.com", valid: true },
+            { value: "bob@team.com", valid: true },
+          ]}
+          validator={(value) => value.includes("@")}
+        />
+      )}
+    </Field>
+
+    <Field label="Permissions" description="Default permissions for new members.">
+      {() => (
+        <div className="flex flex-col gap-3 mt-1">
+          <Checkbox label="Can view project" defaultChecked />
+          <Checkbox label="Can edit resources" defaultChecked />
+          <Checkbox label="Can manage members" />
+          <Checkbox label="Can delete project" />
+        </div>
+      )}
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
+      <p className="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
+    </div>
+
+    <Field label="Region">
+      {(fieldProps) => (
+        <Select
+          id={fieldProps.id}
+          placeholder="Select region..."
+          value={region}
+          onChange={(option) => setRegion(option.value)}
+          options={[
+            { label: "US East (N. Virginia)", value: "us-east-1" },
+            { label: "US West (Oregon)", value: "us-west-2" },
+            { label: "Europe (Frankfurt)", value: "eu-central-1" },
+            { label: "Asia Pacific (Tokyo)", value: "ap-northeast-1" },
+          ]}
+        />
+      )}
+    </Field>
+
+    <Field label="Auto-deploy" description="Automatically deploy on push to main branch." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
+    </Field>
+  </fieldset>
+
+  <div className="flex gap-2">
+    <Button color="primary">Create project</Button>
+    <Button color="secondary" variant="outline">Cancel</Button>
   </div>
-  <Field label="Team members" description="Add people by email address.">
-    {(fp) => <TagInput id={fp.id} placeholder="Add email..." validator={(v) => v.includes('@')} />}
-  </Field>
-  <Field label="Permissions" description="Default permissions for new members.">
-    {() => <div className="flex flex-col gap-3 mt-1">
-      <Checkbox label="Can view project" defaultChecked />
-      <Checkbox label="Can edit resources" defaultChecked />
-      <Checkbox label="Can manage members" />
-    </div>}
-  </Field>
-</fieldset>`} previewMinHeight={168}>
+</div>`} previewMinHeight={168}>
   <FieldCreateProjectDemo />
 </ComponentPreview>
 
 ### Field configuration
 
-<ComponentPreview details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={`<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
-    <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
-  </div>
-  <Field label="Key" description="Unique identifier used in the API.">
-    <Input defaultValue="registration_method" />
-  </Field>
-  <Field label="Label" description="Human-readable name displayed in the UI.">
-    <Input defaultValue="Registration method" />
-  </Field>
-  <Field label="Type">
-    {(fp) => <Select id={fp.id} value={type} options={types} />}
-  </Field>
-</fieldset>
+<ComponentPreview details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={`const [type, setType] = useState("string")
+const [expiresIn, setExpiresIn] = useState("")
 
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
-    <p className="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
-  </div>
-  <Field label="Max length" description="Max length cannot exceed 4096.">
-    <Input placeholder="256" inputMode="numeric" />
-  </Field>
-  <Field label="HTML sanitization" description="Strip unsafe HTML tags." orientation="horizontal">
-    {(fp) => <Switch id={fp.id} />}
-  </Field>
-</fieldset>
+<div className="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
+      <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
+    </div>
 
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
-    <p className="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
+    <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
+      <Input placeholder="registration_method" defaultValue="registration_method" />
+    </Field>
+
+    <Field label="Label" description="Human-readable name displayed in the UI.">
+      <Input placeholder="Registration method" defaultValue="Registration method" />
+    </Field>
+
+    <Field label="Type">
+      {(fieldProps) => (
+        <Select
+          id={fieldProps.id}
+          value={type}
+          onChange={(option) => setType(option.value)}
+          options={[
+            { label: "String", value: "string" },
+            { label: "Number", value: "number" },
+            { label: "Boolean", value: "boolean" },
+            { label: "Date", value: "date" },
+            { label: "JSON", value: "json" },
+            { label: "Rich text", value: "richtext" },
+          ]}
+        />
+      )}
+    </Field>
+
+    <Field label="Default value" description="Value assigned when the field is empty.">
+      <Input placeholder="Set default value (optional)" />
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
+      <p className="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
+    </div>
+
+    <Field label="Max length" description="Max length cannot exceed 4096.">
+      <Input placeholder="256" inputMode="numeric" />
+    </Field>
+
+    <Field label="HTML sanitization" description="Strip potentially unsafe HTML tags from input." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} />}
+    </Field>
+  </fieldset>
+
+  <hr className="border-default" />
+
+  <fieldset className="flex flex-col gap-5">
+    <div className="mb-1">
+      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
+      <p className="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
+    </div>
+
+    <Field label="Not redactable" description="Prevent this field from being redacted." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} />}
+    </Field>
+
+    <Field label="Write once" description="Value can only be set once and cannot be changed." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
+      {(fieldProps) => <Switch id={fieldProps.id} />}
+    </Field>
+
+    <Field label="Expires in" description="Automatically delete the field value after the specified period.">
+      {(fieldProps) => (
+        <Select
+          id={fieldProps.id}
+          placeholder="Never"
+          value={expiresIn}
+          onChange={(option) => setExpiresIn(option.value)}
+          options={[
+            { label: "Never", value: "never" },
+            { label: "30 days", value: "30d" },
+            { label: "90 days", value: "90d" },
+            { label: "1 year", value: "1y" },
+          ]}
+        />
+      )}
+    </Field>
+  </fieldset>
+
+  <div className="flex gap-2">
+    <Button color="primary">Save field</Button>
+    <Button color="secondary" variant="outline">Cancel</Button>
   </div>
-  <Field label="Not redactable" description="Prevent from being redacted." orientation="horizontal">
-    {(fp) => <Switch id={fp.id} />}
-  </Field>
-  <Field label="Write once" description="Value can only be set once." orientation="horizontal">
-    {(fp) => <Switch id={fp.id} />}
-  </Field>
-</fieldset>`} previewMinHeight={168}>
+</div>`} previewMinHeight={168}>
   <FieldConfigurationDemo />
 </ComponentPreview>
 
 ### Birthday input
 
-<ComponentPreview details={<>A date-of-birth input with inline formatting that inserts <code>MM / DD / YYYY</code> separators as you type, wrapped in a <code>Field</code> for label and accessibility.</>} code={`<Field label="Birthday">
-  <Input
-    placeholder="MM / DD / YYYY"
-    value={birthday}
-    onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
-    inputMode="numeric"
-    maxLength={14}
-  />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>A date-of-birth input with inline formatting that inserts <code>MM / DD / YYYY</code> separators as you type, wrapped in a <code>Field</code> for label and accessibility. <code>nextBirthday</code> is a plain helper function of the example.</>} code={`const [birthday, setBirthday] = useState("")
+
+<div className="w-[320px]">
+  <Field label="Birthday">
+    <Input
+      placeholder="MM / DD / YYYY"
+      value={birthday}
+      onChange={(evt) => setBirthday(nextBirthday(evt.target.value, birthday))}
+      inputMode="numeric"
+      maxLength={14}
+      autoComplete="off"
+    />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldBirthdayInputDemo />
 </ComponentPreview>
 
 ### Birthday with validation
 
-<ComponentPreview details={<>Birthday input with <code>errorMessage</code> on <code>Field</code>. Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>.</>} code={`<Field label="Birthday" errorMessage={errorMessage}>
-  <Input
-    placeholder="MM / DD / YYYY"
-    value={birthday}
-    onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
-    inputMode="numeric"
-    maxLength={14}
-  />
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Birthday input with <code>errorMessage</code> on <code>Field</code>: Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>. <code>nextBirthday</code> and <code>isValidBirthday</code> are plain helper functions of the example.</>} code={`const [birthday, setBirthday] = useState("02 / 30 / 2001")
+const errorMessage = birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined
+
+<div className="w-[320px]">
+  <Field label="Birthday" errorMessage={errorMessage}>
+    <Input
+      placeholder="MM / DD / YYYY"
+      value={birthday}
+      onChange={(evt) => setBirthday(nextBirthday(evt.target.value, birthday))}
+      inputMode="numeric"
+      maxLength={14}
+      autoComplete="off"
+    />
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldBirthdayValidationDemo />
 </ComponentPreview>
 
 ### Birthday segmented input
 
-<ComponentPreview details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility.</>} code={`<Field label="Birthday">
-  <div className="flex items-center gap-2">
-    <Input value={month} placeholder="MM" maxLength={2} className="w-[56px]" />
-    <span>/</span>
-    <Input value={day} placeholder="DD" maxLength={2} className="w-[56px]" />
-    <span>/</span>
-    <Input value={year} placeholder="YYYY" maxLength={4} className="w-[80px]" />
-  </div>
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own <code>aria-label</code>. <code>digitsOnly</code> is a plain helper function of the example.</>} code={`const [month, setMonth] = useState("")
+const [day, setDay] = useState("")
+const [year, setYear] = useState("")
+const dayRef = useRef<HTMLInputElement>(null)
+const yearRef = useRef<HTMLInputElement>(null)
+
+<div className="w-[320px]">
+  <Field label="Birthday">
+    {(fieldProps) => (
+      <div className="flex items-center gap-2">
+        <Input
+          id={fieldProps.id}
+          value={month}
+          onChange={(evt) => {
+            const next = digitsOnly(evt.target.value, 2)
+            setMonth(next)
+            if (next.length === 2) dayRef.current?.focus()
+          }}
+          placeholder="MM"
+          inputMode="numeric"
+          maxLength={2}
+          autoComplete="off"
+          className="w-[56px]"
+        />
+        <span className="text-secondary">/</span>
+        <Input
+          ref={dayRef}
+          value={day}
+          onChange={(evt) => {
+            const next = digitsOnly(evt.target.value, 2)
+            setDay(next)
+            if (next.length === 2) yearRef.current?.focus()
+          }}
+          placeholder="DD"
+          aria-label="Day"
+          inputMode="numeric"
+          maxLength={2}
+          autoComplete="off"
+          className="w-[56px]"
+        />
+        <span className="text-secondary">/</span>
+        <Input
+          ref={yearRef}
+          value={year}
+          onChange={(evt) => setYear(digitsOnly(evt.target.value, 4))}
+          placeholder="YYYY"
+          aria-label="Year"
+          inputMode="numeric"
+          maxLength={4}
+          autoComplete="off"
+          className="w-[80px]"
+        />
+      </div>
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldBirthdaySegmentedDemo />
 </ComponentPreview>
 
 ### Birthday with selects
 
-<ComponentPreview details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group.</>} code={`<Field label="Birthday">
-  <div className="flex gap-2">
-    <Select placeholder="Month" options={monthOptions} />
-    <Select placeholder="Day" options={dayOptions} />
-    <Select placeholder="Year" options={yearOptions} />
-  </div>
-</Field>`} previewMinHeight={168}>
+<ComponentPreview details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={`const [month, setMonth] = useState("")
+const [day, setDay] = useState("")
+const [year, setYear] = useState("")
+
+<div className="w-[320px]">
+  <Field label="Birthday">
+    {(fieldProps) => (
+      <div className="flex gap-2">
+        <div className="w-[130px]">
+          <Select
+            id={fieldProps.id}
+            value={month}
+            options={monthOptions}
+            placeholder="Month"
+            onChange={(option) => setMonth(option.value)}
+          />
+        </div>
+        <div className="w-[84px]">
+          <Select
+            value={day}
+            options={dayOptions}
+            placeholder="Day"
+            onChange={(option) => setDay(option.value)}
+            aria-label="Day"
+          />
+        </div>
+        <div className="w-[108px]">
+          <Select
+            value={year}
+            options={yearOptions}
+            placeholder="Year"
+            onChange={(option) => setYear(option.value)}
+            aria-label="Year"
+          />
+        </div>
+      </div>
+    )}
+  </Field>
+</div>`} previewMinHeight={168}>
   <FieldBirthdaySelectDemo />
 </ComponentPreview>
 
@@ -483,6 +841,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby, and aria-invalid" },
+  { prop: "className", type: "string", description: "Applied to the root wrapper" },
 ]} />
 
 ## Styling

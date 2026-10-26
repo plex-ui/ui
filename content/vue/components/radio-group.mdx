@@ -122,8 +122,8 @@ export const groupDisabled = `<RadioGroup :disabled="disabled" default-value="st
 </RadioGroup>`
 
 export const itemDisabled = `<RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
-  <RadioGroupItem value="standard">Standard shipping (3–5 days)</RadioGroupItem>
-  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1–2 days)</RadioGroupItem>
+  <RadioGroupItem value="standard">Standard shipping (3-5 days)</RadioGroupItem>
+  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1-2 days)</RadioGroupItem>
   <RadioGroupItem value="same-day">
     Same-day delivery, available in select metro areas with a minimum order of $50
   </RadioGroupItem>
@@ -151,8 +151,8 @@ export const withDescription = `<RadioGroup direction="col" v-model:value="value
 </RadioGroup>`
 
 export const withField = `<div class="max-w-sm">
-  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="{ id }">
-    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method">
+  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="fieldProps">
+    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method" v-bind="fieldProps">
       <RadioGroupItem value="email">Email</RadioGroupItem>
       <RadioGroupItem value="sms">SMS</RadioGroupItem>
       <RadioGroupItem value="push">Push notification</RadioGroupItem>
@@ -314,7 +314,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### With Field
 
-<ComponentPreview language="vue" details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. The Field provides <code>aria-describedby</code> linking automatically.</>} code={withField} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (<code>aria-describedby</code>).</>} code={withField} previewMinHeight={200}>
   <VueDemo template={withField} stageClassName={stage} state={{ value: "email" }} />
 </ComponentPreview>
 
@@ -352,7 +352,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   <VueDemo template={groupedSections} state={{ visibility: "owners", frequency: "weekly" }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 **RadioGroup** (root)
 
@@ -362,7 +362,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   { prop: "direction", type: '"col" | "row"', default: '"row"', description: "Item flow direction" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the whole group" },
   { prop: "name", type: "string", description: "Name of the hidden radio inputs submitted with the owning form" },
-  { prop: "required", type: "boolean", default: "false", description: "Marks the group as required (aria-required)" },
+  { prop: "required", type: "boolean", default: "false", description: "Marks the group and every hidden radio input as required" },
   { prop: "aria-label", type: "string", description: "Accessible group label" },
   { prop: "class", type: "string", description: "Extra classes on the group element" },
   { prop: "default slot", type: "VNode[]", description: "RadioGroupItem children" },
@@ -375,11 +375,27 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 <PropsTable data={[
   { prop: "value", type: "string", description: "Item value" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable this item only" },
-  { prop: "required", type: "boolean", description: "Marks this item's hidden form input as required" },
+  { prop: "required", type: "boolean", description: "Marks this item as required" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
   { prop: "class", type: "string", description: "Extra classes on the label element" },
   { prop: "default slot", type: "VNode[]", description: "Label content (text or rich content)" },
 ]} />
 
-Other attributes on `RadioGroupItem` land on its wrapper `<div>`. The arrow keys move focus and check the focused option; Home and End move focus only (roving focus from Reka UI). Inside a `<form>`, hidden native radios mirror the selection so the value is submitted with the form.
+Other attributes on `RadioGroup`, such as the `id`, `aria-describedby` and `aria-invalid` a `Field` passes, land on the group element. Other attributes on `RadioGroupItem` land on its wrapper `<div>`. The arrow keys move focus and check the focused option; Home and End move focus only (roving focus from Reka UI). Inside a `<form>`, hidden native radios mirror the selection so the value is submitted with the form.
+
+## Styling
+
+Radio Group reads these component tokens. Override them at any scope to restyle it:
+
+- `--radio-group-col-gap`: col gap (default `spacing(2.5)`)
+- `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)
+- `--radio-group-indicator-border-color`: indicator border color (default `var(--color-border-primary-outline)`)
+- `--radio-group-indicator-border-color-hover`: indicator border color hover (default `var(--alpha-25)`)
+- `--radio-group-indicator-hole-background-color`: indicator hole background color (default `var(--color-text-primary-solid)`)
+- `--radio-group-indicator-hole-size`: indicator hole size (default `0.375rem`)
+- `--radio-group-indicator-size`: indicator size (default `var(--font-text-lg-size)`)
+- `--radio-group-item-font-size`: item font size (default `var(--font-text-sm-size)`)
+- `--radio-group-item-gap`: item gap (default `spacing(1.5)`)
+- `--radio-group-item-line-height`: item line height (default `var(--font-text-sm-line-height)`)
+- `--radio-group-row-gap`: row gap (default `spacing(5)`)

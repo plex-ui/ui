@@ -1,13 +1,13 @@
 ---
 title: Dark mode
-description: Configure light and dark mode in your React app with Plex UI — Tailwind setup, persistent theme storage, and the useDocumentTheme hook
+description: Configure light and dark mode in your React app with Plex UI. Tailwind setup, persistent theme storage, and the useDocumentTheme hook
 ---
 
 ## Overview
 
 Light and dark mode are fully supported, but your app is in control of how the attribute is applied and persisted.
 
-To set a view mode, apply a `[data-theme]` attribute to the `html` element of your DOM.
+To set a view mode, apply a `[data-theme]` attribute to the `html` element of your DOM. Without it, the light theme applies: Plex UI does not follow `prefers-color-scheme` on its own. `data-theme` sets `color-scheme` for the color tokens (they use `light-dark()`), switches the shadow tokens and drives Tailwind's `dark:` variant. Setting `color-scheme` yourself flips only the colors, so shadows and `dark:` utilities stay light.
 
 ```html
 <html data-theme="dark">
@@ -62,7 +62,7 @@ const currentTheme = getDocumentTheme() // "light" or "dark"
 
 ### `useDocumentTheme`
 
-Hook for reading the latest view state on the root element. The hook will return a live value, as it listens to attribute changes on the `html` element via a `MutationObserver`.
+Hook for reading the latest view state on the root element. The hook will return a live value, as it listens to attribute changes on the `html` element via a `MutationObserver`. On the server and during hydration it returns `"light"`, then the document's theme.
 
 ```tsx
 import { useDocumentTheme } from "@plexui/ui/theme"
@@ -99,7 +99,10 @@ const store = create(
   }),
 )
 
-// Apply when store is created / updated
+// Apply the saved (or system) theme once on startup
+applyDocumentTheme(resolveTheme(store.getState().theme))
+
+// Apply when the store is updated
 store.subscribe((state) => applyDocumentTheme(resolveTheme(state.theme)))
 
 // Apply when system theme changes

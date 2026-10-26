@@ -74,7 +74,7 @@ const available = computed(() => {
 
 <template>
   <div class="flex flex-col gap-3">
-    <TagInput v-model:value="tags" placeholder="Add a skill..." />
+    <TagInput v-model:value="tags" placeholder="Add a skill..." size="md" />
     <div v-if="available.length > 0" class="flex flex-wrap gap-1.5">
       <Button
         v-for="s in available"
@@ -150,18 +150,31 @@ const available = computed(() => {
   />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "value / v-model:value", type: "Tag[]", description: "Controlled value; `update:value` fires on every change" },
+  { prop: "value / v-model:value", type: "Tag[]", description: "Controlled value; update:value fires on every change" },
   { prop: "default-value", type: "Tag[]", description: "Uncontrolled initial tags" },
   { prop: "@change", type: "(tags: Tag[]) => void", description: "Fires when the tags change" },
+  { prop: "id", type: "string", description: "Id of the text input, so a label can target it with for" },
   { prop: "placeholder", type: "string", description: "Input placeholder" },
-  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag; invalid tags shown in red" },
-  { prop: "max-tags", type: "number", description: "Max tags before input is disabled" },
+  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag when it is created; invalid tags shown in red" },
+  { prop: "max-tags", type: "number", description: "Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags" },
   { prop: "rows", type: "number", default: "1", description: "Min rows" },
   { prop: "size", type: "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'", default: "xl", description: "Control height when rows=1; matches Input height of the same size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully-rounded container and chips; matches Input/SelectControl pill" },
   { prop: "delimiters", type: "string[]", default: '[",", " "]', description: "Characters that commit the current text as a tag" },
+  { prop: "disabled", type: "boolean", description: "Disables the input: tags cannot be added or removed, and pending text stays as typed" },
   { prop: "auto-focus", type: "boolean", default: "false", description: "Focus on mount" },
 ]} />
+
+`Tag` is `{ value: string; valid: boolean }`.
+
+## Styling
+
+Tag Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--button-font-weight`: font weight (default `var(--font-weight-medium)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

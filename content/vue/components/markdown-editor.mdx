@@ -115,7 +115,7 @@ export const invalid = `<div class="w-[500px]">
   <VueDemo template={invalid} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the editor" },
@@ -125,8 +125,27 @@ export const invalid = `<div class="w-[500px]">
   { prop: "value / v-model:value", type: "string", description: "Controlled markdown value; `update:value` fires on every change" },
   { prop: "default-value", type: "string", description: "Initial markdown for uncontrolled mode" },
   { prop: "@change", type: "(markdown: string) => void", description: "Called on content change" },
-  { prop: "#toolbarEnd", type: "slot", description: "Content rendered at the end of the toolbar" },
+  { prop: "toolbarEnd slot", type: "VNode[]", description: "Content rendered at the end of the toolbar" },
   { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
+  { prop: "id", type: "string", description: "id of the editable element (Field sets it)" },
+  { prop: "aria-label", type: "string", description: "Accessible name of the editable element" },
+  { prop: "aria-labelledby", type: "string", description: "Id of the element that names the editor, such as a visible label" },
+  { prop: "aria-describedby", type: "string", description: "aria-describedby of the editable element (Field sets it)" },
+  { prop: "aria-invalid", type: "boolean", description: "Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)" },
+  { prop: "class", type: "string", description: "Applied to the container" },
 ]} />
 
-`class` applies to the container. `id`, `aria-describedby` and `aria-invalid` go to the editable element. Like the React component, `update:value` and `change` also fire once when the editor is created and whenever `disabled` changes.
+The editable element is a `textbox` with `aria-multiline`. A `<label for>`, including the label `Field` renders, cannot name a contenteditable region, so give the editor `aria-label`, or `aria-labelledby` pointing at a visible label. Toolbar buttons are toggles (`aria-pressed`) that follow the formatting at the caret, and a click in the text places the caret there. In the link dialog, Enter in a field saves the link, Enter on a button runs that button, Escape cancels, and Tab stays inside the dialog. Like the React component, `update:value` and `change` also fire once when the editor is created and whenever `disabled` changes.
+
+## Styling
+
+Markdown Editor reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)

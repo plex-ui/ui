@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { source, componentsSource, iconsSource, vueComponentsSource, blog } from '@/lib/source';
+import { getDocsSectionRedirect } from '@/lib/docs-redirects';
 
 // Build-time stamp for routes that don't have a per-page lastModified
 // (the homepage, /compare/*, /blog index — these
@@ -30,12 +31,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const fromSource = (
     src: typeof source | typeof componentsSource | typeof iconsSource | typeof vueComponentsSource,
   ): MetadataRoute.Sitemap =>
-    src.getPages().map((page) => ({
-      url: `${baseUrl}${page.url}`,
-      lastModified: toISODate((page.data as { lastModified?: Date }).lastModified),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }));
+    src
+      .getPages()
+      // Leaf pages that redirect to an anchor (/docs/concepts/dark-mode)
+      // would be listed as "page with redirect"; list only real pages.
+      .filter((page) => src !== source || !getDocsSectionRedirect(page.slugs))
+      .map((page) => ({
+        url: `${baseUrl}${page.url}`,
+        lastModified: toISODate((page.data as { lastModified?: Date }).lastModified),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }));
 
   const docsPages = [
     ...fromSource(source),

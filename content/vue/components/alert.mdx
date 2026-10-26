@@ -168,7 +168,7 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   <VueDemo template={dismissible} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "title", type: "string | slot", description: "Title displayed in the alert" },
@@ -181,4 +181,16 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   { prop: "indicator", type: "slot | false", description: "Custom indicator (slot), or :indicator=\"false\" to hide it" },
   { prop: "@dismiss", type: "() => void", description: "Shows the dismiss button when set" },
 ]} />
+
+## Styling
+
+Alert reads these component tokens. Override them at any scope to restyle it:
+
+- `--alert-border-radius`: border radius (default `var(--radius-xl)`)
+- `--alert-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--alert-gap`: gap (default `spacing(3)`)
+- `--alert-gutter`: gutter (default `spacing(4)`)
+- `--alert-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--alert-title-font-weight`: title font weight (default `var(--font-weight-semibold)`)
+
 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Button } from '@plexui/ui/components/Button';
 import { Field } from '@plexui/ui/components/Field';
@@ -37,7 +37,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -163,6 +163,25 @@ export function InputEndAdornmentDemo() {
         </div>
       </div>
     </>
+  );
+}
+
+export function InputCharacterCounterDemo() {
+  const [username, setUsername] = useState('');
+  return (
+    <div className="w-[320px]">
+      <Input
+        placeholder="Username"
+        value={username}
+        onChange={(evt) => setUsername(evt.target.value)}
+        maxLength={16}
+        endAdornment={
+          <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
+            {username.length}/16
+          </span>
+        }
+      />
+    </div>
   );
 }
 

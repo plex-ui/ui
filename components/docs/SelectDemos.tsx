@@ -455,7 +455,7 @@ export function SelectColumnConfigDemo() {
                   onClick={() => toggle(col.id)}
                 >
                   <span className="text-sm">{col.label}</span>
-                  <Switch checked />
+                  <Switch checked aria-label={col.label} />
                 </div>
               ))}
             </div>
@@ -469,7 +469,7 @@ export function SelectColumnConfigDemo() {
                   onClick={() => toggle(col.id)}
                 >
                   <span className="text-sm text-tertiary">{col.label}</span>
-                  <Switch checked={false} />
+                  <Switch checked={false} aria-label={col.label} />
                 </div>
               ))}
             </div>

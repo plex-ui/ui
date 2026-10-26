@@ -1,7 +1,7 @@
 ---
 title: Button
 description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
-metaDescription: React button component with five variants (solid, soft, outline, ghost, link), eight semantic colors, icon slots, loading, and block layout
+metaDescription: React button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout
 ---
 
 import { Button } from "@plexui/ui/components/Button"
@@ -23,7 +23,7 @@ import {
 
 ### Overview
 
-<ComponentPreview details={<>A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.</>} code={`<div className="flex gap-3">
+<ComponentPreview details={<>A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.</>} code={`<div className="flex flex-wrap gap-3">
   <Button color="primary">Submit</Button>
   <Button variant="soft"><CompareArrows /> Compare</Button>
   <Button color="danger" gutterSize="sm" pill={false} aria-label="Delete"><Delete /></Button>
@@ -41,21 +41,31 @@ import {
 
 ### Colors & variants
 
-<ComponentPreview details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props.</>} className="justify-start" code={`<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-  <div className="pt-1 pb-6 px-8 w-max min-w-full">
-    <Matrix
-      rowLabels={["soft", "solid", "outline", "ghost"]}
-      columnLabels={["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"]}
-      renderCell={(row, col) => (
-        <Button
-          color={["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"][col]}
-          variant={["soft", "solid", "outline", "ghost"][row]}
-          size="md"
-        >
-          Submit
-        </Button>
-      )}
-    />
+<ComponentPreview details={<>You can stylize the display of the button using the <code>color</code> and <code>variant</code> props.</>} className="justify-start" code={`const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
+const variants = ["soft", "solid", "outline", "ghost"] as const
+
+<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+  <div className="pt-1 pb-6 px-8 w-max mx-auto">
+    <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
+      <div />
+      {colors.map((color) => (
+        <div key={color} className="text-center text-sm mb-1" style={{ color: "var(--color-text-tertiary)" }}>
+          {color}
+        </div>
+      ))}
+      {variants.map((variant) => (
+        <Fragment key={variant}>
+          <div className="text-right text-sm mr-3" style={{ color: "var(--color-text-tertiary)" }}>
+            {variant}
+          </div>
+          {colors.map((color) => (
+            <div key={color} className="text-center">
+              <Button color={color} variant={variant} size="md">Submit</Button>
+            </div>
+          ))}
+        </Fragment>
+      ))}
+    </div>
   </div>
 </div>`} previewMinHeight={168}>
   <ButtonColorsDemo />
@@ -67,7 +77,7 @@ import {
   <p>Control height with <code>size</code> and horizontal padding with <code>gutterSize</code>. Use <code>pill</code> for fully rounded corners.</p>
   <p><code>size</code> sets the button to a specific control height, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code> and <code>iconSize</code> props, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
   <p>When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the button.</p>
-</>} code={`<div className="flex flex-col gap-2 justify-start items-start">
+</>} code={`<div className="flex flex-col gap-2 items-center">
   <Button color="primary" size="xl" pill><Mail /> Button <ArrowRight /></Button>
   <Button color="primary" size="xl" pill>Button <ArrowRight /></Button>
   <Button color="primary" size="xl" pill><Mail /> Button</Button>
@@ -84,7 +94,7 @@ import {
   <p>For icon-only buttons, there are two common approaches:</p>
   <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutterSize</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
   <p><strong>Tighter gutters</strong>: applying a smaller <code>gutterSize</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
-</>} code={`<Button color="secondary" size="lg" uniform variant="ghost" aria-label="Add">
+</>} code={`<Button color="primary" size="lg" aria-label="Add">
   <PlusLg />
 </Button>`} previewMinHeight={216}>
   <ButtonIconDemo />
@@ -92,15 +102,15 @@ import {
 
 ### Block
 
-<ComponentPreview details={<>Create full-width buttons with the <code>block</code> prop.</>} code={`<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
-  <Button block size="lg">Continue</Button>
+<ComponentPreview details={<>Create full-width buttons with the <code>block</code> prop.</>} code={`<div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <Button color="primary" size="lg" block>Continue</Button>
 </div>`} previewMinHeight={168} resizable>
   <ButtonBlockDemo />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview details={<>Use <code>disabled</code> to both visually and accessibly disable a button.</>} code={`<Button disabled>Submit</Button>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>disabled</code> to both visually and accessibly disable a button. Clicks do not call <code>onClick</code>.</>} code={`<Button color="primary" disabled>Submit</Button>`} previewMinHeight={168}>
   <ButtonDisabledDemo />
 </ComponentPreview>
 
@@ -108,8 +118,8 @@ import {
 
 <ComponentPreview details={<>
   <p>Use <code>inert</code> to accessibly disable a button <strong>without any visual changes</strong>.</p>
-  <p><strong>Note:</strong> For accessibility reasons, <code>disabled</code> is used instead of applying <code>inert</code> directly to the button. Visual disablement in the <code>disabled</code> prop is applied via <code>[data-disable]</code>.</p>
-</>} code={`<Button inert>Submit</Button>`} previewMinHeight={168}>
+  <p><strong>Note:</strong> For accessibility reasons, <code>disabled</code> is used instead of applying <code>inert</code> directly to the button. Visual disablement in the <code>disabled</code> prop is applied via <code>[data-disabled]</code>.</p>
+</>} code={`<Button color="primary" inert>Submit</Button>`} previewMinHeight={168}>
   <ButtonInertDemo />
 </ComponentPreview>
 
@@ -117,7 +127,7 @@ import {
 
 <ComponentPreview details={<>
   <p>Use <code>loading</code> to display a loading indicator in the button, fading out the current content.</p>
-  <p>Interactions will be prevented by default during this state, by providing a default value for <code>inert</code> to <code>true</code>. You can override this behavior directly with <code>inert</code>, or use <code>disabled</code> to add visual disablement.</p>
+  <p>Interactions are prevented during this state, because <code>inert</code> defaults to <code>loading</code>. Override it with <code>inert</code>, or use <code>disabled</code> to add visual disablement.</p>
 </>} code={`<Button loading size="xl" pill><ArrowUp /> Click to load</Button>`} previewMinHeight={168}>
   <Button loading size="xl" pill><ArrowUp /> Click to load</Button>
 </ComponentPreview>
@@ -125,14 +135,14 @@ import {
 ### Selected
 
 <ComponentPreview details={<>
-  <p>Use <code>selected</code> to indicate that a given button is correctly in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
+  <p>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
   <p>This behavior is automatically configured with components like <code>Menu</code> that apply <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code> attributes.</p>
 </>} code={`<Popover>
   <Popover.Trigger>
-    <Button selected variant="solid">Click to open</Button>
+    <Button color="primary" selected variant="solid">Click to open</Button>
   </Popover.Trigger>
   <Popover.Content minWidth="auto" className="p-4 text-sm">
-    <ShimmerText className="font-medium text-secondary">Button should look selected</ShimmerText>
+    Button should look selected
   </Popover.Content>
 </Popover>`} previewMinHeight={168}>
   <ButtonSelectedDemoWithControls />
@@ -173,13 +183,16 @@ Button shares the unified 9-step size scale with Input, Select, SelectControl, a
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded corners" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
   { prop: "uniform", type: "boolean", default: "false", description: "Square icon button (width equals height)" },
-  { prop: "disabled", type: "boolean", default: "false", description: "Visually and accessibly disabled" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Visually and accessibly disabled; onClick is not called" },
+  { prop: "disabledTone", type: '"relaxed"', description: "Default cursor instead of not-allowed while disabled" },
   { prop: "loading", type: "boolean", default: "false", description: "Shows loading indicator" },
   { prop: "inert", type: "boolean", default: "loading", description: "Accessibly disabled without visual change" },
   { prop: "selected", type: "boolean", default: "false", description: "Selected state styling" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Offset gutter for optical alignment" },
   { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
   { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in children; defaults from size" },
+  { prop: "type", type: '"button" | "submit" | "reset"', default: '"button"', description: "Native button type" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called on click, unless disabled" },
 ]} />
 
 ## Styling

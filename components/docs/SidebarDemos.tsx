@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useId, useRef, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -150,16 +150,16 @@ const resourcesNavItems = [
 // =============================================
 
 function DemoSidebarHeader({ title = 'App' }: { title?: string } = {}) {
-  const { state, toggleSidebar, collapsible } = useSidebar();
+  const { state, collapsible } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  // SidebarTrigger toggles on its own click; the Tooltip only adds the hint
   const trigger = (
     <Tooltip
       compact
-      onClick={() => toggleSidebar()}
       content={
         <span className="inline-flex items-center gap-1.5">
           {isCollapsed ? 'Expand' : 'Collapse'}
-          <kbd className="console-trigger-kbd">⌘.</kbd>
+          <kbd className="console-trigger-kbd">⌘B</kbd>
         </span>
       }
     >
@@ -2726,7 +2726,7 @@ const controlLabelStyle: React.CSSProperties = {
 };
 
 function DemoControlBoolean({ name, value, onChange }: { name: string; value: boolean; onChange: (v: boolean) => void }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

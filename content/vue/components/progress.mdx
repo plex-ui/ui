@@ -8,16 +8,16 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VueProgressOverviewDemo, vueProgressOverviewCode } from "@/components/docs/vue/VueProgressDemos"
 
 export const controlled = `<div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
-  <Progress :value="value" />
-  <Slider v-model:value="value" :min="0" :max="100" :step="1" />
+  <Progress :value="value" aria-label="Progress" />
+  <Slider v-model:value="value" :min="0" :max="100" :step="1" aria-label="Progress value" />
 </div>`
 
 export const withLabel = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
   <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
-    <Label for="progress-upload">Uploading plex-ui.zip</Label>
+    <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
     <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
   </div>
-  <Progress id="progress-upload" :value="67" />
+  <Progress aria-labelledby="progress-upload-label" :value="67" />
 </div>`
 
 <UsageBlock>{`import { Progress } from "@plexui/vue/components/Progress";`}</UsageBlock>

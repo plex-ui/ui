@@ -108,12 +108,12 @@ export const noResults = `<div class="w-full">
   <VueDemo template={noResults} />
 </ComponentPreview>
 
-## Reference
+## API
 
 **EmptyMessage** (root)
 
 <PropsTable data={[
-  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills available space; use \"none\" for transparent (e.g. in search results)" },
+  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills its parent: \"static\" takes full width and height, \"absolute\" covers a positioned parent (inset 0), \"none\" applies no sizing" },
 ]} />
 
 **EmptyMessageIcon**
@@ -137,4 +137,8 @@ export const noResults = `<div class="w-full">
   { prop: "class", type: "string", description: "Additional classes for the action row container" },
 ]} />
 
-Every part accepts `class`. Like the React parts, they apply no other attributes.
+Every part accepts `class`. The parts apply no other attributes.
+
+## Styling
+
+Empty Message has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useId, useState, useCallback, useRef } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Field } from '@plexui/ui/components/Field';
@@ -385,7 +385,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
   return (
     <div style={controlRowStyle}>
       <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>

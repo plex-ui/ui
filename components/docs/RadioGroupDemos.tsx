@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -37,7 +37,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -169,12 +169,12 @@ export function RadioGroupItemDisabledDemo() {
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
         <RadioGroup aria-label="Delivery method" className="max-w-[320px] m-auto" direction="col">
-          <RadioGroup.Item value="standard">Standard shipping (3–5 days)</RadioGroup.Item>
+          <RadioGroup.Item value="standard">Standard shipping (3-5 days)</RadioGroup.Item>
           <RadioGroup.Item value="express" disabled={disabled}>
-            Express shipping (1–2 days)
+            Express shipping (1-2 days)
           </RadioGroup.Item>
           <RadioGroup.Item value="same-day">
-            Same-day delivery — available in select metro areas with a minimum order of $50
+            Same-day delivery, available in select metro areas with a minimum order of $50
           </RadioGroup.Item>
         </RadioGroup>
       </div>
@@ -216,8 +216,14 @@ export function RadioGroupWithFieldDemo() {
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="max-w-sm">
         <Field label="Notification method" description="Choose how you want to receive notifications.">
-          {() => (
-            <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method">
+          {(fieldProps) => (
+            <RadioGroup
+              direction="col"
+              value={value}
+              onChange={setValue}
+              aria-label="Notification method"
+              {...fieldProps}
+            >
               <RadioGroup.Item value="email">Email</RadioGroup.Item>
               <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
               <RadioGroup.Item value="push">Push notification</RadioGroup.Item>

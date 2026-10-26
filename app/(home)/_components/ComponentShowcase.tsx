@@ -179,14 +179,14 @@ const dayShortcuts: DateRangeShortcut[] = [
     label: 'Last 7 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 7 }).startOf('day'), today];
+      return [today.minus({ days: 6 }).startOf('day'), today];
     },
   },
   {
     label: 'Last 30 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 30 }).startOf('day'), today];
+      return [today.minus({ days: 29 }).startOf('day'), today];
     },
   },
 ];

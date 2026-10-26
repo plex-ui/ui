@@ -142,10 +142,10 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 ### Item disabled
 
 <ComponentPreview details={<>Use <code>disabled</code> on single <code>RadioGroup.Item</code> to disable only that option.</>} code={`<RadioGroup aria-label="Delivery method" direction="col">
-  <RadioGroup.Item value="standard">Standard shipping (3–5 days)</RadioGroup.Item>
-  <RadioGroup.Item value="express" disabled>Express shipping (1–2 days)</RadioGroup.Item>
+  <RadioGroup.Item value="standard">Standard shipping (3-5 days)</RadioGroup.Item>
+  <RadioGroup.Item value="express" disabled>Express shipping (1-2 days)</RadioGroup.Item>
   <RadioGroup.Item value="same-day">
-    Same-day delivery — available in select metro areas with a minimum order of $50
+    Same-day delivery, available in select metro areas with a minimum order of $50
   </RadioGroup.Item>
 </RadioGroup>`} previewMinHeight={168}>
   <RadioGroupItemDisabledDemo />
@@ -184,9 +184,9 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With Field
 
-<ComponentPreview details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. The Field provides <code>aria-describedby</code> linking automatically.</>} code={`<Field label="Notification method" description="Choose how you want to receive notifications.">
-  {() => (
-    <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method">
+<ComponentPreview details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. Spread the field props from the render prop onto the group so it is described by the Field's description (<code>aria-describedby</code>).</>} code={`<Field label="Notification method" description="Choose how you want to receive notifications.">
+  {(fieldProps) => (
+    <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Notification method" {...fieldProps}>
       <RadioGroup.Item value="email">Email</RadioGroup.Item>
       <RadioGroup.Item value="sms">SMS</RadioGroup.Item>
       <RadioGroup.Item value="push">Push notification</RadioGroup.Item>
@@ -287,17 +287,26 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   { prop: "onChange", type: "(value: string) => void", description: "Called when selected option changes" },
   { prop: "direction", type: '"col" | "row"', default: '"row"', description: "Item flow direction" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the whole group" },
+  { prop: "name", type: "string", description: "Name of the hidden radio inputs submitted with the owning form" },
+  { prop: "required", type: "boolean", default: "false", description: "Marks the group and every hidden radio input as required" },
   { prop: "aria-label", type: "string", description: "Accessible group label" },
+  { prop: "className", type: "string", description: "Extra classes on the group element" },
 ]} />
+
+Other props, such as the `id`, `aria-describedby` and `aria-invalid` a `Field` passes, land on the group element.
 
 **RadioGroup.Item**
 
 <PropsTable data={[
   { prop: "value", type: "string", description: "Item value" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable this item only" },
+  { prop: "required", type: "boolean", description: "Marks this item as required" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
+  { prop: "className", type: "string", description: "Extra classes on the label element" },
 ]} />
+
+Other props on `RadioGroup.Item` land on its wrapper `<div>`. The arrow keys move focus and check the focused option; Home and End move focus only (roving focus from Radix). Inside a `<form>`, hidden native radios mirror the selection so the value is submitted with the form.
 
 ## Styling
 

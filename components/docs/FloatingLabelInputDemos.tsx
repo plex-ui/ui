@@ -378,7 +378,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = 'demo-switch-' + name.toLowerCase().replace(/\s+/g, '-');
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

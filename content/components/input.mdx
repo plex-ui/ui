@@ -11,6 +11,7 @@ import { Search } from "@plexui/ui/components/Icon"
 import {
   InputSizingDemo,
   InputEndAdornmentDemo,
+  InputCharacterCounterDemo,
   InputDisabledDemo,
   InputInvalidDemo,
   InputAutoSelectDemo,
@@ -73,7 +74,7 @@ import {
 
 ### Clear button
 
-<ComponentPreview details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={`<Input
+<ComponentPreview details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.</>} code={`<Input
   placeholder="Enter text..."
   value={value}
   onChange={(evt) => setValue(evt.target.value)}
@@ -96,16 +97,7 @@ import {
     </span>
   }
 />`} previewMinHeight={168}>
-  <div className="w-[320px]">
-    <Input
-      placeholder="Username"
-      defaultValue=""
-      maxLength={16}
-      endAdornment={
-        <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">0/16</span>
-      }
-    />
-  </div>
+  <InputCharacterCounterDemo />
 </ComponentPreview>
 
 ### Password with visibility toggle
@@ -228,14 +220,25 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the size of the input" },
   { prop: "gutterSize", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Controls gutter on the edges; defaults to value from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables the input visually and from interactions" },
+  { prop: "readOnly", type: "boolean", default: "false", description: "Makes the input read-only and hides the clear button" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark the input as invalid" },
   { prop: "allowAutofillExtensions", type: "boolean", default: 'type === "password" || !!name', description: "Allow autofill extensions to appear in the input" },
   { prop: "autoSelect", type: "boolean", default: "false", description: "Select all contents of the input when mounted" },
   { prop: "startAdornment", type: "ReactNode", description: "Content rendered at the start of the input" },
   { prop: "endAdornment", type: "ReactNode", description: "Content rendered at the end of the input" },
   { prop: "onClear", type: "() => void", description: "When provided, displays a clear button that appears when the input has a value" },
+  { prop: "onAutofill", type: "() => void", description: "Called when the browser autofills the input" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded pill shape" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies a negative margin using the current gutter to optically align with surrounding content" },
+]} />
+
+`className` applies to the container. Every other `<input>` attribute and handler (`value`, `defaultValue`, `onChange`, `placeholder`, `maxLength`, ...) goes to the `<input>`, and `ref` points at it.
+
+**Input.AdornmentButton**
+
+<PropsTable data={[
+  { prop: "color", type: "SemanticColor", description: "Tint of the pressed (aria-pressed=\"true\") state; the neutral primary-soft tint when unset" },
+  { prop: "type", type: "string", default: '"button"', description: "Button type" },
 ]} />
 
 ## Styling

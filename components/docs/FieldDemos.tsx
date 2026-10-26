@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useId, useRef, useState } from 'react';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldError } from '@plexui/ui/components/FieldError';
 import { Input } from '@plexui/ui/components/Input';
@@ -47,7 +47,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -299,13 +299,14 @@ export function FieldWithRadioGroupDemo() {
         {(fieldProps) => (
           <RadioGroup
             aria-label="Subscription plan"
+            {...fieldProps}
             value={plan}
             onChange={setPlan}
             direction="col"
           >
             <RadioGroup.Item value="free">Free</RadioGroup.Item>
-            <RadioGroup.Item value="pro">Pro — $9/mo</RadioGroup.Item>
-            <RadioGroup.Item value="enterprise">Enterprise — $29/mo</RadioGroup.Item>
+            <RadioGroup.Item value="pro">Pro, $9/mo</RadioGroup.Item>
+            <RadioGroup.Item value="enterprise">Enterprise, $29/mo</RadioGroup.Item>
           </RadioGroup>
         )}
       </Field>
@@ -690,45 +691,50 @@ export function FieldBirthdaySegmentedDemo() {
     <div data-demo-stage className="py-10">
       <div className="w-[320px]">
         <Field label="Birthday">
-          <div className="flex items-center gap-2">
-            <Input
-              value={month}
-              onChange={(evt) => handleSegmentChange(evt.target.value, 2, setMonth, dayRef)}
-              placeholder="MM"
-              inputMode="numeric"
-              maxLength={2}
-              size="md"
-              variant="outline"
-              autoComplete="off"
-              className="w-[56px]"
-            />
-            <span className="text-secondary">/</span>
-            <Input
-              ref={dayRef}
-              value={day}
-              onChange={(evt) => handleSegmentChange(evt.target.value, 2, setDay, yearRef)}
-              placeholder="DD"
-              inputMode="numeric"
-              maxLength={2}
-              size="md"
-              variant="outline"
-              autoComplete="off"
-              className="w-[56px]"
-            />
-            <span className="text-secondary">/</span>
-            <Input
-              ref={yearRef}
-              value={year}
-              onChange={(evt) => handleSegmentChange(evt.target.value, 4, setYear)}
-              placeholder="YYYY"
-              inputMode="numeric"
-              maxLength={4}
-              size="md"
-              variant="outline"
-              autoComplete="off"
-              className="w-[80px]"
-            />
-          </div>
+          {(fieldProps) => (
+            <div className="flex items-center gap-2">
+              <Input
+                id={fieldProps.id}
+                value={month}
+                onChange={(evt) => handleSegmentChange(evt.target.value, 2, setMonth, dayRef)}
+                placeholder="MM"
+                inputMode="numeric"
+                maxLength={2}
+                size="md"
+                variant="outline"
+                autoComplete="off"
+                className="w-[56px]"
+              />
+              <span className="text-secondary">/</span>
+              <Input
+                ref={dayRef}
+                value={day}
+                onChange={(evt) => handleSegmentChange(evt.target.value, 2, setDay, yearRef)}
+                placeholder="DD"
+                aria-label="Day"
+                inputMode="numeric"
+                maxLength={2}
+                size="md"
+                variant="outline"
+                autoComplete="off"
+                className="w-[56px]"
+              />
+              <span className="text-secondary">/</span>
+              <Input
+                ref={yearRef}
+                value={year}
+                onChange={(evt) => handleSegmentChange(evt.target.value, 4, setYear)}
+                placeholder="YYYY"
+                aria-label="Year"
+                inputMode="numeric"
+                maxLength={4}
+                size="md"
+                variant="outline"
+                autoComplete="off"
+                className="w-[80px]"
+              />
+            </div>
+          )}
         </Field>
       </div>
     </div>
@@ -946,9 +952,9 @@ export function FieldCreateProjectDemo() {
                   onChange={setVisibility}
                   direction="col"
                 >
-                  <RadioGroup.Item value="private">Private — only invited members</RadioGroup.Item>
-                  <RadioGroup.Item value="internal">Internal — anyone in your organization</RadioGroup.Item>
-                  <RadioGroup.Item value="public">Public — visible to everyone</RadioGroup.Item>
+                  <RadioGroup.Item value="private">Private, only invited members</RadioGroup.Item>
+                  <RadioGroup.Item value="internal">Internal, anyone in your organization</RadioGroup.Item>
+                  <RadioGroup.Item value="public">Public, visible to everyone</RadioGroup.Item>
                 </RadioGroup>
               )}
             </Field>

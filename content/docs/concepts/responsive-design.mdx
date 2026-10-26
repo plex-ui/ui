@@ -1,6 +1,6 @@
 ---
 title: Responsive design
-description: Build adaptive React interfaces with Plex UI — default Tailwind breakpoints, responsive props, and the useBreakpoint hook for runtime checks
+description: Build adaptive React interfaces with Plex UI. Default breakpoints, Tailwind responsive variants, and the useBreakpoint hook for runtime checks
 ---
 
 ## Approach
@@ -9,7 +9,7 @@ Styles should be written **mobile-first**, meaning the base styles are applied t
 In practice this may look like starting with a single column layout, then introducing multiple columns at certain breakpoints, when sufficient screen width is available.
 
 ## Default breakpoints
-Default breakpoints are provided out-of-the-box with Plex UI, and are integrated into Tailwind and React utilities.
+`useBreakpoint` uses these breakpoints out of the box. Tailwind's responsive variants use them once you add the opt-in `@plexui/ui/styles/variables-tailwind-theme.css` import ([Installation](/docs/installation#using-the-full-plex-scale-in-your-tailwind-utilities-opt-in)); with the default import Tailwind keeps its own breakpoints (`sm` is 640px and there is no `xs`).
 
 | Name | Size | Common device | Example usage |
 |------|------|---------------|---------------|
@@ -33,9 +33,11 @@ Use standard Tailwind paradigms for writing responsive utility classes. See the 
 Use our React hook for detecting breakpoints in your components.
 
 ```tsx
-import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoint";
+import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoints";
 
 function SampleComponent() {
   const isMediumBreakpoint = useBreakpoint("md"); // true or false
 }
 ```
+
+The hook returns `false` on the first render, on the server and the client alike, then follows the viewport. It reads the `--breakpoint-*` variables and falls back to the table above (with a console warning in development) when they are not defined.

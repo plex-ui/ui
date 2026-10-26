@@ -1,12 +1,12 @@
 ---
 title: Table
 description: Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
-metaDescription: Styled HTML table primitives and a full-featured data table powered by TanStack Table v8
+metaDescription: "React table components with styled HTML table primitives and a full-featured data table powered by TanStack Table v8: sorting, pagination, filtering, row selection and column visibility."
 ---
 
 import { Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableCaption } from "@plexui/ui/components/Table"
 import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
-import { TableSortingDemo, TablePaginationDemo, TableRowClickDemo, TableCellVariantsDemo, TableFilteringDemo, TableColumnVisibilityDemo, TableEmptyStateDemo, TableVariantDemo } from "@/components/docs/TableDemos"
+import { TableSortingDemo, TablePaginationDemo, TableRowClickDemo, TableRowSelectionDemo, TableCellVariantsDemo, TableFilteringDemo, TableColumnVisibilityDemo, TableEmptyStateDemo, TableVariantDemo } from "@/components/docs/TableDemos"
 
 <UsageBlock>{`import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table";
 import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable";`}</UsageBlock>
@@ -23,33 +23,35 @@ import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTabl
   { invoice: "INV005", status: "Paid", method: "PayPal", amount: "$550.00" },
 ]
 
-<Table>
-  <TableCaption>A list of your recent invoices.</TableCaption>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Invoice</TableHead>
-      <TableHead>Status</TableHead>
-      <TableHead>Method</TableHead>
-      <TableHead className="text-right">Amount</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {invoices.map((invoice) => (
-      <TableRow key={invoice.invoice}>
-        <TableCell className="font-medium">{invoice.invoice}</TableCell>
-        <TableCell>{invoice.status}</TableCell>
-        <TableCell>{invoice.method}</TableCell>
-        <TableCell className="text-right">{invoice.amount}</TableCell>
+return (
+  <Table>
+    <TableCaption>A list of your recent invoices.</TableCaption>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Invoice</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead>Method</TableHead>
+        <TableHead className="text-right">Amount</TableHead>
       </TableRow>
-    ))}
-  </TableBody>
-  <TableFooter>
-    <TableRow>
-      <TableCell colSpan={3}>Total</TableCell>
-      <TableCell className="text-right">$1,750.00</TableCell>
-    </TableRow>
-  </TableFooter>
-</Table>`}>
+    </TableHeader>
+    <TableBody>
+      {invoices.map((invoice) => (
+        <TableRow key={invoice.invoice}>
+          <TableCell className="font-medium">{invoice.invoice}</TableCell>
+          <TableCell>{invoice.status}</TableCell>
+          <TableCell>{invoice.method}</TableCell>
+          <TableCell className="text-right">{invoice.amount}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+    <TableFooter>
+      <TableRow>
+        <TableCell colSpan={3}>Total</TableCell>
+        <TableCell className="text-right">$1,750.00</TableCell>
+      </TableRow>
+    </TableFooter>
+  </Table>
+)`}>
   {(() => {
     const invoices = [
       { invoice: "INV001", status: "Paid", method: "Credit Card", amount: "$250.00" },
@@ -162,24 +164,26 @@ import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTabl
   { name: "Tom Cook", title: "Director of Product", email: "tom@example.com" },
 ]
 
-<Table>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Name</TableHead>
-      <TableHead>Title</TableHead>
-      <TableHead>Email</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {people.map((person) => (
-      <TableRow key={person.email}>
-        <TableCell className="font-medium">{person.name}</TableCell>
-        <TableCell>{person.title}</TableCell>
-        <TableCell>{person.email}</TableCell>
+return (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Name</TableHead>
+        <TableHead>Title</TableHead>
+        <TableHead>Email</TableHead>
       </TableRow>
-    ))}
-  </TableBody>
-</Table>`}>
+    </TableHeader>
+    <TableBody>
+      {people.map((person) => (
+        <TableRow key={person.email}>
+          <TableCell className="font-medium">{person.name}</TableCell>
+          <TableCell>{person.title}</TableCell>
+          <TableCell>{person.email}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+)`}>
   {(() => {
     const people = [
       { name: "Lindsay Walton", title: "Front-end Developer", email: "lindsay@example.com" },
@@ -211,103 +215,288 @@ import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTabl
 
 ## DataTable
 
+The examples import `users` (15 rows) and its `User` type from a local `./data` file. Header and cell renderers are functions that return JSX, rendered with TanStack Table's `flexRender`.
+
 ### Variant
 
-<ComponentPreview details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background.</>} code={`<DataTable
-  columns={columns}
-  data={users}
-  variant="bordered"
-/>`} previewMinHeight={300}>
+<ComponentPreview details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background.</>} code={`import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+export function UsersTable() {
+  return <DataTable columns={columns} data={users.slice(0, 6)} variant="bordered" pageSize={Infinity} />
+}`} previewMinHeight={300}>
   <TableVariantDemo />
 </ComponentPreview>
 
 ### Sorting
 
-<ComponentPreview details={<>Click column headers to toggle sort direction. Columns use <code>DataTableColumnHeader</code> for sort controls.</>} code={`const columns: ColumnDef<User>[] = [
+<ComponentPreview details={<>Click column headers to toggle sort direction. Columns use <code>DataTableColumnHeader</code> for sort controls.</>} code={`import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: "role",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
   },
+  {
+    accessorKey: "status",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+  },
 ]
 
-<DataTable columns={columns} data={users} initialSorting={[{ id: "name", desc: false }]} />`} previewMinHeight={300}>
+export function UsersTable() {
+  return (
+    <DataTable
+      columns={columns}
+      data={users}
+      pageSize={5}
+      initialSorting={[{ id: "name", desc: false }]}
+    />
+  )
+}`} previewMinHeight={300}>
   <TableSortingDemo />
 </ComponentPreview>
 
 ### Pagination
 
-<ComponentPreview details={<>Automatic pagination with rows-per-page selector and navigation controls. Set <code>pageSize</code> to control initial page size.</>} code={`const columns: ColumnDef<User>[] = [
+<ComponentPreview details={<>Automatic pagination with rows-per-page selector and navigation controls. Set <code>pageSize</code> to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.</>} code={`import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
   { accessorKey: "id", header: "ID" },
   { accessorKey: "name", header: "Name" },
   { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status" },
 ]
 
-<DataTable columns={columns} data={users} pageSize={5} />`} previewMinHeight={340}>
+export function UsersTable() {
+  return <DataTable columns={columns} data={users} pageSize={5} />
+}`} previewMinHeight={340}>
   <TablePaginationDemo />
 </ComponentPreview>
 
 ### Row click
 
-<ComponentPreview details={<>Pass <code>onRowClick</code> to make rows clickable and interactive.</>} code={`const [selected, setSelected] = useState<User | null>(null)
+<ComponentPreview details={<>Pass <code>onRowClick</code> to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.</>} code={`import { useState } from "react"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
 
-<>
-  <DataTable columns={columns} data={users} onRowClick={setSelected} />
-  <p>{selected ? "Clicked: " + selected.name : "Click a row to select it."}</p>
-</>`} previewMinHeight={300}>
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "Role" },
+]
+
+export function UsersTable() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+
+  return (
+    <>
+      <DataTable columns={columns} data={users.slice(0, 8)} pageSize={4} onRowClick={setSelectedUser} />
+      <p className="mt-3 text-sm text-secondary">
+        {selectedUser
+          ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
+          : "Click a row to see selected user details."}
+      </p>
+    </>
+  )
+}`} previewMinHeight={300}>
   <TableRowClickDemo />
+</ComponentPreview>
+
+### Row selection
+
+<ComponentPreview details={<>Set <code>enableRowSelection</code> to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind <code>rowSelection</code> and <code>onRowSelectionChange</code> to read the selection; <code>getRowId</code> keys it by your own ids.</>} code={`import { useState } from "react"
+import {
+  DataTable,
+  DataTableColumnHeader,
+  statusCell,
+  type ColumnDef,
+  type RowSelectionState,
+} from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+export function UsersTable() {
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+  return (
+    <>
+      <DataTable
+        columns={columns}
+        data={users}
+        pageSize={5}
+        enableRowSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        getRowId={(user) => user.id}
+      />
+      <p className="mt-3 text-sm text-secondary">
+        {Object.keys(rowSelection).length} of {users.length} rows selected
+      </p>
+    </>
+  )
+}`} previewMinHeight={340}>
+  <TableRowSelectionDemo />
 </ComponentPreview>
 
 ### Cell variants
 
-<ComponentPreview details={<>Use column helper utilities for rich cell types: monospace IDs with copy-on-click, status badges, formatted dates, and currency values.</>} code={`import { idCell, statusCell, dateTimeCell } from "@plexui/ui/components/DataTable"
+<ComponentPreview details={<>Column helpers render common cells: <code>idCell</code> (monospace ID with copy-on-click), <code>statusCell</code> (status badge), <code>dateTimeCell</code> (formatted date) and <code>tooltipHeader</code> (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; <code>meta.align</code> aligns a column.</>} code={`import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
 
 const columns: ColumnDef<User>[] = [
   { accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
+  { accessorKey: "name", header: "Name", cell: ({ row }) => <span className="font-medium">{row.original.name}</span> },
   { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
   { accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
-]`} previewMinHeight={300}>
+  {
+    accessorKey: "salary",
+    header: tooltipHeader("Salary", "Annual base salary in USD."),
+    meta: { align: "right" },
+    cell: ({ row }) => <span className="font-medium">{money.format(row.original.salary)}</span>,
+  },
+]
+
+export function UsersTable() {
+  return <DataTable columns={columns} data={users} pageSize={6} />
+}`} previewMinHeight={300}>
   <TableCellVariantsDemo />
 </ComponentPreview>
 
 ### Filtering
 
-<ComponentPreview details={<>Control search with <code>globalFilter</code> and <code>onGlobalFilterChange</code>. The filter searches across all columns.</>} code={`const [globalFilter, setGlobalFilter] = useState("")
+<ComponentPreview details={<>Control search with <code>globalFilter</code> and <code>onGlobalFilterChange</code>. The filter searches across all columns.</>} code={`import { useState } from "react"
+import { Input } from "@plexui/ui/components/Input"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
 
-<>
-  <Input value={globalFilter} onChange={(event) => setGlobalFilter(event.target.value)} />
-  <DataTable
-    columns={columns}
-    data={users}
-    globalFilter={globalFilter}
-    onGlobalFilterChange={setGlobalFilter}
-  />
-</>`} previewMinHeight={340}>
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+
+export function UsersTable() {
+  const [globalFilter, setGlobalFilter] = useState("")
+
+  return (
+    <>
+      <Input
+        value={globalFilter}
+        onChange={(event) => setGlobalFilter(event.target.value)}
+        placeholder="Search name, role, department..."
+      />
+      <DataTable
+        columns={columns}
+        data={users}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        pageSize={5}
+      />
+    </>
+  )
+}`} previewMinHeight={340}>
   <TableFilteringDemo />
 </ComponentPreview>
 
 ### Column visibility
 
-<ComponentPreview details={<>Toggle column visibility with the <code>columnVisibility</code> and <code>onColumnVisibilityChange</code> props.</>} code={`const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-  email: true,
-  role: true,
-})
+<ComponentPreview details={<>Toggle column visibility with the <code>columnVisibility</code> and <code>onColumnVisibilityChange</code> props.</>} code={`import { useState } from "react"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/ui/components/DataTable"
+import { users, type User } from "./data"
 
-<DataTable
-  columns={columns}
-  data={users}
-  columnVisibility={columnVisibility}
-  onColumnVisibilityChange={setColumnVisibility}
-/>`} previewMinHeight={340}>
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+  {
+    accessorKey: "salary",
+    header: "Salary",
+    meta: { align: "right" },
+    cell: ({ row }) => <span>{money.format(row.original.salary)}</span>,
+  },
+]
+
+export function UsersTable() {
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    role: true,
+    department: true,
+    status: true,
+    salary: true,
+  })
+
+  return (
+    <DataTable
+      columns={columns}
+      data={users}
+      pageSize={5}
+      columnVisibility={columnVisibility}
+      onColumnVisibilityChange={setColumnVisibility}
+    />
+  )
+}`} previewMinHeight={340}>
   <TableColumnVisibilityDemo />
 </ComponentPreview>
 
 ### Empty state
 
-<ComponentPreview details={<>Customize the empty state message with the <code>emptyMessage</code> prop.</>} code={`<DataTable columns={columns} data={[]} emptyMessage="No users found." />`} previewMinHeight={200}>
+<ComponentPreview details={<>Customize the empty state message with the <code>emptyMessage</code> prop.</>} code={`import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
+import type { User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "status", header: "Status" },
+]
+
+export function UsersTable() {
+  return <DataTable columns={columns} data={[]} emptyMessage="No users found." />
+}`} previewMinHeight={200}>
   <TableEmptyStateDemo />
 </ComponentPreview>
 
@@ -326,33 +515,38 @@ const columns: ColumnDef<User>[] = [
   { prop: "TableCaption", type: "caption", description: "Table caption" },
 ]} />
 
+Every part renders its native element, merges `className` after its own, and forwards all other props (`colSpan`, `scope`, `onClick`, ...).
+
 ### DataTable
 
 <PropsTable data={[
-  { prop: "columns", type: "ColumnDef<TData>[]", required: true, description: "Column definitions following TanStack Table v8 API" },
-  { prop: "data", type: "TData[]", required: true, description: "Data array to display" },
+  { prop: "columns", type: "ColumnDef<TData>[]", description: "Column definitions following TanStack Table v8 API (required)" },
+  { prop: "data", type: "TData[]", description: "Data array to display (required)" },
   { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant: bordered adds a rounded border and tinted header" },
-  { prop: "pageSize", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination" },
+  { prop: "pageSize", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size" },
   { prop: "initialSorting", type: "SortingState", description: "Initial column sorting state" },
   { prop: "globalFilter", type: "string", description: "Controlled search/filter string" },
   { prop: "onGlobalFilterChange", type: "(value: string) => void", description: "Callback when filter changes" },
-  { prop: "onRowClick", type: "(row: TData) => void", description: "Click handler for rows, makes rows interactive" },
+  { prop: "onRowClick", type: "(row: TData) => void", description: "Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space" },
   { prop: "columnVisibility", type: "VisibilityState", description: "Controlled column visibility state" },
   { prop: "onColumnVisibilityChange", type: "(visibility: VisibilityState) => void", description: "Callback when visibility changes" },
-  { prop: "enableRowSelection", type: "boolean", default: "false", description: "Enable row selection checkboxes" },
+  { prop: "enableRowSelection", type: "boolean", default: "false", description: "Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click" },
   { prop: "rowSelection", type: "RowSelectionState", description: "Controlled row selection state" },
   { prop: "onRowSelectionChange", type: "(selection: RowSelectionState) => void", description: "Callback when selection changes" },
-  { prop: "getRowId", type: "(row: TData) => string", description: "Custom row ID accessor" },
+  { prop: "getRowId", type: "(row: TData) => string", description: "Custom row ID accessor; selection keys use it" },
   { prop: "emptyMessage", type: "ReactNode", default: '"No results."', description: "Shown when no rows" },
-  { prop: "showPagination", type: "boolean", default: "true", description: "Whether to show pagination controls" },
+  { prop: "showPagination", type: "boolean", default: "true", description: "Whether to show pagination controls. They hide on their own when every row fits on one page" },
   { prop: "className", type: "string", description: "Class applied to outermost wrapper" },
 ]} />
+
+Column groups (a column definition with `columns`) render a header that spans its columns.
 
 ### DataTableColumnHeader
 
 <PropsTable data={[
-  { prop: "column", type: "Column<TData, TValue>", required: true, description: "TanStack Table column object" },
-  { prop: "title", type: "string", required: true, description: "Display text for the header" },
+  { prop: "column", type: "Column<TData, TValue>", description: "TanStack Table column object (required)" },
+  { prop: "title", type: "string", description: "Display text for the header (required)" },
+  { prop: "className", type: "string", description: "Class applied to the header button (or text when the column cannot sort)" },
 ]} />
 
 ### Column helpers

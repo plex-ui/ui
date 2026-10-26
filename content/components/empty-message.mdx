@@ -1,7 +1,7 @@
 ---
 title: Empty Message
 description: Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
-metaDescription: React empty state component for telling users when there's nothing to show — error, warning, no-results, and onboarding compositions
+metaDescription: React empty state component for telling users when there's nothing to show, with error, warning, no-results, and onboarding compositions.
 ---
 
 import {
@@ -18,10 +18,17 @@ import {
 ### Composition
 
 <ComponentPreview code={`<EmptyMessage>
-  <EmptyMessage.Icon><Explore /></EmptyMessage.Icon>
+  <EmptyMessage.Icon>
+    <Explore />
+  </EmptyMessage.Icon>
   <EmptyMessage.Title>No projects yet</EmptyMessage.Title>
   <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>
-  <EmptyMessage.ActionRow><Button color="primary"><Plus /> New project</Button></EmptyMessage.ActionRow>
+  <EmptyMessage.ActionRow>
+    <Button color="primary" size="lg">
+      <Plus className="mr-[-2px]" />
+      New project
+    </Button>
+  </EmptyMessage.ActionRow>
 </EmptyMessage>`} previewMinHeight={168}>
   <EmptyMessageBaseDemo />
 </ComponentPreview>
@@ -29,8 +36,12 @@ import {
 ### Error message
 
 <ComponentPreview details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={`<EmptyMessage>
-  <EmptyMessage.Icon color="danger"><Mic /></EmptyMessage.Icon>
-  <EmptyMessage.Title color="danger">Enable microphone access...</EmptyMessage.Title>
+  <EmptyMessage.Icon color="danger">
+    <Mic />
+  </EmptyMessage.Icon>
+  <EmptyMessage.Title color="danger">
+    Enable microphone access in your browser's settings.
+  </EmptyMessage.Title>
 </EmptyMessage>`} previewMinHeight={168}>
   <EmptyMessageErrorDemo />
 </ComponentPreview>
@@ -38,11 +49,19 @@ import {
 ### Warning message
 
 <ComponentPreview code={`<EmptyMessage>
-  <EmptyMessage.Icon color="warning"><Sparkle /></EmptyMessage.Icon>
+  <EmptyMessage.Icon color="warning">
+    <Sparkle />
+  </EmptyMessage.Icon>
   <EmptyMessage.Title>o1-preview is in beta</EmptyMessage.Title>
-  <EmptyMessage.Description>System instructions and model configuration are not available yet.</EmptyMessage.Description>
+  <EmptyMessage.Description>
+    System instructions and model configuration are not available yet. Responses may take
+    longer.
+  </EmptyMessage.Description>
   <EmptyMessage.ActionRow className="text-sm">
-    <TextLink href="/">Learn more<ArrowUpRight /></TextLink>
+    <TextLink href="/">
+      Learn more
+      <ArrowUpRight />
+    </TextLink>
   </EmptyMessage.ActionRow>
 </EmptyMessage>`} previewMinHeight={168}>
   <EmptyMessageWarningDemo />
@@ -50,10 +69,16 @@ import {
 
 ### No results
 
-<ComponentPreview details={<>The components of <code>EmptyMessage</code> are both composable and optional. This example omits the <code>EmptyMessage.Title</code> component, using only an icon and description for a simpler message style.</>} code={`<EmptyMessage fill="none">
-  <EmptyMessage.Icon size="sm"><Search /></EmptyMessage.Icon>
-  <EmptyMessage.Description>No icons found matching "pizza"</EmptyMessage.Description>
-</EmptyMessage>`} previewMinHeight={168}>
+<ComponentPreview details={<>The components of <code>EmptyMessage</code> are both composable and optional. This example omits the <code>EmptyMessage.Title</code> component, using only an icon and description for a simpler message style.</>} code={`<div className="w-full">
+  <EmptyMessage fill="none">
+    <EmptyMessage.Icon size="sm">
+      <Search />
+    </EmptyMessage.Icon>
+    <EmptyMessage.Description>
+      No icons found matching <span className="font-semibold">"pizza"</span>
+    </EmptyMessage.Description>
+  </EmptyMessage>
+</div>`} previewMinHeight={168}>
   <EmptyMessageEmptyDemo />
 </ComponentPreview>
 
@@ -69,7 +94,7 @@ import {
 
 <PropsTable data={[
   { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
-  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Icon size" },
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Icon badge size" },
 ]} />
 
 **EmptyMessage.Title**
@@ -78,13 +103,15 @@ import {
   { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
 ]} />
 
-**EmptyMessage.Description**: Description text; no specific props.
+**EmptyMessage.Description**: description text; no specific props.
 
 **EmptyMessage.ActionRow**
 
 <PropsTable data={[
   { prop: "className", type: "string", description: "Additional classes for the action row container" },
 ]} />
+
+Every part accepts `className`. The parts apply no other attributes.
 
 ## Styling
 

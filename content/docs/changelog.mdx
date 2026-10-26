@@ -1,13 +1,13 @@
 ---
 title: Changelog
-description: Plex UI changelog — release notes for every version with new components, breaking changes, bug fixes, and dependency updates by date
+description: "Plex UI changelog: release notes for every version with new components, breaking changes, bug fixes, and dependency updates by date"
 ---
 
 This changelog documents significant updates, bug fixes, and improvements to components in the Plex UI design system. Entries follow the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ---
 
-## Unreleased
+## 0.20.0 (2026-10-26)
 
 ### Added
 
@@ -17,9 +17,11 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Select accepts `checkPosition="none"`, which removes the indicator column from the list. A menu of one-shot actions, or a list whose option view states the selection itself, no longer reserves an empty 16px column in every row.
 - `Slider` accepts `aria-label` and `aria-labelledby`, so a slider without a visible `label` can be named. Range thumbs keep their `Minimum` and `Maximum` names.
 - `MarkdownEditor` accepts `aria-label` and `aria-labelledby` for its editable region, which a `<label for>` cannot name.
+- `Menu.ItemAction` accepts `aria-label`, so its icon-only button can be named.
 
 ### Changed
 
+- `@plexui/mcp` 0.2.0: every tool takes `framework: "vue"` for the `@plexui/vue` docs, and `get_component` finds components by their exported and part names.
 - The CSS now ships in its own package, `@plexui/styles`: design tokens, globals and the CSS module of every component. `@plexui/ui` depends on it and re-exports it, so `@import "@plexui/ui/css"`, the `@plexui/ui/styles/*.css` files, `@plexui/ui/vite` and `@plexui/ui/types` keep working unchanged. Rendered markup and compiled CSS are identical to 0.19. Install `@plexui/styles` on its own to use the same styles from another framework.
 - Grouped Select menus separate their sections. A group heading is now smaller and semibold in the secondary color instead of an option-sized muted row, a rule runs between sections, and the heading starts at the row's content edge instead of being indented to the option labels.
 - `@plexui/ui` requires React 19 in `peerDependencies`. The components already used React 19 APIs (`use(Context)`, `<Context value>`, `ref` as a prop) and could not run on React 18.
@@ -65,6 +67,25 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Sidebar` no longer imports the undeclared `@radix-ui/react-slot`, which strict installs (pnpm without hoisting, Yarn PnP) could not resolve.
 - `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 - An `Avatar` with `onClick` uses `name` as its accessible name instead of announcing only the initial, or nothing for icon avatars.
+- A sidebar item's chevron turns only when that item is expanded, not when an item it is nested under is.
+- `Slider`, the `useBreakpoint` hook, `useDocumentTheme` and the `userAgent` helpers render on the server. `useBreakpoint` returns `false` on the server and on the first client render, then reads the viewport; `useDocumentTheme` returns `light` there, then follows the document.
+- `Slider` marks follow new values and labels when their count stays the same (changing `min`, `max` and `marks` together no longer throws), range marks are positioned, thumbs show a focus ring from the keyboard, the value input accepts negative numbers, and a typed value that has not been reported yet no longer overwrites a newer change. `usePrevious` returns the value before the latest change.
+- Select's option list is a listbox: `aria-selected` follows the selection, `aria-activedescendant` the highlighted option, and multiple selection sets `aria-multiselectable`. Typeahead in grouped options picks the next match, Ctrl, Cmd and Alt shortcuts no longer change the value, a multiple Select with `name` submits every value, and a disabled Select is neither submitted nor validated.
+- `FloatingLabelSelect` used as a Select or Menu trigger opens from the keyboard and gets focus back when the list closes.
+- Clicking the frame, an adornment or the label of an `email` or `number` `Input` or `FloatingLabelInput` no longer throws. Clear buttons keep focus in the field, and `FloatingLabelInput` keeps an explicit `aria-invalid` such as the one `Field` passes.
+- `OTPInput` keeps every digit in its cell, `DateInput` shows its value again when it loses focus with a partly typed date, a disabled `TagInput` cannot remove or add tags, and `InputGroup` keeps its invalid border while focused.
+- DatePicker and DateRangePicker accept equal `min` and `max`, name every day with its full date, mark the selection with `aria-pressed` and today with `aria-current`, and their `id` is optional. DateRangePicker disables shortcuts outside `min`, `max` or `maxRangeDays`, and starts a fresh selection after its value is reset to `null`.
+- `DataTable` `enableRowSelection` renders the checkbox column it promised, rows with `onRowClick` work from the keyboard, grouped headers span their columns, the rows-per-page select shows the real page size, and pagination stays while rows overflow it.
+- `MarkdownEditor` places the caret where you click, saves links as links instead of escaped HTML, runs Cancel and Remove on Enter, and keeps focus inside its link dialog. The `CodeBlock` copy button shows its focus ring, and expanded code taller than `maxExpandedHeight` scrolls.
+- `FileUpload` without `multiple` replaces its file instead of adding a second one.
+- Clicking the dimmed area around a `Dialog` closes it. A `Menu.Item` with only `onClick` is interactive, a disabled `Menu.Link` does not navigate, and `Menu.Label` has its 12px text again.
+- `Image` and `Avatar` show an image that loaded before hydration. `Button` and `Badge` keep a `Tooltip` trigger or a render-prop child intact.
+- A collapsed `SidebarMenuSub` leaves the tab order, and an `onClick` on `SidebarTrigger` or `SidebarMobileMenuButton` runs before the toggle and can cancel it.
+- `ButtonGroup.Text` has its padding and gap again, `Button` `gutterSize="3xs"` has a style, transition groups render children keyed like `constructor`, and `AnimateLayoutGroup` applies `hideOverflow` and `itemAnchor`.
+- `@plexui/ui` and `@plexui/vue` declarations pass a consumer type check with `skipLibCheck` off, also together (one `ColumnMeta` augmentation). `@types/luxon` and `@tanstack/table-core` are dependencies of the packages that use them.
+- The registry `button` and `menu` items no longer re-export types that do not exist. The registry `styles` item is imported from your stylesheet after Tailwind and carries `@source`, so Tailwind generates the classes the components use.
+- The MCP server finds components by their exported and part names (`DataTable`, `Toaster`, `Dialog.Trigger`), its React setup guide includes the layer order, `@source` and `linkComponent`, and `llms-full.txt` is generated from the docs.
+- `@plexui/vue`: Vue renders what React renders with radix-ui 1.8 (Tabs `radiogroup`, Tooltip content, `aria-controls` only while open, Popover and Dialog dismiss on the click after an outside press, RadioGroup, Checkbox and Switch form inputs) and follows every fix above. Vue-only fixes: `Card`, `ButtonLink` and `TextLink` give vue-router's `RouterLink` a `to`; `DialogTrigger`, `DialogClose`, `MenuTrigger` and `Field` work with a child forwarded through `<slot />`; closed Popover, Dialog and Select render no teleport on the server; Escape closes a Dialog with a forced-open Tooltip on the page; `Input` and `FloatingLabelInput` accept `readonly`; keyed multi-root `<template v-for>` items in transition groups; `TagInput` emits plain objects; DateRangePicker follows in-place edits of its range; missing props types are exported.
 
 ## 0.18.1 (2026-06-20)
 
@@ -594,7 +615,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     New file upload component with drag-and-drop, multi-file support, middle-truncated filenames, and form integration. CSS pixel-perfect from Figma specs.
   </li>
   <li>
-    <strong>FloatingLabelInput multiline</strong> (<a href="/components/floating-label-input#multiline-textarea">FloatingLabelInput</a>)<br/>
+    <strong>FloatingLabelInput multiline</strong> (<a href="/components/floating-label-input#textarea">FloatingLabelInput</a>)<br/>
     New textarea mode with auto-resize, no resize handle, 2-row default, and exact padding match with input mode.
   </li>
   <li>
@@ -681,11 +702,11 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>Sidebar Filtered Tree example</strong> (<a href="/components/sidebar#filtered-tree">Sidebar</a>)<br/>
+    <strong>Sidebar Filtered Tree example</strong> (<a href="/components/sidebar#search-and-filter">Sidebar</a>)<br/>
     New demo with type-based filtering via <code>Filter</code> / <code>FilterBadge</code> icons, expand mode toggle (row vs chevron), and search with soft Input variant.
   </li>
   <li>
-    <strong>Sidebar Action Tree example</strong> (<a href="/components/sidebar#action-tree">Sidebar</a>)<br/>
+    <strong>Sidebar Action Tree example</strong> (<a href="/components/sidebar#tree-with-hover-actions">Sidebar</a>)<br/>
     Drag-and-drop sortable nested items using <code>@dnd-kit/sortable</code>. Hover-revealed action buttons (more, add, reorder). New <code>GripVertical</code> and <code>Parallel</code> icons.
   </li>
   <li>
@@ -835,7 +856,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     New compound components for organizing menu items into labeled groups. <code>Menu.Group</code> wraps related items, <code>Menu.Label</code> renders a non-interactive section heading.
   </li>
   <li>
-    <strong>FloatingLabelSelect component</strong> (<a href="/components/floating-label-input#floating-label-select">Floating Label Input</a>)<br/>
+    <strong>FloatingLabelSelect component</strong> (<a href="/components/floating-label-input#select">Floating Label Input</a>)<br/>
     New select variant with floating label animation matching FloatingLabelInput. Label floats above when an option is selected.
   </li>
   <li>
@@ -851,7 +872,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Composition demo for segmented birthday input with segment highlighting, cursor positioning through separators, and live validation. Includes both masked and segmented select variants.
   </li>
   <li>
-    <strong>Phone input and country selector</strong> (<a href="/components/select-control#phone-input">Select Control</a>)<br/>
+    <strong>Phone input and country selector</strong> (<a href="/components/select-control#phone-form">Select Control</a>)<br/>
     Composition demo combining SelectControl with country flag icons and phone number formatting. Flag icons use lipis/flag-icons 4:3 SVGs via jsDelivr CDN.
   </li>
   <li>
@@ -909,7 +930,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Fixed segmented birthday inputs triggering unwanted browser autocomplete dropdown.
   </li>
   <li>
-    <strong>Flag icon aspect ratio</strong> (<a href="/components/select-control#phone-input">Select Control</a>)<br/>
+    <strong>Flag icon aspect ratio</strong> (<a href="/components/select-control#phone-form">Select Control</a>)<br/>
     Fixed flag icons rendering as squares instead of proper 4:3 rectangles. Switched to same-height CDN endpoints and fixed alignment in dropdown lists.
   </li>
   <li>
@@ -921,7 +942,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Fixed broken toggle state and removed unnecessary separator in column configuration popover.
   </li>
   <li>
-    <strong>Button sizing demo height jump</strong> (<a href="/components/button#sizing">Button</a>)<br/>
+    <strong>Button sizing demo height jump</strong> (<a href="/components/button#sizing--roundness">Button</a>)<br/>
     Fixed preview card height jumping when switching between button sizes.
   </li>
   <li>
@@ -942,15 +963,15 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     New composable navigation sidebar for application layouts. Includes <code>SidebarProvider</code> for state management, <code>SidebarLayout</code> for layout structure, scrollable <code>SidebarContent</code>, sticky <code>SidebarHeader</code>/<code>SidebarFooter</code>, and organized navigation with <code>SidebarGroup</code>, <code>SidebarMenu</code>, <code>SidebarMenuItem</code>, and <code>SidebarMenuButton</code>. Supports three collapse modes: <code>offcanvas</code> (drawer on mobile, full collapse on desktop), <code>icon</code> (collapses to icon rail), and <code>none</code> (static). Includes keyboard shortcut <code>Cmd+B</code>/<code>Ctrl+B</code> for toggling.
   </li>
   <li>
-    <strong>Sidebar nested navigation</strong> (<a href="/components/sidebar#nested-navigation">Sidebar</a>)<br/>
+    <strong>Sidebar nested navigation</strong> (<a href="/components/sidebar#collapsible-sections">Sidebar</a>)<br/>
     Collapsible nested menus with <code>SidebarMenuSub</code> and <code>SidebarMenuSubButton</code>. Animated chevron toggles via <code>SidebarMenuChevron</code>. Supports multi-level hierarchies for documentation and API reference navigation patterns.
   </li>
   <li>
-    <strong>Sidebar footer cards</strong> (<a href="/components/sidebar#footer-cards">Sidebar</a>)<br/>
+    <strong>Sidebar footer cards</strong> (<a href="/components/sidebar#sidebarcard">Sidebar</a>)<br/>
     <code>SidebarCard</code> component for promotional content, upgrade CTAs, or announcements in the sidebar footer. Includes <code>SidebarCardTitleLink</code> with dismissible close button, <code>SidebarCardContent</code> for description text, and <code>SidebarCardFooter</code> for action buttons. Cards animate in after sidebar expansion with delayed opacity transition.
   </li>
   <li>
-    <strong>Sidebar badges</strong> (<a href="/components/sidebar#badges">Sidebar</a>)<br/>
+    <strong>Sidebar badges</strong> (<a href="/components/sidebar">Sidebar</a>)<br/>
     <code>SidebarMenuBadge</code> container for displaying status indicators, counts, or labels alongside menu items. Pairs with the <code>Badge</code> component supporting all semantic colors (<code>success</code>, <code>warning</code>, <code>danger</code>, <code>info</code>, <code>discovery</code>, <code>caution</code>) and pill shape option.
   </li>
   <li>
@@ -982,7 +1003,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     New <code>opticallyAlign</code> prop on Field that forwards to child controls via <code>cloneElement</code>. Compensates for pill gutter padding in form layouts, aligning labels and error messages with the visual text edge of Input, Select, and Button controls.
   </li>
   <li>
-    <strong>Slider range mode</strong> (<a href="/components/slider#range-mode">Slider</a>)<br/>
+    <strong>Slider range mode</strong> (<a href="/components/slider#range">Slider</a>)<br/>
     Slider now supports dual-thumb range selection via array <code>value</code>/<code>defaultValue</code>. Also added vertical orientation, disabled state, prefix/suffix units, and step markers with labels.
   </li>
   <li>
@@ -1011,7 +1032,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Removed unused sidebar variants (<code>floating</code>, <code>inset</code>, <code>dual-tier</code>) from type definitions, documentation, and CSS. The component now supports only <code>sidebar</code> (default) and <code>docs</code> variants.
   </li>
   <li>
-    <strong>Field horizontal orientation refactored</strong> (<a href="/components/field#horizontal-orientation">Field</a>)<br/>
+    <strong>Field horizontal orientation refactored</strong> (<a href="/components/field#horizontal-layout">Field</a>)<br/>
     Restructured HTML to use <code>LabelGroup</code> (label + description) and <code>Content</code> (control + error) containers for proper horizontal layout. Added fixed-width CSS variables <code>--field-horizontal-label-width</code> and <code>--field-horizontal-control-width</code>. Label vertical centering now uses <code>calc((control-height - label-line-height) / 2)</code> per size for pixel-perfect alignment.
   </li>
   <li>
@@ -1028,7 +1049,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>Sidebar collapse animation stability</strong> (<a href="/components/sidebar#collapse-modes">Sidebar</a>)<br/>
+    <strong>Sidebar collapse animation stability</strong> (<a href="/components/sidebar#app-shell">Sidebar</a>)<br/>
     Fixed jitter and layout shifts during sidebar collapse/expand animations. Stabilized flexbox rendering for menu items, improved padding transitions, and ensured footer cards animate in only after sidebar fully expands.
   </li>
   <li>
@@ -1048,7 +1069,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
     Replaced hardcoded error colors with <code>--color-text-danger-outline</code> and <code>--color-border-danger-outline</code> semantic tokens. Removed <code>margin-top: -0.1em</code> hack from error icon, now relies on flex centering for alignment.
   </li>
   <li>
-    <strong>Pill overflow and text overlap</strong> (<a href="/components/tabs#narrow-pill">Tabs</a>)<br/>
+    <strong>Pill overflow and text overlap</strong> (<a href="/components/tabs#icon-only">Tabs</a>)<br/>
     In pill mode, narrow options (icons, single digits) could be narrower than the control height, causing circular hover highlights and the active thumb to overflow or clip. Added min-width to options in pill mode ensuring they're at least as wide as the control height. Also fixed a scrollable mode regression where text items overlapped, and corrected invalid <code>white-space: wrap</code> to <code>white-space: normal</code>.
   </li>
   <li>

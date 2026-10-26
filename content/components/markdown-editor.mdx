@@ -1,7 +1,7 @@
 ---
 title: Markdown Editor
 description: Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
-metaDescription: Compact React rich text editor powered by Tiptap, embedded in a form field — full markdown formatting toolbar, variants, and invalid state
+metaDescription: Compact React rich text editor powered by Tiptap, embedded in a form field, with a full markdown formatting toolbar, variants, and an invalid state
 ---
 
 import {
@@ -40,21 +40,35 @@ import {
 
 ### Toolbar end slot
 
-<ComponentPreview details={<>Use <code>toolbarEnd</code> to render custom content at the end of the toolbar, for example, an &ldquo;Edit translations&rdquo; button.</>} code={`<MarkdownEditor
-  placeholder="Enter text..."
-  toolbarEnd={
-    <button aria-label="Edit translations">
-      <Translate />
-    </button>
-  }
-/>`} previewMinHeight={200}>
+<ComponentPreview details={<>Use <code>toolbarEnd</code> to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={`import { MarkdownEditor, markdownEditorStyles } from "@plexui/ui/components/MarkdownEditor"
+import { Translate } from "@plexui/ui/components/Icon"
+
+<Field label="Text markdown">
+  <MarkdownEditor
+    placeholder="Enter text..."
+    toolbarEnd={
+      <button
+        type="button"
+        className={markdownEditorStyles.toolbarButton}
+        aria-label="Edit translations"
+        title="Edit translations"
+      >
+        <Translate />
+      </button>
+    }
+  />
+</Field>`} previewMinHeight={200}>
   <MarkdownEditorToolbarEndDemo />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={`<MarkdownEditor variant="outline" />
-<MarkdownEditor variant="soft" />`} previewMinHeight={380}>
+<ComponentPreview details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={`<Field label="Outline">
+  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+</Field>
+<Field label="Soft">
+  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+</Field>`} previewMinHeight={380}>
   <MarkdownEditorVariantsDemo />
 </ComponentPreview>
 
@@ -72,7 +86,6 @@ import {
   <MarkdownEditorInvalidDemo />
 </ComponentPreview>
 
-
 ## API
 
 <PropsTable data={[
@@ -85,7 +98,15 @@ import {
   { prop: "onChange", type: "(markdown: string) => void", description: "Called on content change" },
   { prop: "toolbarEnd", type: "ReactNode", description: "Content rendered at the end of the toolbar" },
   { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
+  { prop: "id", type: "string", description: "id of the editable element (Field sets it)" },
+  { prop: "aria-label", type: "string", description: "Accessible name of the editable element" },
+  { prop: "aria-labelledby", type: "string", description: "Id of the element that names the editor, such as a visible label" },
+  { prop: "aria-describedby", type: "string", description: "aria-describedby of the editable element (Field sets it)" },
+  { prop: "aria-invalid", type: "boolean", description: "Sets aria-invalid on the editable element and the invalid style (Field sets it with errorMessage)" },
+  { prop: "className", type: "string", description: "Applied to the container" },
 ]} />
+
+The editable element is a `textbox` with `aria-multiline`. A `<label for>`, including the label `Field` renders, cannot name a contenteditable region, so give the editor `aria-label`, or `aria-labelledby` pointing at a visible label. Toolbar buttons are toggles (`aria-pressed`) that follow the formatting at the caret, and a click in the text places the caret there. In the link dialog, Enter in a field saves the link, Enter on a button runs that button, Escape cancels, and Tab stays inside the dialog. `onChange` also fires once when the editor is created and whenever `disabled` changes.
 
 ## Styling
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, type ComponentType, type SVGProps } from 'react';
+import React, { useId, useState, type ComponentType, type SVGProps } from 'react';
 import { DateTime } from 'luxon';
 import { Button } from '@plexui/ui/components/Button';
 import { Input } from '@plexui/ui/components/Input';
@@ -26,14 +26,14 @@ const dayShortcuts: DateRangeShortcut[] = [
     label: 'Last 7 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 7 }).startOf('day'), today];
+      return [today.minus({ days: 6 }).startOf('day'), today];
     },
   },
   {
     label: 'Last 30 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 30 }).startOf('day'), today];
+      return [today.minus({ days: 29 }).startOf('day'), today];
     },
   },
 ];
@@ -66,7 +66,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = 'demo-switch-' + name.toLowerCase().replace(/\s+/g, '-');
+  const controlId = useId();
   return (
     <div style={controlRowStyle}>
       <label htmlFor={controlId} style={controlLabelStyle}>

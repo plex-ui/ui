@@ -1,7 +1,7 @@
 ---
 title: Form Examples
 description: "Production-ready form examples: sign-up, log-in, password reset, email and phone verification, OAuth, and file upload built with Plex UI."
-metaDescription: Production-ready React form examples — sign-up, log-in, password reset, email and phone verification, OAuth, and file upload built with Plex UI
+metaDescription: "Production-ready React form examples: sign-up, log-in, password entry, email and phone verification, OAuth, and file upload built with Plex UI."
 ---
 
 import {
@@ -27,150 +27,190 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Log in (email)
 
-<ComponentPreview details={<>The classic email + password log-in: two <code>FloatingLabelInput</code> fields, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link.</>} code={`<form className="flex flex-col gap-3">
-  <FloatingLabelInput label="Email address" type="email" />
-  <FloatingLabelInput label="Password" type="password" />
-  <a>Forgot password?</a>
-  <Button color="primary" size="3xl" pill className="h-[3.25rem]">Log in</Button>
-  <p>Don't have an account? <a>Sign up</a></p>
+<ComponentPreview details={<>The classic email + password log-in: two <code>FloatingLabelInput</code> fields, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+  <FloatingLabelInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+  <FloatingLabelInput label="Password" type="password" value={password} onChange={(evt) => setPassword(evt.target.value)} />
+  <a href="#">Forgot password?</a>
+  <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Log in</Button>
+  <p>Don't have an account? <a href="#">Sign up</a></p>
 </form>`} previewMinHeight={480}>
   <FloatingLabelInputEmailLoginFormDemo />
 </ComponentPreview>
 
 ## Log in (OAuth)
 
-<ComponentPreview details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={`<h3>Welcome back</h3>
+<ComponentPreview details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the brand logos are small helpers of the example.</>} code={`<div className="w-[360px]">
+  <h3>Welcome back</h3>
 
-<form onSubmit={handleSubmit}>
-  <FloatingLabelInput label="Email address" type="email" />
-  <Button color="primary" size="3xl" pill block>Continue</Button>
-</form>
+  <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+    <FloatingLabelInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+    <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+  </form>
 
-<p>Don't have an account? <a>Sign up</a></p>
+  <p>Don't have an account? <a href="#">Sign up</a></p>
 
-<OrDivider />
+  <OrDivider />
 
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <GoogleLogo /> Continue with Google
-</Button>
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <AppleLogo /> Continue with Apple
-</Button>
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <MicrosoftLogo /> Continue with Microsoft
-</Button>
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <PhoneLogo /> Continue with phone
-</Button>
+  <div className="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><PhoneLogo />Continue with phone</Button>
+  </div>
 
-<p><a>Terms of Use</a> | <a>Privacy Policy</a></p>`} previewMinHeight={760}>
+  <p><a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a></p>
+</div>`} previewMinHeight={760}>
   <OAuthLoginFormDemo />
 </ComponentPreview>
 
 ## Sign up (OAuth)
 
-<ComponentPreview details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={`<h3>Create an account</h3>
+<ComponentPreview details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={`<div className="w-[360px]">
+  <h3>Create an account</h3>
 
-<form onSubmit={handleSubmit}>
-  <FloatingLabelInput label="Email address" type="email" />
-  <Button color="primary" size="3xl" pill block>Continue</Button>
-</form>
+  <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+    <FloatingLabelInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+    <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+  </form>
 
-<p>Already have an account? <a>Log in</a></p>
+  <p>Already have an account? <a href="#">Log in</a></p>
 
-<OrDivider />
+  <OrDivider />
 
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <GoogleLogo /> Continue with Google
-</Button>
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <AppleLogo /> Continue with Apple
-</Button>
-<Button color="secondary" variant="outline" size="3xl" pill block>
-  <MicrosoftLogo /> Continue with Microsoft
-</Button>
+  <div className="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><GoogleLogo />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><AppleLogo />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem] font-medium"><MicrosoftLogo />Continue with Microsoft</Button>
+  </div>
 
-<p><a>Terms of Use</a> | <a>Privacy Policy</a></p>`} previewMinHeight={680}>
+  <p><a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a></p>
+</div>`} previewMinHeight={680}>
   <OAuthSignupFormDemo />
 </ComponentPreview>
 
 ## Sign up (phone)
 
-<ComponentPreview details={<>A complete signup form with floating-label text inputs, a country code selector, and a phone input, all at 52px height. Includes form validation and terms text.</>} code={`<form className="flex flex-col gap-3">
-  <FloatingLabelInput label="Full name" />
-  <FloatingLabelInput label="Email address" type="email" />
-  <Select trigger={countryTrigger} ... />
-  <FloatingLabelInput label="Phone number" startAdornment={<span>+34</span>} type="tel" />
-  <p>Terms and Privacy Policy</p>
-  <Button color="primary" size="3xl" pill className="h-[3.25rem]">Continue</Button>
+<ComponentPreview details={<>A complete signup form with floating-label text inputs, a country code selector, and a phone input, all at 52px height. Includes form validation and terms text. The country options and trigger and <code>dialCodeOf</code> are the helpers of the <a href="/components/floating-label-input#phone-input">Float Input phone example</a>.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+  <FloatingLabelInput label="Full name" value={fullName} onChange={(evt) => setFullName(evt.target.value)} />
+  <FloatingLabelInput label="Email address" type="email" value={email} onChange={(evt) => setEmail(evt.target.value)} />
+  <Select
+    value={country}
+    options={phoneCountryOptions}
+    onChange={(option) => setCountry(option.value)}
+    block
+    size="3xl"
+    trigger={phoneCountryTrigger}
+    checkPosition="end"
+  />
+  <FloatingLabelInput
+    label="Phone number"
+    type="tel"
+    inputMode="tel"
+    value={phone}
+    onChange={(evt) => setPhone(evt.target.value)}
+    startAdornment={<span className="text-tertiary">{dialCodeOf(country)}</span>}
+  />
+  <p>By clicking "Continue", you agree to our Terms and have read our Privacy Policy.</p>
+  <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Continue</Button>
 </form>`} previewMinHeight={580}>
   <FloatingLabelInputPhoneSignupFormDemo />
 </ComponentPreview>
 
 ## Log in (phone)
 
-<ComponentPreview details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern.</>} code={`<form className="flex flex-col gap-3">
-  <Select trigger={countryTrigger} ... />
-  <FloatingLabelInput label="Phone number" startAdornment={<span>+34</span>} type="tel" />
-  <Button color="primary" size="3xl" pill className="h-[3.25rem]">Continue</Button>
+<ComponentPreview details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern. The country helpers are the ones of the <a href="/components/floating-label-input#phone-input">Float Input phone example</a>.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+  <Select
+    value={country}
+    options={phoneCountryOptions}
+    onChange={(option) => setCountry(option.value)}
+    block
+    size="3xl"
+    trigger={phoneCountryTrigger}
+    checkPosition="end"
+  />
+  <FloatingLabelInput
+    label="Phone number"
+    type="tel"
+    inputMode="tel"
+    value={phone}
+    onChange={(evt) => setPhone(evt.target.value)}
+    startAdornment={<span className="text-tertiary">{dialCodeOf(country)}</span>}
+  />
+  <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Continue</Button>
 </form>`} previewMinHeight={420}>
   <FloatingLabelInputPhoneLoginFormDemo />
 </ComponentPreview>
 
 ## Enter password
 
-<ComponentPreview details={<>A password entry step with a read-only phone field (with "Edit" button), a password input with visibility toggle and tooltip, and a "Forgot password?" link.</>} code={`<form className="flex flex-col gap-3">
-  <FloatingLabelInput label="Phone number" readOnly defaultValue="+1 555 123 4567" endAdornment={<button>Edit</button>} />
-  <FloatingLabelInput label="Password" type="password" />
-  <Button color="primary" size="3xl" pill className="h-[3.25rem]">Continue</Button>
+<ComponentPreview details={<>A password entry step with a read-only phone field (with "Edit" button), a password input with a visibility toggle, and a "Forgot password?" link.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+  <FloatingLabelInput
+    label="Phone number"
+    readOnly
+    defaultValue="+1 555 123 4567"
+    endAdornment={<button type="button">Edit</button>}
+  />
+  <FloatingLabelInput label="Password" type="password" value={password} onChange={(evt) => setPassword(evt.target.value)} />
+  <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Continue</Button>
 </form>`} previewMinHeight={420}>
   <FloatingLabelInputPasswordFormDemo />
 </ComponentPreview>
 
 ## About You
 
-<ComponentPreview details={<>A signup-style composition with <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>: name, birthday with inline validation, and country selector.</>} code={`<form className="flex flex-col gap-3">
-  <FloatingLabelInput label="Full name" />
-  <FloatingLabelInput label="Birthday" placeholder="MM / DD / YYYY" />
-  <FloatingLabelSelect label="Country" selected={!!country} ...>
-    {selectedCountry?.flag} {selectedCountry?.label}
-  </FloatingLabelSelect>
-  <Button color="primary" size="3xl" type="submit">Continue</Button>
+<ComponentPreview details={<>A signup-style composition with <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>: name, birthday with inline validation, and country selector. <code>BirthdayMaskedInput</code> is the masked birthday field and <code>countryTrigger</code> renders a <code>FloatingLabelSelect</code>, as in the <a href="/components/floating-label-input#country-select">Float Input country example</a>.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+  <FloatingLabelInput label="Full name" value={fullName} onChange={(evt) => setFullName(evt.target.value)} />
+  <BirthdayMaskedInput value={birthday} onChange={setBirthday} />
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block
+    trigger={countryTrigger}
+    checkPosition="end"
+  />
+  <Button color="primary" size="3xl" type="submit" pill className="h-[3.25rem]">Continue</Button>
 </form>`} previewMinHeight={280}>
   <FloatingLabelSelectAboutYouFormDemo />
 </ComponentPreview>
 
 ## Verify email
 
-<ComponentPreview details={<>Toggle between a per-digit <code>OTPInput</code> (auto-submits via <code>onComplete</code>) and a standard <code>FloatingLabelInput</code> (for alphanumeric or variable-length codes).</>} code={`// Per-digit
-<OTPInput autoFocus />
+<ComponentPreview details={<>Toggle between a per-digit <code>OTPInput</code> (auto-submits via <code>onComplete</code>) and a standard <code>FloatingLabelInput</code> (for alphanumeric or variable-length codes).</>} code={`<>
+  {/* Per-digit */}
+  <OTPInput autoFocus />
 
-// Text field
-<FloatingLabelInput label="Code" inputMode="numeric" />
-<Button color="primary" size="3xl" pill className="h-[3.25rem]">Continue</Button>`} previewMinHeight={380}>
+  {/* Text field */}
+  <FloatingLabelInput label="Code" inputMode="numeric" />
+  <Button color="primary" size="3xl" type="submit" pill className="h-[3.25rem]">Continue</Button>
+</>`} previewMinHeight={380}>
   <OTPInputVerifyEmailDemo />
 </ComponentPreview>
 
 ## Verify email (error)
 
-<ComponentPreview details={<>Error state when an incorrect verification code is submitted.</>} code={`<FloatingLabelInput label="Code" value="111111" invalid errorMessage="Incorrect code" />`} previewMinHeight={380}>
+<ComponentPreview details={<>Error state when an incorrect verification code is submitted.</>} code={`<FloatingLabelInput label="Code" defaultValue="111111" invalid errorMessage="Incorrect code" />`} previewMinHeight={380}>
   <OTPInputCheckInboxErrorDemo />
 </ComponentPreview>
 
 ## Confirm phone
 
-<ComponentPreview details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> for phone verification.</>} code={`// Per-digit
-<OTPInput autoFocus />
+<ComponentPreview details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> for phone verification.</>} code={`<>
+  {/* Per-digit */}
+  <OTPInput autoFocus />
 
-// Text field
-<FloatingLabelInput label="Code" inputMode="numeric" />
-<Button color="primary" size="3xl" pill className="h-[3.25rem]">Continue</Button>`} previewMinHeight={380}>
+  {/* Text field */}
+  <FloatingLabelInput label="Code" inputMode="numeric" />
+  <Button color="primary" size="3xl" type="submit" pill className="h-[3.25rem]">Continue</Button>
+</>`} previewMinHeight={380}>
   <OTPInputConfirmPhoneDemo />
 </ComponentPreview>
 
 ## Upload file
 
-<ComponentPreview details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={`<FileUpload accept=".pdf,.png" multiple maxFiles={5} />
-<Button color="primary" size="3xl" pill block>Continue</Button>`}>
+<ComponentPreview details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={`<>
+  <FileUpload accept=".pdf,.png" multiple maxFiles={5} value={files} onValueChange={setFiles} />
+  <Button color="primary" size="3xl" pill block>Continue</Button>
+</>`}>
   <FileUploadFormDemo />
 </ComponentPreview>

@@ -1,7 +1,7 @@
 ---
 title: Tabs
 description: Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
-metaDescription: React tabs component for switching between grouped views — segmented and underline styles, icon-only triggers, and badge counts on each tab
+metaDescription: React tabs component for switching between grouped views, with segmented and underline styles, icon-only triggers, and badge counts on each tab.
 ---
 
 import {
@@ -30,11 +30,15 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 ### Overview
 
 <ComponentPreview details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations.</>} code={`const [tab, setTab] = useState("overview")
-<Tabs value={tab} onChange={setTab} variant="underline" aria-label="Sections">
-  <Tabs.Tab value="overview">Overview</Tabs.Tab>
-  <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-  <Tabs.Tab value="reports">Reports</Tabs.Tab>
-</Tabs>`} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+
+return (
+  <Tabs value={tab} onChange={setTab} aria-label="Demo tabs">
+    <Tabs.Tab value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
+    <Tabs.Tab value="reports">Reports</Tabs.Tab>
+    <Tabs.Tab value="settings">Settings</Tabs.Tab>
+  </Tabs>
+)`} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
   <TabsOverviewDemo />
 </ComponentPreview>
 
@@ -60,10 +64,10 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Segmented with badge
 
-<ComponentPreview details={<>Pass a number or an object with <code>content</code>, <code>color</code>, and <code>variant</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Filter">
-  <Tabs.Tab value="all" badge={128}>All</Tabs.Tab>
-  <Tabs.Tab value="unread" badge={{ content: 12, color: "info" }}>Unread</Tabs.Tab>
-  <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger" }}>Flagged</Tabs.Tab>
+<ComponentPreview details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Filter">
+  <Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
+  <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
+  <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
 </Tabs>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <TabsSegmentedBadgeDemo />
 </ComponentPreview>
@@ -112,10 +116,10 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Underline with badge
 
-<ComponentPreview details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, and <code>variant</code>.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
-  <Tabs.Tab value="all" badge={128}>All</Tabs.Tab>
-  <Tabs.Tab value="unread" badge={{ content: 12, color: "info" }}>Unread</Tabs.Tab>
-  <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger" }}>Flagged</Tabs.Tab>
+<ComponentPreview details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
+  <Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
+  <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
+  <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
 </Tabs>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <TabsUnderlineBadgeDemo />
 </ComponentPreview>
@@ -165,9 +169,10 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Sizing
 
-<ComponentPreview details={<>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Demo">
+<ComponentPreview details={<>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</>} code={`<Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
+  <Tabs.Tab value="reports">Reports</Tabs.Tab>
 </Tabs>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <TabsSizingDemo />
 </ComponentPreview>
@@ -212,8 +217,9 @@ Both `Tabs.Tab` and `Tabs.Option` are available as sub-components. The `Segmente
 **Tabs** (root)
 
 <PropsTable data={[
-  { prop: "value", type: "string", description: "Selected tab value (controlled)" },
+  { prop: "value", type: "string", description: "Selected tab value (controlled, required)" },
   { prop: "onChange", type: "(value: string) => void", description: "Called when selection changes" },
+  { prop: "onClick", type: "() => void", description: "Called on any click in the group, even when the selection does not change" },
   { prop: "variant", type: '"segmented" | "underline"', default: '"segmented"', description: "Visual style: segmented (background highlight) or underline (line indicator)" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the tab group" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Control height (3xs through 3xl)" },
@@ -223,16 +229,19 @@ Both `Tabs.Tab` and `Tabs.Option` are available as sub-components. The `Segmente
   { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
   { prop: "aria-label", type: "string", description: "Accessible name (required)" },
+  { prop: "className", type: "string", description: "Extra classes on the group element" },
+  { prop: "children", type: "ReactNode", description: "Tabs.Tab children" },
 ]} />
 
 **Tabs.Tab**
 
 <PropsTable data={[
-  { prop: "value", type: "string", description: "Tab value" },
+  { prop: "value", type: "string", description: "Tab value (required)" },
   { prop: "disabled", type: "boolean", description: "Disable this tab" },
   { prop: "icon", type: "ReactNode", description: "Icon element (sized automatically)" },
   { prop: "badge", type: 'ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }', description: "Badge content (for example a count) or a badge config" },
   { prop: "aria-label", type: "string", description: "Accessible name (required for icon-only tabs)" },
+  { prop: "children", type: "ReactNode", description: "Tab label" },
 ]} />
 
 ## Styling

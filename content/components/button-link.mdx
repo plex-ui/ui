@@ -1,7 +1,7 @@
 ---
 title: Button Link
 description: A semantic anchor with full button styling, for internal and external links with icons and block layout.
-metaDescription: React button-link component that renders a semantic anchor with full button styling — internal and external links, icons, and block layout
+metaDescription: React button-link component that renders a semantic anchor with full button styling, for internal and external links with icons and block layout.
 ---
 
 import { ButtonLink } from "@plexui/ui/components/Button"
@@ -42,26 +42,50 @@ import {
 
 ### Colors & variants
 
-<ComponentPreview details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={`<div className="pt-1 pb-6 px-8 w-fit min-w-full">
-  {/* Matrix of variant x color */}
+<ComponentPreview details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={`const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
+const variants = ["soft", "solid", "outline", "ghost"] as const
+
+<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+  <div className="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
+      <div />
+      {colors.map((color) => (
+        <div key={color} className="text-center text-sm mb-1 text-tertiary">{color}</div>
+      ))}
+      {variants.map((variant) => (
+        <Fragment key={variant}>
+          <div className="text-right text-sm mr-3 text-tertiary">{variant}</div>
+          {colors.map((color) => (
+            <div key={color} className="text-center">
+              <ButtonLink href="#" size="lg" color={color} variant={variant} className="whitespace-nowrap">
+                Button
+              </ButtonLink>
+            </div>
+          ))}
+        </Fragment>
+      ))}
+    </div>
+  </div>
 </div>`} previewMinHeight={280}>
   <ButtonLinkColorsMatrixDemo />
 </ComponentPreview>
 
 ### Sizing & roundness
 
-<ComponentPreview details={<>Sizing of the link is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the control height, and <code>gutterSize</code> sets the horizontal padding. Create fully rounded links with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the link.</>} code={`<ButtonLink size="lg" pill={false}>
-  View account <ArrowRight />
-</ButtonLink>
-<ButtonLink size="lg" pill={false}>
-  View account
-</ButtonLink>`} previewMinHeight={206}>
+<ComponentPreview details={<>Sizing of the link is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the control height, and <code>gutterSize</code> sets the horizontal padding. Create fully rounded links with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the link.</>} code={`<div className="flex flex-col gap-2 justify-start items-start">
+  <ButtonLink color="primary" size="lg" href="#" className="whitespace-nowrap">
+    View account <ArrowRight />
+  </ButtonLink>
+  <ButtonLink color="primary" size="lg" href="#" className="whitespace-nowrap">
+    View account
+  </ButtonLink>
+</div>`} previewMinHeight={206}>
   <ButtonLinkSizingDemoWithControls />
 </ComponentPreview>
 
 ### Icons
 
-<ComponentPreview details={<>Icon sizing is controlled by the <code>iconSize</code> prop, which makes it easy to add icons as children without additional props. <code>size</code> will provide a default value for <code>iconSize</code>, but setting the prop will force the specified size.</>} code={`<ButtonLink color="info" size="lg" iconSize="lg" variant="soft" href="#">
+<ComponentPreview details={<>Icon sizing is controlled by the <code>iconSize</code> prop, which makes it easy to add icons as children without additional props. <code>size</code> will provide a default value for <code>iconSize</code>, but setting the prop will force the specified size.</>} code={`<ButtonLink color="info" size="lg" iconSize="lg" variant="soft" href="#" className="whitespace-nowrap">
   <Globe /> View website
 </ButtonLink>`} previewMinHeight={206}>
   <ButtonLinkIconDemoWithControls />
@@ -69,14 +93,16 @@ import {
 
 ### Block
 
-<ComponentPreview details={<>Create full-width links with the <code>block</code> prop.</>} code={`<ButtonLink block size="lg" href="#">Continue to dashboard</ButtonLink>`} previewMinHeight={206}>
+<ComponentPreview details={<>Create full-width links with the <code>block</code> prop.</>} code={`<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <ButtonLink block size="lg" href="#" className="whitespace-nowrap">Continue to dashboard</ButtonLink>
+</div>`} previewMinHeight={206}>
   <ButtonLinkBlockDemoWithControls />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview details={<>Use <code>disabled</code> to both visually and accessibly disable a link. The component renders as a <code>span[role="link"]</code>, and <code>onClick</code> handlers are not bound.</>} code={`<ButtonLink href="#" color="primary" disabled>
-  View API Keys
+<ComponentPreview details={<>Use <code>disabled</code> to both visually and accessibly disable a link. The component renders as a <code>span[role="link"]</code>, and <code>onClick</code> handlers are not bound.</>} code={`<ButtonLink href="#" color="primary" disabled className="whitespace-nowrap">
+  <Key /> View API Keys
 </ButtonLink>`} previewMinHeight={206}>
   <ButtonLinkDisabledDemoWithControls />
 </ComponentPreview>
@@ -100,6 +126,7 @@ import {
   { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
   { prop: "disabledTone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },
   { prop: "className", type: "string", description: "Custom classes for the root element" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called on click, unless disabled" },
 ]} />
 
 ### Configure your Router

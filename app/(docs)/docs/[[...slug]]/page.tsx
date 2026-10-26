@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
 import { PageNav } from '@/components/docs/PageNav';
 import { DocsViewportState } from '@/components/layout/DocsViewportState';
+import { getDocsSectionRedirect } from '@/lib/docs-redirects';
 import {
   DocsPageWithMobileTOC,
   DocsBody,
@@ -43,34 +44,11 @@ function getCustomToc(slug?: string[]): TOCItemType[] {
   return [];
 }
 
-function getSectionRedirect(slug?: string[]): string | null {
-  if (!slug || slug.length === 0) {
-    // /docs is now the Introduction page itself — no redirect needed.
-    return null;
-  }
-
-  if (slug.length < 2) return null;
-
-  const [section, ...rest] = slug;
-  const leaf = rest.at(-1);
-  if (!leaf) return null;
-
-  if (section === 'hooks') {
-    return `/docs/hooks#${leaf.replace(/-/g, '')}`;
-  }
-
-  if (section === 'concepts') {
-    return `/docs/concepts#${leaf}`;
-  }
-
-  return null;
-}
-
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {
   const params = await props.params;
-  const sectionRedirect = getSectionRedirect(params.slug);
+  const sectionRedirect = getDocsSectionRedirect(params.slug);
   if (sectionRedirect) {
     redirect(sectionRedirect);
   }

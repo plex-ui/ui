@@ -30,7 +30,7 @@ Vertically stacked panels that expand to reveal content, with one or several ite
 Import: import { Accordion } from "@plexui/ui/components/Accordion"
 Docs: https://plexui.com/components/accordion
 Props:
-  - type ("single" | "multiple") default: — — Whether one item or many can be open at a time
+  - type ("single" | "multiple") default: — — Required. Whether one item or many can be open at a time
   - value (string | string[]) default: — — Controlled open item(s)
   - defaultValue (string | string[]) default: — — Uncontrolled initial open item(s)
   - onValueChange ((value) => void) default: — — Fires when the open item(s) change
@@ -53,20 +53,24 @@ Props:
   - title (ReactNode) — Title displayed in the alert
   - description (ReactNode) — Description text
   - actions (ReactNode) — Actions (for example buttons)
-  - actionsPlacement ("end" | "bottom") — Placement of actions
+  - actionsPlacement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - actionsClassName (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
   - indicator (ReactNode | false) — Custom indicator or false to hide
-  - onDismiss (() => void) — Shows dismiss button when provided
+  - onDismiss (() => void) — Shows the dismiss button when set
+  - className (string) — Class applied to the alert container
 Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible
 
 ## Avatar Group
 Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
-Import: import { AvatarGroup } from "@plexui/ui/components/Avatar"
+Import: import { Avatar, AvatarGroup } from "@plexui/ui/components/Avatar"
 Docs: https://plexui.com/components/avatar-group
 Props:
+  - children (ReactNode) — The avatars of the group
   - size (number) — Size of all avatars in the group
   - stack ("start" | "end") default: "start" — Stacking direction
+  - className (string) — Applied to the group container; other props are not forwarded
 Examples: Overview, Stacking direction, Group sizing
 
 ## Avatar
@@ -79,9 +83,11 @@ Props:
   - Icon (React.ComponentType) — Icon component for icon avatar
   - size (number) — Width and height in pixels
   - color ("primary" | "secondary" | "success" | "info" | "discovery" | "danger") default: "secondary" — Semantic color for text/icon avatar
-  - variant ("soft" | "solid") — Style variant
+  - variant ("soft" | "solid") default: "soft" — Style variant
   - overflowCount (number) — Show overflow count (e.g. +9)
-  - onClick (function) — Makes avatar interactive
+  - className (string) — Applied to the avatar root
+  - onClick (() => void) — Makes avatar interactive (renders a button)
+  - onPointerDown (() => void) — Makes avatar interactive (renders a button)
 Examples: Overview, Text, Image, Icon, Overflow count, Sizing, Colors & variants, Roundness, Interactive
 
 ## Badge
@@ -94,6 +100,7 @@ Props:
   - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
   - size ("sm" | "md" | "lg") default: "sm" — Badge size
   - pill (boolean) default: false — Fully rounded
+  - className (string) — Class applied to the badge
 Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
 
 ## Button Group
@@ -129,6 +136,7 @@ Props:
   - disabled (boolean) default: false — Disable link
   - disabledTone ("relaxed") — Use relaxed visual tone for disabled state
   - className (string) — Custom classes for the root element
+  - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
 Examples: Overview, Internal link, External link, Colors & variants, Sizing & roundness, Icons, Block, Disabled
 
 ## Button
@@ -142,13 +150,16 @@ Props:
   - pill (boolean) default: false — Fully rounded corners
   - block (boolean) default: false — Full width
   - uniform (boolean) default: false — Square icon button (width equals height)
-  - disabled (boolean) default: false — Visually and accessibly disabled
+  - disabled (boolean) default: false — Visually and accessibly disabled; onClick is not called
+  - disabledTone ("relaxed") — Default cursor instead of not-allowed while disabled
   - loading (boolean) default: false — Shows loading indicator
   - inert (boolean) default: loading — Accessibly disabled without visual change
   - selected (boolean) default: false — Selected state styling
   - opticallyAlign ("start" | "end") — Offset gutter for optical alignment
   - gutterSize ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding size; defaults from size
   - iconSize ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in children; defaults from size
+  - type ("button" | "submit" | "reset") default: "button" — Native button type
+  - onClick ((event: MouseEvent) => void) — Called on click, unless disabled
 Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disabled, Inert, Loading, Selected, Optical alignment
 
 ## Card
@@ -174,15 +185,17 @@ Props:
   - pill (boolean) default: false — Fully rounded indicator corners
   - checked (boolean | "indeterminate") — Controlled state
   - defaultChecked (boolean | "indeterminate") — Initial state (uncontrolled)
-  - onCheckedChange ((next: boolean) => void) — Called when state changes
+  - onCheckedChange ((next: boolean) => void) — Called with the next state when it changes
   - label (ReactNode) — Accessible label. Accepts ReactNode for rich content
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
-  - value (string) — Value when submitted
-  - orientation ("left" | "right") default: "left" — Label position relative to checkbox
-  - className (string) — CSS classes applied to wrapper node
-  - id (string) — The id of the checkbox element
+  - value (string) default: "on" — Value when submitted
+  - orientation ("left" | "right") default: "left" — Checkbox position relative to the label
+  - className (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the checkbox element (generated when omitted)
+  - onFocus ((event: FocusEvent) => void) — Called when the checkbox gains focus
+  - onBlur ((event: FocusEvent) => void) — Called when the checkbox loses focus
 Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
 
 ## Code Block
@@ -198,13 +211,14 @@ Props:
     - language (string) — Prism language name
     - defaultExpanded (boolean) default: false — Start expanded
     - collapsedHeight (number) default: 140 — Height when collapsed (px)
-    - maxExpandedHeight (number) — Max height when expanded (px)
+    - maxExpandedHeight (number) — Max height when expanded (px); taller code scrolls
     - copyable (boolean) default: true — Show copy button
+    - className (string) — Additional wrapper class
 Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip } from "@plexui/ui/components/Tooltip"
+Import: import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/copy-tooltip
 Props:
   - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
@@ -221,21 +235,22 @@ Masked text input for typing dates and times, with automatic formatting, min and
 Import: import { DateInput } from "@plexui/ui/components/DateInput"
 Docs: https://plexui.com/components/date-input
 Props:
-  - value (DateTime | null) — Selected date (Luxon DateTime)
-  - onChange ((date: DateTime | null) => void) — Called when a complete valid date is entered or the field is cleared
+  - value (DateTime | null) — Required. Selected date (Luxon DateTime)
+  - onChange ((date: DateTime | null) => void) — Required. Called when a complete valid date is entered or the field is cleared
   - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.
   - separator (string) default: "." — Character between date parts
   - timeMode (MaskitoTimeMode) — Enable time input: HH:MM, HH:MM:SS, etc.
   - dateTimeSeparator (string) default: ", " — Separator between date and time parts
-  - timeStep (number) default: 0 — Arrow-key increment step for time (ms)
+  - timeStep (number) default: 0 — Arrow-key increment step for time segments
   - min (DateTime) — Earliest allowed date
   - max (DateTime) — Latest allowed date
   - clearable (boolean) default: false — Show clear button when input has a value
   - size (ControlSize) default: "md" — Input size (3xs to 3xl)
   - variant ("outline" | "soft") default: "outline" — Visual style
+  - pill (boolean) default: false — Fully rounded corners
   - disabled (boolean) default: false — Disable input
   - invalid (boolean) default: false — Mark as invalid
-  - placeholder (string) — Auto-generated from format if not set
+  - placeholder (string) — Generated from the format if not set
 Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation, Disabled
 
 ## Date Picker
@@ -243,20 +258,29 @@ Date picker with an interactive calendar, time picker, year and month dropdowns,
 Import: import { DatePicker } from "@plexui/ui/components/DatePicker"
 Docs: https://plexui.com/components/date-picker
 Props:
-  - value (DateTime | null) — Selected date (luxon)
-  - onChange ((date: DateTime | null) => void) — Called when date changes
-  - min (DateTime) — Minimum selectable date
-  - max (DateTime) — Maximum selectable date
+  - value (DateTime | null) — Required. Selected date (luxon)
+  - onChange ((date: DateTime | null) => void) — Required. Called when the date changes
+  - id (string) — Id of the trigger, for forms and labels
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - captionLayout ("buttons" | "dropdown") default: "buttons" — Calendar header mode. Use dropdown for date of birth
   - showTime (boolean) default: false — Show time input below calendar
-  - yearRange ([number, number]) — Min/max years for dropdown caption
-  - size (ControlSize) — Trigger size (3xs to 3xl)
-  - pill (boolean) — Rounded trigger
-  - clearable (boolean) — Show clear button
+  - yearRange ([number, number]) default: last 120 years — Min/max years for dropdown caption
+  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Trigger style
+  - pill (boolean) default: true — Rounded trigger
+  - block (boolean) default: false — Full-width trigger
+  - clearable (boolean) default: false — Show clear button
   - triggerShowIcon (boolean) default: true — Show calendar icon
   - triggerDateFormat (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when showTime is enabled
-  - placeholder (string) — Trigger placeholder
-  - disabled (boolean) — Disable picker
+  - triggerClassName (string) — Class applied to the trigger
+  - dropdownIconType ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
+  - placeholder (string) default: "Select date..." — Trigger placeholder
+  - disabled (boolean) default: false — Disable picker
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover
+  - sideOffset (number) default: 8 — Distance from the trigger in pixels
+  - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
+  - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
 Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon, Disabled
 
 ## Date Range Picker
@@ -264,16 +288,16 @@ Date range picker with an interactive calendar, min/max limits, preset shortcuts
 Import: import { DateRangePicker } from "@plexui/ui/components/DateRangePicker"
 Docs: https://plexui.com/components/date-range-picker
 Props:
-  - value (DateRange | null) — Selected range ([start, end], inclusive)
-  - onChange ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Called when range changes
-  - min (DateTime) — Earliest selectable date
-  - max (DateTime) — Latest selectable date
+  - value (DateRange | null) — Required. Selected range ([start, end], inclusive)
+  - onChange ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Required. Called when the range changes
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - maxRangeDays (number) — Max length of range in days (inclusive)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
   - sideOffset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
-  - alignOffset (number) default: align === "center" ? 0 : -5 — Offset from start/end alignment in pixels
+  - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
   - disabled (boolean) default: false — Disable picker interactions
   - placeholder (string) default: "Select date range..." — Placeholder in trigger when value is empty
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger style variant
@@ -293,7 +317,7 @@ Modal dialog for confirmations, forms, and destructive alerts, with a focus trap
 Import: import { Dialog } from "@plexui/ui/components/Dialog"
 Docs: https://plexui.com/components/dialog
 Props:
-  - open (boolean) — Controlled open state
+  - open (boolean) — Controlled open state; uncontrolled when omitted
   - onOpenChange ((open: boolean) => void) — Called when the dialog opens or closes
   Dialog.Content:
     - width (number | string) default: 480 — Panel width
@@ -309,7 +333,7 @@ Props:
   - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
   EmptyMessage.Icon:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-    - size ("sm" | "md") default: "md" — Icon size
+    - size ("sm" | "md") default: "md" — Icon badge size
   EmptyMessage.Title:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
   EmptyMessage.ActionRow:
@@ -330,6 +354,7 @@ Props:
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the auto-generated id used for htmlFor/aria linking
   - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby, and aria-invalid
+  - className (string) — Applied to the root wrapper
 Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
@@ -341,7 +366,7 @@ Props:
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
   - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
-  - multiple (boolean) default: false — Allow selecting multiple files
+  - multiple (boolean) default: false — Allow selecting multiple files. Without it, a new pick replaces the current file
   - maxFiles (number) — Maximum number of files. Button disables at limit.
   - maxSize (number) — Maximum file size in bytes
   - value (File[]) — Controlled file list
@@ -350,6 +375,8 @@ Props:
   - errorMessage (string) — Error message. Sets the invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when errorMessage is provided)
   - disabled (boolean) default: false — Disable all interactions
+  - id (string) — Id of the hidden file input
+  - className (string) — Additional CSS class
   FileCard:
     - file (File) — The file to display
     - onRemove (() => void) — Remove callback. When omitted, the delete button is hidden.
@@ -365,17 +392,24 @@ Text input whose label floats above the value, with error and helper text, a cle
 Import: import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
 Docs: https://plexui.com/components/floating-label-input
 Props:
-  - label (string) — Floating label text
-  - description (ReactNode) — Helper text below the input
+  - label (string) — Required. Floating label text
+  - value (string) — Controlled value, with onChange
+  - defaultValue (string) — Initial value when uncontrolled
   - errorMessage (string) — Validation message below input; sets invalid state
+  - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
+  - description (ReactNode) — Helper text below the input
   - disabled (boolean) default: false — Disable input interactions
-  - invalid (boolean) default: false — Invalid visual state
   - readOnly (boolean) default: false — Read-only input state
-  - onClear (() => void) — Shows a clear button when input has value
-  - startAdornment (ReactNode) — Content rendered before the input, inside the field. Visible when focused or has value.
-  - endAdornment (ReactNode) — Content rendered after the input, before the clear button
+  - type (string) default: "text" — Input type; password gets a reveal toggle
+  - revealable (boolean) default: true for password without an endAdornment — Built-in reveal toggle
   - multiline (boolean) default: false — Render as an auto-growing textarea
   - rows (number) default: 2 — Initial visible text lines when multiline is true
+  - allowAutofillExtensions (boolean) default: false — Let password-manager extensions decorate the input
+  - startAdornment (ReactNode) — Content rendered before the input, inside the field. Always shown; keeps the label floated
+  - endAdornment (ReactNode) — Content rendered after the input, before the clear button
+  - onClear (() => void) — Shows a clear button when the input has a value; focus returns to the input
+  - onRevealedChange ((revealed: boolean) => void) — Called when the reveal toggle is clicked
+  - onAutofill (() => void) — Called when the browser autofills the input
 Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
 
 ## Indicators
@@ -383,13 +417,14 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
 Docs: https://plexui.com/components/indicators
   LoadingIndicator:
-    - size (number | string) — Size in px or any CSS length (or use --indicator-size CSS variable)
-    - strokeWidth (number) — Stroke width
+    - size (number | string) default: "1em" — Size in px or any CSS length (or use the --indicator-size CSS variable)
+    - strokeWidth (number) default: 2 — Stroke width in px
   CircularProgress:
-    - progress (number) — Static progress 0-100 (disables animation)
-    - size (number | string) — Diameter in px or any CSS length
-    - strokeWidth (number) — Stroke thickness
-    - done (boolean) — Completion state for animation
+    - progress (number) — Static progress 0-100 (disables the simulated animation)
+    - done (boolean) default: false — Fills the ring and ends the simulated progress
+    - maxDuration (number) default: 15000 — Duration of the simulated progress in ms
+    - size (number | string) default: "28px" — Diameter in px or any CSS length
+    - strokeWidth (number) default: 2 — Stroke thickness in px, capped at 4
     - trackColor (string) — Track color (CSS variable or value)
     - trackActiveColor (string) — Active segment color
 Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color
@@ -419,14 +454,19 @@ Props:
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Controls gutter on the edges; defaults to value from size
   - disabled (boolean) default: false — Disables the input visually and from interactions
+  - readOnly (boolean) default: false — Makes the input read-only and hides the clear button
   - invalid (boolean) default: false — Mark the input as invalid
   - allowAutofillExtensions (boolean) default: type === "password" || !!name — Allow autofill extensions to appear in the input
   - autoSelect (boolean) default: false — Select all contents of the input when mounted
   - startAdornment (ReactNode) — Content rendered at the start of the input
   - endAdornment (ReactNode) — Content rendered at the end of the input
   - onClear (() => void) — When provided, displays a clear button that appears when the input has a value
+  - onAutofill (() => void) — Called when the browser autofills the input
   - pill (boolean) default: false — Fully rounded pill shape
   - opticallyAlign ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
+  Input.AdornmentButton:
+    - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
+    - type (string) default: "button" — Button type
 Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
 
 ## Label
@@ -452,6 +492,12 @@ Props:
   - onChange ((markdown: string) => void) — Called on content change
   - toolbarEnd (ReactNode) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
+  - id (string) — id of the editable element (Field sets it)
+  - aria-label (string) — Accessible name of the editable element
+  - aria-labelledby (string) — Id of the element that names the editor, such as a visible label
+  - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
+  - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with errorMessage)
+  - className (string) — Applied to the container
 Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants, Disabled, Invalid
 
 ## Markdown
@@ -459,8 +505,20 @@ Markdown renderer for rich formatted content, with headings, lists, tables, code
 Import: import { Markdown } from "@plexui/ui/components/Markdown"
 Docs: https://plexui.com/components/markdown
 Props:
-  - children (string) — Markdown source
+  - children (string) — Required. Markdown source
   - includeMath (boolean) default: false — Enable LaTeX math rendering
+  - breakNewLines (boolean) default: false — Turn single newlines into line breaks
+  - copyableCodeBlocks (boolean) default: true — Show a copy button on code blocks
+  - collapsibleCodeBlocks (boolean) default: true — Render code blocks in the collapsible view with a View Code button
+  - components (Record<string, MarkdownComponent>) — Tag name to component overrides, applied over the built-in ones
+  - directives (MarkdownDirective[]) — Custom directives, each rendered by its own component
+  - remarkPlugins (PluggableList) — Extra remark plugins, after the built-in ones
+  - rehypePlugins (PluggableList) — Extra rehype plugins
+  - allowedElements (string[]) — Only render these elements
+  - disallowedElements (string[]) — Never render these elements
+  - skipHtml (boolean) default: false — Ignore raw HTML in the source
+  - urlTransform ((url: string) => string) — Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:
+  - className (string) — Applied to the wrapping element
 Examples: Overview, Math
 
 ## Menu
@@ -471,24 +529,33 @@ Props:
   - forceOpen (boolean) — Keep menu open (controlled)
   - onOpen (() => void) — Called when menu opens
   - onClose (() => void) — Called when menu closes
-  - modal (boolean) — Whether menu is modal (focus trap)
+  - modal (boolean) default: false — Whether menu is modal (focus trap)
+  Menu.Trigger:
+    - disabled (boolean) default: false — Prevent the menu from opening
   Menu.Content:
     - width (number | "auto") default: "auto" — Panel width in px
     - minWidth (number | "auto") default: 300 — Minimum panel width in px (vertical layout)
-    - side ("top" | "right" | "bottom" | "left") — Preferred placement
-    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - maxHeight (number) — Maximum panel height in px
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
+    - sideOffset (number) default: 5 — Distance from the trigger in px
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - alignOffset (number) default: -5 — Offset from the start or end alignment in px
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+    - onCloseAutoFocus ((event: Event) => void) — Called before focus returns to the trigger; call event.preventDefault() to keep it from moving there
   Menu.Item:
     - description (ReactNode) — Second line under the label. The label turns semibold on its own
-    - onSelect ((event: Event) => void) — Called when item is selected
-    - disabled (boolean) — Disable the item
+    - onSelect ((event: Event) => void) — Called when item is selected; call event.preventDefault() to keep the menu open
+    - onClick ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
+    - disabled (boolean) default: false — Disable the item
+    - className (string) — Applied to the item
   Menu.CheckboxItem:
     - checked (boolean | "indeterminate") — Checked state
     - onCheckedChange ((checked: boolean) => void) — When checkbox toggles
     - onSelect ((event: Event) => void) — Use with preventDefault() to keep menu open
     - indicatorPosition ("start" | "end") default: "end" — Checkbox position
     - indicatorVariant ("solid" | "ghost") default: "solid" — Checkbox indicator style
+    - disabled (boolean) — Disable the item
 Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
 
 ## OTP Input
@@ -505,6 +572,7 @@ Props:
   - errorMessage (string) — Error message below the input
   - disabled (boolean) default: false — Disable all cells
   - autoFocus (boolean) default: false — Auto-focus first cell on mount
+  - className (string) — Applied to the root element
 Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
 
 ## Popover
@@ -512,15 +580,22 @@ A floating panel for contextual UI, with flexible sizing, hover triggers, a cont
 Import: import { Popover } from "@plexui/ui/components/Popover"
 Docs: https://plexui.com/components/popover
 Props:
-  - showOnHover (boolean) — Open on hover and focus instead of click
+  - open (boolean) — Controlled open state; uncontrolled when omitted
+  - onOpenChange ((nextState: boolean) => void) — Called when the popover opens or closes
+  - showOnHover (boolean) default: false — Open on hover and focus instead of click
+  - hoverOpenDelay (number) default: 150 — Delay before a hover popover opens (ms)
   Popover.Content:
     - width (number | "auto") default: "auto" — Panel width in px
     - minWidth (number | "auto") default: 300 — Minimum panel width in px
-    - maxWidth (number) — Maximum panel width in px
-    - side ("top" | "right" | "bottom" | "left") — Preferred placement
-    - align ("start" | "center" | "end") — Alignment relative to trigger
-    - sideOffset (number) — Offset from trigger (px)
-    - alignOffset (number) — Alignment offset (px)
+    - maxWidth (number) default: 700 — Maximum panel width in px, capped by the space available in the viewport
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement; flips when it collides
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - sideOffset (number) default: 8 — Offset from trigger (px)
+    - alignOffset (number) default: -5 — Offset from the start or end alignment (px)
+    - avoidCollisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
+    - translucent (boolean) default: false — Translucent, blurred surface
+    - autoFocus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
+    - className (string) — Applied to the panel
 Examples: Overview, Sizing the popover, Open on hover, Using the controller
 
 ## Progress Steps
@@ -528,13 +603,14 @@ Stepper for multi-step flows like checkouts and onboarding, with horizontal or v
 Import: import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
 Docs: https://plexui.com/components/progress-steps
 Props:
-  - current (number) — Current active step (1-based)
+  - current (number) — Required. Current active step (1-based)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
   - size ("sm" | "md" | "lg") default: "md" — Step indicator size
   - color ("default" | "success") default: "default" — Color scheme for completed/active steps
   - connectorStyle ("solid" | "dashed") default: "solid" — Connector line style
   - variant ("default" | "minimal") default: "default" — "minimal" renders a compact bar (requires total)
   - total (number) — Total steps for minimal variant
+  - className (string) — Class applied to the container
   ProgressSteps.Step:
     - icon (ReactNode) — Custom icon instead of step number
 Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
@@ -546,6 +622,7 @@ Docs: https://plexui.com/components/progress
 Props:
   - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
   - max (number) default: 100 — Maximum progress value
+  - getValueLabel ((value: number, max: number) => string) default: — — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - className (string) default: — — Applied to the root <div>
 Examples: Overview, With label, Controlled
 
@@ -559,12 +636,17 @@ Props:
   - onChange ((value: string) => void) — Called when selected option changes
   - direction ("col" | "row") default: "row" — Item flow direction
   - disabled (boolean) default: false — Disable the whole group
+  - name (string) — Name of the hidden radio inputs submitted with the owning form
+  - required (boolean) default: false — Marks the group and every hidden radio input as required
   - aria-label (string) — Accessible group label
+  - className (string) — Extra classes on the group element
   RadioGroup.Item:
     - value (string) — Item value
     - disabled (boolean) default: false — Disable this item only
+    - required (boolean) — Marks this item as required
     - block (boolean) default: false — Stretch item to fill available width
     - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+    - className (string) — Extra classes on the label element
 Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Select Control
@@ -572,18 +654,20 @@ Select control primitive for building custom dropdowns, with variants, sizing, s
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
 Docs: https://plexui.com/components/select-control
 Props:
-  - selected (boolean) — Whether a value is selected (affects placeholder styling)
+  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
   - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
-  - size (ControlSize) — Control size (3xs to 3xl)
-  - pill (boolean) — Fully rounded trigger
-  - StartIcon (Component) — Icon at start
-  - onClearClick (() => void) — Enables clear button when set
-  - dropdownIconType ("chevronDown" | "dropdown" | "none") — Dropdown indicator style
-  - invalid (boolean) — Invalid state
-  - disabled (boolean) — Disable control
-  - block (boolean) — Full width
-  - loading (boolean) — Loading state
+  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+  - pill (boolean) default: false — Fully rounded trigger
+  - StartIcon (ComponentType) — Icon at start
+  - onClearClick (() => void) — Enables the clear button when set
+  - onInteract (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down
+  - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+  - invalid (boolean) default: false — Invalid state
+  - disabled (boolean) default: false — Disable control
+  - block (boolean) default: false — Full width
+  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
   - opticallyAlign ("start" | "end") — Optical alignment
+  - className (string) — Applied to the control
 Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
 
 ## Select
@@ -593,7 +677,7 @@ Docs: https://plexui.com/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
   - value (string | string[]) — Selected value (single) or values (multiple)
-  - onChange (function) — Called when selection changes
+  - onChange ((option: T) => void | (options: T[]) => void) — Called when selection changes, with the selected option (or options with multiple)
   - multiple (boolean) default: false — Allow multiple selection
   - placeholder (string) default: "Select..." — Trigger placeholder
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
@@ -601,13 +685,29 @@ Props:
   - pill (boolean) default: false — Rounded trigger
   - clearable (boolean) default: false — Show clear button
   - block (boolean) default: variant !== "ghost" — Full width trigger
-  - disabled (boolean) default: false — Disable select
+  - disabled (boolean) default: false — Disable select. A disabled select is not submitted or validated with its form
+  - loading (boolean) default: false — Loading state; shows loadingPlaceholder and keeps the menu closed
+  - loadingPlaceholder (string) default: "Loading..." — Trigger text while loading
+  - name (string) — Name of the hidden form input. With multiple, every selected value is submitted
+  - required (boolean) — Required for native form validation
+  - id (string) — Id of the hidden form input
   - actions (array) — Actions below options list
   - checkPosition ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
   - OptionView (React.FC) — Custom option render
-  - TriggerView (React.FC) — Custom trigger render (multi)
+  - TriggerView (React.FC) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
+  - TriggerStartIcon (ComponentType) — Icon at the start of the trigger
+  - trigger (({ open, onToggle }) => ReactNode) — Custom trigger element, wrapped as the popover trigger
+  - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
+  - side ("top" | "bottom") default: "bottom" — Preferred side of the list
+  - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
+  - listWidth (number | "auto") default: "auto" — Width of the list in px
+  - listMinWidth (number | "auto") default: trigger width (300 when not block) — Minimum width of the list in px
+  - listMaxWidth (number | "auto") default: "auto" — Maximum width of the list in px
   - searchPlaceholder (string) — Search input placeholder
   - searchAriaLabel (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+  - searchEmptyMessage (ReactNode) default: "No results found." — Shown when the search matches nothing
+  - searchPredicate ((option, term) => boolean) — Filters options while searching
+  - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
 
 ## Separator
@@ -646,17 +746,31 @@ Props:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - defaultOpen (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state
-    - onOpenChange ((open: boolean) => void) — Called when open state changes
-  SidebarMenuButton:
-    - isActive (boolean) default: false — Highlight the current page
-    - tooltip (string | ReactNode) — Label shown on hover when collapsed (icon mode). Hidden on mobile.
+    - onOpenChange ((open: boolean) => void) — Called when open state changes. Without open the provider keeps its own state and still calls it
+    - className (string) — Class of the provider's wrapper
+    - style (CSSProperties) — Style of the provider's wrapper, e.g. --sidebar-width
+  SidebarGroup:
+    - defaultOpen (boolean) default: true — Initial data-state of the group
+    - open (boolean) — Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not call onOpenChange
   SidebarGroupLabel:
     - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
+    - asChild (boolean) default: false — Render the single child element as the label
+  SidebarMenuItem:
+    - expanded (boolean) — Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub
+  SidebarMenuButton:
+    - isActive (boolean) default: false — Highlight the current page (aria-current="page")
+    - tooltip (string | ReactNode) — Label shown on hover when collapsed (icon mode). Hidden on mobile.
+    - asChild (boolean) default: false — Render the single child element (e.g. a router link) as the button. The button attributes go on the child and its content is wrapped like the button's
   SidebarMenuSub:
-    - open (boolean) default: true — Whether submenu is expanded
+    - open (boolean) default: true — Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree
     - hasIcons (boolean) default: false — Align child items with parent text that has icons
+  SidebarMenuSubButton:
+    - isActive (boolean) default: false — Highlight the current page (aria-current="page")
+    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left margin
+    - asChild (boolean) default: false — Render the single child element (e.g. a router link) as the button
   SidebarCard:
-    - dismissible (boolean) — Shows dismiss button
+    - variant ("default" | "elevated") default: "default" — Visual variant
+    - dismissible (boolean) default: false — Shows dismiss button
     - onDismiss (() => void) — Callback when dismissed
 Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
 
@@ -674,10 +788,10 @@ Slider for fine-tuning numeric values with single or range thumbs, marks, an edi
 Import: import { Slider } from "@plexui/ui/components/Slider"
 Docs: https://plexui.com/components/slider
 Props:
-  - value (number | number[]) — Current value; array when range is true
-  - min (number) — Minimum value
-  - max (number) — Maximum value
-  - step (number) — Step increment
+  - value (number | number[]) — Required. Current value; array when range is true
+  - min (number) — Required. Minimum value
+  - max (number) — Required. Maximum value
+  - step (number) — Required. Step increment
   - range (boolean) default: false — Enable multi-thumb range mode
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
   - resetValue (number) — Value for reset option (single mode only)
@@ -685,13 +799,17 @@ Props:
   - unit (string) — Unit displayed (e.g. ms, px)
   - prefixUnit (string) — Unit displayed before the value (e.g. $)
   - label (ReactNode) — Label (string or JSX). Also names the slider thumbs for assistive technology
+  - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
+  - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below track (horizontal only)
-  - onChange ((value: number | number[]) => void) — Change handler; receives array when range is true
+  - onChange ((value: number | number[]) => void) — Required. Change handler; receives array when range is true
   - minStepsBetweenThumbs (number) — Minimum steps between thumbs (range mode only)
   - disabled (boolean) default: false — Disable slider
   - trackColor (string) — Color of the slider track
   - rangeColor (string) — Color of the filled range
   - className (string) — Applied to the root element
+  - onFocus ((event: FocusEvent) => void) — Called when the value input or a thumb gains focus
+  - onBlur ((event: FocusEvent) => void) — Called when the value input or a thumb loses focus
 Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical, Disabled
 
 ## Stat Card
@@ -699,8 +817,8 @@ Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an 
 Import: import { StatCard } from "@plexui/ui/components/StatCard"
 Docs: https://plexui.com/components/stat-card
 Props:
-  - label (string) — Label describing the metric
-  - value (ReactNode) — The primary metric value
+  - label (string) — Required. Label describing the metric
+  - value (ReactNode) — Required. The primary metric value
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage
   - invertTrend (boolean) default: false — Invert trend colors (positive = bad)
@@ -714,6 +832,7 @@ Props:
   - tooltip (string) — Shows an info icon next to the label with tooltip text
   - variant ("default" | "accent") default: "default" — Visual variant
   - accentColor ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
+  - className (string) — Extra classes on the card element
 Examples: Overview, Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border, Inverted trend
 
 ## Switch
@@ -730,9 +849,11 @@ Props:
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
-  - value (string) — Value when submitted
+  - value (string) default: "on" — Value when submitted
   - className (string) — CSS classes applied to wrapper node
-  - id (string) — The id of the switch element
+  - id (string) — The id of the switch element (generated when omitted)
+  - onFocus (FocusEventHandler<HTMLButtonElement>) — Called when the switch gains focus
+  - onBlur (FocusEventHandler<HTMLButtonElement>) — Called when the switch loses focus
 Examples: Overview, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, With Field, With Field and description, Settings panel, Grouped sections
 
 ## Table
@@ -750,40 +871,42 @@ Docs: https://plexui.com/components/table
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
   DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API
-    - data (TData[]) — Data array to display
+    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API (required)
+    - data (TData[]) — Data array to display (required)
     - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
+    - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
     - initialSorting (SortingState) — Initial column sorting state
     - globalFilter (string) — Controlled search/filter string
     - onGlobalFilterChange ((value: string) => void) — Callback when filter changes
-    - onRowClick ((row: TData) => void) — Click handler for rows, makes rows interactive
+    - onRowClick ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
     - columnVisibility (VisibilityState) — Controlled column visibility state
     - onColumnVisibilityChange ((visibility: VisibilityState) => void) — Callback when visibility changes
-    - enableRowSelection (boolean) default: false — Enable row selection checkboxes
+    - enableRowSelection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
     - rowSelection (RowSelectionState) — Controlled row selection state
     - onRowSelectionChange ((selection: RowSelectionState) => void) — Callback when selection changes
-    - getRowId ((row: TData) => string) — Custom row ID accessor
+    - getRowId ((row: TData) => string) — Custom row ID accessor; selection keys use it
     - emptyMessage (ReactNode) default: "No results." — Shown when no rows
-    - showPagination (boolean) default: true — Whether to show pagination controls
+    - showPagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
     - className (string) — Class applied to outermost wrapper
   DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object
-    - title (string) — Display text for the header
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
+    - className (string) — Class applied to the header button (or text when the column cannot sort)
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
     - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
     - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
-Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Cell variants, Filtering, Column visibility, Empty state
+Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility, Empty state
 
 ## Tabs
 Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
 Import: import { Tabs } from "@plexui/ui/components/Tabs"
 Docs: https://plexui.com/components/tabs
 Props:
-  - value (string) — Selected tab value (controlled)
+  - value (string) — Selected tab value (controlled, required)
   - onChange ((value: string) => void) — Called when selection changes
+  - onClick (() => void) — Called on any click in the group, even when the selection does not change
   - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
   - size (ControlSize) default: "md" — Control height (3xs through 3xl)
@@ -793,12 +916,15 @@ Props:
   - block (boolean) default: false — Full-width control with equal-width tabs
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
+  - className (string) — Extra classes on the group element
+  - children (ReactNode) — Tabs.Tab children
   Tabs.Tab:
-    - value (string) — Tab value
+    - value (string) — Tab value (required)
     - disabled (boolean) — Disable this tab
     - icon (ReactNode) — Icon element (sized automatically)
     - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
     - aria-label (string) — Accessible name (required for icon-only tabs)
+    - children (ReactNode) — Tab label
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
 
 ## Tag Input
@@ -809,12 +935,15 @@ Props:
   - value (Tag[]) — Controlled value
   - defaultValue (Tag[]) — Uncontrolled initial tags
   - onChange ((tags: Tag[]) => void) — Change handler
+  - id (string) — Id of the text input, so a label can target it with htmlFor
   - placeholder (string) — Input placeholder
-  - validator ((value: string) => boolean) — Validates each tag; invalid tags shown in red
-  - maxTags (number) — Max tags before input is disabled
+  - validator ((value: string) => boolean) — Validates each tag when it is created; invalid tags shown in red
+  - maxTags (number) — Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags
   - rows (number) default: 1 — Min rows
   - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
   - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
+  - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
+  - disabled (boolean) — Disables the input: tags cannot be added or removed, and pending text stays as typed
   - autoFocus (boolean) default: false — Focus on mount
 Examples: Overview, Inline filter row, Suggestions
 
@@ -824,12 +953,14 @@ Import: import { TextLink } from "@plexui/ui/components/TextLink"
 Docs: https://plexui.com/components/text-link
 Props:
   - children (ReactNode) — Link content
-  - href (string) — URL
-  - to (object) — Router link destination (internal)
+  - href (string) — URL. An http:// or https:// URL is external
+  - to (string | object) — Router link destination (internal); its type comes from the link component
   - primary (boolean) default: false — Primary color, no default underline
   - underline (boolean) default: true — Underline (default true unless primary)
   - forceExternal (boolean) — Force external link behavior
   - as (Component) — Link component (e.g. Next Link)
+  - target (string) — Where to open the link. External links default to _blank
+  - className (string) — Extra classes on the link
 Examples: Overview, Inline usage, Default inheritance, Primary color, Underline, External links, Font weight
 
 ## Textarea
@@ -837,16 +968,23 @@ Multi-line text input that can grow with its content, with a size scale, autofil
 Import: import { Textarea } from "@plexui/ui/components/Textarea"
 Docs: https://plexui.com/components/textarea
 Props:
+  - value (string | number) — Controlled value; uncontrolled when omitted
+  - defaultValue (string | number) — Initial value when uncontrolled
+  - onChange ((event: ChangeEvent<HTMLTextAreaElement>) => void) — Called on every input
   - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
   - disabled (boolean) default: false — Disable the textarea
+  - readOnly (boolean) default: false — Make the textarea read-only
   - invalid (boolean) default: false — Mark as invalid
   - allowAutofillExtensions (boolean) default: !!name — Allow autofill extensions
   - autoSelect (boolean) default: false — Select all contents when mounted
   - rows (number) default: 3 — Initial row count
   - autoResize (boolean) default: false — Grow/shrink with content
-  - maxRows (number) — Max rows when autoResize
+  - maxRows (number) — Max rows when autoResize; defaults to the larger of rows and 10
+  - onAutofill (() => void) — Called when the browser autofills the textarea
+  - className (string) — Applied to the container <div>
+  - ref (Ref<HTMLTextAreaElement>) — Ref to the <textarea>
 Examples: Overview, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
 
 ## Toast
@@ -865,6 +1003,7 @@ Brief informative text shown on hover or focus, for any trigger element, with co
 Import: import { Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/tooltip
 Props:
+  - children (ReactElement) — The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator
   - content (ReactNode) — Tooltip content (null = no tooltip)
   - compact (boolean) default: false — Short 1-3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
@@ -877,4 +1016,5 @@ Props:
   - gutterSize ("sm" | "md" | "lg") default: "md" — Content padding
   - contentClassName (string) — Class for tooltip content
   - forceOpen (boolean) — Force open or closed
+  - preventUnintentionalClickToClose (true) — Keeps the tooltip open when the trigger is clicked right after it opened
 Examples: Overview, Different triggers, Conditionally enabled, Compact tooltips

@@ -1,7 +1,7 @@
 ---
 title: Slider
 description: Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
-metaDescription: React slider component for fine-tuning numeric values with single or range thumbs, marks, tooltip readouts, and vertical orientation
+metaDescription: React slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation
 ---
 
 import {
@@ -37,16 +37,24 @@ import {
 
 ### Adding a tooltip
 
-<ComponentPreview details={<>A tooltip can easily be added to the Slider label by providing JSX instead of a simple string.</>} code={`<Slider
-  label={
-    <Tooltip content="More details about this field">
-      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
-    </Tooltip>
-  }
-  value={value}
-  onChange={setValue}
-  ...
-/>`} previewMinHeight={168}>
+<ComponentPreview details={<>A tooltip can easily be added to the Slider label by providing JSX instead of a simple string.</>} code={`const [value, setValue] = useState(1000)
+
+return (
+  <Slider
+    label={
+      <Tooltip content="More details about this field">
+        <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+      </Tooltip>
+    }
+    min={0}
+    max={2000}
+    resetValue={1000}
+    step={10}
+    unit="ms"
+    value={value}
+    onChange={setValue}
+  />
+)`} previewMinHeight={168}>
   <SliderTooltipsDemo />
 </ComponentPreview>
 
@@ -62,7 +70,9 @@ import {
   marks={[
     { value: 1, label: "1" },
     { value: 2, label: "2" },
-    ...
+    { value: 3, label: "3" },
+    { value: 4, label: "4" },
+    { value: 5, label: "5" },
   ]}
   trackColor="#61C454"
   rangeColor="#EF4146"
@@ -133,10 +143,10 @@ import {
 ## API
 
 <PropsTable data={[
-  { prop: "value", type: "number | number[]", description: "Current value; array when range is true" },
-  { prop: "min", type: "number", description: "Minimum value" },
-  { prop: "max", type: "number", description: "Maximum value" },
-  { prop: "step", type: "number", description: "Step increment" },
+  { prop: "value", type: "number | number[]", description: "Required. Current value; array when range is true" },
+  { prop: "min", type: "number", description: "Required. Minimum value" },
+  { prop: "max", type: "number", description: "Required. Maximum value" },
+  { prop: "step", type: "number", description: "Required. Step increment" },
   { prop: "range", type: "boolean", default: "false", description: "Enable multi-thumb range mode" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the slider" },
   { prop: "resetValue", type: "number", description: "Value for reset option (single mode only)" },
@@ -144,14 +154,20 @@ import {
   { prop: "unit", type: "string", description: "Unit displayed (e.g. ms, px)" },
   { prop: "prefixUnit", type: "string", description: "Unit displayed before the value (e.g. $)" },
   { prop: "label", type: "ReactNode", description: "Label (string or JSX). Also names the slider thumbs for assistive technology" },
+  { prop: "aria-label", type: "string", description: "Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)" },
+  { prop: "aria-labelledby", type: "string", description: "Id of an element that names the slider; takes precedence over label" },
   { prop: "marks", type: "Array<{ value: number, label: string }>", description: "Marks below track (horizontal only)" },
-  { prop: "onChange", type: "(value: number | number[]) => void", description: "Change handler; receives array when range is true" },
+  { prop: "onChange", type: "(value: number | number[]) => void", description: "Required. Change handler; receives array when range is true" },
   { prop: "minStepsBetweenThumbs", type: "number", description: "Minimum steps between thumbs (range mode only)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable slider" },
   { prop: "trackColor", type: "string", description: "Color of the slider track" },
   { prop: "rangeColor", type: "string", description: "Color of the filled range" },
   { prop: "className", type: "string", description: "Applied to the root element" },
+  { prop: "onFocus", type: "(event: FocusEvent) => void", description: "Called when the value input or a thumb gains focus" },
+  { prop: "onBlur", type: "(event: FocusEvent) => void", description: "Called when the value input or a thumb loses focus" },
 ]} />
+
+Typing in the value input reports the parsed value after 250ms; Enter, Escape or leaving the input commits it right away, and Home, End and the arrow keys (Shift for ten steps) change it at once. The input accepts a minus sign when `min` is below zero. Inside a `<form>`, a hidden input per thumb fires an `input` event when its value changes.
 
 ## Styling
 

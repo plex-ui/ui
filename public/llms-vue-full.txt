@@ -520,6 +520,7 @@ Props:
   - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
   - size ("sm" | "md" | "lg") default: "sm" — Badge size
   - pill (boolean) default: false — Fully rounded
+  - class (string) — Class applied to the badge
 
 ### Overview
 Status badges in different colors and compositions.
@@ -598,8 +599,8 @@ Props:
   - inert (boolean) default: loading — Accessibly disabled without visual change
   - selected (boolean) default: false — Selected state styling
   - optically-align ("start" | "end") — Offset gutter for optical alignment
-  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding size
-  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot
+  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding size; defaults from size
+  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
 
@@ -609,9 +610,9 @@ A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.
 <div class="flex flex-wrap gap-3">
   <Button color="primary">Submit</Button>
   <Button variant="soft"><CompareArrows /> Compare</Button>
-  <Button color="danger" gutter-size="sm" :pill="false"><Delete /></Button>
+  <Button color="danger" gutter-size="sm" :pill="false" aria-label="Delete"><Delete /></Button>
   <Button variant="outline">Next <ArrowRight /></Button>
-  <Button variant="ghost" color="secondary" uniform><Clear /></Button>
+  <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
 </div>
 ```
 
@@ -644,7 +645,7 @@ You can stylize the display of the button using the color and variant props.
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. Each size provides default values for gutter-size and icon-size, as well as font-size. Each of these values can be overridden independently.
+Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button.
 ```vue
 <Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button <ArrowRight /></Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill">Button <ArrowRight /></Button>
@@ -653,7 +654,7 @@ Control height with size and horizontal padding with gutter-size. Use pill for f
 ```
 
 ### Icons
-Add icons to the default slot. Sizing is automatic via the icon-size prop. For square icon buttons use uniform, which ignores gutter-size. Combine it with pill to make circular icons.
+Add icons to the default slot. Sizing is automatic via the icon-size prop. Default values for icon-size are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutter-size is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutter-size than size can create well-sized, but not exactly square, icon buttons.
 ```vue
 <Button
   :color="color"
@@ -662,6 +663,7 @@ Add icons to the default slot. Sizing is automatic via the icon-size prop. For s
   :icon-size="iconSize === 'auto' ? undefined : iconSize"
   :uniform="uniform"
   :variant="variant"
+  aria-label="Add"
 >
   <PlusLg />
 </Button>
@@ -676,13 +678,13 @@ Create full-width buttons with the block prop.
 ```
 
 ### Disabled
-Use disabled to both visually and accessibly disable a button. Click events are not emitted.
+Use disabled to both visually and accessibly disable a button. Clicks do not emit click.
 ```vue
 <Button color="primary" :disabled="disabled">Submit</Button>
 ```
 
 ### Inert
-Use inert to accessibly disable a button without any visual changes.
+Use inert to accessibly disable a button without any visual changes. Note: For accessibility reasons, disabled is used instead of applying inert directly to the button. Visual disablement in the disabled prop is applied via [data-disabled].
 ```vue
 <Button color="primary" :inert="inert">Submit</Button>
 ```
@@ -1062,7 +1064,7 @@ Props:
   - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
   - size ("sm" | "md" | "lg") default: "md" — Padding scale
   - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
-  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider.
+  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider. A link component that takes to, such as RouterLink, gets it as to.
   - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
   - as (Component | "a") — Overrides the link component.
   - class (string) — Applied to the root element
@@ -1117,7 +1119,7 @@ A classic login form with a primary Log in CTA and an inline Sign up link below.
 ```
 
 ### Create project
-Right-aligned footer with Cancel / Submit. Use style="justify-content: flex-end" on CardFooter.
+Right-aligned footer with Cancel / Deploy. Use style="justify-content: flex-end" on CardFooter.
 ```vue
 <Card style="max-width: 380px">
   <CardHeader>
@@ -1142,7 +1144,7 @@ Right-aligned footer with Cancel / Submit. Use style="justify-content: flex-end"
 ```
 
 ### Payment Method
-Full-fidelity payment form. Card Number + CVV share a 2fr/1fr row with a helper line; Month/Year use Select. Sections are divided by subtle hrs for Billing Address and Comments.
+Full-fidelity payment form. Month, Year and CVV share one row, with a Select for the month and the year. A Separator sets off the Billing Address section, whose Checkbox takes its text through label.
 ```vue
 <Card style="max-width: 420px">
   <div style="display: flex; flex-direction: column; gap: 16px">
@@ -1557,7 +1559,7 @@ Wrap a group of checkboxes in a Field for a shared label and description. This i
 ```
 
 ### With Field
-Wrap checkboxes in a Field component for form layout with label, description, and error message support. The Field provides aria-describedby and aria-invalid linking automatically.
+Wrap checkboxes in a Field component for form layout with label, description, and error message support. A single control passed as the child gets aria-describedby and aria-invalid automatically; with v-slot the slot props carry them, so bind them onto the control that should carry them.
 ```vue
 <div class="flex flex-col gap-4 max-w-sm w-full">
   <Field
@@ -1626,8 +1628,9 @@ Props:
     - language (string) — Prism language name
     - default-expanded (boolean) default: false — Start expanded
     - collapsed-height (number) default: 140 — Height when collapsed (px)
-    - max-expanded-height (number) — Max height when expanded (px)
+    - max-expanded-height (number) — Max height when expanded (px); taller code scrolls
     - copyable (boolean) default: true — Show copy button
+    - class (string) — Additional wrapper class
 
 ### Overview
 The code is the text of the default slot. Interpolate a string ({"{{ code }}"}) so its whitespace is kept, or pass it with the code prop.
@@ -1673,12 +1676,12 @@ Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/compon
 Docs: https://plexui.com/vue/components/copy-tooltip
 Props:
   - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copyValue (string) — Required. Content to copy to clipboard
-  - openDelay (number) default: 150 — Tooltip open delay in milliseconds
+  - copy-value (string) — Required. Content to copy to clipboard
+  - open-delay (number) default: 150 — Tooltip open delay in milliseconds
   - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
-  - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
+  - align-offset (number) default: 0 — Offset from start/end alignment in pixels
   - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
-  - sideOffset (number) default: 5 — Distance from trigger in pixels
+  - side-offset (number) default: 5 — Distance from trigger in pixels
 
 ### Overview
 ```vue
@@ -1712,12 +1715,13 @@ Props:
   - clearable (boolean) default: false — Show clear button when input has a value
   - size (ControlSize) default: "md" — Input size (3xs to 3xl)
   - variant ("outline" | "soft") default: "outline" — Visual style
+  - pill (boolean) default: false — Fully rounded corners
   - disabled (boolean) default: false — Disable input
   - invalid (boolean) default: false — Mark as invalid
   - placeholder (string) — Generated from the format if not set
 
 ### Overview
-Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value.
+Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value. Leaving the field with a partly typed date shows the value again.
 ```vue
 <div class="w-[200px]">
   <DateInput
@@ -1807,20 +1811,29 @@ Date picker with an interactive calendar, time picker, year and month dropdowns,
 Import: import { DatePicker } from "@plexui/vue/components/DatePicker"
 Docs: https://plexui.com/vue/components/date-picker
 Props:
-  - v-model:value (DateTime | null) — Selected date (luxon)
-  - @change ((date: DateTime | null) => void) — Called when date changes
-  - min (DateTime) — Minimum selectable date
-  - max (DateTime) — Maximum selectable date
+  - value / v-model:value (DateTime | null) default: null — Selected date (luxon)
+  - @change ((date: DateTime | null) => void) — Emitted when the date changes, with the same value as update:value
+  - id (string) — Id of the trigger, for forms and labels
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - caption-layout ("buttons" | "dropdown") default: "buttons" — Calendar header mode. Use dropdown for date of birth
   - show-time (boolean) default: false — Show time input below calendar
-  - year-range ([number, number]) — Min/max years for dropdown caption
-  - size (ControlSize) — Trigger size (3xs to 3xl)
-  - pill (boolean) — Rounded trigger
-  - clearable (boolean) — Show clear button
+  - year-range ([number, number]) default: last 120 years — Min/max years for dropdown caption
+  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Trigger style
+  - pill (boolean) default: true — Rounded trigger
+  - block (boolean) default: false — Full-width trigger
+  - clearable (boolean) default: false — Show clear button
   - trigger-show-icon (boolean) default: true — Show calendar icon
   - trigger-date-format (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when show-time is enabled
-  - placeholder (string) — Trigger placeholder
-  - disabled (boolean) — Disable picker
+  - trigger-class-name (string) — Class applied to the trigger
+  - dropdown-icon-type ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
+  - placeholder (string) default: "Select date..." — Trigger placeholder
+  - disabled (boolean) default: false — Disable picker
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover
+  - side-offset (number) default: 8 — Distance from the trigger in pixels
+  - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
+  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
 
 ### Overview
 Bind the date (a luxon DateTime, or null) with v-model:value. The @change event carries the same value, like React's onChange.
@@ -1836,7 +1849,7 @@ Bind the date (a luxon DateTime, or null) with v-model:value. The @change event 
 ```
 
 ### Limits
-Use min and max to limit selectable dates to a specific timeframe. Here minDate is {"today.minus({ days: 30 }).startOf('day')"} and maxDate is {"today.plus({ days: 30 }).endOf('day')"}.
+Use min and max to limit selectable dates to a specific timeframe. Here minDate is {"today.minus({ days: 30 }).startOf('day')"} and maxDate is {"today.plus({ days: 30 }).endOf('day')"}. Equal bounds leave one selectable day.
 ```vue
 <DatePicker
   id="date-picker-limits"
@@ -1979,16 +1992,16 @@ Date range picker with an interactive calendar, min/max limits, preset shortcuts
 Import: import { DateRangePicker } from "@plexui/vue/components/DateRangePicker"
 Docs: https://plexui.com/vue/components/date-range-picker
 Props:
-  - v-model:value (DateRange | null) — Selected range ([start, end], inclusive)
-  - @change ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Called when range changes
-  - min (DateTime) — Earliest selectable date
-  - max (DateTime) — Latest selectable date
+  - value / v-model:value (DateRange | null) — Selected range ([start, end], inclusive)
+  - @change ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Emitted when the range changes
+  - min (DateTime) — Earliest selectable date (inclusive)
+  - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - max-range-days (number) — Max length of range in days (inclusive)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
   - side-offset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
-  - align-offset (number) default: align === "center" ? 0 : -5 — Offset from start/end alignment in pixels
+  - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
   - disabled (boolean) default: false — Disable picker interactions
   - placeholder (string) default: "Select date range..." — Placeholder in trigger when value is empty
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger style variant
@@ -2032,7 +2045,7 @@ Use min and max to limit the selectable range. Use max-range-days to limit the r
 ```
 
 ### Shortcuts
-Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days.
+Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled.
 ```vue
 <div style="width: fit-content">
   <DateRangePicker
@@ -2124,7 +2137,7 @@ Empty state for telling users there's nothing to show, with error, warning, no-r
 Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
 Docs: https://plexui.com/vue/components/empty-message
 Props:
-  - fill ("static" | "absolute" | "none") default: "static" — How the container fills available space; use "none" for transparent (e.g. in search results)
+  - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
   EmptyMessageIcon:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
     - size ("sm" | "md") default: "md" — Icon badge size
@@ -2386,11 +2399,11 @@ Wrap a group of checkboxes in a Field for a shared label and description. The sl
 ```
 
 ### Radio
-Use Field with RadioGroup for labeled radio selections.
+Use Field with RadioGroup for labeled radio selections. Bind the field props onto the group (v-bind="fieldProps") so its aria-describedby points at the description.
 ```vue
 <div class="w-[320px]">
-  <Field label="Subscription plan" description="Select your preferred plan." v-slot="{ id }">
-    <RadioGroup aria-label="Subscription plan" v-model:value="plan" direction="col">
+  <Field label="Subscription plan" description="Select your preferred plan." v-slot="fieldProps">
+    <RadioGroup aria-label="Subscription plan" v-bind="fieldProps" v-model:value="plan" direction="col">
       <RadioGroupItem value="free">Free</RadioGroupItem>
       <RadioGroupItem value="pro">Pro, $9/mo</RadioGroupItem>
       <RadioGroupItem value="enterprise">Enterprise, $29/mo</RadioGroupItem>
@@ -2900,12 +2913,13 @@ Birthday input with error-message on Field: Field automatically passes aria-inva
 ```
 
 ### Birthday segmented input
-Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. digitsOnly is a plain helper function of the example.
+Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own aria-label. digitsOnly is a plain helper function of the example.
 ```vue
 <div class="w-[320px]">
-  <Field label="Birthday">
+  <Field label="Birthday" v-slot="fieldProps">
     <div class="flex items-center gap-2">
       <Input
+        :id="fieldProps.id"
         :value="month"
         @update:value="(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }"
         placeholder="MM"
@@ -2922,6 +2936,7 @@ Three compact Input controls composed as month/day/year with auto-advance behavi
         :value="day"
         @update:value="(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }"
         placeholder="DD"
+        aria-label="Day"
         inputmode="numeric"
         maxlength="2"
         size="md"
@@ -2935,6 +2950,7 @@ Three compact Input controls composed as month/day/year with auto-advance behavi
         :value="year"
         @update:value="(raw) => (year = digitsOnly(raw, 4))"
         placeholder="YYYY"
+        aria-label="Year"
         inputmode="numeric"
         maxlength="4"
         size="md"
@@ -2948,7 +2964,7 @@ Three compact Input controls composed as month/day/year with auto-advance behavi
 ```
 
 ### Birthday with selects
-Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group.
+Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group. The field id goes to the month select, and the day and year selects carry their own aria-label.
 ```vue
 <div class="w-[320px]">
   <Field label="Birthday" v-slot="fieldProps">
@@ -2997,7 +3013,7 @@ Props:
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
   - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
-  - multiple (boolean) default: false — Allow selecting multiple files
+  - multiple (boolean) default: false — Allow selecting multiple files. Without it, a new pick replaces the current file
   - max-files (number) — Maximum number of files. Button disables at limit.
   - max-size (number) — Maximum file size in bytes
   - value / v-model:value (File[]) — Controlled file list; `update:value` fires when files are added or removed
@@ -3005,6 +3021,8 @@ Props:
   - error-message (string) — Error message; sets the invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when error-message is provided)
   - disabled (boolean) default: false — Disable all interactions
+  - id (string) — Id of the hidden file input
+  - class (string) — Additional CSS class
   FileCard:
     - file (File) — The file to display
     - @remove (() => void) — Remove callback. When omitted, the delete button is hidden.
@@ -3028,7 +3046,7 @@ Props:
 ```
 
 ### With files
-File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button.
+File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. files starts with three File objects.
 ```vue
 <div class="w-[360px]">
   <FileUpload
@@ -3113,14 +3131,14 @@ Props:
   - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
   - description (string | slot) — Helper text below the input
   - disabled (boolean) default: false — Disables the input
-  - read-only (boolean) default: false — Makes the input read-only
+  - read-only / readonly (boolean) default: false — Makes the input read-only (both spellings work)
   - type (string) default: "text" — Input type; password gets a reveal toggle
   - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
   - multiline (boolean) default: false — Render an auto-growing textarea
   - rows (number) default: 2 — Visible lines when multiline
   - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
-  - start-adornment / end-adornment (slots) — Content before or after the input
-  - @clear (() => void) — Shows the clear button and fires when it is clicked
+  - #startAdornment / #endAdornment (slots) — Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated
+  - @clear (() => void) — Shows the clear button and fires when it is clicked; focus returns to the input
   - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
   - @autofill (() => void) — Fires when the browser autofills the input
 
@@ -3466,7 +3484,7 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
 ```
 
 ### Phone input
-A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value.
+A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.
 ```vue
 <div class="w-[360px] flex flex-col gap-3">
   <Select
@@ -3507,14 +3525,14 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
 Docs: https://plexui.com/vue/components/indicators
   LoadingIndicator:
-    - size (number | string) — Size in px (or use --indicator-size CSS variable)
-    - stroke-width (number) — Stroke width
+    - size (number | string) default: "1em" — Size in px or any CSS length (or use the --indicator-size CSS variable)
+    - stroke-width (number) default: 2 — Stroke width in px
   CircularProgress:
-    - progress (number) — Static progress 0-100 (disables animation)
-    - size (number | string) — Diameter in px
-    - stroke-width (number) — Stroke thickness
-    - done (boolean) — Completion state for animation
+    - progress (number) — Static progress 0-100 (disables the simulated animation)
+    - done (boolean) default: false — Fills the ring and ends the simulated progress
     - max-duration (number) default: 15000 — Duration of the simulated progress in ms
+    - size (number | string) default: "28px" — Diameter in px or any CSS length
+    - stroke-width (number) default: 2 — Stroke thickness in px, capped at 4
     - track-color (string) — Track color (CSS variable or value)
     - track-active-color (string) — Active segment color
 
@@ -3609,12 +3627,12 @@ Props:
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
   - gutter-size (string) — Controls gutter on the edges; defaults to value from size
   - disabled (boolean) default: false — Disables the input visually and from interactions
-  - read-only (boolean) default: false — Makes the input read-only and hides the clear button
+  - read-only / readonly (boolean) default: false — Makes the input read-only and hides the clear button
   - invalid (boolean) default: false — Mark the input as invalid
   - allow-autofill-extensions (boolean) default: false (true with name or type="password") — Allow autofill extensions to appear in the input
   - auto-select (boolean) default: false — Select all contents of the input when mounted
   - startAdornment / endAdornment (slots) — Content rendered at the start or end of the input
-  - @clear (() => void) — When set, displays a clear button that appears when the input has a value
+  - @clear ((event: MouseEvent) => void) — When set, displays a clear button that appears when the input has a value
   - @autofill (() => void) — Fires when the browser autofills the input
   - pill (boolean) default: false — Fully rounded pill shape
   - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
@@ -3686,7 +3704,7 @@ You can add arbitrary content to the beginning of an input with the startAdornme
 ```
 
 ### Clear button
-Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.
 ```vue
 <div class="w-[320px]">
   <Input
@@ -4361,6 +4379,18 @@ Props:
   - default slot (string) — Markdown source (text only; interpolate a string to keep its newlines)
   - source (string) — Markdown source, used when the default slot is empty
   - include-math (boolean) default: false — Enable LaTeX math rendering
+  - break-new-lines (boolean) default: false — Turn single newlines into line breaks
+  - copyable-code-blocks (boolean) default: true — Show a copy button on code blocks
+  - collapsible-code-blocks (boolean) default: true — Render code blocks in the collapsible view with a View Code button
+  - components (Record<string, MarkdownComponent>) — Tag name to component overrides, applied over the built-in ones
+  - directives (MarkdownDirective[]) — Custom directives, each rendered by its own component
+  - remark-plugins (PluggableList) — Extra remark plugins, after the built-in ones
+  - rehype-plugins (PluggableList) — Extra rehype plugins
+  - allowed-elements (string[]) — Only render these elements
+  - disallowed-elements (string[]) — Never render these elements
+  - skip-html (boolean) default: false — Ignore raw HTML in the source
+  - url-transform ((url: string) => string) — Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:
+  - class (string) — Applied to the wrapping element
 
 ### Overview
 Use Markdown to render rich markdown text. The markdown is the text of the default slot: interpolate a string ({"{{ markdown }}"}) so its newlines are kept, or pass it with the source prop.
@@ -4386,8 +4416,14 @@ Props:
   - value / v-model:value (string) — Controlled markdown value; `update:value` fires on every change
   - default-value (string) — Initial markdown for uncontrolled mode
   - @change ((markdown: string) => void) — Called on content change
-  - #toolbarEnd (slot) — Content rendered at the end of the toolbar
+  - toolbarEnd slot (VNode[]) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
+  - id (string) — id of the editable element (Field sets it)
+  - aria-label (string) — Accessible name of the editable element
+  - aria-labelledby (string) — Id of the element that names the editor, such as a visible label
+  - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
+  - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)
+  - class (string) — Applied to the container
 
 ### Placeholder
 Use placeholder to display hint text when the editor is empty.
@@ -4479,13 +4515,13 @@ Props:
   MenuTrigger:
     - disabled (boolean) default: false — Prevent the menu from opening
   MenuContent:
-    - width (number | "auto") — Panel width (numbers are pixels)
+    - width (number | "auto") default: "auto" — Panel width (numbers are pixels)
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
     - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
     - side-offset (number) default: 5 — Distance from the trigger, in pixels
-    - align ("start" | "center" | "end") — Alignment relative to trigger
-    - align-offset (number) — Offset from the start or end alignment, in pixels
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - align-offset (number) default: -5 — Offset from the start or end alignment, in pixels
     - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
     - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
     - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
@@ -4493,7 +4529,7 @@ Props:
     - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
     - disabled (boolean) default: false — Disable the item
     - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
-    - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
+    - @click ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
   MenuCheckboxItem:
     - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
     - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
@@ -4511,7 +4547,7 @@ Props:
   <MenuContent :width="210" :min-width="210">
     <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
     <MenuSeparator />
-    <MenuLink href="/settings">Your profile</MenuLink>
+    <MenuLink href="#">Your profile</MenuLink>
     <MenuLink href="#">Terms & policies</MenuLink>
     <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
     <MenuSeparator />
@@ -4538,17 +4574,17 @@ Menu supports several sizing strategies:Natural sizing: use min-width="auto" to 
 ```
 
 ### Horizontal (icons only)
-Set layout="horizontal" on MenuContent for an iOS-style icon toolbar.
+Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.
 ```vue
 <Menu>
   <MenuTrigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </MenuTrigger>
   <MenuContent layout="horizontal" :size="size" min-width="auto">
-    <MenuItem @select="() => {}"><EditPencil /></MenuItem>
-    <MenuItem @select="() => {}"><SettingsCog /></MenuItem>
-    <MenuItem @select="() => {}"><Play /></MenuItem>
-    <MenuItem @select="() => {}"><UnfoldHorizontal /></MenuItem>
+    <MenuItem @select="() => {}"><EditPencil /><span class="sr-only">Edit</span></MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /><span class="sr-only">Settings</span></MenuItem>
+    <MenuItem @select="() => {}"><Play /><span class="sr-only">Play</span></MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /><span class="sr-only">Expand</span></MenuItem>
   </MenuContent>
 </Menu>
 ```
@@ -4721,6 +4757,7 @@ Props:
   - error-message (string) — Error message below the input
   - disabled (boolean) default: false — Disable all cells
   - auto-focus (boolean) default: false — Auto-focus first cell on mount
+  - class (string) — Applied to the root element
 
 ### Overview
 ```vue
@@ -4752,16 +4789,23 @@ A floating panel for contextual UI, with flexible sizing, hover triggers, a cont
 Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
 Docs: https://plexui.com/vue/components/popover
 Props:
-  - showOnHover (boolean) — Open on hover and focus instead of click
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - @update:open ((nextState: boolean) => void) — Emitted when the popover opens or closes
+  - show-on-hover (boolean) default: false — Open on hover and focus instead of click
+  - hover-open-delay (number) default: 150 — Delay before a hover popover opens (ms)
   PopoverContent:
-    - width (number | string) — Panel width (px or CSS value)
-    - minWidth (number | string) default: 300 — Minimum panel width in px
-    - maxWidth (number | string) — Maximum panel width
-    - side ("top" | "right" | "bottom" | "left") — Preferred placement
-    - align ("start" | "center" | "end") — Alignment relative to trigger
-    - sideOffset (number) — Offset from trigger (px)
-    - alignOffset (number) — Alignment offset (px)
+    - width (number | "auto") default: "auto" — Panel width in px
+    - min-width (number | "auto") default: 300 — Minimum panel width in px
+    - max-width (number) default: 700 — Maximum panel width in px, capped by the space available in the viewport
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement; flips when it collides
+    - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger
+    - side-offset (number) default: 8 — Offset from trigger (px)
+    - align-offset (number) default: -5 — Offset from the start or end alignment (px)
+    - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
+    - translucent (boolean) default: false — Translucent, blurred surface
+    - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
+    - class (string) — Applied to the panel
+    - default slot ({ close, shake }) — Panel content; receives the controller functions
 
 ### Overview
 ```vue
@@ -4778,7 +4822,7 @@ Props:
 ```
 
 ### Sizing the popover
-The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of the popper's viewport detection.
+The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of 700px, capped by the space available in the viewport.
 ```vue
 <Popover>
   <PopoverTrigger>
@@ -4856,9 +4900,11 @@ The default slot of PopoverContent receives {"{ close, shake }"}. Components ren
   <PopoverContent side="right" v-slot="{ close, shake }">
     <form
       @submit.prevent="
-        if (!prompt) return shake();
-        submitting = true;
-        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+        if (!prompt) shake();
+        else {
+          submitting = true;
+          submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+        }
       "
     >
       <textarea
@@ -4894,6 +4940,7 @@ Props:
 ```vue
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue"
+import { Progress } from "@plexui/vue/components/Progress"
 
 const value = ref(13)
 let timer
@@ -4904,7 +4951,7 @@ onUnmounted(() => clearTimeout(timer))
 </script>
 
 <template>
-  <Progress :value="value" />
+  <Progress :value="value" aria-label="Loading" />
 </template>
 ```
 
@@ -4913,10 +4960,10 @@ Pair a Label with a value readout above the bar, the typical upload or onboardin
 ```vue
 <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
   <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
-    <Label for="progress-upload">Uploading plex-ui.zip</Label>
+    <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
     <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
   </div>
-  <Progress id="progress-upload" :value="67" />
+  <Progress aria-labelledby="progress-upload-label" :value="67" />
 </div>
 ```
 
@@ -4924,8 +4971,8 @@ Pair a Label with a value readout above the bar, the typical upload or onboardin
 Bind value to any source, here a Slider through v-model:value.
 ```vue
 <div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
-  <Progress :value="value" />
-  <Slider v-model:value="value" :min="0" :max="100" :step="1" />
+  <Progress :value="value" aria-label="Progress" />
+  <Slider v-model:value="value" :min="0" :max="100" :step="1" aria-label="Progress value" />
 </div>
 ```
 
@@ -4934,13 +4981,14 @@ Stepper for multi-step flows like checkouts and onboarding, with horizontal or v
 Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
 Docs: https://plexui.com/vue/components/progress-steps
 Props:
-  - current (number) — Current active step (1-based)
+  - current (number) — Required. Current active step (1-based)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
   - size ("sm" | "md" | "lg") default: "md" — Step indicator size
   - color ("default" | "success") default: "default" — Color scheme for completed/active steps
   - connector-style ("solid" | "dashed") default: "solid" — Connector line style
-  - variant ("minimal") — Compact bar variant (requires total)
+  - variant ("default" | "minimal") default: "default" — "minimal" renders a compact bar (requires total)
   - total (number) — Total steps for minimal variant
+  - class (string) — Class applied to the container
   ProgressStepsStep:
     - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
 
@@ -5108,7 +5156,7 @@ Props:
   - direction ("col" | "row") default: "row" — Item flow direction
   - disabled (boolean) default: false — Disable the whole group
   - name (string) — Name of the hidden radio inputs submitted with the owning form
-  - required (boolean) default: false — Marks the group as required (aria-required)
+  - required (boolean) default: false — Marks the group and every hidden radio input as required
   - aria-label (string) — Accessible group label
   - class (string) — Extra classes on the group element
   - default slot (VNode[]) — RadioGroupItem children
@@ -5117,7 +5165,7 @@ Props:
   RadioGroupItem:
     - value (string) — Item value
     - disabled (boolean) default: false — Disable this item only
-    - required (boolean) — Marks this item's hidden form input as required
+    - required (boolean) — Marks this item as required
     - block (boolean) default: false — Stretch item to fill available width
     - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
     - class (string) — Extra classes on the label element
@@ -5258,8 +5306,8 @@ Use disabled on RadioGroup to disable all radio options.
 Use disabled on a single RadioGroupItem to disable only that option.
 ```vue
 <RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
-  <RadioGroupItem value="standard">Standard shipping (3–5 days)</RadioGroupItem>
-  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1–2 days)</RadioGroupItem>
+  <RadioGroupItem value="standard">Standard shipping (3-5 days)</RadioGroupItem>
+  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1-2 days)</RadioGroupItem>
   <RadioGroupItem value="same-day">
     Same-day delivery, available in select metro areas with a minimum order of $50
   </RadioGroupItem>
@@ -5292,11 +5340,11 @@ Radio items take any content in their default slot, so you can compose a label w
 ```
 
 ### With Field
-Wrap a RadioGroup in a Field for a shared label and description. The Field provides aria-describedby linking automatically.
+Wrap a RadioGroup in a Field for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (aria-describedby).
 ```vue
 <div class="max-w-sm">
-  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="{ id }">
-    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method">
+  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="fieldProps">
+    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method" v-bind="fieldProps">
       <RadioGroupItem value="email">Email</RadioGroupItem>
       <RadioGroupItem value="sms">SMS</RadioGroupItem>
       <RadioGroupItem value="push">Push notification</RadioGroupItem>
@@ -5421,24 +5469,36 @@ Props:
   - options (Options<T>) — Array of options or grouped options
   - v-model:value (string | string[]) — Selected value (single) or values (multiple)
   - @change ((option | options) => void) — Called when selection changes, with the selected option (or options with multiple)
-  - multiple (boolean) default: false — Allow multiple selection
+  - multiple (boolean) default: false — Allow multiple selection. value, @change and @update:value are typed by it
   - placeholder (string) default: "Select..." — Trigger placeholder
   - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
   - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
   - pill (boolean) default: false — Rounded trigger
   - clearable (boolean) default: false — Show clear button
   - block (boolean) default: variant !== "ghost" — Full width trigger
-  - disabled (boolean) default: false — Disable select
+  - disabled (boolean) default: false — Disable select. A disabled select is not submitted or validated with its form
   - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
+  - loading-placeholder (string) default: "Loading..." — Trigger text while loading
+  - name (string) — Name of the hidden form input. With multiple, every selected value is submitted
+  - required (boolean) — Required for native form validation
+  - id (string) — Id of the hidden form input
   - actions (array) — Actions below options list
   - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
   - #optionView / OptionView (slot (option) | Component) — Custom option render
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
+  - TriggerStartIcon (Component) — Icon at the start of the trigger
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
-  - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
+  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
+  - side ("top" | "bottom") default: "bottom" — Preferred side of the list
+  - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
+  - list-width (number | "auto") default: "auto" — Width of the list in px
+  - list-min-width (number | "auto") default: trigger width (300 when not block) — Minimum width of the list in px
+  - list-max-width (number | "auto") default: "auto" — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+  - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
   - search-predicate ((option, term) => boolean) — Filters options while searching
+  - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 
 ### Overview
 Bind the selection with v-model:value: a string, or an array of strings with multiple. The @change event carries the selected option (or options), like React's onChange.
@@ -5565,7 +5625,7 @@ A column-visibility panel built with Popover and Switch. Toggling a switch moves
           @click="shown = shown.filter((c) => c !== col.id)"
         >
           <span class="text-sm">{{ col.label }}</span>
-          <Switch :checked="true" />
+          <Switch :checked="true" :aria-label="col.label" />
         </div>
       </div>
       <div v-if="shown.length < allColumns.length">
@@ -5576,7 +5636,7 @@ A column-visibility panel built with Popover and Switch. Toggling a switch moves
           @click="shown = [...shown, col.id]"
         >
           <span class="text-sm text-tertiary">{{ col.label }}</span>
-          <Switch :checked="false" />
+          <Switch :checked="false" :aria-label="col.label" />
         </div>
       </div>
     </div>
@@ -5600,8 +5660,9 @@ Props:
   - invalid (boolean) default: false — Invalid state
   - disabled (boolean) default: false — Disable control
   - block (boolean) default: false — Full width
-  - loading (boolean) default: false — Loading state
+  - loading (boolean) default: false — Loading state (aria-busy); hides the indicators and ignores interaction
   - optically-align ("start" | "end") — Optical alignment
+  - class (string) — Applied to the control
 
 ### Overview
 ```vue
@@ -5658,7 +5719,7 @@ Sizing of the control is determined with the size prop. Each size provides dynam
 ```
 
 ### Selected
-Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.
+Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you.
 ```vue
 <SelectControl class="w-[200px]" :selected="selected">Select...</SelectControl>
 ```
@@ -5682,7 +5743,7 @@ Listen to @clear-click to enable the clearable action. The clear button shows wh
 ```
 
 ### Loading
-During loading, the dropdown icon and clear action are automatically hidden, and the control ignores pointer and keyboard interaction. Use disabled to add visual disablement.
+During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement.
 ```vue
 <SelectControl class="w-[200px]" selected :loading="loading" :StartIcon="CalendarAlt">Loading...</SelectControl>
 ```
@@ -5708,7 +5769,7 @@ Create full-width controls with the block prop.
 ```
 
 ### Country selector
-A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {"{ value, label }"} options, and FlagIcon renders the flag image for a country code.
+A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {"{ value, label }"} options, and FlagIcon renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.
 ```vue
 <div class="w-[320px]">
   <Select
@@ -5949,17 +6010,31 @@ Props:
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
+    - class (string) — Class of the provider's wrapper
+    - style (StyleValue) — Style of the provider's wrapper, e.g. --sidebar-width
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
-  SidebarMenuButton:
-    - is-active (boolean) default: false — Highlight the current page
-    - tooltip (string) — Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content
+  SidebarGroup:
+    - default-open (boolean) default: true — Initial data-state of the group
+    - open (boolean) — Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open
   SidebarGroupLabel:
-    - size ("sm" | "lg") default: "lg" — sm: compact, tertiary; lg: larger, primary, more spacing
+    - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
+    - as-child (boolean) default: false — Render the single child element as the label
+  SidebarMenuItem:
+    - expanded (boolean) — Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub
+  SidebarMenuButton:
+    - is-active (boolean) default: false — Highlight the current page (aria-current="page")
+    - tooltip (string) — Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content
+    - as-child (boolean) default: false — Render the single child element (e.g. a RouterLink) as the button. The button attributes go on the child and its content is wrapped like the button's
   SidebarMenuSub:
-    - open (boolean) default: true — Whether submenu is expanded
+    - open (boolean) default: true — Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree
     - has-icons (boolean) default: false — Align child items with parent text that has icons
+  SidebarMenuSubButton:
+    - is-active (boolean) default: false — Highlight the current page (aria-current="page")
+    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left margin
+    - as-child (boolean) default: false — Render the single child element (e.g. a RouterLink) as the button
   SidebarCard:
-    - dismissible (boolean) — Shows dismiss button
+    - variant ("default" | "elevated") default: "default" — Visual variant
+    - dismissible (boolean) default: false — Shows dismiss button
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
 
 ### App Shell
@@ -5975,7 +6050,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
     <Sidebar>
       <SidebarHeader>
         <span class="demo-sidebar-wordmark">Console</span>
-        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
           <SidebarTrigger>
             <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
             <SidebarCollapseLeft v-else />
@@ -5983,7 +6058,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
           <template #content>
             <span class="inline-flex items-center gap-1.5">
               {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-              <kbd class="console-trigger-kbd">⌘.</kbd>
+              <kbd class="console-trigger-kbd">⌘B</kbd>
             </span>
           </template>
         </Tooltip>
@@ -6151,7 +6226,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
     <Sidebar>
       <SidebarHeader>
         <span class="demo-sidebar-wordmark">App</span>
-        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
           <SidebarTrigger>
             <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
             <SidebarCollapseLeft v-else />
@@ -6159,7 +6234,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
           <template #content>
             <span class="inline-flex items-center gap-1.5">
               {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-              <kbd class="console-trigger-kbd">⌘.</kbd>
+              <kbd class="console-trigger-kbd">⌘B</kbd>
             </span>
           </template>
         </Tooltip>
@@ -6210,7 +6285,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
 ```
 
 ### Collapsible Sections
-Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. Each level of the tree is one v-for; a parent is a SidebarMenuItem whose SidebarMenuSub holds the next level.
+Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Each level of the tree is one v-for.
 ```vue
 <SidebarProvider :key="icons ? 'icons' : 'no-icons'" class="h-full" collapsible="none">
   <SidebarLayout class="h-full">
@@ -6429,7 +6504,7 @@ Combine search and type-based filtering with nested tree navigation. Each item h
 ```
 
 ### Tree with Hover Actions
-Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (... and +) appear on hover for parent items.
+Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a + menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.
 ```vue
 <script setup lang="ts">
 import { computed, ref, watch, type Component } from "vue"
@@ -7085,7 +7160,7 @@ Mobile behavior is handled automatically when using SidebarProvider. The Sidebar
     <Sidebar v-if="!nested">
       <SidebarHeader>
         <span class="demo-sidebar-wordmark">App</span>
-        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
           <SidebarTrigger>
             <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
             <SidebarCollapseLeft v-else />
@@ -7093,7 +7168,7 @@ Mobile behavior is handled automatically when using SidebarProvider. The Sidebar
           <template #content>
             <span class="inline-flex items-center gap-1.5">
               {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-              <kbd class="console-trigger-kbd">⌘.</kbd>
+              <kbd class="console-trigger-kbd">⌘B</kbd>
             </span>
           </template>
         </Tooltip>
@@ -7405,13 +7480,13 @@ Form skeletons use Plex UI control sizing (32px height for inputs and buttons).
 <div class="flex flex-col gap-4 w-[300px]">
   <div class="flex flex-col gap-2">
     <Skeleton class="h-4 w-[80px]" />
-    <Skeleton class="h-10 w-full rounded-lg" />
+    <Skeleton class="h-8 w-full rounded-lg" />
   </div>
   <div class="flex flex-col gap-2">
     <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-10 w-full rounded-lg" />
+    <Skeleton class="h-8 w-full rounded-lg" />
   </div>
-  <Skeleton class="h-10 w-[120px] rounded-lg" />
+  <Skeleton class="h-8 w-[120px] rounded-lg" />
 </div>
 ```
 
@@ -7437,10 +7512,10 @@ Slider for fine-tuning numeric values with single or range thumbs, marks, an edi
 Import: import { Slider } from "@plexui/vue/components/Slider"
 Docs: https://plexui.com/vue/components/slider
 Props:
-  - value (number | number[]) — Current value; an array when range is set. Bind with v-model:value
-  - min (number) — Minimum value
-  - max (number) — Maximum value
-  - step (number) — Step increment
+  - value (number | number[]) — Required. Current value; an array when range is set. Bind with v-model:value
+  - min (number) — Required. Minimum value
+  - max (number) — Required. Maximum value
+  - step (number) — Required. Step increment
   - range (boolean) default: false — Enable multi-thumb range mode
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
   - reset-value (number) — Value for the reset option (single mode only)
@@ -7449,6 +7524,8 @@ Props:
   - prefix-unit (string) — Unit displayed before the value (e.g. $)
   - label (string) — Label text. Also names the slider thumbs for assistive technology
   - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - aria-label (string) — Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)
+  - aria-labelledby (string) — Id of an element that names the slider; takes precedence over label
   - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
   - track-color (string) — Color of the slider track
   - range-color (string) — Color of the filled part of the track
@@ -7571,7 +7648,7 @@ Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an 
 Import: import { StatCard } from "@plexui/vue/components/StatCard"
 Docs: https://plexui.com/vue/components/stat-card
 Props:
-  - label (string) — Label describing the metric
+  - label (string) — Required. Label describing the metric
   - value (string | number) — The primary metric value
   - value slot (VNode[]) — Rich value content; takes precedence over the value prop
   - description (string) — Subtitle below the value
@@ -7693,7 +7770,7 @@ Progress bars show a visual representation of completion or usage percentage.
 ```
 
 ### Accent border
-The accent variant adds a colored left border. Choose from the semantic colors.
+The accent variant adds a colored left border. Choose from eight semantic colors.
 ```vue
 <div style="max-width: 320px; width: 100%" class="mx-auto">
   <StatCard
@@ -7926,27 +8003,27 @@ Docs: https://plexui.com/vue/components/table
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
   DataTable:
-    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes
-    - data (TData[]) — Data array to display
+    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)
+    - data (TData[]) — Data array to display (required)
     - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
-    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
+    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size
     - initial-sorting (SortingState) — Initial column sorting state
     - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
     - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
-    - enable-row-selection (boolean) default: false — Enable row selection; selection controls go in your own column
+    - enable-row-selection (boolean) default: false — Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click
     - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
-    - get-row-id ((row: TData) => string) — Custom row ID accessor
-    - empty-message (string | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
-    - show-pagination (boolean) default: true — Whether to show pagination controls
+    - get-row-id ((row: TData) => string) — Custom row ID accessor; selection keys use it
+    - empty-message (string | number | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
+    - show-pagination (boolean) default: true — Whether to show pagination controls. They hide on their own when every row fits on one page
     - class (string) — Class applied to outermost wrapper
     - emptyMessage slot (VNode[]) — Rich content shown when no rows
-    - @row-click ((row: TData) => void) — Click handler for rows, makes rows interactive
+    - @row-click ((row: TData) => void) — Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space
     - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
     - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
     - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
   DataTableColumnHeader:
-    - column (Column<TData, TValue>) — TanStack Table column object
-    - title (string) — Display text for the header
+    - column (Column<TData, TValue>) — TanStack Table column object (required)
+    - title (string) — Display text for the header (required)
     - class (string) — Class applied to the header button (or text when the column cannot sort)
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
@@ -8119,7 +8196,7 @@ const columns: ColumnDef<User>[] = [
 ```
 
 ### Pagination
-Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control initial page size.
+Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.
 ```vue
 <script setup lang="ts">
 import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
@@ -8139,7 +8216,7 @@ const columns: ColumnDef<User>[] = [
 ```
 
 ### Row click
-Listen to @row-click to make rows clickable and interactive.
+Listen to @row-click to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.
 ```vue
 <script setup lang="ts">
 import { h, ref } from "vue"
@@ -8166,20 +8243,61 @@ const columns: ColumnDef<User>[] = [
     :page-size="4"
     @row-click="selectedUser = $event"
   />
-  <div
-    style="margin-top: 12px; padding: 10px 12px; border: 1px solid var(--color-fd-border); border-radius: 8px; background: var(--docs-surface-elevated); color: var(--color-text-secondary); font-size: 0.875rem"
-  >
+  <p class="mt-3 text-sm text-secondary">
     {{
       selectedUser
         ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
         : "Click a row to see selected user details."
     }}
-  </div>
+  </p>
+</template>
+```
+
+### Row selection
+Set enable-row-selection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind v-model:row-selection to read the selection; get-row-id keys it by your own ids.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import {
+  DataTable,
+  DataTableColumnHeader,
+  statusCell,
+  type ColumnDef,
+  type RowSelectionState,
+} from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const rowSelection = ref<RowSelectionState>({})
+const getRowId = (user: User) => user.id
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable
+    v-model:row-selection="rowSelection"
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    enable-row-selection
+    :get-row-id="getRowId"
+  />
+  <p class="mt-3 text-sm text-secondary">
+    {{ Object.keys(rowSelection).length }} of {{ users.length }} rows selected
+  </p>
 </template>
 ```
 
 ### Cell variants
-Use column helper utilities for rich cell types: monospace IDs with copy-on-click, status badges, formatted dates, and currency values.
+Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column.
 ```vue
 <script setup lang="ts">
 import { h } from "vue"
@@ -8326,7 +8444,7 @@ Props:
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
   - @click ((event: MouseEvent) => void) — Emitted on any click in the group, even when the selection does not change
   TabsTab:
-    - value (string) — Tab value
+    - value (string) — Tab value (required)
     - disabled (boolean) — Disable this tab
     - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
     - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
@@ -8377,7 +8495,7 @@ Leave out the label and fill only the icon slot for compact icon-only tabs. Alwa
 ```
 
 ### Segmented with badge
-Pass a number or an object with content, color, and variant to the badge prop. Badges render inline after the tab label inside the segmented container.
+Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container.
 ```vue
 <Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
   <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
@@ -8429,7 +8547,7 @@ Icons work with the underline variant the same way as with segmented. Use the ic
 ```
 
 ### Underline with badge
-Badges are supported with the underline variant. Pass a simple value or an object with content, color, and variant.
+Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill.
 ```vue
 <Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
   <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
@@ -8513,16 +8631,18 @@ Input for entering multiple unique values as chip-style tokens, with suggestions
 Import: import { TagInput } from "@plexui/vue/components/TagInput"
 Docs: https://plexui.com/vue/components/tag-input
 Props:
-  - value / v-model:value (Tag[]) — Controlled value; `update:value` fires on every change
+  - value / v-model:value (Tag[]) — Controlled value; update:value fires on every change
   - default-value (Tag[]) — Uncontrolled initial tags
   - @change ((tags: Tag[]) => void) — Fires when the tags change
+  - id (string) — Id of the text input, so a label can target it with for
   - placeholder (string) — Input placeholder
-  - validator ((value: string) => boolean) — Validates each tag; invalid tags shown in red
-  - max-tags (number) — Max tags before input is disabled
+  - validator ((value: string) => boolean) — Validates each tag when it is created; invalid tags shown in red
+  - max-tags (number) — Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags
   - rows (number) default: 1 — Min rows
   - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
   - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
   - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
+  - disabled (boolean) — Disables the input: tags cannot be added or removed, and pending text stays as typed
   - auto-focus (boolean) default: false — Focus on mount
 
 ### Overview
@@ -8585,7 +8705,7 @@ const available = computed(() => {
 
 <template>
   <div class="flex flex-col gap-3">
-    <TagInput v-model:value="tags" placeholder="Add a skill..." />
+    <TagInput v-model:value="tags" placeholder="Add a skill..." size="md" />
     <div v-if="available.length > 0" class="flex flex-wrap gap-1.5">
       <Button
         v-for="s in available"
@@ -8609,12 +8729,14 @@ Import: import { TextLink } from "@plexui/vue/components/TextLink"
 Docs: https://plexui.com/vue/components/text-link
 Props:
   - default slot (VNode[]) — Link content
-  - href (string) — URL
-  - to (string | RouteLocationRaw) — Router link destination (internal)
+  - href (string) — URL. An http:// or https:// URL is external
+  - to (string | Record<string, unknown>) — Router link destination (internal), such as a vue-router location
   - primary (boolean) default: false — Primary color, no default underline
   - underline (boolean) default: true — Underline (default true unless primary)
   - force-external (boolean) — Force external link behavior
   - as (Component) — Link component (e.g. RouterLink, NuxtLink)
+  - target (string) — Where to open the link. External links default to _blank
+  - class (string) — Extra classes on the link
 
 ### Overview
 ```vue
@@ -8892,18 +9014,21 @@ Brief informative text shown on hover or focus, for any trigger element, with co
 Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
 Docs: https://plexui.com/vue/components/tooltip
 Props:
-  - content (string | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
-  - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
+  - default slot (VNode) — The trigger: a single element. Wrap plain text in TooltipTriggerDecorator
+  - content (string | number | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
+  - compact (boolean) default: false — Short 1-3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
-  - maxWidth (number | "none") default: 300 — Max width of tooltip
-  - openDelay (number) default: 150 — Delay before showing (ms)
-  - side (string) default: "top" — Preferred side
-  - sideOffset (number) default: 5 — Distance from trigger
-  - align (string) default: "center" — Alignment
-  - alignOffset (number) default: 0 — Alignment offset
-  - gutterSize ("sm" | "md" | "lg") default: "md" — Content padding
-  - contentClassName (string) — Class for tooltip content
-  - forceOpen (boolean) — Force open or closed
+  - max-width (number | "none") default: 300 — Max width of tooltip
+  - open-delay (number) default: 150 — Delay before showing (ms)
+  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side
+  - side-offset (number) default: 5 — Distance from trigger
+  - align ("start" | "center" | "end") default: "center" — Alignment
+  - align-offset (number) default: 0 — Alignment offset
+  - gutter-size ("sm" | "md" | "lg") default: "md" — Content padding
+  - content-class-name (string) — Class for tooltip content
+  - force-open (boolean) — Force open or closed
+  - prevent-unintentional-click-to-close (boolean) default: false — Keeps the tooltip open when the trigger is clicked right after it opened
+  - content slot (VNode[]) — Rich tooltip content; takes precedence over content
 
 ### Overview
 ```vue
@@ -8939,6 +9064,6 @@ Sometimes a tooltip should only be disabled under certain conditions, such as wh
 Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use compact for brief status messages.
 ```vue
 <Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
 </Tooltip>
 ```

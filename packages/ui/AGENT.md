@@ -1,33 +1,51 @@
 # Plex UI -- AI Agent Reference
 
-React component library with 35+ components, 619 icons, 14 hooks, and a three-layer design token system with automatic light/dark mode.
+React 19 component library with 652 icons, utility hooks, and a three-layer design token system with light and dark themes switched by the `data-theme` attribute.
 
 ## Quick Start
+
+Requires React 19 (React 18 is not supported) and Tailwind CSS 4.
 
 ```bash
 npm install @plexui/ui
 ```
 
 ```css
-/* global CSS or layout */
+/* global stylesheet (e.g. main.css), imported before any component renders */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
 @import "@plexui/ui/css";
+/* Required for Tailwind to find class references in Plex UI components */
+@source "../node_modules/@plexui/ui";
 ```
 
-```tsx
-// root layout
-import { PlexUIProvider } from "@plexui/ui/components/PlexUIProvider"
+On Vite, add the plugin instead of the `@layer` line: `import plexui from "@plexui/ui/vite"` and `plugins: [plexui()]`.
 
-export default function RootLayout({ children }) {
-  return <PlexUIProvider>{children}</PlexUIProvider>
+```tsx
+// root (optional): router link for ButtonLink, TextLink, Menu.Link and Card with href
+import { PlexUIProvider } from "@plexui/ui/components/PlexUIProvider"
+import { Link } from "react-router"
+
+declare global {
+  interface PlexUIConfig {
+    LinkComponent: typeof Link
+  }
+}
+
+export function Providers({ children }) {
+  return <PlexUIProvider linkComponent={Link}>{children}</PlexUIProvider>
 }
 ```
 
-All imports use subpath pattern for tree-shaking:
+`linkComponent` is required on `PlexUIProvider` (`Link` from `next/link` in Next.js, or `"a"`). Without the provider, link components render a plain `<a>` unless you pass `as`.
+
+All imports use subpath pattern for tree-shaking (the package has no root export):
 
 ```tsx
 import { Button } from "@plexui/ui/components/Button"
 import { Input } from "@plexui/ui/components/Input"
-import { Search, Settings } from "@plexui/ui/components/Icon"
+import { Search, SettingsCog } from "@plexui/ui/components/Icon"
 ```
 
 ---
@@ -51,6 +69,8 @@ import { Search, Settings } from "@plexui/ui/components/Icon"
 | uniform | `boolean` | `false` |
 | iconSize | `"sm" \| "md" \| "lg" \| "xl" \| "2xl"` | -- |
 | gutterSize | `"3xs" \| "2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl"` | -- |
+
+Plus all standard HTML button attributes. `ButtonLink` takes the same styling props plus `href`, `external` and `as`. `CopyButton` takes Button props plus `copyValue`.
 
 ### Input
 
@@ -79,28 +99,30 @@ Plus all standard HTML input attributes.
 | size | `ControlSize` | `"md"` |
 | rows | `number` | `3` |
 | autoResize | `boolean` | `false` |
-| maxRows | `number` | -- |
+| maxRows | `number` | `Math.max(rows, 10)` |
 | disabled | `boolean` | `false` |
 | invalid | `boolean` | `false` |
 
 ### Select
 
-**Import:** `@plexui/ui/components/Select` -- exports `Select`, `Option`
+**Import:** `@plexui/ui/components/Select` -- exports `Select` and the types `Option`, `OptionGroup`
 
 | Prop | Type | Default |
 |------|------|---------|
 | options | `Option[] \| OptionGroup[]` | required |
 | value | `string \| string[]` | required |
-| onChange | `(option: Option \| Option[]) => void` | required |
+| onChange | `(option: Option) => void` (`(options: Option[]) => void` with `multiple`) | required |
 | multiple | `boolean` | `false` |
-| searchable | `boolean` | `false` |
 | clearable | `boolean` | `false` |
 | loading | `boolean` | `false` |
 | placeholder | `string` | `"Select..."` |
-| variant | `"outline" \| "soft"` | `"outline"` |
+| variant | `"outline" \| "soft" \| "ghost"` | `"outline"` |
 | size | `ControlSize` | `"md"` |
 | pill | `boolean` | `false` |
+| block | `boolean` | `true` |
 | TriggerView | `React.FC` | -- (custom trigger) |
+
+A search field appears automatically when there are more than 15 options.
 
 ```typescript
 type Option = {
@@ -110,6 +132,8 @@ type Option = {
   description?: ReactNode
   tooltip?: { content: ReactNode; maxWidth?: number }
 }
+
+type OptionGroup = { label: string; options: Option[] }
 ```
 
 ### Menu
@@ -119,12 +143,14 @@ type Option = {
 Props: `forceOpen`, `onOpen`, `onClose`, `modal` (default: false)
 
 Sub-components:
-- `Menu.Trigger` -- button that opens menu
-- `Menu.Content` -- container
-- `Menu.Item` -- props: `onSelect`, `danger`, `disabled`, `startAdornment`, `endAdornment`
-- `Menu.ItemAction` -- action button within item
+- `Menu.Trigger` -- renders its child element as the trigger (pass a `Button`)
+- `Menu.Content` -- container; props: `side`, `align`, `sideOffset` (5), `width`, `minWidth` (300), `maxHeight`, `layout` ("vertical" | "horizontal")
+- `Menu.Item` -- props: `onSelect`, `onClick`, `description`, `disabled`
+- `Menu.Link` -- link item; props: `href`, `as`, `disabled`
+- `Menu.ItemActions` / `Menu.ItemAction` -- action buttons within an item
 - `Menu.Separator` -- divider
-- `Menu.Submenu` -- nested menu
+- `Menu.Label`, `Menu.Group` -- labelled groups
+- `Menu.Sub` / `Menu.SubTrigger` / `Menu.SubContent` -- nested menu
 - `Menu.RadioGroup` / `Menu.RadioItem` -- radio selection
 - `Menu.CheckboxItem` -- checkbox option
 
@@ -132,11 +158,11 @@ Sub-components:
 
 **Import:** `@plexui/ui/components/Sidebar` -- 40+ exports
 
-**SidebarProvider** props: `defaultOpen` (true), `open`, `onOpenChange`, `collapsible` ("offcanvas" | "icon" | "none")
+**SidebarProvider** props: `defaultOpen` (true), `open`, `onOpenChange`, `collapsible` ("offcanvas" | "icon" | "none", default "offcanvas")
 
 **Sidebar** props: `side` ("left" | "right"), `variant` ("sidebar" | "docs")
 
-Sub-components: `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel` (props: `size` "sm"|"lg"), `SidebarGroupContent`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton` (props: `isActive`, `size`, `tooltip`), `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuAction`, `SidebarMenuSkeleton`, `SidebarCard` (props: `dismissible`, `onDismiss`), `SidebarSeparator`, `SidebarTrigger`, `SidebarInset`, `SidebarInput`
+Sub-components: `SidebarLayout`, `SidebarInset`, `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel` (props: `size` "sm"|"lg"), `SidebarGroupContent`, `SidebarGroupAction`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton` (props: `isActive`, `tooltip`, `asChild`), `SidebarMenuButtonIcon`, `SidebarMenuButtonLabel`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `SidebarMenuBadge`, `SidebarMenuAction`, `SidebarMenuSkeleton`, `SidebarCard` (props: `variant` "default"|"elevated", `dismissible`, `onDismiss`), `SidebarSeparator`, `SidebarTrigger`, `SidebarRail`, `SidebarInput`
 
 Hook: `useSidebar()` -- returns sidebar state
 
@@ -146,7 +172,7 @@ Hook: `useSidebar()` -- returns sidebar state
 
 | Prop | Type | Default |
 |------|------|---------|
-| color | `SemanticColor` | `"primary"` |
+| color | `"primary" \| "danger" \| "success" \| "info" \| "discovery" \| "caution" \| "warning"` | `"primary"` |
 | variant | `"solid" \| "soft" \| "outline"` | `"outline"` |
 | title | `ReactNode` | -- |
 | description | `ReactNode` | -- |
@@ -199,7 +225,7 @@ Hook: `useSidebar()` -- returns sidebar state
 
 **Import:** `@plexui/ui/components/RadioGroup`
 
-Props: `value`, `defaultValue`, `onChange`, `direction` ("row" | "col", default: "row"), `disabled`, `name`
+Props: `value`, `defaultValue`, `onChange`, `direction` ("row" | "col", default: "row"), `disabled`, `name`, `aria-label`
 
 Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `children`
 
@@ -214,9 +240,12 @@ Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `c
 | forceOpen | `boolean` | -- |
 | openDelay | `number` | `150` |
 | interactive | `boolean` | -- |
+| compact | `boolean` | -- |
 | side | `"top" \| "right" \| "bottom" \| "left"` | `"top"` |
 | sideOffset | `number` | `5` |
 | align | `"start" \| "center" \| "end"` | `"center"` |
+
+`CopyTooltip` props: `copyValue` (required), `openDelay`, `side`, `align`.
 
 ### Popover
 
@@ -224,7 +253,7 @@ Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `c
 
 Props: `open`, `onOpenChange`, `showOnHover`, `hoverOpenDelay` (150)
 
-Sub: `Popover.Trigger`, `Popover.Content`
+Sub: `Popover.Trigger`, `Popover.Content` (props: `side` ("bottom"), `align`, `sideOffset` (8), `width`, `minWidth` (300), `maxWidth`)
 
 ### Avatar
 
@@ -236,25 +265,32 @@ Sub: `Popover.Trigger`, `Popover.Content`
 | name | `string` | -- (for initials) |
 | imageUrl | `string` | -- |
 | Icon | `React.ComponentType` | -- |
-| color | `SemanticColor` | `"secondary"` |
+| color | `"primary" \| "secondary" \| "success" \| "info" \| "discovery" \| "danger"` | `"secondary"` |
 | variant | `"soft" \| "solid"` | `"soft"` |
+| overflowCount | `number` | -- (renders a "+N" avatar) |
 
-`AvatarGroup` props: `max` (number), `size` (number)
+`AvatarGroup` props: `size` (number, px), `stack` ("start" | "end", default "start")
 
 ### Tabs
 
-**Import:** `@plexui/ui/components/Tabs`
+**Import:** `@plexui/ui/components/Tabs` (`SegmentedControl` from `@plexui/ui/components/SegmentedControl` is the same component)
 
 | Prop | Type | Default |
 |------|------|---------|
-| value | `string` | -- |
-| defaultValue | `string` | -- |
-| onValueChange | `(value: string) => void` | -- |
+| value | `string` | required (controlled) |
+| onChange | `(value: string) => void` | -- |
+| aria-label | `string` | required |
+| variant | `"segmented" \| "underline"` | `"segmented"` |
 | orientation | `"horizontal" \| "vertical"` | `"horizontal"` |
-| variant | `"default" \| "underline" \| "pill"` | `"default"` |
-| size | `"sm" \| "md" \| "lg"` | `"md"` |
+| size | `ControlSize` | `"md"` |
+| pill | `boolean` | `true` (segmented only) |
+| block | `boolean` | `false` |
+| flush | `boolean` | `false` (underline only) |
+| disabled | `boolean` | -- |
 
-Sub: `Tabs.List`, `Tabs.Trigger` (props: `value`, `badge`, `disabled`), `Tabs.Content` (props: `value`)
+Sub: `Tabs.Tab` (alias `Tabs.Option`) -- props: `value`, `icon`, `badge`, `disabled`, `aria-label`
+
+Tabs renders the tab buttons only; render the panel for the active `value` yourself.
 
 ### Dialog
 
@@ -262,38 +298,38 @@ Sub: `Tabs.List`, `Tabs.Trigger` (props: `value`, `badge`, `disabled`), `Tabs.Co
 
 Props: `open`, `onOpenChange`
 
-Sub: `Dialog.Trigger`, `Dialog.Content`, `Dialog.Header`, `Dialog.Footer`
+Sub: `Dialog.Trigger` (renders its child), `Dialog.Content` (props: `width` (480), `showClose` (true)), `Dialog.Header`, `Dialog.Title`, `Dialog.Description`, `Dialog.Footer`, `Dialog.Close` (renders its child)
 
 ### DatePicker
 
 **Import:** `@plexui/ui/components/DatePicker`
 
-Props: `id` (required), `value` (DateTime | null), `onChange`, `min`, `max`, `disabled`, `placeholder`, `variant`, `size`, `pill`, `side`, `align`
+Props: `value` (DateTime | null), `onChange`, `id`, `min`, `max`, `disabled`, `placeholder`, `variant`, `size`, `pill`, `clearable`, `showTime`, `side`, `align`
 
 Uses Luxon `DateTime`.
 
 ### DateRangePicker
 
-**Import:** `@plexui/ui/components/DateRangePicker`
+**Import:** `@plexui/ui/components/DateRangePicker` -- also exports the types `DateRange`, `DateRangeShortcut`
 
-Props: `value` (DateRange), `onChange`, `min`, `max`, `shortcuts`
+Props: `value` (`[DateTime, DateTime] | null`), `onChange(range, shortcut?)`, `min`, `max`, `maxRangeDays`, `shortcuts` (`{ label, getDateRange }[]`), `size`, `variant`, `pill`, `clearable`
 
 ### TagInput
 
 **Import:** `@plexui/ui/components/TagInput`
 
-Props: `value` (Tag[]), `onChange`, `placeholder`, `disabled`, `invalid`, `size`, `variant`, `pill`, `maxTags`
+Props: `value` / `defaultValue` (Tag[]), `onChange`, `placeholder`, `disabled`, `size` ("sm" to "3xl", default "xl"), `pill`, `maxTags`, `validator`, `delimiters`
 
 ```typescript
-type Tag = { id: string; label: string }
+type Tag = { value: string; valid: boolean }
 ```
 
 ### Slider
 
 **Import:** `@plexui/ui/components/Slider`
 
-Single: `value` (number), `onChange`, `min`, `max`, `step`, `label`, `marks`, `unit`, `disabled`
-Range: `range={true}`, `value` ([number, number]), `onChange`
+Single: `value` (number), `onChange`, `min`, `max`, `step` (all three required), `label`, `marks`, `unit`, `disabled`
+Range: `range={true}`, `value` (number[]), `onChange`
 
 ### Skeleton
 
@@ -305,56 +341,67 @@ Props: `circle` (boolean, default: false). Standard div attributes.
 
 **Import:** `@plexui/ui/components/Table`
 
-Sub: `Table.Header`, `Table.Body`, `Table.Row`, `Table.Cell`, `Table.Head`, `Table.Footer`, `Table.Caption`
+Named exports: `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`, `TableFooter`, `TableCaption`
 
 ### DataTable
 
-**Import:** `@plexui/ui/components/DataTable`
+**Import:** `@plexui/ui/components/DataTable` -- also exports `DataTablePagination`, `DataTableColumnHeader`, column helpers and the `ColumnDef` type
 
-Props: `columns` (ColumnDef[] from @tanstack/react-table), `data`, `pagination`, `sorting`, `columnVisibility`
+Props: `columns` (ColumnDef[] from @tanstack/react-table), `data`, `pageSize` (10), `showPagination` (true), `initialSorting`, `columnVisibility`, `globalFilter`, `enableRowSelection`, `rowSelection`, `onRowClick`, `variant` ("default" | "bordered")
 
 ### Icon
 
 **Import:** `@plexui/ui/components/Icon`
 
-619 named SVG icon exports. Each renders inline SVG with `fill="currentColor"`, `width="1em"`, `height="1em"`, `aria-hidden="true"`. Icons scale with font size and inherit text color.
+652 SVG icons (674 export names, counting aliases such as `Check` for `CheckMd`). Each renders inline SVG with `fill="currentColor"`, `width="1em"`, `height="1em"`, `aria-hidden="true"`. Icons scale with font size and inherit text color. Names have no `Icon` prefix.
 
 ```tsx
-import { Search, ChevronDown, Settings, Bell, Star, Home, Plus, X } from "@plexui/ui/components/Icon"
+import { Search, ChevronDown, SettingsCog, Bell, Star, Home, Plus, X } from "@plexui/ui/components/Icon"
 ```
 
 ### Indicators
 
 **Import:** `@plexui/ui/components/Indicator`
 
-- `LoadingIndicator` -- props: `size` ("sm" | "md" | "lg")
+- `LoadingIndicator` -- props: `size` (number | string, default "1em"), `strokeWidth`
 - `LoadingDots`
-- `CircularProgress` -- props: `value` (0-100), `size`, `strokeWidth`
+- `CircularProgress` -- props: `progress` (0-100; omit to simulate progress over `maxDuration`), `done`, `size` (default 28px), `strokeWidth`
 
 ### Transitions
 
 **Import:** `@plexui/ui/components/Transition`
 
-Exports: `Animate`, `AnimateLayout`, `AnimateLayoutGroup`, `TransitionGroup`
+Exports: `Animate`, `AnimateLayout`, `AnimateLayoutGroup`, `TransitionGroup`, `SlotTransitionGroup`
 
 ### Other Components
 
 | Component | Import | Key Props |
 |-----------|--------|-----------|
-| Field | `@plexui/ui/components/Field` | `label`, `error`, `required`, `children` |
+| Field | `@plexui/ui/components/Field` | `label` (required), `description`, `errorMessage`, `required`, `size`, `orientation`, `children` (single control) |
 | FieldError | `@plexui/ui/components/FieldError` | `children` |
-| EmptyMessage | `@plexui/ui/components/EmptyMessage` | `fill`; sub: `.Icon`, `.Title`, `.Description` |
-| TextLink | `@plexui/ui/components/TextLink` | Standard link with semantic colors |
-| CodeBlock | `@plexui/ui/components/CodeBlock` | `code`, `language`, `showLineNumbers` |
+| Label | `@plexui/ui/components/Label` | Radix label props (`htmlFor`) |
+| EmptyMessage | `@plexui/ui/components/EmptyMessage` | `fill`; sub: `.Icon`, `.Title`, `.Description`, `.ActionRow` |
+| TextLink | `@plexui/ui/components/TextLink` | `href`, `primary`, `underline` (true), `forceExternal`, `as` |
+| CodeBlock | `@plexui/ui/components/CodeBlock` | `children` (code string), `language` |
 | Markdown | `@plexui/ui/components/Markdown` | `children` (string), `components` |
-| FloatingLabelInput | `@plexui/ui/components/FloatingLabelInput` | Same as Input + floating label |
-| FloatingLabelSelect | `@plexui/ui/components/FloatingLabelSelect` | Same as Select + floating label |
-| OTPInput | `@plexui/ui/components/OTPInput` | `value`, `onChange`, `length` (6), `disabled` |
-| ProgressSteps | `@plexui/ui/components/ProgressSteps` | `steps`, `currentStep`, `onStepChange` |
-| SelectControl | `@plexui/ui/components/SelectControl` | Native select: `value`, `onChange`, `options`, `variant`, `size` |
-| ShimmerText | `@plexui/ui/components/ShimmerText` | `children`, `shimmer` |
-| StatCard | `@plexui/ui/components/StatCard` | `title`, `value`, `change`, `trend` |
-| Image | `@plexui/ui/components/Image` | Standard img with lazy loading |
+| MarkdownEditor | `@plexui/ui/components/MarkdownEditor` | `value`, `defaultValue`, `onChange(markdown)`, `placeholder`, `variant` |
+| FloatingLabelInput | `@plexui/ui/components/FloatingLabelInput` | `label` (required), `errorMessage`, `invalid`, `description`, `startAdornment`, `endAdornment`, `onClear`, `multiline` + input attributes |
+| FloatingLabelSelect | `@plexui/ui/components/FloatingLabelSelect` | Trigger shell: `label`, `selected`, `errorMessage`, `invalid`, `onClearClick`, `children` |
+| InputGroup | `@plexui/ui/components/InputGroup` | `size`, `variant`; sub: `.Input`, `.Textarea`, `.Addon`, `.Button`, `.Text` |
+| DateInput | `@plexui/ui/components/DateInput` | `value` (DateTime \| null), `onChange`, `min`, `max`, `clearable` + Input props |
+| OTPInput | `@plexui/ui/components/OTPInput` | `value`, `onChange`, `onComplete`, `length` (6), `grouping`, `invalid`, `disabled` |
+| ProgressSteps | `@plexui/ui/components/ProgressSteps` | `current` (1-indexed), `total`, `size`, `orientation`; sub: `.Step`, `.Title`, `.Description` |
+| Progress | `@plexui/ui/components/Progress` | `value` (omit for indeterminate), `max` (100) |
+| SelectControl | `@plexui/ui/components/SelectControl` | Select trigger shell for custom dropdowns: `variant`, `size`, `selected`, `onClearClick`, `StartIcon`, `children` |
+| ShimmerText | `@plexui/ui/components/ShimmerText` | `children`, `as`; `ShimmerableText` adds `shimmer` |
+| StatCard | `@plexui/ui/components/StatCard` | `label`, `value`, `description`, `trend` (`{ value, label? }`), `icon` |
+| Card | `@plexui/ui/components/Card` | `variant` ("outline" \| "solid" \| "ghost"), `size`, `interactive`, `href`; sub: `.Header`, `.Title`, `.Description`, `.Content`, `.Footer`, `.Action` |
+| Accordion | `@plexui/ui/components/Accordion` | Radix Accordion props (`type`, `collapsible`); sub: `.Item`, `.Trigger`, `.Content` |
+| ButtonGroup | `@plexui/ui/components/ButtonGroup` | `orientation`; sub: `.Separator`, `.Text` |
+| Separator | `@plexui/ui/components/Separator` | `orientation`, `decorative` |
+| FileUpload | `@plexui/ui/components/FileUpload` | `value`, `onValueChange`, `accept`, `multiple`, `maxFiles`, `maxSize`, `variant` ("compact" \| "area"); also `FileCard`, `FileCardGroup` |
+| Toast | `@plexui/ui/components/Toast` | `Toaster` (render once), `toast()` (from sonner) |
+| Image | `@plexui/ui/components/Image` | Standard img attributes; fades in once loaded, renders nothing if it fails |
 
 ---
 
@@ -375,37 +422,40 @@ type FontWeight = "inherit" | "normal" | "medium" | "semibold" | "bold"
 
 ## Control Size Scale
 
+Font and icon sizes below are Button's. Other controls share the heights but can step font size differently (Input uses 16px from `xl` up).
+
 | Size | Height | Font Size | Icon Size |
 |------|--------|-----------|-----------|
 | 3xs  | 22px   | 12px      | 14px      |
-| 2xs  | 24px   | 12px      | 14px      |
-| xs   | 26px   | 12px      | 16px      |
-| sm   | 28px   | 12px      | 16px      |
+| 2xs  | 24px   | 12px      | 16px      |
+| xs   | 26px   | 14px      | 16px      |
+| sm   | 28px   | 14px      | 18px      |
 | **md** | **32px** | **14px** | **18px** |
-| lg   | 36px   | 16px      | 20px      |
-| xl   | 40px   | 16px      | 20px      |
-| 2xl  | 44px   | 16px      | 22px      |
-| 3xl  | 48px   | 16px      | 24px      |
+| lg   | 36px   | 14px      | 18px      |
+| xl   | 40px   | 14px      | 18px      |
+| 2xl  | 44px   | 16px      | 20px      |
+| 3xl  | 48px   | 16px      | 20px      |
 
-All form controls (Button, Input, Select, Textarea, TagInput, DatePicker) share this scale.
+Controls typed `ControlSize` share this scale: Button, ButtonLink, Input, Textarea, InputGroup, Select, SelectControl, DatePicker, DateRangePicker, Tabs, Field. TagInput uses `sm` to `3xl` (default `xl`).
 
 ---
 
 ## Hooks
 
-All hooks import from `@plexui/ui/hooks/{hookName}`.
+All hooks import from `@plexui/ui/hooks/{module}`. The module is the hook name, except `useBreakpoint`, which lives in `useBreakpoints`: `import { useBreakpoint } from "@plexui/ui/hooks/useBreakpoints"`.
 
 | Hook | Signature | Description |
 |------|-----------|-------------|
-| useBreakpoint | `(bp: "xs"\|"sm"\|"md"\|"lg"\|"xl"\|"2xl") => boolean` | Viewport at or above breakpoint |
+| useBreakpoint | `(bp: "xs"\|"sm"\|"md"\|"lg"\|"xl"\|"2xl") => boolean` | Viewport at or above breakpoint (false on the first render) |
 | useAutoGrowTextarea | `(ref, value) => void` | Auto-size textarea to content |
 | useScrollable | `(ref) => { isScrollable, isAtStart, isAtEnd }` | Scroll state detection |
 | useIsMounted | `() => boolean` | False on SSR, true after hydration |
+| useIsMountedRef | `() => RefObject<boolean \| undefined>` | Mount state as a ref (module `useIsMounted`) |
 | usePrevious | `(value: T) => T` | Previous render value |
 | useStableCallback | `(fn: T) => T` | Stable callback identity |
 | useEscCloseStack | `(listening, cb) => void` | Stacked ESC key handlers |
 | useDocumentVisible | `() => boolean` | Document visibility state |
-| useLatestValue | `(value: T) => MutableRefObject<T>` | Latest value ref |
+| useLatestValue | `(value: T) => RefObject<T>` | Latest value ref |
 | useTrailingValue | `(value: T, delay: number) => T` | Delayed trailing value |
 | useSimulatedProgress | `(startAt, maxDuration, completed?) => number` | Simulated progress 0-100 |
 | useAnimatedScrollTo | `(scrollRef) => (target: number) => void` | Animated scroll |
@@ -418,19 +468,20 @@ All hooks import from `@plexui/ui/hooks/{hookName}`.
 
 Import from `@plexui/ui/helpers`:
 
-- `copyToClipboard(content)` / `copyText(text)` -- clipboard operations
-- `createId(prefix, maxLength?)` -- random ID generation
-- `sleep(ms)` -- promise sleep
-- `toCssVariables(vars)` -- object to CSS custom properties
+- `toCssVariables(vars)` -- object to CSS custom properties (numbers become `px`)
 - `focusableElements(el)` -- query focusable children
 - `prefersReducedMotion()` -- check user motion preference
-- `groupByProperty(items, key, format?)` -- group array by property
+- `sleep(ms)` -- promise sleep
+- `waitForAnimationFrame(cb, { frames }?)` -- run a callback after the next animation frame(s); returns a cancel function
+- `groupByProperty(items, key, format?)` -- group array by property, keeping first-seen order
+- `preventDefaultHandler(evt)` -- event handler that calls `preventDefault()`
+- `toAngle`, `toOpacityProperty`, `toMsDurationProperty`, `toTransformProperty`, `toFilterProperty` -- CSS value formatters
 
 Import from `@plexui/ui/theme`:
 
-- `useDocumentTheme() => "light" | "dark"` -- reactive theme hook
+- `useDocumentTheme() => "light" | "dark"` -- reactive theme hook (returns "light" on the server and during hydration)
 - `getDocumentTheme() => "light" | "dark"` -- get current theme
-- `applyDocumentTheme(theme)` -- set theme on document
+- `applyDocumentTheme(theme)` -- set `data-theme` (and `color-scheme`) on `<html>`
 
 ---
 
@@ -481,7 +532,8 @@ Each semantic color (primary, secondary, danger, success, warning, info, discove
 ```
 --radius-2xs (2px)  --radius-xs (4px)   --radius-sm (6px)
 --radius-md (8px)   --radius-lg (10px)  --radius-xl (12px)
---radius-2xl (16px) --radius-3xl (20px) --radius-full (9999px)
+--radius-2xl (16px) --radius-3xl (20px) --radius-4xl (24px)
+--radius-full (9999px)
 ```
 
 ### Shadows
@@ -505,7 +557,7 @@ Families: --font-sans (system stack), --font-mono
 
 ### Motion
 ```
---cubic-enter, --cubic-exit, --cubic-move
+--cubic-enter, --cubic-exit, --cubic-exit-snappy, --cubic-move
 --transition-duration-basic: 150ms
 ```
 
@@ -514,30 +566,34 @@ Families: --font-sans (system stack), --font-mono
 xs: 380px, sm: 576px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
 ```
 
+These are Plex's breakpoints, used by `useBreakpoint`. Tailwind's own breakpoints (`sm:` at 640px, no `xs:`) stay unchanged unless you also import `@plexui/ui/styles/variables-tailwind-theme.css`.
+
 ---
 
 ## Dark Mode
 
-Three ways to set theme:
-
-```css
-/* CSS */
-:root { color-scheme: dark; }
-:root { color-scheme: light dark; }  /* OS auto */
-```
+The switch is the `data-theme` attribute (`"light"` / `"dark"`) on `<html>` or on any subtree. It sets `color-scheme`, so the `light-dark()` color tokens resolve; it switches the shadow tokens; and it drives Tailwind's `dark:` variant. Without `data-theme` the light theme applies; Plex UI does not follow `prefers-color-scheme` on its own.
 
 ```html
 <!-- HTML attribute -->
 <html data-theme="dark">
+  <div data-theme="light">Light island</div>
+</html>
 ```
 
 ```tsx
 // JavaScript
 import { applyDocumentTheme } from "@plexui/ui/theme"
 applyDocumentTheme("dark")
+
+// Follow the OS preference
+const media = window.matchMedia("(prefers-color-scheme: dark)")
+const sync = () => applyDocumentTheme(media.matches ? "dark" : "light")
+sync()
+media.addEventListener("change", sync)
 ```
 
-All components and tokens auto-adapt via `light-dark()` CSS function.
+Setting `color-scheme` by itself (`:root { color-scheme: dark }`) flips only the `light-dark()` colors: shadows and `dark:` utilities stay light. Always set `data-theme`.
 
 ---
 
@@ -558,11 +614,13 @@ const [value, setValue] = useState("hello")
 
 ```tsx
 <Menu>
-  <Menu.Trigger>Open</Menu.Trigger>
+  <Menu.Trigger>
+    <Button variant="outline">Open</Button>
+  </Menu.Trigger>
   <Menu.Content>
     <Menu.Item onSelect={() => {}}>Edit</Menu.Item>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}} danger>Delete</Menu.Item>
+    <Menu.Item onSelect={() => {}}>Delete</Menu.Item>
   </Menu.Content>
 </Menu>
 ```
@@ -570,7 +628,7 @@ const [value, setValue] = useState("hello")
 ### Form Field with Validation
 
 ```tsx
-<Field label="Email" error={errors.email} required>
+<Field label="Email" errorMessage={errors.email} required>
   <Input type="email" invalid={!!errors.email} />
 </Field>
 ```
@@ -590,20 +648,23 @@ import { Plus } from "@plexui/ui/components/Icon"
 
 ```tsx
 <SidebarProvider>
-  <Sidebar>
-    <SidebarHeader>Logo</SidebarHeader>
-    <SidebarContent>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton isActive>
-            <Home /> Dashboard
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarContent>
-  </Sidebar>
-  <SidebarInset>
-    {/* main content */}
-  </SidebarInset>
+  <SidebarLayout>
+    <Sidebar>
+      <SidebarHeader>Logo</SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton isActive>
+              <SidebarMenuButtonIcon><Home /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Dashboard</SidebarMenuButtonLabel>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
+    </Sidebar>
+    <SidebarInset>
+      {/* main content */}
+    </SidebarInset>
+  </SidebarLayout>
 </SidebarProvider>
 ```

@@ -449,6 +449,11 @@
           "type": "boolean",
           "default": "false",
           "description": "Fully rounded"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Class applied to the badge"
         }
       ],
       "examples": [
@@ -562,12 +567,12 @@
         {
           "name": "gutter-size",
           "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
-          "description": "Horizontal padding size"
+          "description": "Horizontal padding size; defaults from size"
         },
         {
           "name": "icon-size",
           "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
-          "description": "Size of icons in the slot"
+          "description": "Size of icons in the slot; defaults from size"
         },
         {
           "name": "type",
@@ -584,7 +589,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex flex-wrap gap-3\">\n  <Button color=\"primary\">Submit</Button>\n  <Button variant=\"soft\"><CompareArrows /> Compare</Button>\n  <Button color=\"danger\" gutter-size=\"sm\" :pill=\"false\"><Delete /></Button>\n  <Button variant=\"outline\">Next <ArrowRight /></Button>\n  <Button variant=\"ghost\" color=\"secondary\" uniform><Clear /></Button>\n</div>",
+          "code": "<div class=\"flex flex-wrap gap-3\">\n  <Button color=\"primary\">Submit</Button>\n  <Button variant=\"soft\"><CompareArrows /> Compare</Button>\n  <Button color=\"danger\" gutter-size=\"sm\" :pill=\"false\" aria-label=\"Delete\"><Delete /></Button>\n  <Button variant=\"outline\">Next <ArrowRight /></Button>\n  <Button variant=\"ghost\" color=\"secondary\" uniform aria-label=\"Clear\"><Clear /></Button>\n</div>",
           "details": "A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only."
         },
         {
@@ -595,12 +600,12 @@
         {
           "name": "Sizing & roundness",
           "code": "<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\"><Mail /> Button <ArrowRight /></Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\">Button <ArrowRight /></Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\"><Mail /> Button</Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\">Button</Button>",
-          "details": "Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. Each size provides default values for gutter-size and icon-size, as well as font-size. Each of these values can be overridden independently."
+          "details": "Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button."
         },
         {
           "name": "Icons",
-          "code": "<Button\n  :color=\"color\"\n  :size=\"size\"\n  :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n  :icon-size=\"iconSize === 'auto' ? undefined : iconSize\"\n  :uniform=\"uniform\"\n  :variant=\"variant\"\n>\n  <PlusLg />\n</Button>",
-          "details": "Add icons to the default slot. Sizing is automatic via the icon-size prop. For square icon buttons use uniform, which ignores gutter-size. Combine it with pill to make circular icons."
+          "code": "<Button\n  :color=\"color\"\n  :size=\"size\"\n  :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n  :icon-size=\"iconSize === 'auto' ? undefined : iconSize\"\n  :uniform=\"uniform\"\n  :variant=\"variant\"\n  aria-label=\"Add\"\n>\n  <PlusLg />\n</Button>",
+          "details": "Add icons to the default slot. Sizing is automatic via the icon-size prop. Default values for icon-size are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutter-size is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutter-size than size can create well-sized, but not exactly square, icon buttons."
         },
         {
           "name": "Block",
@@ -610,12 +615,12 @@
         {
           "name": "Disabled",
           "code": "<Button color=\"primary\" :disabled=\"disabled\">Submit</Button>",
-          "details": "Use disabled to both visually and accessibly disable a button. Click events are not emitted."
+          "details": "Use disabled to both visually and accessibly disable a button. Clicks do not emit click."
         },
         {
           "name": "Inert",
           "code": "<Button color=\"primary\" :inert=\"inert\">Submit</Button>",
-          "details": "Use inert to accessibly disable a button without any visual changes."
+          "details": "Use inert to accessibly disable a button without any visual changes. Note: For accessibility reasons, disabled is used instead of applying inert directly to the button. Visual disablement in the disabled prop is applied via [data-disabled]."
         },
         {
           "name": "Loading",
@@ -910,7 +915,7 @@
         {
           "name": "href",
           "type": "string",
-          "description": "Renders the Card as a link via the linkComponent of PlexUIProvider."
+          "description": "Renders the Card as a link via the linkComponent of PlexUIProvider. A link component that takes to, such as RouterLink, gets it as to."
         },
         {
           "name": "external",
@@ -942,12 +947,12 @@
         {
           "name": "Create project",
           "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>Create project</CardTitle>\n    <CardDescription>Deploy a new project in one-click with sensible defaults.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <div style=\"display: flex; flex-direction: column; gap: 20px\">\n      <Field label=\"Name\">\n        <Input placeholder=\"billing-service\" />\n      </Field>\n      <Field label=\"Region\" description=\"Where your functions and database will live.\">\n        <Input placeholder=\"us-east-1\" />\n      </Field>\n    </div>\n  </CardContent>\n  <CardFooter style=\"justify-content: flex-end\">\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Cancel</Button>\n    <Button color=\"primary\" variant=\"solid\" size=\"sm\">Deploy</Button>\n  </CardFooter>\n</Card>",
-          "details": "Right-aligned footer with Cancel / Submit. Use style=\"justify-content: flex-end\" on CardFooter."
+          "details": "Right-aligned footer with Cancel / Deploy. Use style=\"justify-content: flex-end\" on CardFooter."
         },
         {
           "name": "Payment Method",
           "code": "<Card style=\"max-width: 420px\">\n  <div style=\"display: flex; flex-direction: column; gap: 16px\">\n    <CardHeader>\n      <CardTitle>Payment Method</CardTitle>\n      <CardDescription>All transactions are secure and encrypted</CardDescription>\n    </CardHeader>\n\n    <Field label=\"Name on Card\">\n      <Input placeholder=\"Aisha Cooper\" />\n    </Field>\n\n    <Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n      <Input placeholder=\"1234 5678 9012 3456\" inputmode=\"numeric\" />\n    </Field>\n\n    <div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px\">\n      <Field label=\"Month\">\n        <Select v-model:value=\"month\" :options=\"monthOptions\" placeholder=\"MM\" />\n      </Field>\n      <Field label=\"Year\">\n        <Select v-model:value=\"year\" :options=\"yearOptions\" placeholder=\"YYYY\" />\n      </Field>\n      <Field label=\"CVV\">\n        <Input placeholder=\"123\" inputmode=\"numeric\" />\n      </Field>\n    </div>\n\n    <Separator />\n\n    <CardHeader>\n      <CardTitle>Billing Address</CardTitle>\n      <CardDescription>The billing address associated with your payment method</CardDescription>\n    </CardHeader>\n\n    <Checkbox v-model:checked=\"sameAsShipping\" label=\"Same as shipping address\" />\n\n    <Separator />\n\n    <Field label=\"Comments\">\n      <Textarea placeholder=\"Add any additional comments\" :rows=\"3\" />\n    </Field>\n\n    <div style=\"display: flex; gap: 8px\">\n      <Button color=\"primary\" variant=\"solid\">Submit</Button>\n      <Button color=\"secondary\" variant=\"outline\">Cancel</Button>\n    </div>\n  </div>\n</Card>",
-          "details": "Full-fidelity payment form. Card Number + CVV share a 2fr/1fr row with a helper line; Month/Year use Select. Sections are divided by subtle hrs for Billing Address and Comments."
+          "details": "Full-fidelity payment form. Month, Year and CVV share one row, with a Select for the month and the year. A Separator sets off the Billing Address section, whose Checkbox takes its text through label."
         },
         {
           "name": "No team members (empty state)",
@@ -1135,7 +1140,7 @@
         {
           "name": "With Field",
           "code": "<div class=\"flex flex-col gap-4 max-w-sm w-full\">\n  <Field\n    label=\"Terms\"\n    description=\"Please review and accept the terms before continuing.\"\n    :error-message=\"showError ? 'You must accept the terms to continue.' : undefined\"\n    v-slot=\"{ id }\"\n  >\n    <div class=\"flex flex-col gap-3 mt-1\">\n      <Checkbox label=\"I agree to the Terms of Service\" v-model:checked=\"agreed\" />\n      <Checkbox label=\"Subscribe to product updates\" />\n    </div>\n  </Field>\n</div>",
-          "details": "Wrap checkboxes in a Field component for form layout with label, description, and error message support. The Field provides aria-describedby and aria-invalid linking automatically."
+          "details": "Wrap checkboxes in a Field component for form layout with label, description, and error message support. A single control passed as the child gets aria-describedby and aria-invalid automatically; with v-slot the slot props carry them, so bind them onto the control that should carry them."
         },
         {
           "name": "Grouped sections",
@@ -1237,13 +1242,18 @@
             {
               "name": "max-expanded-height",
               "type": "number",
-              "description": "Max height when expanded (px)"
+              "description": "Max height when expanded (px); taller code scrolls"
             },
             {
               "name": "copyable",
               "type": "boolean",
               "default": "true",
               "description": "Show copy button"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional wrapper class"
             }
           ]
         }
@@ -1266,12 +1276,12 @@
           "description": "Trigger element (for example TooltipTriggerDecorator)"
         },
         {
-          "name": "copyValue",
+          "name": "copy-value",
           "type": "string",
           "description": "Required. Content to copy to clipboard"
         },
         {
-          "name": "openDelay",
+          "name": "open-delay",
           "type": "number",
           "default": "150",
           "description": "Tooltip open delay in milliseconds"
@@ -1283,7 +1293,7 @@
           "description": "Preferred tooltip alignment against the trigger"
         },
         {
-          "name": "alignOffset",
+          "name": "align-offset",
           "type": "number",
           "default": "0",
           "description": "Offset from start/end alignment in pixels"
@@ -1295,7 +1305,7 @@
           "description": "Preferred side of the trigger"
         },
         {
-          "name": "sideOffset",
+          "name": "side-offset",
           "type": "number",
           "default": "5",
           "description": "Distance from trigger in pixels"
@@ -1391,6 +1401,12 @@
           "description": "Visual style"
         },
         {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded corners"
+        },
+        {
           "name": "disabled",
           "type": "boolean",
           "default": "false",
@@ -1412,7 +1428,7 @@
         {
           "name": "Overview",
           "code": "<div class=\"w-[200px]\">\n  <DateInput\n    v-model:value=\"date\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :pill=\"pill\"\n    :clearable=\"clearable\"\n  />\n</div>",
-          "details": "Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value."
+          "details": "Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value. Leaving the field with a partly typed date shows the value again."
         },
         {
           "name": "With time",
@@ -1466,24 +1482,30 @@
       ],
       "props": [
         {
-          "name": "v-model:value",
+          "name": "value / v-model:value",
           "type": "DateTime | null",
+          "default": "null",
           "description": "Selected date (luxon)"
         },
         {
           "name": "@change",
           "type": "(date: DateTime | null) => void",
-          "description": "Called when date changes"
+          "description": "Emitted when the date changes, with the same value as update:value"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Id of the trigger, for forms and labels"
         },
         {
           "name": "min",
           "type": "DateTime",
-          "description": "Minimum selectable date"
+          "description": "Earliest selectable date (inclusive)"
         },
         {
           "name": "max",
           "type": "DateTime",
-          "description": "Maximum selectable date"
+          "description": "Latest selectable date (inclusive). Must not be before min"
         },
         {
           "name": "caption-layout",
@@ -1500,21 +1522,37 @@
         {
           "name": "year-range",
           "type": "[number, number]",
+          "default": "last 120 years",
           "description": "Min/max years for dropdown caption"
         },
         {
           "name": "size",
           "type": "ControlSize",
+          "default": "\"md\"",
           "description": "Trigger size (3xs to 3xl)"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\" | \"ghost\"",
+          "default": "\"outline\"",
+          "description": "Trigger style"
         },
         {
           "name": "pill",
           "type": "boolean",
+          "default": "true",
           "description": "Rounded trigger"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full-width trigger"
         },
         {
           "name": "clearable",
           "type": "boolean",
+          "default": "false",
           "description": "Show clear button"
         },
         {
@@ -1530,14 +1568,51 @@
           "description": "Date format in trigger. Auto-includes time when show-time is enabled"
         },
         {
+          "name": "trigger-class-name",
+          "type": "string",
+          "description": "Class applied to the trigger"
+        },
+        {
+          "name": "dropdown-icon-type",
+          "type": "\"dropdown\" | \"chevronDown\" | \"none\"",
+          "default": "\"dropdown\"",
+          "description": "Icon at the end of the trigger"
+        },
+        {
           "name": "placeholder",
           "type": "string",
+          "default": "\"Select date...\"",
           "description": "Trigger placeholder"
         },
         {
           "name": "disabled",
           "type": "boolean",
+          "default": "false",
           "description": "Disable picker"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+          "default": "\"bottom\"",
+          "description": "Preferred side of the calendar popover"
+        },
+        {
+          "name": "side-offset",
+          "type": "number",
+          "default": "8",
+          "description": "Distance from the trigger in pixels"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "default": "\"center\"",
+          "description": "Alignment against the trigger"
+        },
+        {
+          "name": "align-offset",
+          "type": "number",
+          "default": "0 (center), -5 (start, end)",
+          "description": "Offset from start/end alignment in pixels"
         }
       ],
       "examples": [
@@ -1549,7 +1624,7 @@
         {
           "name": "Limits",
           "code": "<DatePicker\n  id=\"date-picker-limits\"\n  trigger-date-format=\"MM/dd/yy\"\n  size=\"lg\"\n  pill\n  trigger-show-icon\n  v-model:value=\"selectedDate\"\n  :min=\"minDate\"\n  :max=\"maxDate\"\n/>",
-          "details": "Use min and max to limit selectable dates to a specific timeframe. Here minDate is {\"today.minus({ days: 30 }).startOf('day')\"} and maxDate is {\"today.plus({ days: 30 }).endOf('day')\"}."
+          "details": "Use min and max to limit selectable dates to a specific timeframe. Here minDate is {\"today.minus({ days: 30 }).startOf('day')\"} and maxDate is {\"today.plus({ days: 30 }).endOf('day')\"}. Equal bounds leave one selectable day."
         },
         {
           "name": "Date of birth",
@@ -1604,24 +1679,24 @@
       ],
       "props": [
         {
-          "name": "v-model:value",
+          "name": "value / v-model:value",
           "type": "DateRange | null",
           "description": "Selected range ([start, end], inclusive)"
         },
         {
           "name": "@change",
           "type": "(next: DateRange | null, shortcut?: DateRangeShortcut) => void",
-          "description": "Called when range changes"
+          "description": "Emitted when the range changes"
         },
         {
           "name": "min",
           "type": "DateTime",
-          "description": "Earliest selectable date"
+          "description": "Earliest selectable date (inclusive)"
         },
         {
           "name": "max",
           "type": "DateTime",
-          "description": "Latest selectable date"
+          "description": "Latest selectable date (inclusive). Must not be before min"
         },
         {
           "name": "max-range-days",
@@ -1631,7 +1706,7 @@
         {
           "name": "shortcuts",
           "type": "DateRangeShortcut[]",
-          "description": "Quick selection shortcuts"
+          "description": "Quick selection shortcuts ({ label, getDateRange })"
         },
         {
           "name": "side",
@@ -1654,7 +1729,7 @@
         {
           "name": "align-offset",
           "type": "number",
-          "default": "align === \"center\" ? 0 : -5",
+          "default": "0 (center), -5 (start, end)",
           "description": "Offset from start/end alignment in pixels"
         },
         {
@@ -1742,7 +1817,7 @@
         {
           "name": "Shortcuts",
           "code": "<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    clearable\n    v-model:value=\"value\"\n    :shortcuts=\"dayShortcuts\"\n  />\n</div>",
-          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days."
+          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled."
         },
         {
           "name": "Month stepper",
@@ -1832,7 +1907,7 @@
           "name": "fill",
           "type": "\"static\" | \"absolute\" | \"none\"",
           "default": "\"static\"",
-          "description": "How the container fills available space; use \"none\" for transparent (e.g. in search results)"
+          "description": "How the container fills its parent: \"static\" takes full width and height, \"absolute\" covers a positioned parent (inset 0), \"none\" applies no sizing"
         }
       ],
       "examples": [
@@ -2022,8 +2097,8 @@
         },
         {
           "name": "Radio",
-          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Subscription plan\" description=\"Select your preferred plan.\" v-slot=\"{ id }\">\n    <RadioGroup aria-label=\"Subscription plan\" v-model:value=\"plan\" direction=\"col\">\n      <RadioGroupItem value=\"free\">Free</RadioGroupItem>\n      <RadioGroupItem value=\"pro\">Pro, $9/mo</RadioGroupItem>\n      <RadioGroupItem value=\"enterprise\">Enterprise, $29/mo</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
-          "details": "Use Field with RadioGroup for labeled radio selections."
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Subscription plan\" description=\"Select your preferred plan.\" v-slot=\"fieldProps\">\n    <RadioGroup aria-label=\"Subscription plan\" v-bind=\"fieldProps\" v-model:value=\"plan\" direction=\"col\">\n      <RadioGroupItem value=\"free\">Free</RadioGroupItem>\n      <RadioGroupItem value=\"pro\">Pro, $9/mo</RadioGroupItem>\n      <RadioGroupItem value=\"enterprise\">Enterprise, $29/mo</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
+          "details": "Use Field with RadioGroup for labeled radio selections. Bind the field props onto the group (v-bind=\"fieldProps\") so its aria-describedby points at the description."
         },
         {
           "name": "Switch",
@@ -2077,13 +2152,13 @@
         },
         {
           "name": "Birthday segmented input",
-          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\">\n    <div class=\"flex items-center gap-2\">\n      <Input\n        :value=\"month\"\n        @update:value=\"(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }\"\n        placeholder=\"MM\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"dayInput\"\n        :value=\"day\"\n        @update:value=\"(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }\"\n        placeholder=\"DD\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"yearInput\"\n        :value=\"year\"\n        @update:value=\"(raw) => (year = digitsOnly(raw, 4))\"\n        placeholder=\"YYYY\"\n        inputmode=\"numeric\"\n        maxlength=\"4\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[80px]\"\n      />\n    </div>\n  </Field>\n</div>",
-          "details": "Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. digitsOnly is a plain helper function of the example."
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\" v-slot=\"fieldProps\">\n    <div class=\"flex items-center gap-2\">\n      <Input\n        :id=\"fieldProps.id\"\n        :value=\"month\"\n        @update:value=\"(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }\"\n        placeholder=\"MM\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"dayInput\"\n        :value=\"day\"\n        @update:value=\"(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }\"\n        placeholder=\"DD\"\n        aria-label=\"Day\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"yearInput\"\n        :value=\"year\"\n        @update:value=\"(raw) => (year = digitsOnly(raw, 4))\"\n        placeholder=\"YYYY\"\n        aria-label=\"Year\"\n        inputmode=\"numeric\"\n        maxlength=\"4\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[80px]\"\n      />\n    </div>\n  </Field>\n</div>",
+          "details": "Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own aria-label. digitsOnly is a plain helper function of the example."
         },
         {
           "name": "Birthday with selects",
           "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\" v-slot=\"fieldProps\">\n    <div class=\"flex gap-2\">\n      <div class=\"w-[130px]\">\n        <Select\n          :id=\"fieldProps.id\"\n          v-model:value=\"month\"\n          :options=\"birthdayMonthOptions\"\n          placeholder=\"Month\"\n          size=\"md\"\n          variant=\"outline\"\n        />\n      </div>\n      <div class=\"w-[84px]\">\n        <Select\n          v-model:value=\"day\"\n          :options=\"birthdayDayOptions\"\n          placeholder=\"Day\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Day\"\n        />\n      </div>\n      <div class=\"w-[108px]\">\n        <Select\n          v-model:value=\"year\"\n          :options=\"birthdayYearOptions\"\n          placeholder=\"Year\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Year\"\n        />\n      </div>\n    </div>\n  </Field>\n</div>",
-          "details": "Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group."
+          "details": "Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group. The field id goes to the month select, and the day and year selects carry their own aria-label."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/field"
@@ -2124,7 +2199,7 @@
           "name": "multiple",
           "type": "boolean",
           "default": "false",
-          "description": "Allow selecting multiple files"
+          "description": "Allow selecting multiple files. Without it, a new pick replaces the current file"
         },
         {
           "name": "max-files",
@@ -2162,6 +2237,16 @@
           "type": "boolean",
           "default": "false",
           "description": "Disable all interactions"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Id of the hidden file input"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Additional CSS class"
         }
       ],
       "examples": [
@@ -2172,7 +2257,7 @@
         {
           "name": "With files",
           "code": "<div class=\"w-[360px]\">\n  <FileUpload\n    v-model:value=\"files\"\n    accept=\".pdf,.png\"\n    multiple\n    :max-files=\"5\"\n  />\n</div>",
-          "details": "File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button."
+          "details": "File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. files starts with three File objects."
         },
         {
           "name": "Error state",
@@ -2291,10 +2376,10 @@
           "description": "Disables the input"
         },
         {
-          "name": "read-only",
+          "name": "read-only / readonly",
           "type": "boolean",
           "default": "false",
-          "description": "Makes the input read-only"
+          "description": "Makes the input read-only (both spellings work)"
         },
         {
           "name": "type",
@@ -2327,14 +2412,14 @@
           "description": "Let password-manager extensions decorate the input"
         },
         {
-          "name": "start-adornment / end-adornment",
+          "name": "#startAdornment / #endAdornment",
           "type": "slots",
-          "description": "Content before or after the input"
+          "description": "Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated"
         },
         {
           "name": "@clear",
           "type": "() => void",
-          "description": "Shows the clear button and fires when it is clicked"
+          "description": "Shows the clear button and fires when it is clicked; focus returns to the input"
         },
         {
           "name": "@revealed-change",
@@ -2440,7 +2525,7 @@
         {
           "name": "Phone input",
           "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
-          "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value."
+          "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/floating-label-input"
@@ -2519,12 +2604,14 @@
             {
               "name": "size",
               "type": "number | string",
-              "description": "Size in px (or use --indicator-size CSS variable)"
+              "default": "\"1em\"",
+              "description": "Size in px or any CSS length (or use the --indicator-size CSS variable)"
             },
             {
               "name": "stroke-width",
               "type": "number",
-              "description": "Stroke width"
+              "default": "2",
+              "description": "Stroke width in px"
             }
           ]
         },
@@ -2534,28 +2621,31 @@
             {
               "name": "progress",
               "type": "number",
-              "description": "Static progress 0-100 (disables animation)"
-            },
-            {
-              "name": "size",
-              "type": "number | string",
-              "description": "Diameter in px"
-            },
-            {
-              "name": "stroke-width",
-              "type": "number",
-              "description": "Stroke thickness"
+              "description": "Static progress 0-100 (disables the simulated animation)"
             },
             {
               "name": "done",
               "type": "boolean",
-              "description": "Completion state for animation"
+              "default": "false",
+              "description": "Fills the ring and ends the simulated progress"
             },
             {
               "name": "max-duration",
               "type": "number",
               "default": "15000",
               "description": "Duration of the simulated progress in ms"
+            },
+            {
+              "name": "size",
+              "type": "number | string",
+              "default": "\"28px\"",
+              "description": "Diameter in px or any CSS length"
+            },
+            {
+              "name": "stroke-width",
+              "type": "number",
+              "default": "2",
+              "description": "Stroke thickness in px, capped at 4"
             },
             {
               "name": "track-color",
@@ -2616,7 +2706,7 @@
           "description": "Disables the input visually and from interactions"
         },
         {
-          "name": "read-only",
+          "name": "read-only / readonly",
           "type": "boolean",
           "default": "false",
           "description": "Makes the input read-only and hides the clear button"
@@ -2646,7 +2736,7 @@
         },
         {
           "name": "@clear",
-          "type": "() => void",
+          "type": "(event: MouseEvent) => void",
           "description": "When set, displays a clear button that appears when the input has a value"
         },
         {
@@ -2689,7 +2779,7 @@
         {
           "name": "Clear button",
           "code": "<div class=\"w-[320px]\">\n  <Input\n    v-model:value=\"value\"\n    placeholder=\"Enter text...\"\n    :pill=\"pill\"\n    :size=\"size\"\n    @clear=\"value = ''\"\n  />\n</div>",
-          "details": "Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only."
+          "details": "Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input."
         },
         {
           "name": "End adornment",
@@ -2946,6 +3036,70 @@
           "type": "boolean",
           "default": "false",
           "description": "Enable LaTeX math rendering"
+        },
+        {
+          "name": "break-new-lines",
+          "type": "boolean",
+          "default": "false",
+          "description": "Turn single newlines into line breaks"
+        },
+        {
+          "name": "copyable-code-blocks",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show a copy button on code blocks"
+        },
+        {
+          "name": "collapsible-code-blocks",
+          "type": "boolean",
+          "default": "true",
+          "description": "Render code blocks in the collapsible view with a View Code button"
+        },
+        {
+          "name": "components",
+          "type": "Record<string, MarkdownComponent>",
+          "description": "Tag name to component overrides, applied over the built-in ones"
+        },
+        {
+          "name": "directives",
+          "type": "MarkdownDirective[]",
+          "description": "Custom directives, each rendered by its own component"
+        },
+        {
+          "name": "remark-plugins",
+          "type": "PluggableList",
+          "description": "Extra remark plugins, after the built-in ones"
+        },
+        {
+          "name": "rehype-plugins",
+          "type": "PluggableList",
+          "description": "Extra rehype plugins"
+        },
+        {
+          "name": "allowed-elements",
+          "type": "string[]",
+          "description": "Only render these elements"
+        },
+        {
+          "name": "disallowed-elements",
+          "type": "string[]",
+          "description": "Never render these elements"
+        },
+        {
+          "name": "skip-html",
+          "type": "boolean",
+          "default": "false",
+          "description": "Ignore raw HTML in the source"
+        },
+        {
+          "name": "url-transform",
+          "type": "(url: string) => string",
+          "description": "Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the wrapping element"
         }
       ],
       "examples": [
@@ -3010,8 +3164,8 @@
           "description": "Called on content change"
         },
         {
-          "name": "#toolbarEnd",
-          "type": "slot",
+          "name": "toolbarEnd slot",
+          "type": "VNode[]",
           "description": "Content rendered at the end of the toolbar"
         },
         {
@@ -3019,6 +3173,36 @@
           "type": "number",
           "default": "1",
           "description": "Minimum visible rows"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "id of the editable element (Field sets it)"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Accessible name of the editable element"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "Id of the element that names the editor, such as a visible label"
+        },
+        {
+          "name": "aria-describedby",
+          "type": "string",
+          "description": "aria-describedby of the editable element (Field sets it)"
+        },
+        {
+          "name": "aria-invalid",
+          "type": "boolean",
+          "description": "Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the container"
         }
       ],
       "examples": [
@@ -3099,7 +3283,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Sample menu <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :width=\"210\" :min-width=\"210\">\n    <MenuItem description=\"sam.smith@gmail.com\">Sam Smith</MenuItem>\n    <MenuSeparator />\n    <MenuLink href=\"/settings\">Your profile</MenuLink>\n    <MenuLink href=\"#\">Terms & policies</MenuLink>\n    <MenuItem disabled @select=\"() => {}\">Feature flags</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\">Logout</MenuItem>\n  </MenuContent>\n</Menu>"
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Sample menu <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :width=\"210\" :min-width=\"210\">\n    <MenuItem description=\"sam.smith@gmail.com\">Sam Smith</MenuItem>\n    <MenuSeparator />\n    <MenuLink href=\"#\">Your profile</MenuLink>\n    <MenuLink href=\"#\">Terms & policies</MenuLink>\n    <MenuItem disabled @select=\"() => {}\">Feature flags</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\">Logout</MenuItem>\n  </MenuContent>\n</Menu>"
         },
         {
           "name": "Natural sizing",
@@ -3108,8 +3292,8 @@
         },
         {
           "name": "Horizontal (icons only)",
-          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /></MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /></MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /></MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /></MenuItem>\n  </MenuContent>\n</Menu>",
-          "details": "Set layout=\"horizontal\" on MenuContent for an iOS-style icon toolbar."
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /><span class=\"sr-only\">Edit</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /><span class=\"sr-only\">Settings</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /><span class=\"sr-only\">Play</span></MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /><span class=\"sr-only\">Expand</span></MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Set layout=\"horizontal\" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action."
         },
         {
           "name": "Horizontal (icons with labels)",
@@ -3145,7 +3329,7 @@
       "subComponents": [
         {
           "name": "MenuTrigger",
-          "description": "renders its child (e.g. a Button) as the element that toggles the menu.",
+          "description": "renders its child (e.g. a Button) as the element that toggles the menu. Other attributes and listeners reach the child.",
           "props": [
             {
               "name": "disabled",
@@ -3161,6 +3345,7 @@
             {
               "name": "width",
               "type": "number | \"auto\"",
+              "default": "\"auto\"",
               "description": "Panel width (numbers are pixels)"
             },
             {
@@ -3189,11 +3374,13 @@
             {
               "name": "align",
               "type": "\"start\" | \"center\" | \"end\"",
+              "default": "\"center\"",
               "description": "Alignment relative to trigger"
             },
             {
               "name": "align-offset",
               "type": "number",
+              "default": "-5",
               "description": "Offset from the start or end alignment, in pixels"
             },
             {
@@ -3217,7 +3404,7 @@
         },
         {
           "name": "MenuItem",
-          "description": "list item. Listen to @select for actions; without it the item is non-interactive content.",
+          "description": "list item. Listen to @select or @click for actions; without either the item is non-interactive content.",
           "props": [
             {
               "name": "description",
@@ -3238,7 +3425,7 @@
             {
               "name": "@click",
               "type": "(event: MouseEvent) => void",
-              "description": "Emitted when the item is clicked"
+              "description": "Called when the item is clicked; also makes the item interactive"
             }
           ]
         },
@@ -3341,6 +3528,11 @@
           "type": "boolean",
           "default": "false",
           "description": "Auto-focus first cell on mount"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root element"
         }
       ],
       "examples": [
@@ -3379,14 +3571,26 @@
       ],
       "props": [
         {
-          "name": "showOnHover",
-          "type": "boolean",
-          "description": "Open on hover and focus instead of click"
-        },
-        {
           "name": "open / v-model:open",
           "type": "boolean",
           "description": "Controlled open state; uncontrolled when omitted"
+        },
+        {
+          "name": "@update:open",
+          "type": "(nextState: boolean) => void",
+          "description": "Emitted when the popover opens or closes"
+        },
+        {
+          "name": "show-on-hover",
+          "type": "boolean",
+          "default": "false",
+          "description": "Open on hover and focus instead of click"
+        },
+        {
+          "name": "hover-open-delay",
+          "type": "number",
+          "default": "150",
+          "description": "Delay before a hover popover opens (ms)"
         }
       ],
       "examples": [
@@ -3397,7 +3601,7 @@
         {
           "name": "Sizing the popover",
           "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" size=\"sm\" variant=\"ghost\" :pill=\"false\" gutter-size=\"xs\" class=\"gap-1.5\">\n      <Bolt /> Actions\n    </Button>\n  </PopoverTrigger>\n  <PopoverContent class=\"flex p-1.5\" min-width=\"auto\" side=\"top\">\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Functions :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Search :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Globe :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Code :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <ImageSquare :height=\"18\" :width=\"18\" />\n    </Button>\n  </PopoverContent>\n</Popover>",
-          "details": "The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of the popper's viewport detection."
+          "details": "The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of 700px, capped by the space available in the viewport."
         },
         {
           "name": "Open on hover",
@@ -3406,7 +3610,7 @@
         },
         {
           "name": "Using the controller",
-          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" :pill=\"false\">Generate</Button>\n  </PopoverTrigger>\n  <PopoverContent side=\"right\" v-slot=\"{ close, shake }\">\n    <form\n      @submit.prevent=\"\n        if (!prompt) return shake();\n        submitting = true;\n        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });\n      \"\n    >\n      <textarea\n        v-model=\"prompt\"\n        placeholder=\"Describe what you're using the model for, and we'll generate system instructions.\"\n        style=\"width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0\"\n      />\n      <div class=\"px-3 pb-3 flex items-center justify-between\">\n        <div class=\"flex gap-1.5 items-center font-normal text-sm text-tertiary\">\n          <Sparkles :width=\"16\" :height=\"16\" />\n          Free beta\n        </div>\n        <Button color=\"primary\" size=\"xs\" :pill=\"false\" :loading=\"submitting\" type=\"submit\">\n          Create\n        </Button>\n      </div>\n    </form>\n  </PopoverContent>\n</Popover>",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" :pill=\"false\">Generate</Button>\n  </PopoverTrigger>\n  <PopoverContent side=\"right\" v-slot=\"{ close, shake }\">\n    <form\n      @submit.prevent=\"\n        if (!prompt) shake();\n        else {\n          submitting = true;\n          submitPrompt().then(() => { submitting = false; prompt = ''; close(); });\n        }\n      \"\n    >\n      <textarea\n        v-model=\"prompt\"\n        placeholder=\"Describe what you're using the model for, and we'll generate system instructions.\"\n        style=\"width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0\"\n      />\n      <div class=\"px-3 pb-3 flex items-center justify-between\">\n        <div class=\"flex gap-1.5 items-center font-normal text-sm text-tertiary\">\n          <Sparkles :width=\"16\" :height=\"16\" />\n          Free beta\n        </div>\n        <Button color=\"primary\" size=\"xs\" :pill=\"false\" :loading=\"submitting\" type=\"submit\">\n          Create\n        </Button>\n      </div>\n    </form>\n  </PopoverContent>\n</Popover>",
           "details": "The default slot of PopoverContent receives {\"{ close, shake }\"}. Components rendered inside it can get the same two methods from usePopoverController() in their setup(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter async submission occurs (submitPrompt() fakes a two-second request), the close() method is called to close the popup imperatively."
         }
       ],
@@ -3416,39 +3620,73 @@
           "props": [
             {
               "name": "width",
-              "type": "number | string",
-              "description": "Panel width (px or CSS value)"
+              "type": "number | \"auto\"",
+              "default": "\"auto\"",
+              "description": "Panel width in px"
             },
             {
-              "name": "minWidth",
-              "type": "number | string",
+              "name": "min-width",
+              "type": "number | \"auto\"",
               "default": "300",
               "description": "Minimum panel width in px"
             },
             {
-              "name": "maxWidth",
-              "type": "number | string",
-              "description": "Maximum panel width"
+              "name": "max-width",
+              "type": "number",
+              "default": "700",
+              "description": "Maximum panel width in px, capped by the space available in the viewport"
             },
             {
               "name": "side",
               "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-              "description": "Preferred placement"
+              "default": "\"bottom\"",
+              "description": "Preferred placement; flips when it collides"
             },
             {
               "name": "align",
               "type": "\"start\" | \"center\" | \"end\"",
+              "default": "\"center\"",
               "description": "Alignment relative to trigger"
             },
             {
-              "name": "sideOffset",
+              "name": "side-offset",
               "type": "number",
+              "default": "8",
               "description": "Offset from trigger (px)"
             },
             {
-              "name": "alignOffset",
+              "name": "align-offset",
               "type": "number",
-              "description": "Alignment offset (px)"
+              "default": "-5",
+              "description": "Offset from the start or end alignment (px)"
+            },
+            {
+              "name": "avoid-collisions",
+              "type": "boolean",
+              "default": "true",
+              "description": "Reposition to stay inside the viewport and scroll containers"
+            },
+            {
+              "name": "translucent",
+              "type": "boolean",
+              "default": "false",
+              "description": "Translucent, blurred surface"
+            },
+            {
+              "name": "auto-focus",
+              "type": "boolean",
+              "default": "true",
+              "description": "Move focus into the panel when it opens (hover popovers never take focus)"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Applied to the panel"
+            },
+            {
+              "name": "default slot",
+              "type": "{ close, shake }",
+              "description": "Panel content; receives the controller functions"
             }
           ]
         }
@@ -3490,16 +3728,16 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<script setup>\nimport { onMounted, onUnmounted, ref } from \"vue\"\n\nconst value = ref(13)\nlet timer\nonMounted(() => {\n  timer = setTimeout(() => (value.value = 66), 500)\n})\nonUnmounted(() => clearTimeout(timer))\n</script>\n\n<template>\n  <Progress :value=\"value\" />\n</template>"
+          "code": "<script setup>\nimport { onMounted, onUnmounted, ref } from \"vue\"\nimport { Progress } from \"@plexui/vue/components/Progress\"\n\nconst value = ref(13)\nlet timer\nonMounted(() => {\n  timer = setTimeout(() => (value.value = 66), 500)\n})\nonUnmounted(() => clearTimeout(timer))\n</script>\n\n<template>\n  <Progress :value=\"value\" aria-label=\"Loading\" />\n</template>"
         },
         {
           "name": "With label",
-          "code": "<div style=\"display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px\">\n  <div style=\"display: flex; align-items: baseline; justify-content: space-between; gap: 16px\">\n    <Label for=\"progress-upload\">Uploading plex-ui.zip</Label>\n    <span style=\"color: var(--color-text-tertiary); font-size: 14px\">3.2 / 4.8 MB</span>\n  </div>\n  <Progress id=\"progress-upload\" :value=\"67\" />\n</div>",
+          "code": "<div style=\"display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px\">\n  <div style=\"display: flex; align-items: baseline; justify-content: space-between; gap: 16px\">\n    <Label id=\"progress-upload-label\">Uploading plex-ui.zip</Label>\n    <span style=\"color: var(--color-text-tertiary); font-size: 14px\">3.2 / 4.8 MB</span>\n  </div>\n  <Progress aria-labelledby=\"progress-upload-label\" :value=\"67\" />\n</div>",
           "details": "Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern."
         },
         {
           "name": "Controlled",
-          "code": "<div style=\"display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px\">\n  <Progress :value=\"value\" />\n  <Slider v-model:value=\"value\" :min=\"0\" :max=\"100\" :step=\"1\" />\n</div>",
+          "code": "<div style=\"display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px\">\n  <Progress :value=\"value\" aria-label=\"Progress\" />\n  <Slider v-model:value=\"value\" :min=\"0\" :max=\"100\" :step=\"1\" aria-label=\"Progress value\" />\n</div>",
           "details": "Bind value to any source, here a Slider through v-model:value."
         }
       ],
@@ -3520,7 +3758,7 @@
         {
           "name": "current",
           "type": "number",
-          "description": "Current active step (1-based)"
+          "description": "Required. Current active step (1-based)"
         },
         {
           "name": "orientation",
@@ -3548,13 +3786,19 @@
         },
         {
           "name": "variant",
-          "type": "\"minimal\"",
-          "description": "Compact bar variant (requires total)"
+          "type": "\"default\" | \"minimal\"",
+          "default": "\"default\"",
+          "description": "\"minimal\" renders a compact bar (requires total)"
         },
         {
           "name": "total",
           "type": "number",
           "description": "Total steps for minimal variant"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Class applied to the container"
         }
       ],
       "examples": [
@@ -3653,7 +3897,7 @@
           "name": "required",
           "type": "boolean",
           "default": "false",
-          "description": "Marks the group as required (aria-required)"
+          "description": "Marks the group and every hidden radio input as required"
         },
         {
           "name": "aria-label",
@@ -3713,7 +3957,7 @@
         },
         {
           "name": "Item disabled",
-          "code": "<RadioGroup aria-label=\"Delivery method\" class=\"max-w-[320px] m-auto\" direction=\"col\">\n  <RadioGroupItem value=\"standard\">Standard shipping (3–5 days)</RadioGroupItem>\n  <RadioGroupItem value=\"express\" :disabled=\"disabled\">Express shipping (1–2 days)</RadioGroupItem>\n  <RadioGroupItem value=\"same-day\">\n    Same-day delivery, available in select metro areas with a minimum order of $50\n  </RadioGroupItem>\n</RadioGroup>",
+          "code": "<RadioGroup aria-label=\"Delivery method\" class=\"max-w-[320px] m-auto\" direction=\"col\">\n  <RadioGroupItem value=\"standard\">Standard shipping (3-5 days)</RadioGroupItem>\n  <RadioGroupItem value=\"express\" :disabled=\"disabled\">Express shipping (1-2 days)</RadioGroupItem>\n  <RadioGroupItem value=\"same-day\">\n    Same-day delivery, available in select metro areas with a minimum order of $50\n  </RadioGroupItem>\n</RadioGroup>",
           "details": "Use disabled on a single RadioGroupItem to disable only that option."
         },
         {
@@ -3723,8 +3967,8 @@
         },
         {
           "name": "With Field",
-          "code": "<div class=\"max-w-sm\">\n  <Field label=\"Notification method\" description=\"Choose how you want to receive notifications.\" v-slot=\"{ id }\">\n    <RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Notification method\">\n      <RadioGroupItem value=\"email\">Email</RadioGroupItem>\n      <RadioGroupItem value=\"sms\">SMS</RadioGroupItem>\n      <RadioGroupItem value=\"push\">Push notification</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
-          "details": "Wrap a RadioGroup in a Field for a shared label and description. The Field provides aria-describedby linking automatically."
+          "code": "<div class=\"max-w-sm\">\n  <Field label=\"Notification method\" description=\"Choose how you want to receive notifications.\" v-slot=\"fieldProps\">\n    <RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Notification method\" v-bind=\"fieldProps\">\n      <RadioGroupItem value=\"email\">Email</RadioGroupItem>\n      <RadioGroupItem value=\"sms\">SMS</RadioGroupItem>\n      <RadioGroupItem value=\"push\">Push notification</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
+          "details": "Wrap a RadioGroup in a Field for a shared label and description. Bind the field props from the slot onto the group so it is described by the Field's description (aria-describedby)."
         },
         {
           "name": "With Field error",
@@ -3765,7 +4009,7 @@
             {
               "name": "required",
               "type": "boolean",
-              "description": "Marks this item's hidden form input as required"
+              "description": "Marks this item as required"
             },
             {
               "name": "block",
@@ -3822,7 +4066,7 @@
           "name": "multiple",
           "type": "boolean",
           "default": "false",
-          "description": "Allow multiple selection"
+          "description": "Allow multiple selection. value, @change and @update:value are typed by it"
         },
         {
           "name": "placeholder",
@@ -3864,13 +4108,34 @@
           "name": "disabled",
           "type": "boolean",
           "default": "false",
-          "description": "Disable select"
+          "description": "Disable select. A disabled select is not submitted or validated with its form"
         },
         {
           "name": "loading",
           "type": "boolean",
           "default": "false",
           "description": "Loading state; shows loading-placeholder and keeps the menu closed"
+        },
+        {
+          "name": "loading-placeholder",
+          "type": "string",
+          "default": "\"Loading...\"",
+          "description": "Trigger text while loading"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the hidden form input. With multiple, every selected value is submitted"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "description": "Required for native form validation"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Id of the hidden form input"
         },
         {
           "name": "actions",
@@ -3894,15 +4159,50 @@
           "description": "Custom trigger render: the selected option, or { values, selectedAll } with multiple"
         },
         {
+          "name": "TriggerStartIcon",
+          "type": "Component",
+          "description": "Icon at the start of the trigger"
+        },
+        {
           "name": "#trigger / trigger",
           "type": "slot ({ open, onToggle }) | function",
           "description": "Custom trigger element, wrapped as the popover trigger"
         },
         {
-          "name": "#searchEmptyMessage / search-empty-message",
-          "type": "slot | string",
-          "default": "\"No results found.\"",
-          "description": "Shown when the search matches nothing"
+          "name": "dropdown-icon-type",
+          "type": "\"chevronDown\" | \"dropdown\" | \"none\"",
+          "default": "\"dropdown\"",
+          "description": "Indicator at the end of the trigger"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"bottom\"",
+          "default": "\"bottom\"",
+          "description": "Preferred side of the list"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "default": "\"center\" when block, otherwise \"start\"",
+          "description": "Alignment of the list against the trigger"
+        },
+        {
+          "name": "list-width",
+          "type": "number | \"auto\"",
+          "default": "\"auto\"",
+          "description": "Width of the list in px"
+        },
+        {
+          "name": "list-min-width",
+          "type": "number | \"auto\"",
+          "default": "trigger width (300 when not block)",
+          "description": "Minimum width of the list in px"
+        },
+        {
+          "name": "list-max-width",
+          "type": "number | \"auto\"",
+          "default": "\"auto\"",
+          "description": "Maximum width of the list in px"
         },
         {
           "name": "search-placeholder",
@@ -3916,9 +4216,20 @@
           "description": "Accessible name of the search input, independent of the trigger label"
         },
         {
+          "name": "#searchEmptyMessage / search-empty-message",
+          "type": "slot | string",
+          "default": "\"No results found.\"",
+          "description": "Shown when the search matches nothing"
+        },
+        {
           "name": "search-predicate",
           "type": "(option, term) => boolean",
           "description": "Filters options while searching"
+        },
+        {
+          "name": "aria-label / aria-labelledby",
+          "type": "string",
+          "description": "Accessible name of the trigger and the list"
         }
       ],
       "examples": [
@@ -3949,7 +4260,7 @@
         },
         {
           "name": "Column configuration",
-          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\"><SettingsSlider :width=\"15\" :height=\"15\" /> Columns</Button>\n  </PopoverTrigger>\n  <PopoverContent :min-width=\"240\" side=\"bottom\" align=\"start\">\n    <div class=\"py-1.5\">\n      <div v-if=\"shown.length > 0\">\n        <div\n          v-for=\"col in allColumns.filter((c) => shown.includes(c.id))\"\n          :key=\"col.id\"\n          class=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n          @click=\"shown = shown.filter((c) => c !== col.id)\"\n        >\n          <span class=\"text-sm\">{{ col.label }}</span>\n          <Switch :checked=\"true\" />\n        </div>\n      </div>\n      <div v-if=\"shown.length < allColumns.length\">\n        <div\n          v-for=\"col in allColumns.filter((c) => !shown.includes(c.id))\"\n          :key=\"col.id\"\n          class=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n          @click=\"shown = [...shown, col.id]\"\n        >\n          <span class=\"text-sm text-tertiary\">{{ col.label }}</span>\n          <Switch :checked=\"false\" />\n        </div>\n      </div>\n    </div>\n  </PopoverContent>\n</Popover>",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\"><SettingsSlider :width=\"15\" :height=\"15\" /> Columns</Button>\n  </PopoverTrigger>\n  <PopoverContent :min-width=\"240\" side=\"bottom\" align=\"start\">\n    <div class=\"py-1.5\">\n      <div v-if=\"shown.length > 0\">\n        <div\n          v-for=\"col in allColumns.filter((c) => shown.includes(c.id))\"\n          :key=\"col.id\"\n          class=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n          @click=\"shown = shown.filter((c) => c !== col.id)\"\n        >\n          <span class=\"text-sm\">{{ col.label }}</span>\n          <Switch :checked=\"true\" :aria-label=\"col.label\" />\n        </div>\n      </div>\n      <div v-if=\"shown.length < allColumns.length\">\n        <div\n          v-for=\"col in allColumns.filter((c) => !shown.includes(c.id))\"\n          :key=\"col.id\"\n          class=\"flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5\"\n          @click=\"shown = [...shown, col.id]\"\n        >\n          <span class=\"text-sm text-tertiary\">{{ col.label }}</span>\n          <Switch :checked=\"false\" :aria-label=\"col.label\" />\n        </div>\n      </div>\n    </div>\n  </PopoverContent>\n</Popover>",
           "details": "A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups."
         }
       ],
@@ -4031,12 +4342,17 @@
           "name": "loading",
           "type": "boolean",
           "default": "false",
-          "description": "Loading state"
+          "description": "Loading state (aria-busy); hides the indicators and ignores interaction"
         },
         {
           "name": "optically-align",
           "type": "\"start\" | \"end\"",
           "description": "Optical alignment"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the control"
         }
       ],
       "examples": [
@@ -4057,7 +4373,7 @@
         {
           "name": "Selected",
           "code": "<SelectControl class=\"w-[200px]\" :selected=\"selected\">Select...</SelectControl>",
-          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you."
+          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you."
         },
         {
           "name": "Start icon",
@@ -4077,7 +4393,7 @@
         {
           "name": "Loading",
           "code": "<SelectControl class=\"w-[200px]\" selected :loading=\"loading\" :StartIcon=\"CalendarAlt\">Loading...</SelectControl>",
-          "details": "During loading, the dropdown icon and clear action are automatically hidden, and the control ignores pointer and keyboard interaction. Use disabled to add visual disablement."
+          "details": "During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement."
         },
         {
           "name": "Invalid",
@@ -4097,7 +4413,7 @@
         {
           "name": "Country selector",
           "code": "<div class=\"w-[320px]\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"countries\"\n    placeholder=\"Select country...\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :pill=\"pill\"\n    block\n    search-placeholder=\"Search countries...\"\n    :list-min-width=\"300\"\n    :option-class-name=\"countryOptionClass\"\n  >\n    <template #triggerView=\"{ value, label }\">\n      <span style=\"display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap\"><component :is=\"FlagIcon\" :code=\"value\" trigger />{{ label }}</span>\n    </template>\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n  </Select>\n</div>",
-          "details": "A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {\"{ value, label }\"} options, and FlagIcon renders the flag image for a country code."
+          "details": "A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {\"{ value, label }\"} options, and FlagIcon renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it."
         },
         {
           "name": "Country code selector",
@@ -4280,17 +4596,17 @@
       "examples": [
         {
           "name": "App Shell",
-          "code": "<SidebarProvider\n  v-model:open=\"open\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full console-demo', { 'demo-sidebar-flat': !bordered }]\"\n  collapsible=\"icon\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">Console</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n\n      <SidebarContent class=\"console-content\">\n        <!-- Workspace selector -->\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem>\n                <Menu>\n                  <MenuTrigger>\n                    <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Default\">\n                      <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>\n                      <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>\n                      <ChevronUpDown class=\"ml-auto console-workspace-chevron\" style=\"width: 14px; height: 14px\" />\n                    </SidebarMenuButton>\n                  </MenuTrigger>\n                  <MenuContent :min-width=\"200\" align=\"start\">\n                    <MenuItem @select=\"() => {}\">Default</MenuItem>\n                    <MenuItem @select=\"() => {}\">Production</MenuItem>\n                    <MenuItem @select=\"() => {}\">Staging</MenuItem>\n                    <MenuSeparator />\n                    <MenuItem @select=\"() => {}\"><Plus /> New workspace</MenuItem>\n                  </MenuContent>\n                </Menu>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"section in consoleSections\" :key=\"section.id\">\n                <!-- Collapsed rail: hovering a parent opens a flyout with its items -->\n                <SidebarMenuItem v-if=\"sidebar.state === 'collapsed' && !sidebar.isMobile\">\n                  <Popover show-on-hover :hover-open-delay=\"80\">\n                    <PopoverTrigger>\n                      <SidebarMenuButton class=\"console-menu-button\">\n                        <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                        <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                        <SidebarMenuBadge v-if=\"section.badge\">\n                          <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                        </SidebarMenuBadge>\n                        <SidebarMenuChevron class=\"ml-auto transition-transform\" />\n                      </SidebarMenuButton>\n                    </PopoverTrigger>\n                    <PopoverContent side=\"right\" :side-offset=\"8\" :min-width=\"220\" align=\"start\" :auto-focus=\"false\">\n                      <div class=\"p-1\">\n                        <div class=\"px-3 py-2 text-xs font-medium text-tertiary\">{{ section.label }}</div>\n                        <button\n                          v-for=\"item in section.items\"\n                          :key=\"item.id\"\n                          type=\"button\"\n                          :data-active=\"active === item.id ? 'true' : undefined\"\n                          class=\"flex items-center w-full text-left rounded-md px-3 py-1.5 text-sm text-primary cursor-pointer bg-transparent border-0 appearance-none select-none transition-colors hover:bg-[var(--sidebar-accent)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:text-[var(--sidebar-menu-text-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]\"\n                          @click=\"active = item.id\"\n                        >{{ item.label }}</button>\n                      </div>\n                    </PopoverContent>\n                  </Popover>\n                </SidebarMenuItem>\n\n                <!-- Expanded: the parent toggles its sub items -->\n                <SidebarMenuItem v-else :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton class=\"console-menu-button\" @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuBadge v-if=\"section.badge\">\n                      <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                    </SidebarMenuBadge>\n                    <SidebarMenuChevron\n                      class=\"ml-auto transition-transform\"\n                      :style=\"{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }\"\n                    />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"item in section.items\" :key=\"item.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active === item.id\" @click=\"active = item.id\">{{ item.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n\n      <SidebarFooter class=\"console-footer\">\n        <SidebarMenu>\n          <SidebarMenuItem>\n            <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Documentation\">\n              <SidebarMenuButtonIcon><Book /></SidebarMenuButtonIcon>\n              <SidebarMenuButtonLabel>Documentation</SidebarMenuButtonLabel>\n            </SidebarMenuButton>\n          </SidebarMenuItem>\n          <SidebarSeparator class=\"console-footer-separator\" />\n          <SidebarMenuItem>\n            <Menu>\n              <MenuTrigger>\n                <SidebarMenuButton class=\"console-menu-button console-account-button\" tooltip=\"Alex · Acme Inc\">\n                  <SidebarMenuButtonIcon>\n                    <Avatar name=\"Alex\" :size=\"24\" color=\"secondary\" variant=\"solid\" />\n                  </SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>\n                    <span class=\"flex flex-col leading-tight\">\n                      <span class=\"font-medium text-primary text-sm\">Alex</span>\n                      <span class=\"text-tertiary text-xs\">Admin</span>\n                    </span>\n                  </SidebarMenuButtonLabel>\n                  <ChevronDownMd class=\"ml-auto\" style=\"width: 14px; height: 14px\" />\n                </SidebarMenuButton>\n              </MenuTrigger>\n              <MenuContent :min-width=\"260\" align=\"start\" side=\"top\">\n                <MenuItem disabled>\n                  <span class=\"text-tertiary text-sm\">alex@example.com</span>\n                </MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <BuildingWorkspace /> Acme Inc\n                  <span class=\"ml-auto text-xs text-tertiary\">API plan</span>\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><SettingsCog /> Organization settings</MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Chat /> Feedback</MenuItem>\n                <MenuItem @select=\"() => {}\"><Help /> Get help</MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <InfoCircle /> Legal center\n                  <ChevronRightMd class=\"ml-auto\" />\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Logout /> Log out</MenuItem>\n              </MenuContent>\n            </Menu>\n          </SidebarMenuItem>\n        </SidebarMenu>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-2\">\n          {{ consoleSections.flatMap((s) => [s, ...s.items]).find((i) => i.id === active)?.label ?? 'Workbench' }}\n        </h1>\n        <p class=\"text-secondary\">\n          Hover the icons when collapsed to reveal a flyout with the section's items.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
+          "code": "<SidebarProvider\n  v-model:open=\"open\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full console-demo', { 'demo-sidebar-flat': !bordered }]\"\n  collapsible=\"icon\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">Console</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact>\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘B</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n\n      <SidebarContent class=\"console-content\">\n        <!-- Workspace selector -->\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem>\n                <Menu>\n                  <MenuTrigger>\n                    <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Default\">\n                      <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>\n                      <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>\n                      <ChevronUpDown class=\"ml-auto console-workspace-chevron\" style=\"width: 14px; height: 14px\" />\n                    </SidebarMenuButton>\n                  </MenuTrigger>\n                  <MenuContent :min-width=\"200\" align=\"start\">\n                    <MenuItem @select=\"() => {}\">Default</MenuItem>\n                    <MenuItem @select=\"() => {}\">Production</MenuItem>\n                    <MenuItem @select=\"() => {}\">Staging</MenuItem>\n                    <MenuSeparator />\n                    <MenuItem @select=\"() => {}\"><Plus /> New workspace</MenuItem>\n                  </MenuContent>\n                </Menu>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"section in consoleSections\" :key=\"section.id\">\n                <!-- Collapsed rail: hovering a parent opens a flyout with its items -->\n                <SidebarMenuItem v-if=\"sidebar.state === 'collapsed' && !sidebar.isMobile\">\n                  <Popover show-on-hover :hover-open-delay=\"80\">\n                    <PopoverTrigger>\n                      <SidebarMenuButton class=\"console-menu-button\">\n                        <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                        <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                        <SidebarMenuBadge v-if=\"section.badge\">\n                          <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                        </SidebarMenuBadge>\n                        <SidebarMenuChevron class=\"ml-auto transition-transform\" />\n                      </SidebarMenuButton>\n                    </PopoverTrigger>\n                    <PopoverContent side=\"right\" :side-offset=\"8\" :min-width=\"220\" align=\"start\" :auto-focus=\"false\">\n                      <div class=\"p-1\">\n                        <div class=\"px-3 py-2 text-xs font-medium text-tertiary\">{{ section.label }}</div>\n                        <button\n                          v-for=\"item in section.items\"\n                          :key=\"item.id\"\n                          type=\"button\"\n                          :data-active=\"active === item.id ? 'true' : undefined\"\n                          class=\"flex items-center w-full text-left rounded-md px-3 py-1.5 text-sm text-primary cursor-pointer bg-transparent border-0 appearance-none select-none transition-colors hover:bg-[var(--sidebar-accent)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:text-[var(--sidebar-menu-text-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]\"\n                          @click=\"active = item.id\"\n                        >{{ item.label }}</button>\n                      </div>\n                    </PopoverContent>\n                  </Popover>\n                </SidebarMenuItem>\n\n                <!-- Expanded: the parent toggles its sub items -->\n                <SidebarMenuItem v-else :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton class=\"console-menu-button\" @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuBadge v-if=\"section.badge\">\n                      <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                    </SidebarMenuBadge>\n                    <SidebarMenuChevron\n                      class=\"ml-auto transition-transform\"\n                      :style=\"{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }\"\n                    />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"item in section.items\" :key=\"item.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active === item.id\" @click=\"active = item.id\">{{ item.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n\n      <SidebarFooter class=\"console-footer\">\n        <SidebarMenu>\n          <SidebarMenuItem>\n            <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Documentation\">\n              <SidebarMenuButtonIcon><Book /></SidebarMenuButtonIcon>\n              <SidebarMenuButtonLabel>Documentation</SidebarMenuButtonLabel>\n            </SidebarMenuButton>\n          </SidebarMenuItem>\n          <SidebarSeparator class=\"console-footer-separator\" />\n          <SidebarMenuItem>\n            <Menu>\n              <MenuTrigger>\n                <SidebarMenuButton class=\"console-menu-button console-account-button\" tooltip=\"Alex · Acme Inc\">\n                  <SidebarMenuButtonIcon>\n                    <Avatar name=\"Alex\" :size=\"24\" color=\"secondary\" variant=\"solid\" />\n                  </SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>\n                    <span class=\"flex flex-col leading-tight\">\n                      <span class=\"font-medium text-primary text-sm\">Alex</span>\n                      <span class=\"text-tertiary text-xs\">Admin</span>\n                    </span>\n                  </SidebarMenuButtonLabel>\n                  <ChevronDownMd class=\"ml-auto\" style=\"width: 14px; height: 14px\" />\n                </SidebarMenuButton>\n              </MenuTrigger>\n              <MenuContent :min-width=\"260\" align=\"start\" side=\"top\">\n                <MenuItem disabled>\n                  <span class=\"text-tertiary text-sm\">alex@example.com</span>\n                </MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <BuildingWorkspace /> Acme Inc\n                  <span class=\"ml-auto text-xs text-tertiary\">API plan</span>\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><SettingsCog /> Organization settings</MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Chat /> Feedback</MenuItem>\n                <MenuItem @select=\"() => {}\"><Help /> Get help</MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <InfoCircle /> Legal center\n                  <ChevronRightMd class=\"ml-auto\" />\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Logout /> Log out</MenuItem>\n              </MenuContent>\n            </Menu>\n          </SidebarMenuItem>\n        </SidebarMenu>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-2\">\n          {{ consoleSections.flatMap((s) => [s, ...s.items]).find((i) => i.id === active)?.label ?? 'Workbench' }}\n        </h1>\n        <p class=\"text-secondary\">\n          Hover the icons when collapsed to reveal a flyout with the section's items.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
           "details": "A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail."
         },
         {
           "name": "Basic",
-          "code": "<SidebarProvider\n  :key=\"collapsible + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"icons ? collapsible : 'none'\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel :size=\"labelSize\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"activeItem === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"activeItem = item.label\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuBadge v-if=\"badges && item.badge\">\n                    <Badge size=\"sm\" color=\"info\">{{ item.badge }}</Badge>\n                  </SidebarMenuBadge>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n      <SidebarFooter v-if=\"footerCard\">\n        <SidebarCard dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ activeItem }}</h1>\n        <p class=\"text-secondary\">Main content area.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>"
+          "code": "<SidebarProvider\n  :key=\"collapsible + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"icons ? collapsible : 'none'\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact>\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘B</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel :size=\"labelSize\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"activeItem === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"activeItem = item.label\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuBadge v-if=\"badges && item.badge\">\n                    <Badge size=\"sm\" color=\"info\">{{ item.badge }}</Badge>\n                  </SidebarMenuBadge>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n      <SidebarFooter v-if=\"footerCard\">\n        <SidebarCard dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ activeItem }}</h1>\n        <p class=\"text-secondary\">Main content area.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>"
         },
         {
           "name": "Collapsible Sections",
           "code": "<SidebarProvider :key=\"icons ? 'icons' : 'no-icons'\" class=\"h-full\" collapsible=\"none\">\n  <SidebarLayout class=\"h-full\">\n    <Sidebar :variant=\"icons ? undefined : 'docs'\">\n      <SidebarContent>\n        <SidebarGroup v-if=\"icons\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                  <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuChevron />\n                </SidebarMenuButton>\n                <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                  <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                    <SidebarMenuSubButton :indent=\"1\" :is-active=\"appPage.id === child.id\" @click=\"appPage = child\">{{ child.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </SidebarMenuSub>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n        <template v-else>\n          <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <template v-for=\"a in section.items\" :key=\"a.id\">\n                  <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                    <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                      {{ a.label }}<SidebarMenuChevron />\n                    </SidebarMenuSubButton>\n                    <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                      <template v-for=\"b in a.items\" :key=\"b.id\">\n                        <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                          <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                            {{ b.label }}<SidebarMenuChevron />\n                          </SidebarMenuSubButton>\n                          <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                            <template v-for=\"c in b.items\" :key=\"c.id\">\n                              <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                                <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                  {{ c.label }}<SidebarMenuChevron />\n                                </SidebarMenuSubButton>\n                                <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                  <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                    <SidebarMenuSubButton :indent=\"3\" :is-active=\"docsPage.id === d.id\" @click=\"docsPage = d\">{{ d.label }}</SidebarMenuSubButton>\n                                  </SidebarMenuSubItem>\n                                </SidebarMenuSub>\n                              </SidebarMenuItem>\n                              <SidebarMenuSubItem v-else>\n                                <SidebarMenuSubButton :indent=\"2\" :is-active=\"docsPage.id === c.id\" @click=\"docsPage = c\">{{ c.label }}</SidebarMenuSubButton>\n                              </SidebarMenuSubItem>\n                            </template>\n                          </SidebarMenuSub>\n                        </SidebarMenuItem>\n                        <SidebarMenuSubItem v-else>\n                          <SidebarMenuSubButton :indent=\"1\" :is-active=\"docsPage.id === b.id\" @click=\"docsPage = b\">{{ b.label }}</SidebarMenuSubButton>\n                        </SidebarMenuSubItem>\n                      </template>\n                    </SidebarMenuSub>\n                  </SidebarMenuItem>\n                  <SidebarMenuSubItem v-else>\n                    <SidebarMenuSubButton :indent=\"0\" :is-active=\"docsPage.id === a.id\" @click=\"docsPage = a\">{{ a.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </template>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </template>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ (icons ? appPage : docsPage).label }}</h1>\n        <p class=\"text-secondary\">\n          Documentation page for {{ (icons ? appPage : docsPage).label }}. This is where the content would be displayed.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
-          "details": "Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. Each level of the tree is one v-for; a parent is a SidebarMenuItem whose SidebarMenuSub holds the next level."
+          "details": "Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Each level of the tree is one v-for."
         },
         {
           "name": "Search and Filter",
@@ -4300,11 +4616,11 @@
         {
           "name": "Tree with Hover Actions",
           "code": "<script setup lang=\"ts\">\nimport { computed, ref, watch, type Component } from \"vue\"\nimport { Button } from \"@plexui/vue/components/Button\"\nimport { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from \"@plexui/vue/components/Menu\"\nimport {\n  Sidebar,\n  SidebarContent,\n  SidebarGroup,\n  SidebarGroupContent,\n  SidebarHeader,\n  SidebarInput,\n  SidebarInset,\n  SidebarLayout,\n  SidebarMenu,\n  SidebarMenuButton,\n  SidebarMenuButtonIcon,\n  SidebarMenuButtonLabel,\n  SidebarMenuItem,\n  SidebarMenuSub,\n  SidebarMenuSubButton,\n  SidebarMenuSubItem,\n  SidebarProvider,\n} from \"@plexui/vue/components/Sidebar\"\nimport {\n  // Row types\n  Abc, AllProductsExplore, Bolt, ButtonMousePointer, Calendar, CheckboxChecked, CheckCheck, CheckMd,\n  Clip, Commit, Desktop, Globe, GroupCheck, GroupCheckCircle, ImageSquare, LinkExternal, MapPin,\n  Number123, PanelBottom, Phone, SpacingVertical, SquareAsterisk, SquareDashed, TextAlignStart,\n  TextInitial, TextSelect,\n  // Header and row actions\n  ChevronDownMd, Filter, FilterBadge, GripVertical, ListChevronsDownUp, Plus,\n} from \"@plexui/vue/components/Icon\"\n\ntype NodeType =\n  | \"action\"\n  | \"condition\"\n  | \"module\"\n  | \"screen\"\n  | \"container\"\n  | \"footer\"\n  | \"button\"\n  | \"image\"\n  | \"text\"\n  | \"title\"\n  | \"spacer\"\n  | \"address-input\"\n  | \"checkbox\"\n  | \"checkbox-group\"\n  | \"country-select\"\n  | \"date\"\n  | \"file-upload\"\n  | \"masked-text\"\n  | \"multi-select\"\n  | \"number-input\"\n  | \"phone-number\"\n  | \"radio-group\"\n  | \"select\"\n  | \"text-area\"\n  | \"text-input\"\n  | \"url-input\"\n\ntype ActionNode = { id: string; label: string; type: NodeType; children?: ActionNode[] }\n\nconst nodeTypes: Record<NodeType, { icon: Component; label: string }> = {\n  action: { icon: Bolt, label: \"Action\" },\n  condition: { icon: Commit, label: \"Condition\" },\n  module: { icon: AllProductsExplore, label: \"Module\" },\n  screen: { icon: Desktop, label: \"Screen\" },\n  container: { icon: SquareDashed, label: \"Container\" },\n  footer: { icon: PanelBottom, label: \"Footer\" },\n  button: { icon: ButtonMousePointer, label: \"Button\" },\n  image: { icon: ImageSquare, label: \"Image\" },\n  text: { icon: TextAlignStart, label: \"Text\" },\n  title: { icon: TextInitial, label: \"Title\" },\n  spacer: { icon: SpacingVertical, label: \"Spacer\" },\n  \"address-input\": { icon: MapPin, label: \"Address input\" },\n  checkbox: { icon: CheckboxChecked, label: \"Checkbox\" },\n  \"checkbox-group\": { icon: GroupCheck, label: \"Checkbox group\" },\n  \"country-select\": { icon: Globe, label: \"Country select\" },\n  date: { icon: Calendar, label: \"Date\" },\n  \"file-upload\": { icon: Clip, label: \"File upload\" },\n  \"masked-text\": { icon: SquareAsterisk, label: \"Masked text\" },\n  \"multi-select\": { icon: CheckCheck, label: \"Multi select\" },\n  \"number-input\": { icon: Number123, label: \"Number input\" },\n  \"phone-number\": { icon: Phone, label: \"Phone number\" },\n  \"radio-group\": { icon: GroupCheckCircle, label: \"Radio group\" },\n  select: { icon: CheckMd, label: \"Select\" },\n  \"text-area\": { icon: TextSelect, label: \"Text area\" },\n  \"text-input\": { icon: Abc, label: \"Text input\" },\n  \"url-input\": { icon: LinkExternal, label: \"URL input\" },\n}\n\nconst filterOptions = ([\"action\", \"condition\", \"module\", \"screen\", \"container\", \"footer\"] as NodeType[]).map((type) => ({\n  value: type,\n  label: nodeTypes[type].label,\n}))\n\nconst elementTypes: NodeType[] = [\"button\", \"image\", \"text\", \"title\", \"spacer\"]\nconst formTypes: NodeType[] = [\n  \"address-input\", \"checkbox\", \"checkbox-group\", \"country-select\", \"date\",\n  \"file-upload\", \"masked-text\", \"multi-select\", \"number-input\", \"phone-number\",\n  \"radio-group\", \"select\", \"text-area\", \"text-input\", \"url-input\",\n]\n\n/** The + menu: a screen adds a container or a footer, any other row adds elements */\nconst addMenu = (node: ActionNode): NodeType[][] =>\n  node.type === \"screen\" ? [[\"container\", \"footer\"]] : [elementTypes, formTypes]\n\nconst ghostButton =\n  \"inline-flex items-center justify-center shrink-0 rounded-sm cursor-pointer p-0 m-0 border-0 bg-transparent appearance-none leading-none align-middle select-none hover:bg-[var(--color-background-secondary-ghost-hover)] active:bg-[var(--color-background-secondary-ghost-hover)] transition-colors [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto\"\n\n// Demo controls\nconst action = ref<\"collapse\" | \"filter\">(\"collapse\")\nconst bordered = ref(true)\n\nconst steps = ref<ActionNode[]>([\n  { id: \"action\", label: \"Action\", type: \"action\" },\n  { id: \"condition\", label: \"Condition\", type: \"condition\" },\n  {\n    id: \"screen\", label: \"Screen\", type: \"screen\",\n    children: [\n      {\n        id: \"container-elements\", label: \"Container 1\", type: \"container\",\n        children: [\n          { id: \"el-button\", label: \"Button\", type: \"button\" },\n          { id: \"el-image\", label: \"Image\", type: \"image\" },\n          { id: \"el-text\", label: \"Text\", type: \"text\" },\n          { id: \"el-title\", label: \"Title\", type: \"title\" },\n          { id: \"el-spacer\", label: \"Spacer\", type: \"spacer\" },\n        ],\n      },\n      {\n        id: \"container-forms\", label: \"Container 2\", type: \"container\",\n        children: [\n          { id: \"fm-address\", label: \"Address input\", type: \"address-input\" },\n          { id: \"fm-checkbox\", label: \"Checkbox\", type: \"checkbox\" },\n          { id: \"fm-checkgroup\", label: \"Checkbox group\", type: \"checkbox-group\" },\n          { id: \"fm-country\", label: \"Country select\", type: \"country-select\" },\n          { id: \"fm-date\", label: \"Date\", type: \"date\" },\n          { id: \"fm-file\", label: \"File upload\", type: \"file-upload\" },\n          { id: \"fm-masked\", label: \"Masked text\", type: \"masked-text\" },\n          { id: \"fm-multi\", label: \"Multi select\", type: \"multi-select\" },\n          { id: \"fm-number\", label: \"Number input\", type: \"number-input\" },\n          { id: \"fm-phone\", label: \"Phone number\", type: \"phone-number\" },\n          { id: \"fm-radio\", label: \"Radio group\", type: \"radio-group\" },\n          { id: \"fm-select\", label: \"Select\", type: \"select\" },\n          { id: \"fm-textarea\", label: \"Text area\", type: \"text-area\" },\n          { id: \"fm-textinput\", label: \"Text input\", type: \"text-input\" },\n          { id: \"fm-url\", label: \"URL input\", type: \"url-input\" },\n        ],\n      },\n      {\n        id: \"footer\", label: \"Footer\", type: \"footer\",\n        children: [\n          { id: \"ft-text\", label: \"Text\", type: \"text\" },\n          { id: \"ft-button\", label: \"Button\", type: \"button\" },\n        ],\n      },\n    ],\n  },\n  {\n    id: \"module\", label: \"Module\", type: \"module\",\n    children: [\n      { id: \"mod-screen-1\", label: \"Screen 1\", type: \"screen\" },\n      { id: \"mod-screen-2\", label: \"Screen 2\", type: \"screen\" },\n      { id: \"mod-screen-3\", label: \"Screen 3\", type: \"screen\" },\n    ],\n  },\n])\n\nconst search = ref(\"\")\nconst typeFilters = ref<NodeType[]>([])\nconst activeItem = ref(\"screen\")\n\nconst groupIds = [\"screen\", \"container-elements\", \"container-forms\", \"footer\", \"module\"]\nconst expandAll = (): Record<string, boolean> => Object.fromEntries(groupIds.map((id) => [id, true]))\nconst expanded = ref<Record<string, boolean>>(expandAll())\n\nfunction toggle(id: string) {\n  expanded.value[id] = !expanded.value[id]\n}\n\n// Collapse mode: one button folds every group, or opens them all again\nconst hasAnyExpanded = computed(() => groupIds.some((id) => expanded.value[id]))\nfunction toggleCollapseAll() {\n  expanded.value = hasAnyExpanded.value ? {} : expandAll()\n}\n\n// Filter mode: a search or a type filter lists the matching rows flat\nconst isFlattening = computed(\n  () => action.value === \"filter\" && (typeFilters.value.length > 0 || search.value.length > 0),\n)\nconst visibleSteps = computed(() =>\n  isFlattening.value\n    ? flattenNodes(steps.value, typeFilters.value, search.value)\n    : filterTree(steps.value, search.value),\n)\nconst activeLabel = computed(() => findLabel(steps.value, activeItem.value) || \"Screen\")\n\n// Switching modes clears the search and the type filters\nwatch(action, (mode) => {\n  typeFilters.value = []\n  search.value = \"\"\n  if (mode === \"collapse\") expanded.value = expandAll()\n})\n\n/** The tree, keeping the parents of matching rows */\nfunction filterTree(items: ActionNode[], query: string): ActionNode[] {\n  if (!query) return items\n  return items.reduce<ActionNode[]>((acc, item) => {\n    const match = item.label.toLowerCase().includes(query.toLowerCase())\n    const children = item.children ? filterTree(item.children, query) : undefined\n    const childMatch = !!children && children.length > 0\n    if (match || childMatch) acc.push(childMatch ? { ...item, children } : item)\n    return acc\n  }, [])\n}\n\n/** Every row of the checked types (all types when none is) matching the search, as a flat list */\nfunction flattenNodes(items: ActionNode[], types: NodeType[], query: string): ActionNode[] {\n  const result: ActionNode[] = []\n  const collect = (list: ActionNode[]) => {\n    for (const item of list) {\n      const matchType = types.length === 0 || types.includes(item.type)\n      const matchSearch = !query || item.label.toLowerCase().includes(query.toLowerCase())\n      if (matchType && matchSearch) result.push(item)\n      if (item.children) collect(item.children)\n    }\n  }\n  collect(items)\n  return result\n}\n\n/** The label of a row anywhere in the tree */\nfunction findLabel(items: ActionNode[], id: string): string {\n  for (const item of items) {\n    if (item.id === id) return item.label\n    if (item.children) {\n      const found = findLabel(item.children, id)\n      if (found) return found\n    }\n  }\n  return \"\"\n}\n\n// Drag and drop (native HTML5): pressing a row's grip makes the row\n// draggable; it drops on the rows of its own list and takes their place.\n\n/** Containers in a screen (not its Footer) and elements reorder; a module's screens do not */\nconst isSortable = (parent: ActionNode, node: ActionNode) => parent.type !== \"module\" && node.type !== \"footer\"\n\nconst grabbed = ref<string | null>(null) // the row whose grip is pressed\nconst dragId = ref<string | null>(null)\nconst overId = ref<string | null>(null) // the drop target, drawn hovered\nlet dropIds: string[] = []\n\n/** Moves `activeId` to the place of `targetId` in the list holding both; the Footer never moves */\nfunction reorderTree(items: ActionNode[], activeId: string, targetId: string): ActionNode[] {\n  return items.map((item) => {\n    if (!item.children) return item\n    const from = item.children.findIndex((child) => child.id === activeId)\n    const to = item.children.findIndex((child) => child.id === targetId)\n    if (from !== -1 && to !== -1) {\n      if (item.children[from].type === \"footer\" || item.children[to].type === \"footer\") return item\n      const children = [...item.children]\n      children.splice(to, 0, ...children.splice(from, 1))\n      return { ...item, children }\n    }\n    return { ...item, children: reorderTree(item.children, activeId, targetId) }\n  })\n}\n\nfunction startDrag(event: DragEvent, parent: ActionNode, node: ActionNode) {\n  dragId.value = node.id\n  dropIds = (parent.children ?? []).filter((sibling) => isSortable(parent, sibling)).map((sibling) => sibling.id)\n  if (event.dataTransfer) {\n    event.dataTransfer.effectAllowed = \"move\"\n    event.dataTransfer.setData(\"text/plain\", node.id)\n  }\n}\n\nfunction dragOver(event: DragEvent, id: string) {\n  if (!dragId.value || !dropIds.includes(id)) return\n  event.preventDefault() // accepts the drop\n  overId.value = id === dragId.value ? null : id\n}\n\n/** Anywhere else in the sidebar there is no drop target */\nfunction clearDropTarget(event: DragEvent) {\n  if (!event.defaultPrevented) overId.value = null\n}\n\nfunction endDrag() {\n  grabbed.value = null\n  dragId.value = null\n  overId.value = null\n  dropIds = []\n}\n\nfunction dropOn(event: DragEvent, id: string) {\n  if (!dragId.value || !dropIds.includes(id)) return\n  event.preventDefault()\n  if (id !== dragId.value) steps.value = reorderTree(steps.value, dragId.value, id)\n  endDrag()\n}\n\n/** Sub rows are 32px tall and indented 24px a level; leaves also skip the chevron column */\nconst rowStyle = (depth: number, node: ActionNode) => ({\n  paddingLeft: 4 + (node.children ? depth : depth + 1) * 24 + \"px\",\n  paddingRight: \"4px\",\n  paddingTop: \"0\",\n  paddingBottom: \"0\",\n  height: \"32px\",\n})\n</script>\n\n<template>\n  <SidebarProvider :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\" collapsible=\"none\">\n    <SidebarLayout class=\"h-full\">\n      <Sidebar class=\"!py-4\">\n        <SidebarHeader>\n          <div class=\"flex items-center gap-2 w-full [&>div:first-child>div]:!p-0\">\n            <div class=\"flex-1\">\n              <SidebarInput\n                v-model:value=\"search\"\n                size=\"md\"\n                :pill=\"false\"\n                variant=\"soft\"\n                placeholder=\"Search...\"\n                @clear=\"search = ''\"\n              />\n            </div>\n            <!-- collapse: folds every group, or opens them all again -->\n            <Button\n              v-if=\"action === 'collapse'\"\n              variant=\"soft\"\n              size=\"md\"\n              color=\"secondary\"\n              :pill=\"false\"\n              uniform\n              aria-label=\"Collapse all\"\n              :aria-pressed=\"!hasAnyExpanded\"\n              @click=\"toggleCollapseAll\"\n            >\n              <ListChevronsDownUp />\n            </Button>\n            <!-- filter: lists the rows of the checked types -->\n            <Menu v-else>\n              <MenuTrigger>\n                <Button variant=\"soft\" size=\"md\" color=\"secondary\" :pill=\"false\" aria-label=\"Filter by type\" uniform>\n                  <FilterBadge v-if=\"typeFilters.length > 0\" />\n                  <Filter v-else />\n                </Button>\n              </MenuTrigger>\n              <MenuContent min-width=\"auto\" align=\"end\">\n                <MenuCheckboxItem\n                  v-for=\"option in filterOptions\"\n                  :key=\"option.value\"\n                  :checked=\"typeFilters.includes(option.value)\"\n                  indicator-position=\"end\"\n                  indicator-variant=\"ghost\"\n                  @update:checked=\"(checked) => (typeFilters = checked ? [...typeFilters, option.value] : typeFilters.filter((v) => v !== option.value))\"\n                  @select=\"(event) => event.preventDefault()\"\n                >{{ option.label }}</MenuCheckboxItem>\n              </MenuContent>\n            </Menu>\n          </div>\n        </SidebarHeader>\n        <SidebarContent @dragover=\"clearDropTarget\">\n          <SidebarGroup>\n            <SidebarGroupContent>\n              <!-- Filter mode, searching or filtering by type: a flat list -->\n              <SidebarMenu v-if=\"isFlattening\">\n                <SidebarMenuItem v-for=\"item in visibleSteps\" :key=\"item.id\">\n                  <SidebarMenuButton :is-active=\"activeItem === item.id\" @click=\"activeItem = item.id\">\n                    <SidebarMenuButtonIcon style=\"--sidebar-icon-size: 16px\">\n                      <component :is=\"nodeTypes[item.type].icon\" />\n                    </SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  </SidebarMenuButton>\n                </SidebarMenuItem>\n              </SidebarMenu>\n\n              <!-- Otherwise the tree, narrowed by the search -->\n              <SidebarMenu v-else>\n                <SidebarMenuItem v-for=\"item in visibleSteps\" :key=\"item.id\" :expanded=\"!!expanded[item.id]\">\n                  <div class=\"group/atp relative\">\n                    <SidebarMenuButton\n                      :is-active=\"activeItem === item.id\"\n                      class=\"group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]\"\n                      @click=\"activeItem = item.id\"\n                    >\n                      <span class=\"flex items-center shrink-0\" style=\"margin-left: 4px\">\n                        <span\n                          v-if=\"item.children\"\n                          role=\"none\"\n                          class=\"transition-transform\"\n                          :class=\"ghostButton\"\n                          style=\"width: 24px; height: 24px\"\n                          :style=\"{ transform: expanded[item.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }\"\n                          @click.stop=\"toggle(item.id)\"\n                          @keydown.enter.stop=\"toggle(item.id)\"\n                          @keydown.space.stop=\"toggle(item.id)\"\n                        >\n                          <ChevronDownMd />\n                        </span>\n                        <span v-else style=\"width: 24px; flex-shrink: 0\" />\n                        <span\n                          class=\"inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]\"\n                          style=\"width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px\"\n                        >\n                          <component :is=\"nodeTypes[item.type].icon\" />\n                        </span>\n                      </span>\n                      <SidebarMenuButtonLabel class=\"group-hover/atp:pr-[52px]\">{{ item.label }}</SidebarMenuButtonLabel>\n                    </SidebarMenuButton>\n                    <span\n                      class=\"item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto z-[2]\"\n                    >\n                      <Menu>\n                        <MenuTrigger>\n                          <button type=\"button\" :class=\"ghostButton\" style=\"width: 24px; height: 24px\" aria-label=\"Add\"><Plus /></button>\n                        </MenuTrigger>\n                        <MenuContent min-width=\"auto\" align=\"end\">\n                          <template v-for=\"(types, index) in addMenu(item)\" :key=\"index\">\n                            <MenuSeparator v-if=\"index > 0\" />\n                            <MenuItem v-for=\"type in types\" :key=\"type\" @select=\"() => {}\">\n                              <span class=\"inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full\"><component :is=\"nodeTypes[type].icon\" /></span> {{ nodeTypes[type].label }}\n                            </MenuItem>\n                          </template>\n                        </MenuContent>\n                      </Menu>\n                    </span>\n                  </div>\n                  <SidebarMenuSub v-if=\"item.children\" :open=\"!!expanded[item.id]\" has-icons>\n                    <SidebarMenuSubItem\n                      v-for=\"child in item.children\"\n                      :key=\"child.id\"\n                      :style=\"dragId === child.id ? 'opacity: 0.7' : undefined\"\n                    >\n                      <div\n                        class=\"group/ati relative\"\n                        :draggable=\"grabbed === child.id\"\n                        @dragstart=\"startDrag($event, item, child)\"\n                        @dragover=\"dragOver($event, child.id)\"\n                        @drop=\"dropOn($event, child.id)\"\n                        @dragend=\"endDrag\"\n                      >\n                        <SidebarMenuSubButton\n                          :indent=\"1\"\n                          :is-active=\"activeItem === child.id\"\n                          :class=\"[\n                            'gap-0.5',\n                            dragId === child.id || overId === child.id\n                              ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'\n                              : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',\n                          ]\"\n                          :style=\"rowStyle(1, child)\"\n                          @click=\"activeItem = child.id\"\n                        >\n                          <span class=\"flex items-center shrink-0\">\n                            <span\n                              v-if=\"child.children\"\n                              role=\"none\"\n                              class=\"transition-transform shrink-0\"\n                              :class=\"ghostButton\"\n                              style=\"width: 24px; height: 24px\"\n                              :style=\"{ transform: expanded[child.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }\"\n                              @click.stop=\"toggle(child.id)\"\n                              @keydown.enter.stop=\"toggle(child.id)\"\n                              @keydown.space.stop=\"toggle(child.id)\"\n                            >\n                              <ChevronDownMd />\n                            </span>\n                            <span\n                              class=\"inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]\"\n                              style=\"width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px\"\n                            >\n                              <component :is=\"nodeTypes[child.type].icon\" />\n                            </span>\n                          </span>\n                          <span\n                            class=\"flex-1 min-w-0 truncate text-left relative z-[1]\"\n                            :class=\"\n                              dragId === child.id\n                                ? (child.children ? 'pr-[54px]' : 'pr-[30px]')\n                                : (child.children && isSortable(item, child) ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]')\n                            \"\n                          >{{ child.label }}</span>\n                        </SidebarMenuSubButton>\n                        <!-- Hover actions: + on parents, the drag grip on rows that reorder -->\n                        <span\n                          v-if=\"child.children || isSortable(item, child)\"\n                          class=\"item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 z-[2]\"\n                          :class=\"\n                            dragId === child.id\n                              ? 'opacity-100 pointer-events-auto'\n                              : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto'\n                          \"\n                        >\n                          <Menu v-if=\"child.children\">\n                            <MenuTrigger>\n                              <button type=\"button\" :class=\"ghostButton\" style=\"width: 24px; height: 24px\" aria-label=\"Add\"><Plus /></button>\n                            </MenuTrigger>\n                            <MenuContent min-width=\"auto\" align=\"end\">\n                              <template v-for=\"(types, index) in addMenu(child)\" :key=\"index\">\n                                <MenuSeparator v-if=\"index > 0\" />\n                                <MenuItem v-for=\"type in types\" :key=\"type\" @select=\"() => {}\">\n                                  <span class=\"inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full\"><component :is=\"nodeTypes[type].icon\" /></span> {{ nodeTypes[type].label }}\n                                </MenuItem>\n                              </template>\n                            </MenuContent>\n                          </Menu>\n                          <span\n                            v-if=\"isSortable(item, child)\"\n                            class=\"inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]\"\n                            style=\"width: 24px; height: 24px; border-radius: 6px; touch-action: none\"\n                            :style=\"{ cursor: dragId === child.id ? 'grabbing' : 'grab' }\"\n                            @pointerdown=\"grabbed = child.id\"\n                            @pointerup=\"grabbed = null\"\n                          >\n                            <GripVertical />\n                          </span>\n                        </span>\n                      </div>\n                      <SidebarMenuSub v-if=\"child.children && dragId !== child.id\" :open=\"!!expanded[child.id]\" has-icons>\n                        <SidebarMenuSubItem\n                          v-for=\"grandchild in child.children\"\n                          :key=\"grandchild.id\"\n                          :style=\"dragId === grandchild.id ? 'opacity: 0.7' : undefined\"\n                        >\n                          <div\n                            class=\"group/ati relative\"\n                            :draggable=\"grabbed === grandchild.id\"\n                            @dragstart=\"startDrag($event, child, grandchild)\"\n                            @dragover=\"dragOver($event, grandchild.id)\"\n                            @drop=\"dropOn($event, grandchild.id)\"\n                            @dragend=\"endDrag\"\n                          >\n                            <SidebarMenuSubButton\n                              :indent=\"1\"\n                              :is-active=\"activeItem === grandchild.id\"\n                              :class=\"[\n                                'gap-0.5',\n                                dragId === grandchild.id || overId === grandchild.id\n                                  ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'\n                                  : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',\n                              ]\"\n                              :style=\"rowStyle(2, grandchild)\"\n                              @click=\"activeItem = grandchild.id\"\n                            >\n                              <span class=\"flex items-center shrink-0\">\n                                <span\n                                  v-if=\"grandchild.children\"\n                                  role=\"none\"\n                                  class=\"transition-transform shrink-0\"\n                                  :class=\"ghostButton\"\n                                  style=\"width: 24px; height: 24px\"\n                                  :style=\"{ transform: expanded[grandchild.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }\"\n                                  @click.stop=\"toggle(grandchild.id)\"\n                                  @keydown.enter.stop=\"toggle(grandchild.id)\"\n                                  @keydown.space.stop=\"toggle(grandchild.id)\"\n                                >\n                                  <ChevronDownMd />\n                                </span>\n                                <span\n                                  class=\"inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]\"\n                                  style=\"width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px\"\n                                >\n                                  <component :is=\"nodeTypes[grandchild.type].icon\" />\n                                </span>\n                              </span>\n                              <span\n                                class=\"flex-1 min-w-0 truncate text-left relative z-[1]\"\n                                :class=\"\n                                  dragId === grandchild.id\n                                    ? (grandchild.children ? 'pr-[54px]' : 'pr-[30px]')\n                                    : (grandchild.children && isSortable(child, grandchild) ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]')\n                                \"\n                              >{{ grandchild.label }}</span>\n                            </SidebarMenuSubButton>\n                            <!-- Hover actions: + on parents, the drag grip on rows that reorder -->\n                            <span\n                              v-if=\"grandchild.children || isSortable(child, grandchild)\"\n                              class=\"item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 z-[2]\"\n                              :class=\"\n                                dragId === grandchild.id\n                                  ? 'opacity-100 pointer-events-auto'\n                                  : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto'\n                              \"\n                            >\n                              <Menu v-if=\"grandchild.children\">\n                                <MenuTrigger>\n                                  <button type=\"button\" :class=\"ghostButton\" style=\"width: 24px; height: 24px\" aria-label=\"Add\"><Plus /></button>\n                                </MenuTrigger>\n                                <MenuContent min-width=\"auto\" align=\"end\">\n                                  <template v-for=\"(types, index) in addMenu(grandchild)\" :key=\"index\">\n                                    <MenuSeparator v-if=\"index > 0\" />\n                                    <MenuItem v-for=\"type in types\" :key=\"type\" @select=\"() => {}\">\n                                      <span class=\"inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full\"><component :is=\"nodeTypes[type].icon\" /></span> {{ nodeTypes[type].label }}\n                                    </MenuItem>\n                                  </template>\n                                </MenuContent>\n                              </Menu>\n                              <span\n                                v-if=\"isSortable(child, grandchild)\"\n                                class=\"inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]\"\n                                style=\"width: 24px; height: 24px; border-radius: 6px; touch-action: none\"\n                                :style=\"{ cursor: dragId === grandchild.id ? 'grabbing' : 'grab' }\"\n                                @pointerdown=\"grabbed = grandchild.id\"\n                                @pointerup=\"grabbed = null\"\n                              >\n                                <GripVertical />\n                              </span>\n                            </span>\n                          </div>\n                        </SidebarMenuSubItem>\n                      </SidebarMenuSub>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n      </Sidebar>\n\n      <SidebarInset>\n        <div class=\"p-6\">\n          <h1 class=\"text-2xl font-semibold mb-4\">{{ activeLabel }}</h1>\n          <p class=\"text-secondary\">\n            {{ isFlattening ? 'Filtered results shown as a flat list.' : 'Screen → Container / Footer → Elements. Containers and elements are drag-reorderable; Footer stays pinned.' }}\n          </p>\n        </div>\n      </SidebarInset>\n    </SidebarLayout>\n  </SidebarProvider>\n</template>",
-          "details": "Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (... and +) appear on hover for parent items."
+          "details": "Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a + menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another."
         },
         {
           "name": "Mobile Menu",
-          "code": "<SidebarProvider\n  :key=\"mobile + '-' + nested + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"mobile ? 'offcanvas' : icons ? 'icon' : 'none'\"\n>\n  <!-- Desktop: the sidebar next to the page -->\n  <SidebarLayout v-if=\"!mobile\" class=\"h-full\">\n    <Sidebar v-if=\"!nested\">\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"active.label === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"active = { id: item.label.toLowerCase(), label: item.label }\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else-if=\"icons\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                  <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuChevron />\n                </SidebarMenuButton>\n                <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                  <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                    <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child\">{{ child.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </SidebarMenuSub>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else variant=\"docs\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n          <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"a in section.items\" :key=\"a.id\">\n                <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                  <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                    {{ a.label }}<SidebarMenuChevron />\n                  </SidebarMenuSubButton>\n                  <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                    <template v-for=\"b in a.items\" :key=\"b.id\">\n                      <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                        <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                          {{ b.label }}<SidebarMenuChevron />\n                        </SidebarMenuSubButton>\n                        <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                          <template v-for=\"c in b.items\" :key=\"c.id\">\n                            <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                              <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                {{ c.label }}<SidebarMenuChevron />\n                              </SidebarMenuSubButton>\n                              <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                  <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d\">{{ d.label }}</SidebarMenuSubButton>\n                                </SidebarMenuSubItem>\n                              </SidebarMenuSub>\n                            </SidebarMenuItem>\n                            <SidebarMenuSubItem v-else>\n                              <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c\">{{ c.label }}</SidebarMenuSubButton>\n                            </SidebarMenuSubItem>\n                          </template>\n                        </SidebarMenuSub>\n                      </SidebarMenuItem>\n                      <SidebarMenuSubItem v-else>\n                        <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b\">{{ b.label }}</SidebarMenuSubButton>\n                      </SidebarMenuSubItem>\n                    </template>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n                <SidebarMenuSubItem v-else>\n                  <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a\">{{ a.label }}</SidebarMenuSubButton>\n                </SidebarMenuSubItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Toggle mobile to see the mobile sidebar.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n\n  <!-- Mobile: phone-sized container with a hamburger menu -->\n  <div\n    v-else\n    :data-mobile-menu=\"sidebar.openMobile ? 'visible' : 'hidden'\"\n    style=\"width: 375px; height: 667px; background: var(--gray-75, #f3f3f3); overflow: hidden; position: relative; margin: 0 auto\"\n  >\n    <header class=\"flex items-center\" style=\"justify-content: flex-end; height: 54px; padding: 0 8px\">\n      <SidebarMobileMenuButton />\n    </header>\n    <div\n      style=\"margin: 8px; margin-top: 0; background: var(--color-surface, #ffffff); box-shadow: var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08)); border-radius: 8px; height: calc(100% - 54px - 8px); overflow: auto\"\n    >\n      <!-- Selecting an item closes the menu -->\n      <div v-if=\"sidebar.openMobile\" style=\"padding: 12px\">\n        <SidebarContent v-if=\"!nested\">\n          <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n            <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                  <SidebarMenuButton\n                    :is-active=\"active.label === item.label\"\n                    :tooltip=\"item.label\"\n                    @click=\"active = { id: item.label.toLowerCase(), label: item.label }; sidebar.setOpenMobile(false)\"\n                  >\n                    <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  </SidebarMenuButton>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else-if=\"icons\">\n          <SidebarGroup>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuChevron />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child; sidebar.setOpenMobile(false)\">{{ child.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else>\n          <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <template v-for=\"a in section.items\" :key=\"a.id\">\n                  <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                    <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                      {{ a.label }}<SidebarMenuChevron />\n                    </SidebarMenuSubButton>\n                    <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                      <template v-for=\"b in a.items\" :key=\"b.id\">\n                        <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                          <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                            {{ b.label }}<SidebarMenuChevron />\n                          </SidebarMenuSubButton>\n                          <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                            <template v-for=\"c in b.items\" :key=\"c.id\">\n                              <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                                <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                  {{ c.label }}<SidebarMenuChevron />\n                                </SidebarMenuSubButton>\n                                <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                  <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                    <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d; sidebar.setOpenMobile(false)\">{{ d.label }}</SidebarMenuSubButton>\n                                  </SidebarMenuSubItem>\n                                </SidebarMenuSub>\n                              </SidebarMenuItem>\n                              <SidebarMenuSubItem v-else>\n                                <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c; sidebar.setOpenMobile(false)\">{{ c.label }}</SidebarMenuSubButton>\n                              </SidebarMenuSubItem>\n                            </template>\n                          </SidebarMenuSub>\n                        </SidebarMenuItem>\n                        <SidebarMenuSubItem v-else>\n                          <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b; sidebar.setOpenMobile(false)\">{{ b.label }}</SidebarMenuSubButton>\n                        </SidebarMenuSubItem>\n                      </template>\n                    </SidebarMenuSub>\n                  </SidebarMenuItem>\n                  <SidebarMenuSubItem v-else>\n                    <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a; sidebar.setOpenMobile(false)\">{{ a.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </template>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarCard v-if=\"!nested\" dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </div>\n      <div v-else style=\"padding: 24px\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Click the menu button to open the sidebar and select a different item.</p>\n      </div>\n    </div>\n  </div>\n</SidebarProvider>",
+          "code": "<SidebarProvider\n  :key=\"mobile + '-' + nested + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"mobile ? 'offcanvas' : icons ? 'icon' : 'none'\"\n>\n  <!-- Desktop: the sidebar next to the page -->\n  <SidebarLayout v-if=\"!mobile\" class=\"h-full\">\n    <Sidebar v-if=\"!nested\">\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact>\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘B</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"active.label === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"active = { id: item.label.toLowerCase(), label: item.label }\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else-if=\"icons\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                  <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuChevron />\n                </SidebarMenuButton>\n                <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                  <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                    <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child\">{{ child.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </SidebarMenuSub>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else variant=\"docs\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n          <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"a in section.items\" :key=\"a.id\">\n                <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                  <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                    {{ a.label }}<SidebarMenuChevron />\n                  </SidebarMenuSubButton>\n                  <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                    <template v-for=\"b in a.items\" :key=\"b.id\">\n                      <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                        <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                          {{ b.label }}<SidebarMenuChevron />\n                        </SidebarMenuSubButton>\n                        <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                          <template v-for=\"c in b.items\" :key=\"c.id\">\n                            <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                              <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                {{ c.label }}<SidebarMenuChevron />\n                              </SidebarMenuSubButton>\n                              <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                  <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d\">{{ d.label }}</SidebarMenuSubButton>\n                                </SidebarMenuSubItem>\n                              </SidebarMenuSub>\n                            </SidebarMenuItem>\n                            <SidebarMenuSubItem v-else>\n                              <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c\">{{ c.label }}</SidebarMenuSubButton>\n                            </SidebarMenuSubItem>\n                          </template>\n                        </SidebarMenuSub>\n                      </SidebarMenuItem>\n                      <SidebarMenuSubItem v-else>\n                        <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b\">{{ b.label }}</SidebarMenuSubButton>\n                      </SidebarMenuSubItem>\n                    </template>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n                <SidebarMenuSubItem v-else>\n                  <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a\">{{ a.label }}</SidebarMenuSubButton>\n                </SidebarMenuSubItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Toggle mobile to see the mobile sidebar.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n\n  <!-- Mobile: phone-sized container with a hamburger menu -->\n  <div\n    v-else\n    :data-mobile-menu=\"sidebar.openMobile ? 'visible' : 'hidden'\"\n    style=\"width: 375px; height: 667px; background: var(--gray-75, #f3f3f3); overflow: hidden; position: relative; margin: 0 auto\"\n  >\n    <header class=\"flex items-center\" style=\"justify-content: flex-end; height: 54px; padding: 0 8px\">\n      <SidebarMobileMenuButton />\n    </header>\n    <div\n      style=\"margin: 8px; margin-top: 0; background: var(--color-surface, #ffffff); box-shadow: var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08)); border-radius: 8px; height: calc(100% - 54px - 8px); overflow: auto\"\n    >\n      <!-- Selecting an item closes the menu -->\n      <div v-if=\"sidebar.openMobile\" style=\"padding: 12px\">\n        <SidebarContent v-if=\"!nested\">\n          <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n            <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                  <SidebarMenuButton\n                    :is-active=\"active.label === item.label\"\n                    :tooltip=\"item.label\"\n                    @click=\"active = { id: item.label.toLowerCase(), label: item.label }; sidebar.setOpenMobile(false)\"\n                  >\n                    <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  </SidebarMenuButton>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else-if=\"icons\">\n          <SidebarGroup>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuChevron />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child; sidebar.setOpenMobile(false)\">{{ child.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else>\n          <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <template v-for=\"a in section.items\" :key=\"a.id\">\n                  <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                    <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                      {{ a.label }}<SidebarMenuChevron />\n                    </SidebarMenuSubButton>\n                    <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                      <template v-for=\"b in a.items\" :key=\"b.id\">\n                        <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                          <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                            {{ b.label }}<SidebarMenuChevron />\n                          </SidebarMenuSubButton>\n                          <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                            <template v-for=\"c in b.items\" :key=\"c.id\">\n                              <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                                <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                  {{ c.label }}<SidebarMenuChevron />\n                                </SidebarMenuSubButton>\n                                <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                  <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                    <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d; sidebar.setOpenMobile(false)\">{{ d.label }}</SidebarMenuSubButton>\n                                  </SidebarMenuSubItem>\n                                </SidebarMenuSub>\n                              </SidebarMenuItem>\n                              <SidebarMenuSubItem v-else>\n                                <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c; sidebar.setOpenMobile(false)\">{{ c.label }}</SidebarMenuSubButton>\n                              </SidebarMenuSubItem>\n                            </template>\n                          </SidebarMenuSub>\n                        </SidebarMenuItem>\n                        <SidebarMenuSubItem v-else>\n                          <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b; sidebar.setOpenMobile(false)\">{{ b.label }}</SidebarMenuSubButton>\n                        </SidebarMenuSubItem>\n                      </template>\n                    </SidebarMenuSub>\n                  </SidebarMenuItem>\n                  <SidebarMenuSubItem v-else>\n                    <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a; sidebar.setOpenMobile(false)\">{{ a.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </template>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarCard v-if=\"!nested\" dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </div>\n      <div v-else style=\"padding: 24px\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Click the menu button to open the sidebar and select a different item.</p>\n      </div>\n    </div>\n  </div>\n</SidebarProvider>",
           "details": "Mobile behavior is handled automatically when using SidebarProvider. The SidebarMobileMenuButton provides a standard animated hamburger trigger."
         },
         {
@@ -4341,6 +4657,16 @@
               "description": "Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits"
             },
             {
+              "name": "class",
+              "type": "string",
+              "description": "Class of the provider's wrapper"
+            },
+            {
+              "name": "style",
+              "type": "StyleValue",
+              "description": "Style of the provider's wrapper, e.g. --sidebar-width"
+            },
+            {
               "name": "default slot",
               "type": "{ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }",
               "description": "Receives the sidebar context, the object useSidebar() returns"
@@ -4348,19 +4674,19 @@
           ]
         },
         {
-          "name": "SidebarMenuButton",
-          "description": "Renders a menu item button. Use is-active to highlight the current page.",
+          "name": "SidebarGroup",
+          "description": "A section within SidebarContent.",
           "props": [
             {
-              "name": "is-active",
+              "name": "default-open",
               "type": "boolean",
-              "default": "false",
-              "description": "Highlight the current page"
+              "default": "true",
+              "description": "Initial data-state of the group"
             },
             {
-              "name": "tooltip",
-              "type": "string",
-              "description": "Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content"
+              "name": "open",
+              "type": "boolean",
+              "description": "Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open"
             }
           ]
         },
@@ -4372,7 +4698,46 @@
               "name": "size",
               "type": "\"sm\" | \"lg\"",
               "default": "\"lg\"",
-              "description": "sm: compact, tertiary; lg: larger, primary, more spacing"
+              "description": "sm: compact, tertiary. lg: larger, primary, more spacing"
+            },
+            {
+              "name": "as-child",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render the single child element as the label"
+            }
+          ]
+        },
+        {
+          "name": "SidebarMenuItem",
+          "props": [
+            {
+              "name": "expanded",
+              "type": "boolean",
+              "description": "Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub"
+            }
+          ]
+        },
+        {
+          "name": "SidebarMenuButton",
+          "description": "Renders a menu item button. Use is-active to highlight the current page.",
+          "props": [
+            {
+              "name": "is-active",
+              "type": "boolean",
+              "default": "false",
+              "description": "Highlight the current page (aria-current=\"page\")"
+            },
+            {
+              "name": "tooltip",
+              "type": "string",
+              "description": "Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content"
+            },
+            {
+              "name": "as-child",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render the single child element (e.g. a RouterLink) as the button. The button attributes go on the child and its content is wrapped like the button's"
             }
           ]
         },
@@ -4384,7 +4749,7 @@
               "name": "open",
               "type": "boolean",
               "default": "true",
-              "description": "Whether submenu is expanded"
+              "description": "Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree"
             },
             {
               "name": "has-icons",
@@ -4395,12 +4760,42 @@
           ]
         },
         {
+          "name": "SidebarMenuSubButton",
+          "props": [
+            {
+              "name": "is-active",
+              "type": "boolean",
+              "default": "false",
+              "description": "Highlight the current page (aria-current=\"page\")"
+            },
+            {
+              "name": "indent",
+              "type": "0 | 1 | 2 | 3",
+              "default": "0",
+              "description": "Nesting level; each level adds 12px of left margin"
+            },
+            {
+              "name": "as-child",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render the single child element (e.g. a RouterLink) as the button"
+            }
+          ]
+        },
+        {
           "name": "SidebarCard",
           "description": "Renders a promotional card in the sidebar footer for CTAs, upgrades, or announcements.",
           "props": [
             {
+              "name": "variant",
+              "type": "\"default\" | \"elevated\"",
+              "default": "\"default\"",
+              "description": "Visual variant"
+            },
+            {
               "name": "dismissible",
               "type": "boolean",
+              "default": "false",
               "description": "Shows dismiss button"
             },
             {
@@ -4418,27 +4813,27 @@
           "properties": [
             {
               "name": "state",
-              "description": "ndash; Current state: `\"expanded\"` or `\"collapsed\"`"
+              "description": ": Current state: `\"expanded\"` or `\"collapsed\"`"
             },
             {
               "name": "open",
-              "description": "/ `setOpen` - Desktop sidebar open state"
+              "description": "/ `setOpen`: Desktop sidebar open state"
             },
             {
               "name": "openMobile",
-              "description": "/ `setOpenMobile` - Mobile menu open state"
+              "description": "/ `setOpenMobile`: Mobile menu open state"
             },
             {
               "name": "isMobile",
-              "description": "ndash; Whether the viewport is mobile"
+              "description": ": Whether the viewport is mobile"
             },
             {
               "name": "collapsible",
-              "description": "ndash; Current collapsible mode"
+              "description": ": Current collapsible mode"
             },
             {
               "name": "toggleSidebar",
-              "description": "ndash; Toggle function for both desktop and mobile"
+              "description": ": Toggle function for both desktop and mobile"
             }
           ]
         }
@@ -4484,7 +4879,7 @@
         },
         {
           "name": "Form",
-          "code": "<div class=\"flex flex-col gap-4 w-[300px]\">\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[80px]\" />\n    <Skeleton class=\"h-10 w-full rounded-lg\" />\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[100px]\" />\n    <Skeleton class=\"h-10 w-full rounded-lg\" />\n  </div>\n  <Skeleton class=\"h-10 w-[120px] rounded-lg\" />\n</div>",
+          "code": "<div class=\"flex flex-col gap-4 w-[300px]\">\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[80px]\" />\n    <Skeleton class=\"h-8 w-full rounded-lg\" />\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[100px]\" />\n    <Skeleton class=\"h-8 w-full rounded-lg\" />\n  </div>\n  <Skeleton class=\"h-8 w-[120px] rounded-lg\" />\n</div>",
           "details": "Form skeletons use Plex UI control sizing (32px height for inputs and buttons)."
         },
         {
@@ -4507,22 +4902,22 @@
         {
           "name": "value",
           "type": "number | number[]",
-          "description": "Current value; an array when range is set. Bind with v-model:value"
+          "description": "Required. Current value; an array when range is set. Bind with v-model:value"
         },
         {
           "name": "min",
           "type": "number",
-          "description": "Minimum value"
+          "description": "Required. Minimum value"
         },
         {
           "name": "max",
           "type": "number",
-          "description": "Maximum value"
+          "description": "Required. Maximum value"
         },
         {
           "name": "step",
           "type": "number",
-          "description": "Step increment"
+          "description": "Required. Step increment"
         },
         {
           "name": "range",
@@ -4566,6 +4961,16 @@
           "name": "label slot",
           "type": "VNode[]",
           "description": "Rich label content (e.g. a tooltip); takes precedence over the label prop"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Accessible name when there is no visible label. Range thumbs add Minimum / Maximum (or Value n of m)"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "Id of an element that names the slider; takes precedence over label"
         },
         {
           "name": "marks",
@@ -4669,7 +5074,7 @@
         {
           "name": "label",
           "type": "string",
-          "description": "Label describing the metric"
+          "description": "Required. Label describing the metric"
         },
         {
           "name": "value",
@@ -4797,7 +5202,7 @@
         {
           "name": "Accent border",
           "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    variant=\"accent\"\n    :accent-color=\"accentColor\"\n    :trend=\"{ value: 12.5, label: 'vs last month' }\"\n  />\n</div>",
-          "details": "The accent variant adds a colored left border. Choose from the semantic colors."
+          "details": "The accent variant adds a colored left border. Choose from eight semantic colors."
         },
         {
           "name": "Inverted trend",
@@ -5037,17 +5442,22 @@
         {
           "name": "Pagination",
           "code": "<script setup lang=\"ts\">\nimport { DataTable, type ColumnDef } from \"@plexui/vue/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst columns: ColumnDef<User>[] = [\n  { accessorKey: \"id\", header: \"ID\" },\n  { accessorKey: \"name\", header: \"Name\" },\n  { accessorKey: \"department\", header: \"Department\" },\n  { accessorKey: \"status\", header: \"Status\" },\n]\n</script>\n\n<template>\n  <DataTable :columns=\"columns\" :data=\"users\" :page-size=\"5\" />\n</template>",
-          "details": "Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control initial page size."
+          "details": "Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page."
         },
         {
           "name": "Row click",
-          "code": "<script setup lang=\"ts\">\nimport { h, ref } from \"vue\"\nimport { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/vue/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst selectedUser = ref<User | null>(null)\n\nconst columns: ColumnDef<User>[] = [\n  {\n    accessorKey: \"name\",\n    header: ({ column }) => h(DataTableColumnHeader, { column, title: \"Name\" }),\n    cell: ({ row }) => h(\"span\", { class: \"font-medium\" }, row.original.name),\n  },\n  { accessorKey: \"email\", header: \"Email\" },\n  { accessorKey: \"role\", header: \"Role\" },\n]\n</script>\n\n<template>\n  <DataTable\n    :columns=\"columns\"\n    :data=\"users.slice(0, 8)\"\n    :page-size=\"4\"\n    @row-click=\"selectedUser = $event\"\n  />\n  <div\n    style=\"margin-top: 12px; padding: 10px 12px; border: 1px solid var(--color-fd-border); border-radius: 8px; background: var(--docs-surface-elevated); color: var(--color-text-secondary); font-size: 0.875rem\"\n  >\n    {{\n      selectedUser\n        ? \"Clicked: \" + selectedUser.name + \" (\" + selectedUser.id + \") - \" + selectedUser.department\n        : \"Click a row to see selected user details.\"\n    }}\n  </div>\n</template>",
-          "details": "Listen to @row-click to make rows clickable and interactive."
+          "code": "<script setup lang=\"ts\">\nimport { h, ref } from \"vue\"\nimport { DataTable, DataTableColumnHeader, type ColumnDef } from \"@plexui/vue/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst selectedUser = ref<User | null>(null)\n\nconst columns: ColumnDef<User>[] = [\n  {\n    accessorKey: \"name\",\n    header: ({ column }) => h(DataTableColumnHeader, { column, title: \"Name\" }),\n    cell: ({ row }) => h(\"span\", { class: \"font-medium\" }, row.original.name),\n  },\n  { accessorKey: \"email\", header: \"Email\" },\n  { accessorKey: \"role\", header: \"Role\" },\n]\n</script>\n\n<template>\n  <DataTable\n    :columns=\"columns\"\n    :data=\"users.slice(0, 8)\"\n    :page-size=\"4\"\n    @row-click=\"selectedUser = $event\"\n  />\n  <p class=\"mt-3 text-sm text-secondary\">\n    {{\n      selectedUser\n        ? \"Clicked: \" + selectedUser.name + \" (\" + selectedUser.id + \") - \" + selectedUser.department\n        : \"Click a row to see selected user details.\"\n    }}\n  </p>\n</template>",
+          "details": "Listen to @row-click to make rows clickable. Clickable rows also take Tab and call it on Enter or Space."
+        },
+        {
+          "name": "Row selection",
+          "code": "<script setup lang=\"ts\">\nimport { h, ref } from \"vue\"\nimport {\n  DataTable,\n  DataTableColumnHeader,\n  statusCell,\n  type ColumnDef,\n  type RowSelectionState,\n} from \"@plexui/vue/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst rowSelection = ref<RowSelectionState>({})\nconst getRowId = (user: User) => user.id\n\nconst columns: ColumnDef<User>[] = [\n  {\n    accessorKey: \"name\",\n    header: ({ column }) => h(DataTableColumnHeader, { column, title: \"Name\" }),\n    cell: ({ row }) => h(\"span\", { class: \"font-medium\" }, row.original.name),\n  },\n  { accessorKey: \"role\", header: \"Role\" },\n  { accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n]\n</script>\n\n<template>\n  <DataTable\n    v-model:row-selection=\"rowSelection\"\n    :columns=\"columns\"\n    :data=\"users\"\n    :page-size=\"5\"\n    enable-row-selection\n    :get-row-id=\"getRowId\"\n  />\n  <p class=\"mt-3 text-sm text-secondary\">\n    {{ Object.keys(rowSelection).length }} of {{ users.length }} rows selected\n  </p>\n</template>",
+          "details": "Set enable-row-selection to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind v-model:row-selection to read the selection; get-row-id keys it by your own ids."
         },
         {
           "name": "Cell variants",
           "code": "<script setup lang=\"ts\">\nimport { h } from \"vue\"\nimport { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from \"@plexui/vue/components/DataTable\"\nimport { users, type User } from \"./data\"\n\nconst money = new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\", maximumFractionDigits: 0 })\n\nconst columns: ColumnDef<User>[] = [\n  { accessorKey: \"id\", header: \"ID\", cell: idCell<User>((row) => row.id) },\n  { accessorKey: \"name\", header: \"Name\", cell: ({ row }) => h(\"span\", { class: \"font-medium\" }, row.original.name) },\n  { accessorKey: \"status\", header: \"Status\", cell: statusCell<User>((row) => row.status) },\n  { accessorKey: \"joined\", header: \"Joined\", cell: dateTimeCell<User>((row) => row.joined) },\n  {\n    accessorKey: \"salary\",\n    header: tooltipHeader(\"Salary\", \"Annual base salary in USD.\"),\n    meta: { align: \"right\" },\n    cell: ({ row }) => h(\"span\", { class: \"font-medium\" }, money.format(row.original.salary)),\n  },\n]\n</script>\n\n<template>\n  <DataTable :columns=\"columns\" :data=\"users\" :page-size=\"6\" />\n</template>",
-          "details": "Use column helper utilities for rich cell types: monospace IDs with copy-on-click, status badges, formatted dates, and currency values."
+          "details": "Column helpers render common cells: idCell (monospace ID with copy-on-click), statusCell (status badge), dateTimeCell (formatted date) and tooltipHeader (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; meta.align aligns a column."
         },
         {
           "name": "Filtering",
@@ -5117,12 +5527,12 @@
             {
               "name": "columns",
               "type": "ColumnDef<TData>[]",
-              "description": "Column definitions following TanStack Table v8 API; header and cell renderers return VNodes"
+              "description": "Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)"
             },
             {
               "name": "data",
               "type": "TData[]",
-              "description": "Data array to display"
+              "description": "Data array to display (required)"
             },
             {
               "name": "variant",
@@ -5134,7 +5544,7 @@
               "name": "page-size",
               "type": "number",
               "default": "10",
-              "description": "Rows per page. Set 0 or Infinity to disable pagination"
+              "description": "Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size"
             },
             {
               "name": "initial-sorting",
@@ -5155,7 +5565,7 @@
               "name": "enable-row-selection",
               "type": "boolean",
               "default": "false",
-              "description": "Enable row selection; selection controls go in your own column"
+              "description": "Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click"
             },
             {
               "name": "row-selection",
@@ -5165,11 +5575,11 @@
             {
               "name": "get-row-id",
               "type": "(row: TData) => string",
-              "description": "Custom row ID accessor"
+              "description": "Custom row ID accessor; selection keys use it"
             },
             {
               "name": "empty-message",
-              "type": "string | VNode",
+              "type": "string | number | VNode",
               "default": "\"No results.\"",
               "description": "Shown when no rows; the emptyMessage slot takes precedence"
             },
@@ -5177,7 +5587,7 @@
               "name": "show-pagination",
               "type": "boolean",
               "default": "true",
-              "description": "Whether to show pagination controls"
+              "description": "Whether to show pagination controls. They hide on their own when every row fits on one page"
             },
             {
               "name": "class",
@@ -5192,7 +5602,7 @@
             {
               "name": "@row-click",
               "type": "(row: TData) => void",
-              "description": "Click handler for rows, makes rows interactive"
+              "description": "Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space"
             },
             {
               "name": "@update:global-filter",
@@ -5217,12 +5627,12 @@
             {
               "name": "column",
               "type": "Column<TData, TValue>",
-              "description": "TanStack Table column object"
+              "description": "TanStack Table column object (required)"
             },
             {
               "name": "title",
               "type": "string",
-              "description": "Display text for the header"
+              "description": "Display text for the header (required)"
             },
             {
               "name": "class",
@@ -5371,7 +5781,7 @@
         {
           "name": "Segmented with badge",
           "code": "<Tabs v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"Filter\">\n  <TabsTab value=\"all\" :badge=\"{ content: 128, pill: badgePill }\">All</TabsTab>\n  <TabsTab value=\"unread\" :badge=\"{ content: 12, color: 'info', pill: badgePill }\">Unread</TabsTab>\n  <TabsTab value=\"flagged\" :badge=\"{ content: 3, color: 'danger', pill: badgePill }\">Flagged</TabsTab>\n</Tabs>",
-          "details": "Pass a number or an object with content, color, and variant to the badge prop. Badges render inline after the tab label inside the segmented container."
+          "details": "Pass a number or an object with content, color, variant, and pill to the badge prop. Badges render inline after the tab label inside the segmented container."
         },
         {
           "name": "Underline",
@@ -5396,7 +5806,7 @@
         {
           "name": "Underline with badge",
           "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" :size=\"size\" aria-label=\"Filter\">\n  <TabsTab value=\"all\" :badge=\"{ content: 128, pill: badgePill }\">All</TabsTab>\n  <TabsTab value=\"unread\" :badge=\"{ content: 12, color: 'info', pill: badgePill }\">Unread</TabsTab>\n  <TabsTab value=\"flagged\" :badge=\"{ content: 3, color: 'danger', pill: badgePill }\">Flagged</TabsTab>\n</Tabs>",
-          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, and variant."
+          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill."
         },
         {
           "name": "Vertical segmented",
@@ -5436,7 +5846,7 @@
             {
               "name": "value",
               "type": "string",
-              "description": "Tab value"
+              "description": "Tab value (required)"
             },
             {
               "name": "disabled",
@@ -5490,7 +5900,7 @@
         {
           "name": "value / v-model:value",
           "type": "Tag[]",
-          "description": "Controlled value; `update:value` fires on every change"
+          "description": "Controlled value; update:value fires on every change"
         },
         {
           "name": "default-value",
@@ -5503,6 +5913,11 @@
           "description": "Fires when the tags change"
         },
         {
+          "name": "id",
+          "type": "string",
+          "description": "Id of the text input, so a label can target it with for"
+        },
+        {
           "name": "placeholder",
           "type": "string",
           "description": "Input placeholder"
@@ -5510,12 +5925,12 @@
         {
           "name": "validator",
           "type": "(value: string) => boolean",
-          "description": "Validates each tag; invalid tags shown in red"
+          "description": "Validates each tag when it is created; invalid tags shown in red"
         },
         {
           "name": "max-tags",
           "type": "number",
-          "description": "Max tags before input is disabled"
+          "description": "Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags"
         },
         {
           "name": "rows",
@@ -5542,6 +5957,11 @@
           "description": "Characters that commit the current text as a tag"
         },
         {
+          "name": "disabled",
+          "type": "boolean",
+          "description": "Disables the input: tags cannot be added or removed, and pending text stays as typed"
+        },
+        {
           "name": "auto-focus",
           "type": "boolean",
           "default": "false",
@@ -5560,7 +5980,7 @@
         },
         {
           "name": "Suggestions",
-          "code": "<script setup lang=\"ts\">\nimport { computed, ref } from \"vue\"\nimport { Button } from \"@plexui/vue/components/Button\"\nimport { TagInput, type Tag } from \"@plexui/vue/components/TagInput\"\n\nconst SUGGESTIONS = [\"React\", \"TypeScript\", \"Next.js\", \"Tailwind CSS\", \"Node.js\", \"GraphQL\", \"PostgreSQL\", \"Redis\", \"Docker\", \"AWS\"]\n\nconst tags = ref<Tag[]>([\n  { value: \"React\", valid: true },\n  { value: \"TypeScript\", valid: true },\n])\n\nconst available = computed(() => {\n  const selected = new Set(tags.value.map((t) => t.value))\n  return SUGGESTIONS.filter((s) => !selected.has(s))\n})\n</script>\n\n<template>\n  <div class=\"flex flex-col gap-3\">\n    <TagInput v-model:value=\"tags\" placeholder=\"Add a skill...\" />\n    <div v-if=\"available.length > 0\" class=\"flex flex-wrap gap-1.5\">\n      <Button\n        v-for=\"s in available\"\n        :key=\"s\"\n        size=\"xs\"\n        color=\"secondary\"\n        variant=\"soft\"\n        :pill=\"false\"\n        @click=\"tags = [...tags, { value: s, valid: true }]\"\n      >\n        {{ s }}\n      </Button>\n    </div>\n  </div>\n</template>",
+          "code": "<script setup lang=\"ts\">\nimport { computed, ref } from \"vue\"\nimport { Button } from \"@plexui/vue/components/Button\"\nimport { TagInput, type Tag } from \"@plexui/vue/components/TagInput\"\n\nconst SUGGESTIONS = [\"React\", \"TypeScript\", \"Next.js\", \"Tailwind CSS\", \"Node.js\", \"GraphQL\", \"PostgreSQL\", \"Redis\", \"Docker\", \"AWS\"]\n\nconst tags = ref<Tag[]>([\n  { value: \"React\", valid: true },\n  { value: \"TypeScript\", valid: true },\n])\n\nconst available = computed(() => {\n  const selected = new Set(tags.value.map((t) => t.value))\n  return SUGGESTIONS.filter((s) => !selected.has(s))\n})\n</script>\n\n<template>\n  <div class=\"flex flex-col gap-3\">\n    <TagInput v-model:value=\"tags\" placeholder=\"Add a skill...\" size=\"md\" />\n    <div v-if=\"available.length > 0\" class=\"flex flex-wrap gap-1.5\">\n      <Button\n        v-for=\"s in available\"\n        :key=\"s\"\n        size=\"xs\"\n        color=\"secondary\"\n        variant=\"soft\"\n        :pill=\"false\"\n        @click=\"tags = [...tags, { value: s, valid: true }]\"\n      >\n        {{ s }}\n      </Button>\n    </div>\n  </div>\n</template>",
           "details": "Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected."
         }
       ],
@@ -5583,12 +6003,12 @@
         {
           "name": "href",
           "type": "string",
-          "description": "URL"
+          "description": "URL. An http:// or https:// URL is external"
         },
         {
           "name": "to",
-          "type": "string | RouteLocationRaw",
-          "description": "Router link destination (internal)"
+          "type": "string | Record<string, unknown>",
+          "description": "Router link destination (internal), such as a vue-router location"
         },
         {
           "name": "primary",
@@ -5611,6 +6031,16 @@
           "name": "as",
           "type": "Component",
           "description": "Link component (e.g. RouterLink, NuxtLink)"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "description": "Where to open the link. External links default to _blank"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Extra classes on the link"
         }
       ],
       "examples": [
@@ -5881,15 +6311,20 @@
       ],
       "props": [
         {
+          "name": "default slot",
+          "type": "VNode",
+          "description": "The trigger: a single element. Wrap plain text in TooltipTriggerDecorator"
+        },
+        {
           "name": "content",
-          "type": "string | VNode | null",
+          "type": "string | number | VNode | null",
           "description": "Tooltip content, or the #content slot (null = no tooltip)"
         },
         {
           "name": "compact",
           "type": "boolean",
           "default": "false",
-          "description": "Short 1–3 word tooltips, inverse styling"
+          "description": "Short 1-3 word tooltips, inverse styling"
         },
         {
           "name": "interactive",
@@ -5898,56 +6333,67 @@
           "description": "Content is interactive, stays open when hovered"
         },
         {
-          "name": "maxWidth",
+          "name": "max-width",
           "type": "number | \"none\"",
           "default": "300",
           "description": "Max width of tooltip"
         },
         {
-          "name": "openDelay",
+          "name": "open-delay",
           "type": "number",
           "default": "150",
           "description": "Delay before showing (ms)"
         },
         {
           "name": "side",
-          "type": "string",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
           "default": "\"top\"",
           "description": "Preferred side"
         },
         {
-          "name": "sideOffset",
+          "name": "side-offset",
           "type": "number",
           "default": "5",
           "description": "Distance from trigger"
         },
         {
           "name": "align",
-          "type": "string",
+          "type": "\"start\" | \"center\" | \"end\"",
           "default": "\"center\"",
           "description": "Alignment"
         },
         {
-          "name": "alignOffset",
+          "name": "align-offset",
           "type": "number",
           "default": "0",
           "description": "Alignment offset"
         },
         {
-          "name": "gutterSize",
+          "name": "gutter-size",
           "type": "\"sm\" | \"md\" | \"lg\"",
           "default": "\"md\"",
           "description": "Content padding"
         },
         {
-          "name": "contentClassName",
+          "name": "content-class-name",
           "type": "string",
           "description": "Class for tooltip content"
         },
         {
-          "name": "forceOpen",
+          "name": "force-open",
           "type": "boolean",
           "description": "Force open or closed"
+        },
+        {
+          "name": "prevent-unintentional-click-to-close",
+          "type": "boolean",
+          "default": "false",
+          "description": "Keeps the tooltip open when the trigger is clicked right after it opened"
+        },
+        {
+          "name": "content slot",
+          "type": "VNode[]",
+          "description": "Rich tooltip content; takes precedence over content"
         }
       ],
       "examples": [
@@ -5967,12 +6413,12 @@
         },
         {
           "name": "Compact tooltips",
-          "code": "<Tooltip content=\"Copy to clipboard\" compact>\n  <Button color=\"secondary\" variant=\"ghost\" size=\"md\"><Copy /></Button>\n</Tooltip>",
+          "code": "<Tooltip content=\"Copy to clipboard\" compact>\n  <Button color=\"secondary\" variant=\"ghost\" size=\"md\" aria-label=\"Copy to clipboard\"><Copy /></Button>\n</Tooltip>",
           "details": "Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use compact for brief status messages."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T15:54:30.933Z"
+  "generatedAt": "2026-10-26T17:15:29.484Z"
 }
