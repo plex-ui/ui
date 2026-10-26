@@ -1,0 +1,104 @@
+---
+title: Breadcrumb
+description: The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+metaDescription: Accessible Vue 3 breadcrumb component with a navigation landmark, router-aware links, the current page marked aria-current, custom separators and wrapping trails
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const STAGE = "flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full"
+
+export const overview = `<Breadcrumb>
+  <BreadcrumbItem href="#">Home</BreadcrumbItem>
+  <BreadcrumbItem href="#">Settings</BreadcrumbItem>
+  <BreadcrumbItem current>Members</BreadcrumbItem>
+</Breadcrumb>`
+
+export const sizes = `<Breadcrumb size="sm">
+  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
+  <BreadcrumbItem href="#">Website</BreadcrumbItem>
+  <BreadcrumbItem current>Deployments</BreadcrumbItem>
+</Breadcrumb>
+<Breadcrumb>
+  <BreadcrumbItem href="#">Projects</BreadcrumbItem>
+  <BreadcrumbItem href="#">Website</BreadcrumbItem>
+  <BreadcrumbItem current>Deployments</BreadcrumbItem>
+</Breadcrumb>`
+
+export const separator = `<Breadcrumb>
+  <template #separator>/</template>
+  <BreadcrumbItem href="#">acme</BreadcrumbItem>
+  <BreadcrumbItem href="#">design-system</BreadcrumbItem>
+  <BreadcrumbItem current>README.md</BreadcrumbItem>
+</Breadcrumb>`
+
+export const wrap = `<div class="w-[260px]">
+  <Breadcrumb>
+    <BreadcrumbItem href="#">Workspace</BreadcrumbItem>
+    <BreadcrumbItem href="#">Customer accounts</BreadcrumbItem>
+    <BreadcrumbItem href="#">Northwind Traders</BreadcrumbItem>
+    <BreadcrumbItem>Archived</BreadcrumbItem>
+    <BreadcrumbItem current>Invoice 2024-0193</BreadcrumbItem>
+  </Breadcrumb>
+</div>`
+
+<UsageBlock>{`import { Breadcrumb, BreadcrumbItem } from "@plexui/vue/components/Breadcrumb";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> or <code>to</code> is a link (internal paths use the link component from <code>PlexUIProvider</code>, such as vue-router's <code>RouterLink</code>); the <code>current</code> item is plain text marked <code>aria-current="page"</code>.</>} code={overview} previewMinHeight={140}>
+  <VueDemo stageClassName={STAGE} template={overview} />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title.</>} code={sizes} previewMinHeight={160}>
+  <VueDemo stageClassName={STAGE} template={sizes} />
+</ComponentPreview>
+
+### Separator
+
+<ComponentPreview language="vue" details={<>A small chevron stands between items by default. The <code>separator</code> slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology.</>} code={separator} previewMinHeight={140}>
+  <VueDemo stageClassName={STAGE} template={separator} />
+</ComponentPreview>
+
+### Long trails
+
+<ComponentPreview language="vue" details={<>A trail that does not fit wraps onto the next line instead of leaving the screen. An item without <code>href</code> is a plain step; listen to <code>@click</code> to make it act as a button.</>} code={wrap} previewMinHeight={160}>
+  <VueDemo stageClassName={STAGE} template={wrap} />
+</ComponentPreview>
+
+## API
+
+### Breadcrumb
+
+<PropsTable data={[
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Text size: sm above a compact header, md above a page title" },
+  { prop: "aria-label", type: "string", default: '"Breadcrumb"', description: "Name of the navigation landmark" },
+  { prop: "separator slot", type: "VNode[]", default: "a small chevron", description: "What stands between two items" },
+  { prop: "default slot", type: "VNode[]", description: "The BreadcrumbItem elements" },
+]} />
+
+Other attributes fall through to the `<nav>`.
+
+### BreadcrumbItem
+
+<PropsTable data={[
+  { prop: "href", type: "string", description: "Link destination. Internal paths use the link component from PlexUIProvider" },
+  { prop: "to", type: "string | RouteLocation", description: "Router destination, for link components that take to" },
+  { prop: "current", type: "boolean", default: "false", description: "The current page: plain text marked aria-current=\"page\"" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Makes an item without a destination act as a button" },
+  { prop: "class", type: "string", description: "Applied to the li element" },
+]} />
+
+## Styling
+
+Breadcrumb reads these component tokens. Override them at any scope to restyle it:
+
+- `--breadcrumb-font-size`: text size (`--font-text-sm-size`, or `--font-text-xs-size` at `sm`)
+- `--breadcrumb-line-height`: line height
+- `--breadcrumb-gap`: space around separators (`spacing(1)`, or `spacing(0.5)` at `sm`)
+
+Links use the secondary text color and turn to the text color on hover; the current page uses the text color; separators use the tertiary color.

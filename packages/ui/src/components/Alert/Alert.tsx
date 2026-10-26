@@ -38,6 +38,12 @@ export type AlertProps = {
   actionsClassName?: string
   /** Callback when dismiss button is clicked. Shows dismiss button when provided. */
   onDismiss?: () => void
+  /**
+   * A full-width strip across the top or bottom of a page or panel (offline,
+   * read-only, a new version): square corners and lines above and below only.
+   * @default false
+   */
+  banner?: boolean
   /** Ref applied to the alert container */
   ref?: Ref<HTMLDivElement>
 }
@@ -53,6 +59,7 @@ export const Alert = ({
   className,
   actionsClassName,
   onDismiss,
+  banner = false,
   ref,
   ...restProps
 }: AlertProps) => {
@@ -80,6 +87,7 @@ export const Alert = ({
       data-color={color}
       role={color === "danger" ? "alert" : undefined}
       data-actions-placement={actionsPlacement ?? actionsAutoPlacement}
+      data-banner={banner ? "" : undefined}
       {...restProps}
     >
       {indicator === false ? null : (

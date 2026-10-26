@@ -126,8 +126,14 @@
     opacity 150ms ease,
     transform 150ms ease;
 
-  @starting-style {
-    opacity: 0;
+  /* Radix mounts the indicator on every check, so the entry animation would
+     also play for every checked box on first render or when a tab with
+     checkboxes opens. It plays only for the checkbox in use: hovered, or
+     focused from the keyboard. */
+  .Container:is(:hover, :focus-within) & {
+    @starting-style {
+      opacity: 0;
+    }
   }
 
   [data-state="indeterminate"] & {
@@ -146,7 +152,10 @@
     background: var(--gray-0);
     content: "";
     will-change: transform;
+  }
 
+  .Container:is(:hover, :focus-within) &::before,
+  .Container:is(:hover, :focus-within) &::after {
     @starting-style {
       transform: scale(0);
     }
@@ -198,5 +207,33 @@
 
   [data-orientation="right"] & {
     padding-right: spacing(3);
+  }
+}
+
+/* Label with a second line: the group carries the gap, the label inside it does not */
+.LabelGroup {
+  display: flex;
+  flex-direction: column;
+
+  [data-orientation="left"] & {
+    padding-left: var(--checkbox-label-gap);
+  }
+
+  [data-orientation="right"] & {
+    padding-right: spacing(3);
+  }
+
+  > .Label {
+    padding-inline: 0;
+  }
+}
+
+.Description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-xs-size);
+  line-height: var(--font-text-xs-line-height);
+
+  [data-disabled] & {
+    cursor: not-allowed;
   }
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { Tooltip as RadixTooltip } from "radix-ui"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { copyText } from "../../lib/copyToClipboard"
 import { Check, Copy } from "../Icon"
 import { Tooltip } from "./Tooltip"
@@ -35,6 +35,11 @@ export type CopyTooltipProps = {
    * @default 5
    */
   sideOffset?: RadixTooltip.TooltipContentProps["sideOffset"]
+  /**
+   * Called once the clipboard write settles, with whether it succeeded. The
+   * tooltip says "Copied!" only after a successful write.
+   */
+  onCopy?: (copied: boolean) => void
 }
 
 export const CopyTooltip = ({
@@ -45,23 +50,36 @@ export const CopyTooltip = ({
   alignOffset = 0,
   side = "top",
   sideOffset = 5,
+  onCopy,
 }: CopyTooltipProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [copied, setCopied] = useState<boolean>(false)
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const mounted = useRef(true)
 
-  const copy = () => {
+  const copy = async () => {
+    // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+    const succeeded = await copyText(copyValue)
+    if (!mounted.current) return
+    onCopy?.(succeeded)
+    if (!succeeded) return
+
     setCopied(true)
 
-    // Not currently revealing the slight async nature of this operation,
-    // nor indicating the failure state.
-    copyText(copyValue)
-
     // Persist the copied state for a second, then close
+    clearTimeout(copiedTimerRef.current)
     copiedTimerRef.current = setTimeout(() => {
       setOpen(false)
     }, 1000)
   }
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      clearTimeout(copiedTimerRef.current)
+    }
+  }, [])
 
   const handleOpenChange = (nextState: boolean) => {
     // When opening, ensure timer and copied state are cleared

@@ -111,9 +111,11 @@ export type MenuItemProps = {
   onClick?: DropdownMenu.DropdownMenuItemProps["onClick"]
   /** Disables the menu item */
   disabled?: boolean
+  /** Marks a destructive action (delete, remove, leave): the item is drawn in the danger color */
+  danger?: boolean
 }
 
-const Item = ({ className, children, description, disabled, onSelect, onClick }: MenuItemProps) => {
+const Item = ({ className, children, description, disabled, danger, onSelect, onClick }: MenuItemProps) => {
   const { open } = useMenuContext()
 
   // This handler patches over focus races with core Radix primitives
@@ -145,6 +147,7 @@ const Item = ({ className, children, description, disabled, onSelect, onClick }:
         onSelect={onSelect}
         onClick={onClick}
         disabled={disabled}
+        data-danger={danger ? "" : undefined}
         onPointerMove={handlePreventAfterClose}
         onPointerLeave={handlePreventAfterClose}
       >
@@ -198,6 +201,8 @@ type MenuLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" 
   children: React.ReactNode
   /** Disables the menu item */
   disabled?: boolean
+  /** Marks a destructive destination: the item is drawn in the danger color */
+  danger?: boolean
 }
 
 type MenuLink = <
@@ -220,7 +225,7 @@ type MenuLink = <
 const Link = ((
   props: MenuLinkProps & { href?: string; to?: string; as?: PlexUI.LinkComponent },
 ) => {
-  const { className, children, href, to, disabled, as: OverrideComponent, ...restProps } = props
+  const { className, children, href, to, disabled, danger, as: OverrideComponent, ...restProps } = props
   const { open } = useMenuContext()
 
   const propPath = href || to
@@ -247,6 +252,7 @@ const Link = ((
       asChild
       className={clsx(s.MenuItem, className)}
       disabled={disabled}
+      data-danger={danger ? "" : undefined}
       onPointerMove={isExternal ? undefined : handlePreventAfterClose}
       onPointerLeave={isExternal ? undefined : handlePreventAfterClose}
     >

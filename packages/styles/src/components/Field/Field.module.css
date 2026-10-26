@@ -159,6 +159,26 @@
 }
 
 /* =============================================
+   Label row  (label + labelAction)
+============================================= */
+.LabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: spacing(2);
+  min-width: 0;
+}
+
+.LabelAction {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: spacing(2);
+  font-size: var(--field-label-font-size);
+  line-height: var(--field-label-line-height);
+}
+
+/* =============================================
    Required Indicator
 ============================================= */
 .RequiredIndicator {

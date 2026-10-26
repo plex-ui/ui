@@ -70,9 +70,8 @@ export const textarea = `<div class="w-[320px]">
 </div>`
 
 export const select = `<div class="w-[320px]">
-  <Field label="Role" description="Select your primary role." v-slot="fieldProps">
+  <Field label="Role" description="Select your primary role.">
     <Select
-      :id="fieldProps.id"
       placeholder="Select a role..."
       v-model:value="role"
       :options="[
@@ -81,6 +80,15 @@ export const select = `<div class="w-[320px]">
         { label: 'Viewer', value: 'viewer' },
       ]"
     />
+  </Field>
+</div>`
+
+export const labelAction = `<div class="w-[320px]">
+  <Field label="Password">
+    <template #labelAction>
+      <TextLink href="#reset-password">Forgot password?</TextLink>
+    </template>
+    <Input type="password" placeholder="Enter password..." />
   </Field>
 </div>`
 
@@ -713,7 +721,7 @@ export const birthdaySelect = `<div class="w-[320px]">
 
 ### Sizing
 
-<ComponentPreview language="vue" details={<>Field accepts a <code>size</code> prop that scales the label and description font size to match the child control. Pass the same <code>size</code> to both Field and the child control.</>} code={overview} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the slot reads the field props.</>} code={overview} previewMinHeight={168}>
   <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
 </ComponentPreview>
 
@@ -731,8 +739,14 @@ export const birthdaySelect = `<div class="w-[320px]">
 
 ### Select
 
-<ComponentPreview language="vue" details={<>For components like <code>Select</code> that do not take every field prop on their root, read the field props from the default slot (<code>v-slot="fieldProps"</code>) and pass them yourself.</>} code={select} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>A Select trigger is not a native form control, so the label's <code>for</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name; a slot that reads the field props gets <code>aria-labelledby</code> among them to bind.</>} code={select} previewMinHeight={168}>
   <VueDemo template={select} state={{ role: "" }} />
+</ComponentPreview>
+
+### Label action
+
+<ComponentPreview language="vue" details={<>Use the <code>labelAction</code> slot (or the <code>label-action</code> string prop) for a link or a small control that acts on the field, at the end of the label row. It takes the label's font size.</>} code={labelAction} previewMinHeight={168}>
+  <VueDemo template={labelAction} />
 </ComponentPreview>
 
 ### Slider
@@ -848,13 +862,14 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
   { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
   { prop: "description", type: "string", description: "Helper text below the label; linked via aria-describedby (or the description slot)" },
   { prop: "error-message", type: "string", description: "Error message below the control; sets aria-invalid on the child (or the errorMessage slot)" },
-  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the label font size to match the child control" },
+  { prop: "label-action", type: "string", description: "Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
   { prop: "optically-align", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the generated id used for the label's for and aria linking" },
   { prop: "class", type: "string", description: "CSS classes applied to the root element" },
-  { prop: "default slot", type: "(fieldProps) => VNode[]", description: "Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps" },
+  { prop: "default slot", type: "(fieldProps) => VNode[]", description: "Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby" },
 ]} />
 
 ## Styling

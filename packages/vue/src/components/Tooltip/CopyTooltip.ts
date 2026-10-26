@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, type PropType } from "vue"
+import { defineComponent, h, onBeforeUnmount, ref, type PropType } from "vue"
 import { copyText } from "../../lib/copyToClipboard.js"
 import { Check, Copy } from "../Icon/index.js"
 import { TooltipContent, TooltipRoot, TooltipTrigger, type TooltipAlign, type TooltipSide } from "./Tooltip.js"
@@ -22,23 +22,36 @@ export const CopyTooltip = defineComponent({
     /** Distance from the trigger, in pixels. @default 5 */
     sideOffset: { type: Number, default: 5 },
   },
-  setup(props, { slots }) {
+  emits: {
+    /** The clipboard write settled; `copied` says whether it succeeded (React's `onCopy`). */
+    copy: (_copied: boolean) => true,
+  },
+  setup(props, { slots, emit }) {
     const open = ref(false)
     const copied = ref(false)
     let copiedTimer: ReturnType<typeof setTimeout> | undefined
+    let mounted = true
 
-    const copy = () => {
+    const copy = async () => {
+      // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+      const succeeded = await copyText(props.copyValue)
+      if (!mounted) return
+      emit("copy", succeeded)
+      if (!succeeded) return
+
       copied.value = true
 
-      // Not currently revealing the slight async nature of this operation,
-      // nor indicating the failure state.
-      copyText(props.copyValue)
-
       // Persist the copied state for a second, then close
+      clearTimeout(copiedTimer)
       copiedTimer = setTimeout(() => {
         open.value = false
       }, 1000)
     }
+
+    onBeforeUnmount(() => {
+      mounted = false
+      clearTimeout(copiedTimer)
+    })
 
     const handleOpenChange = (nextState: boolean) => {
       // When opening, ensure timer and copied state are cleared

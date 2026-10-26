@@ -688,3 +688,31 @@
     padding: 0 calc(var(--option-badge-gutter) * var(--control-gutter-pill-scaling));
   }
 }
+
+/* =============================================
+  overflow="menu": tabs that do not fit move into a menu at the end
+============================================= */
+.OverflowHost {
+  display: contents;
+}
+
+/* The strip stays within its container and is measured against it */
+.Tabs[data-overflow="menu"] {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Name and chevron of the menu button, in one row */
+.OverflowLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--segmented-control-content-gap);
+}
+
+/* A hidden tab's count, next to its name in the menu */
+.OverflowBadge {
+  margin-inline-start: auto;
+  padding-inline-start: spacing(3);
+  color: var(--color-text-secondary);
+}

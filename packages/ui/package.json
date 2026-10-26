@@ -38,6 +38,7 @@
     "./styles/variables-tailwind-theme.css": "./dist/es/styles/variables-tailwind-theme.css",
     "./styles/variables-tokens-root.css": "./dist/es/styles/variables-tokens-root.css",
     "./styles/variables-components.css": "./dist/es/styles/variables-components.css",
+    "./styles/tailwind-utilities.css": "./dist/es/styles/tailwind-utilities.css",
     "./components/*": {
       "types": "./dist/types/components/*/index.d.ts",
       "default": "./dist/es/components/*/index.js"

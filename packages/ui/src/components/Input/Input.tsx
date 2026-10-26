@@ -12,7 +12,7 @@ export type InputProps = {
    * Visual style of the input
    * @default outline
    */
-  variant?: Variants<"outline" | "soft">
+  variant?: Variants<"outline" | "soft" | "ghost">
   /**
    * Controls the size of the input
    *

@@ -104,9 +104,11 @@
     /* Text */
     --color-text-info: light-dark(var(--blue-500), var(--blue-200));
     /* Soft */
-    --color-background-info-soft: var(--blue-50);
-    --color-background-info-soft-hover: var(--blue-75);
-    --color-background-info-soft-active: var(--blue-75);
+    /* The hue scales do not flip in the dark theme, so the opaque soft fills mix
+       the hue into the dark base there; light text stays readable on them */
+    --color-background-info-soft: light-dark(var(--blue-50), color-mix(in oklab, var(--blue-400) 25%, var(--gray-100)));
+    --color-background-info-soft-hover: light-dark(var(--blue-75), color-mix(in oklab, var(--blue-400) 40%, var(--gray-100)));
+    --color-background-info-soft-active: light-dark(var(--blue-75), color-mix(in oklab, var(--blue-400) 40%, var(--gray-100)));
     --color-background-info-soft-alpha: var(--blue-a50);
     --color-background-info-soft-alpha-hover: var(--blue-a75);
     --color-background-info-soft-alpha-active: var(--blue-a75);
@@ -145,9 +147,9 @@
     /* Text */
     --color-text-warning: light-dark(var(--orange-700), var(--orange-500));
     /* Soft */
-    --color-background-warning-soft: var(--orange-50);
-    --color-background-warning-soft-hover: var(--orange-75);
-    --color-background-warning-soft-active: var(--orange-75);
+    --color-background-warning-soft: light-dark(var(--orange-50), color-mix(in oklab, var(--orange-400) 25%, var(--gray-100)));
+    --color-background-warning-soft-hover: light-dark(var(--orange-75), color-mix(in oklab, var(--orange-400) 40%, var(--gray-100)));
+    --color-background-warning-soft-active: light-dark(var(--orange-75), color-mix(in oklab, var(--orange-400) 40%, var(--gray-100)));
     --color-background-warning-soft-alpha: var(--orange-a50);
     --color-background-warning-soft-alpha-hover: var(--orange-a75);
     --color-background-warning-soft-alpha-active: var(--orange-a75);
@@ -187,9 +189,9 @@
     --color-text-caution: light-dark(var(--yellow-700), var(--yellow-500));
     --color-text-caution-hover: var(--yellow-800);
     /* Soft */
-    --color-background-caution-soft: var(--yellow-50);
-    --color-background-caution-soft-hover: var(--yellow-75);
-    --color-background-caution-soft-active: var(--yellow-75);
+    --color-background-caution-soft: light-dark(var(--yellow-50), color-mix(in oklab, var(--yellow-400) 25%, var(--gray-100)));
+    --color-background-caution-soft-hover: light-dark(var(--yellow-75), color-mix(in oklab, var(--yellow-400) 40%, var(--gray-100)));
+    --color-background-caution-soft-active: light-dark(var(--yellow-75), color-mix(in oklab, var(--yellow-400) 40%, var(--gray-100)));
     --color-background-caution-soft-alpha: var(--yellow-a50);
     --color-background-caution-soft-alpha-hover: var(--yellow-a75);
     --color-background-caution-soft-alpha-active: var(--yellow-a75);
@@ -228,9 +230,9 @@
     /* Text */
     --color-text-danger: light-dark(var(--red-700), var(--red-500));
     /* Soft */
-    --color-background-danger-soft: var(--red-50);
-    --color-background-danger-soft-hover: var(--red-75);
-    --color-background-danger-soft-active: var(--red-75);
+    --color-background-danger-soft: light-dark(var(--red-50), color-mix(in oklab, var(--red-400) 25%, var(--gray-100)));
+    --color-background-danger-soft-hover: light-dark(var(--red-75), color-mix(in oklab, var(--red-400) 40%, var(--gray-100)));
+    --color-background-danger-soft-active: light-dark(var(--red-75), color-mix(in oklab, var(--red-400) 40%, var(--gray-100)));
     --color-background-danger-soft-alpha: var(--red-a50);
     --color-background-danger-soft-alpha-hover: var(--red-a75);
     --color-background-danger-soft-alpha-active: var(--red-a75);
@@ -269,9 +271,9 @@
     /* Text */
     --color-text-success: light-dark(var(--green-700), var(--green-400));
     /* Soft */
-    --color-background-success-soft: var(--green-50);
-    --color-background-success-soft-hover: var(--green-75);
-    --color-background-success-soft-active: var(--green-75);
+    --color-background-success-soft: light-dark(var(--green-50), color-mix(in oklab, var(--green-400) 25%, var(--gray-100)));
+    --color-background-success-soft-hover: light-dark(var(--green-75), color-mix(in oklab, var(--green-400) 40%, var(--gray-100)));
+    --color-background-success-soft-active: light-dark(var(--green-75), color-mix(in oklab, var(--green-400) 40%, var(--gray-100)));
     --color-background-success-soft-alpha: var(--green-a50);
     --color-background-success-soft-alpha-hover: var(--green-a75);
     --color-background-success-soft-alpha-active: var(--green-a75);
@@ -310,9 +312,9 @@
     /* Text */
     --color-text-discovery: light-dark(var(--purple-700), var(--purple-500));
     /* Soft */
-    --color-background-discovery-soft: var(--purple-50);
-    --color-background-discovery-soft-hover: var(--purple-75);
-    --color-background-discovery-soft-active: var(--purple-75);
+    --color-background-discovery-soft: light-dark(var(--purple-50), color-mix(in oklab, var(--purple-400) 25%, var(--gray-100)));
+    --color-background-discovery-soft-hover: light-dark(var(--purple-75), color-mix(in oklab, var(--purple-400) 40%, var(--gray-100)));
+    --color-background-discovery-soft-active: light-dark(var(--purple-75), color-mix(in oklab, var(--purple-400) 40%, var(--gray-100)));
     --color-background-discovery-soft-alpha: var(--purple-a50);
     --color-background-discovery-soft-alpha-hover: var(--purple-a75);
     --color-background-discovery-soft-alpha-active: var(--purple-a75);

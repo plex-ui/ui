@@ -11,11 +11,13 @@ export const FieldError = defineComponent({
   inheritAttrs: false,
   props: {
     id: String,
+    /** Shows the error icon before the message. @default true */
+    icon: { type: Boolean, default: true },
   },
   setup(props, { slots, attrs }) {
     return () =>
       h("div", { class: [s.FieldError, attrs.class], id: props.id, role: "alert" }, [
-        h(ExclamationMarkCircle, { class: s.Icon }),
+        props.icon ? h(ExclamationMarkCircle, { class: s.Icon }) : null,
         h("span", null, slots.default?.()),
       ])
   },

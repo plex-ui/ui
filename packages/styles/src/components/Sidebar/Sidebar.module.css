@@ -60,20 +60,21 @@
   overflow: hidden;
 }
 
-/* Hide all spans in header when collapsed */
-:global([data-sidebar="collapsed"]) .Header span {
+/* Hide all spans in header when collapsed, except the collapse trigger's own */
+:global([data-sidebar="collapsed"]) .Header span:not(:where(.Trigger, .Trigger *)) {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Keep only the logo icon visible (first element with fixed size) */
-:global([data-sidebar="collapsed"]) .Header > div {
+/* Keep only the logo icon visible (first element with fixed size). A wrapper
+   around the trigger (a Tooltip, say) keeps its own size. */
+:global([data-sidebar="collapsed"]) .Header > div:not(:has(.Trigger)) {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
 }
 
-:global([data-sidebar="collapsed"]) .Header > div > span {
+:global([data-sidebar="collapsed"]) .Header > div:not(:has(.Trigger)) > span {
   opacity: 0;
   pointer-events: none;
 }
@@ -212,8 +213,9 @@
   letter-spacing: 0.005em;
 }
 
-/* Hide group labels when collapsed */
-:global([data-sidebar="collapsed"]) .GroupLabel {
+/* Hide group labels when collapsed. These collapsed-state rules stop at a
+   sidebar nested inside it that is expanded (a tree in the page content). */
+:global([data-sidebar="collapsed"]) .GroupLabel:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
 }
 
@@ -388,7 +390,7 @@
 }
 
 /* Hide label when collapsed */
-:global([data-sidebar="collapsed"]) .MenuButtonLabel {
+:global([data-sidebar="collapsed"]) .MenuButtonLabel:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
   pointer-events: none;
 }
@@ -404,11 +406,11 @@
   pointer-events: none;
 }
 
-:global([data-sidebar="collapsed"]) .MenuButtonLabel[data-long-label="true"] {
+:global([data-sidebar="collapsed"]) .MenuButtonLabel[data-long-label="true"]:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
 }
 
-:global([data-sidebar="collapsed"]) .MenuButtonLabel[data-short-label="true"] {
+:global([data-sidebar="collapsed"]) .MenuButtonLabel[data-short-label="true"]:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   position: relative;
   opacity: 1;
   pointer-events: auto;
@@ -442,7 +444,7 @@
   transition-delay: 0.2s;
 }
 
-:global([data-sidebar="collapsed"]) .MenuBadge {
+:global([data-sidebar="collapsed"]) .MenuBadge:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
   pointer-events: none;
   transition-delay: 0s;
@@ -583,7 +585,8 @@
 
 /* Submenu visibility with animation */
 .MenuSub {
-  max-height: 1000px;
+  /* The open height animates from 0 to this cap; raise it for long lists */
+  max-height: var(--sidebar-menu-sub-max-height, 1000px);
   transition:
     max-height 0.3s var(--cubic-move),
     opacity 0.3s var(--cubic-move);
@@ -613,7 +616,7 @@
 }
 
 /* Hide chevron in collapsed sidebar */
-:global([data-sidebar="collapsed"]) .MenuChevron {
+:global([data-sidebar="collapsed"]) .MenuChevron:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   display: none;
 }
 
@@ -657,7 +660,7 @@
 }
 
 /* Hide skeleton label when collapsed */
-:global([data-sidebar="collapsed"]) .MenuSkeletonLabel {
+:global([data-sidebar="collapsed"]) .MenuSkeletonLabel:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
 }
 

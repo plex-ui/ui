@@ -9,6 +9,8 @@ import {
   EmptyMessageErrorDemo,
   EmptyMessageWarningDemo,
   EmptyMessageEmptyDemo,
+  EmptyMessageCompactDemo,
+  EmptyMessageStartDemo,
 } from "@/components/docs/EmptyMessageDemos"
 
 <UsageBlock>{`import { EmptyMessage } from "@plexui/ui/components/EmptyMessage";`}</UsageBlock>
@@ -82,12 +84,49 @@ import {
   <EmptyMessageEmptyDemo />
 </ComponentPreview>
 
+### Compact
+
+<ComponentPreview details={<>Use <code>size="sm"</code> for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with <code>fill="none"</code> when the container sets the height.</>} code={`<Card>
+  <Card.Header>
+    <Card.Title>Members</Card.Title>
+  </Card.Header>
+  <Card.Content>
+    <EmptyMessage size="sm" fill="none">
+      <EmptyMessage.Icon size="sm"><Group /></EmptyMessage.Icon>
+      <EmptyMessage.Title>No members yet</EmptyMessage.Title>
+      <EmptyMessage.Description>Invite people to work on this project.</EmptyMessage.Description>
+      <EmptyMessage.ActionRow>
+        <Button color="secondary" variant="soft" size="sm">Invite</Button>
+      </EmptyMessage.ActionRow>
+    </EmptyMessage>
+  </Card.Content>
+</Card>`} previewMinHeight={240}>
+  <EmptyMessageCompactDemo />
+</ComponentPreview>
+
+### Left aligned
+
+<ComponentPreview details={<>Use <code>align="start"</code> for an empty state that sits under a section heading instead of filling a surface: a single line such as "No tags added" reads with the heading above it.</>} code={`<Card>
+  <Card.Header>
+    <Card.Title>Tags</Card.Title>
+  </Card.Header>
+  <Card.Content>
+    <EmptyMessage size="sm" align="start" fill="none">
+      <EmptyMessage.Description>No tags added.</EmptyMessage.Description>
+    </EmptyMessage>
+  </Card.Content>
+</Card>`} previewMinHeight={168}>
+  <EmptyMessageStartDemo />
+</ComponentPreview>
+
 ## API
 
 **EmptyMessage** (root)
 
 <PropsTable data={[
   { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills its parent: \"static\" takes full width and height, \"absolute\" covers a positioned parent (inset 0), \"none\" applies no sizing" },
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "sm is the compact message for a panel, a card section or an empty list" },
+  { prop: "align", type: '"center" | "start"', default: '"center"', description: "start left-aligns the message, for an empty state under a section heading" },
 ]} />
 
 **EmptyMessage.Icon**

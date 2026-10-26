@@ -17,6 +17,7 @@ import {
   FieldOrientationDemo,
   FieldWithTextareaDemo,
   FieldWithSelectDemo,
+  FieldLabelActionDemo,
   FieldWithSliderDemo,
   FieldFieldsetDemo,
   FieldWithCheckboxGroupDemo,
@@ -88,10 +89,9 @@ import {
 
 ### Sizing
 
-<ComponentPreview details={<>Field accepts a <code>size</code> prop that scales the label and description font size to match the child control. Pass the same <code>size</code> to both Field and the child control.</>} code={`<div className="w-full max-w-[320px]">
+<ComponentPreview details={<>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the child is a render prop.</>} code={`<div className="w-full max-w-[320px]">
   <Field
     label="Email"
-    size="md"
     description="We'll never share your email with anyone else."
     errorMessage="Please enter a valid email address."
     required
@@ -128,26 +128,34 @@ import {
 
 ### Select
 
-<ComponentPreview details={<>For components like <code>Select</code> that may not forward all props via <code>cloneElement</code>, use the render prop pattern to explicitly pass field props.</>} code={`const [role, setRole] = useState("")
+<ComponentPreview details={<>A Select trigger is not a native form control, so the label's <code>htmlFor</code> cannot name it. Field points the trigger's <code>aria-labelledby</code> at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own <code>aria-label</code>, <code>aria-labelledby</code> or <code>label</code> keeps its name.</>} code={`const [role, setRole] = useState("")
 
 <div className="w-[320px]">
   <Field label="Role" description="Select your primary role.">
-    {(fieldProps) => (
-      <Select
-        id={fieldProps.id}
-        placeholder="Select a role..."
-        value={role}
-        onChange={(option) => setRole(option.value)}
-        options={[
-          { label: "Admin", value: "admin" },
-          { label: "Editor", value: "editor" },
-          { label: "Viewer", value: "viewer" },
-        ]}
-      />
-    )}
+    <Select
+      placeholder="Select a role..."
+      value={role}
+      onChange={(option) => setRole(option.value)}
+      options={[
+        { label: "Admin", value: "admin" },
+        { label: "Editor", value: "editor" },
+        { label: "Viewer", value: "viewer" },
+      ]}
+    />
   </Field>
 </div>`} previewMinHeight={168}>
   <FieldWithSelectDemo />
+</ComponentPreview>
+
+### Label action
+
+<ComponentPreview details={<>Use <code>labelAction</code> for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size.</>} code={`<Field
+  label="Password"
+  labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
+>
+  <Input type="password" placeholder="Enter password..." />
+</Field>`} previewMinHeight={168}>
+  <FieldLabelActionDemo />
 </ComponentPreview>
 
 ### Slider
@@ -835,12 +843,13 @@ const [year, setYear] = useState("")
   { prop: "label", type: "ReactNode", description: "Label text for the field" },
   { prop: "description", type: "ReactNode", description: "Helper text below the label; linked via aria-describedby" },
   { prop: "errorMessage", type: "ReactNode", description: "Error message below the control; auto-sets aria-invalid on child" },
-  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the label font size to match the child control" },
+  { prop: "labelAction", type: "ReactNode", description: "Content at the end of the label row, such as a link that acts on the field" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking" },
-  { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby, and aria-invalid" },
+  { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread" },
   { prop: "className", type: "string", description: "Applied to the root wrapper" },
 ]} />
 

@@ -125,6 +125,18 @@ export const scrollable = `<div class="max-w-[400px] flex">
   </Tabs>
 </div>`
 
+export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
+  <Tabs v-model:value="tab" variant="underline" overflow="menu" aria-label="Repository">
+    <TabsTab value="code">Code</TabsTab>
+    <TabsTab value="issues" :badge="12">Issues</TabsTab>
+    <TabsTab value="pulls" :badge="3">Pull requests</TabsTab>
+    <TabsTab value="actions">Actions</TabsTab>
+    <TabsTab value="projects">Projects</TabsTab>
+    <TabsTab value="insights">Insights</TabsTab>
+    <TabsTab value="settings">Settings</TabsTab>
+  </Tabs>
+</div>`
+
 <UsageBlock>{`import { Tabs, TabsTab } from "@plexui/vue/components/Tabs";`}</UsageBlock>
 
 ## Examples
@@ -219,6 +231,12 @@ export const scrollable = `<div class="max-w-[400px] flex">
   <VueDemo stageClassName={STAGE} template={scrollable} state={{ tab: "1" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
+### Overflow menu
+
+<ComponentPreview language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={overflowMenu} state={{ tab: "code" }} controls={[{ name: "width", type: "select", options: ["240", "360", "560"], default: "360" }]} />
+</ComponentPreview>
+
 Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.
 
 ### Migration from SegmentedControl
@@ -264,6 +282,8 @@ const mode = ref("a")
   { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
   { prop: "aria-label", type: "string", description: "Accessible name (required)" },
+  { prop: "overflow", type: '"scroll" | "menu"', default: '"scroll"', description: "Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)" },
+  { prop: "overflow-label", type: "string", default: '"More"', description: "Text of the menu button with overflow=\"menu\"" },
   { prop: "class", type: "string", description: "Extra classes on the group element" },
   { prop: "default slot", type: "VNode[]", description: "TabsTab children" },
   { prop: "@update:value", type: "(value: string) => void", description: "Emitted when a tab is selected; powers v-model:value" },

@@ -333,6 +333,8 @@ const RadioGroupItemComponent = defineComponent({
     block: { type: Boolean, default: false },
     /** The orientation of the radio indicator relative to the label. @default "left" */
     orientation: { type: String as PropType<"left" | "right">, default: "left" },
+    /** Optional second line below the option's label, linked via `aria-describedby` (or the `description` slot) */
+    description: String,
   },
   setup(props, { attrs, slots }) {
     const context = useRadioGroupContext()
@@ -437,84 +439,107 @@ const RadioGroupItemComponent = defineComponent({
       // Providing an extra wrapper enables `label` to be inline-flex, avoiding clickable whitespace
       // when radio options are of varied lengths.
       // NOTE: Important that this is `flex` to prevent the `inline-flex` label from extra, unintentional whitespace.
+      const description = slots.description ? slots.description() : props.description
+      const descriptionId = slots.description || props.description ? `${itemId}-description` : undefined
+      const label = h(
+        "label",
+        {
+          "for": itemId,
+          "class": [s.RadioLabel, className],
+          "data-disabled": isDisabled ? "" : undefined,
+          "data-block": props.block ? "" : undefined,
+          "data-orientation": props.orientation,
+          "onMousedown": handleLabelMouseDown,
+        },
+        [
+          h("div", { class: s.RadioIndicatorWrapper, ref: wrapper }, [
+            h(
+              RovingFocusItem,
+              { asChild: true, focusable: !isDisabled, active: isChecked },
+              {
+                default: () =>
+                  h(
+                    "button",
+                    {
+                      "type": "button",
+                      "role": "radio",
+                      "aria-checked": isChecked,
+                      "data-state": state,
+                      "data-disabled": isDisabled ? "" : undefined,
+                      "disabled": isDisabled,
+                      "value": props.value,
+                      // radix-ui 1.8: the item's own `required` lands on its button
+                      "required": props.required ? "" : undefined,
+                      "id": itemId,
+                      "class": s.RadioItem,
+                      "aria-describedby": descriptionId,
+                      // Reka's RovingFocusItem marks the active item; Radix does not
+                      "data-active": undefined,
+                      "onClick": handleClick,
+                      "onKeydown": handleKeyDown,
+                      "onFocus": handleFocus,
+                    },
+                    [
+                      h(
+                        Presence,
+                        { present: isChecked },
+                        {
+                          // Presence calls its slot once during setup; withCtx marks it
+                          // as a render slot so Vue does not warn about that call
+                          default: withCtx(() => [
+                            h("span", {
+                              "data-state": state,
+                              "data-disabled": isDisabled ? "" : undefined,
+                              "class": s.RadioIndicator,
+                            }),
+                          ]),
+                        },
+                      ),
+                    ],
+                  ),
+              },
+            ),
+            isFormControl.value
+              ? h("input", {
+                  "ref": bubbleInput,
+                  "type": "radio",
+                  "aria-hidden": "true",
+                  // React's `defaultChecked`, from the input's first render
+                  "^checked": defaultChecked ? "" : undefined,
+                  "name": context.name.value,
+                  "^value": props.value,
+                  // radix-ui 1.8: the group's `required` reaches every input
+                  "required": context.required.value,
+                  "disabled": isDisabled,
+                  "tabindex": -1,
+                  "style": bubbleInputStyle(controlSize.value, { transform: "translateX(-100%)" }),
+                })
+              : null,
+          ]),
+          slots.default?.(),
+        ],
+      )
+
       return h("div", { class: ["flex", props.block && "w-full"], ...restAttrs }, [
-        h(
-          "label",
-          {
-            "for": itemId,
-            "class": [s.RadioLabel, className],
-            "data-disabled": isDisabled ? "" : undefined,
-            "data-block": props.block ? "" : undefined,
-            "data-orientation": props.orientation,
-            "onMousedown": handleLabelMouseDown,
-          },
-          [
-            h("div", { class: s.RadioIndicatorWrapper, ref: wrapper }, [
-              h(
-                RovingFocusItem,
-                { asChild: true, focusable: !isDisabled, active: isChecked },
-                {
-                  default: () =>
-                    h(
-                      "button",
-                      {
-                        "type": "button",
-                        "role": "radio",
-                        "aria-checked": isChecked,
-                        "data-state": state,
-                        "data-disabled": isDisabled ? "" : undefined,
-                        "disabled": isDisabled,
-                        "value": props.value,
-                        // radix-ui 1.8: the item's own `required` lands on its button
-                        "required": props.required ? "" : undefined,
-                        "id": itemId,
-                        "class": s.RadioItem,
-                        // Reka's RovingFocusItem marks the active item; Radix does not
-                        "data-active": undefined,
-                        "onClick": handleClick,
-                        "onKeydown": handleKeyDown,
-                        "onFocus": handleFocus,
-                      },
-                      [
-                        h(
-                          Presence,
-                          { present: isChecked },
-                          {
-                            // Presence calls its slot once during setup; withCtx marks it
-                            // as a render slot so Vue does not warn about that call
-                            default: withCtx(() => [
-                              h("span", {
-                                "data-state": state,
-                                "data-disabled": isDisabled ? "" : undefined,
-                                "class": s.RadioIndicator,
-                              }),
-                            ]),
-                          },
-                        ),
-                      ],
-                    ),
-                },
-              ),
-              isFormControl.value
-                ? h("input", {
-                    "ref": bubbleInput,
-                    "type": "radio",
-                    "aria-hidden": "true",
-                    // React's `defaultChecked`, from the input's first render
-                    "^checked": defaultChecked ? "" : undefined,
-                    "name": context.name.value,
-                    "^value": props.value,
-                    // radix-ui 1.8: the group's `required` reaches every input
-                    "required": context.required.value,
-                    "disabled": isDisabled,
-                    "tabindex": -1,
-                    "style": bubbleInputStyle(controlSize.value, { transform: "translateX(-100%)" }),
-                  })
-                : null,
-            ]),
-            slots.default?.(),
-          ],
-        ),
+        descriptionId
+          ? // The description stays outside the label, so it describes the radio instead of naming it
+            h(
+              "div",
+              {
+                "class": s.RadioItemGroup,
+                "data-block": props.block ? "" : undefined,
+                "data-orientation": props.orientation,
+              },
+              [
+                label,
+                h(
+                  "span",
+                  { "id": descriptionId, "class": s.RadioDescription, "data-disabled": isDisabled ? "" : undefined },
+                  description,
+                ),
+              ],
+            )
+          : label,
       ])
     }
   },

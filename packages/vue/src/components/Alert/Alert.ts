@@ -70,6 +70,8 @@ const AlertComponent = defineComponent({
     actionsClassName: String,
     /** Shows the Dismiss button; called when it is clicked. */
     onDismiss: Function as PropType<(event: MouseEvent) => void>,
+    /** A full-width strip across a page or panel: square corners, lines above and below only. @default false */
+    banner: { type: Boolean, default: false },
   },
   setup(props, { slots }) {
     const containerRef = ref<HTMLDivElement | null>(null)
@@ -123,6 +125,7 @@ const AlertComponent = defineComponent({
           "data-color": color,
           "role": color === "danger" ? "alert" : undefined,
           "data-actions-placement": props.actionsPlacement ?? actionsAutoPlacement.value,
+          "data-banner": props.banner ? "" : undefined,
         },
         [
           props.indicator === false

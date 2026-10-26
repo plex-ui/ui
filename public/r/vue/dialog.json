@@ -17,5 +17,5 @@
       "content": "export * from \"@plexui/vue/components/Dialog\"\n"
     }
   ],
-  "docs": "Import as `import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'`. See https://plexui.com/vue/components/dialog for props and examples."
+  "docs": "Import as `import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'`. See https://plexui.com/vue/components/dialog for props and examples."
 }

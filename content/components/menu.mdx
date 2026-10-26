@@ -10,6 +10,7 @@ import {
   MenuGroupedDemo,
   MenuSubmenuDemo,
   MenuItemActionsDemo,
+  MenuDangerDemo,
   MenuWithCheckboxesDemoWithControls,
   MenuWithRadioItemsDemoWithControls,
   MenuHorizontalIconsOnlyDemoWithControls,
@@ -247,6 +248,24 @@ return (
   <MenuItemActionsDemo />
 </ComponentPreview>
 
+### Destructive items
+
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={`<Menu>
+  <Menu.Trigger>
+    <Button color="secondary" variant="soft" uniform aria-label="More actions">
+      <DotsHorizontal />
+    </Button>
+  </Menu.Trigger>
+  <Menu.Content align="end" minWidth={200}>
+    <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
+    <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
+  </Menu.Content>
+</Menu>`} previewMinHeight={168}>
+  <MenuDangerDemo />
+</ComponentPreview>
+
 ## API
 
 **Note:** Menu prevents `Tab` from advancing focus. For generic popover content use [Popover](/components/popover) instead.
@@ -288,10 +307,11 @@ return (
   { prop: "onSelect", type: "(event: Event) => void", description: "Called when item is selected; call event.preventDefault() to keep the menu open" },
   { prop: "onClick", type: "(event: MouseEvent) => void", description: "Called when the item is clicked; also makes the item interactive" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
+  { prop: "danger", type: "boolean", default: "false", description: "Destructive action: the item is drawn in the danger color" },
   { prop: "className", type: "string", description: "Applied to the item" },
 ]} />
 
-**Menu.Link**: Item that navigates. Internal paths render the link component from `PlexUIProvider`; absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `as` and link props.
+**Menu.Link**: Item that navigates. Internal paths render the link component from `PlexUIProvider`; absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `as` and link props; `danger` marks a destructive destination.
 
 **Menu.Separator**: Divider between items. No props.
 

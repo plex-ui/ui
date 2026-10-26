@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
 }
 
 .GroupGap {
@@ -16,6 +17,9 @@
 
 .Cell {
   position: relative;
+  /* 44px wide, narrower when the row does not fit (six cells on a 320px phone) */
+  flex: 0 1 44px;
+  min-width: 2rem;
   width: 44px;
   height: 52px;
   border-radius: var(--floating-input-border-radius);

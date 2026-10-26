@@ -180,6 +180,20 @@ export const itemActions = `<Menu>
   </MenuContent>
 </Menu>`
 
+export const danger = `<Menu>
+  <MenuTrigger>
+    <Button color="secondary" variant="soft" uniform aria-label="More actions">
+      <DotsHorizontal />
+    </Button>
+  </MenuTrigger>
+  <MenuContent align="end" :min-width="200">
+    <MenuItem @select="() => {}"><EditPencil /> Rename</MenuItem>
+    <MenuItem @select="() => {}">Duplicate</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}" danger><Trash /> Delete project</MenuItem>
+  </MenuContent>
+</Menu>`
+
 <UsageBlock>{`import {
   Menu,
   MenuContent,
@@ -245,6 +259,12 @@ export const itemActions = `<Menu>
   <VueDemo template={itemActions} />
 </ComponentPreview>
 
+### Destructive items
+
+<ComponentPreview language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={danger} previewMinHeight={168}>
+  <VueDemo template={danger} />
+</ComponentPreview>
+
 ## API
 
 **Note:** Menu prevents `Tab` from advancing focus. For generic popover content use [Popover](/vue/components/popover) instead.
@@ -284,11 +304,12 @@ export const itemActions = `<Menu>
 <PropsTable data={[
   { prop: "description", type: "string", description: "Second line under the label (or the description slot). The label turns semibold on its own" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
+  { prop: "danger", type: "boolean", default: "false", description: "Destructive action: the item is drawn in the danger color" },
   { prop: "@select", type: "(event: Event) => void", description: "Called when the item is selected; call event.preventDefault() to keep the menu open" },
   { prop: "@click", type: "(event: MouseEvent) => void", description: "Called when the item is clicked; also makes the item interactive" },
 ]} />
 
-**MenuLink**: item that navigates. Internal paths render the link component from `PlexUIProvider` (for example vue-router's `RouterLink`); absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `as` and link attributes.
+**MenuLink**: item that navigates. Internal paths render the link component from `PlexUIProvider` (for example vue-router's `RouterLink`); absolute `http(s)` URLs open in a new tab. Pass `href` or `to`, `disabled` (a disabled link does not navigate), `danger`, `as` and link attributes.
 
 **MenuSeparator**: divider between items. No props.
 

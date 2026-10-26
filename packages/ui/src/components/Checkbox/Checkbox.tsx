@@ -14,6 +14,8 @@ export type CheckboxProps = {
   checked?: boolean | "indeterminate"
   /** Optional accessible label rendered to the right of the checkbox. */
   label?: ReactNode
+  /** Optional second line below the label. Linked via `aria-describedby`. */
+  description?: ReactNode
   /** Event handler called when the state of the checkbox changes. */
   onCheckedChange?: (nextState: boolean) => void
   /** Event handler called when the checkbox looses focus. */
@@ -53,6 +55,7 @@ export type CheckboxProps = {
 export const Checkbox = ({
   className,
   label,
+  description,
   id: propsId,
   disabled,
   orientation = "left",
@@ -62,6 +65,23 @@ export const Checkbox = ({
 }: CheckboxProps) => {
   const reactId = useId()
   const id = propsId ?? reactId
+  // The description only renders next to a label; it comes before any ids
+  // the caller (a Field, say) passes
+  const descriptionId = label && description ? `${id}-label-description` : undefined
+  const ariaDescribedBy =
+    [descriptionId, (restProps as { "aria-describedby"?: string })["aria-describedby"]].filter(Boolean).join(" ") ||
+    undefined
+  const labelElement = label && (
+    <label
+      htmlFor={id}
+      className={s.Label}
+      onMouseDown={(event) => {
+        if (!event.defaultPrevented && event.detail > 1) event.preventDefault()
+      }}
+    >
+      {label}
+    </label>
+  )
 
   return (
     <div
@@ -77,19 +97,19 @@ export const Checkbox = ({
         data-pill={pill ? "" : undefined}
         data-variant={variant}
         {...restProps}
+        aria-describedby={ariaDescribedBy}
       >
         <RadixCheckbox.Indicator className={s.CheckMark} />
       </RadixCheckbox.Root>
-      {label && (
-        <label
-          htmlFor={id}
-          className={s.Label}
-          onMouseDown={(event) => {
-            if (!event.defaultPrevented && event.detail > 1) event.preventDefault()
-          }}
-        >
-          {label}
-        </label>
+      {descriptionId ? (
+        <div className={s.LabelGroup}>
+          {labelElement}
+          <span id={descriptionId} className={s.Description}>
+            {description}
+          </span>
+        </div>
+      ) : (
+        labelElement
       )}
     </div>
   )

@@ -7,6 +7,8 @@ metaDescription: Accessible React modal dialog component for confirmations, form
 import {
   DialogOverviewDemo,
   DialogDeleteConfirmDemo,
+  DialogBodyDemo,
+  DialogPlacementDemo,
 } from "@/components/docs/DialogDemos"
 
 <UsageBlock>{`import { Dialog } from "@plexui/ui/components/Dialog";`}</UsageBlock>
@@ -65,6 +67,39 @@ import {
   <DialogDeleteConfirmDemo />
 </ComponentPreview>
 
+### Scrolling body
+
+<ComponentPreview details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`<Dialog.Content>
+  <Dialog.Header>
+    <Dialog.Title>Terms of service</Dialog.Title>
+    <Dialog.Description>Please read them before you continue.</Dialog.Description>
+  </Dialog.Header>
+  <Dialog.Body>
+    {terms.map((term) => <p key={term}>{term}</p>)}
+  </Dialog.Body>
+  <Dialog.Footer>
+    <Dialog.Close><Button color="secondary" variant="soft">Decline</Button></Dialog.Close>
+    <Button color="primary">Accept</Button>
+  </Dialog.Footer>
+</Dialog.Content>`} previewMinHeight={120}>
+  <DialogBodyDemo />
+</ComponentPreview>
+
+### Placement
+
+<ComponentPreview details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`<Dialog.Content placement="end" width={360}>
+  <Dialog.Header>
+    <Dialog.Title>Filters</Dialog.Title>
+  </Dialog.Header>
+  <Dialog.Body>{/* fields */}</Dialog.Body>
+  <Dialog.Footer>
+    <Dialog.Close><Button color="secondary" variant="soft">Clear filters</Button></Dialog.Close>
+    <Button color="primary">Done</Button>
+  </Dialog.Footer>
+</Dialog.Content>`} previewMinHeight={160}>
+  <DialogPlacementDemo />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -80,6 +115,10 @@ import {
   { prop: "width", type: "number | string", default: "480", description: "Panel width" },
   { prop: "showClose", type: "boolean", default: "true", description: "Show close button in top-right corner" },
   { prop: "className", type: "string", description: "Additional CSS class on the panel" },
+  { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
+  { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below; defaults to placement" },
+  { prop: "onOpenAutoFocus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
+  { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
@@ -89,6 +128,8 @@ import {
 **Dialog.Title**: accessible heading for the dialog.
 
 **Dialog.Description**: supporting text under the title.
+
+**Dialog.Body**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `className`.
 
 **Dialog.Footer**: footer area for action buttons.
 

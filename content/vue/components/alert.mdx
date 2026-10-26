@@ -111,6 +111,21 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   />
 </div>`
 
+export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6">
+  <Alert
+    banner
+    color="caution"
+    variant="soft"
+    :indicator="false"
+    description="You are offline. Changes will sync when the connection is back."
+  />
+  <Alert banner color="info" variant="outline" description="A new version is available.">
+    <template #actions>
+      <Button color="primary" variant="soft" size="sm">Reload</Button>
+    </template>
+  </Alert>
+</div>`
+
 <UsageBlock>{`import { Alert } from "@plexui/vue/components/Alert";`}</UsageBlock>
 
 ## Examples
@@ -168,6 +183,12 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   <VueDemo template={dismissible} />
 </ComponentPreview>
 
+### Banner
+
+<ComponentPreview language="vue" details={<>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass <code>:indicator="false"</code> for a plain strip.</>} code={banner} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={banner} />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -180,6 +201,7 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },
   { prop: "indicator", type: "slot | false", description: "Custom indicator (slot), or :indicator=\"false\" to hide it" },
   { prop: "@dismiss", type: "() => void", description: "Shows the dismiss button when set" },
+  { prop: "banner", type: "boolean", default: "false", description: "Full-width strip: square corners, lines above and below only" },
 ]} />
 
 ## Styling

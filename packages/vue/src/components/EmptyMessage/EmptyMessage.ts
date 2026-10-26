@@ -18,10 +18,23 @@ export const EmptyMessage = defineComponent({
   props: {
     /** Determines how the container fills available space. @default "static" */
     fill: { type: String as PropType<"static" | "absolute" | "none">, default: "static" },
+    /** `sm` is the compact message for a panel, a card section or an empty list. @default "md" */
+    size: { type: String as PropType<Sizes<"sm" | "md">>, default: "md" },
+    /** `start` left-aligns the message, for an empty state under a section heading. @default "center" */
+    align: { type: String as PropType<"center" | "start">, default: "center" },
   },
   setup(props, { attrs, slots }) {
     return () =>
-      h("div", { "class": clsx(s.EmptyMessage, classOf(attrs)), "data-fill": props.fill }, slots.default?.())
+      h(
+        "div",
+        {
+          "class": clsx(s.EmptyMessage, classOf(attrs)),
+          "data-fill": props.fill,
+          "data-size": props.size === "sm" ? props.size : undefined,
+          "data-align": props.align === "start" ? props.align : undefined,
+        },
+        slots.default?.(),
+      )
   },
 })
 

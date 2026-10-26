@@ -8,7 +8,7 @@ import { Alert } from "@plexui/ui/components/Alert"
 import { Button } from "@plexui/ui/components/Button"
 
 import { TextLink } from "@plexui/ui/components/TextLink"
-import { AlertColorsDemo, AlertActionsDemo, AlertIndicatorDemo, AlertDismissibleDemo } from "@/components/docs/AlertDemos"
+import { AlertColorsDemo, AlertActionsDemo, AlertIndicatorDemo, AlertDismissibleDemo, AlertBannerDemo } from "@/components/docs/AlertDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import { Alert } from "@plexui/ui/components/Alert";`}</UsageBlock>
@@ -163,6 +163,18 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   <AlertDismissibleDemo />
 </ComponentPreview>
 
+### Banner
+
+<ComponentPreview details={<>Use <code>banner</code> for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass <code>indicator={'{false}'}</code> for a plain strip.</>} code={`<Alert
+  banner
+  color="caution"
+  variant="soft"
+  indicator={false}
+  description="You are offline. Changes will sync when the connection is back."
+/>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <AlertBannerDemo />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -175,6 +187,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },
   { prop: "indicator", type: "ReactNode | false", description: "Custom indicator or false to hide" },
   { prop: "onDismiss", type: "() => void", description: "Shows the dismiss button when set" },
+  { prop: "banner", type: "boolean", default: "false", description: "Full-width strip: square corners, lines above and below only" },
   { prop: "className", type: "string", description: "Class applied to the alert container" },
 ]} />
 

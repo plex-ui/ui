@@ -88,11 +88,16 @@ export const OTPInput = defineComponent({
     onMounted(runAutoFocus)
     watch([() => props.autoFocus, () => props.disabled], runAutoFocus, { flush: "post" })
 
+    // The value the field's own last edit produced, until the value changes:
+    // a field the user empties keeps the caret where it is
+    let ownValue: string | null = null
+
     const commitDigits = (nextDigits: string[]) => {
       const previous = currentValue.value
       // Kept when controlled too: the parent's value then keeps these gaps
       cells.value = nextDigits
       const nextValue = nextDigits.join("")
+      ownValue = nextValue
       if (nextValue !== previous) {
         emit("update:value", nextValue)
         emit("change", nextValue)
@@ -110,6 +115,24 @@ export const OTPInput = defineComponent({
       input.focus()
       input.setSelectionRange(1, 1)
     }
+
+    // A field cleared from outside (a wrong code wiped by the form) puts the
+    // caret back in the first cell, when the focus was in the field already
+    let hadValue = currentValue.value.length > 0
+    watch(
+      [currentValue, () => props.disabled],
+      () => {
+        const filled = currentValue.value.length > 0
+        const fromOutside = ownValue !== currentValue.value
+        ownValue = null
+        const root = rootRef.value
+        if (!filled && hadValue && fromOutside && !props.disabled && root?.contains(document.activeElement)) {
+          focusCell(0)
+        }
+        hadValue = filled
+      },
+      { flush: "post" },
+    )
 
     const handleCellClick = (index: number) => {
       if (props.disabled) return

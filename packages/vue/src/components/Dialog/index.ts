@@ -1,5 +1,6 @@
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -8,5 +9,6 @@ export {
   DialogTitle,
   DialogTrigger,
   type DialogContentProps,
+  type DialogPlacement,
   type DialogProps,
 } from "./Dialog.js"

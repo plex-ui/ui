@@ -11,6 +11,7 @@ import { Checkbox } from '@plexui/ui/components/Checkbox';
 import { Switch } from '@plexui/ui/components/Switch';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { TagInput } from '@plexui/ui/components/TagInput';
+import { TextLink } from '@plexui/ui/components/TextLink';
 import dynamic from 'next/dynamic';
 
 const Slider = dynamic(
@@ -214,19 +215,26 @@ export function FieldWithSelectDemo() {
   return (
     <div className="w-[320px]">
       <Field label="Role" description="Select your primary role.">
-        {(fieldProps) => (
-          <Select
-            id={fieldProps.id}
-            placeholder="Select a role..."
-            value={role}
-            onChange={(opt) => setRole(opt.value)}
-            options={[
-              { label: 'Admin', value: 'admin' },
-              { label: 'Editor', value: 'editor' },
-              { label: 'Viewer', value: 'viewer' },
-            ]}
-          />
-        )}
+        <Select
+          placeholder="Select a role..."
+          value={role}
+          onChange={(opt) => setRole(opt.value)}
+          options={[
+            { label: 'Admin', value: 'admin' },
+            { label: 'Editor', value: 'editor' },
+            { label: 'Viewer', value: 'viewer' },
+          ]}
+        />
+      </Field>
+    </div>
+  );
+}
+
+export function FieldLabelActionDemo() {
+  return (
+    <div className="w-[320px]">
+      <Field label="Password" labelAction={<TextLink href="#reset-password">Forgot password?</TextLink>}>
+        <Input type="password" placeholder="Enter password..." />
       </Field>
     </div>
   );

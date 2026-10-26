@@ -17,30 +17,39 @@ const CopyButtonComponent = defineComponent({
   },
   emits: {
     click: (_event: MouseEvent) => true,
+    /** The clipboard write settled; `copied` says whether it succeeded (React's `onCopy`). */
+    copy: (_copied: boolean) => true,
   },
   setup(props, { slots, emit, attrs }) {
     const copied = ref(false)
     let copiedTimeout: number | null = null
+    let pending = false
+    let mounted = true
 
-    const handleClick = (event: MouseEvent) => {
-      // No-op when copied is true
-      if (copied.value) {
+    const handleClick = async (event: MouseEvent) => {
+      // No-op while copied, or while a write is still in flight
+      if (copied.value || pending) {
         return
       }
 
-      copied.value = true
       emit("click", event)
 
-      // Copy content to clipboard
-      // NOTE: Failures are a silent no-op
-      copyToClipboard(typeof props.copyValue === "function" ? props.copyValue() : props.copyValue)
+      // The copied state follows the clipboard: a failed write shows no check
+      pending = true
+      const succeeded = await copyToClipboard(typeof props.copyValue === "function" ? props.copyValue() : props.copyValue)
+      pending = false
+      if (!mounted) return
+      emit("copy", succeeded)
+      if (!succeeded) return
 
+      copied.value = true
       copiedTimeout = window.setTimeout(() => {
         copied.value = false
       }, 1300)
     }
 
     onBeforeUnmount(() => {
+      mounted = false
       if (copiedTimeout) clearTimeout(copiedTimeout)
     })
 

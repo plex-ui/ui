@@ -14,6 +14,40 @@
     position: absolute;
     inset: 0;
   }
+
+  /* Compact: a panel, a card section or an empty list */
+  &[data-size="sm"] {
+    min-width: 0;
+
+    .IconBadge {
+      --badge-size: 32px;
+      --icon-size: 20px;
+
+      margin-bottom: spacing(2);
+    }
+
+    .Title {
+      margin-bottom: spacing(1);
+      font-size: var(--font-text-sm-size);
+      line-height: var(--font-text-sm-line-height);
+      letter-spacing: normal;
+    }
+
+    .ActionRow {
+      margin-top: spacing(3);
+    }
+  }
+
+  /* Left-aligned, under a section heading */
+  &[data-align="start"] {
+    align-items: flex-start;
+    min-width: 0;
+
+    .Title,
+    .Description {
+      text-align: start;
+    }
+  }
 }
 
 .IconBadge {

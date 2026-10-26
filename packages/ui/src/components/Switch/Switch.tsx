@@ -50,8 +50,12 @@ export const Switch = ({
 }: SwitchProps) => {
   const reactId = useId()
   const id = propsId ?? reactId
-  // The description only renders next to a label
-  const descriptionId = label && description ? `${id}-description` : undefined
+  // The description only renders next to a label; it comes before any ids
+  // the caller (a Field, say) passes
+  const descriptionId = label && description ? `${id}-label-description` : undefined
+  const ariaDescribedBy =
+    [descriptionId, (restProps as { "aria-describedby"?: string })["aria-describedby"]].filter(Boolean).join(" ") ||
+    undefined
 
   return (
     <div
@@ -64,8 +68,8 @@ export const Switch = ({
         id={id}
         className={s.Track}
         disabled={disabled}
-        aria-describedby={descriptionId}
         {...restProps}
+        aria-describedby={ariaDescribedBy}
       >
         <RadixSwitch.Thumb className={s.Thumb} />
       </RadixSwitch.Root>

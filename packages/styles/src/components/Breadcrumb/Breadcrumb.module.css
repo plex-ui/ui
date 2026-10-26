@@ -1,0 +1,68 @@
+/* The trail of pages above a page title: links in the secondary text color,
+   the current page in the text color, separators in the tertiary color.
+   A long trail wraps instead of leaving the screen. */
+.Breadcrumb {
+  --breadcrumb-font-size: var(--font-text-sm-size);
+  --breadcrumb-line-height: var(--font-text-sm-line-height);
+  --breadcrumb-gap: spacing(1);
+
+  font-size: var(--breadcrumb-font-size);
+  line-height: var(--breadcrumb-line-height);
+
+  &[data-size="sm"] {
+    --breadcrumb-font-size: var(--font-text-xs-size);
+    --breadcrumb-line-height: var(--font-text-xs-line-height);
+    --breadcrumb-gap: spacing(0.5);
+  }
+}
+
+.List {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--breadcrumb-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.Item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--breadcrumb-gap);
+  min-width: 0;
+  color: var(--color-text-secondary);
+}
+
+.Separator {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+
+  svg {
+    width: 1em;
+    height: 1em;
+
+    /* The chevron points along the reading direction */
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  .Item:first-child > & {
+    display: none;
+  }
+}
+
+.Item > .Link {
+  color: var(--color-text-secondary);
+
+  @mixin hover {
+    color: var(--color-text);
+  }
+}
+
+.Current {
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}

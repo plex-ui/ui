@@ -28,6 +28,7 @@ import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
   { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
   { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger in pixels" },
+  { prop: "onCopy", type: "(copied: boolean) => void", description: "Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write" },
 ]} />
 
 ## Styling

@@ -38,13 +38,15 @@ import {
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to stylize the input.</>} code={`<div className="flex flex-col gap-2 w-[320px]">
+<ComponentPreview details={<>Use <code>variant</code> to stylize the input. <code>ghost</code> has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when <code>invalid</code>.</>} code={`<div className="flex flex-col gap-2 w-[320px]">
   <Input placeholder="Enter text..." variant="outline" />
   <Input placeholder="Enter text..." variant="soft" />
+  <Input placeholder="Enter text..." variant="ghost" />
 </div>`} previewMinHeight={168}>
   <div className="flex flex-col gap-2 w-[320px]">
     <Input placeholder="Enter text..." variant="outline" />
     <Input placeholder="Enter text..." variant="soft" />
+    <Input placeholder="Enter text..." variant="ghost" />
   </div>
 </ComponentPreview>
 
@@ -165,7 +167,7 @@ import {
   <InputInvalidDemo />
 </ComponentPreview>
 
-Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldError`) that pairs well with invalid inputs. It renders an error icon with a message styled for form validation.
+Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldError`) that pairs well with invalid inputs. It renders an error icon with a message styled for form validation; a long message wraps under its first line, and `icon={false}` leaves the icon out where the message stands alone, such as under a centered code input.
 
 ### Auto select text
 
@@ -216,7 +218,7 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
 ## API
 
 <PropsTable data={[
-  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the input" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Visual style of the input; ghost has no border and no fill" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the size of the input" },
   { prop: "gutterSize", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Controls gutter on the edges; defaults to value from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables the input visually and from interactions" },

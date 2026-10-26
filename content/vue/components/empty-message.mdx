@@ -64,6 +64,37 @@ export const noResults = `<div class="w-full">
   </EmptyMessage>
 </div>`
 
+export const compact = `<div class="w-[320px]">
+  <Card>
+    <CardHeader>
+      <CardTitle>Members</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <EmptyMessage size="sm" fill="none">
+        <EmptyMessageIcon size="sm"><Group /></EmptyMessageIcon>
+        <EmptyMessageTitle>No members yet</EmptyMessageTitle>
+        <EmptyMessageDescription>Invite people to work on this project.</EmptyMessageDescription>
+        <EmptyMessageActionRow>
+          <Button color="secondary" variant="soft" size="sm">Invite</Button>
+        </EmptyMessageActionRow>
+      </EmptyMessage>
+    </CardContent>
+  </Card>
+</div>`
+
+export const leftAligned = `<div class="w-[320px]">
+  <Card>
+    <CardHeader>
+      <CardTitle>Tags</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <EmptyMessage size="sm" align="start" fill="none">
+        <EmptyMessageDescription>No tags added.</EmptyMessageDescription>
+      </EmptyMessage>
+    </CardContent>
+  </Card>
+</div>`
+
 <UsageBlock>{`import {
   EmptyMessage,
   EmptyMessageActionRow,
@@ -108,12 +139,26 @@ export const noResults = `<div class="w-full">
   <VueDemo template={noResults} />
 </ComponentPreview>
 
+### Compact
+
+<ComponentPreview language="vue" details={<>Use <code>size="sm"</code> for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with <code>fill="none"</code> when the container sets the height.</>} code={compact} previewMinHeight={240}>
+  <VueDemo template={compact} />
+</ComponentPreview>
+
+### Left aligned
+
+<ComponentPreview language="vue" details={<>Use <code>align="start"</code> for an empty state that sits under a section heading instead of filling a surface: a single line such as "No tags added" reads with the heading above it.</>} code={leftAligned} previewMinHeight={168}>
+  <VueDemo template={leftAligned} />
+</ComponentPreview>
+
 ## API
 
 **EmptyMessage** (root)
 
 <PropsTable data={[
   { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills its parent: \"static\" takes full width and height, \"absolute\" covers a positioned parent (inset 0), \"none\" applies no sizing" },
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "sm is the compact message for a panel, a card section or an empty list" },
+  { prop: "align", type: '"center" | "start"', default: '"center"', description: "start left-aligns the message, for an empty state under a section heading" },
 ]} />
 
 **EmptyMessageIcon**

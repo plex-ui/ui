@@ -20,6 +20,7 @@ import {
   TabsDisabledDemo,
   TabsSizingDemo,
   TabsScrollableDemo,
+  TabsOverflowMenuDemo,
 } from "@/components/docs/TabsDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
@@ -194,6 +195,22 @@ return (
   <TabsScrollableDemo />
 </ComponentPreview>
 
+### Overflow menu
+
+<ComponentPreview details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflowLabel</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={`<div className="flex w-[360px]">
+  <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
+    <Tabs.Tab value="code">Code</Tabs.Tab>
+    <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
+    <Tabs.Tab value="pulls" badge={3}>Pull requests</Tabs.Tab>
+    <Tabs.Tab value="actions">Actions</Tabs.Tab>
+    <Tabs.Tab value="projects">Projects</Tabs.Tab>
+    <Tabs.Tab value="insights">Insights</Tabs.Tab>
+    <Tabs.Tab value="settings">Settings</Tabs.Tab>
+  </Tabs>
+</div>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <TabsOverflowMenuDemo />
+</ComponentPreview>
+
 Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.
 
 ### Migration from SegmentedControl
@@ -229,6 +246,8 @@ Both `Tabs.Tab` and `Tabs.Option` are available as sub-components. The `Segmente
   { prop: "block", type: "boolean", default: "false", description: "Full-width control with equal-width tabs" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all tabs" },
   { prop: "aria-label", type: "string", description: "Accessible name (required)" },
+  { prop: "overflow", type: '"scroll" | "menu"', default: '"scroll"', description: "Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)" },
+  { prop: "overflowLabel", type: "string", default: '"More"', description: "Text of the menu button with overflow=\"menu\"" },
   { prop: "className", type: "string", description: "Extra classes on the group element" },
   { prop: "children", type: "ReactNode", description: "Tabs.Tab children" },
 ]} />

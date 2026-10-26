@@ -513,6 +513,7 @@ const MenuItemInteractive = defineComponent({
   props: {
     className: [String, Array, Object] as PropType<unknown>,
     disabled: Boolean,
+    danger: Boolean,
     onSelect: Function as PropType<(event: Event) => void>,
     onItemClick: { type: Function as PropType<(event: MouseEvent) => void>, required: true },
   },
@@ -538,7 +539,13 @@ const MenuItemInteractive = defineComponent({
     return () =>
       h(
         "div",
-        { ...impl.attrs(), "class": [s.MenuItem, props.className], "ref": impl.setElement, ...listeners },
+        {
+          ...impl.attrs(),
+          "class": [s.MenuItem, props.className],
+          "data-danger": props.danger ? "" : undefined,
+          "ref": impl.setElement,
+          ...listeners,
+        },
         [h("div", { class: s.PressableInner }, slots.default?.())],
       )
   },
@@ -560,6 +567,8 @@ export const MenuItem = defineComponent({
     description: String,
     /** Disables the menu item */
     disabled: { type: Boolean, default: false },
+    /** Marks a destructive action (delete, remove, leave): the item is drawn in the danger color */
+    danger: { type: Boolean, default: false },
     /**
      * Called when the item is selected (`@select`). Without it or `@click`
      * the item is read-only content. Call `event.preventDefault()` to keep
@@ -590,7 +599,7 @@ export const MenuItem = defineComponent({
       if (props.onSelect || props.onClick) {
         return h(
           MenuItemInteractive,
-          { className: attrs.class, disabled: props.disabled, onSelect: props.onSelect, onItemClick },
+          { className: attrs.class, disabled: props.disabled, danger: props.danger, onSelect: props.onSelect, onItemClick },
           { default: () => content },
         )
       }
@@ -665,6 +674,8 @@ export const MenuLink = defineComponent({
     to: [String, Object] as PropType<RouteTarget>,
     /** Disables the menu item */
     disabled: { type: Boolean, default: false },
+    /** Marks a destructive destination: the item is drawn in the danger color */
+    danger: { type: Boolean, default: false },
     /**
      * Override the default component used for the link. This is useful for
      * using a routing library, or SSR rendering.
@@ -706,8 +717,9 @@ export const MenuLink = defineComponent({
         ...impl.attrs(),
         ...linkProps,
         ...restProps,
-        class: [s.MenuItem, className],
-        ref: impl.setElement,
+        "class": [s.MenuItem, className],
+        "data-danger": props.danger ? "" : undefined,
+        "ref": impl.setElement,
         ...selectableItemListeners(
           impl,
           select,

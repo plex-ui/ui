@@ -1,0 +1,50 @@
+/* A key or a shortcut, such as ⌘K. The fill and the border mix the text color,
+   so a Kbd reads on any surface: page text, a dark tooltip, a menu item. */
+.Kbd {
+  --kbd-height: 1.25rem;
+  --kbd-font-size: var(--font-text-xs-size);
+  --kbd-padding-inline: spacing(1);
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--kbd-height);
+  height: var(--kbd-height);
+  padding-inline: var(--kbd-padding-inline);
+  border-radius: var(--kbd-radius, var(--radius-xs));
+  background: var(--kbd-background, color-mix(in oklab, currentColor 10%, transparent));
+  box-shadow: 0 0 0 1px var(--kbd-border-color, transparent) inset;
+  color: var(--kbd-color, inherit);
+  font-family: inherit;
+  font-size: var(--kbd-font-size);
+  font-style: normal;
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+
+  &[data-size="xs"] {
+    --kbd-height: 1rem;
+    --kbd-font-size: 0.6875rem;
+    --kbd-padding-inline: spacing(0.75);
+  }
+
+  &[data-size="md"] {
+    --kbd-height: 1.5rem;
+    --kbd-font-size: var(--font-text-sm-size);
+    --kbd-padding-inline: spacing(1.5);
+  }
+
+  &[data-variant="outline"] {
+    --kbd-background: transparent;
+    --kbd-border-color: color-mix(in oklab, currentColor 24%, transparent);
+  }
+}
+
+/* Keys pressed together, such as ⌘ and K */
+.Group {
+  display: inline-flex;
+  align-items: center;
+  gap: spacing(0.5);
+}

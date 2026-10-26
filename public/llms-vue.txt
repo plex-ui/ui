@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 48
+Components: 50
 
 ## Setup
 
@@ -60,7 +60,8 @@ Props:
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
   - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
   - @dismiss (() => void) — Shows the dismiss button when set
-Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible
+  - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
+Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible, Banner
 
 ## Avatar
 An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
@@ -102,6 +103,23 @@ Props:
   - pill (boolean) default: false — Fully rounded
   - class (string) — Class applied to the badge
 Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
+
+## Breadcrumb
+The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+Import: import { Breadcrumb, BreadcrumbItem } from "@plexui/vue/components/Breadcrumb"
+Docs: https://plexui.com/vue/components/breadcrumb
+Props:
+  - size ("sm" | "md") default: "md" — Text size: sm above a compact header, md above a page title
+  - aria-label (string) default: "Breadcrumb" — Name of the navigation landmark
+  - separator slot (VNode[]) default: a small chevron — What stands between two items
+  - default slot (VNode[]) — The BreadcrumbItem elements
+  BreadcrumbItem:
+    - href (string) — Link destination. Internal paths use the link component from PlexUIProvider
+    - to (string | RouteLocation) — Router destination, for link components that take to
+    - current (boolean) default: false — The current page: plain text marked aria-current="page"
+    - @click ((event: MouseEvent) => void) — Makes an item without a destination act as a button
+    - class (string) — Applied to the li element
+Examples: Overview, Sizes, Separator, Long trails
 
 ## Button
 Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
@@ -186,6 +204,7 @@ Props:
   - default-checked (boolean | "indeterminate") — Initial state (uncontrolled)
   - label (string) — Accessible label rendered next to the checkbox
   - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Second line below the label, linked via aria-describedby (or the description slot)
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
@@ -229,6 +248,7 @@ Props:
   - align-offset (number) default: 0 — Offset from start/end alignment in pixels
   - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
   - side-offset (number) default: 5 — Distance from trigger in pixels
+  - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 Examples: Overview
 
 ## Date Input
@@ -316,7 +336,7 @@ Examples: Overview, Limits, Shortcuts, Month stepper
 
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
-Import: import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
 Docs: https://plexui.com/vue/components/dialog
 Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
@@ -325,7 +345,11 @@ Props:
     - width (number | string) default: 480 — Panel width
     - show-close (boolean) default: true — Show close button in top-right corner
     - class (string) — Additional CSS class on the panel
-Examples: Overview, Destructive confirmation
+    - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
+    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
+    - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
+    - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+Examples: Overview, Destructive confirmation, Scrolling body, Placement
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
@@ -333,6 +357,8 @@ Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, E
 Docs: https://plexui.com/vue/components/empty-message
 Props:
   - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
+  - size ("sm" | "md") default: "md" — sm is the compact message for a panel, a card section or an empty list
+  - align ("center" | "start") default: "center" — start left-aligns the message, for an empty state under a section heading
   EmptyMessageIcon:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
     - size ("sm" | "md") default: "md" — Icon badge size
@@ -340,7 +366,7 @@ Props:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
   EmptyMessageActionRow:
     - class (string) — Additional classes for the action row container
-Examples: Composition, Error message, Warning message, No results
+Examples: Composition, Error message, Warning message, No results, Compact, Left aligned
 
 ## Field
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
@@ -351,14 +377,15 @@ Props:
   - label slot (VNode[]) — Rich label content; takes precedence over the label prop
   - description (string) — Helper text below the label; linked via aria-describedby (or the description slot)
   - error-message (string) — Error message below the control; sets aria-invalid on the child (or the errorMessage slot)
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the label font size to match the child control
+  - label-action (string) — Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking
   - class (string) — CSS classes applied to the root element
-  - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps
-Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
+  - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
+Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
@@ -437,7 +464,7 @@ Docs: https://plexui.com/vue/components/input
 Props:
   - value / v-model:value (string | number) — Controlled value; `update:value` fires on every input
   - default-value (string | number) — Initial value when uncontrolled
-  - variant ("outline" | "soft") default: "outline" — Visual style of the input
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the input; ghost has no border and no fill
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
   - gutter-size (string) — Controls gutter on the edges; defaults to value from size
   - disabled (boolean) default: false — Disables the input visually and from interactions
@@ -470,6 +497,17 @@ Props:
     - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
     - class (string) — Applied to the addon <div>
 Examples: Overview, Variants, Sizes, Align, Text, Button, Dropdown, Spinner, Textarea
+
+## Kbd
+A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
+Import: import { Kbd, KbdGroup } from "@plexui/vue/components/Kbd"
+Docs: https://plexui.com/vue/components/kbd
+Props:
+  - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
+  - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
+  - class (string) — Applied to the kbd element
+  - default slot (VNode[]) — The key
+Examples: Overview, Shortcut, Sizes and variants, In a tooltip and a menu
 
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
@@ -550,6 +588,7 @@ Props:
   MenuItem:
     - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
     - disabled (boolean) default: false — Disable the item
+    - danger (boolean) default: false — Destructive action: the item is drawn in the danger color
     - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
     - @click ((event: MouseEvent) => void) — Called when the item is clicked; also makes the item interactive
   MenuCheckboxItem:
@@ -559,7 +598,7 @@ Props:
     - indicator-position ("start" | "end") default: "end" — Checkbox position
     - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
     - disabled (boolean) default: false — Disable the item
-Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
+Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions, Destructive items
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
@@ -652,6 +691,7 @@ Props:
     - required (boolean) — Marks this item as required
     - block (boolean) default: false — Stretch item to fill available width
     - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+    - description (string) — Second line below the option's label, linked via aria-describedby (or the description slot)
     - class (string) — Extra classes on the label element
     - default slot (VNode[]) — Label content (text or rich content)
 Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
@@ -692,6 +732,7 @@ Props:
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
+  - search-size (ControlSize) default: "md" — Size of the search input in the menu, such as 2xl for 44px touch targets on phones
   - search-predicate ((option, term) => boolean) — Filters options while searching
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
@@ -928,6 +969,8 @@ Props:
   - block (boolean) default: false — Full-width control with equal-width tabs
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
+  - overflow ("scroll" | "menu") default: "scroll" — Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
+  - overflow-label (string) default: "More" — Text of the menu button with overflow="menu"
   - class (string) — Extra classes on the group element
   - default slot (VNode[]) — TabsTab children
   - @update:value ((value: string) => void) — Emitted when a tab is selected; powers v-model:value
@@ -942,7 +985,7 @@ Props:
     - default slot (VNode[]) — Tab label
     - icon slot (VNode[]) — Icon before the label
     - badge slot (VNode[]) — Badge content; styling still comes from the badge object
-Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
+Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable, Overflow menu
 
 ## Tag Input
 Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.

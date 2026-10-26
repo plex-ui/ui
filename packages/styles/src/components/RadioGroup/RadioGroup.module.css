@@ -34,6 +34,33 @@
   }
 }
 
+/* An option with a second line: the description sits under the label text,
+   past the indicator when the indicator leads */
+.RadioItemGroup {
+  display: inline-flex;
+  flex-direction: column;
+
+  &[data-block] {
+    display: flex;
+    width: 100%;
+  }
+}
+
+.RadioDescription {
+  padding-inline-start: calc(var(--radio-group-indicator-size) + var(--radio-group-item-gap));
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-xs-size);
+  line-height: var(--font-text-xs-line-height);
+
+  .RadioItemGroup[data-orientation="right"] & {
+    padding-inline-start: 0;
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+  }
+}
+
 /* Creates centered alignment with `line-height` of the label */
 .RadioIndicatorWrapper {
   position: relative;

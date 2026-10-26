@@ -153,30 +153,15 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With description
 
-<ComponentPreview details={<>Radio items accept <code>ReactNode</code> children, so you can compose a label with secondary description text, useful for options that need additional context.</>} code={`<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-  <RadioGroup.Item value="default">
-    <div className="flex flex-col">
-      <span>Default</span>
-      <span className="text-xs text-secondary mt-0.5">
-        Standard spacing for most use cases.
-      </span>
-    </div>
+<ComponentPreview details={<>Use <code>description</code> on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</>} code={`<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
+  <RadioGroup.Item value="default" description="Standard spacing for most use cases.">
+    Default
   </RadioGroup.Item>
-  <RadioGroup.Item value="comfortable">
-    <div className="flex flex-col">
-      <span>Comfortable</span>
-      <span className="text-xs text-secondary mt-0.5">
-        More space between elements.
-      </span>
-    </div>
+  <RadioGroup.Item value="comfortable" description="More space between elements.">
+    Comfortable
   </RadioGroup.Item>
-  <RadioGroup.Item value="compact">
-    <div className="flex flex-col">
-      <span>Compact</span>
-      <span className="text-xs text-secondary mt-0.5">
-        Minimal spacing for dense layouts.
-      </span>
-    </div>
+  <RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
+    Compact
   </RadioGroup.Item>
 </RadioGroup>`} previewMinHeight={200}>
   <RadioGroupWithDescriptionDemo />
@@ -303,6 +288,7 @@ Other props, such as the `id`, `aria-describedby` and `aria-invalid` a `Field` p
   { prop: "required", type: "boolean", description: "Marks this item as required" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
+  { prop: "description", type: "ReactNode", description: "Second line below the option's label, linked via aria-describedby" },
   { prop: "className", type: "string", description: "Extra classes on the label element" },
 ]} />
 

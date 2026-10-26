@@ -192,9 +192,17 @@
   opacity: 1;
 }
 
-/* Error message spacing */
+/* Error message: the same plain line as FloatingLabelInput's */
 .ErrorMessage {
-  margin-top: var(--field-error-margin-top);
+  color: var(--field-error-color);
+  font-size: var(--field-error-font-size);
+  line-height: var(--field-error-line-height);
+  margin-top: 0.25rem;
+  padding-inline-start: var(--floating-input-gutter);
+}
+
+.ErrorMessage:last-child {
+  margin-bottom: 0.5rem;
 }
 
 /* Reduced motion preference */

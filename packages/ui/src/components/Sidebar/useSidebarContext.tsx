@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react"
 
@@ -50,24 +51,22 @@ export const useSidebar = (): SidebarContextValue => {
   return context
 }
 
-// Hook for mobile detection via matchMedia
+// Hook for mobile detection via matchMedia. Read during render, so a phone
+// gets the mobile layout on its first paint instead of one frame of the
+// desktop sidebar; the server (and hydration) renders the desktop layout.
+const MOBILE_QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
+
+const subscribeToMobile = (onChange: () => void) => {
+  const mql = window.matchMedia(MOBILE_QUERY)
+  mql.addEventListener("change", onChange)
+  return () => mql.removeEventListener("change", onChange)
+}
+
+const getMobileSnapshot = () => window.matchMedia(MOBILE_QUERY).matches
+const getServerMobileSnapshot = () => false
+
 function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    // Check if we're in browser environment
-    if (typeof window === "undefined") return
-
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-
-    const handleChange = () => setIsMobile(mql.matches)
-    handleChange() // Initial check
-
-    mql.addEventListener("change", handleChange)
-    return () => mql.removeEventListener("change", handleChange)
-  }, [])
-
-  return isMobile
+  return useSyncExternalStore(subscribeToMobile, getMobileSnapshot, getServerMobileSnapshot)
 }
 
 // Provider props

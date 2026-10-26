@@ -187,23 +187,14 @@ export function RadioGroupWithDescriptionDemo() {
   return (
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-        <RadioGroup.Item value="default">
-          <div className="flex flex-col">
-            <span className="font-medium">Default</span>
-            <span className="text-xs text-secondary mt-0.5">Standard spacing for most use cases.</span>
-          </div>
+        <RadioGroup.Item value="default" description="Standard spacing for most use cases.">
+          Default
         </RadioGroup.Item>
-        <RadioGroup.Item value="comfortable">
-          <div className="flex flex-col">
-            <span className="font-medium">Comfortable</span>
-            <span className="text-xs text-secondary mt-0.5">More space between elements.</span>
-          </div>
+        <RadioGroup.Item value="comfortable" description="More space between elements.">
+          Comfortable
         </RadioGroup.Item>
-        <RadioGroup.Item value="compact">
-          <div className="flex flex-col">
-            <span className="font-medium">Compact</span>
-            <span className="text-xs text-secondary mt-0.5">Minimal spacing for dense layouts.</span>
-          </div>
+        <RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
+          Compact
         </RadioGroup.Item>
       </RadioGroup>
     </div>

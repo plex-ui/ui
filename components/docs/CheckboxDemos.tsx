@@ -285,25 +285,13 @@ export function CheckboxWithDescriptionDemo() {
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="flex flex-col gap-4 max-w-sm">
         <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Accept terms and conditions</span>
-              <span className="text-xs text-secondary mt-0.5">
-                By checking this box, you agree to our Terms of Service and Privacy Policy.
-              </span>
-            </div>
-          }
+          label="Accept terms and conditions"
+          description="By checking this box, you agree to our Terms of Service and Privacy Policy."
           defaultChecked
         />
         <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Enable notifications</span>
-              <span className="text-xs text-secondary mt-0.5">
-                You can enable or disable notifications at any time from settings.
-              </span>
-            </div>
-          }
+          label="Enable notifications"
+          description="You can enable or disable notifications at any time from settings."
         />
       </div>
     </div>

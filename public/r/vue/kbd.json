@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "kbd",
+  "type": "registry:ui",
+  "title": "Kbd",
+  "description": "A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/kbd/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Kbd\"\n"
+    }
+  ],
+  "docs": "Import as `import { Kbd, KbdGroup } from '@/components/ui/kbd'`. See https://plexui.com/vue/components/kbd for props and examples."
+}

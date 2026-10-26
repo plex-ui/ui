@@ -589,6 +589,22 @@ html.dark #nd-docs-layout.plex-docs-shell #nd-sidebar a[data-active][data-active
   background: rgba(255, 255, 255, 0.14) !important;
 }
 
+/* A Plex UI Dialog in a demo is modal: while one is open, the sticky navbar
+   (z-index 12000) steps under its overlay (z-index 50), so a tall, top, side
+   or fullscreen dialog is not cut off under the navbar. Both the React and
+   the Vue Dialog set --dialog-width inline on the dialog element. */
+body:has([role="dialog"][style*="--dialog-width"]) #plex-global-nav {
+  z-index: 40;
+}
+
+/* The popover rule further down keeps menus under the navbar at z-index 5;
+   inside an open dialog that would put a Select or Menu list behind the
+   panel (z-index 50), so lift them over it. Popovers already open outside
+   the dialog are marked data-aria-hidden by it and stay under the overlay. */
+body:has([role="dialog"][style*="--dialog-width"]) [data-radix-popper-content-wrapper]:not([data-aria-hidden]) {
+  z-index: 60 !important;
+}
+
 /* ── Mobile sidebar drawer — mirrors desktop sidebar styles ── */
 
 /* Lift mobile drawer + its overlay above the sticky navbar (z-index: 12000) */

@@ -1,0 +1,99 @@
+---
+title: Kbd
+description: A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
+metaDescription: React keyboard key component for shortcuts like ⌘K in text, tooltips and menu items, with soft and outline styles that read on any surface
+---
+
+import {
+  KbdOverviewDemo,
+  KbdShortcutDemo,
+  KbdSizesDemo,
+  KbdInContextDemo,
+} from "@/components/docs/KbdDemos"
+
+<UsageBlock>{`import { Kbd } from "@plexui/ui/components/Kbd";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Kbd renders a <code>{'<kbd>'}</code> element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.</>} code={`<p>
+  Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.
+</p>`} previewMinHeight={140}>
+  <KbdOverviewDemo />
+</ComponentPreview>
+
+### Shortcut
+
+<ComponentPreview details={<>Use <code>Kbd.Group</code> for keys pressed together. Each key keeps its own frame.</>} code={`<Kbd.Group>
+  <Kbd>⌘</Kbd>
+  <Kbd>K</Kbd>
+</Kbd.Group>
+
+<Kbd.Group>
+  <Kbd>Ctrl</Kbd>
+  <Kbd>Shift</Kbd>
+  <Kbd>P</Kbd>
+</Kbd.Group>`} previewMinHeight={140}>
+  <KbdShortcutDemo />
+</ComponentPreview>
+
+### Sizes and variants
+
+<ComponentPreview details={<>Three sizes: <code>xs</code> (16px) for tooltips and menu items, <code>sm</code> (20px, default) for text, <code>md</code> (24px) next to larger controls. <code>soft</code> (default) fills the key, <code>outline</code> draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.</>} code={`<Kbd size="xs">⌘K</Kbd>
+<Kbd size="sm">⌘K</Kbd>
+<Kbd size="md">⌘K</Kbd>
+
+<Kbd variant="outline">⌘K</Kbd>`} previewMinHeight={180}>
+  <KbdSizesDemo />
+</ComponentPreview>
+
+### In a tooltip and a menu
+
+<ComponentPreview details={<>Show a control's shortcut in its tooltip, or at the end of a menu item. Kbd only shows the keys: announce the shortcut to assistive technology with <code>aria-keyshortcuts</code> on the control that has it.</>} code={`<Tooltip
+  content={
+    <span className="flex items-center gap-2">
+      Search
+      <Kbd.Group>
+        <Kbd size="xs">⌘</Kbd>
+        <Kbd size="xs">K</Kbd>
+      </Kbd.Group>
+    </span>
+  }
+>
+  <Button color="secondary" variant="outline" uniform aria-label="Search" aria-keyshortcuts="Meta+K">
+    <Search />
+  </Button>
+</Tooltip>
+
+<Menu.Item onSelect={undo}>
+  <span className="flex-1">Undo</span>
+  <Kbd size="xs" variant="outline">⌘Z</Kbd>
+</Menu.Item>`} previewMinHeight={160}>
+  <KbdInContextDemo />
+</ComponentPreview>
+
+## API
+
+### Kbd
+
+<PropsTable data={[
+  { prop: "size", type: '"xs" | "sm" | "md"', default: '"sm"', description: "Height and text size: 16px, 20px or 24px" },
+  { prop: "variant", type: '"soft" | "outline"', default: '"soft"', description: "soft fills the key, outline draws its edge; both mix the text color" },
+  { prop: "className", type: "string", description: "Applied to the kbd element" },
+]} />
+
+Other `<kbd>` attributes (`title`, `aria-label`, ...) are forwarded.
+
+### Kbd.Group
+
+A row of keys pressed together. Renders a `<span>` and forwards its attributes.
+
+## Styling
+
+Kbd reads these component tokens. Override them at any scope to restyle it:
+
+- `--kbd-background`: fill (defaults to the text color at 10%)
+- `--kbd-border-color`: edge (transparent for `soft`, the text color at 24% for `outline`)
+- `--kbd-color`: text color (defaults to `inherit`)
+- `--kbd-radius`: corner radius (defaults to `--radius-xs`)

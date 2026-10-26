@@ -2,11 +2,26 @@
 
 import clsx from "clsx"
 import { ToggleGroup } from "radix-ui"
-import { useCallback, useLayoutEffect, useRef } from "react"
+import {
+  Children,
+  cloneElement,
+  Fragment,
+  isValidElement,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from "react"
 import { useResizeObserver } from "usehooks-ts"
 import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers"
 import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
+import { ChevronDownMd } from "../Icon"
 import { LoadingIndicator } from "../Indicator"
+import { Menu } from "../Menu"
+import { fitCount, visibleTabCount } from "./overflow"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 export type SizeVariant = "2xs" | "xs" | "sm" | "md" | "lg" | "xl"
@@ -78,11 +93,31 @@ export type TabsProps<T extends string> = {
    * @default false
    */
   "flush"?: boolean
+  /**
+   * What happens to tabs that do not fit in one row: the strip scrolls
+   * sideways (`scroll`), or the tabs that do not fit move into a menu at the
+   * end of the strip (`menu`). The menu button shows the active tab's name
+   * when it is one of the hidden ones. Horizontal tabs without `block` only.
+   * @default "scroll"
+   */
+  "overflow"?: "scroll" | "menu"
+  /**
+   * Text of the menu button with `overflow="menu"`
+   * @default "More"
+   */
+  "overflowLabel"?: string
   "className"?: string
   "children": React.ReactNode
 }
 
-export const Tabs = <T extends string>({
+export const Tabs = <T extends string>({ overflow = "scroll", overflowLabel = "More", ...props }: TabsProps<T>) => {
+  if (overflow === "menu" && !props.block && props.orientation !== "vertical") {
+    return <OverflowTabs {...props} overflowLabel={overflowLabel} />
+  }
+  return <TabsRoot {...props} />
+}
+
+const TabsRoot = <T extends string>({
   value,
   onChange,
   children,
@@ -96,7 +131,7 @@ export const Tabs = <T extends string>({
   className,
   onClick,
   ...restProps
-}: TabsProps<T>) => {
+}: Omit<TabsProps<T>, "overflow" | "overflowLabel">) => {
   const rootRef = useRef<HTMLDivElement>(null)
   const thumbRef = useRef<HTMLDivElement>(null)
   const prevSizeRef = useRef(size)
@@ -196,6 +231,23 @@ export const Tabs = <T extends string>({
       thumb.style.transition = currentTransition
     },
   })
+
+  // Tabs added, removed, reordered or relabelled move the active tab without
+  // resizing the group: measure again, instantly, like a resize
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || typeof MutationObserver === "undefined") return
+    const observer = new MutationObserver(() => {
+      const thumb = thumbRef.current
+      if (!thumb) return
+      const currentTransition = thumb.style.transition
+      thumb.style.transition = ""
+      applyThumbSizing(false)
+      thumb.style.transition = currentTransition
+    })
+    observer.observe(root, { childList: true, characterData: true, subtree: true })
+    return () => observer.disconnect()
+  }, [applyThumbSizing])
 
   const transitionProperty = isVertical
     ? "height 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
@@ -350,6 +402,193 @@ const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
         )}
       </span>
     </ToggleGroup.Item>
+  )
+}
+
+// =============================================
+// overflow="menu"
+// =============================================
+
+/** Value of the menu button; no real tab has it */
+const MORE_VALUE = "__plexui_tabs_more__"
+
+type TabElement = ReactElement<TabProps>
+
+/** The tabs among the children, through fragments */
+const tabElements = (children: ReactNode): TabElement[] =>
+  Children.toArray(children).flatMap((child) => {
+    if (!isValidElement<{ children?: ReactNode }>(child)) return []
+    return child.type === Fragment ? tabElements(child.props.children) : [child as TabElement]
+  })
+
+const plainText = (node: unknown): string => {
+  if (typeof node === "string" || typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(plainText).join("")
+  if (isValidElement<{ children?: ReactNode }>(node)) return plainText(node.props.children)
+  return ""
+}
+
+const badgeText = (badge: TabsBadgeProp | undefined) =>
+  badge != null && isBadgeObject(badge) ? plainText(badge.content) : plainText(badge)
+
+/** A tab's name: its text, else its accessible name, else its value */
+const tabLabel = (item: TabElement) => plainText(item.props.children) || item.props["aria-label"] || item.props.value
+
+/** What a tab's width depends on: the strip measures again when it changes */
+const tabsSignature = (items: TabElement[]) =>
+  items
+    .map((item) =>
+      [item.props.value, plainText(item.props.children), badgeText(item.props.badge), item.props.icon != null].join("\u0000"),
+    )
+    .join("\u0001")
+
+/**
+ * `Menu.Trigger` sets `data-state` (open or closed) on its child, while a tab
+ * keeps `on` or `off` in the same attribute and the thumb finds the active tab
+ * by it. The menu's value does not reach the tab; its handlers and
+ * `aria-haspopup` / `aria-expanded` do.
+ */
+const MoreTab = ({ "data-state": _menuState, ...restProps }: TabProps & { "data-state"?: string }) => (
+  <Tab {...restProps} />
+)
+
+const OverflowTabs = <T extends string>({
+  children,
+  value,
+  onChange,
+  overflowLabel,
+  ...restProps
+}: Omit<TabsProps<T>, "overflow"> & { overflowLabel: string }) => {
+  const items = tabElements(children)
+  // The strip's own props size the tabs and the menu button too
+  const { size, variant, gutterSize, pill, flush } = restProps
+  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, tabsSignature(items)].join("\u0002")
+  const activeIndex = items.findIndex((item) => item.props.value === value)
+
+  // null while the measuring pass renders every tab and the menu button
+  const [visibleCount, setVisibleCount] = useState<number | null>(null)
+  const [known, setKnown] = useState({ signature, activeIndex })
+  const hostRef = useRef<HTMLDivElement>(null)
+  const measuringRef = useRef(true)
+  const boxWidthRef = useRef(-1)
+
+  // New tabs measure again. A new active tab measures again when it moves
+  // under the menu button or back out: the button carries the hidden one's name
+  if (known.signature !== signature || known.activeIndex !== activeIndex) {
+    const crossed =
+      visibleCount !== null && (known.activeIndex >= visibleCount || activeIndex >= visibleCount)
+    setKnown({ signature, activeIndex })
+    if (visibleCount !== null && (known.signature !== signature || crossed)) setVisibleCount(null)
+  }
+
+  useLayoutEffect(() => {
+    measuringRef.current = visibleCount === null
+  }, [visibleCount])
+
+  useLayoutEffect(() => {
+    if (visibleCount !== null) return
+    const root = hostRef.current?.firstElementChild
+    if (!(root instanceof HTMLElement)) return
+
+    // The measuring pass renders every tab, then the menu button
+    const buttons = Array.from(root.querySelectorAll<HTMLElement>(":scope > button"))
+    if (buttons.length !== items.length + 1) return
+
+    const widths = buttons.map((button) => button.getBoundingClientRect().width)
+    const moreButton = buttons[buttons.length - 1]
+    const moreWidth = widths.pop() ?? 0
+    const style = getComputedStyle(root)
+    const available =
+      root.getBoundingClientRect().width -
+      (Number.parseFloat(style.paddingLeft) || 0) -
+      (Number.parseFloat(style.paddingRight) || 0)
+    const gap = Number.parseFloat(style.columnGap) || 0
+    boxWidthRef.current = hostRef.current?.parentElement?.clientWidth ?? -1
+
+    // A hidden strip has no width to decide by: show every tab, and measure
+    // when it appears (the observer sees the width change)
+    if (available <= 0) {
+      setVisibleCount(items.length)
+      return
+    }
+
+    // The button with the active tab's name: that tab's width plus the chevron
+    const chevron = moreButton?.querySelector("svg")
+    const chevronWidth = chevron?.getBoundingClientRect().width ?? 0
+    const labelGap = chevron?.parentElement ? Number.parseFloat(getComputedStyle(chevron.parentElement).columnGap) || 0 : 0
+    const activeWidth = activeIndex < 0 ? 0 : (widths[activeIndex] ?? 0) + chevronWidth + labelGap
+
+    setVisibleCount(visibleTabCount(widths, moreWidth, activeWidth, activeIndex, gap, available))
+  }, [visibleCount, items.length, activeIndex])
+
+  // The width to fit is the container's, not the strip's: the strip shrinks
+  // to its content. Reports during a measuring pass are skipped, since the
+  // full strip may be pushing its container wider
+  useEffect(() => {
+    const box = hostRef.current?.parentElement
+    if (!box || typeof ResizeObserver === "undefined") return
+    const observer = new ResizeObserver(() => {
+      if (measuringRef.current) return
+      const width = box.clientWidth
+      if (width === boxWidthRef.current) return
+      boxWidthRef.current = width
+      setVisibleCount(null)
+    })
+    observer.observe(box)
+    return () => observer.disconnect()
+  }, [])
+
+  const measuring = visibleCount === null
+  const shown = measuring ? items : items.slice(0, visibleCount)
+  const hidden = measuring ? [] : items.slice(visibleCount)
+  const hiddenActive = hidden.find((item) => item.props.value === value) ?? null
+
+  return (
+    <div ref={hostRef} className={s.OverflowHost}>
+      <Menu>
+        <TabsRoot<string>
+          {...restProps}
+          data-overflow="menu"
+          value={hiddenActive ? MORE_VALUE : value}
+          onChange={(next) => {
+            // Pressing the menu button opens the menu; it is not a tab
+            if (next !== MORE_VALUE) onChange?.(next as T)
+          }}
+        >
+          {/* Keyed by value: tabs from different fragments may share a key */}
+          {shown.map((item) => cloneElement(item, { key: item.props.value }))}
+          {(measuring || hidden.length > 0) && (
+            <Menu.Trigger>
+              <MoreTab value={MORE_VALUE}>
+                <span className={s.OverflowLabel}>
+                  {hiddenActive ? tabLabel(hiddenActive) : overflowLabel}
+                  <ChevronDownMd />
+                </span>
+              </MoreTab>
+            </Menu.Trigger>
+          )}
+        </TabsRoot>
+        <Menu.Content align="end" minWidth="auto">
+          <Menu.RadioGroup<string> value={value} onChange={(next) => onChange?.(next as T)}>
+            {hidden.map((item) => {
+              const count = badgeText(item.props.badge)
+              return (
+                <Menu.RadioItem<string>
+                  key={item.props.value}
+                  value={item.props.value}
+                  disabled={restProps.disabled || item.props.disabled}
+                >
+                  {item.props.icon}
+                  {item.props.children ?? item.props["aria-label"] ?? item.props.value}
+                  {/* A tab's count moves into the menu with it */}
+                  {count !== "" && <span className={s.OverflowBadge}>{count}</span>}
+                </Menu.RadioItem>
+              )
+            })}
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    </div>
   )
 }
 
