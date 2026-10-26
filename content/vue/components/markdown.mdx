@@ -1,0 +1,40 @@
+---
+title: Markdown
+description: Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+metaDescription: Vue 3 markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { markdownContent, markdownWithLatex } from "@/components/docs/MarkdownSamples"
+
+export const overview = `<Markdown>{{ markdownContent }}</Markdown>`
+
+export const math = `<Markdown include-math>{{ markdownWithLatex }}</Markdown>`
+
+<UsageBlock>{`import { Markdown } from "@plexui/vue/components/Markdown";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Use <code>Markdown</code> to render rich markdown text. The markdown is the text of the default slot: interpolate a string (<code>{"{{ markdown }}"}</code>) so its newlines are kept, or pass it with the <code>source</code> prop.</>} code={overview} previewMinHeight={168}>
+  <div className="w-full max-w-[700px] mx-auto py-8">
+    <VueDemo template={overview} state={{ markdownContent }} />
+  </div>
+</ComponentPreview>
+
+### Math
+
+<ComponentPreview language="vue" details={<>Use <code>include-math</code> to enable LaTeX rendering.</>} code={math} previewMinHeight={168}>
+  <div className="w-full max-w-[700px] mx-auto py-8">
+    <VueDemo template={math} state={{ markdownWithLatex }} />
+  </div>
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "default slot", type: "string", description: "Markdown source (text only; interpolate a string to keep its newlines)" },
+  { prop: "source", type: "string", description: "Markdown source, used when the default slot is empty" },
+  { prop: "include-math", type: "boolean", default: "false", description: "Enable LaTeX math rendering" },
+]} />

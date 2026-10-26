@@ -1,0 +1,112 @@
+---
+title: Markdown Editor
+description: Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
+metaDescription: Vue 3 rich text editor component powered by Tiptap that reads and writes markdown through v-model:value, with a formatting toolbar, a toolbar end slot, variants, and an invalid state.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueMarkdownEditorDemo } from "@/components/docs/vue/VueMarkdownEditorDemos"
+
+export const allFormattingMd = `This is regular text with **bold** and *italic* formatting.
+
+Read our [Privacy Policy](https://example.com/privacy) and [Terms of Service](https://example.com/terms) for details.
+
+1. First ordered item
+2. Second ordered item
+3. Third ordered item
+
+- Unordered item one
+- Unordered item two
+- Unordered item three`
+
+export const base = `<div class="w-[500px]">
+  <MarkdownEditor placeholder="Enter text..." />
+</div>`
+
+export const allFormatting = `<div class="w-[500px]">
+  <MarkdownEditor :default-value="allFormattingMd" />
+</div>`
+
+export const toolbarEnd = `<div class="w-[500px]">
+  <MarkdownEditor placeholder="Enter text...">
+    <template #toolbarEnd>
+      <button
+        type="button"
+        :class="markdownEditorStyles.toolbarButton"
+        aria-label="Edit translations"
+        title="Edit translations"
+      >
+        <Translate />
+      </button>
+    </template>
+  </MarkdownEditor>
+</div>`
+
+export const variants = `<div class="flex flex-col gap-4 w-[500px]">
+  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+</div>`
+
+export const disabled = `<div class="w-[500px]">
+  <MarkdownEditor disabled default-value="This content is **read-only**." />
+</div>`
+
+export const invalid = `<div class="w-[500px]">
+  <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+</div>`
+
+<UsageBlock>{`import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor";`}</UsageBlock>
+
+## Examples
+
+### Placeholder
+
+<ComponentPreview language="vue" details={<>Use <code>placeholder</code> to display hint text when the editor is empty.</>} code={base} previewMinHeight={168}>
+  <VueDemo template={base} />
+</ComponentPreview>
+
+### All formatting
+
+<ComponentPreview language="vue" details={<>Example with all supported formatting: <strong>bold</strong>, <em>italic</em>, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.</>} code={allFormatting} previewMinHeight={300}>
+  <VueDemo template={allFormatting} state={{ allFormattingMd }} />
+</ComponentPreview>
+
+### Toolbar end slot
+
+<ComponentPreview language="vue" details={<>Use the <code>#toolbarEnd</code> slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. <code>markdownEditorStyles.toolbarButton</code> gives it the style of the built-in toolbar buttons.</>} code={toolbarEnd} previewMinHeight={200}>
+  <VueMarkdownEditorDemo template={toolbarEnd} />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={variants} previewMinHeight={380}>
+  <VueDemo template={variants} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> to prevent editing and grey out the component.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} />
+</ComponentPreview>
+
+### Invalid
+
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> to show an error state.</>} code={invalid} previewMinHeight={200}>
+  <VueDemo template={invalid} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the editor" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the editor" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
+  { prop: "placeholder", type: "string", description: "Placeholder text when empty" },
+  { prop: "value / v-model:value", type: "string", description: "Controlled markdown value; `update:value` fires on every change" },
+  { prop: "default-value", type: "string", description: "Initial markdown for uncontrolled mode" },
+  { prop: "@change", type: "(markdown: string) => void", description: "Called on content change" },
+  { prop: "#toolbarEnd", type: "slot", description: "Content rendered at the end of the toolbar" },
+  { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
+]} />
+
+`class` applies to the container. `id`, `aria-describedby` and `aria-invalid` go to the editable element. Like the React component, `update:value` and `change` also fire once when the editor is created and whenever `disabled` changes.
