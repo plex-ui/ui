@@ -104,44 +104,53 @@ export const DataTable = <TData,>({
 
   const shouldPaginate = Number.isFinite(pageSize) && pageSize > 0
 
-  const handleGlobalFilterChange: OnChangeFn<string> | undefined = onGlobalFilterChange
-    ? (updater) => {
-        onGlobalFilterChange(resolveUpdater(updater, globalFilter ?? ""))
-      }
-    : undefined
+  // Each piece of state is controlled only when its value prop is passed;
+  // otherwise it lives here and the on*Change prop is just a notification.
+  const [internalGlobalFilter, setInternalGlobalFilter] = useState("")
+  const [internalColumnVisibility, setInternalColumnVisibility] = useState<VisibilityState>({})
+  const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({})
+  const effectiveGlobalFilter = globalFilter ?? internalGlobalFilter
+  const effectiveColumnVisibility = columnVisibility ?? internalColumnVisibility
+  const effectiveRowSelection = rowSelection ?? internalRowSelection
 
-  const handleColumnVisibilityChange: OnChangeFn<VisibilityState> | undefined =
-    onColumnVisibilityChange
-      ? (updater) => {
-          onColumnVisibilityChange(resolveUpdater(updater, columnVisibility ?? {}))
-        }
-      : undefined
+  const handleGlobalFilterChange: OnChangeFn<string> = (updater) => {
+    const next = resolveUpdater(updater, effectiveGlobalFilter)
+    if (globalFilter === undefined) {
+      setInternalGlobalFilter(next)
+    }
+    onGlobalFilterChange?.(next)
+  }
 
-  const handleRowSelectionChange: OnChangeFn<RowSelectionState> | undefined = onRowSelectionChange
-    ? (updater) => {
-        onRowSelectionChange(resolveUpdater(updater, rowSelection ?? {}))
-      }
-    : undefined
+  const handleColumnVisibilityChange: OnChangeFn<VisibilityState> = (updater) => {
+    const next = resolveUpdater(updater, effectiveColumnVisibility)
+    if (columnVisibility === undefined) {
+      setInternalColumnVisibility(next)
+    }
+    onColumnVisibilityChange?.(next)
+  }
+
+  const handleRowSelectionChange: OnChangeFn<RowSelectionState> = (updater) => {
+    const next = resolveUpdater(updater, effectiveRowSelection)
+    if (rowSelection === undefined) {
+      setInternalRowSelection(next)
+    }
+    onRowSelectionChange?.(next)
+  }
 
   const table = useReactTable({
     data,
     columns,
-    // Pass controlled state and handlers only when provided: an explicit
-    // undefined would override TanStack's internal state and setters, which
-    // breaks uncontrolled filtering, column visibility and row selection.
     state: {
       sorting,
-      ...(globalFilter !== undefined ? { globalFilter } : {}),
-      ...(columnVisibility !== undefined ? { columnVisibility } : {}),
-      ...(rowSelection !== undefined ? { rowSelection } : {}),
+      globalFilter: effectiveGlobalFilter,
+      columnVisibility: effectiveColumnVisibility,
+      rowSelection: effectiveRowSelection,
     },
     ...(shouldPaginate ? { initialState: { pagination: { pageIndex: 0, pageSize } } } : {}),
     onSortingChange: setSorting,
-    ...(handleGlobalFilterChange ? { onGlobalFilterChange: handleGlobalFilterChange } : {}),
-    ...(handleColumnVisibilityChange
-      ? { onColumnVisibilityChange: handleColumnVisibilityChange }
-      : {}),
-    ...(handleRowSelectionChange ? { onRowSelectionChange: handleRowSelectionChange } : {}),
+    onGlobalFilterChange: handleGlobalFilterChange,
+    onColumnVisibilityChange: handleColumnVisibilityChange,
+    onRowSelectionChange: handleRowSelectionChange,
     getRowId: getRowId ? (originalRow) => getRowId(originalRow) : undefined,
     enableRowSelection,
     getCoreRowModel: getCoreRowModel(),
