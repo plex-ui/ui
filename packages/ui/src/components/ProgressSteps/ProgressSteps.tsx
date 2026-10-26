@@ -101,7 +101,8 @@ export const ProgressSteps = ({
   // Minimal variant: render horizontal bar segments
   if (variant === "minimal") {
     return (
-      <nav
+      // A div, not nav: role="progressbar" is not allowed on <nav>
+      <div
         aria-label="Progress"
         role="progressbar"
         aria-valuenow={current}
@@ -121,7 +122,7 @@ export const ProgressSteps = ({
             />
           ))}
         </div>
-      </nav>
+      </div>
     )
   }
 
