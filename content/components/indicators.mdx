@@ -103,7 +103,7 @@ import {
 ### LoadingIndicator
 
 <PropsTable data={[
-  { prop: "size", type: "number", description: "Size in px (or use --indicator-size CSS variable)" },
+  { prop: "size", type: "number | string", description: "Size in px or any CSS length (or use --indicator-size CSS variable)" },
   { prop: "strokeWidth", type: "number", description: "Stroke width" },
 ]} />
 
@@ -111,7 +111,7 @@ import {
 
 <PropsTable data={[
   { prop: "progress", type: "number", description: "Static progress 0–100 (disables animation)" },
-  { prop: "size", type: "number", description: "Diameter in px" },
+  { prop: "size", type: "number | string", description: "Diameter in px or any CSS length" },
   { prop: "strokeWidth", type: "number", description: "Stroke thickness" },
   { prop: "done", type: "boolean", description: "Completion state for animation" },
   { prop: "trackColor", type: "string", description: "Track color (CSS variable or value)" },
