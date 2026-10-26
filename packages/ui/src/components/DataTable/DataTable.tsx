@@ -81,6 +81,33 @@ const resolveUpdater = <T,>(updater: Updater<T>, value: T): T => {
   return typeof updater === "function" ? (updater as (old: T) => T)(value) : updater
 }
 
+// One piece of table state: controlled when `controlled` is defined, otherwise
+// held here, with `onChange` as a notification either way. Updates resolve
+// against the latest value, so several updaters in one event accumulate.
+const useTableState = <T,>(
+  controlled: T | undefined,
+  initial: T,
+  onChange: ((next: T) => void) | undefined,
+): [T, OnChangeFn<T>] => {
+  const [internal, setInternal] = useState<T>(initial)
+  const value = controlled ?? internal
+  const latest = useRef(value)
+  useEffect(() => {
+    latest.current = value
+  }, [value])
+
+  const handleChange: OnChangeFn<T> = (updater) => {
+    const next = resolveUpdater(updater, latest.current)
+    latest.current = next
+    if (controlled === undefined) {
+      setInternal(next)
+    }
+    onChange?.(next)
+  }
+
+  return [value, handleChange]
+}
+
 export const DataTable = <TData,>({
   columns,
   data,
@@ -104,38 +131,18 @@ export const DataTable = <TData,>({
 
   const shouldPaginate = Number.isFinite(pageSize) && pageSize > 0
 
-  // Each piece of state is controlled only when its value prop is passed;
-  // otherwise it lives here and the on*Change prop is just a notification.
-  const [internalGlobalFilter, setInternalGlobalFilter] = useState("")
-  const [internalColumnVisibility, setInternalColumnVisibility] = useState<VisibilityState>({})
-  const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({})
-  const effectiveGlobalFilter = globalFilter ?? internalGlobalFilter
-  const effectiveColumnVisibility = columnVisibility ?? internalColumnVisibility
-  const effectiveRowSelection = rowSelection ?? internalRowSelection
-
-  const handleGlobalFilterChange: OnChangeFn<string> = (updater) => {
-    const next = resolveUpdater(updater, effectiveGlobalFilter)
-    if (globalFilter === undefined) {
-      setInternalGlobalFilter(next)
-    }
-    onGlobalFilterChange?.(next)
-  }
-
-  const handleColumnVisibilityChange: OnChangeFn<VisibilityState> = (updater) => {
-    const next = resolveUpdater(updater, effectiveColumnVisibility)
-    if (columnVisibility === undefined) {
-      setInternalColumnVisibility(next)
-    }
-    onColumnVisibilityChange?.(next)
-  }
-
-  const handleRowSelectionChange: OnChangeFn<RowSelectionState> = (updater) => {
-    const next = resolveUpdater(updater, effectiveRowSelection)
-    if (rowSelection === undefined) {
-      setInternalRowSelection(next)
-    }
-    onRowSelectionChange?.(next)
-  }
+  const [effectiveGlobalFilter, handleGlobalFilterChange] = useTableState(
+    globalFilter,
+    "",
+    onGlobalFilterChange,
+  )
+  const [effectiveColumnVisibility, handleColumnVisibilityChange] =
+    useTableState<VisibilityState>(columnVisibility, {}, onColumnVisibilityChange)
+  const [effectiveRowSelection, handleRowSelectionChange] = useTableState<RowSelectionState>(
+    rowSelection,
+    {},
+    onRowSelectionChange,
+  )
 
   const table = useReactTable({
     data,
