@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "radio-group",
+  "type": "registry:ui",
+  "title": "Radio Group",
+  "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/radio-group/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/RadioGroup\"\n"
+    }
+  ],
+  "docs": "Import as `import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'`. See https://plexui.com/vue/components/radio-group for props and examples."
+}

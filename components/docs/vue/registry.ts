@@ -80,10 +80,13 @@ import {
   ProgressStepsStep,
   ProgressStepsTitle,
 } from '@plexui/vue/components/ProgressSteps';
+import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
 import { Separator } from '@plexui/vue/components/Separator';
 import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
 import { Skeleton } from '@plexui/vue/components/Skeleton';
+import { Slider } from '@plexui/vue/components/Slider';
+import { StatCard } from '@plexui/vue/components/StatCard';
 import { Switch } from '@plexui/vue/components/Switch';
 import {
   Table,
@@ -234,6 +237,8 @@ const components: Record<string, Component> = {
   ProgressStepsDescription,
   ProgressStepsStep,
   ProgressStepsTitle,
+  RadioGroup,
+  RadioGroupItem,
   SegmentedControl,
   SegmentedControlOption,
   SegmentedControlTab,
@@ -241,7 +246,9 @@ const components: Record<string, Component> = {
   ShimmerableText,
   ShimmerText,
   Skeleton,
+  Slider,
   SlotTransitionGroup,
+  StatCard,
   Switch,
   Table,
   TableBody,

@@ -1,0 +1,218 @@
+---
+title: Radio Group
+description: Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+metaDescription: Vue 3 radio group component built on Reka UI for single-choice selection, with row or column layout, v-model:value binding, rich item slots, and card-style options.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const stage = "flex-1 flex items-center justify-center py-12 w-full"
+
+export const overview = `<div>
+  <h3 class="font-semibold text-sm mb-3">Notification frequency</h3>
+  <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
+    <RadioGroupItem value="daily">Daily</RadioGroupItem>
+    <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+    <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+    <RadioGroupItem value="never">Never</RadioGroupItem>
+  </RadioGroup>
+</div>`
+
+export const direction = `<RadioGroup :direction="direction" default-value="light" aria-label="Theme">
+  <RadioGroupItem value="light">Light</RadioGroupItem>
+  <RadioGroupItem value="dark">Dark</RadioGroupItem>
+  <RadioGroupItem value="system">System</RadioGroupItem>
+</RadioGroup>`
+
+export const orientation = `<RadioGroup class="w-56" direction="col" default-value="email" aria-label="Default notification channel">
+  <RadioGroupItem value="email" :orientation="orientation" block>Email</RadioGroupItem>
+  <RadioGroupItem value="sms" :orientation="orientation" block>SMS</RadioGroupItem>
+  <RadioGroupItem value="push" :orientation="orientation" block>Push notification</RadioGroupItem>
+</RadioGroup>`
+
+export const groupDisabled = `<RadioGroup :disabled="disabled" default-value="standard" aria-label="Shipping method">
+  <RadioGroupItem value="standard">Standard</RadioGroupItem>
+  <RadioGroupItem value="express">Express</RadioGroupItem>
+  <RadioGroupItem value="overnight">Overnight</RadioGroupItem>
+</RadioGroup>`
+
+export const itemDisabled = `<RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
+  <RadioGroupItem value="standard">Standard shipping (3–5 days)</RadioGroupItem>
+  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1–2 days)</RadioGroupItem>
+  <RadioGroupItem value="same-day">
+    Same-day delivery, available in select metro areas with a minimum order of $50
+  </RadioGroupItem>
+</RadioGroup>`
+
+export const withDescription = `<RadioGroup direction="col" v-model:value="value" aria-label="Spacing">
+  <RadioGroupItem value="default">
+    <div class="flex flex-col">
+      <span class="font-medium">Default</span>
+      <span class="text-xs text-secondary mt-0.5">Standard spacing for most use cases.</span>
+    </div>
+  </RadioGroupItem>
+  <RadioGroupItem value="comfortable">
+    <div class="flex flex-col">
+      <span class="font-medium">Comfortable</span>
+      <span class="text-xs text-secondary mt-0.5">More space between elements.</span>
+    </div>
+  </RadioGroupItem>
+  <RadioGroupItem value="compact">
+    <div class="flex flex-col">
+      <span class="font-medium">Compact</span>
+      <span class="text-xs text-secondary mt-0.5">Minimal spacing for dense layouts.</span>
+    </div>
+  </RadioGroupItem>
+</RadioGroup>`
+
+export const choiceCard = `<RadioGroup class="flex-col w-[320px] gap-3" v-model:value="value" aria-label="Workspace type">
+  <div
+    v-for="card in [
+      { id: 'personal', title: 'Personal', description: 'For hobby projects and experimentation.' },
+      { id: 'team', title: 'Team', description: 'Collaborate with up to 10 members.' },
+      { id: 'business', title: 'Business', description: 'SSO, audit logs, and priority support.' },
+    ]"
+    :key="card.id"
+    :style="{
+      border: '1px solid',
+      borderColor: value === card.id ? 'var(--color-background-primary-solid)' : 'var(--color-border-primary-outline)',
+      borderRadius: 'var(--radius-lg)',
+      backgroundColor: value === card.id ? 'var(--color-background-primary-soft-alpha)' : undefined,
+      transition: 'border-color 150ms ease, background-color 150ms ease',
+    }"
+  >
+    <RadioGroupItem :value="card.id" block :orientation="orientation" class="gap-3 p-3">
+      <div class="flex flex-col flex-1">
+        <span class="font-semibold">{{ card.title }}</span>
+        <span class="text-xs text-secondary mt-0.5">{{ card.description }}</span>
+      </div>
+    </RadioGroupItem>
+  </div>
+</RadioGroup>`
+
+export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-label="Sample options">
+  <RadioGroupItem class="gap-2.5" value="basic">
+    <div>
+      <h4 class="font-semibold mb-1">Basic Plan</h4>
+      <p class="text-secondary text-sm">5 GB storage • Email support • Free</p>
+    </div>
+  </RadioGroupItem>
+  <hr class="border-default" />
+  <RadioGroupItem class="gap-2.5" value="standard">
+    <div>
+      <h4 class="font-semibold mb-1">Standard Plan</h4>
+      <p class="text-secondary text-sm">100 GB storage • Priority email support • $9.99/m</p>
+    </div>
+  </RadioGroupItem>
+  <hr class="border-default" />
+  <Tooltip :max-width="258" interactive>
+    <template #content>
+      Contact our <TextLink href="#">support team</TextLink> for more information on enterprise plans.
+    </template>
+    <TooltipTrigger>
+      <RadioGroupItem class="gap-2.5" value="enterprise" disabled>
+        <div>
+          <h4 class="font-semibold mb-1">Enterprise Plan</h4>
+          <p class="text-secondary text-sm">Unlimited storage • 24/7 phone support • Custom pricing</p>
+        </div>
+      </RadioGroupItem>
+    </TooltipTrigger>
+  </Tooltip>
+</RadioGroup>`
+
+<UsageBlock>{`import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} state={{ frequency: "daily" }} />
+</ComponentPreview>
+
+### Direction
+
+<ComponentPreview language="vue" details={<>Use <code>direction</code> to control whether the items flow in a column or row. An optimal <code>gap</code> will be dynamically applied based on the orientation.</>} code={direction} previewMinHeight={168}>
+  <VueDemo
+    template={direction}
+    stageClassName={stage}
+    controls={[{ name: "direction", type: "select", options: ["col", "row"], default: "col" }]}
+  />
+</ComponentPreview>
+
+### Orientation
+
+<ComponentPreview language="vue" details={<>Use <code>orientation="right"</code> on <code>RadioGroupItem</code> to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead.</>} code={orientation} previewMinHeight={168}>
+  <VueDemo
+    template={orientation}
+    stageClassName={stage}
+    controls={[{ name: "orientation", type: "select", options: ["left", "right"], default: "left" }]}
+  />
+</ComponentPreview>
+
+### Group disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> on <code>RadioGroup</code> to disable all radio options.</>} code={groupDisabled} previewMinHeight={168}>
+  <VueDemo template={groupDisabled} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Item disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> on a single <code>RadioGroupItem</code> to disable only that option.</>} code={itemDisabled} previewMinHeight={168}>
+  <VueDemo template={itemDisabled} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### With description
+
+<ComponentPreview language="vue" details={<>Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context.</>} code={withDescription} previewMinHeight={200}>
+  <VueDemo template={withDescription} stageClassName={stage} state={{ value: "default" }} />
+</ComponentPreview>
+
+### Choice card
+
+<ComponentPreview language="vue" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroupItem</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element.</>} code={choiceCard} previewMinHeight={240}>
+  <VueDemo
+    template={choiceCard}
+    stageClassName={stage}
+    state={{ value: "team" }}
+    controls={[{ name: "orientation", type: "select", options: ["left", "right"], default: "left" }]}
+  />
+</ComponentPreview>
+
+### Card selection
+
+<ComponentPreview language="vue" details={<>Leverage component composition and <code>class</code> overrides to build card-style radio selections with rich content per option.</>} className="justify-start" code={cardSelection} previewMinHeight={168}>
+  <VueDemo template={cardSelection} />
+</ComponentPreview>
+
+## Reference
+
+**RadioGroup** (root)
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Selected value. Bind with v-model:value; leave unset for an uncontrolled group" },
+  { prop: "default-value", type: "string", description: "Initial selected value (uncontrolled)" },
+  { prop: "direction", type: '"col" | "row"', default: '"row"', description: "Item flow direction" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the whole group" },
+  { prop: "name", type: "string", description: "Name of the hidden radio inputs submitted with the owning form" },
+  { prop: "required", type: "boolean", default: "false", description: "Marks the group as required (aria-required)" },
+  { prop: "aria-label", type: "string", description: "Accessible group label" },
+  { prop: "class", type: "string", description: "Extra classes on the group element" },
+  { prop: "default slot", type: "VNode[]", description: "RadioGroupItem children" },
+  { prop: "@update:value", type: "(value: string) => void", description: "Emitted when the selected option changes; powers v-model:value" },
+  { prop: "@change", type: "(value: string) => void", description: "Emitted with update:value, named after the React onChange prop" },
+]} />
+
+**RadioGroupItem**
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Item value" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable this item only" },
+  { prop: "required", type: "boolean", description: "Marks this item's hidden form input as required" },
+  { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
+  { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
+  { prop: "class", type: "string", description: "Extra classes on the label element" },
+  { prop: "default slot", type: "VNode[]", description: "Label content (text or rich content)" },
+]} />
+
+Other attributes on `RadioGroupItem` land on its wrapper `<div>`. The arrow keys move focus and check the focused option; Home and End move focus only (roving focus from Reka UI). Inside a `<form>`, hidden native radios mirror the selection so the value is submitted with the form.

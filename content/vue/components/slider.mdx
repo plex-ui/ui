@@ -1,0 +1,164 @@
+---
+title: Slider
+description: Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+metaDescription: Vue 3 slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, v-model:value binding, and vertical orientation.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const stage = "flex-1 flex flex-col items-center justify-center py-12 w-full"
+export const marksStage = "flex-1 flex flex-col items-center justify-center py-20 w-full"
+
+export const overview = `<div style="width: 300px">
+  <Slider
+    label="Example field"
+    :min="0"
+    :max="2000"
+    :reset-value="1000"
+    :step="10"
+    unit="ms"
+    v-model:value="value"
+    :disabled="disabled"
+  />
+</div>`
+
+export const tooltip = `<div style="width: 300px">
+  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
+    <template #label>
+      <Tooltip content="More details about this field">
+        <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
+      </Tooltip>
+    </template>
+  </Slider>
+</div>`
+
+export const marks = `<div style="width: 300px">
+  <Slider
+    v-model:value="value"
+    label="Passing grade"
+    :min="1"
+    :max="5"
+    :step="1"
+    :marks="[
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+    ]"
+    track-color="#61C454"
+    range-color="#EF4146"
+  />
+</div>`
+
+export const range = `<div style="width: 300px">
+  <Slider
+    range
+    label="Price range"
+    :min="0"
+    :max="100"
+    :step="1"
+    v-model:value="value"
+    prefix-unit="$"
+  />
+</div>`
+
+export const multipleThumbs = `<div style="width: 300px">
+  <Slider
+    range
+    label="Breakpoints"
+    :min="0"
+    :max="100"
+    :step="1"
+    v-model:value="value"
+    :min-steps-between-thumbs="5"
+  />
+</div>`
+
+export const vertical = `<Slider
+  label="Volume"
+  :min="0"
+  :max="100"
+  :step="1"
+  v-model:value="value"
+  orientation="vertical"
+/>`
+
+export const disabled = `<div style="width: 300px">
+  <Slider label="Disabled" :min="0" :max="100" :step="1" :value="50" disabled />
+</div>`
+
+<UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Adding a tooltip
+
+<ComponentPreview language="vue" details={<>A tooltip can easily be added to the Slider label by passing rich content through the <code>label</code> slot instead of a simple string.</>} code={tooltip} previewMinHeight={168}>
+  <VueDemo template={tooltip} stageClassName={stage} state={{ value: 1000 }} />
+</ComponentPreview>
+
+### Marks
+
+<ComponentPreview language="vue" details={<>Slider marks can be easily added by passing an array of values to the <code>marks</code> prop. Responsive behaviors are handled automatically.</>} code={marks} previewMinHeight={168}>
+  <VueDemo template={marks} stageClassName={marksStage} state={{ value: 3 }} />
+</ComponentPreview>
+
+### Range
+
+<ComponentPreview language="vue" details={<>Set <code>range</code> to enable a dual-thumb slider for selecting a value range. <code>v-model:value</code> then binds an array instead of a single number.</>} code={range} previewMinHeight={168}>
+  <VueDemo template={range} stageClassName={stage} state={{ value: [25, 75] }} />
+</ComponentPreview>
+
+### Multiple thumbs
+
+<ComponentPreview language="vue" details={<>Pass three or more values to create a multi-thumb slider. Use <code>min-steps-between-thumbs</code> to enforce minimum spacing between thumbs.</>} code={multipleThumbs} previewMinHeight={168}>
+  <VueDemo template={multipleThumbs} stageClassName={stage} state={{ value: [10, 40, 70] }} />
+</ComponentPreview>
+
+### Vertical
+
+<ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation.</>} code={vertical} previewMinHeight={280}>
+  <VueDemo template={vertical} stageClassName={stage} state={{ value: 50 }} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Set <code>disabled</code> to prevent interaction with the slider.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} stageClassName={stage} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "value", type: "number | number[]", description: "Current value; an array when range is set. Bind with v-model:value" },
+  { prop: "min", type: "number", description: "Minimum value" },
+  { prop: "max", type: "number", description: "Maximum value" },
+  { prop: "step", type: "number", description: "Step increment" },
+  { prop: "range", type: "boolean", default: "false", description: "Enable multi-thumb range mode" },
+  { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the slider" },
+  { prop: "reset-value", type: "number", description: "Value for the reset option (single mode only)" },
+  { prop: "reset-tooltip", type: "string", default: '"Reset to default"', description: "Tooltip of the reset button (single mode only)" },
+  { prop: "unit", type: "string", description: "Unit displayed after the value (e.g. ms, px)" },
+  { prop: "prefix-unit", type: "string", description: "Unit displayed before the value (e.g. $)" },
+  { prop: "label", type: "string", description: "Label text" },
+  { prop: "label slot", type: "VNode[]", description: "Rich label content (e.g. a tooltip); takes precedence over the label prop" },
+  { prop: "marks", type: "Array<{ value: number, label: string }>", description: "Marks below the track (horizontal only)" },
+  { prop: "track-color", type: "string", description: "Color of the slider track" },
+  { prop: "range-color", type: "string", description: "Color of the filled part of the track" },
+  { prop: "min-steps-between-thumbs", type: "number", description: "Minimum steps between thumbs (range mode only)" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the slider" },
+  { prop: "class", type: "string", description: "Extra classes on the wrapper element" },
+  { prop: "@update:value", type: "(value: number | number[]) => void", description: "Emitted when the value changes; an array when range is set; powers v-model:value" },
+  { prop: "@change", type: "(value: number | number[]) => void", description: "Emitted with update:value, named after the React onChange prop" },
+  { prop: "@focus", type: "(event: FocusEvent) => void", description: "Emitted when the value input or a thumb gains focus" },
+  { prop: "@blur", type: "(event: FocusEvent) => void", description: "Emitted when the value input or a thumb loses focus" },
+]} />
+
+Typing in the value input reports the parsed value after 250ms; Enter, Escape or leaving the input commits it right away. Inside a `<form>`, a hidden input per thumb fires an `input` event when its value changes.

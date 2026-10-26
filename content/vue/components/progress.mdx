@@ -7,6 +7,11 @@ metaDescription: Vue 3 progress bar component built on Reka UI for showing task 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import { VueProgressOverviewDemo, vueProgressOverviewCode } from "@/components/docs/vue/VueProgressDemos"
 
+export const controlled = `<div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
+  <Progress :value="value" />
+  <Slider v-model:value="value" :min="0" :max="100" :step="1" />
+</div>`
+
 export const withLabel = `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
   <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
     <Label for="progress-upload">Uploading plex-ui.zip</Label>
@@ -29,6 +34,12 @@ export const withLabel = `<div style="display: flex; flex-direction: column; gap
 
 <ComponentPreview language="vue" details={<>Pair a <a href="/vue/components/label"><code>Label</code></a> with a value readout above the bar, the typical upload or onboarding progress pattern.</>} code={withLabel}>
   <VueDemo template={withLabel} />
+</ComponentPreview>
+
+### Controlled
+
+<ComponentPreview language="vue" details={<>Bind <code>value</code> to any source, here a <a href="/vue/components/slider"><code>Slider</code></a> through <code>v-model:value</code>.</>} code={controlled}>
+  <VueDemo template={controlled} state={{ value: 50 }} />
 </ComponentPreview>
 
 ## API

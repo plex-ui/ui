@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 37
+Components: 40
 
 ## Setup
 
@@ -405,7 +405,7 @@ Examples: Overview, Sizing the popover, Open on hover, Using the controller
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
 Import: import { Progress } from "@plexui/vue/components/Progress"
 Docs: https://plexui.com/vue/components/progress
-Examples: With label
+Examples: With label, Controlled
 
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
@@ -421,6 +421,26 @@ Props:
   - total (number) — Total steps for minimal variant
   - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
 Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
+
+## Radio Group
+Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+Import: import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup"
+Docs: https://plexui.com/vue/components/radio-group
+Props:
+  - value (string) — Selected value. Bind with v-model:value; leave unset for an uncontrolled group
+  - default-value (string) — Initial selected value (uncontrolled)
+  - direction ("col" | "row") default: "row" — Item flow direction
+  - disabled (boolean) default: false — Disable the whole group
+  - name (string) — Name of the hidden radio inputs submitted with the owning form
+  - required (boolean) default: false — Marks the group as required (aria-required)
+  - aria-label (string) — Accessible group label
+  - class (string) — Extra classes on the group element
+  - default slot (VNode[]) — RadioGroupItem children
+  - @update:value ((value: string) => void) — Emitted when the selected option changes; powers v-model:value
+  - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
+  - block (boolean) default: false — Stretch item to fill available width
+  - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+Examples: Overview, Direction, Orientation, Group disabled, Item disabled, With description, Choice card, Card selection
 
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
@@ -447,6 +467,58 @@ Props:
   - circle (boolean) default: false — Render a circular skeleton
   - class (string) — Set dimensions and custom styling
 Examples: Overview, Card, Text, Form, Table
+
+## Slider
+Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+Import: import { Slider } from "@plexui/vue/components/Slider"
+Docs: https://plexui.com/vue/components/slider
+Props:
+  - value (number | number[]) — Current value; an array when range is set. Bind with v-model:value
+  - min (number) — Minimum value
+  - max (number) — Maximum value
+  - step (number) — Step increment
+  - range (boolean) default: false — Enable multi-thumb range mode
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
+  - reset-value (number) — Value for the reset option (single mode only)
+  - reset-tooltip (string) default: "Reset to default" — Tooltip of the reset button (single mode only)
+  - unit (string) — Unit displayed after the value (e.g. ms, px)
+  - prefix-unit (string) — Unit displayed before the value (e.g. $)
+  - label (string) — Label text
+  - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
+  - track-color (string) — Color of the slider track
+  - range-color (string) — Color of the filled part of the track
+  - min-steps-between-thumbs (number) — Minimum steps between thumbs (range mode only)
+  - disabled (boolean) default: false — Disable the slider
+  - class (string) — Extra classes on the wrapper element
+  - @update:value ((value: number | number[]) => void) — Emitted when the value changes; an array when range is set; powers v-model:value
+  - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
+  - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
+Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical, Disabled
+
+## Stat Card
+Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
+Import: import { StatCard } from "@plexui/vue/components/StatCard"
+Docs: https://plexui.com/vue/components/stat-card
+Props:
+  - value (string | number) — The primary metric value
+  - value slot (VNode[]) — Rich value content; takes precedence over the value prop
+  - description (string) — Subtitle below the value
+  - trend ({ value: number; label?: string }) — Trend indicator with percentage
+  - invert-trend (boolean) default: false — Invert trend colors (positive = bad)
+  - trend-position ("value" | "header") default: "value" — Where the trend indicator is rendered
+  - trend-variant ("text" | "badge") default: "text" — Render trend as text or badge
+  - size ("default" | "sm") default: "default" — Card size; sm for compact analytics layouts
+  - icon slot (VNode[]) — Icon displayed on the left with a soft background
+  - sparkline slot (VNode[]) — Chart rendered at the bottom
+  - progress (number) — Progress bar value (0-100)
+  - progress-label (string) — Label next to progress bar
+  - tooltip (string) — Shows an info icon next to the label with tooltip text
+  - variant ("default" | "accent") default: "default" — Visual variant
+  - accent-color ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
+  - class (string) — Extra classes on the card element
+Examples: Overview, Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border, Inverted trend
 
 ## Switch
 Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.

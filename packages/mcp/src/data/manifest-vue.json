@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 37,
+  "componentCount": 40,
   "components": [
     {
       "slug": "accordion",
@@ -2340,6 +2340,11 @@
           "name": "With label",
           "code": "<div style=\"display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px\">\n  <div style=\"display: flex; align-items: baseline; justify-content: space-between; gap: 16px\">\n    <Label for=\"progress-upload\">Uploading plex-ui.zip</Label>\n    <span style=\"color: var(--color-text-tertiary); font-size: 14px\">3.2 / 4.8 MB</span>\n  </div>\n  <Progress id=\"progress-upload\" :value=\"67\" />\n</div>",
           "details": "Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern."
+        },
+        {
+          "name": "Controlled",
+          "code": "<div style=\"display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px\">\n  <Progress :value=\"value\" />\n  <Slider v-model:value=\"value\" :min=\"0\" :max=\"100\" :step=\"1\" />\n</div>",
+          "details": "Bind value to any source, here a Slider through v-model:value."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/progress"
@@ -2443,6 +2448,130 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/progress-steps"
+    },
+    {
+      "slug": "radio-group",
+      "name": "Radio Group",
+      "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
+      "importPath": "@plexui/vue/components/RadioGroup",
+      "exports": [
+        "RadioGroup",
+        "RadioGroupItem"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "Selected value. Bind with v-model:value; leave unset for an uncontrolled group"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "description": "Initial selected value (uncontrolled)"
+        },
+        {
+          "name": "direction",
+          "type": "\"col\" | \"row\"",
+          "default": "\"row\"",
+          "description": "Item flow direction"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable the whole group"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name of the hidden radio inputs submitted with the owning form"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "default": "false",
+          "description": "Marks the group as required (aria-required)"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Accessible group label"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Extra classes on the group element"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "RadioGroupItem children"
+        },
+        {
+          "name": "@update:value",
+          "type": "(value: string) => void",
+          "description": "Emitted when the selected option changes; powers v-model:value"
+        },
+        {
+          "name": "@change",
+          "type": "(value: string) => void",
+          "description": "Emitted with update:value, named after the React onChange prop"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Stretch item to fill available width"
+        },
+        {
+          "name": "orientation",
+          "type": "\"left\" | \"right\"",
+          "default": "\"left\"",
+          "description": "Position of the radio indicator relative to the label"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div>\n  <h3 class=\"font-semibold text-sm mb-3\">Notification frequency</h3>\n  <RadioGroup direction=\"col\" v-model:value=\"frequency\" aria-label=\"Notification frequency\">\n    <RadioGroupItem value=\"daily\">Daily</RadioGroupItem>\n    <RadioGroupItem value=\"weekly\">Weekly</RadioGroupItem>\n    <RadioGroupItem value=\"monthly\">Monthly</RadioGroupItem>\n    <RadioGroupItem value=\"never\">Never</RadioGroupItem>\n  </RadioGroup>\n</div>"
+        },
+        {
+          "name": "Direction",
+          "code": "<RadioGroup :direction=\"direction\" default-value=\"light\" aria-label=\"Theme\">\n  <RadioGroupItem value=\"light\">Light</RadioGroupItem>\n  <RadioGroupItem value=\"dark\">Dark</RadioGroupItem>\n  <RadioGroupItem value=\"system\">System</RadioGroupItem>\n</RadioGroup>",
+          "details": "Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation."
+        },
+        {
+          "name": "Orientation",
+          "code": "<RadioGroup class=\"w-56\" direction=\"col\" default-value=\"email\" aria-label=\"Default notification channel\">\n  <RadioGroupItem value=\"email\" :orientation=\"orientation\" block>Email</RadioGroupItem>\n  <RadioGroupItem value=\"sms\" :orientation=\"orientation\" block>SMS</RadioGroupItem>\n  <RadioGroupItem value=\"push\" :orientation=\"orientation\" block>Push notification</RadioGroupItem>\n</RadioGroup>",
+          "details": "Use orientation=\"right\" on RadioGroupItem to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead."
+        },
+        {
+          "name": "Group disabled",
+          "code": "<RadioGroup :disabled=\"disabled\" default-value=\"standard\" aria-label=\"Shipping method\">\n  <RadioGroupItem value=\"standard\">Standard</RadioGroupItem>\n  <RadioGroupItem value=\"express\">Express</RadioGroupItem>\n  <RadioGroupItem value=\"overnight\">Overnight</RadioGroupItem>\n</RadioGroup>",
+          "details": "Use disabled on RadioGroup to disable all radio options."
+        },
+        {
+          "name": "Item disabled",
+          "code": "<RadioGroup aria-label=\"Delivery method\" class=\"max-w-[320px] m-auto\" direction=\"col\">\n  <RadioGroupItem value=\"standard\">Standard shipping (3–5 days)</RadioGroupItem>\n  <RadioGroupItem value=\"express\" :disabled=\"disabled\">Express shipping (1–2 days)</RadioGroupItem>\n  <RadioGroupItem value=\"same-day\">\n    Same-day delivery, available in select metro areas with a minimum order of $50\n  </RadioGroupItem>\n</RadioGroup>",
+          "details": "Use disabled on a single RadioGroupItem to disable only that option."
+        },
+        {
+          "name": "With description",
+          "code": "<RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Spacing\">\n  <RadioGroupItem value=\"default\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Default</span>\n      <span class=\"text-xs text-secondary mt-0.5\">Standard spacing for most use cases.</span>\n    </div>\n  </RadioGroupItem>\n  <RadioGroupItem value=\"comfortable\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Comfortable</span>\n      <span class=\"text-xs text-secondary mt-0.5\">More space between elements.</span>\n    </div>\n  </RadioGroupItem>\n  <RadioGroupItem value=\"compact\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Compact</span>\n      <span class=\"text-xs text-secondary mt-0.5\">Minimal spacing for dense layouts.</span>\n    </div>\n  </RadioGroupItem>\n</RadioGroup>",
+          "details": "Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context."
+        },
+        {
+          "name": "Choice card",
+          "code": "<RadioGroup class=\"flex-col w-[320px] gap-3\" v-model:value=\"value\" aria-label=\"Workspace type\">\n  <div\n    v-for=\"card in [\n      { id: 'personal', title: 'Personal', description: 'For hobby projects and experimentation.' },\n      { id: 'team', title: 'Team', description: 'Collaborate with up to 10 members.' },\n      { id: 'business', title: 'Business', description: 'SSO, audit logs, and priority support.' },\n    ]\"\n    :key=\"card.id\"\n    :style=\"{\n      border: '1px solid',\n      borderColor: value === card.id ? 'var(--color-background-primary-solid)' : 'var(--color-border-primary-outline)',\n      borderRadius: 'var(--radius-lg)',\n      backgroundColor: value === card.id ? 'var(--color-background-primary-soft-alpha)' : undefined,\n      transition: 'border-color 150ms ease, background-color 150ms ease',\n    }\"\n  >\n    <RadioGroupItem :value=\"card.id\" block :orientation=\"orientation\" class=\"gap-3 p-3\">\n      <div class=\"flex flex-col flex-1\">\n        <span class=\"font-semibold\">{{ card.title }}</span>\n        <span class=\"text-xs text-secondary mt-0.5\">{{ card.description }}</span>\n      </div>\n    </RadioGroupItem>\n  </div>\n</RadioGroup>",
+          "details": "Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation=\"right\" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element."
+        },
+        {
+          "name": "Card selection",
+          "code": "<RadioGroup class=\"flex-col w-[390px] gap-4\" aria-label=\"Sample options\">\n  <RadioGroupItem class=\"gap-2.5\" value=\"basic\">\n    <div>\n      <h4 class=\"font-semibold mb-1\">Basic Plan</h4>\n      <p class=\"text-secondary text-sm\">5 GB storage • Email support • Free</p>\n    </div>\n  </RadioGroupItem>\n  <hr class=\"border-default\" />\n  <RadioGroupItem class=\"gap-2.5\" value=\"standard\">\n    <div>\n      <h4 class=\"font-semibold mb-1\">Standard Plan</h4>\n      <p class=\"text-secondary text-sm\">100 GB storage • Priority email support • $9.99/m</p>\n    </div>\n  </RadioGroupItem>\n  <hr class=\"border-default\" />\n  <Tooltip :max-width=\"258\" interactive>\n    <template #content>\n      Contact our <TextLink href=\"#\">support team</TextLink> for more information on enterprise plans.\n    </template>\n    <TooltipTrigger>\n      <RadioGroupItem class=\"gap-2.5\" value=\"enterprise\" disabled>\n        <div>\n          <h4 class=\"font-semibold mb-1\">Enterprise Plan</h4>\n          <p class=\"text-secondary text-sm\">Unlimited storage • 24/7 phone support • Custom pricing</p>\n        </div>\n      </RadioGroupItem>\n    </TooltipTrigger>\n  </Tooltip>\n</RadioGroup>",
+          "details": "Leverage component composition and class overrides to build card-style radio selections with rich content per option."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/radio-group"
     },
     {
       "slug": "separator",
@@ -2576,6 +2705,313 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/skeleton"
+    },
+    {
+      "slug": "slider",
+      "name": "Slider",
+      "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
+      "importPath": "@plexui/vue/components/Slider",
+      "exports": [
+        "Slider"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "number | number[]",
+          "description": "Current value; an array when range is set. Bind with v-model:value"
+        },
+        {
+          "name": "min",
+          "type": "number",
+          "description": "Minimum value"
+        },
+        {
+          "name": "max",
+          "type": "number",
+          "description": "Maximum value"
+        },
+        {
+          "name": "step",
+          "type": "number",
+          "description": "Step increment"
+        },
+        {
+          "name": "range",
+          "type": "boolean",
+          "default": "false",
+          "description": "Enable multi-thumb range mode"
+        },
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Layout direction of the slider"
+        },
+        {
+          "name": "reset-value",
+          "type": "number",
+          "description": "Value for the reset option (single mode only)"
+        },
+        {
+          "name": "reset-tooltip",
+          "type": "string",
+          "default": "\"Reset to default\"",
+          "description": "Tooltip of the reset button (single mode only)"
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "description": "Unit displayed after the value (e.g. ms, px)"
+        },
+        {
+          "name": "prefix-unit",
+          "type": "string",
+          "description": "Unit displayed before the value (e.g. $)"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Label text"
+        },
+        {
+          "name": "label slot",
+          "type": "VNode[]",
+          "description": "Rich label content (e.g. a tooltip); takes precedence over the label prop"
+        },
+        {
+          "name": "marks",
+          "type": "Array<{ value: number, label: string }>",
+          "description": "Marks below the track (horizontal only)"
+        },
+        {
+          "name": "track-color",
+          "type": "string",
+          "description": "Color of the slider track"
+        },
+        {
+          "name": "range-color",
+          "type": "string",
+          "description": "Color of the filled part of the track"
+        },
+        {
+          "name": "min-steps-between-thumbs",
+          "type": "number",
+          "description": "Minimum steps between thumbs (range mode only)"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable the slider"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Extra classes on the wrapper element"
+        },
+        {
+          "name": "@update:value",
+          "type": "(value: number | number[]) => void",
+          "description": "Emitted when the value changes; an array when range is set; powers v-model:value"
+        },
+        {
+          "name": "@change",
+          "type": "(value: number | number[]) => void",
+          "description": "Emitted with update:value, named after the React onChange prop"
+        },
+        {
+          "name": "@focus",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the value input or a thumb gains focus"
+        },
+        {
+          "name": "@blur",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the value input or a thumb loses focus"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style=\"width: 300px\">\n  <Slider\n    label=\"Example field\"\n    :min=\"0\"\n    :max=\"2000\"\n    :reset-value=\"1000\"\n    :step=\"10\"\n    unit=\"ms\"\n    v-model:value=\"value\"\n    :disabled=\"disabled\"\n  />\n</div>"
+        },
+        {
+          "name": "Adding a tooltip",
+          "code": "<div style=\"width: 300px\">\n  <Slider :min=\"0\" :max=\"2000\" :reset-value=\"1000\" :step=\"10\" unit=\"ms\" v-model:value=\"value\">\n    <template #label>\n      <Tooltip content=\"More details about this field\">\n        <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>\n      </Tooltip>\n    </template>\n  </Slider>\n</div>",
+          "details": "A tooltip can easily be added to the Slider label by passing rich content through the label slot instead of a simple string."
+        },
+        {
+          "name": "Marks",
+          "code": "<div style=\"width: 300px\">\n  <Slider\n    v-model:value=\"value\"\n    label=\"Passing grade\"\n    :min=\"1\"\n    :max=\"5\"\n    :step=\"1\"\n    :marks=\"[\n      { value: 1, label: '1' },\n      { value: 2, label: '2' },\n      { value: 3, label: '3' },\n      { value: 4, label: '4' },\n      { value: 5, label: '5' },\n    ]\"\n    track-color=\"#61C454\"\n    range-color=\"#EF4146\"\n  />\n</div>",
+          "details": "Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically."
+        },
+        {
+          "name": "Range",
+          "code": "<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Price range\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    prefix-unit=\"$\"\n  />\n</div>",
+          "details": "Set range to enable a dual-thumb slider for selecting a value range. v-model:value then binds an array instead of a single number."
+        },
+        {
+          "name": "Multiple thumbs",
+          "code": "<div style=\"width: 300px\">\n  <Slider\n    range\n    label=\"Breakpoints\"\n    :min=\"0\"\n    :max=\"100\"\n    :step=\"1\"\n    v-model:value=\"value\"\n    :min-steps-between-thumbs=\"5\"\n  />\n</div>",
+          "details": "Pass three or more values to create a multi-thumb slider. Use min-steps-between-thumbs to enforce minimum spacing between thumbs."
+        },
+        {
+          "name": "Vertical",
+          "code": "<Slider\n  label=\"Volume\"\n  :min=\"0\"\n  :max=\"100\"\n  :step=\"1\"\n  v-model:value=\"value\"\n  orientation=\"vertical\"\n/>",
+          "details": "Set orientation=\"vertical\" to render a vertical slider. Marks are not supported in vertical orientation."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div style=\"width: 300px\">\n  <Slider label=\"Disabled\" :min=\"0\" :max=\"100\" :step=\"1\" :value=\"50\" disabled />\n</div>",
+          "details": "Set disabled to prevent interaction with the slider."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/slider"
+    },
+    {
+      "slug": "stat-card",
+      "name": "Stat Card",
+      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
+      "importPath": "@plexui/vue/components/StatCard",
+      "exports": [
+        "StatCard"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string | number",
+          "description": "The primary metric value"
+        },
+        {
+          "name": "value slot",
+          "type": "VNode[]",
+          "description": "Rich value content; takes precedence over the value prop"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Subtitle below the value"
+        },
+        {
+          "name": "trend",
+          "type": "{ value: number; label?: string }",
+          "description": "Trend indicator with percentage"
+        },
+        {
+          "name": "invert-trend",
+          "type": "boolean",
+          "default": "false",
+          "description": "Invert trend colors (positive = bad)"
+        },
+        {
+          "name": "trend-position",
+          "type": "\"value\" | \"header\"",
+          "default": "\"value\"",
+          "description": "Where the trend indicator is rendered"
+        },
+        {
+          "name": "trend-variant",
+          "type": "\"text\" | \"badge\"",
+          "default": "\"text\"",
+          "description": "Render trend as text or badge"
+        },
+        {
+          "name": "size",
+          "type": "\"default\" | \"sm\"",
+          "default": "\"default\"",
+          "description": "Card size; sm for compact analytics layouts"
+        },
+        {
+          "name": "icon slot",
+          "type": "VNode[]",
+          "description": "Icon displayed on the left with a soft background"
+        },
+        {
+          "name": "sparkline slot",
+          "type": "VNode[]",
+          "description": "Chart rendered at the bottom"
+        },
+        {
+          "name": "progress",
+          "type": "number",
+          "description": "Progress bar value (0-100)"
+        },
+        {
+          "name": "progress-label",
+          "type": "string",
+          "description": "Label next to progress bar"
+        },
+        {
+          "name": "tooltip",
+          "type": "string",
+          "description": "Shows an info icon next to the label with tooltip text"
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"accent\"",
+          "default": "\"default\"",
+          "description": "Visual variant"
+        },
+        {
+          "name": "accent-color",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"info\" | \"discovery\" | \"success\" | \"caution\" | \"warning\"",
+          "default": "\"primary\"",
+          "description": "Left border color (accent variant)"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Extra classes on the card element"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    :size=\"size\"\n    :variant=\"variant\"\n    accent-color=\"primary\"\n    :trend-position=\"trendPosition\"\n    :trend-variant=\"trendVariant\"\n    :trend=\"trend ? { value: 12.5, label: 'vs last month' } : undefined\"\n    :tooltip=\"tooltip ? 'Sum of all revenue streams' : undefined\"\n    :invert-trend=\"invertTrend\"\n  />\n</div>",
+          "details": "Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props."
+        },
+        {
+          "name": "Sizes",
+          "code": "<div class=\"flex flex-col gap-6 w-full\">\n  <!-- Default size -->\n  <div class=\"grid grid-cols-3 gap-4\" style=\"max-width: 720px\">\n    <StatCard label=\"Total Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" />\n    <StatCard label=\"Active Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" />\n    <StatCard label=\"Conversion Rate\" value=\"3.24%\" :trend=\"{ value: -1.8 }\" />\n  </div>\n  <!-- Small size -->\n  <div class=\"grid grid-cols-3 gap-3\" style=\"max-width: 720px\">\n    <StatCard size=\"sm\" label=\"Total Inquiries\" value=\"3,544\" :trend=\"{ value: -2.6 }\" tooltip=\"Total inquiries in period\" />\n    <StatCard size=\"sm\" label=\"Completion Rate\" value=\"89.2%\" :trend=\"{ value: 0.5 }\" tooltip=\"Average across templates\" />\n    <StatCard size=\"sm\" label=\"Approval Rate\" value=\"84.6%\" :trend=\"{ value: 1.8 }\" tooltip=\"Average across templates\" />\n  </div>\n</div>",
+          "details": "Use size=\"sm\" for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the tooltip prop for info icons."
+        },
+        {
+          "name": "Trend position",
+          "code": "<div class=\"grid grid-cols-2 gap-4\" style=\"max-width: 480px\">\n  <StatCard label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" trend-position=\"value\" />\n  <StatCard label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\" trend-position=\"header\" />\n</div>",
+          "details": "Control where the trend appears: next to the value (default) or right-aligned in the header row."
+        },
+        {
+          "name": "Trend variant",
+          "code": "<div class=\"grid grid-cols-2 gap-4\" style=\"max-width: 480px\">\n  <StatCard label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" trend-variant=\"text\" />\n  <StatCard label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\" trend-variant=\"badge\" />\n</div>",
+          "details": "Display the trend as plain text or wrapped in a badge."
+        },
+        {
+          "name": "Info tooltip",
+          "code": "<div style=\"max-width: 320px; width: 100%; margin: 0 auto\">\n  <StatCard\n    label=\"Avg Completion Rate\"\n    value=\"89.2%\"\n    :trend=\"{ value: 0.5 }\"\n    tooltip=\"Percentage of inquiries reaching final state\"\n  />\n</div>",
+          "details": "Pass a tooltip string to render an info icon next to the label with a tooltip on hover."
+        },
+        {
+          "name": "With icon",
+          "code": "<div class=\"flex flex-col gap-6 w-full\">\n  <!-- Default size -->\n  <div class=\"grid grid-cols-2 gap-4\">\n    <StatCard label=\"Total Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\">\n      <template #icon><DollarCircle /></template>\n    </StatCard>\n    <StatCard label=\"Active Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\">\n      <template #icon><Users /></template>\n    </StatCard>\n  </div>\n  <!-- Small size -->\n  <div class=\"grid grid-cols-3 gap-3\">\n    <StatCard size=\"sm\" label=\"Revenue\" value=\"$45,231\" :trend=\"{ value: 12.5 }\">\n      <template #icon><DollarCircle /></template>\n    </StatCard>\n    <StatCard size=\"sm\" label=\"Users\" value=\"2,847\" :trend=\"{ value: 8.2 }\">\n      <template #icon><Users /></template>\n    </StatCard>\n    <StatCard size=\"sm\" label=\"Orders\" value=\"1,234\" :trend=\"{ value: -3.1 }\">\n      <template #icon><ShoppingBag /></template>\n    </StatCard>\n  </div>\n</div>",
+          "details": "Pass an icon through the icon slot to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and sm sizes."
+        },
+        {
+          "name": "With progress",
+          "code": "<StatCard label=\"Storage Used\" value=\"7.2 GB\" :progress=\"72\" progress-label=\"72%\" description=\"of 10 GB\" />",
+          "details": "Progress bars show a visual representation of completion or usage percentage."
+        },
+        {
+          "name": "Accent border",
+          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Total Revenue\"\n    value=\"$45,231\"\n    variant=\"accent\"\n    :accent-color=\"accentColor\"\n    :trend=\"{ value: 12.5, label: 'vs last month' }\"\n  />\n</div>",
+          "details": "The accent variant adds a colored left border. Choose from the semantic colors."
+        },
+        {
+          "name": "Inverted trend",
+          "code": "<div style=\"max-width: 320px; width: 100%\" class=\"mx-auto\">\n  <StatCard\n    label=\"Avg Response Time\"\n    value=\"234ms\"\n    :trend=\"{ value: 15.3, label: 'vs last hour' }\"\n    :invert-trend=\"invertTrend\"\n  />\n</div>",
+          "details": "Use invert-trend for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/stat-card"
     },
     {
       "slug": "switch",
@@ -3649,5 +4085,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T11:42:49.162Z"
+  "generatedAt": "2026-10-26T11:45:17.756Z"
 }

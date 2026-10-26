@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "stat-card",
+  "type": "registry:ui",
+  "title": "Stat Card",
+  "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/stat-card/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/StatCard\"\n"
+    }
+  ],
+  "docs": "Import as `import { StatCard } from '@/components/ui/stat-card'`. See https://plexui.com/vue/components/stat-card for props and examples."
+}

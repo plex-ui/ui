@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "slider",
+  "type": "registry:ui",
+  "title": "Slider",
+  "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/slider/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Slider\"\n"
+    }
+  ],
+  "docs": "Import as `import { Slider } from '@/components/ui/slider'`. See https://plexui.com/vue/components/slider for props and examples."
+}

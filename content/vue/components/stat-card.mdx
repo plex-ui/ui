@@ -1,0 +1,208 @@
+---
+title: Stat Card
+description: Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
+metaDescription: Vue 3 stat card component for dashboards displaying KPIs with trend deltas, an info tooltip, icon and sparkline slots, a progress bar, and accent border styling.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const stage = "py-10 px-6"
+
+export const overview = `<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Total Revenue"
+    value="$45,231"
+    :size="size"
+    :variant="variant"
+    accent-color="primary"
+    :trend-position="trendPosition"
+    :trend-variant="trendVariant"
+    :trend="trend ? { value: 12.5, label: 'vs last month' } : undefined"
+    :tooltip="tooltip ? 'Sum of all revenue streams' : undefined"
+    :invert-trend="invertTrend"
+  />
+</div>`
+
+export const sizes = `<div class="flex flex-col gap-6 w-full">
+  <!-- Default size -->
+  <div class="grid grid-cols-3 gap-4" style="max-width: 720px">
+    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }" />
+    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }" />
+    <StatCard label="Conversion Rate" value="3.24%" :trend="{ value: -1.8 }" />
+  </div>
+  <!-- Small size -->
+  <div class="grid grid-cols-3 gap-3" style="max-width: 720px">
+    <StatCard size="sm" label="Total Inquiries" value="3,544" :trend="{ value: -2.6 }" tooltip="Total inquiries in period" />
+    <StatCard size="sm" label="Completion Rate" value="89.2%" :trend="{ value: 0.5 }" tooltip="Average across templates" />
+    <StatCard size="sm" label="Approval Rate" value="84.6%" :trend="{ value: 1.8 }" tooltip="Average across templates" />
+  </div>
+</div>`
+
+export const trendPosition = `<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="value" />
+  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="header" />
+</div>`
+
+export const trendVariant = `<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="text" />
+  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="badge" />
+</div>`
+
+export const infoTooltip = `<div style="max-width: 320px; width: 100%; margin: 0 auto">
+  <StatCard
+    label="Avg Completion Rate"
+    value="89.2%"
+    :trend="{ value: 0.5 }"
+    tooltip="Percentage of inquiries reaching final state"
+  />
+</div>`
+
+export const withIcon = `<div class="flex flex-col gap-6 w-full">
+  <!-- Default size -->
+  <div class="grid grid-cols-2 gap-4">
+    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }">
+      <template #icon><DollarCircle /></template>
+    </StatCard>
+    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }">
+      <template #icon><Users /></template>
+    </StatCard>
+  </div>
+  <!-- Small size -->
+  <div class="grid grid-cols-3 gap-3">
+    <StatCard size="sm" label="Revenue" value="$45,231" :trend="{ value: 12.5 }">
+      <template #icon><DollarCircle /></template>
+    </StatCard>
+    <StatCard size="sm" label="Users" value="2,847" :trend="{ value: 8.2 }">
+      <template #icon><Users /></template>
+    </StatCard>
+    <StatCard size="sm" label="Orders" value="1,234" :trend="{ value: -3.1 }">
+      <template #icon><ShoppingBag /></template>
+    </StatCard>
+  </div>
+</div>`
+
+export const withProgress = `<StatCard label="Storage Used" value="7.2 GB" :progress="72" progress-label="72%" description="of 10 GB" />`
+
+export const accent = `<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Total Revenue"
+    value="$45,231"
+    variant="accent"
+    :accent-color="accentColor"
+    :trend="{ value: 12.5, label: 'vs last month' }"
+  />
+</div>`
+
+export const invertedTrend = `<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Avg Response Time"
+    value="234ms"
+    :trend="{ value: 15.3, label: 'vs last hour' }"
+    :invert-trend="invertTrend"
+  />
+</div>`
+
+<UsageBlock>{`import { StatCard } from "@plexui/vue/components/StatCard";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props.</>} code={overview} previewMinHeight={120}>
+  <VueDemo
+    template={overview}
+    stageClassName={stage}
+    controls={[
+      { name: "size", type: "select", options: ["default", "sm"], default: "default" },
+      { name: "variant", type: "select", options: ["default", "accent"], default: "default" },
+      { name: "trendPosition", type: "select", options: ["value", "header"], default: "value" },
+      { name: "trendVariant", type: "select", options: ["text", "badge"], default: "text" },
+      { name: "trend", type: "boolean", default: true },
+      { name: "tooltip", type: "boolean", default: false },
+      { name: "invertTrend", type: "boolean", default: false },
+    ]}
+  />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview language="vue" details={<>Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the <code>tooltip</code> prop for info icons.</>} code={sizes} previewMinHeight={120}>
+  <VueDemo template={sizes} />
+</ComponentPreview>
+
+### Trend position
+
+<ComponentPreview language="vue" details={<>Control where the trend appears: next to the value (default) or right-aligned in the header row.</>} code={trendPosition} previewMinHeight={120}>
+  <VueDemo template={trendPosition} />
+</ComponentPreview>
+
+### Trend variant
+
+<ComponentPreview language="vue" details={<>Display the trend as plain text or wrapped in a badge.</>} code={trendVariant} previewMinHeight={120}>
+  <VueDemo template={trendVariant} />
+</ComponentPreview>
+
+### Info tooltip
+
+<ComponentPreview language="vue" details={<>Pass a <code>tooltip</code> string to render an info icon next to the label with a tooltip on hover.</>} code={infoTooltip} previewMinHeight={120}>
+  <VueDemo template={infoTooltip} />
+</ComponentPreview>
+
+### With icon
+
+<ComponentPreview language="vue" details={<>Pass an icon through the <code>icon</code> slot to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and <code>sm</code> sizes.</>} code={withIcon} previewMinHeight={120}>
+  <VueDemo template={withIcon} />
+</ComponentPreview>
+
+### With progress
+
+<ComponentPreview language="vue" details={<>Progress bars show a visual representation of completion or usage percentage.</>} code={withProgress} previewMinHeight={120}>
+  <VueDemo template={withProgress} />
+</ComponentPreview>
+
+### Accent border
+
+<ComponentPreview language="vue" details={<>The accent variant adds a colored left border. Choose from the semantic colors.</>} code={accent} previewMinHeight={120}>
+  <VueDemo
+    template={accent}
+    stageClassName={stage}
+    controls={[
+      {
+        name: "accentColor",
+        type: "select",
+        options: ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"],
+        default: "primary",
+      },
+    ]}
+  />
+</ComponentPreview>
+
+### Inverted trend
+
+<ComponentPreview language="vue" details={<>Use <code>invert-trend</code> for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip.</>} code={invertedTrend} previewMinHeight={120}>
+  <VueDemo template={invertedTrend} stageClassName={stage} controls={[{ name: "invertTrend", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "label", type: "string", required: true, description: "Label describing the metric" },
+  { prop: "value", type: "string | number", description: "The primary metric value" },
+  { prop: "value slot", type: "VNode[]", description: "Rich value content; takes precedence over the value prop" },
+  { prop: "description", type: "string", description: "Subtitle below the value" },
+  { prop: "trend", type: "{ value: number; label?: string }", description: "Trend indicator with percentage" },
+  { prop: "invert-trend", type: "boolean", default: "false", description: "Invert trend colors (positive = bad)" },
+  { prop: "trend-position", type: '"value" | "header"', default: '"value"', description: "Where the trend indicator is rendered" },
+  { prop: "trend-variant", type: '"text" | "badge"', default: '"text"', description: "Render trend as text or badge" },
+  { prop: "size", type: '"default" | "sm"', default: '"default"', description: "Card size; sm for compact analytics layouts" },
+  { prop: "icon slot", type: "VNode[]", description: "Icon displayed on the left with a soft background" },
+  { prop: "sparkline slot", type: "VNode[]", description: "Chart rendered at the bottom" },
+  { prop: "progress", type: "number", description: "Progress bar value (0-100)" },
+  { prop: "progress-label", type: "string", description: "Label next to progress bar" },
+  { prop: "tooltip", type: "string", description: "Shows an info icon next to the label with tooltip text" },
+  { prop: "variant", type: '"default" | "accent"', default: '"default"', description: "Visual variant" },
+  { prop: "accent-color", type: '"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning"', default: '"primary"', description: "Left border color (accent variant)" },
+  { prop: "class", type: "string", description: "Extra classes on the card element" },
+]} />
+
+Other attributes land on the card's root `<div>`.

@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 37
+Components: 40
 
 ## Setup
 
@@ -2746,6 +2746,15 @@ Pair a Label with a value readout above the bar, the typical upload or onboardin
 </div>
 ```
 
+### Controlled
+Bind value to any source, here a Slider through v-model:value.
+```vue
+<div style="display: flex; width: 100%; max-width: 320px; flex-direction: column; gap: 16px">
+  <Progress :value="value" />
+  <Slider v-model:value="value" :min="0" :max="100" :step="1" />
+</div>
+```
+
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
 Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
@@ -2912,6 +2921,168 @@ Use color to change the color scheme of completed and active steps.
     </ProgressSteps>
   </div>
 </div>
+```
+
+## Radio Group
+Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+Import: import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup"
+Docs: https://plexui.com/vue/components/radio-group
+Props:
+  - value (string) — Selected value. Bind with v-model:value; leave unset for an uncontrolled group
+  - default-value (string) — Initial selected value (uncontrolled)
+  - direction ("col" | "row") default: "row" — Item flow direction
+  - disabled (boolean) default: false — Disable the whole group
+  - name (string) — Name of the hidden radio inputs submitted with the owning form
+  - required (boolean) default: false — Marks the group as required (aria-required)
+  - aria-label (string) — Accessible group label
+  - class (string) — Extra classes on the group element
+  - default slot (VNode[]) — RadioGroupItem children
+  - @update:value ((value: string) => void) — Emitted when the selected option changes; powers v-model:value
+  - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
+  - block (boolean) default: false — Stretch item to fill available width
+  - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+
+### Overview
+```vue
+<div>
+  <h3 class="font-semibold text-sm mb-3">Notification frequency</h3>
+  <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
+    <RadioGroupItem value="daily">Daily</RadioGroupItem>
+    <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+    <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+    <RadioGroupItem value="never">Never</RadioGroupItem>
+  </RadioGroup>
+</div>
+```
+
+### Direction
+Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation.
+```vue
+<RadioGroup :direction="direction" default-value="light" aria-label="Theme">
+  <RadioGroupItem value="light">Light</RadioGroupItem>
+  <RadioGroupItem value="dark">Dark</RadioGroupItem>
+  <RadioGroupItem value="system">System</RadioGroupItem>
+</RadioGroup>
+```
+
+### Orientation
+Use orientation="right" on RadioGroupItem to place the radio indicator after the label text. Useful for settings lists and card-style selections where the content should lead.
+```vue
+<RadioGroup class="w-56" direction="col" default-value="email" aria-label="Default notification channel">
+  <RadioGroupItem value="email" :orientation="orientation" block>Email</RadioGroupItem>
+  <RadioGroupItem value="sms" :orientation="orientation" block>SMS</RadioGroupItem>
+  <RadioGroupItem value="push" :orientation="orientation" block>Push notification</RadioGroupItem>
+</RadioGroup>
+```
+
+### Group disabled
+Use disabled on RadioGroup to disable all radio options.
+```vue
+<RadioGroup :disabled="disabled" default-value="standard" aria-label="Shipping method">
+  <RadioGroupItem value="standard">Standard</RadioGroupItem>
+  <RadioGroupItem value="express">Express</RadioGroupItem>
+  <RadioGroupItem value="overnight">Overnight</RadioGroupItem>
+</RadioGroup>
+```
+
+### Item disabled
+Use disabled on a single RadioGroupItem to disable only that option.
+```vue
+<RadioGroup aria-label="Delivery method" class="max-w-[320px] m-auto" direction="col">
+  <RadioGroupItem value="standard">Standard shipping (3–5 days)</RadioGroupItem>
+  <RadioGroupItem value="express" :disabled="disabled">Express shipping (1–2 days)</RadioGroupItem>
+  <RadioGroupItem value="same-day">
+    Same-day delivery, available in select metro areas with a minimum order of $50
+  </RadioGroupItem>
+</RadioGroup>
+```
+
+### With description
+Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context.
+```vue
+<RadioGroup direction="col" v-model:value="value" aria-label="Spacing">
+  <RadioGroupItem value="default">
+    <div class="flex flex-col">
+      <span class="font-medium">Default</span>
+      <span class="text-xs text-secondary mt-0.5">Standard spacing for most use cases.</span>
+    </div>
+  </RadioGroupItem>
+  <RadioGroupItem value="comfortable">
+    <div class="flex flex-col">
+      <span class="font-medium">Comfortable</span>
+      <span class="text-xs text-secondary mt-0.5">More space between elements.</span>
+    </div>
+  </RadioGroupItem>
+  <RadioGroupItem value="compact">
+    <div class="flex flex-col">
+      <span class="font-medium">Compact</span>
+      <span class="text-xs text-secondary mt-0.5">Minimal spacing for dense layouts.</span>
+    </div>
+  </RadioGroupItem>
+</RadioGroup>
+```
+
+### Choice card
+Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element.
+```vue
+<RadioGroup class="flex-col w-[320px] gap-3" v-model:value="value" aria-label="Workspace type">
+  <div
+    v-for="card in [
+      { id: 'personal', title: 'Personal', description: 'For hobby projects and experimentation.' },
+      { id: 'team', title: 'Team', description: 'Collaborate with up to 10 members.' },
+      { id: 'business', title: 'Business', description: 'SSO, audit logs, and priority support.' },
+    ]"
+    :key="card.id"
+    :style="{
+      border: '1px solid',
+      borderColor: value === card.id ? 'var(--color-background-primary-solid)' : 'var(--color-border-primary-outline)',
+      borderRadius: 'var(--radius-lg)',
+      backgroundColor: value === card.id ? 'var(--color-background-primary-soft-alpha)' : undefined,
+      transition: 'border-color 150ms ease, background-color 150ms ease',
+    }"
+  >
+    <RadioGroupItem :value="card.id" block :orientation="orientation" class="gap-3 p-3">
+      <div class="flex flex-col flex-1">
+        <span class="font-semibold">{{ card.title }}</span>
+        <span class="text-xs text-secondary mt-0.5">{{ card.description }}</span>
+      </div>
+    </RadioGroupItem>
+  </div>
+</RadioGroup>
+```
+
+### Card selection
+Leverage component composition and class overrides to build card-style radio selections with rich content per option.
+```vue
+<RadioGroup class="flex-col w-[390px] gap-4" aria-label="Sample options">
+  <RadioGroupItem class="gap-2.5" value="basic">
+    <div>
+      <h4 class="font-semibold mb-1">Basic Plan</h4>
+      <p class="text-secondary text-sm">5 GB storage • Email support • Free</p>
+    </div>
+  </RadioGroupItem>
+  <hr class="border-default" />
+  <RadioGroupItem class="gap-2.5" value="standard">
+    <div>
+      <h4 class="font-semibold mb-1">Standard Plan</h4>
+      <p class="text-secondary text-sm">100 GB storage • Priority email support • $9.99/m</p>
+    </div>
+  </RadioGroupItem>
+  <hr class="border-default" />
+  <Tooltip :max-width="258" interactive>
+    <template #content>
+      Contact our <TextLink href="#">support team</TextLink> for more information on enterprise plans.
+    </template>
+    <TooltipTrigger>
+      <RadioGroupItem class="gap-2.5" value="enterprise" disabled>
+        <div>
+          <h4 class="font-semibold mb-1">Enterprise Plan</h4>
+          <p class="text-secondary text-sm">Unlimited storage • 24/7 phone support • Custom pricing</p>
+        </div>
+      </RadioGroupItem>
+    </TooltipTrigger>
+  </Tooltip>
+</RadioGroup>
 ```
 
 ## Separator
@@ -3086,6 +3257,292 @@ Table skeletons show header and row structure while data loads.
     <Skeleton class="h-4 w-[150px]" />
     <Skeleton class="h-4 w-[80px]" />
   </div>
+</div>
+```
+
+## Slider
+Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+Import: import { Slider } from "@plexui/vue/components/Slider"
+Docs: https://plexui.com/vue/components/slider
+Props:
+  - value (number | number[]) — Current value; an array when range is set. Bind with v-model:value
+  - min (number) — Minimum value
+  - max (number) — Maximum value
+  - step (number) — Step increment
+  - range (boolean) default: false — Enable multi-thumb range mode
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
+  - reset-value (number) — Value for the reset option (single mode only)
+  - reset-tooltip (string) default: "Reset to default" — Tooltip of the reset button (single mode only)
+  - unit (string) — Unit displayed after the value (e.g. ms, px)
+  - prefix-unit (string) — Unit displayed before the value (e.g. $)
+  - label (string) — Label text
+  - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
+  - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
+  - track-color (string) — Color of the slider track
+  - range-color (string) — Color of the filled part of the track
+  - min-steps-between-thumbs (number) — Minimum steps between thumbs (range mode only)
+  - disabled (boolean) default: false — Disable the slider
+  - class (string) — Extra classes on the wrapper element
+  - @update:value ((value: number | number[]) => void) — Emitted when the value changes; an array when range is set; powers v-model:value
+  - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
+  - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
+
+### Overview
+```vue
+<div style="width: 300px">
+  <Slider
+    label="Example field"
+    :min="0"
+    :max="2000"
+    :reset-value="1000"
+    :step="10"
+    unit="ms"
+    v-model:value="value"
+    :disabled="disabled"
+  />
+</div>
+```
+
+### Adding a tooltip
+A tooltip can easily be added to the Slider label by passing rich content through the label slot instead of a simple string.
+```vue
+<div style="width: 300px">
+  <Slider :min="0" :max="2000" :reset-value="1000" :step="10" unit="ms" v-model:value="value">
+    <template #label>
+      <Tooltip content="More details about this field">
+        <TooltipTriggerDecorator>Example field</TooltipTriggerDecorator>
+      </Tooltip>
+    </template>
+  </Slider>
+</div>
+```
+
+### Marks
+Slider marks can be easily added by passing an array of values to the marks prop. Responsive behaviors are handled automatically.
+```vue
+<div style="width: 300px">
+  <Slider
+    v-model:value="value"
+    label="Passing grade"
+    :min="1"
+    :max="5"
+    :step="1"
+    :marks="[
+      { value: 1, label: '1' },
+      { value: 2, label: '2' },
+      { value: 3, label: '3' },
+      { value: 4, label: '4' },
+      { value: 5, label: '5' },
+    ]"
+    track-color="#61C454"
+    range-color="#EF4146"
+  />
+</div>
+```
+
+### Range
+Set range to enable a dual-thumb slider for selecting a value range. v-model:value then binds an array instead of a single number.
+```vue
+<div style="width: 300px">
+  <Slider
+    range
+    label="Price range"
+    :min="0"
+    :max="100"
+    :step="1"
+    v-model:value="value"
+    prefix-unit="$"
+  />
+</div>
+```
+
+### Multiple thumbs
+Pass three or more values to create a multi-thumb slider. Use min-steps-between-thumbs to enforce minimum spacing between thumbs.
+```vue
+<div style="width: 300px">
+  <Slider
+    range
+    label="Breakpoints"
+    :min="0"
+    :max="100"
+    :step="1"
+    v-model:value="value"
+    :min-steps-between-thumbs="5"
+  />
+</div>
+```
+
+### Vertical
+Set orientation="vertical" to render a vertical slider. Marks are not supported in vertical orientation.
+```vue
+<Slider
+  label="Volume"
+  :min="0"
+  :max="100"
+  :step="1"
+  v-model:value="value"
+  orientation="vertical"
+/>
+```
+
+### Disabled
+Set disabled to prevent interaction with the slider.
+```vue
+<div style="width: 300px">
+  <Slider label="Disabled" :min="0" :max="100" :step="1" :value="50" disabled />
+</div>
+```
+
+## Stat Card
+Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.
+Import: import { StatCard } from "@plexui/vue/components/StatCard"
+Docs: https://plexui.com/vue/components/stat-card
+Props:
+  - value (string | number) — The primary metric value
+  - value slot (VNode[]) — Rich value content; takes precedence over the value prop
+  - description (string) — Subtitle below the value
+  - trend ({ value: number; label?: string }) — Trend indicator with percentage
+  - invert-trend (boolean) default: false — Invert trend colors (positive = bad)
+  - trend-position ("value" | "header") default: "value" — Where the trend indicator is rendered
+  - trend-variant ("text" | "badge") default: "text" — Render trend as text or badge
+  - size ("default" | "sm") default: "default" — Card size; sm for compact analytics layouts
+  - icon slot (VNode[]) — Icon displayed on the left with a soft background
+  - sparkline slot (VNode[]) — Chart rendered at the bottom
+  - progress (number) — Progress bar value (0-100)
+  - progress-label (string) — Label next to progress bar
+  - tooltip (string) — Shows an info icon next to the label with tooltip text
+  - variant ("default" | "accent") default: "default" — Visual variant
+  - accent-color ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
+  - class (string) — Extra classes on the card element
+
+### Overview
+Dashboard-ready stat cards with trends, icons, and progress bars. Use the controls below to explore all available props.
+```vue
+<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Total Revenue"
+    value="$45,231"
+    :size="size"
+    :variant="variant"
+    accent-color="primary"
+    :trend-position="trendPosition"
+    :trend-variant="trendVariant"
+    :trend="trend ? { value: 12.5, label: 'vs last month' } : undefined"
+    :tooltip="tooltip ? 'Sum of all revenue streams' : undefined"
+    :invert-trend="invertTrend"
+  />
+</div>
+```
+
+### Sizes
+Use size="sm" for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the tooltip prop for info icons.
+```vue
+<div class="flex flex-col gap-6 w-full">
+  <!-- Default size -->
+  <div class="grid grid-cols-3 gap-4" style="max-width: 720px">
+    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }" />
+    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }" />
+    <StatCard label="Conversion Rate" value="3.24%" :trend="{ value: -1.8 }" />
+  </div>
+  <!-- Small size -->
+  <div class="grid grid-cols-3 gap-3" style="max-width: 720px">
+    <StatCard size="sm" label="Total Inquiries" value="3,544" :trend="{ value: -2.6 }" tooltip="Total inquiries in period" />
+    <StatCard size="sm" label="Completion Rate" value="89.2%" :trend="{ value: 0.5 }" tooltip="Average across templates" />
+    <StatCard size="sm" label="Approval Rate" value="84.6%" :trend="{ value: 1.8 }" tooltip="Average across templates" />
+  </div>
+</div>
+```
+
+### Trend position
+Control where the trend appears: next to the value (default) or right-aligned in the header row.
+```vue
+<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="value" />
+  <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="header" />
+</div>
+```
+
+### Trend variant
+Display the trend as plain text or wrapped in a badge.
+```vue
+<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="text" />
+  <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="badge" />
+</div>
+```
+
+### Info tooltip
+Pass a tooltip string to render an info icon next to the label with a tooltip on hover.
+```vue
+<div style="max-width: 320px; width: 100%; margin: 0 auto">
+  <StatCard
+    label="Avg Completion Rate"
+    value="89.2%"
+    :trend="{ value: 0.5 }"
+    tooltip="Percentage of inquiries reaching final state"
+  />
+</div>
+```
+
+### With icon
+Pass an icon through the icon slot to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and sm sizes.
+```vue
+<div class="flex flex-col gap-6 w-full">
+  <!-- Default size -->
+  <div class="grid grid-cols-2 gap-4">
+    <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }">
+      <template #icon><DollarCircle /></template>
+    </StatCard>
+    <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }">
+      <template #icon><Users /></template>
+    </StatCard>
+  </div>
+  <!-- Small size -->
+  <div class="grid grid-cols-3 gap-3">
+    <StatCard size="sm" label="Revenue" value="$45,231" :trend="{ value: 12.5 }">
+      <template #icon><DollarCircle /></template>
+    </StatCard>
+    <StatCard size="sm" label="Users" value="2,847" :trend="{ value: 8.2 }">
+      <template #icon><Users /></template>
+    </StatCard>
+    <StatCard size="sm" label="Orders" value="1,234" :trend="{ value: -3.1 }">
+      <template #icon><ShoppingBag /></template>
+    </StatCard>
+  </div>
+</div>
+```
+
+### With progress
+Progress bars show a visual representation of completion or usage percentage.
+```vue
+<StatCard label="Storage Used" value="7.2 GB" :progress="72" progress-label="72%" description="of 10 GB" />
+```
+
+### Accent border
+The accent variant adds a colored left border. Choose from the semantic colors.
+```vue
+<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Total Revenue"
+    value="$45,231"
+    variant="accent"
+    :accent-color="accentColor"
+    :trend="{ value: 12.5, label: 'vs last month' }"
+  />
+</div>
+```
+
+### Inverted trend
+Use invert-trend for metrics where positive values are bad (e.g., error rate, response time). Toggle the switch to see the color flip.
+```vue
+<div style="max-width: 320px; width: 100%" class="mx-auto">
+  <StatCard
+    label="Avg Response Time"
+    value="234ms"
+    :trend="{ value: 15.3, label: 'vs last hour' }"
+    :invert-trend="invertTrend"
+  />
 </div>
 ```
 

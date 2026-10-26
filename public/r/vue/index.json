@@ -223,6 +223,14 @@
       ]
     },
     {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "separator",
       "type": "registry:ui",
       "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
@@ -242,6 +250,22 @@
       "name": "skeleton",
       "type": "registry:ui",
       "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "stat-card",
+      "type": "registry:ui",
+      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
       "dependencies": [
         "@plexui/vue"
       ]
