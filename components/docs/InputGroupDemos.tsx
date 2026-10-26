@@ -219,38 +219,57 @@ export function InputGroupTextDemo() {
   );
 }
 
-export function InputGroupButtonDemo() {
-  return (
-    <div className="flex flex-col gap-2.5 w-[320px]">
-      <InputGroup>
-        <InputGroup.Input defaultValue="plexui.com/r/input-group" readOnly />
-        <InputGroup.Addon>
-          <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Button uniform aria-label="Copy link">
-            <Copy />
-          </InputGroup.Button>
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input placeholder="Search the docs..." />
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Button variant="soft">Search</InputGroup.Button>
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup pill>
-        <InputGroup.Input placeholder="Card number" inputMode="numeric" />
-        <InputGroup.Addon>
-          <CreditCard />
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Button variant="solid" color="primary">
-            Pay
-          </InputGroup.Button>
-        </InputGroup.Addon>
-      </InputGroup>
+/** `size` and `pill` controls shared by the examples that show them */
+function useSizePill() {
+  const [size, setSize] = useState<Size>('md');
+  const [pill, setPill] = useState(false);
+  const controls = (
+    <div data-demo-controls style={controlsTableStyle}>
+      <SegmentedRow name="size" options={SIZE_OPTIONS} value={size} onChange={setSize} />
+      <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
     </div>
+  );
+  return { args: { size, pill }, controls };
+}
+
+export function InputGroupButtonDemo() {
+  const { args, controls } = useSizePill();
+  return (
+    <>
+      {controls}
+      <div data-demo-stage className="py-10">
+        <div className="flex flex-col gap-2.5 w-[320px]">
+          <InputGroup {...args}>
+            <InputGroup.Input defaultValue="plexui.com/r/input-group" readOnly />
+            <InputGroup.Addon>
+              <InputGroup.Text>https://</InputGroup.Text>
+            </InputGroup.Addon>
+            <InputGroup.Addon align="inline-end">
+              <InputGroup.Button uniform aria-label="Copy link">
+                <Copy />
+              </InputGroup.Button>
+            </InputGroup.Addon>
+          </InputGroup>
+          <InputGroup {...args}>
+            <InputGroup.Input placeholder="Search the docs..." />
+            <InputGroup.Addon align="inline-end">
+              <InputGroup.Button variant="soft">Search</InputGroup.Button>
+            </InputGroup.Addon>
+          </InputGroup>
+          <InputGroup {...args}>
+            <InputGroup.Input placeholder="Card number" inputMode="numeric" />
+            <InputGroup.Addon>
+              <CreditCard />
+            </InputGroup.Addon>
+            <InputGroup.Addon align="inline-end">
+              <InputGroup.Button variant="solid" color="primary">
+                Pay
+              </InputGroup.Button>
+            </InputGroup.Addon>
+          </InputGroup>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -287,42 +306,51 @@ function UnitMenu<T extends string>({
         </InputGroup.Button>
       </Menu.Trigger>
       <Menu.Content align="end" minWidth={160}>
-        <Menu.RadioGroup value={value} onChange={onChange}>
-          {units.map((unit) => (
-            <Menu.RadioItem key={unit.value} value={unit.value}>
-              {unit.label} ({unit.value})
-            </Menu.RadioItem>
-          ))}
-        </Menu.RadioGroup>
+        {units.map((unit) => (
+          <Menu.CheckboxItem
+            key={unit.value}
+            checked={value === unit.value}
+            onCheckedChange={() => onChange(unit.value)}
+            indicatorVariant="ghost"
+          >
+            {unit.label} ({unit.value})
+          </Menu.CheckboxItem>
+        ))}
       </Menu.Content>
     </Menu>
   );
 }
 
 export function InputGroupDropdownDemo() {
+  const { args, controls } = useSizePill();
   const [weightUnit, setWeightUnit] = useState<(typeof WEIGHT_UNITS)[number]['value']>('kg');
   const [lengthUnit, setLengthUnit] = useState<(typeof LENGTH_UNITS)[number]['value']>('cm');
   return (
-    <div className="flex flex-col gap-2.5 w-[320px]">
-      <InputGroup>
-        <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
-        <InputGroup.Addon>
-          <InputGroup.Text>Weight</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <UnitMenu units={WEIGHT_UNITS} value={weightUnit} onChange={setWeightUnit} label="Weight" />
-        </InputGroup.Addon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroup.Input defaultValue="180" inputMode="decimal" aria-label="Height" />
-        <InputGroup.Addon>
-          <InputGroup.Text>Height</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <UnitMenu units={LENGTH_UNITS} value={lengthUnit} onChange={setLengthUnit} label="Height" />
-        </InputGroup.Addon>
-      </InputGroup>
-    </div>
+    <>
+      {controls}
+      <div data-demo-stage className="py-10">
+        <div className="flex flex-col gap-2.5 w-[320px]">
+          <InputGroup {...args}>
+            <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
+            <InputGroup.Addon>
+              <InputGroup.Text>Weight</InputGroup.Text>
+            </InputGroup.Addon>
+            <InputGroup.Addon align="inline-end">
+              <UnitMenu units={WEIGHT_UNITS} value={weightUnit} onChange={setWeightUnit} label="Weight" />
+            </InputGroup.Addon>
+          </InputGroup>
+          <InputGroup {...args}>
+            <InputGroup.Input defaultValue="180" inputMode="decimal" aria-label="Height" />
+            <InputGroup.Addon>
+              <InputGroup.Text>Height</InputGroup.Text>
+            </InputGroup.Addon>
+            <InputGroup.Addon align="inline-end">
+              <UnitMenu units={LENGTH_UNITS} value={lengthUnit} onChange={setLengthUnit} label="Height" />
+            </InputGroup.Addon>
+          </InputGroup>
+        </div>
+      </div>
+    </>
   );
 }
 

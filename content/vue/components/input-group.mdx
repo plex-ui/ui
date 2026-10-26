@@ -8,6 +8,11 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
+export const sizePillControls = [
+  { name: "size", type: "select", options: sizeOptions, default: "md" },
+  { name: "pill", type: "boolean", default: false },
+]
+
 export const overview = `<div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
     <InputGroupInput placeholder="Search..." />
@@ -131,7 +136,7 @@ export const text = `<div class="flex flex-col gap-2.5 w-[320px]">
 </div>`
 
 export const button = `<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput default-value="plexui.com/r/input-group" readonly />
     <InputGroupAddon>
       <InputGroupText>https://</InputGroupText>
@@ -142,13 +147,13 @@ export const button = `<div class="flex flex-col gap-2.5 w-[320px]">
       </InputGroupButton>
     </InputGroupAddon>
   </InputGroup>
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput placeholder="Search the docs..." />
     <InputGroupAddon align="inline-end">
       <InputGroupButton variant="soft">Search</InputGroupButton>
     </InputGroupAddon>
   </InputGroup>
-  <InputGroup pill>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput placeholder="Card number" inputmode="numeric" />
     <InputGroupAddon>
       <CreditCard />
@@ -160,7 +165,7 @@ export const button = `<div class="flex flex-col gap-2.5 w-[320px]">
 </div>`
 
 export const dropdown = `<div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput default-value="72" inputmode="decimal" aria-label="Weight" />
     <InputGroupAddon>
       <InputGroupText>Weight</InputGroupText>
@@ -173,16 +178,20 @@ export const dropdown = `<div class="flex flex-col gap-2.5 w-[320px]">
           </InputGroupButton>
         </MenuTrigger>
         <MenuContent align="end" :min-width="160">
-          <MenuRadioGroup v-model:value="weightUnit">
-            <MenuRadioItem v-for="unit in weightUnits" :key="unit.value" :value="unit.value">
-              {{ unit.label }} ({{ unit.value }})
-            </MenuRadioItem>
-          </MenuRadioGroup>
+          <MenuCheckboxItem
+            v-for="unit in weightUnits"
+            :key="unit.value"
+            :checked="weightUnit === unit.value"
+            indicator-variant="ghost"
+            @update:checked="weightUnit = unit.value"
+          >
+            {{ unit.label }} ({{ unit.value }})
+          </MenuCheckboxItem>
         </MenuContent>
       </Menu>
     </InputGroupAddon>
   </InputGroup>
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput default-value="180" inputmode="decimal" aria-label="Height" />
     <InputGroupAddon>
       <InputGroupText>Height</InputGroupText>
@@ -195,11 +204,15 @@ export const dropdown = `<div class="flex flex-col gap-2.5 w-[320px]">
           </InputGroupButton>
         </MenuTrigger>
         <MenuContent align="end" :min-width="160">
-          <MenuRadioGroup v-model:value="lengthUnit">
-            <MenuRadioItem v-for="unit in lengthUnits" :key="unit.value" :value="unit.value">
-              {{ unit.label }} ({{ unit.value }})
-            </MenuRadioItem>
-          </MenuRadioGroup>
+          <MenuCheckboxItem
+            v-for="unit in lengthUnits"
+            :key="unit.value"
+            :checked="lengthUnit === unit.value"
+            indicator-variant="ghost"
+            @update:checked="lengthUnit = unit.value"
+          >
+            {{ unit.label }} ({{ unit.value }})
+          </MenuCheckboxItem>
         </MenuContent>
       </Menu>
     </InputGroupAddon>
@@ -216,8 +229,13 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@plexui/vue/components/InputGroup"
-import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "@plexui/vue/components/Menu"
+import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from "@plexui/vue/components/Menu"
 
+const UNITS = [
+  { value: "kg", label: "Kilograms" },
+  { value: "lb", label: "Pounds" },
+  { value: "st", label: "Stones" },
+]
 const unit = ref("kg")
 </script>
 
@@ -235,11 +253,15 @@ const unit = ref("kg")
           </InputGroupButton>
         </MenuTrigger>
         <MenuContent align="end" :min-width="160">
-          <MenuRadioGroup v-model:value="unit">
-            <MenuRadioItem value="kg">Kilograms (kg)</MenuRadioItem>
-            <MenuRadioItem value="lb">Pounds (lb)</MenuRadioItem>
-            <MenuRadioItem value="st">Stones (st)</MenuRadioItem>
-          </MenuRadioGroup>
+          <MenuCheckboxItem
+            v-for="item in UNITS"
+            :key="item.value"
+            :checked="unit === item.value"
+            indicator-variant="ghost"
+            @update:checked="unit = item.value"
+          >
+            {{ item.label }} ({{ item.value }})
+          </MenuCheckboxItem>
         </MenuContent>
       </Menu>
     </InputGroupAddon>
@@ -343,15 +365,17 @@ For a single icon or action button inside a plain field, [Input](/vue/components
 
 ### Button
 
-<ComponentPreview language="vue" details={<><code>InputGroupButton</code> is a <a href="/vue/components/button"><code>Button</code></a> that defaults to <code>ghost</code> and <code>secondary</code> and takes its size from the group. Pass <code>uniform</code> for icon buttons.</>} code={button} previewMinHeight={200}>
-  <VueDemo template={button} />
+<ComponentPreview language="vue" details={<><code>InputGroupButton</code> is a <a href="/vue/components/button"><code>Button</code></a> that defaults to <code>ghost</code> and <code>secondary</code> and takes its size from the group. Pass <code>uniform</code> for icon buttons.</>} code={button} previewMinHeight={280}>
+  <VueDemo template={button} stageClassName="py-10" controls={sizePillControls} />
 </ComponentPreview>
 
 ### Dropdown
 
-<ComponentPreview language="vue" details={<>Wrap an <code>InputGroupButton</code> in a <a href="/vue/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={dropdownCode} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Wrap an <code>InputGroupButton</code> in a <a href="/vue/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={dropdownCode} previewMinHeight={280}>
   <VueDemo
     template={dropdown}
+    stageClassName="py-10"
+    controls={sizePillControls}
     state={{
       weightUnit: "kg",
       lengthUnit: "cm",
