@@ -2,7 +2,7 @@
 
 import { ButtonLink } from '@plexui/ui/components/Button';
 
-import { ClaudeLogo, CodexLogo, CursorLogo, OpencodeLogo } from './AiLogos';
+import { ClaudeLogo, CodexLogo } from './AiLogos';
 
 export function Hero() {
   return (
@@ -19,17 +19,16 @@ export function Hero() {
 
         {/* Headline */}
         <h1 className="mt-5 text-4xl font-semibold leading-[1.1] tracking-[-0.05em] text-fd-foreground md:text-5xl">
-          The design system that works
+          The design system
           <br className="hidden sm:block" />
-          {' '}in Figma and in your AI&nbsp;editor
+          {' '}your AI agent gets&nbsp;right
         </h1>
 
         {/* Subtitle */}
         <p className="mt-6 max-w-[42rem] text-lg leading-7 text-fd-muted-foreground">
-          React and Vue components your AI editor actually follows. Design tokens, a
-          9-size scale, dark mode, and a registry that Claude, Cursor, and Codex
-          respect. Start with the system, then make it yours. Designed in Figma.
-          Built for AI.
+          React and Vue components that Claude and Codex build with correctly.
+          Design tokens, a 9-size scale, dark mode, an MCP server and a registry
+          they follow. Start with the system, then make it yours.
         </p>
 
         {/* CTA */}
@@ -48,9 +47,7 @@ export function Hero() {
         {/* AI tool wordmarks */}
         <div className="mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 text-fd-foreground sm:mt-20 sm:gap-x-12">
           <ClaudeLogo />
-          <CursorLogo />
           <CodexLogo />
-          <OpencodeLogo />
         </div>
       </div>
     </section>
