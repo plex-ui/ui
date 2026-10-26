@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 35
+Components: 36
 
 ## Setup
 
@@ -537,6 +537,17 @@ Props:
   - @update:value ((value: string) => void) — Emitted on every input
   - @autofill (() => void) — Emitted when the browser autofills the textarea
 Examples: Base, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
+
+## Toast
+Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
+Import: import { Toaster, toast } from "@plexui/vue/components/Toast"
+Docs: https://plexui.com/vue/components/toast
+  Toaster:
+    - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
+    - duration (number) default: 3000 — Default auto-dismiss duration in ms
+    - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
+    - gap (number) — Gap between stacked toasts in px
+Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
 
 ## Tooltip
 Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.

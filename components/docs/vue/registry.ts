@@ -80,6 +80,7 @@ import { Tabs, TabsOption, TabsTab } from '@plexui/vue/components/Tabs';
 import { TagInput } from '@plexui/vue/components/TagInput';
 import { Textarea } from '@plexui/vue/components/Textarea';
 import { TextLink } from '@plexui/vue/components/TextLink';
+import { Toaster } from '@plexui/vue/components/Toast';
 import {
   CopyTooltip,
   Tooltip,
@@ -218,6 +219,7 @@ const components: Record<string, Component> = {
   TagInput,
   Textarea,
   TextLink,
+  Toaster,
   Tooltip,
   TooltipContent,
   TooltipRoot,

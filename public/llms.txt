@@ -755,7 +755,7 @@ Props:
 Examples: Base, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
 
 ## Toast
-React toast notification component for transient feedback — semantic variants, descriptions, action buttons, promise integration, and persistent toasts
+Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
 Import: import { Toaster, toast } from "@plexui/ui/components/Toast"
 Docs: https://plexui.com/components/toast
   `<Toaster />`:

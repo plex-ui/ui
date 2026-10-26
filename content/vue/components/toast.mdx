@@ -1,0 +1,175 @@
+---
+title: Toast
+description: Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
+metaDescription: Vue 3 toast notification component for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
+---
+
+import { VueToastDemo, VueToastDemosHost } from "@/components/docs/vue/VueToastDemos"
+import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+
+export const overview = `<Button color="secondary" variant="outline" @click="toast('Inquiry ID copied')">
+  Show toast
+</Button>`
+
+export const variants = `<Button color="secondary" variant="outline" @click="toast('Changes saved')">Default</Button>
+<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied')">Success</Button>
+<Button color="secondary" variant="outline" @click="toast.error('Failed to assign owner')">Error</Button>
+<Button color="secondary" variant="outline" @click="toast.warning('Session expires in 2 minutes')">Warning</Button>
+<Button color="secondary" variant="outline" @click="toast.info('New version available')">Info</Button>`
+
+export const description = `<Button
+  color="secondary"
+  variant="outline"
+  @click="toast('Changes saved', {
+    description: 'Your profile is live for everyone on the team.',
+  })"
+>
+  Show toast
+</Button>`
+
+export const action = `<Button
+  color="secondary"
+  variant="outline"
+  @click="toast('Message sent', {
+    description: 'Delivered to #design channel.',
+    action: { label: 'Undo', onClick: () => toast.success('Message recalled') },
+  })"
+>
+  Show toast with action
+</Button>`
+
+export const promise = `<Button
+  color="secondary"
+  variant="outline"
+  @click="toast.promise(saveProfile(), {
+    loading: 'Saving…',
+    success: (data) => \`\${data.name} saved\`,
+    error: 'Save failed',
+  })"
+>
+  Run promise
+</Button>`
+
+export const longContent = `<Button
+  color="secondary"
+  variant="outline"
+  @click="toast('Your deployment is still running', {
+    description: 'This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.',
+  })"
+>
+  Long content
+</Button>`
+
+export const compactExample = `<Button color="secondary" variant="outline" @click="toast.success('Inquiry ID copied', compact)">
+  Compact toast
+</Button>`
+
+export const persistent = `<Button
+  color="secondary"
+  variant="outline"
+  @click="() => {
+    const id = toast('Backup scheduled for 2:00 AM UTC', {
+      description: 'This stays open until you dismiss it.',
+      duration: Infinity,
+      action: { label: 'Dismiss', onClick: () => toast.dismiss(id) },
+    })
+  }"
+>
+  Persistent toast
+</Button>`
+
+<VueToastDemosHost />
+
+<UsageBlock>{`import { Toaster, toast } from "@plexui/vue/components/Toast";`}</UsageBlock>
+
+Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. Toast is built on [vue-sonner](https://vue-sonner.vercel.app/), the Vue port of sonner. Its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is. The examples call `toast` from the template; in an app, import it in `<script setup>`.
+
+## Examples
+
+<div id="first-component-page">
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={overview} />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed, so variants retheme automatically with <code>data-theme</code>.</>} code={variants} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={variants} />
+</ComponentPreview>
+
+### Description
+
+<ComponentPreview language="vue" code={description} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={description} />
+</ComponentPreview>
+
+### Action
+
+<ComponentPreview language="vue" code={action} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={action} />
+</ComponentPreview>
+
+### Promise
+
+<ComponentPreview language="vue" details={<>Use <code>toast.promise</code> to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here <code>saveProfile()</code> resolves with <code>{"{ name: \"Profile\" }"}</code> after 1.5 seconds.</>} code={promise} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={promise} />
+</ComponentPreview>
+
+### Long content
+
+<ComponentPreview language="vue" code={longContent} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={longContent} />
+</ComponentPreview>
+
+### Compact
+
+<ComponentPreview language="vue" details={<>Spread <code>compact</code> (<code>{`import { toast, compact } from "@plexui/vue/components/Toast"`}</code>) into any <code>toast(...)</code> options for a centered-text layout. Toast width shrinks to content by default regardless; the <code>compact</code> helper only adds center alignment for short status messages.</>} code={compactExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={compactExample} />
+</ComponentPreview>
+
+### Persistent
+
+<ComponentPreview language="vue" details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible.</>} code={persistent} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueToastDemo template={persistent} />
+</ComponentPreview>
+
+## Reference
+
+### Toaster
+
+<PropsTable data={[
+  { prop: "position", type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"', default: '"top-center"', description: "Where toasts anchor on the viewport" },
+  { prop: "duration", type: "number", default: "3000", description: "Default auto-dismiss duration in ms" },
+  { prop: "offset", type: "string | number | { top?; right?; bottom?; left? }", description: "Distance from the viewport edge" },
+  { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
+]} />
+
+Remaining vue-sonner `Toaster` props (`expand`, `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, etc.) are forwarded untouched. The `success-icon`, `error-icon`, `warning-icon`, `info-icon`, `loading-icon` and `close-icon` slots replace the default icons.
+
+### toast
+
+Re-exported from vue-sonner. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference. vue-sonner spells a few options the Vue way: `class` (sonner's `className`), `classes` (`classNames`) and `descriptionClass` (`descriptionClassName`), and `toast.custom` takes a component.
+
+### Types
+
+`Action`, `ExternalToast`, and `ToastT` are re-exported so you can type helpers without importing from `vue-sonner` directly.
+
+## Theme sync
+
+`<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light and dark rethemes toasts that are already on screen, with no extra theme dependency.
+
+## Differences from React
+
+The Vue Toaster wraps [vue-sonner](https://vue-sonner.vercel.app/) 2.0.9, the Vue port of the sonner library the React Toaster uses. Plex styles, icons, defaults and theme sync are the same, and the wrapper aligns the markup it can reach. A few differences come from vue-sonner itself:
+
+- With no toasts on screen, an empty `<ol data-sonner-toaster>` stays in the page; React renders no list.
+- When a promise toast settles, its spinner is removed at once instead of fading out.
+- When several toasts are created in the same tick, their stack offsets can come out in a different order until the next toast arrives. Toasts created one after another stack the same way.
+- A plain `toast()` or `toast.message()` carries `data-type="default"`, which React leaves unset. Nothing visible changes.
+- Each toast's `--z-index` counts down from 0 instead of from the number of toasts. The stacking order is the same.
+- Action and cancel buttons print `data-button`, `data-action` and `data-cancel` as empty strings rather than `"true"`.
+- A per-toast `closeButton` adds `data-close-button-position`, which vue-sonner's stylesheet uses to place it.
+- Attributes passed to `<Toaster>` that are not props land on the `<ol>`; React drops them.
+</div>

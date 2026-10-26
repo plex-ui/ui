@@ -4785,7 +4785,7 @@
     {
       "slug": "toast",
       "name": "Toast",
-      "description": "React toast notification component for transient feedback — semantic variants, descriptions, action buttons, promise integration, and persistent toasts",
+      "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
       "importPath": "@plexui/ui/components/Toast",
       "exports": [
         "Toaster",
@@ -4957,5 +4957,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T11:27:15.350Z"
+  "generatedAt": "2026-10-26T11:30:49.429Z"
 }

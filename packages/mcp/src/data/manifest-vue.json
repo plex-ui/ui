@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 35,
+  "componentCount": 36,
   "components": [
     {
       "slug": "accordion",
@@ -3116,6 +3116,84 @@
       "docsUrl": "https://plexui.com/vue/components/textarea"
     },
     {
+      "slug": "toast",
+      "name": "Toast",
+      "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
+      "importPath": "@plexui/vue/components/Toast",
+      "exports": [
+        "Toaster",
+        "toast"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Button color=\"secondary\" variant=\"outline\" @click=\"toast('Inquiry ID copied')\">\n  Show toast\n</Button>"
+        },
+        {
+          "name": "Variants",
+          "code": "<Button color=\"secondary\" variant=\"outline\" @click=\"toast('Changes saved')\">Default</Button>\n<Button color=\"secondary\" variant=\"outline\" @click=\"toast.success('Inquiry ID copied')\">Success</Button>\n<Button color=\"secondary\" variant=\"outline\" @click=\"toast.error('Failed to assign owner')\">Error</Button>\n<Button color=\"secondary\" variant=\"outline\" @click=\"toast.warning('Session expires in 2 minutes')\">Warning</Button>\n<Button color=\"secondary\" variant=\"outline\" @click=\"toast.info('New version available')\">Info</Button>",
+          "details": "Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed, so variants retheme automatically with data-theme."
+        },
+        {
+          "name": "Description",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast('Changes saved', {\n    description: 'Your profile is live for everyone on the team.',\n  })\"\n>\n  Show toast\n</Button>"
+        },
+        {
+          "name": "Action",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast('Message sent', {\n    description: 'Delivered to #design channel.',\n    action: { label: 'Undo', onClick: () => toast.success('Message recalled') },\n  })\"\n>\n  Show toast with action\n</Button>"
+        },
+        {
+          "name": "Promise",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast.promise(saveProfile(), {\n    loading: 'Saving…',\n    success: (data) => \\",
+          "details": "Use toast.promise to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here saveProfile() resolves with {\"{ name: \\\"Profile\\\" }\"} after 1.5 seconds."
+        },
+        {
+          "name": "Long content",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast('Your deployment is still running', {\n    description: 'This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly.',\n  })\"\n>\n  Long content\n</Button>"
+        },
+        {
+          "name": "Compact",
+          "code": "<Button color=\"secondary\" variant=\"outline\" @click=\"toast.success('Inquiry ID copied', compact)\">\n  Compact toast\n</Button>",
+          "details": "Spread compact ({`import { toast, compact } from \"@plexui/vue/components/Toast\"`}) into any toast(...) options for a centered-text layout. Toast width shrinks to content by default regardless; the compact helper only adds center alignment for short status messages."
+        },
+        {
+          "name": "Persistent",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"() => {\n    const id = toast('Backup scheduled for 2:00 AM UTC', {\n      description: 'This stays open until you dismiss it.',\n      duration: Infinity,\n      action: { label: 'Dismiss', onClick: () => toast.dismiss(id) },\n    })\n  }\"\n>\n  Persistent toast\n</Button>",
+          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances: put a labelled action on the toast so dismissal is intentional and keyboard-accessible."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "Toaster",
+          "props": [
+            {
+              "name": "position",
+              "type": "\"top-left\" | \"top-center\" | \"top-right\" | \"bottom-left\" | \"bottom-center\" | \"bottom-right\"",
+              "default": "\"top-center\"",
+              "description": "Where toasts anchor on the viewport"
+            },
+            {
+              "name": "duration",
+              "type": "number",
+              "default": "3000",
+              "description": "Default auto-dismiss duration in ms"
+            },
+            {
+              "name": "offset",
+              "type": "string | number | { top?; right?; bottom?; left? }",
+              "description": "Distance from the viewport edge"
+            },
+            {
+              "name": "gap",
+              "type": "number",
+              "description": "Gap between stacked toasts in px"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/toast"
+    },
+    {
       "slug": "tooltip",
       "name": "Tooltip",
       "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
@@ -3213,5 +3291,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T11:27:15.359Z"
+  "generatedAt": "2026-10-26T11:30:49.439Z"
 }
