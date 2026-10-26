@@ -88,13 +88,13 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 
 ### Date input
 
-<ComponentPreview details={<>A masked input for typing a date directly. Auto-formats as <code>MM / DD / YYYY</code> with segment highlighting and separator auto-advance.</>} code={`<MaskedDateInput value={date} onChange={setDate} />`} previewMinHeight={80}>
+<ComponentPreview details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`<DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />`} previewMinHeight={80}>
   <DatePickerMaskedDateDemo />
 </ComponentPreview>
 
 ### DateTime input
 
-<ComponentPreview details={<>Extended masked input for date and time. Format: <code>MM / DD / YYYY  HH : MM</code>. Same auto-formatting behavior with time segments appended.</>} code={`<MaskedDateTimeInput value={dateTime} onChange={setDateTime} />`} previewMinHeight={80}>
+<ComponentPreview details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`<DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />`} previewMinHeight={80}>
   <DatePickerMaskedDateTimeDemo />
 </ComponentPreview>
 
