@@ -28,6 +28,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - DatePicker month and year menus use Plex UI Select, with accessible names and consistent keyboard navigation and styling across browsers.
 - Select and DatePicker now forward accessible labels, descriptions and invalid state to their interactive triggers. `aria-labelledby` includes the visible selected value or placeholder, keeping both the field name and current selection available to assistive technology.
 - Select checkmarks are vertically centered on the title's first line at either position, including options with multiline descriptions.
+- `CopyButton` without children, the copy action in every `CodeBlock`, has an accessible name: `Copy`, then `Copied` after a click.
+- `Slider` thumbs take their accessible name from `label`. In range mode the label no longer points at a missing input, and the reset button is labelled with `resetTooltip`.
+- `TagInput` keeps every tag when several are pasted at once (pasting `a,b,c` used to keep only `c`), stops at `maxTags`, and no longer throws when a tag containing a double quote is selected. `Select` option lookup escapes values the same way.
+- DatePicker and DateRangePicker calendars keep the `min` and `max` days selectable. A `max` at midnight or a `min` later in the day used to disable that whole day.
+- DatePicker and DateRangePicker month navigation buttons are labelled `Previous month` and `Next month`. The DateRangePicker month stepper also works with Enter and Space.
+- `SidebarProvider` with `onOpenChange` but no `open` expands and collapses again. Controlled mode follows the `open` prop; `onOpenChange` is always called.
+- `Image` renders a new `src` after an earlier one failed to load.
+- `Switch` no longer points `aria-describedby` at a description it does not render (a description without a label).
+- `DataTable` supports uncontrolled row selection, filtering and column visibility (`row.getIsSelected()` threw without a `rowSelection` prop), re-paginates when `pageSize` changes, and labels its pagination buttons and rows-per-page select.
+- Space on the clear button of `SelectControl` and `FloatingLabelSelect` clears the value instead of opening the list.
+- `CopyTooltip` copies with Enter or Space, not only with a pointer press.
+- `Input` and `Textarea` forward `autoComplete` and set `aria-invalid` when `invalid` is true. `FileUpload` puts `aria-invalid` and its error description on the visible trigger instead of the hidden file input.
+- `TextLink` keeps an explicit `target`, as `ButtonLink` already did.
+- `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 
 ## 0.18.1 — 2026-06-20
 
