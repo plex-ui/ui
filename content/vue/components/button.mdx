@@ -3,7 +3,6 @@ title: Button
 description: Vue 3 button component with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout. Same props and markup as the React Button.
 ---
 
-import { Alert } from "@plexui/ui/components/Alert"
 import { FrameworkSwitch } from "@/components/docs/FrameworkSwitch"
 import { VuePreview } from "@/components/docs/VuePreview"
 import { VueButtonLoadingDemo, vueButtonLoadingTemplate } from "@/components/docs/VueButtonDemos"
@@ -71,15 +70,6 @@ export const opticalAlignment = `<div class="flex flex-col gap-3">
 </div>`
 
 <FrameworkSwitch framework="vue" slug="button" />
-
-{/* Temporary: remove when @plexui/vue leaves the proof-of-concept stage */}
-<Alert
-  color="info"
-  variant="soft"
-  title="Preview"
-  description={<><code>@plexui/vue</code> is a proof of concept with Button and Dialog, built on Reka UI and the same CSS as the React components. Automated tests check that both render the same markup. The icons below are a docs stand-in: the Vue package does not ship icons yet.</>}
-  className="not-prose mb-4"
-/>
 
 <UsageBlock>{`import { Button } from "@plexui/vue/components/Button";`}</UsageBlock>
 
