@@ -8,9 +8,9 @@ import { COMPONENTS_COUNT } from '@/lib/counts';
 import packageJson from '../packages/ui/package.json';
 import './globals.css';
 
-const homeTitle = 'Plex UI — React Design System for AI Code Editors';
+const homeTitle = 'Plex UI — React and Vue Design System for AI Agents';
 const homeDescription = `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale (3xs–3xl), three-layer design tokens, and 6,600+ icons. Free MIT library for React and Vue, built for Claude and Codex.`;
-const homeShortDescription = `${COMPONENTS_COUNT} React components with 9-size scale, three-layer design tokens, and 6,600+ icons. Free, open-source, and built for AI code editors.`;
+const homeShortDescription = `${COMPONENTS_COUNT} React and Vue components with a 9-size scale, three-layer design tokens, and 6,600+ icons. Free, open-source, and built for AI agents.`;
 
 export const metadata: Metadata = {
   // `default` is used on the home page; deeper pages set their own
