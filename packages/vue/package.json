@@ -8,7 +8,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "homepage": "https://plexui.com",
+  "homepage": "https://plexui.com/docs/vue",
   "repository": {
     "type": "git",
     "url": "https://github.com/plex-ui/ui.git",
@@ -70,9 +70,13 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
+    "tailwindcss": "^4.0.10",
     "vue": "^3.5.0"
   },
   "dependencies": {
+    "@maskito/core": "5.2.2",
+    "@maskito/kit": "5.2.2",
+    "@maskito/vue": "5.2.2",
     "@plexui/styles": "^0.1.0",
     "@tanstack/vue-table": "8.21.3",
     "@tiptap/core": "3.21.0",

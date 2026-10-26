@@ -36,6 +36,7 @@
     "lint:docs-code": "node scripts/check-doc-code-duplicates.mjs",
     "publish:styles": "npm run build:styles && npm publish --access public --workspace=packages/styles",
     "publish:ui": "npm run build:styles && npm run build:ui && node scripts/check-styles-published.mjs && npm publish --access public --workspace=packages/ui",
+    "publish:vue": "npm run build:styles && npm run build:vue && node scripts/check-styles-published.mjs vue && npm publish --access public --workspace=packages/vue",
     "publish:mcp": "npm run generate:manifest && npm run build:mcp && npm publish --access public --workspace=packages/mcp"
   },
   "dependencies": {
