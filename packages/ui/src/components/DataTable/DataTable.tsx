@@ -221,12 +221,16 @@ export const DataTable = <TData,>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const align = header.column.columnDef.meta?.align
-                  const sorted = header.column.getIsSorted()
+                  // aria-sort goes on one header at a time: the primary sort
+                  // column's real header, not its group placeholders
+                  const sorted =
+                    !header.isPlaceholder && header.column.getSortIndex() === 0
+                      ? header.column.getIsSorted()
+                      : false
                   return (
                     <TableHead
                       key={header.id}
                       style={align ? { textAlign: align } : undefined}
-                      // Expose the visual sort indicator; only the sorted column carries it
                       aria-sort={
                         sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                       }
