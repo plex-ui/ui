@@ -247,6 +247,14 @@
       ]
     },
     {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "description": "Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "skeleton",
       "type": "registry:ui",
       "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",

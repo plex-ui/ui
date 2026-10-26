@@ -131,7 +131,10 @@ const RadioGroupKey: InjectionKey<RadioGroupContextValue> = Symbol("PlexUIMenuRa
 
 const resolveElement = (el: unknown): HTMLElement | null => {
   const node = el && typeof el === "object" && "$el" in el ? (el as { $el: unknown }).$el : el
-  return node instanceof HTMLElement ? node : null
+  // A multi-root component's $el is the text node opening its fragment; the
+  // element follows it (as in Reka)
+  const element = node instanceof Text ? node.nextElementSibling : node
+  return element instanceof HTMLElement ? element : null
 }
 
 // ---------------------------------------------------------------------------

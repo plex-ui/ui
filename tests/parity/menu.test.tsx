@@ -1211,3 +1211,33 @@ describe("Menu behaviour parity", () => {
     expect(result.react[1]!.dom).toContain('role="menu"')
   })
 })
+
+describe("Menu trigger element resolution", () => {
+  // A multi-root child (e.g. a collapsed SidebarMenuButton with its tooltip)
+  // exposes the fragment's opening text node as $el; the trigger must use the
+  // element that follows it, as Reka does
+  const MultiRootButton = defineComponent({
+    inheritAttrs: false,
+    setup(_, { attrs }) {
+      return () => [h("button", { type: "button", ...attrs }, "Options"), h("span", { hidden: true }, "tip")]
+    },
+  })
+
+  test("focus returns to a multi-root trigger child after Escape", async () => {
+    animation.disabled = true
+    mountVue(() =>
+      h(Menu, null, () => [
+        h(MenuTrigger, null, () => h(MultiRootButton)),
+        h(MenuContent, null, () => h(MenuItem, { onSelect: () => {} }, () => "Edit")),
+      ]),
+    )
+    await flushVue()
+    const button = document.querySelector<HTMLButtonElement>("button")!
+    button.focus()
+    await interact(() => fireEvent.keyDown(button, { key: "Enter" }))
+    await interact(() => fireEvent.keyDown(document.activeElement!, { key: "Escape" }))
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    await flushVue()
+    expect(document.activeElement).toBe(button)
+  })
+})

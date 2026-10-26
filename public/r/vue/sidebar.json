@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "sidebar",
+  "type": "registry:ui",
+  "title": "Sidebar",
+  "description": "Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/sidebar/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Sidebar\"\n"
+    }
+  ],
+  "docs": "Import as `import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'`. See https://plexui.com/vue/components/sidebar for props and examples."
+}

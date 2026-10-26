@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 40
+Components: 41
 
 ## Setup
 
@@ -458,6 +458,32 @@ Props:
   - class (string) — Additional CSS classes
   - shimmer (boolean) default: false — Whether the shimmer animation is active
 Examples: Overview, Semantic elements, Controllable shimmer
+
+## Sidebar
+Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
+Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/vue/components/Sidebar"
+Docs: https://plexui.com/vue/components/sidebar
+  SidebarProvider:
+    - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
+    - default-open (boolean) default: true — Initial open state (uncontrolled)
+    - open (boolean) — Controlled open state. Bind with v-model:open
+    - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. As in React, a listener without open leaves the change to the parent
+    - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
+  Sidebar:
+    - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
+    - side ("left" | "right") default: "left" — Which side the sidebar is on
+  SidebarMenuButton:
+    - is-active (boolean) default: false — Highlight the current page
+    - tooltip (string) — Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content
+  SidebarGroupLabel:
+    - size ("sm" | "lg") default: "lg" — sm: compact, tertiary; lg: larger, primary, more spacing
+  SidebarMenuSub:
+    - open (boolean) default: true — Whether submenu is expanded
+    - has-icons (boolean) default: false — Align child items with parent text that has icons
+  SidebarCard:
+    - dismissible (boolean) — Shows dismiss button
+    - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
+Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Mobile Menu, Search Input
 
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
