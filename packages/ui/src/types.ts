@@ -1,6 +1,6 @@
 // reference is needed instead of import so consumer projects can compile properly
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="./global.d.ts" />
+/// <reference path="./global.d.ts" preserve="true" />
 
 export type Size =
   | "5xs"
