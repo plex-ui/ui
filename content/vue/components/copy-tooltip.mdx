@@ -1,0 +1,50 @@
+---
+title: Copy Tooltip
+description: A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
+metaDescription: Vue 3 copy-to-clipboard tooltip that wraps any trigger element and shows a confirmation tooltip when the copy action succeeds.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<CopyTooltip
+  copy-value="Very cool content to copy"
+  :open-delay="openDelay"
+  :side-offset="sideOffset"
+  :align-offset="alignOffset"
+  :side="side"
+  :align="align"
+>
+  <TooltipTriggerDecorator>sess_12345abcdefg</TooltipTriggerDecorator>
+</CopyTooltip>`
+
+<UsageBlock>{`import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo
+    template={overview}
+    stageClassName=""
+    controls={[
+      { name: "openDelay", type: "range", min: 0, max: 1500, step: 50, default: 150 },
+      { name: "sideOffset", type: "range", min: 0, max: 40, step: 1, default: 5 },
+      { name: "alignOffset", type: "range", min: 0, max: 40, step: 1, default: 0 },
+      { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "top" },
+      { name: "align", type: "select", options: ["start", "center", "end"], default: "center" },
+    ]}
+  />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "default slot", type: "VNode", description: "Trigger element (for example TooltipTriggerDecorator)" },
+  { prop: "copyValue", type: "string", default: '"Very cool content to copy"', description: "Content to copy to clipboard" },
+  { prop: "openDelay", type: "number", default: "150", description: "Tooltip open delay in milliseconds" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred tooltip alignment against the trigger" },
+  { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment in pixels" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger in pixels" },
+]} />

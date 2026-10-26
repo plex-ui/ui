@@ -1,0 +1,250 @@
+---
+title: Progress Steps
+description: Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+metaDescription: Vue 3 stepper component for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const steps = [
+  { title: "Your details", description: "Please provide your name and email" },
+  { title: "Company details", description: "A few details about your company" },
+  { title: "Invite your team", description: "Start collaborating with your team" },
+  { title: "Add your socials", description: "Share posts to your social accounts" },
+]
+
+export const overview = `<ProgressSteps
+  :current="Number(current)"
+  :orientation="orientation"
+  :size="size"
+  :color="color"
+  :connector-style="connectorStyle"
+  class="w-full"
+>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Your details</ProgressStepsTitle>
+    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Company details</ProgressStepsTitle>
+    <ProgressStepsDescription>A few details about your company</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
+    <ProgressStepsDescription>Start collaborating with your team</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Add your socials</ProgressStepsTitle>
+    <ProgressStepsDescription>Share posts to your social accounts</ProgressStepsDescription>
+  </ProgressStepsStep>
+</ProgressSteps>`
+
+export const sizes = `<ProgressSteps :current="Number(current)" :size="size" class="w-full">
+  <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+</ProgressSteps>`
+
+export const vertical = `<div class="flex flex-wrap justify-center gap-20">
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Default</div>
+    <ProgressSteps :current="2" orientation="vertical">
+      <ProgressStepsStep v-for="step in steps" :key="step.title">
+        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
+        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
+      </ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+  <div>
+    <div class="mb-4 text-tertiary text-sm">With dashed connector</div>
+    <ProgressSteps :current="3" orientation="vertical" connector-style="dashed">
+      <ProgressStepsStep v-for="step in steps" :key="step.title">
+        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
+        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
+      </ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+</div>`
+
+export const withIcons = `<ProgressSteps :current="3" class="w-full">
+  <ProgressStepsStep>
+    <template #icon><Email /></template>
+    <ProgressStepsTitle>Your details</ProgressStepsTitle>
+    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Globe /></template>
+    <ProgressStepsTitle>Company details</ProgressStepsTitle>
+    <ProgressStepsDescription>Website and location</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Users /></template>
+    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
+    <ProgressStepsDescription>Start collaborating</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Bolt /></template>
+    <ProgressStepsTitle>Get started</ProgressStepsTitle>
+    <ProgressStepsDescription>Ready to go</ProgressStepsDescription>
+  </ProgressStepsStep>
+</ProgressSteps>`
+
+export const withNavigation = `<div class="flex flex-col items-center gap-6">
+  <ProgressSteps variant="minimal" :current="step" :total="4" />
+  <div class="text-center">
+    <h3 class="text-lg font-semibold">Step {{ step }} of 4</h3>
+    <p class="text-secondary mt-1">{{ steps[Math.min(step - 1, 3)].title }}</p>
+  </div>
+  <div class="flex gap-3">
+    <Button color="secondary" variant="outline" class="w-28" :disabled="step === 1" @click="step = Math.max(1, step - 1)">
+      Previous
+    </Button>
+    <Button color="primary" class="w-28" :disabled="step === 4" @click="step = Math.min(4, step + 1)">
+      Next
+    </Button>
+  </div>
+</div>`
+
+export const minimal = `<ProgressSteps variant="minimal" :current="Number(current)" :total="4" :color="color" />`
+
+export const iconsOnly = `<ProgressSteps :current="2" class="w-full">
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+</ProgressSteps>`
+
+export const colors = `<div class="flex flex-col gap-12 w-full">
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Default</div>
+    <ProgressSteps :current="3" class="w-full">
+      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Success</div>
+    <ProgressSteps :current="3" color="success" class="w-full">
+      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+</div>`
+
+<UsageBlock>{`import {
+  ProgressSteps,
+  ProgressStepsStep,
+  ProgressStepsTitle,
+  ProgressStepsDescription,
+} from "@plexui/vue/components/ProgressSteps";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo
+    template={overview}
+    stageClassName="py-8 px-4 w-full"
+    controls={[
+      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "2" },
+      { name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
+      { name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" },
+      { name: "color", type: "select", options: ["default", "success"], default: "default" },
+      { name: "connectorStyle", type: "select", options: ["solid", "dashed"], default: "solid" },
+    ]}
+  />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview language="vue" details={<>Use <code>size</code> to control the scale of step indicators.</>} code={sizes} previewMinHeight={168}>
+  <VueDemo
+    template={sizes}
+    stageClassName="py-8 px-4 w-full"
+    controls={[
+      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "2" },
+      { name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" },
+    ]}
+  />
+</ComponentPreview>
+
+### Vertical
+
+<ComponentPreview language="vue" details={<>Use <code>orientation="vertical"</code> to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. <code>steps</code> is an array of <code>{"{ title, description }"}</code> objects.</>} code={vertical} previewMinHeight={168}>
+  <div className="w-full h-full flex items-center justify-center py-6 px-4">
+    <VueDemo template={vertical} state={{ steps }} />
+  </div>
+</ComponentPreview>
+
+### With Icons
+
+<ComponentPreview language="vue" details={<>Use the <code>icon</code> slot (or the <code>icon</code> prop) on <code>ProgressStepsStep</code> to display custom icons instead of step numbers.</>} code={withIcons} previewMinHeight={168}>
+  <div className="py-6 px-4 w-full">
+    <VueDemo template={withIcons} />
+  </div>
+</ComponentPreview>
+
+### With Navigation
+
+<ComponentPreview language="vue" details={<>Example of integrating with navigation controls.</>} code={withNavigation} previewMinHeight={168}>
+  <VueDemo template={withNavigation} state={{ step: 1, steps }} />
+</ComponentPreview>
+
+### Minimal
+
+<ComponentPreview language="vue" details={<>Use <code>variant="minimal"</code> for a compact horizontal bar indicator. Requires <code>total</code> prop.</>} code={minimal} previewMinHeight={168}>
+  <VueDemo
+    template={minimal}
+    stageClassName="py-10 px-4 flex justify-center"
+    controls={[
+      { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "3" },
+      { name: "color", type: "select", options: ["default", "success"], default: "default" },
+    ]}
+  />
+</ComponentPreview>
+
+### Icons Only
+
+<ComponentPreview language="vue" details={<>Omit <code>ProgressStepsTitle</code> and <code>ProgressStepsDescription</code> for a minimal indicator when step details are shown elsewhere.</>} code={iconsOnly} previewMinHeight={168}>
+  <div className="py-6 px-4 w-full">
+    <VueDemo template={iconsOnly} />
+  </div>
+</ComponentPreview>
+
+### Colors
+
+<ComponentPreview language="vue" details={<>Use <code>color</code> to change the color scheme of completed and active steps.</>} code={colors} previewMinHeight={168}>
+  <div className="py-6 px-4 w-full max-w-[900px]">
+    <VueDemo template={colors} />
+  </div>
+</ComponentPreview>
+
+## Reference
+
+**ProgressSteps** (root)
+
+<PropsTable data={[
+  { prop: "current", type: "number", description: "Current active step (1-based)" },
+  { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction" },
+  { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Step indicator size" },
+  { prop: "color", type: '"default" | "success"', default: '"default"', description: "Color scheme for completed/active steps" },
+  { prop: "connector-style", type: '"solid" | "dashed"', default: '"solid"', description: "Connector line style" },
+  { prop: "variant", type: '"minimal"', description: "Compact bar variant (requires total)" },
+  { prop: "total", type: "number", description: "Total steps for minimal variant" },
+]} />
+
+**ProgressStepsStep**
+
+<PropsTable data={[
+  { prop: "icon", type: "Component | VNode | string", description: "Custom icon instead of step number; the icon slot takes precedence" },
+]} />
+
+**ProgressStepsTitle**: wrapper for step title text. Applies appropriate styling based on step state.
+
+**ProgressStepsDescription**: wrapper for step description text. Applies appropriate styling based on step state.

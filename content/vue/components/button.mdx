@@ -65,7 +65,14 @@ export const inert = `<Button color="primary" :inert="inert">Submit</Button>`
 
 export const loading = `<Button loading size="xl" pill><ArrowUp /> Click to load</Button>`
 
-export const selected = `<Button color="primary" :selected="selected" :variant="variant">Click to open</Button>`
+export const selected = `<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :selected="selected" :variant="variant">Click to open</Button>
+  </PopoverTrigger>
+  <PopoverContent min-width="auto" class="p-4 text-sm">
+    Button should look selected
+  </PopoverContent>
+</Popover>`
 
 export const opticalAlignment = `<div class="flex flex-col gap-3">
   <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
@@ -167,7 +174,10 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 ### Selected
 
-<ComponentPreview language="vue" details={<>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</>} code={selected} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>selected</code> to show that a button is in an open or selected state. The exact visual behavior differs across each <code>variant</code>.</p>
+  <p>This behavior is automatically configured with components like <code>Menu</code> that apply <code>[aria-expanded="true"]</code> or <code>[data-state="open"]</code> attributes.</p>
+</>} code={selected} previewMinHeight={168}>
   <VueDemo
     template={selected}
     stageClassName="flex-1 flex items-center justify-center py-12 w-full"

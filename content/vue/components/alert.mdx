@@ -1,0 +1,184 @@
+---
+title: Alert
+description: Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
+metaDescription: Vue 3 alert component for inline messages and warnings with semantic colors, variants, title, description, action slots, and dismiss control.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+
+export const overview = `<Alert
+  title="Scheduled maintenance"
+  description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
+>
+  <template #actions>
+    <Button color="primary" variant="soft" pill>Dismiss</Button>
+  </template>
+</Alert>`
+
+export const colors = `<div class="w-fit min-w-full max-w-[500px]">
+  <div class="flex flex-col gap-6">
+    <div
+      v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
+      :key="color"
+      class="flex items-center"
+    >
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
+      <div class="flex-1">
+        <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
+          <template #description>
+            Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
+          </template>
+        </Alert>
+      </div>
+    </div>
+  </div>
+</div>`
+
+export const titleExample = `<Alert title="Your current access level limits what you can view or modify" />`
+
+export const descriptionExample = `<Alert>
+  <template #description>
+    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
+  </template>
+</Alert>`
+
+export const actions = `<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Password expires in 3 days"
+    description="Update it now to avoid losing access to your account."
+  >
+    <template #actions>
+      <Button color="primary" pill>Update password</Button>
+    </template>
+  </Alert>
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Your API key will be rotated soon"
+    description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
+    @dismiss="() => {}"
+  >
+    <template #actions>
+      <Button color="warning" variant="soft" pill>Remind me later</Button>
+    </template>
+  </Alert>
+</div>`
+
+export const actionPlacement = `<Alert
+  title="Our terms of service has been updated"
+  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
+  actions-placement="bottom"
+>
+  <template #actions>
+    <Button color="primary" variant="soft" pill>Set reminder</Button>
+    <Button color="primary" variant="solid" pill>Review terms</Button>
+  </template>
+</Alert>`
+
+export const indicator = `<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert>
+    <template #indicator>
+      <Lightbulb />
+    </template>
+    <template #description>
+      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
+    </template>
+  </Alert>
+  <Alert
+    :indicator="false"
+    description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
+  />
+</div>`
+
+export const dismissible = `<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert
+    class="items-start"
+    title="Try our new dashboard layout"
+    description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
+  >
+    <template #actions>
+      <Button color="primary" variant="soft" pill>Dismiss</Button>
+      <Button color="primary" variant="solid" pill>Try it</Button>
+    </template>
+  </Alert>
+  <Alert
+    title="Thank you!"
+    description="Your application has been received. We will review your application and respond within the next 48 hours."
+    @dismiss="() => {}"
+  />
+</div>`
+
+<UsageBlock>{`import { Alert } from "@plexui/vue/components/Alert";`}</UsageBlock>
+
+## Examples
+
+<div id="first-component-page">
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Colors & variants
+
+<ComponentPreview language="vue" details={<>You can stylize the display of the alert using the <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={PREVIEW_MIN_HEIGHT.showcaseTall}>
+  <VueDemo
+    template={colors}
+    stageClassName="flex-1 w-full py-12 flex items-center justify-center"
+    controls={[{ name: "variant", type: "select", options: ["solid", "soft", "outline"], default: "outline" }]}
+  />
+</ComponentPreview>
+
+### Title
+
+<ComponentPreview language="vue" details={<>You can optionally include a title for your alert with the <code>title</code> prop (or the <code>title</code> slot).</>} code={titleExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={titleExample} />
+</ComponentPreview>
+
+### Description
+
+<ComponentPreview language="vue" details={<>You can optionally include description text for your alert with the <code>description</code> prop, or the <code>description</code> slot for rich content.</>} code={descriptionExample} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={descriptionExample} />
+</ComponentPreview>
+
+### Actions
+
+<ComponentPreview language="vue" details={<>You can add actions to the alert with the <code>actions</code> slot. Combine with <code>@dismiss</code> to add a dismiss button.</>} code={actions} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={actions} />
+</ComponentPreview>
+
+### Action placement
+
+<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>.</>} code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={actionPlacement} />
+</ComponentPreview>
+
+### Indicator
+
+<ComponentPreview language="vue" details={<>Alert provides an indicator icon by default. You can override it with the <code>indicator</code> slot, or pass <code>:indicator="false"</code> to hide it entirely.</>} code={indicator} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={indicator} />
+</ComponentPreview>
+
+### Dismissible
+
+<ComponentPreview language="vue" details={<>The suggested approach for dismissible notices is to use labeled buttons in the <code>actions</code> slot. You can also listen to <code>@dismiss</code> to render a dismiss button in the alert chrome.</>} code={dismissible} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo template={dismissible} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "title", type: "string | slot", description: "Title displayed in the alert" },
+  { prop: "description", type: "string | slot", description: "Description text" },
+  { prop: "actions", type: "slot", description: "Actions (for example buttons)" },
+  { prop: "actions-placement", type: '"end" | "bottom"', description: "Placement of actions; automatic from sizing when unset" },
+  { prop: "actions-class-name", type: "string", description: "Class applied to the actions container" },
+  { prop: "color", type: "SemanticColors", default: '"primary"', description: "Color scheme" },
+  { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },
+  { prop: "indicator", type: "slot | false", description: "Custom indicator (slot), or :indicator=\"false\" to hide it" },
+  { prop: "@dismiss", type: "() => void", description: "Shows the dismiss button when set" },
+]} />
+</div>

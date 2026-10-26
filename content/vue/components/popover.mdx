@@ -1,0 +1,169 @@
+---
+title: Popover
+description: A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
+metaDescription: Vue 3 popover component for contextual floating UI, with flexible sizing, hover triggers, a controllable open state, and nested popover support.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePopoverDemo } from "@/components/docs/vue/VuePopoverDemos"
+
+export const overview = `<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :pill="false">Generate</Button>
+  </PopoverTrigger>
+  <PopoverContent side="right">
+    <div class="p-4">
+      <p class="text-sm text-secondary">Popover content. Use with any floating UI.</p>
+    </div>
+  </PopoverContent>
+</Popover>`
+
+export const sizing = `<Popover>
+  <PopoverTrigger>
+    <Button color="primary" size="sm" variant="ghost" :pill="false" gutter-size="xs" class="gap-1.5">
+      <Bolt /> Actions
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent class="flex p-1.5" min-width="auto" side="top">
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Functions :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Search :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Globe :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Code :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <ImageSquare :height="18" :width="18" />
+    </Button>
+  </PopoverContent>
+</Popover>`
+
+export const hover = `<div class="flex flex-col gap-4">
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Static content</Button>
+    </PopoverTrigger>
+    <PopoverContent :width="320" side="right">
+      <div class="p-3">
+        <h3 class="mb-0.5 font-semibold">Popover Title</h3>
+        <p class="text-sm text-secondary">
+          This is an example of a hoverable popover containing presentational content.
+        </p>
+        <footer class="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
+      </div>
+    </PopoverContent>
+  </Popover>
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Interactive content</Button>
+    </PopoverTrigger>
+    <PopoverContent :min-width="230" side="right" v-slot="{ close }">
+      <div class="p-3">
+        <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
+        <p class="text-sm text-secondary">Try using tab to navigate</p>
+        <div class="mt-3 flex gap-2">
+          <Button color="secondary" variant="soft" :pill="false" @click="close">
+            Cancel
+          </Button>
+          <Button color="primary" :pill="false" @click="close">
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </PopoverContent>
+  </Popover>
+</div>`
+
+export const controller = `<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :pill="false">Generate</Button>
+  </PopoverTrigger>
+  <PopoverContent side="right" v-slot="{ close, shake }">
+    <form
+      @submit.prevent="
+        if (!prompt) return shake();
+        submitting = true;
+        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+      "
+    >
+      <textarea
+        v-model="prompt"
+        placeholder="Describe what you're using the model for, and we'll generate system instructions."
+        style="width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0"
+      />
+      <div class="px-3 pb-3 flex items-center justify-between">
+        <div class="flex gap-1.5 items-center font-normal text-sm text-tertiary">
+          <Sparkles :width="16" :height="16" />
+          Free beta
+        </div>
+        <Button color="primary" size="xs" :pill="false" :loading="submitting" type="submit">
+          Create
+        </Button>
+      </div>
+    </form>
+  </PopoverContent>
+</Popover>`
+
+<UsageBlock>{`import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Sizing the popover
+
+<ComponentPreview language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of the popper's viewport detection.</>} code={sizing} previewMinHeight={168}>
+  <VueDemo template={sizing} />
+</ComponentPreview>
+
+### Open on hover
+
+<ComponentPreview language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={hover} previewMinHeight={168}>
+  <VueDemo template={hover} />
+</ComponentPreview>
+
+### Using the controller
+
+<ComponentPreview language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After async submission occurs (<code>submitPrompt()</code> fakes a two-second request), the <code>close()</code> method is called to close the popup imperatively.</li></ul></>} code={controller} previewMinHeight={168}>
+  <VuePopoverDemo template={controller} state={{ prompt: "", submitting: false }} />
+</ComponentPreview>
+
+### Nesting
+
+All floating UI components in Plex UI can be infinitely nested by relying on `z-index: auto;` and natural stacking order.
+
+Additionally, `esc` keypresses are handled independently as a stacking order.
+
+## Reference
+
+**Popover** (root)
+
+<PropsTable data={[
+  { prop: "showOnHover", type: "boolean", description: "Open on hover and focus instead of click" },
+  { prop: "open / v-model:open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
+]} />
+
+**PopoverTrigger**: Renders the element that toggles the popover. The trigger should be the user's point of interaction for revealing the popup. No specific props.
+
+**PopoverContent**
+
+<PropsTable data={[
+  { prop: "width", type: "number | string", description: "Panel width (px or CSS value)" },
+  { prop: "minWidth", type: "number | string", default: "300", description: "Minimum panel width in px" },
+  { prop: "maxWidth", type: "number | string", description: "Maximum panel width" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
+  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
+  { prop: "sideOffset", type: "number", description: "Offset from trigger (px)" },
+  { prop: "alignOffset", type: "number", description: "Alignment offset (px)" },
+]} />
+
+**usePopoverController()**: Composable available in components inside `PopoverContent`. Returns `{ close: () => void, shake: () => void }`, the same functions the content's default slot receives.

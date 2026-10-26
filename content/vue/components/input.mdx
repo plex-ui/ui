@@ -1,0 +1,448 @@
+---
+title: Input
+description: Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+metaDescription: Vue 3 text input component with start and end adornment slots, clear button, password visibility toggle, and masked SSN and birthday presets.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueInputDemo } from "@/components/docs/vue/VueInputDemos"
+
+export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+
+export const variantControl = { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }
+
+export const maskControls = [
+  variantControl,
+  { name: "size", type: "select", options: sizeOptions, default: "md" },
+  { name: "pill", type: "boolean", default: false },
+]
+
+export const overview = `<div class="w-[320px]">
+  <Input placeholder="Enter text..." />
+</div>`
+
+export const variants = `<div class="flex flex-col gap-2 w-[320px]">
+  <Input placeholder="Enter text..." variant="outline" />
+  <Input placeholder="Enter text..." variant="soft" />
+</div>`
+
+export const sizing = `<div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
+  <Input
+    placeholder="Enter text..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  />
+  <Input
+    placeholder="Search..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #startAdornment>
+      <Search class="fill-tertiary" />
+    </template>
+  </Input>
+  <Input
+    v-model:value="username"
+    placeholder="Username"
+    maxlength="16"
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
+</div>`
+
+export const startAdornment = `<div class="w-[320px]">
+  <Input placeholder="Start adornment">
+    <template #startAdornment>
+      <Search class="fill-tertiary" />
+    </template>
+  </Input>
+</div>`
+
+export const clearButton = `<div class="w-[320px]">
+  <Input
+    v-model:value="value"
+    placeholder="Enter text..."
+    :pill="pill"
+    :size="size"
+    @clear="value = ''"
+  />
+</div>`
+
+export const endAdornment = `<div class="w-[320px]">
+  <Input v-model:value="username" placeholder="Username" maxlength="16">
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
+</div>`
+
+export const password = `<div class="w-[320px]">
+  <Input
+    placeholder="Password"
+    :type="visible ? 'text' : 'password'"
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+  >
+    <template #endAdornment>
+      <InputAdornmentButton
+        :aria-label="visible ? 'Hide' : 'Show'"
+        :aria-pressed="visible"
+        @click="visible = !visible"
+      >
+        <EyeOff v-if="visible" />
+        <Eye v-else />
+      </InputAdornmentButton>
+    </template>
+  </Input>
+</div>`
+
+export const ssn = `<div class="w-[320px]">
+  <div style="position: relative">
+    <Input
+      :value="formatSSN(digits)"
+      :placeholder="focused && ssnMask(digits).suffix ? undefined : 'Social Security Number'"
+      :size="size"
+      :variant="variant"
+      :pill="pill"
+      maxlength="11"
+      inputmode="numeric"
+      :style="{
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        ...(!visible && digits
+          ? { color: 'transparent', caretColor: 'transparent' }
+          : focused && ssnMask(digits).suffix
+            ? { caretColor: 'transparent' }
+            : {}),
+      }"
+      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+    >
+      <template #endAdornment>
+        <InputAdornmentButton
+          :aria-label="visible ? 'Hide' : 'Show'"
+          :aria-pressed="visible"
+          @click="visible = !visible"
+        >
+          <EyeOff v-if="visible" />
+          <Eye v-else />
+        </InputAdornmentButton>
+      </template>
+    </Input>
+    <div
+      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
+      aria-hidden="true"
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 ' + metrics.padding,
+        pointerEvents: 'none',
+        fontSize: metrics.fontSize,
+        lineHeight: metrics.lineHeight,
+        zIndex: 2,
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        overflow: 'hidden',
+      }"
+    >
+      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
+      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
+      <template v-if="focused && ssnMask(digits).suffix">
+        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
+        <span
+          v-if="ssnMask(digits).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ ssnMask(digits).highlight }}</span>
+        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+      </template>
+    </div>
+  </div>
+</div>`
+
+export const birthday = `<div class="w-[320px]">
+  <div style="position: relative">
+    <Input
+      :value="birthday"
+      :placeholder="focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'"
+      :size="size"
+      :variant="variant"
+      :pill="pill"
+      maxlength="14"
+      inputmode="numeric"
+      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+    />
+    <div
+      v-if="focused && birthdayMask(birthday).suffix"
+      aria-hidden="true"
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 ' + metrics.padding,
+        pointerEvents: 'none',
+        fontSize: metrics.fontSize,
+        lineHeight: metrics.lineHeight,
+        zIndex: 2,
+        overflow: 'hidden',
+      }"
+    >
+      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+      <span
+        v-if="birthdayMask(birthday).highlight"
+        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+      >{{ birthdayMask(birthday).highlight }}</span>
+      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+    </div>
+  </div>
+</div>`
+
+export const birthdayValidation = `<div class="w-[320px]">
+  <div class="flex flex-col gap-1.5">
+    <div style="position: relative">
+      <Input
+        :value="birthday"
+        :placeholder="focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'"
+        :size="size"
+        :variant="variant"
+        :pill="pill"
+        maxlength="14"
+        inputmode="numeric"
+        :invalid="!!birthday && !isValidBirthday(birthday)"
+        :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+        @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+        @focus="focused = true"
+        @blur="focused = false"
+        @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+        @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      />
+      <div
+        v-if="focused && birthdayMask(birthday).suffix"
+        aria-hidden="true"
+        :style="{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 ' + metrics.padding,
+          pointerEvents: 'none',
+          fontSize: metrics.fontSize,
+          lineHeight: metrics.lineHeight,
+          zIndex: 2,
+          overflow: 'hidden',
+        }"
+      >
+        <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+        <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+        <span
+          v-if="birthdayMask(birthday).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ birthdayMask(birthday).highlight }}</span>
+        <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+      </div>
+    </div>
+    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="input-birthday-validation-demo-error">
+      Please enter a valid date.
+    </FieldError>
+  </div>
+</div>`
+
+export const disabled = `<div class="w-[320px]">
+  <Input placeholder="Jane Doe" :disabled="disabled" default-value="Jane Doe" />
+</div>`
+
+export const invalid = `<div class="w-[320px]">
+  <Input placeholder="Invalid input" :invalid="invalid" />
+</div>`
+
+export const autoSelect = `<div class="w-[320px]">
+  <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
+</div>`
+
+export const autofill = `<div class="w-[320px]">
+  <Input
+    :key="String(allowAutofillExtensions)"
+    name="email"
+    :allow-autofill-extensions="allowAutofillExtensions"
+    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+  />
+</div>`
+
+export const withButton = `<div class="flex w-[320px] gap-2">
+  <Input placeholder="jane.doe@gmail.com" :size="size" :variant="variant" />
+  <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
+</div>`
+
+<UsageBlock>{`import { Input, InputAdornmentButton } from "@plexui/vue/components/Input";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>Use <code>variant</code> to stylize the input.</>} code={variants} previewMinHeight={168}>
+  <VueDemo template={variants} />
+</ComponentPreview>
+
+### Sizing & roundness
+
+<ComponentPreview language="vue" details={<>Sizing of the input is controlled with the <code>size</code> and <code>gutter-size</code> props. <code>size</code> sets the input to a specific control <code>height</code>, and <code>gutter-size</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutter-size</code>, as well as <code>font-size</code>. Each of these values can be overridden independently.</>} code={sizing} previewMinHeight={168}>
+  <VueDemo
+    template={sizing}
+    stageClassName="py-10"
+    state={{ username: "" }}
+    controls={[
+      { name: "size", type: "select", options: sizeOptions, default: "md" },
+      { name: "gutterSize", type: "select", options: ["auto", "2xs", "xs", "sm", "md", "lg", "xl"], default: "auto" },
+      { name: "pill", type: "boolean", default: false },
+    ]}
+  />
+</ComponentPreview>
+
+### Start adornment
+
+<ComponentPreview language="vue" details={<>You can add arbitrary content to the beginning of an input with the <code>startAdornment</code> slot, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: <code>gutter-size</code> determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by <code>gutter-size</code>, use negative left margin on your adornment directly, e.g. <code>-ml-2</code>). The spacing between the adornment and the input is controlled with <code>gap</code> on the container, which you can customize as needed with Tailwind classes.</>} code={startAdornment} previewMinHeight={168}>
+  <VueDemo template={startAdornment} />
+</ComponentPreview>
+
+### Clear button
+
+<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
+  <VueDemo
+    template={clearButton}
+    stageClassName="py-10"
+    state={{ value: "Clearable value" }}
+    controls={[
+      { name: "pill", type: "boolean", default: true },
+      { name: "size", type: "select", options: sizeOptions, default: "md" },
+    ]}
+  />
+</ComponentPreview>
+
+### End adornment
+
+<ComponentPreview language="vue" details={<>You can add arbitrary content to the end of an input with the <code>endAdornment</code> slot, like a character counter or custom icon. The same spacing guidance from <code>startAdornment</code> applies here.</>} code={endAdornment} previewMinHeight={168}>
+  <VueDemo template={endAdornment} state={{ username: "" }} />
+</ComponentPreview>
+
+### Password with visibility toggle
+
+<ComponentPreview language="vue" details={<>Put an <code>InputAdornmentButton</code> in the <code>endAdornment</code> slot to switch between <code>type="password"</code> and <code>type="text"</code>. Works across all sizes, variants, and with <code>pill</code>.</>} code={password} previewMinHeight={168}>
+  <VueDemo template={password} stageClassName="py-10" state={{ visible: false }} controls={maskControls} />
+</ComponentPreview>
+
+### SSN input
+
+<ComponentPreview language="vue" details={<>A masked SSN field that formats input as <code>XXX-XX-XXXX</code>, hides digits behind bullets when masked, and reveals the value via an <code>InputAdornmentButton</code> in the <code>endAdornment</code> slot. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically. <code>formatSSN</code>, <code>nextSSNDigits</code>, <code>ssnMask</code> and <code>measureInput</code> are plain helper functions of the example.</>} code={ssn} previewMinHeight={168}>
+  <VueInputDemo template={ssn} stageClassName="py-10" state={{ digits: "", visible: false }} controls={maskControls} />
+</ComponentPreview>
+
+### Birthday input
+
+<ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. <code>nextBirthday</code>, <code>birthdayMask</code> and <code>measureInput</code> are plain helper functions of the example.</>} code={birthday} previewMinHeight={168}>
+  <VueInputDemo template={birthday} stageClassName="py-10" state={{ birthday: "" }} controls={maskControls} />
+</ComponentPreview>
+
+### Birthday with validation
+
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> and <code>FieldError</code> to display a validation state when the entered date is not valid.</>} code={birthdayValidation} previewMinHeight={200}>
+  <VueInputDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} controls={maskControls} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} stageClassName="py-10" controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Invalid
+
+<ComponentPreview language="vue" details={<>Use the <code>invalid</code> prop to mark the input as invalid. You decide how this state is removed, whether that's through <code>@focus</code>, <code>@update:value</code>, a submit handler, etc. Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={invalid} previewMinHeight={168}>
+  <VueDemo template={invalid} stageClassName="py-10" controls={[{ name: "invalid", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+Plex UI also provides a `FieldError` component (`@plexui/vue/components/FieldError`) that pairs well with invalid inputs. It renders an error icon with a message styled for form validation.
+
+### Auto select text
+
+<ComponentPreview language="vue" details={<>Pass <code>auto-select</code> to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={autoSelect} previewMinHeight={168}>
+  <VueDemo template={autoSelect} stageClassName="py-10" controls={[{ name: "autoSelect", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Autofill extensions
+
+<ComponentPreview language="vue" details={<>By default, autofill extensions are prevented by <code>Input</code>. For the occasions where you want browser extensions to be present, pass <code>allow-autofill-extensions</code> to remove the disabling. When <code>name</code> is passed, or <code>type</code> is set to <code>"password"</code>, this value will default to <code>true</code>.</>} code={autofill} previewMinHeight={168}>
+  <VueDemo template={autofill} stageClassName="py-10" controls={[{ name: "allowAutofillExtensions", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### With button
+
+<ComponentPreview language="vue" details={<>You can pair <code>Input</code> and <code>Button</code> components together by using the same <code>size</code> value.</>} code={withButton} previewMinHeight={168}>
+  <VueDemo
+    template={withButton}
+    stageClassName="py-10"
+    controls={[variantControl, { name: "size", type: "select", options: sizeOptions, default: "lg" }]}
+  />
+</ComponentPreview>
+
+Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl: set the same `size` on adjacent controls and they'll align perfectly.
+
+## Reference
+
+<PropsTable data={[
+  { prop: "value / v-model:value", type: "string | number", description: "Controlled value; `update:value` fires on every input" },
+  { prop: "default-value", type: "string | number", description: "Initial value when uncontrolled" },
+  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the input" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the size of the input" },
+  { prop: "gutter-size", type: "string", description: "Controls gutter on the edges; defaults to value from size" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the input visually and from interactions" },
+  { prop: "read-only", type: "boolean", default: "false", description: "Makes the input read-only and hides the clear button" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Mark the input as invalid" },
+  { prop: "allow-autofill-extensions", type: "boolean", default: "false (true with name or type=\"password\")", description: "Allow autofill extensions to appear in the input" },
+  { prop: "auto-select", type: "boolean", default: "false", description: "Select all contents of the input when mounted" },
+  { prop: "startAdornment / endAdornment", type: "slots", description: "Content rendered at the start or end of the input" },
+  { prop: "@clear", type: "() => void", description: "When set, displays a clear button that appears when the input has a value" },
+  { prop: "@autofill", type: "() => void", description: "Fires when the browser autofills the input" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded pill shape" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Applies a negative margin using the current gutter to optically align with surrounding content" },
+]} />
+
+`class` applies to the container. Every other attribute and native listener (`placeholder`, `style`, `maxlength`, `@input`, `@keydown`, ...) goes to the `<input>`. The component exposes `focus()` and the `input` element.
+
+**InputAdornmentButton**
+
+<PropsTable data={[
+  { prop: "color", type: "SemanticColor", description: "Tint of the pressed (aria-pressed=\"true\") state; the neutral primary-soft tint when unset" },
+  { prop: "type", type: "string", default: '"button"', description: "Button type" },
+]} />

@@ -1,0 +1,75 @@
+---
+title: Tooltip
+description: Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
+metaDescription: Vue 3 tooltip component for brief informative hover text, with any trigger element, conditional enabling, and a compact variant.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const base = `<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
+  <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
+</Tooltip>`
+
+export const triggers = `<div class="flex items-center gap-4">
+  <Tooltip content="Tooltip on button">
+    <Button color="primary" size="lg">Sample button</Button>
+  </Tooltip>
+  <Tooltip content="Tooltip on span">
+    <span>Inaccessible trigger</span>
+  </Tooltip>
+</div>`
+
+export const conditional = `<Tooltip :content="disabled ? 'This action is disabled for reasons' : null">
+  <Button color="primary" size="lg" :disabled="disabled">
+    Sample button
+  </Button>
+</Tooltip>`
+
+export const compact = `<Tooltip content="Copy to clipboard" compact>
+  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+</Tooltip>`
+
+<UsageBlock>{`import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip";`}</UsageBlock>
+
+## Examples
+
+### Base
+
+<ComponentPreview language="vue" code={base} previewMinHeight={168}>
+  <VueDemo template={base} />
+</ComponentPreview>
+
+### Different triggers
+
+<ComponentPreview language="vue" details={<><code>Tooltip</code> provides an optional component, <code>TooltipTriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={triggers} previewMinHeight={168}>
+  <VueDemo template={triggers} />
+</ComponentPreview>
+
+### Conditionally enabled
+
+<ComponentPreview language="vue" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={conditional} previewMinHeight={168}>
+  <VueDemo template={conditional} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Compact tooltips
+
+<ComponentPreview language="vue" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>compact</code> for brief status messages.</>} code={compact} previewMinHeight={168}>
+  <VueDemo template={compact} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "content", type: "string | VNode | null", description: "Tooltip content, or the #content slot (null = no tooltip)" },
+  { prop: "compact", type: "boolean", default: "false", description: "Short 1–3 word tooltips, inverse styling" },
+  { prop: "interactive", type: "boolean", default: "false", description: "Content is interactive, stays open when hovered" },
+  { prop: "maxWidth", type: "number | \"none\"", default: "300", description: "Max width of tooltip" },
+  { prop: "openDelay", type: "number", default: "150", description: "Delay before showing (ms)" },
+  { prop: "side", type: "string", default: '"top"', description: "Preferred side" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger" },
+  { prop: "align", type: "string", default: '"center"', description: "Alignment" },
+  { prop: "alignOffset", type: "number", default: "0", description: "Alignment offset" },
+  { prop: "gutterSize", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding" },
+  { prop: "contentClassName", type: "string", description: "Class for tooltip content" },
+  { prop: "forceOpen", type: "boolean", description: "Force open or closed" },
+]} />

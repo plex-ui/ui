@@ -1,0 +1,208 @@
+---
+title: Button Group
+description: Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
+metaDescription: Vue 3 button group component that joins buttons, inputs and other controls into one unit for toolbars, steppers, split buttons and search affordances.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const sizeControl = [{ name: "size", type: "select", options: ["sm", "md", "lg"], default: "sm" }]
+
+export const overview = `<ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Go back">
+      <ArrowLeftSm />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size">Pin</Button>
+    <Button variant="outline" color="secondary" :size="size">Tag</Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size">Bookmark</Button>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="More options">
+      <DotsHorizontal />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>`
+
+export const orientation = `<ButtonGroup orientation="vertical" aria-label="Zoom controls">
+  <Button variant="outline" color="secondary" :size="size" uniform aria-label="Zoom in">
+    <PlusSm />
+  </Button>
+  <Button variant="outline" color="secondary" :size="size" uniform aria-label="Zoom out">
+    <Minus />
+  </Button>
+</ButtonGroup>`
+
+export const sizes = `<div class="flex flex-col items-start gap-6">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="sm">Small</Button>
+    <Button variant="outline" color="secondary" size="sm">Button</Button>
+    <Button variant="outline" color="secondary" size="sm">Group</Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary">Default</Button>
+    <Button variant="outline" color="secondary">Button</Button>
+    <Button variant="outline" color="secondary">Group</Button>
+    <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="lg">Large</Button>
+    <Button variant="outline" color="secondary" size="lg">Button</Button>
+    <Button variant="outline" color="secondary" size="lg">Group</Button>
+    <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+</div>`
+
+export const nested = `<ButtonGroup aria-label="Pager">
+  <ButtonGroup>
+    <Button v-for="page in 5" :key="page" variant="outline" color="secondary" :size="size">{{ page }}</Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Previous page">
+      <ArrowLeftSm />
+    </Button>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Next page">
+      <ArrowRightSm />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>`
+
+export const separator = `<ButtonGroup>
+  <Button variant="soft" color="secondary" :size="size"><Undo /> Undo</Button>
+  <ButtonGroupSeparator />
+  <Button variant="soft" color="secondary" :size="size">Redo <Redo /></Button>
+</ButtonGroup>`
+
+export const split = `<ButtonGroup>
+  <Button variant="soft" color="secondary" :size="size"><Filter /> Filter</Button>
+  <ButtonGroupSeparator />
+  <Button variant="soft" color="secondary" :size="size" uniform aria-label="Add filter">
+    <Plus />
+  </Button>
+</ButtonGroup>`
+
+export const input = `<ButtonGroup>
+  <Input placeholder="Search docs..." :size="size" />
+  <Button variant="outline" color="secondary" :size="size" aria-label="Search">
+    <SearchSm />
+  </Button>
+</ButtonGroup>`
+
+export const inputGroup = `<ButtonGroup style="width: 100%; max-width: 280px">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
+      <Plus />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Input
+      pill
+      :size="size"
+      :placeholder="voiceEnabled ? 'Recording your idea…' : 'Describe a component…'"
+      :disabled="voiceEnabled"
+    >
+      <template #endAdornment>
+        <InputAdornmentButton
+          :color="voiceEnabled ? 'caution' : undefined"
+          aria-label="Toggle voice mode"
+          :aria-pressed="voiceEnabled"
+          @click="voiceEnabled = !voiceEnabled"
+        >
+          <Mic />
+        </InputAdornmentButton>
+      </template>
+    </Input>
+  </ButtonGroup>
+</ButtonGroup>`
+
+<UsageBlock>{`import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup";`}</UsageBlock>
+
+Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview}>
+  <VueDemo template={overview} controls={sizeControl} />
+</ComponentPreview>
+
+### Orientation
+
+<ComponentPreview language="vue" details={<>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={orientation}>
+  <VueDemo template={orientation} controls={sizeControl} />
+</ComponentPreview>
+
+### Size
+
+<ComponentPreview language="vue" details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</>} code={sizes}>
+  <VueDemo template={sizes} />
+</ComponentPreview>
+
+### Nested
+
+<ComponentPreview language="vue" details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={nested}>
+  <VueDemo template={nested} controls={sizeControl} />
+</ComponentPreview>
+
+### Separator
+
+<ComponentPreview language="vue" details={<>Drop a <code>ButtonGroupSeparator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar.</>} code={separator}>
+  <VueDemo template={separator} controls={sizeControl} />
+</ComponentPreview>
+
+### Split
+
+<ComponentPreview language="vue" details={<>The classic split button: an action joined to a secondary affordance via <code>ButtonGroupSeparator</code>. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.</>} code={split}>
+  <VueDemo template={split} controls={sizeControl} />
+</ComponentPreview>
+
+### Input
+
+<ComponentPreview language="vue" details={<>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</>} code={input}>
+  <VueDemo template={input} controls={sizeControl} />
+</ComponentPreview>
+
+### Input group
+
+<ComponentPreview language="vue" details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={inputGroup}>
+  <VueDemo template={inputGroup} controls={sizeControl} state={{ voiceEnabled: false }} />
+</ComponentPreview>
+
+## API
+
+### ButtonGroup
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Direction of the joined items |
+| `class` | `string` | | Applied to the root `<div>` |
+
+Renders a `<div role="group">`. All other attributes and listeners fall through to it.
+
+### ButtonGroupSeparator
+
+Inherits from [`Separator`](/vue/components/separator). `orientation` defaults to `"vertical"` (the axis that looks right between horizontal items); pass an explicit value inside a `ButtonGroup orientation="vertical"`.
+
+### ButtonGroupText
+
+Renders a muted label pill that slots into the group alongside buttons. Use it for prefixes ("@", "https://"), currency hints, or any non-interactive label that should share the joined shape.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `as-child` | `boolean` | `false` | Render the slotted child (e.g. a `<label>` tied to an input) instead of a `<div>` |
+| `class` | `string` | | Applied to the wrapper |
+
+## Styling
+
+Nesting `ButtonGroup` inside a parent `ButtonGroup` automatically introduces a gap between the sub-groups. The group-specific tokens:
+
+- `--button-group-nested-gap`: space between sibling sub-groups (defaults to `spacing(2)` = 8px)
+- `--button-group-separator-color`: color of the `ButtonGroupSeparator` line
+- `--button-group-text-background` / `--button-group-text-color` / `--button-group-text-border-color`: surface, text, and 1px inset border of `ButtonGroupText`
+- `--button-group-text-font-size` / `--button-group-text-font-weight`: typography of `ButtonGroupText`
+
+Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.); the group only strips the shared edge radii so joined items align.

@@ -1,0 +1,140 @@
+---
+title: Empty Message
+description: Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+metaDescription: Vue 3 empty state component for telling users when there's nothing to show, with error, warning, no-results, and onboarding compositions.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const composition = `<div
+  class="flex w-full items-center justify-center"
+  :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
+>
+  <EmptyMessage :fill="fill">
+    <EmptyMessageIcon v-if="icon === 'on'" :color="color" :size="size">
+      <Explore />
+    </EmptyMessageIcon>
+    <EmptyMessageTitle v-if="content !== 'description'" :color="color">No projects yet</EmptyMessageTitle>
+    <EmptyMessageDescription v-if="content !== 'title'">
+      Create your first project to get started
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="primary" :size="size === 'sm' ? 'md' : 'lg'">
+        <Plus class="mr-[-2px]" />
+        New project
+      </Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</div>`
+
+export const error = `<EmptyMessage>
+  <EmptyMessageIcon color="danger">
+    <Mic />
+  </EmptyMessageIcon>
+  <EmptyMessageTitle color="danger">
+    Enable microphone access in your browser's settings.
+  </EmptyMessageTitle>
+</EmptyMessage>`
+
+export const warning = `<EmptyMessage>
+  <EmptyMessageIcon color="warning">
+    <Sparkle />
+  </EmptyMessageIcon>
+  <EmptyMessageTitle>o1-preview is in beta</EmptyMessageTitle>
+  <EmptyMessageDescription>
+    System instructions and model configuration are not available yet. Responses may take
+    longer.
+  </EmptyMessageDescription>
+  <EmptyMessageActionRow class="text-sm">
+    <TextLink href="/">
+      Learn more
+      <ArrowUpRight />
+    </TextLink>
+  </EmptyMessageActionRow>
+</EmptyMessage>`
+
+export const noResults = `<div class="w-full">
+  <EmptyMessage fill="none">
+    <EmptyMessageIcon size="sm">
+      <Search />
+    </EmptyMessageIcon>
+    <EmptyMessageDescription>
+      No icons found matching <span class="font-semibold">"pizza"</span>
+    </EmptyMessageDescription>
+  </EmptyMessage>
+</div>`
+
+<UsageBlock>{`import {
+  EmptyMessage,
+  EmptyMessageActionRow,
+  EmptyMessageDescription,
+  EmptyMessageIcon,
+  EmptyMessageTitle,
+} from "@plexui/vue/components/EmptyMessage";`}</UsageBlock>
+
+## Examples
+
+### Composition
+
+<ComponentPreview language="vue" code={composition} previewMinHeight={168}>
+  <VueDemo
+    template={composition}
+    stageClassName="flex-1 w-full py-12 flex items-center justify-center"
+    controls={[
+      { name: "fill", type: "select", options: ["static", "absolute", "none"], default: "static" },
+      { name: "color", type: "select", options: ["secondary", "danger", "warning"], default: "secondary" },
+      { name: "size", type: "select", options: ["sm", "md"], default: "md" },
+      { name: "icon", type: "select", options: ["on", "off"], default: "on" },
+      { name: "content", type: "select", options: ["title + description", "title", "description"], default: "title + description" },
+    ]}
+  />
+</ComponentPreview>
+
+### Error message
+
+<ComponentPreview language="vue" details={<>The <code>color</code> property enables you to display clearer intent with the message, such as showing an error state.</>} code={error} previewMinHeight={168}>
+  <VueDemo template={error} />
+</ComponentPreview>
+
+### Warning message
+
+<ComponentPreview language="vue" code={warning} previewMinHeight={168}>
+  <VueDemo template={warning} />
+</ComponentPreview>
+
+### No results
+
+<ComponentPreview language="vue" details={<>The parts of <code>EmptyMessage</code> are both composable and optional. This example omits <code>EmptyMessageTitle</code>, using only an icon and description for a simpler message style.</>} code={noResults} previewMinHeight={168}>
+  <VueDemo template={noResults} />
+</ComponentPreview>
+
+## Reference
+
+**EmptyMessage** (root)
+
+<PropsTable data={[
+  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills available space; use \"none\" for transparent (e.g. in search results)" },
+]} />
+
+**EmptyMessageIcon**
+
+<PropsTable data={[
+  { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Icon badge size" },
+]} />
+
+**EmptyMessageTitle**
+
+<PropsTable data={[
+  { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
+]} />
+
+**EmptyMessageDescription**: description text; no specific props.
+
+**EmptyMessageActionRow**
+
+<PropsTable data={[
+  { prop: "class", type: "string", description: "Additional classes for the action row container" },
+]} />
+
+Every part accepts `class`. Like the React parts, they apply no other attributes.

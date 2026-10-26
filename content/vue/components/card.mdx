@@ -1,0 +1,165 @@
+---
+title: Card
+description: Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+metaDescription: Vue 3 card surface component for composing login flows, sign-up forms, pricing tiles, empty states, and stat showcases.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Project activity</CardTitle>
+    <CardDescription>
+      Your team opened 12 issues and closed 8 pull requests over the last 7 days.
+    </CardDescription>
+  </CardHeader>
+  <CardFooter>
+    <Button color="primary" variant="solid" size="sm">View report</Button>
+    <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
+  </CardFooter>
+</Card>`
+
+export const noTeamMembers = `<Card style="max-width: 380px; padding: 24px">
+  <EmptyMessage>
+    <EmptyMessageIcon>
+      <UserAdd />
+    </EmptyMessageIcon>
+    <EmptyMessageTitle>No team members</EmptyMessageTitle>
+    <EmptyMessageDescription>
+      Invite your team to collaborate on this project.
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="primary" variant="solid" size="sm">Invite members</Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</Card>`
+
+export const processing = `<Card style="max-width: 380px; padding: 24px">
+  <EmptyMessage>
+    <div style="margin-bottom: 12px; color: var(--color-text-tertiary)">
+      <LoadingIndicator :size="28" />
+    </div>
+    <EmptyMessageTitle>Processing your request</EmptyMessageTitle>
+    <EmptyMessageDescription>
+      Please wait while we process your request. Do not refresh the page.
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="secondary" variant="outline" size="sm">Cancel</Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</Card>`
+
+export const pricing = `<div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: 720px">
+  <Card
+    v-for="plan in [
+      { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },
+      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'All Figma kits', 'Early components'] },
+    ]"
+    :key="plan.name"
+    :variant="plan.highlighted ? 'solid' : 'outline'"
+  >
+    <CardHeader>
+      <CardTitle>{{ plan.name }}</CardTitle>
+      <CardDescription>
+        <span style="font-size: 28px; font-weight: 600; color: var(--color-text)">{{ plan.price }}</span>
+        <span style="margin-left: 4px">/ month</span>
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px">
+        <li v-for="feature in plan.features" :key="feature" style="display: flex; align-items: center; gap: 8px">
+          <Check style="width: 16px; height: 16px; color: var(--color-text-success-soft)" />
+          {{ feature }}
+        </li>
+      </ul>
+    </CardContent>
+    <CardFooter style="margin-top: auto; padding-top: 4px">
+      <Button
+        :color="plan.highlighted ? 'primary' : 'secondary'"
+        :variant="plan.highlighted ? 'solid' : 'outline'"
+        block
+      >
+        Choose {{ plan.name }}
+      </Button>
+    </CardFooter>
+  </Card>
+</div>`
+
+<UsageBlock>{`import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@plexui/vue/components/Card";`}</UsageBlock>
+
+## Examples
+
+<div id="first-component-page">
+### Overview
+
+<ComponentPreview language="vue" code={overview}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### No team members (empty state)
+
+<ComponentPreview language="vue" details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={noTeamMembers}>
+  <VueDemo template={noTeamMembers} />
+</ComponentPreview>
+
+### Processing your request
+
+<ComponentPreview language="vue" details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={processing}>
+  <VueDemo template={processing} />
+</ComponentPreview>
+
+### Pricing
+
+<ComponentPreview language="vue" details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={pricing}>
+  <VueDemo template={pricing} />
+</ComponentPreview>
+</div>
+
+## Anatomy
+
+```vue
+<Card>
+  <CardHeader>
+    <CardTitle />
+    <CardDescription />
+    <CardAction />  <!-- optional top-right slot -->
+  </CardHeader>
+  <CardContent />
+  <CardFooter />
+</Card>
+```
+
+## API
+
+### Card
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"outline" \| "solid" \| "ghost"` | `"outline"` | Visual variant |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Padding scale |
+| `interactive` | `boolean` | `false` | Adds hover and focus affordances. Automatic when `href` is set. |
+| `href` | `string` | | Renders the Card as a link via the `linkComponent` of `PlexUIProvider`. |
+| `external` | `boolean` | auto-detected | Forces `target="_blank"` and `rel="noopener noreferrer"` when `href` is set. |
+| `as` | `Component \| "a"` | | Overrides the link component. |
+| `class` | `string` | | Applied to the root element |
+
+All other attributes and listeners fall through to the root `<div>` or link.
+
+### Parts
+
+| Part | Element | Purpose |
+|------|---------|---------|
+| `CardHeader` | `<div>` | Title + description + optional action |
+| `CardTitle` | `<h3>` | Card heading |
+| `CardDescription` | `<p>` | Subtitle / explanation |
+| `CardContent` | `<div>` | Primary body region |
+| `CardFooter` | `<div>` | Trailing actions row |
+| `CardAction` | `<div>` | Absolute top-right slot inside `CardHeader` |

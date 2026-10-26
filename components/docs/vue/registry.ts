@@ -2,10 +2,28 @@ import { compile, type CompilerOptions } from '@vue/compiler-dom';
 import * as Vue from 'vue';
 import { registerRuntimeCompiler, type Component, type RenderFunction } from 'vue';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@plexui/vue/components/Accordion';
+import { Alert } from '@plexui/vue/components/Alert';
 import { Avatar, AvatarGroup } from '@plexui/vue/components/Avatar';
 import { Badge } from '@plexui/vue/components/Badge';
 import { Button, ButtonLink, CopyButton } from '@plexui/vue/components/Button';
+import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '@plexui/vue/components/ButtonGroup';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@plexui/vue/components/Card';
 import { Checkbox } from '@plexui/vue/components/Checkbox';
+import {
+  CodeBlock,
+  CodeBlockBase,
+  CodeBlockBaseCode,
+  CodeBlockBaseCopyButton,
+  CollapsibleCodeBlock,
+} from '@plexui/vue/components/CodeBlock';
 import {
   Dialog,
   DialogClose,
@@ -16,14 +34,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@plexui/vue/components/Dialog';
+import {
+  EmptyMessage,
+  EmptyMessageActionRow,
+  EmptyMessageDescription,
+  EmptyMessageIcon,
+  EmptyMessageTitle,
+} from '@plexui/vue/components/EmptyMessage';
 import { FieldError } from '@plexui/vue/components/FieldError';
+import { FileCard, FileCardGroup, FileUpload } from '@plexui/vue/components/FileUpload';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
+import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect';
 import { CircularProgress, LoadingDots, LoadingIndicator } from '@plexui/vue/components/Indicator';
 import { Image } from '@plexui/vue/components/Image';
+import { Input, InputAdornmentButton } from '@plexui/vue/components/Input';
 import { Label } from '@plexui/vue/components/Label';
 import { OTPInput } from '@plexui/vue/components/OTPInput';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
 import { Progress } from '@plexui/vue/components/Progress';
+import {
+  ProgressSteps,
+  ProgressStepsDescription,
+  ProgressStepsStep,
+  ProgressStepsTitle,
+} from '@plexui/vue/components/ProgressSteps';
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
 import { Separator } from '@plexui/vue/components/Separator';
 import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
@@ -43,6 +78,14 @@ import { Tabs, TabsOption, TabsTab } from '@plexui/vue/components/Tabs';
 import { TagInput } from '@plexui/vue/components/TagInput';
 import { Textarea } from '@plexui/vue/components/Textarea';
 import { TextLink } from '@plexui/vue/components/TextLink';
+import {
+  CopyTooltip,
+  Tooltip,
+  TooltipContent,
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipTriggerDecorator,
+} from '@plexui/vue/components/Tooltip';
 import {
   Animate,
   AnimateLayout,
@@ -83,6 +126,7 @@ const components: Record<string, Component> = {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Alert,
   Animate,
   AnimateLayout,
   AnimateLayoutGroup,
@@ -90,10 +134,26 @@ const components: Record<string, Component> = {
   AvatarGroup,
   Badge,
   Button,
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
   ButtonLink,
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Checkbox,
   CircularProgress,
+  CodeBlock,
+  CodeBlockBase,
+  CodeBlockBaseCode,
+  CodeBlockBaseCopyButton,
+  CollapsibleCodeBlock,
   CopyButton,
+  CopyTooltip,
   Dialog,
   DialogClose,
   DialogContent,
@@ -102,15 +162,35 @@ const components: Record<string, Component> = {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  EmptyMessage,
+  EmptyMessageActionRow,
+  EmptyMessageDescription,
+  EmptyMessageIcon,
+  EmptyMessageTitle,
   FieldError,
+  FileCard,
+  FileCardGroup,
+  FileUpload,
   FloatingLabelInput,
+  FloatingLabelSelect,
   Image,
+  Input,
+  InputAdornmentButton,
   Label,
   LoadingDots,
   LoadingIndicator,
   OTPInput,
+  // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
+  PlexTransitionGroup,
   PlexUIProvider,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Progress,
+  ProgressSteps,
+  ProgressStepsDescription,
+  ProgressStepsStep,
+  ProgressStepsTitle,
   SegmentedControl,
   SegmentedControlOption,
   SegmentedControlTab,
@@ -118,10 +198,8 @@ const components: Record<string, Component> = {
   ShimmerableText,
   ShimmerText,
   Skeleton,
-  Switch,
-  // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
-  PlexTransitionGroup,
   SlotTransitionGroup,
+  Switch,
   Table,
   TableBody,
   TableCaption,
@@ -136,6 +214,11 @@ const components: Record<string, Component> = {
   TagInput,
   Textarea,
   TextLink,
+  Tooltip,
+  TooltipContent,
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipTriggerDecorator,
 };
 
 // Icons whose names clash with a component (Card, Menu, Sidebar, ...) are
