@@ -329,7 +329,7 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
 ### Textarea
 
 <ComponentPreview language="vue" details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.</>} code={textarea}>
-  <VueDemo template={textarea} stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "boolean", default: true }]} />
+  <VueDemo template={textarea} stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "select", options: [{ value: true, label: "true" }, { value: false, label: "false" }], default: true }]} />
 </ComponentPreview>
 
 ### With error message

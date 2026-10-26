@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 47
+Components: 48
 
 ## Setup
 
@@ -3986,6 +3986,290 @@ You can pair Input and Button components together by using the same size value.
     </div>
     <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
   </div>
+</div>
+```
+
+## Input Group
+Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
+Import: import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from "@plexui/vue/components/InputGroup"
+Docs: https://plexui.com/vue/components/input-group
+Props:
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height, on the same scale as Input (22px to 48px)
+  - variant ("outline" | "soft") default: "outline" — Visual style of the frame
+  - pill (boolean) default: false — Fully rounded frame, with pill buttons inside
+  - disabled (boolean) default: false — Disables the control and the buttons inside
+  - invalid (boolean) default: false — Invalid border; sets aria-invalid on the control
+  - class (string) — Applied to the root <div>
+  InputGroupAddon:
+    - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
+    - class (string) — Applied to the addon <div>
+
+### Overview
+Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
+    <InputGroupInput placeholder="Search..." />
+    <InputGroupAddon>
+      <Search />
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>12 results</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
+    <InputGroupInput placeholder="example" />
+    <InputGroupAddon>
+      <InputGroupText>https://</InputGroupText>
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>.com</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
+    <InputGroupInput placeholder="Ask anything..." />
+    <InputGroupAddon align="inline-end">
+      <InputGroupButton variant="solid" color="primary" uniform aria-label="Send">
+        <ArrowUpSm />
+      </InputGroupButton>
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Variants
+Use variant to stylize the group, like Input.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup variant="outline">
+    <InputGroupInput placeholder="Outline" />
+    <InputGroupAddon>
+      <Search />
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup variant="soft">
+    <InputGroupInput placeholder="Soft" />
+    <InputGroupAddon>
+      <Search />
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Sizes
+Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset.
+```vue
+<div class="flex flex-col gap-2.5 w-[360px]">
+  <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
+    <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
+    <InputGroup :size="size" :pill="pill">
+      <InputGroupInput placeholder="Search..." />
+      <InputGroupAddon>
+        <Search />
+      </InputGroupAddon>
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton>Search</InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+</div>
+```
+
+### Align
+Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup>
+    <InputGroupInput placeholder="inline-start" />
+    <InputGroupAddon align="inline-start">
+      <Search />
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="inline-end" />
+    <InputGroupAddon align="inline-end">
+      <InfoCircle />
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="Ada Lovelace" />
+    <InputGroupAddon align="block-start">
+      <InputGroupText>Full name</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="0.00" />
+    <InputGroupAddon align="block-end">
+      <InputGroupText>Amount in USD</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Text
+Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup>
+    <InputGroupInput placeholder="0.00" inputmode="decimal" />
+    <InputGroupAddon>
+      <InputGroupText>$</InputGroupText>
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>USD</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="example" />
+    <InputGroupAddon>
+      <InputGroupText>https://</InputGroupText>
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>.com</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="username" />
+    <InputGroupAddon>
+      <Email />
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>@company.com</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupTextarea v-model:value="post" placeholder="What's happening?" maxlength="280" />
+    <InputGroupAddon align="block-end">
+      <InputGroupText>{{ 280 - post.length }} characters left</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Button
+InputGroupButton is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup>
+    <InputGroupInput default-value="plexui.com/r/input-group" readonly />
+    <InputGroupAddon>
+      <InputGroupText>https://</InputGroupText>
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupButton uniform aria-label="Copy link">
+        <Copy />
+      </InputGroupButton>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput placeholder="Search the docs..." />
+    <InputGroupAddon align="inline-end">
+      <InputGroupButton variant="soft">Search</InputGroupButton>
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup pill>
+    <InputGroupInput placeholder="Card number" inputmode="numeric" />
+    <InputGroupAddon>
+      <CreditCard />
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <InputGroupButton variant="solid" color="primary">Pay</InputGroupButton>
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Dropdown
+Wrap an InputGroupButton in a Menu to pick a unit of measurement next to the value.
+```vue
+<script setup lang="ts">
+import { ref } from "vue"
+import { ChevronDownMd } from "@plexui/vue/components/Icon"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@plexui/vue/components/InputGroup"
+import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "@plexui/vue/components/Menu"
+
+const unit = ref("kg")
+</script>
+
+<template>
+  <InputGroup>
+    <InputGroupInput default-value="72" inputmode="decimal" aria-label="Weight" />
+    <InputGroupAddon>
+      <InputGroupText>Weight</InputGroupText>
+    </InputGroupAddon>
+    <InputGroupAddon align="inline-end">
+      <Menu>
+        <MenuTrigger>
+          <InputGroupButton aria-label="Weight unit">
+            {{ unit }}<ChevronDownMd />
+          </InputGroupButton>
+        </MenuTrigger>
+        <MenuContent align="end" :min-width="160">
+          <MenuRadioGroup v-model:value="unit">
+            <MenuRadioItem value="kg">Kilograms (kg)</MenuRadioItem>
+            <MenuRadioItem value="lb">Pounds (lb)</MenuRadioItem>
+            <MenuRadioItem value="st">Stones (st)</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </InputGroupAddon>
+  </InputGroup>
+</template>
+```
+
+### Spinner
+Show a LoadingIndicator in an addon while a value is searched or saved.
+```vue
+<div class="flex flex-col gap-2.5 w-[320px]">
+  <InputGroup>
+    <InputGroupInput default-value="Searching..." readonly />
+    <InputGroupAddon align="inline-end">
+      <LoadingIndicator />
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput default-value="Processing..." readonly />
+    <InputGroupAddon>
+      <LoadingIndicator />
+    </InputGroupAddon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroupInput default-value="Saving changes" readonly />
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>Saving...</InputGroupText>
+      <LoadingIndicator />
+    </InputGroupAddon>
+  </InputGroup>
+</div>
+```
+
+### Textarea
+With InputGroupTextarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side.
+```vue
+<div class="w-[400px]">
+  <InputGroup>
+    <InputGroupTextarea placeholder="console.log('Hello, world!');" :rows="4" class="font-mono" />
+    <InputGroupAddon align="block-start">
+      <InputGroupText>
+        <FileCode />script.js
+      </InputGroupText>
+      <InputGroupButton uniform aria-label="Copy" class="ml-auto">
+        <Copy />
+      </InputGroupButton>
+    </InputGroupAddon>
+    <InputGroupAddon align="block-end">
+      <InputGroupText>Line 1, Column 1</InputGroupText>
+      <InputGroupButton variant="solid" color="primary" class="ml-auto">
+        Run<Play />
+      </InputGroupButton>
+    </InputGroupAddon>
+  </InputGroup>
 </div>
 ```
 

@@ -4,7 +4,7 @@ description: Composable navigation sidebar for app shells with collapsible secti
 metaDescription: Vue 3 composable navigation sidebar for app shells with collapsible sections, an icon rail with tooltips, search and filter, and a mobile menu
 ---
 
-import { VueSidebarDemo } from "@/components/docs/vue/VueSidebarDemos"
+import { VueSidebarDemo, VueSidebarActionTreeDemo, vueSidebarActionTreeCode } from "@/components/docs/vue/VueSidebarDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 export const STAGE = "flex-1 w-full !p-0 !items-stretch !justify-stretch [&>*]:!m-0"
@@ -616,6 +616,12 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 
 <ComponentPreview language="vue" details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type; <code>filterWorkflowTree</code> and <code>flattenByType</code> are plain functions in the setup scope.</>} code={searchAndFilter} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarDemo template={searchAndFilter} stageClassName={STAGE} state={{ search: "", typeFilters: [], activeStep: "start", expanded: { "gov-id": true, "selfie-check": true, "doc-check": true, fail: true } }} controls={[{ name: "expand", type: "select", options: EXPAND_MODES, default: "chevron" }, { name: "bordered", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Tree with Hover Actions
+
+<ComponentPreview language="vue" details={<>Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (<code>...</code> and <code>+</code>) appear on hover for parent items.</>} code={vueSidebarActionTreeCode} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+  <VueSidebarActionTreeDemo />
 </ComponentPreview>
 
 ### Mobile Menu

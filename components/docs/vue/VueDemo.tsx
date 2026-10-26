@@ -6,10 +6,18 @@ import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../Butto
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
 
-export type VueDemoControl =
-  | { name: string; type: 'boolean'; default: boolean }
-  | { name: string; type: 'select'; options: readonly string[]; default: string }
-  | { name: string; type: 'range'; min: number; max: number; step: number; default: number };
+/** A select option: the value itself, or a value shown under another label (`Per-digit`). */
+export type VueDemoOption = string | { value: string | boolean; label: string };
+
+/** `name` is the template variable; `label`, when set, is what the control row shows. */
+export type VueDemoControl = { name: string; label?: string } & (
+  | { type: 'boolean'; default: boolean }
+  | { type: 'select'; options: readonly VueDemoOption[]; default: string | boolean }
+  | { type: 'range'; min: number; max: number; step: number; default: number }
+);
+
+const optionsOf = (options: readonly VueDemoOption[]) =>
+  options.map((option) => (typeof option === 'string' ? { value: option, label: option } : option));
 
 /**
  * Restarts a demo on a timer, like the React demos that loop a simulation:
@@ -94,14 +102,14 @@ export function VueDemo({
           control.type === 'boolean' ? (
             <DemoControlBoolean
               key={control.name}
-              name={control.name}
+              name={control.label ?? control.name}
               value={values[control.name] as boolean}
               onChange={set(control.name)}
             />
           ) : control.type === 'range' ? (
-            <DemoControlRow key={control.name} name={control.name}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name}>
               <SliderValueControl
-                ariaLabel={control.name}
+                ariaLabel={control.label ?? control.name}
                 min={control.min}
                 max={control.max}
                 step={control.step}
@@ -111,16 +119,16 @@ export function VueDemo({
               />
             </DemoControlRow>
           ) : (
-            <DemoControlRow key={control.name} name={control.name}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name}>
               <SegmentedControl<string>
-                value={values[control.name] as string}
-                onChange={set(control.name)}
-                aria-label={control.name}
+                value={optionsOf(control.options).find((option) => option.value === values[control.name])?.label ?? ''}
+                onChange={(label) => set(control.name)(optionsOf(control.options).find((option) => option.label === label)?.value)}
+                aria-label={control.label ?? control.name}
                 size="xs"
               >
-                {control.options.map((option) => (
-                  <SegmentedControl.Option key={option} value={option}>
-                    {option}
+                {optionsOf(control.options).map((option) => (
+                  <SegmentedControl.Option key={option.label} value={option.label}>
+                    {option.label}
                   </SegmentedControl.Option>
                 ))}
               </SegmentedControl>

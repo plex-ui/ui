@@ -771,7 +771,7 @@ export const birthdaySelect = `<div class="w-[320px]">
 ### Validation and Errors
 
 <ComponentPreview language="vue" details={<>Combine <code>required</code> and <code>error-message</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={validation} previewMinHeight={168}>
-  <VueDemo template={validation} stageClassName="py-10" state={{ name: "", email: "bad-email" }} controls={[{ name: "showErrors", type: "boolean", default: true }]} />
+  <VueDemo template={validation} stageClassName="py-10" state={{ name: "", email: "bad-email" }} controls={[{ name: "showErrors", label: "show errors", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Slot props pattern

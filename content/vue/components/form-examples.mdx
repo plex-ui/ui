@@ -9,7 +9,7 @@ import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
 
 export const STAGE = "py-10 flex justify-center"
 export const dialogControl = { name: "dialog", type: "boolean", default: false }
-export const inputControl = { name: "input", type: "select", options: ["per-digit", "text-field"], default: "per-digit" }
+export const inputControl = { name: "input", type: "select", options: [{ value: "per-digit", label: "Per-digit" }, { value: "text-field", label: "Text field" }], default: "per-digit" }
 
 export const emailLogin = `<component :is="DialogShell" :open="dialog">
   <div class="w-[360px]">

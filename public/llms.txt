@@ -5,7 +5,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 47
+Components: 48
 
 ## Setup
 
@@ -390,6 +390,22 @@ Docs: https://plexui.com/components/indicators
     - trackColor (string) — Track color (CSS variable or value)
     - trackActiveColor (string) — Active segment color
 Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color
+
+## Input Group
+Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
+Import: import { InputGroup } from "@plexui/ui/components/InputGroup"
+Docs: https://plexui.com/components/input-group
+Props:
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height, on the same scale as Input (22px to 48px)
+  - variant ("outline" | "soft") default: "outline" — Visual style of the frame
+  - pill (boolean) default: false — Fully rounded frame, with pill buttons inside
+  - disabled (boolean) default: false — Disables the control and the buttons inside
+  - invalid (boolean) default: false — Invalid border; sets aria-invalid on the control
+  - className (string) — Applied to the root <div>
+  InputGroup.Addon:
+    - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
+    - className (string) — Applied to the addon <div>
+Examples: Overview, Variants, Sizes, Align, Text, Button, Dropdown, Spinner, Textarea
 
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.

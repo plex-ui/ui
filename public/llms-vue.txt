@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 47
+Components: 48
 
 ## Setup
 
@@ -440,6 +440,22 @@ Props:
     - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
     - type (string) default: "button" — Button type
 Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
+
+## Input Group
+Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
+Import: import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from "@plexui/vue/components/InputGroup"
+Docs: https://plexui.com/vue/components/input-group
+Props:
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height, on the same scale as Input (22px to 48px)
+  - variant ("outline" | "soft") default: "outline" — Visual style of the frame
+  - pill (boolean) default: false — Fully rounded frame, with pill buttons inside
+  - disabled (boolean) default: false — Disables the control and the buttons inside
+  - invalid (boolean) default: false — Invalid border; sets aria-invalid on the control
+  - class (string) — Applied to the root <div>
+  InputGroupAddon:
+    - align ("inline-start" | "inline-end" | "block-start" | "block-end") default: "inline-start" — Before or after the control on its line, or a row above or below it
+    - class (string) — Applied to the addon <div>
+Examples: Overview, Variants, Sizes, Align, Text, Button, Dropdown, Spinner, Textarea
 
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.

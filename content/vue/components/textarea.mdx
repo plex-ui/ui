@@ -69,7 +69,7 @@ export const autofillExtensions = `<div class="w-[400px]">
 ### Variants
 
 <ComponentPreview language="vue" details={<>Use <code>variant</code> to stylize the textarea.</>} code={variants} previewMinHeight={168}>
-  <VueDemo template={variants} />
+  <VueDemo template={variants} controls={[{ name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }]} />
 </ComponentPreview>
 
 ### Auto resize

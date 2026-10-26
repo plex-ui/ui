@@ -102,7 +102,7 @@ const available = computed(() => {
     template={overview}
     controls={[
       { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
-      { name: "rows", type: "select", options: ["1", "2", "3"], default: "1" },
+      { name: "rows", label: "minRows", type: "select", options: [{ value: "1", label: "auto" }, { value: "2", label: "min 2" }, { value: "3", label: "min 3" }], default: "1" },
       { name: "pill", type: "boolean", default: false },
     ]}
   />

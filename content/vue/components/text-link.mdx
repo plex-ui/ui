@@ -58,7 +58,7 @@ export const weight = `<TextLink href="#" class="font-semibold" :underline="fals
 ### Default inheritance
 
 <ComponentPreview language="vue" details={<>By default, <code>TextLink</code> uses <code>currentcolor</code> inheritance and <code>text-decoration: underline</code> to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the <code>currentcolor</code>, with some special cases for <code>text-secondary</code> and <code>text-tertiary</code> contexts.<br /><br />You can see this behavior by changing the text color context of the paragraph the links are in below:</>} code={inheritance} previewMinHeight={168}>
-  <VueDemo template={inheritance} controls={[{ name: "colorClassName", type: "select", options: ["text-default", "text-base", "text-secondary", "text-tertiary", "text-primary"], default: "text-secondary" }]} />
+  <VueDemo template={inheritance} controls={[{ name: "colorClassName", type: "select", options: [{ value: "text-default", label: "default" }, { value: "text-base", label: "base" }, { value: "text-secondary", label: "secondary" }, { value: "text-tertiary", label: "tertiary" }, { value: "text-primary", label: "primary" }], default: "text-secondary" }]} />
 </ComponentPreview>
 
 ### Primary color

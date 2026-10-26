@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 47,
+  "componentCount": 48,
   "components": [
     {
       "slug": "accordion",
@@ -2765,6 +2765,123 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/input"
+    },
+    {
+      "slug": "input-group",
+      "name": "Input Group",
+      "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.",
+      "importPath": "@plexui/vue/components/InputGroup",
+      "exports": [
+        "InputGroup",
+        "InputGroupAddon",
+        "InputGroupButton",
+        "InputGroupInput",
+        "InputGroupText",
+        "InputGroupTextarea"
+      ],
+      "props": [
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height, on the same scale as Input (22px to 48px)"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style of the frame"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded frame, with pill buttons inside"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables the control and the buttons inside"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Invalid border; sets aria-invalid on the control"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup :size=\"size\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" :invalid=\"invalid\">\n    <InputGroupInput placeholder=\"Search...\" />\n    <InputGroupAddon>\n      <Search />\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>12 results</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup :size=\"size\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" :invalid=\"invalid\">\n    <InputGroupInput placeholder=\"example\" />\n    <InputGroupAddon>\n      <InputGroupText>https://</InputGroupText>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>.com</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup :size=\"size\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" :invalid=\"invalid\">\n    <InputGroupInput placeholder=\"Ask anything...\" />\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupButton variant=\"solid\" color=\"primary\" uniform aria-label=\"Send\">\n        <ArrowUpSm />\n      </InputGroupButton>\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons."
+        },
+        {
+          "name": "Variants",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup variant=\"outline\">\n    <InputGroupInput placeholder=\"Outline\" />\n    <InputGroupAddon>\n      <Search />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup variant=\"soft\">\n    <InputGroupInput placeholder=\"Soft\" />\n    <InputGroupAddon>\n      <Search />\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "Use variant to stylize the group, like Input."
+        },
+        {
+          "name": "Sizes",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[360px]\">\n  <div v-for=\"size in sizes\" :key=\"size\" class=\"flex items-center gap-4\">\n    <span class=\"w-8 shrink-0 text-right text-sm text-tertiary\">{{ size }}</span>\n    <InputGroup :size=\"size\" :pill=\"pill\">\n      <InputGroupInput placeholder=\"Search...\" />\n      <InputGroupAddon>\n        <Search />\n      </InputGroupAddon>\n      <InputGroupAddon align=\"inline-end\">\n        <InputGroupButton>Search</InputGroupButton>\n      </InputGroupAddon>\n    </InputGroup>\n  </div>\n</div>",
+          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset."
+        },
+        {
+          "name": "Align",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup>\n    <InputGroupInput placeholder=\"inline-start\" />\n    <InputGroupAddon align=\"inline-start\">\n      <Search />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"inline-end\" />\n    <InputGroupAddon align=\"inline-end\">\n      <InfoCircle />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"Ada Lovelace\" />\n    <InputGroupAddon align=\"block-start\">\n      <InputGroupText>Full name</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"0.00\" />\n    <InputGroupAddon align=\"block-end\">\n      <InputGroupText>Amount in USD</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position."
+        },
+        {
+          "name": "Text",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup>\n    <InputGroupInput placeholder=\"0.00\" inputmode=\"decimal\" />\n    <InputGroupAddon>\n      <InputGroupText>$</InputGroupText>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>USD</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"example\" />\n    <InputGroupAddon>\n      <InputGroupText>https://</InputGroupText>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>.com</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"username\" />\n    <InputGroupAddon>\n      <Email />\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>@company.com</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupTextarea v-model:value=\"post\" placeholder=\"What's happening?\" maxlength=\"280\" />\n    <InputGroupAddon align=\"block-end\">\n      <InputGroupText>{{ 280 - post.length }} characters left</InputGroupText>\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field."
+        },
+        {
+          "name": "Button",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup>\n    <InputGroupInput default-value=\"plexui.com/r/input-group\" readonly />\n    <InputGroupAddon>\n      <InputGroupText>https://</InputGroupText>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupButton uniform aria-label=\"Copy link\">\n        <Copy />\n      </InputGroupButton>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput placeholder=\"Search the docs...\" />\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupButton variant=\"soft\">Search</InputGroupButton>\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup pill>\n    <InputGroupInput placeholder=\"Card number\" inputmode=\"numeric\" />\n    <InputGroupAddon>\n      <CreditCard />\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupButton variant=\"solid\" color=\"primary\">Pay</InputGroupButton>\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "InputGroupButton is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons."
+        },
+        {
+          "name": "Dropdown",
+          "code": "<script setup lang=\"ts\">\nimport { ref } from \"vue\"\nimport { ChevronDownMd } from \"@plexui/vue/components/Icon\"\nimport {\n  InputGroup,\n  InputGroupAddon,\n  InputGroupButton,\n  InputGroupInput,\n  InputGroupText,\n} from \"@plexui/vue/components/InputGroup\"\nimport { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from \"@plexui/vue/components/Menu\"\n\nconst unit = ref(\"kg\")\n</script>\n\n<template>\n  <InputGroup>\n    <InputGroupInput default-value=\"72\" inputmode=\"decimal\" aria-label=\"Weight\" />\n    <InputGroupAddon>\n      <InputGroupText>Weight</InputGroupText>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"inline-end\">\n      <Menu>\n        <MenuTrigger>\n          <InputGroupButton aria-label=\"Weight unit\">\n            {{ unit }}<ChevronDownMd />\n          </InputGroupButton>\n        </MenuTrigger>\n        <MenuContent align=\"end\" :min-width=\"160\">\n          <MenuRadioGroup v-model:value=\"unit\">\n            <MenuRadioItem value=\"kg\">Kilograms (kg)</MenuRadioItem>\n            <MenuRadioItem value=\"lb\">Pounds (lb)</MenuRadioItem>\n            <MenuRadioItem value=\"st\">Stones (st)</MenuRadioItem>\n          </MenuRadioGroup>\n        </MenuContent>\n      </Menu>\n    </InputGroupAddon>\n  </InputGroup>\n</template>",
+          "details": "Wrap an InputGroupButton in a Menu to pick a unit of measurement next to the value."
+        },
+        {
+          "name": "Spinner",
+          "code": "<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup>\n    <InputGroupInput default-value=\"Searching...\" readonly />\n    <InputGroupAddon align=\"inline-end\">\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput default-value=\"Processing...\" readonly />\n    <InputGroupAddon>\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput default-value=\"Saving changes\" readonly />\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>Saving...</InputGroupText>\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "Show a LoadingIndicator in an addon while a value is searched or saved."
+        },
+        {
+          "name": "Textarea",
+          "code": "<div class=\"w-[400px]\">\n  <InputGroup>\n    <InputGroupTextarea placeholder=\"console.log('Hello, world!');\" :rows=\"4\" class=\"font-mono\" />\n    <InputGroupAddon align=\"block-start\">\n      <InputGroupText>\n        <FileCode />script.js\n      </InputGroupText>\n      <InputGroupButton uniform aria-label=\"Copy\" class=\"ml-auto\">\n        <Copy />\n      </InputGroupButton>\n    </InputGroupAddon>\n    <InputGroupAddon align=\"block-end\">\n      <InputGroupText>Line 1, Column 1</InputGroupText>\n      <InputGroupButton variant=\"solid\" color=\"primary\" class=\"ml-auto\">\n        Run<Play />\n      </InputGroupButton>\n    </InputGroupAddon>\n  </InputGroup>\n</div>",
+          "details": "With InputGroupTextarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "InputGroupAddon",
+          "props": [
+            {
+              "name": "align",
+              "type": "\"inline-start\" | \"inline-end\" | \"block-start\" | \"block-end\"",
+              "default": "\"inline-start\"",
+              "description": "Before or after the control on its line, or a row above or below it"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Applied to the addon <div>"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/input-group"
     },
     {
       "slug": "label",
@@ -5826,5 +5943,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T14:08:39.424Z"
+  "generatedAt": "2026-10-26T15:02:23.117Z"
 }

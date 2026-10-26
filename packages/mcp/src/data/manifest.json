@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 47,
+  "componentCount": 48,
   "components": [
     {
       "slug": "accordion",
@@ -2443,6 +2443,118 @@
         }
       ],
       "docsUrl": "https://plexui.com/components/indicators"
+    },
+    {
+      "slug": "input-group",
+      "name": "Input Group",
+      "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.",
+      "importPath": "@plexui/ui/components/InputGroup",
+      "exports": [
+        "InputGroup"
+      ],
+      "props": [
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height, on the same scale as Input (22px to 48px)"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style of the frame"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded frame, with pill buttons inside"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables the control and the buttons inside"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Invalid border; sets aria-invalid on the control"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>12 results</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons."
+        },
+        {
+          "name": "Variants",
+          "code": "<InputGroup variant=\"outline\">...</InputGroup>\n<InputGroup variant=\"soft\">...</InputGroup>",
+          "details": "Use variant to stylize the group, like Input."
+        },
+        {
+          "name": "Sizes",
+          "code": "<InputGroup size=\"lg\">\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button>Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset."
+        },
+        {
+          "name": "Align",
+          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Ada Lovelace\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>Full name</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position."
+        },
+        {
+          "name": "Text",
+          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"0.00\" inputMode=\"decimal\" />\n<InputGroup.Addon>\n  <InputGroup.Text>$</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>USD</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Use InputGroup.Text for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field."
+        },
+        {
+          "name": "Button",
+          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Search the docs...\" />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button variant=\"soft\">Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "InputGroup.Button is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons."
+        },
+        {
+          "name": "Dropdown",
+          "code": "const [unit, setUnit] = useState(\"kg\")\n\n<InputGroup>\n<InputGroup.Input defaultValue=\"72\" inputMode=\"decimal\" aria-label=\"Weight\" />\n<InputGroup.Addon>\n  <InputGroup.Text>Weight</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <Menu>\n    <Menu.Trigger>\n      <InputGroup.Button aria-label=\"Weight unit\">\n        {unit}\n        <ChevronDownMd />\n      </InputGroup.Button>\n    </Menu.Trigger>\n    <Menu.Content align=\"end\" minWidth={160}>\n      <Menu.RadioGroup value={unit} onChange={setUnit}>\n        <Menu.RadioItem value=\"kg\">Kilograms (kg)</Menu.RadioItem>\n        <Menu.RadioItem value=\"lb\">Pounds (lb)</Menu.RadioItem>\n        <Menu.RadioItem value=\"st\">Stones (st)</Menu.RadioItem>\n      </Menu.RadioGroup>\n    </Menu.Content>\n  </Menu>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Wrap an InputGroup.Button in a Menu to pick a unit of measurement next to the value."
+        },
+        {
+          "name": "Spinner",
+          "code": "<InputGroup>\n<InputGroup.Input defaultValue=\"Saving changes\" readOnly />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>Saving...</InputGroup.Text>\n  <LoadingIndicator />\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "Show a LoadingIndicator in an addon while a value is searched or saved."
+        },
+        {
+          "name": "Textarea",
+          "code": "<InputGroup>\n<InputGroup.Textarea placeholder=\"console.log('Hello, world!');\" rows={4} className=\"font-mono\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>\n    <FileCode />\n    script.js\n  </InputGroup.Text>\n  <InputGroup.Button uniform aria-label=\"Copy\" className=\"ml-auto\">\n    <Copy />\n  </InputGroup.Button>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"block-end\">\n  <InputGroup.Text>Line 1, Column 1</InputGroup.Text>\n  <InputGroup.Button variant=\"solid\" color=\"primary\" className=\"ml-auto\">\n    Run\n    <Play />\n  </InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
+          "details": "With InputGroup.Textarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "InputGroup.Addon",
+          "props": [
+            {
+              "name": "align",
+              "type": "\"inline-start\" | \"inline-end\" | \"block-start\" | \"block-end\"",
+              "default": "\"inline-start\"",
+              "description": "Before or after the control on its line, or a row above or below it"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Applied to the addon <div>"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/input-group"
     },
     {
       "slug": "input",
@@ -5382,5 +5494,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T14:08:39.123Z"
+  "generatedAt": "2026-10-26T15:02:22.724Z"
 }
