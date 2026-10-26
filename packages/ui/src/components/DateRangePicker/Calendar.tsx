@@ -200,6 +200,7 @@ export const DateRangeCalendar = () => {
             iconSize="sm"
             onClick={handlePrevious}
             disabled={!canGoBack}
+            aria-label="Previous month"
           >
             <ChevronLeft />
           </Button>
@@ -214,6 +215,7 @@ export const DateRangeCalendar = () => {
             iconSize="sm"
             onClick={handleNext}
             disabled={!canGoForward}
+            aria-label="Next month"
           >
             <ChevronRight />
           </Button>
