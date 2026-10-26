@@ -3,13 +3,13 @@ import Image from 'next/image';
 import type { ReactNode } from 'react';
 
 /**
- * Visual grid wrapper for the /icons index page — three columns on
- * desktop, single column on small screens. Each cell renders an
- * `<IconLibraryCard>`.
+ * Visual grid wrapper for the /icons index page — two columns from
+ * `sm` up (four libraries make a 2x2 grid), single column on small
+ * screens. Each cell renders an `<IconLibraryCard>`.
  */
 export function IconLibraryGrid({ children }: { children: ReactNode }) {
   return (
-    <div className="not-prose my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="not-prose my-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
       {children}
     </div>
   );
@@ -48,7 +48,7 @@ export function IconLibraryCard({
       href={`/icons/${slug}`}
       className="group flex flex-col overflow-hidden rounded-xl border transition-colors hover:border-fd-foreground/30"
     >
-      <div className="relative flex aspect-[4/3] w-full items-center justify-center bg-fd-accent">
+      <div className="relative flex aspect-[2/1] w-full items-center justify-center bg-fd-accent">
         <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
           <Image
             src={logo}
