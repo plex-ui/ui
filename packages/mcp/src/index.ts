@@ -36,6 +36,8 @@ interface Component {
   description: string;
   importPath?: string;
   exports?: string[];
+  /** Set when the page imports from more than one module */
+  imports?: { path: string; names: string[] }[];
   props?: Prop[];
   examples?: Example[];
   subComponents?: SubComponent[];
@@ -101,8 +103,8 @@ function formatComponent(comp: Component, framework: Framework, options?: { brie
     lines.push("## Import");
     lines.push("");
     lines.push("```ts");
-    const names = comp.exports?.join(", ") || comp.name;
-    lines.push(`import { ${names} } from "${comp.importPath}";`);
+    const imports = comp.imports ?? [{ path: comp.importPath, names: comp.exports ?? [comp.name] }];
+    for (const entry of imports) lines.push(`import { ${entry.names.join(", ")} } from "${entry.path}";`);
     lines.push("```");
     lines.push("");
   }
@@ -217,12 +219,21 @@ server.tool(
   },
   async ({ name, framework }: { name: string; framework: Framework }) => {
     const components = componentsFor(framework);
-    const query = name.toLowerCase().replace(/[-_ ]/g, "");
-    const comp = components.find(
-      (c) =>
-        c.name.toLowerCase().replace(/[-_ ]/g, "") === query ||
-        c.slug.replace(/-/g, "") === query
-    );
+    const normalize = (value: string) => value.toLowerCase().replace(/[-_ .]/g, "");
+    const query = normalize(name);
+    // A page's title or slug first, then any component it exports or documents
+    // (`DataTable` lives on Table, `DialogTrigger` / `Dialog.Trigger` on Dialog)
+    const byName = (value: string) =>
+      components.find((c) => normalize(c.name) === value || c.slug.replace(/-/g, "") === value);
+    const comp =
+      byName(query) ??
+      components.find(
+        (c) =>
+          c.exports?.some((e) => normalize(e) === query) ||
+          c.subComponents?.some((s) => normalize(s.name) === query)
+      ) ??
+      // A compound part (`Dialog.Trigger`) belongs to its root's page
+      (name.includes(".") ? byName(normalize(name.split(".")[0])) : undefined);
 
     if (!comp) {
       const suggestions = components
@@ -304,16 +315,19 @@ ${manifest.setup.css}
 ${manifest.setup.provider}
 
 \`\`\`tsx
+import Link from "next/link";
 import { PlexUIProvider } from "@plexui/ui/components/PlexUIProvider";
 
 export default function RootLayout({ children }) {
   return (
-    <PlexUIProvider>
+    <PlexUIProvider linkComponent={Link}>
       {children}
     </PlexUIProvider>
   );
 }
 \`\`\`
+
+\`linkComponent\` is required: pass your router's link (\`Link\` from \`next/link\` or \`react-router\`), or \`"a"\` for plain anchors. The \`@source\` path in the CSS is relative to the stylesheet (\`../../node_modules/@plexui/ui\` from \`src/app/globals.css\`).
 
 ## Design System
 

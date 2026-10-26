@@ -6,7 +6,7 @@
     {
       "name": "styles",
       "type": "registry:style",
-      "description": "Plex UI design tokens and component styles (import once before mounting the app).",
+      "description": "Plex UI design tokens and component styles (import from your main stylesheet after Tailwind).",
       "files": [
         {
           "path": "styles.json",

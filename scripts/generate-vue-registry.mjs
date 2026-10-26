@@ -8,7 +8,7 @@
 //   npx shadcn-vue@latest add https://plexui.com/r/vue/styles.json
 //   npx shadcn-vue@latest add https://plexui.com/r/vue/button.json
 
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -18,29 +18,43 @@ const BASE_URL = "https://plexui.com/r/vue"
 
 const manifest = JSON.parse(readFileSync(path.join(ROOT, "packages/mcp/src/data/manifest-vue.json"), "utf8"))
 
-const write = (name, data) => writeFileSync(path.join(OUT, `${name}.json`), `${JSON.stringify(data, null, 2)}\n`)
+// `--check` writes nothing and fails when a committed item is out of date
+const CHECK = process.argv.includes("--check")
+const written = new Set()
+const stale = []
+
+const write = (name, data) => {
+  const file = path.join(OUT, `${name}.json`)
+  const text = `${JSON.stringify(data, null, 2)}\n`
+  written.add(`${name}.json`)
+  if (!CHECK) return writeFileSync(file, text)
+  if (!existsSync(file) || readFileSync(file, "utf8") !== text) stale.push(`public/r/vue/${name}.json`)
+}
 
 // Regenerated from scratch, so items of removed pages disappear
 mkdirSync(OUT, { recursive: true })
-for (const file of readdirSync(OUT).filter((name) => name.endsWith(".json"))) {
-  rmSync(path.join(OUT, file))
+const previous = readdirSync(OUT).filter((name) => name.endsWith(".json"))
+if (!CHECK) {
+  for (const file of previous) rmSync(path.join(OUT, file))
 }
 
 const styles = {
   $schema: "https://shadcn-vue.com/schema/registry-item.json",
   name: "styles",
   type: "registry:style",
-  dependencies: ["@plexui/vue"],
+  // The app's own stylesheet imports @plexui/styles, so it is a direct
+  // dependency (strict installs such as pnpm do not expose @plexui/vue's)
+  dependencies: ["@plexui/vue", "@plexui/styles"],
   files: [
     {
-      path: "assets/plexui.css",
+      path: "src/assets/plexui.css",
       type: "registry:file",
-      target: "assets/plexui.css",
-      // Paths in @source are relative to this file, which sits in assets/
-      content: '@import "@plexui/styles/css";\n@source "../node_modules/@plexui/vue";\n',
+      target: "src/assets/plexui.css",
+      // Paths in @source are relative to this file, which sits in src/assets/
+      content: '@import "@plexui/styles/css";\n@source "../../node_modules/@plexui/vue";\n',
     },
   ],
-  docs: "Import `./assets/plexui.css` once before mounting the app (e.g. in main.ts), after `@import \"tailwindcss\";` in your main stylesheet. See https://plexui.com/docs/vue for the Vite plugin and SSR setup.",
+  docs: "Import it from your main stylesheet right after Tailwind, so Tailwind compiles the utilities Plex UI components use: `@import \"tailwindcss\"; @import \"./plexui.css\";` in src/assets/main.css. Do not import it from JavaScript on its own. See https://plexui.com/docs/vue for the layer order, the Vite plugin and SSR.",
 }
 write("styles", styles)
 
@@ -60,7 +74,10 @@ for (const component of manifest.components) {
       {
         path: `components/ui/${component.slug}/index.ts`,
         type: "registry:ui",
-        content: `export * from "${component.importPath}"\n`,
+        // One re-export per module the page imports (Table also brings DataTable)
+        content: [...new Set((component.imports ?? [{ path: component.importPath }]).map((entry) => entry.path))]
+          .map((path) => `export * from "${path}"\n`)
+          .join(""),
       },
     ],
     docs: `Import as \`import { ${names.join(", ")} } from '@/components/ui/${component.slug}'\`. See ${component.docsUrl} for props and examples.`,
@@ -82,11 +99,20 @@ write("index", {
     {
       name: "styles",
       type: "registry:style",
-      description: "Plex UI design tokens and component styles (import once before mounting the app).",
+      description: "Plex UI design tokens and component styles (import from your main stylesheet after Tailwind).",
       files: [{ path: "styles.json", type: "registry:file" }],
     },
     ...items,
   ],
 })
 
-console.error(`[generate-vue-registry] Wrote ${items.length} components + styles to public/r/vue.`)
+if (CHECK) {
+  stale.push(...previous.filter((file) => !written.has(file)).map((file) => `public/r/vue/${file} (no longer generated)`))
+  if (stale.length > 0) {
+    console.error(`Out of date (run node scripts/generate-vue-registry.mjs): ${stale.join(", ")}`)
+    process.exit(1)
+  }
+  console.error("[generate-vue-registry] public/r/vue is up to date.")
+} else {
+  console.error(`[generate-vue-registry] Wrote ${items.length} components + styles to public/r/vue.`)
+}

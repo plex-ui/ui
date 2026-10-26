@@ -10,7 +10,7 @@
     {
       "path": "components/ui/button.tsx",
       "type": "registry:ui",
-      "content": "export {\n  Button,\n  ButtonLink,\n  CopyButton,\n} from '@plexui/ui/components/Button';\nexport type {\n  ButtonProps,\n  ButtonLinkProps,\n  CopyButtonProps,\n} from '@plexui/ui/components/Button';\n"
+      "content": "export {\n  Button,\n  ButtonLink,\n  CopyButton,\n} from '@plexui/ui/components/Button';\nexport type {\n  ButtonProps,\n  CopyButtonProps,\n} from '@plexui/ui/components/Button';\n"
     }
   ],
   "docs": "Import as `import { Button } from '@/components/ui/button'`. See https://plexui.com/components/button for full prop reference."

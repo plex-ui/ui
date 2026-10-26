@@ -10,7 +10,7 @@
     {
       "path": "components/ui/menu.tsx",
       "type": "registry:ui",
-      "content": "export { Menu } from '@plexui/ui/components/Menu';\nexport type { MenuProps } from '@plexui/ui/components/Menu';\n"
+      "content": "export { Menu } from '@plexui/ui/components/Menu';\n"
     }
   ],
   "docs": "Import as `import { Menu } from '@/components/ui/menu'`. See https://plexui.com/components/menu for full prop reference."

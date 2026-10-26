@@ -3,15 +3,16 @@
   "name": "styles",
   "type": "registry:style",
   "dependencies": [
-    "@plexui/vue"
+    "@plexui/vue",
+    "@plexui/styles"
   ],
   "files": [
     {
-      "path": "assets/plexui.css",
+      "path": "src/assets/plexui.css",
       "type": "registry:file",
-      "target": "assets/plexui.css",
-      "content": "@import \"@plexui/styles/css\";\n@source \"../node_modules/@plexui/vue\";\n"
+      "target": "src/assets/plexui.css",
+      "content": "@import \"@plexui/styles/css\";\n@source \"../../node_modules/@plexui/vue\";\n"
     }
   ],
-  "docs": "Import `./assets/plexui.css` once before mounting the app (e.g. in main.ts), after `@import \"tailwindcss\";` in your main stylesheet. See https://plexui.com/docs/vue for the Vite plugin and SSR setup."
+  "docs": "Import it from your main stylesheet right after Tailwind, so Tailwind compiles the utilities Plex UI components use: `@import \"tailwindcss\"; @import \"./plexui.css\";` in src/assets/main.css. Do not import it from JavaScript on its own. See https://plexui.com/docs/vue for the layer order, the Vite plugin and SSR."
 }

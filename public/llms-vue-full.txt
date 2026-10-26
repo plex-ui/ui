@@ -3,7 +3,7 @@
 
 Vue 3 components with the same names, props, defaults and markup as the React library. Quick overview: https://plexui.com/llms-vue.txt
 
-Install: npm install @plexui/vue
+Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
 Components: 48
 
@@ -4150,7 +4150,7 @@ Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or 
 InputGroupButton is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons.
 ```vue
 <div class="flex flex-col gap-2.5 w-[320px]">
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput default-value="plexui.com/r/input-group" readonly />
     <InputGroupAddon>
       <InputGroupText>https://</InputGroupText>
@@ -4161,13 +4161,13 @@ InputGroupButton is a Button that defaults to ghost and secondary and takes its 
       </InputGroupButton>
     </InputGroupAddon>
   </InputGroup>
-  <InputGroup>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput placeholder="Search the docs..." />
     <InputGroupAddon align="inline-end">
       <InputGroupButton variant="soft">Search</InputGroupButton>
     </InputGroupAddon>
   </InputGroup>
-  <InputGroup pill>
+  <InputGroup :size="size" :pill="pill">
     <InputGroupInput placeholder="Card number" inputmode="numeric" />
     <InputGroupAddon>
       <CreditCard />
@@ -4192,8 +4192,13 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@plexui/vue/components/InputGroup"
-import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "@plexui/vue/components/Menu"
+import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from "@plexui/vue/components/Menu"
 
+const UNITS = [
+  { value: "kg", label: "Kilograms" },
+  { value: "lb", label: "Pounds" },
+  { value: "st", label: "Stones" },
+]
 const unit = ref("kg")
 </script>
 
@@ -4211,11 +4216,15 @@ const unit = ref("kg")
           </InputGroupButton>
         </MenuTrigger>
         <MenuContent align="end" :min-width="160">
-          <MenuRadioGroup v-model:value="unit">
-            <MenuRadioItem value="kg">Kilograms (kg)</MenuRadioItem>
-            <MenuRadioItem value="lb">Pounds (lb)</MenuRadioItem>
-            <MenuRadioItem value="st">Stones (st)</MenuRadioItem>
-          </MenuRadioGroup>
+          <MenuCheckboxItem
+            v-for="item in UNITS"
+            :key="item.value"
+            :checked="unit === item.value"
+            indicator-variant="ghost"
+            @update:checked="unit = item.value"
+          >
+            {{ item.label }} ({{ item.value }})
+          </MenuCheckboxItem>
         </MenuContent>
       </Menu>
     </InputGroupAddon>
@@ -4880,6 +4889,24 @@ Props:
   - max (number) default: 100 — Maximum progress value
   - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - class (string) — Applied to the root <div>
+
+### Overview
+```vue
+<script setup>
+import { onMounted, onUnmounted, ref } from "vue"
+
+const value = ref(13)
+let timer
+onMounted(() => {
+  timer = setTimeout(() => (value.value = 66), 500)
+})
+onUnmounted(() => clearTimeout(timer))
+</script>
+
+<template>
+  <Progress :value="value" />
+</template>
+```
 
 ### With label
 Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern.
@@ -6401,6 +6428,649 @@ Combine search and type-based filtering with nested tree navigation. Each item h
 </SidebarProvider>
 ```
 
+### Tree with Hover Actions
+Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (... and +) appear on hover for parent items.
+```vue
+<script setup lang="ts">
+import { computed, ref, watch, type Component } from "vue"
+import { Button } from "@plexui/vue/components/Button"
+import { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarLayout,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuButtonIcon,
+  SidebarMenuButtonLabel,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+} from "@plexui/vue/components/Sidebar"
+import {
+  // Row types
+  Abc, AllProductsExplore, Bolt, ButtonMousePointer, Calendar, CheckboxChecked, CheckCheck, CheckMd,
+  Clip, Commit, Desktop, Globe, GroupCheck, GroupCheckCircle, ImageSquare, LinkExternal, MapPin,
+  Number123, PanelBottom, Phone, SpacingVertical, SquareAsterisk, SquareDashed, TextAlignStart,
+  TextInitial, TextSelect,
+  // Header and row actions
+  ChevronDownMd, Filter, FilterBadge, GripVertical, ListChevronsDownUp, Plus,
+} from "@plexui/vue/components/Icon"
+
+type NodeType =
+  | "action"
+  | "condition"
+  | "module"
+  | "screen"
+  | "container"
+  | "footer"
+  | "button"
+  | "image"
+  | "text"
+  | "title"
+  | "spacer"
+  | "address-input"
+  | "checkbox"
+  | "checkbox-group"
+  | "country-select"
+  | "date"
+  | "file-upload"
+  | "masked-text"
+  | "multi-select"
+  | "number-input"
+  | "phone-number"
+  | "radio-group"
+  | "select"
+  | "text-area"
+  | "text-input"
+  | "url-input"
+
+type ActionNode = { id: string; label: string; type: NodeType; children?: ActionNode[] }
+
+const nodeTypes: Record<NodeType, { icon: Component; label: string }> = {
+  action: { icon: Bolt, label: "Action" },
+  condition: { icon: Commit, label: "Condition" },
+  module: { icon: AllProductsExplore, label: "Module" },
+  screen: { icon: Desktop, label: "Screen" },
+  container: { icon: SquareDashed, label: "Container" },
+  footer: { icon: PanelBottom, label: "Footer" },
+  button: { icon: ButtonMousePointer, label: "Button" },
+  image: { icon: ImageSquare, label: "Image" },
+  text: { icon: TextAlignStart, label: "Text" },
+  title: { icon: TextInitial, label: "Title" },
+  spacer: { icon: SpacingVertical, label: "Spacer" },
+  "address-input": { icon: MapPin, label: "Address input" },
+  checkbox: { icon: CheckboxChecked, label: "Checkbox" },
+  "checkbox-group": { icon: GroupCheck, label: "Checkbox group" },
+  "country-select": { icon: Globe, label: "Country select" },
+  date: { icon: Calendar, label: "Date" },
+  "file-upload": { icon: Clip, label: "File upload" },
+  "masked-text": { icon: SquareAsterisk, label: "Masked text" },
+  "multi-select": { icon: CheckCheck, label: "Multi select" },
+  "number-input": { icon: Number123, label: "Number input" },
+  "phone-number": { icon: Phone, label: "Phone number" },
+  "radio-group": { icon: GroupCheckCircle, label: "Radio group" },
+  select: { icon: CheckMd, label: "Select" },
+  "text-area": { icon: TextSelect, label: "Text area" },
+  "text-input": { icon: Abc, label: "Text input" },
+  "url-input": { icon: LinkExternal, label: "URL input" },
+}
+
+const filterOptions = (["action", "condition", "module", "screen", "container", "footer"] as NodeType[]).map((type) => ({
+  value: type,
+  label: nodeTypes[type].label,
+}))
+
+const elementTypes: NodeType[] = ["button", "image", "text", "title", "spacer"]
+const formTypes: NodeType[] = [
+  "address-input", "checkbox", "checkbox-group", "country-select", "date",
+  "file-upload", "masked-text", "multi-select", "number-input", "phone-number",
+  "radio-group", "select", "text-area", "text-input", "url-input",
+]
+
+/** The + menu: a screen adds a container or a footer, any other row adds elements */
+const addMenu = (node: ActionNode): NodeType[][] =>
+  node.type === "screen" ? [["container", "footer"]] : [elementTypes, formTypes]
+
+const ghostButton =
+  "inline-flex items-center justify-center shrink-0 rounded-sm cursor-pointer p-0 m-0 border-0 bg-transparent appearance-none leading-none align-middle select-none hover:bg-[var(--color-background-secondary-ghost-hover)] active:bg-[var(--color-background-secondary-ghost-hover)] transition-colors [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto"
+
+// Demo controls
+const action = ref<"collapse" | "filter">("collapse")
+const bordered = ref(true)
+
+const steps = ref<ActionNode[]>([
+  { id: "action", label: "Action", type: "action" },
+  { id: "condition", label: "Condition", type: "condition" },
+  {
+    id: "screen", label: "Screen", type: "screen",
+    children: [
+      {
+        id: "container-elements", label: "Container 1", type: "container",
+        children: [
+          { id: "el-button", label: "Button", type: "button" },
+          { id: "el-image", label: "Image", type: "image" },
+          { id: "el-text", label: "Text", type: "text" },
+          { id: "el-title", label: "Title", type: "title" },
+          { id: "el-spacer", label: "Spacer", type: "spacer" },
+        ],
+      },
+      {
+        id: "container-forms", label: "Container 2", type: "container",
+        children: [
+          { id: "fm-address", label: "Address input", type: "address-input" },
+          { id: "fm-checkbox", label: "Checkbox", type: "checkbox" },
+          { id: "fm-checkgroup", label: "Checkbox group", type: "checkbox-group" },
+          { id: "fm-country", label: "Country select", type: "country-select" },
+          { id: "fm-date", label: "Date", type: "date" },
+          { id: "fm-file", label: "File upload", type: "file-upload" },
+          { id: "fm-masked", label: "Masked text", type: "masked-text" },
+          { id: "fm-multi", label: "Multi select", type: "multi-select" },
+          { id: "fm-number", label: "Number input", type: "number-input" },
+          { id: "fm-phone", label: "Phone number", type: "phone-number" },
+          { id: "fm-radio", label: "Radio group", type: "radio-group" },
+          { id: "fm-select", label: "Select", type: "select" },
+          { id: "fm-textarea", label: "Text area", type: "text-area" },
+          { id: "fm-textinput", label: "Text input", type: "text-input" },
+          { id: "fm-url", label: "URL input", type: "url-input" },
+        ],
+      },
+      {
+        id: "footer", label: "Footer", type: "footer",
+        children: [
+          { id: "ft-text", label: "Text", type: "text" },
+          { id: "ft-button", label: "Button", type: "button" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "module", label: "Module", type: "module",
+    children: [
+      { id: "mod-screen-1", label: "Screen 1", type: "screen" },
+      { id: "mod-screen-2", label: "Screen 2", type: "screen" },
+      { id: "mod-screen-3", label: "Screen 3", type: "screen" },
+    ],
+  },
+])
+
+const search = ref("")
+const typeFilters = ref<NodeType[]>([])
+const activeItem = ref("screen")
+
+const groupIds = ["screen", "container-elements", "container-forms", "footer", "module"]
+const expandAll = (): Record<string, boolean> => Object.fromEntries(groupIds.map((id) => [id, true]))
+const expanded = ref<Record<string, boolean>>(expandAll())
+
+function toggle(id: string) {
+  expanded.value[id] = !expanded.value[id]
+}
+
+// Collapse mode: one button folds every group, or opens them all again
+const hasAnyExpanded = computed(() => groupIds.some((id) => expanded.value[id]))
+function toggleCollapseAll() {
+  expanded.value = hasAnyExpanded.value ? {} : expandAll()
+}
+
+// Filter mode: a search or a type filter lists the matching rows flat
+const isFlattening = computed(
+  () => action.value === "filter" && (typeFilters.value.length > 0 || search.value.length > 0),
+)
+const visibleSteps = computed(() =>
+  isFlattening.value
+    ? flattenNodes(steps.value, typeFilters.value, search.value)
+    : filterTree(steps.value, search.value),
+)
+const activeLabel = computed(() => findLabel(steps.value, activeItem.value) || "Screen")
+
+// Switching modes clears the search and the type filters
+watch(action, (mode) => {
+  typeFilters.value = []
+  search.value = ""
+  if (mode === "collapse") expanded.value = expandAll()
+})
+
+/** The tree, keeping the parents of matching rows */
+function filterTree(items: ActionNode[], query: string): ActionNode[] {
+  if (!query) return items
+  return items.reduce<ActionNode[]>((acc, item) => {
+    const match = item.label.toLowerCase().includes(query.toLowerCase())
+    const children = item.children ? filterTree(item.children, query) : undefined
+    const childMatch = !!children && children.length > 0
+    if (match || childMatch) acc.push(childMatch ? { ...item, children } : item)
+    return acc
+  }, [])
+}
+
+/** Every row of the checked types (all types when none is) matching the search, as a flat list */
+function flattenNodes(items: ActionNode[], types: NodeType[], query: string): ActionNode[] {
+  const result: ActionNode[] = []
+  const collect = (list: ActionNode[]) => {
+    for (const item of list) {
+      const matchType = types.length === 0 || types.includes(item.type)
+      const matchSearch = !query || item.label.toLowerCase().includes(query.toLowerCase())
+      if (matchType && matchSearch) result.push(item)
+      if (item.children) collect(item.children)
+    }
+  }
+  collect(items)
+  return result
+}
+
+/** The label of a row anywhere in the tree */
+function findLabel(items: ActionNode[], id: string): string {
+  for (const item of items) {
+    if (item.id === id) return item.label
+    if (item.children) {
+      const found = findLabel(item.children, id)
+      if (found) return found
+    }
+  }
+  return ""
+}
+
+// Drag and drop (native HTML5): pressing a row's grip makes the row
+// draggable; it drops on the rows of its own list and takes their place.
+
+/** Containers in a screen (not its Footer) and elements reorder; a module's screens do not */
+const isSortable = (parent: ActionNode, node: ActionNode) => parent.type !== "module" && node.type !== "footer"
+
+const grabbed = ref<string | null>(null) // the row whose grip is pressed
+const dragId = ref<string | null>(null)
+const overId = ref<string | null>(null) // the drop target, drawn hovered
+let dropIds: string[] = []
+
+/** Moves `activeId` to the place of `targetId` in the list holding both; the Footer never moves */
+function reorderTree(items: ActionNode[], activeId: string, targetId: string): ActionNode[] {
+  return items.map((item) => {
+    if (!item.children) return item
+    const from = item.children.findIndex((child) => child.id === activeId)
+    const to = item.children.findIndex((child) => child.id === targetId)
+    if (from !== -1 && to !== -1) {
+      if (item.children[from].type === "footer" || item.children[to].type === "footer") return item
+      const children = [...item.children]
+      children.splice(to, 0, ...children.splice(from, 1))
+      return { ...item, children }
+    }
+    return { ...item, children: reorderTree(item.children, activeId, targetId) }
+  })
+}
+
+function startDrag(event: DragEvent, parent: ActionNode, node: ActionNode) {
+  dragId.value = node.id
+  dropIds = (parent.children ?? []).filter((sibling) => isSortable(parent, sibling)).map((sibling) => sibling.id)
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move"
+    event.dataTransfer.setData("text/plain", node.id)
+  }
+}
+
+function dragOver(event: DragEvent, id: string) {
+  if (!dragId.value || !dropIds.includes(id)) return
+  event.preventDefault() // accepts the drop
+  overId.value = id === dragId.value ? null : id
+}
+
+/** Anywhere else in the sidebar there is no drop target */
+function clearDropTarget(event: DragEvent) {
+  if (!event.defaultPrevented) overId.value = null
+}
+
+function endDrag() {
+  grabbed.value = null
+  dragId.value = null
+  overId.value = null
+  dropIds = []
+}
+
+function dropOn(event: DragEvent, id: string) {
+  if (!dragId.value || !dropIds.includes(id)) return
+  event.preventDefault()
+  if (id !== dragId.value) steps.value = reorderTree(steps.value, dragId.value, id)
+  endDrag()
+}
+
+/** Sub rows are 32px tall and indented 24px a level; leaves also skip the chevron column */
+const rowStyle = (depth: number, node: ActionNode) => ({
+  paddingLeft: 4 + (node.children ? depth : depth + 1) * 24 + "px",
+  paddingRight: "4px",
+  paddingTop: "0",
+  paddingBottom: "0",
+  height: "32px",
+})
+</script>
+
+<template>
+  <SidebarProvider :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
+    <SidebarLayout class="h-full">
+      <Sidebar class="!py-4">
+        <SidebarHeader>
+          <div class="flex items-center gap-2 w-full [&>div:first-child>div]:!p-0">
+            <div class="flex-1">
+              <SidebarInput
+                v-model:value="search"
+                size="md"
+                :pill="false"
+                variant="soft"
+                placeholder="Search..."
+                @clear="search = ''"
+              />
+            </div>
+            <!-- collapse: folds every group, or opens them all again -->
+            <Button
+              v-if="action === 'collapse'"
+              variant="soft"
+              size="md"
+              color="secondary"
+              :pill="false"
+              uniform
+              aria-label="Collapse all"
+              :aria-pressed="!hasAnyExpanded"
+              @click="toggleCollapseAll"
+            >
+              <ListChevronsDownUp />
+            </Button>
+            <!-- filter: lists the rows of the checked types -->
+            <Menu v-else>
+              <MenuTrigger>
+                <Button variant="soft" size="md" color="secondary" :pill="false" aria-label="Filter by type" uniform>
+                  <FilterBadge v-if="typeFilters.length > 0" />
+                  <Filter v-else />
+                </Button>
+              </MenuTrigger>
+              <MenuContent min-width="auto" align="end">
+                <MenuCheckboxItem
+                  v-for="option in filterOptions"
+                  :key="option.value"
+                  :checked="typeFilters.includes(option.value)"
+                  indicator-position="end"
+                  indicator-variant="ghost"
+                  @update:checked="(checked) => (typeFilters = checked ? [...typeFilters, option.value] : typeFilters.filter((v) => v !== option.value))"
+                  @select="(event) => event.preventDefault()"
+                >{{ option.label }}</MenuCheckboxItem>
+              </MenuContent>
+            </Menu>
+          </div>
+        </SidebarHeader>
+        <SidebarContent @dragover="clearDropTarget">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <!-- Filter mode, searching or filtering by type: a flat list -->
+              <SidebarMenu v-if="isFlattening">
+                <SidebarMenuItem v-for="item in visibleSteps" :key="item.id">
+                  <SidebarMenuButton :is-active="activeItem === item.id" @click="activeItem = item.id">
+                    <SidebarMenuButtonIcon style="--sidebar-icon-size: 16px">
+                      <component :is="nodeTypes[item.type].icon" />
+                    </SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+
+              <!-- Otherwise the tree, narrowed by the search -->
+              <SidebarMenu v-else>
+                <SidebarMenuItem v-for="item in visibleSteps" :key="item.id" :expanded="!!expanded[item.id]">
+                  <div class="group/atp relative">
+                    <SidebarMenuButton
+                      :is-active="activeItem === item.id"
+                      class="group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
+                      @click="activeItem = item.id"
+                    >
+                      <span class="flex items-center shrink-0" style="margin-left: 4px">
+                        <span
+                          v-if="item.children"
+                          role="none"
+                          class="transition-transform"
+                          :class="ghostButton"
+                          style="width: 24px; height: 24px"
+                          :style="{ transform: expanded[item.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                          @click.stop="toggle(item.id)"
+                          @keydown.enter.stop="toggle(item.id)"
+                          @keydown.space.stop="toggle(item.id)"
+                        >
+                          <ChevronDownMd />
+                        </span>
+                        <span v-else style="width: 24px; flex-shrink: 0" />
+                        <span
+                          class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
+                          style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
+                        >
+                          <component :is="nodeTypes[item.type].icon" />
+                        </span>
+                      </span>
+                      <SidebarMenuButtonLabel class="group-hover/atp:pr-[52px]">{{ item.label }}</SidebarMenuButtonLabel>
+                    </SidebarMenuButton>
+                    <span
+                      class="item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto z-[2]"
+                    >
+                      <Menu>
+                        <MenuTrigger>
+                          <button type="button" :class="ghostButton" style="width: 24px; height: 24px" aria-label="Add"><Plus /></button>
+                        </MenuTrigger>
+                        <MenuContent min-width="auto" align="end">
+                          <template v-for="(types, index) in addMenu(item)" :key="index">
+                            <MenuSeparator v-if="index > 0" />
+                            <MenuItem v-for="type in types" :key="type" @select="() => {}">
+                              <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
+                            </MenuItem>
+                          </template>
+                        </MenuContent>
+                      </Menu>
+                    </span>
+                  </div>
+                  <SidebarMenuSub v-if="item.children" :open="!!expanded[item.id]" has-icons>
+                    <SidebarMenuSubItem
+                      v-for="child in item.children"
+                      :key="child.id"
+                      :style="dragId === child.id ? 'opacity: 0.7' : undefined"
+                    >
+                      <div
+                        class="group/ati relative"
+                        :draggable="grabbed === child.id"
+                        @dragstart="startDrag($event, item, child)"
+                        @dragover="dragOver($event, child.id)"
+                        @drop="dropOn($event, child.id)"
+                        @dragend="endDrag"
+                      >
+                        <SidebarMenuSubButton
+                          :indent="1"
+                          :is-active="activeItem === child.id"
+                          :class="[
+                            'gap-0.5',
+                            dragId === child.id || overId === child.id
+                              ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'
+                              : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',
+                          ]"
+                          :style="rowStyle(1, child)"
+                          @click="activeItem = child.id"
+                        >
+                          <span class="flex items-center shrink-0">
+                            <span
+                              v-if="child.children"
+                              role="none"
+                              class="transition-transform shrink-0"
+                              :class="ghostButton"
+                              style="width: 24px; height: 24px"
+                              :style="{ transform: expanded[child.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                              @click.stop="toggle(child.id)"
+                              @keydown.enter.stop="toggle(child.id)"
+                              @keydown.space.stop="toggle(child.id)"
+                            >
+                              <ChevronDownMd />
+                            </span>
+                            <span
+                              class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
+                              style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
+                            >
+                              <component :is="nodeTypes[child.type].icon" />
+                            </span>
+                          </span>
+                          <span
+                            class="flex-1 min-w-0 truncate text-left relative z-[1]"
+                            :class="
+                              dragId === child.id
+                                ? (child.children ? 'pr-[54px]' : 'pr-[30px]')
+                                : (child.children && isSortable(item, child) ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]')
+                            "
+                          >{{ child.label }}</span>
+                        </SidebarMenuSubButton>
+                        <!-- Hover actions: + on parents, the drag grip on rows that reorder -->
+                        <span
+                          v-if="child.children || isSortable(item, child)"
+                          class="item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 z-[2]"
+                          :class="
+                            dragId === child.id
+                              ? 'opacity-100 pointer-events-auto'
+                              : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto'
+                          "
+                        >
+                          <Menu v-if="child.children">
+                            <MenuTrigger>
+                              <button type="button" :class="ghostButton" style="width: 24px; height: 24px" aria-label="Add"><Plus /></button>
+                            </MenuTrigger>
+                            <MenuContent min-width="auto" align="end">
+                              <template v-for="(types, index) in addMenu(child)" :key="index">
+                                <MenuSeparator v-if="index > 0" />
+                                <MenuItem v-for="type in types" :key="type" @select="() => {}">
+                                  <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
+                                </MenuItem>
+                              </template>
+                            </MenuContent>
+                          </Menu>
+                          <span
+                            v-if="isSortable(item, child)"
+                            class="inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
+                            style="width: 24px; height: 24px; border-radius: 6px; touch-action: none"
+                            :style="{ cursor: dragId === child.id ? 'grabbing' : 'grab' }"
+                            @pointerdown="grabbed = child.id"
+                            @pointerup="grabbed = null"
+                          >
+                            <GripVertical />
+                          </span>
+                        </span>
+                      </div>
+                      <SidebarMenuSub v-if="child.children && dragId !== child.id" :open="!!expanded[child.id]" has-icons>
+                        <SidebarMenuSubItem
+                          v-for="grandchild in child.children"
+                          :key="grandchild.id"
+                          :style="dragId === grandchild.id ? 'opacity: 0.7' : undefined"
+                        >
+                          <div
+                            class="group/ati relative"
+                            :draggable="grabbed === grandchild.id"
+                            @dragstart="startDrag($event, child, grandchild)"
+                            @dragover="dragOver($event, grandchild.id)"
+                            @drop="dropOn($event, grandchild.id)"
+                            @dragend="endDrag"
+                          >
+                            <SidebarMenuSubButton
+                              :indent="1"
+                              :is-active="activeItem === grandchild.id"
+                              :class="[
+                                'gap-0.5',
+                                dragId === grandchild.id || overId === grandchild.id
+                                  ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'
+                                  : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',
+                              ]"
+                              :style="rowStyle(2, grandchild)"
+                              @click="activeItem = grandchild.id"
+                            >
+                              <span class="flex items-center shrink-0">
+                                <span
+                                  v-if="grandchild.children"
+                                  role="none"
+                                  class="transition-transform shrink-0"
+                                  :class="ghostButton"
+                                  style="width: 24px; height: 24px"
+                                  :style="{ transform: expanded[grandchild.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
+                                  @click.stop="toggle(grandchild.id)"
+                                  @keydown.enter.stop="toggle(grandchild.id)"
+                                  @keydown.space.stop="toggle(grandchild.id)"
+                                >
+                                  <ChevronDownMd />
+                                </span>
+                                <span
+                                  class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
+                                  style="width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px"
+                                >
+                                  <component :is="nodeTypes[grandchild.type].icon" />
+                                </span>
+                              </span>
+                              <span
+                                class="flex-1 min-w-0 truncate text-left relative z-[1]"
+                                :class="
+                                  dragId === grandchild.id
+                                    ? (grandchild.children ? 'pr-[54px]' : 'pr-[30px]')
+                                    : (grandchild.children && isSortable(child, grandchild) ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]')
+                                "
+                              >{{ grandchild.label }}</span>
+                            </SidebarMenuSubButton>
+                            <!-- Hover actions: + on parents, the drag grip on rows that reorder -->
+                            <span
+                              v-if="grandchild.children || isSortable(child, grandchild)"
+                              class="item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 z-[2]"
+                              :class="
+                                dragId === grandchild.id
+                                  ? 'opacity-100 pointer-events-auto'
+                                  : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto'
+                              "
+                            >
+                              <Menu v-if="grandchild.children">
+                                <MenuTrigger>
+                                  <button type="button" :class="ghostButton" style="width: 24px; height: 24px" aria-label="Add"><Plus /></button>
+                                </MenuTrigger>
+                                <MenuContent min-width="auto" align="end">
+                                  <template v-for="(types, index) in addMenu(grandchild)" :key="index">
+                                    <MenuSeparator v-if="index > 0" />
+                                    <MenuItem v-for="type in types" :key="type" @select="() => {}">
+                                      <span class="inline-flex items-center justify-center w-4 h-4 shrink-0 [&>svg]:w-full [&>svg]:h-full"><component :is="nodeTypes[type].icon" /></span> {{ nodeTypes[type].label }}
+                                    </MenuItem>
+                                  </template>
+                                </MenuContent>
+                              </Menu>
+                              <span
+                                v-if="isSortable(child, grandchild)"
+                                class="inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
+                                style="width: 24px; height: 24px; border-radius: 6px; touch-action: none"
+                                :style="{ cursor: dragId === grandchild.id ? 'grabbing' : 'grab' }"
+                                @pointerdown="grabbed = grandchild.id"
+                                @pointerup="grabbed = null"
+                              >
+                                <GripVertical />
+                              </span>
+                            </span>
+                          </div>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+
+      <SidebarInset>
+        <div class="p-6">
+          <h1 class="text-2xl font-semibold mb-4">{{ activeLabel }}</h1>
+          <p class="text-secondary">
+            {{ isFlattening ? 'Filtered results shown as a flat list.' : 'Screen → Container / Footer → Elements. Containers and elements are drag-reorderable; Footer stays pinned.' }}
+          </p>
+        </div>
+      </SidebarInset>
+    </SidebarLayout>
+  </SidebarProvider>
+</template>
+```
+
 ### Mobile Menu
 Mobile behavior is handled automatically when using SidebarProvider. The SidebarMobileMenuButton provides a standard animated hamburger trigger.
 ```vue
@@ -7244,6 +7914,7 @@ Use dividers to separate switch groups into logical sections. Each section can b
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
 Docs: https://plexui.com/vue/components/table
   Table Primitives:
     - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>

@@ -14,8 +14,8 @@
     {
       "path": "components/ui/table/index.ts",
       "type": "registry:ui",
-      "content": "export * from \"@plexui/vue/components/Table\"\n"
+      "content": "export * from \"@plexui/vue/components/Table\"\nexport * from \"@plexui/vue/components/DataTable\"\n"
     }
   ],
-  "docs": "Import as `import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'`. See https://plexui.com/vue/components/table for props and examples."
+  "docs": "Import as `import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, DataTable, DataTableColumnHeader } from '@/components/ui/table'`. See https://plexui.com/vue/components/table for props and examples."
 }

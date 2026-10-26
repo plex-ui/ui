@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 In Vue: `class` instead of `className`, slots instead of ReactNode props, `v-model:value` for controlled values, `@x` listeners for `onX` callbacks, flat named exports for compound parts (e.g. DialogTrigger), composables from @plexui/vue/composables/<name>.
 Every example's code: https://plexui.com/llms-vue-full.txt
 
-Install: npm install @plexui/vue
+Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
 Components: 48
 
@@ -571,7 +571,7 @@ Props:
   - max (number) default: 100 — Maximum progress value
   - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
   - class (string) — Applied to the root <div>
-Examples: With label, Controlled
+Examples: Overview, With label, Controlled
 
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
@@ -712,7 +712,7 @@ Props:
   SidebarCard:
     - dismissible (boolean) — Shows dismiss button
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
-Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Mobile Menu, Search Input
+Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
 
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
@@ -802,6 +802,7 @@ Examples: Overview, With label, With description, Label position, Label position
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable"
 Docs: https://plexui.com/vue/components/table
   Table Primitives:
     - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>

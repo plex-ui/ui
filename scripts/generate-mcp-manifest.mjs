@@ -7,13 +7,14 @@
  * Extracts: title, description, import path, props, examples, sub-components.
  */
 
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
 import { join, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import remarkGfm from "remark-gfm";
 import remarkMdx from "remark-mdx";
 import remarkParse from "remark-parse";
+import ts from "typescript";
 import { unified } from "unified";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,9 +30,9 @@ const FRAMEWORKS = {
       "The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.",
     install: "npm install @plexui/ui",
     setup: {
-      css: '@import "tailwindcss";\n@import "@plexui/ui/css";',
+      css: '@layer theme, base, components, utilities;\n@import "tailwindcss";\n@import "@plexui/ui/css";\n@source "../node_modules/@plexui/ui";',
       provider:
-        'Wrap your app with <PlexUIProvider> from "@plexui/ui/components/PlexUIProvider"',
+        'Wrap your app with <PlexUIProvider linkComponent={Link}> from "@plexui/ui/components/PlexUIProvider" (your router\'s Link, or "a")',
     },
   },
   vue: {
@@ -43,7 +44,7 @@ const FRAMEWORKS = {
     docsUrl: "https://plexui.com/vue/components",
     description:
       "PlexUI for Vue 3: the same components, props, markup and styles as the React library.",
-    install: "npm install @plexui/vue",
+    install: "npm install @plexui/vue @plexui/styles",
     setup: {
       css: '@layer theme, base, components, utilities;\n@import "tailwindcss";\n@import "@plexui/styles/css";\n@source "../node_modules/@plexui/vue";',
       provider:
@@ -76,27 +77,18 @@ function parseFrontmatter(content) {
 // Extract import path from <UsageBlock>
 // ---------------------------------------------------------------------------
 
-function extractImportPath(content, pkg) {
-  // <UsageBlock>{`import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
-  const match = content.match(
-    new RegExp(`<UsageBlock>\\{\`import \\{[^}]+\\} from "(${escapeRegExp(pkg)}/[^"]+)"`)
-  );
-  return match ? match[1] : null;
-}
-
-// ---------------------------------------------------------------------------
-// Extract exported names from <UsageBlock>
-// ---------------------------------------------------------------------------
-
-function extractExportedNames(content, pkg) {
-  const match = content.match(
-    new RegExp(`<UsageBlock>\\{\`import \\{([^}]+)\\} from "${escapeRegExp(pkg)}`)
-  );
-  if (!match) return [];
-  return match[1]
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+function extractImports(content, pkg) {
+  // <UsageBlock>{`import { Table, TableRow } from "@plexui/ui/components/Table";
+  // import { DataTable } from "@plexui/ui/components/DataTable";`}</UsageBlock>
+  const imports = [];
+  for (const block of content.matchAll(/<UsageBlock>\{`([\s\S]*?)`\}<\/UsageBlock>/g)) {
+    const statement = new RegExp(`import \\{([^}]+)\\} from "(${escapeRegExp(pkg)}/[^"]+)"`, "g");
+    for (const match of block[1].matchAll(statement)) {
+      const names = match[1].split(",").map((s) => s.trim()).filter(Boolean);
+      imports.push({ path: match[2], names });
+    }
+  }
+  return imports;
 }
 
 // ---------------------------------------------------------------------------
@@ -109,15 +101,93 @@ function extractExportedNames(content, pkg) {
  * functions) in a sandbox, so examples come out as the strings the page
  * renders. Declarations that need an import are skipped.
  */
+/**
+ * String constants a docs module exports (`export const vueProgressOverviewCode
+ * = \`<script setup>...\``), which pages import as an example's `code`. The
+ * module's top-level constants and functions are evaluated one by one in a
+ * sandbox, like the page's own exports, so a code string assembled from other
+ * strings and helpers resolves too; anything that needs an import is skipped.
+ */
+function importedStrings(specifier) {
+  if (!specifier.startsWith("@/")) return {};
+  const base = join(ROOT, specifier.slice(2));
+  const file = ["", ".tsx", ".ts", ".mjs", ".js"].map((ext) => base + ext).find((path) => existsSync(path));
+  if (!file) return {};
+  const text = readFileSync(file, "utf-8");
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  // Imported names (icons, components) become stub functions: code strings only
+  // need the data around them (`nodeTypes` maps types to icons and labels)
+  const stubs = {};
+  for (const statement of source.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    const bindings = statement.importClause?.namedBindings;
+    const names = [
+      statement.importClause?.name?.text,
+      ...(bindings && ts.isNamedImports(bindings) ? bindings.elements.map((e) => e.name.text) : []),
+    ].filter(Boolean);
+    for (const name of names) stubs[name] = { [name]: (value) => value }[name];
+  }
+  const context = vm.createContext(stubs);
+  const exported = [];
+  let pending = [];
+  for (const statement of source.statements) {
+    if (!ts.isVariableStatement(statement) && !ts.isFunctionDeclaration(statement)) continue;
+    const isExported = statement.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+    if (isExported && ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) exported.push(declaration.name.text);
+      }
+    }
+    const code = text.slice(statement.getStart(source), statement.end).replace(/^export\s+/, "");
+    // Constants are evaluated inside a function and only copied to the sandbox
+    // when they succeed, so a failed one never leaves an `undefined` binding
+    const names = ts.isVariableStatement(statement)
+      ? statement.declarationList.declarations.filter((d) => ts.isIdentifier(d.name)).map((d) => d.name.text)
+      : [];
+    const wrapped = names.length > 0 ? `(() => { ${code}\nreturn { ${names.join(", ")} }; })()` : code;
+    pending.push(
+      ts.transpileModule(wrapped, { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.Preserve } })
+        .outputText,
+    );
+  }
+  // A constant may use one declared further down: retry until nothing new evaluates
+  while (pending.length > 0) {
+    const failed = pending.filter((js) => {
+      try {
+        const values = vm.runInContext(js, context, { timeout: 1000 });
+        if (values && typeof values === "object") Object.assign(context, values);
+        return false;
+      } catch {
+        return true; // needs an import (a component, React, Vue) or a later constant
+      }
+    });
+    if (failed.length === pending.length) break;
+    pending = failed;
+  }
+  const strings = {};
+  for (const name of exported) {
+    if (typeof context[name] === "string") strings[name] = context[name];
+  }
+  return strings;
+}
+
 function parsePage(content) {
   const tree = unified().use(remarkParse).use(remarkMdx).use(remarkGfm).parse(content);
   const context = vm.createContext({});
   for (const node of tree.children) {
     if (node.type !== "mdxjsEsm") continue;
     for (const statement of node.data?.estree?.body ?? []) {
+      if (statement.type === "ImportDeclaration") {
+        const strings = importedStrings(statement.source.value);
+        for (const specifier of statement.specifiers) {
+          const name = specifier.imported?.name;
+          if (name && name in strings) context[specifier.local.name] = strings[name];
+        }
+        continue;
+      }
       const declaration =
         statement.type === "ExportNamedDeclaration" ? statement.declaration : statement;
-      if (!declaration || statement.type === "ImportDeclaration") continue;
+      if (!declaration) continue;
       // `var` so each declaration lands on the shared context
       const source = content
         .slice(declaration.start, declaration.end)
@@ -190,6 +260,8 @@ function extractExamples(content, { tree, context }) {
       if (name && typeof code === "string" && code.trim()) {
         examples.push({ name, code: code.trim(), ...(details && { details }) });
         name = null;
+      } else if (name && codeAttribute) {
+        console.warn(`[manifest] "${name}": the preview's code could not be resolved; the example is skipped`);
       }
       return;
     }
@@ -402,8 +474,10 @@ function processFile(filePath, framework) {
   if (slug === "index" || slug === "form-examples") return null;
 
   const frontmatter = parseFrontmatter(content);
-  const importPath = extractImportPath(content, framework.package);
-  const exportedNames = extractExportedNames(content, framework.package);
+  // Every import of the page's UsageBlock (Table also imports DataTable)
+  const imports = extractImports(content, framework.package);
+  const importPath = imports[0]?.path ?? null;
+  const exportedNames = imports.flatMap((entry) => entry.names);
   const page = parsePage(content);
   const examples = extractExamples(content, page);
   const hooks = extractHooks(content);
@@ -419,6 +493,7 @@ function processFile(filePath, framework) {
     description: frontmatter.description || "",
     ...(importPath && { importPath }),
     ...(exportedNames.length > 0 && { exports: exportedNames }),
+    ...(imports.length > 1 && { imports }),
     ...(props.length > 0 && { props }),
     ...(examples.length > 0 && { examples }),
     ...(subComponents.length > 0 && { subComponents }),
@@ -489,8 +564,16 @@ function generate(framework) {
     generatedAt: new Date().toISOString(),
   };
 
-  // Ensure output directory exists
   const outputPath = join(ROOT, framework.output);
+  if (CHECK) {
+    // Same content apart from the timestamp
+    const committed = existsSync(outputPath) ? JSON.parse(readFileSync(outputPath, "utf-8")) : null;
+    const strip = (data) => JSON.stringify({ ...data, generatedAt: undefined });
+    if (!committed || strip(committed) !== strip(manifest)) stale.push(framework.output);
+    return;
+  }
+
+  // Ensure output directory exists
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
@@ -499,5 +582,17 @@ function generate(framework) {
   );
 }
 
+// `--check` writes nothing and fails when a committed manifest is out of date
+const CHECK = process.argv.includes("--check");
+const stale = [];
+
 generate(FRAMEWORKS.react);
 generate(FRAMEWORKS.vue);
+
+if (CHECK) {
+  if (stale.length > 0) {
+    console.error(`Out of date (run node scripts/generate-mcp-manifest.mjs): ${stale.join(", ")}`);
+    process.exit(1);
+  }
+  console.error("MCP manifests are up to date.");
+}

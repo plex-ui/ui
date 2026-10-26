@@ -1,6 +1,7 @@
 # PlexUI
 > The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.
 
+Every example's code: https://plexui.com/llms-full.txt
 Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
@@ -10,11 +11,13 @@ Components: 48
 ## Setup
 
 ```css
+@layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "@plexui/ui/css";
+@source "../node_modules/@plexui/ui";
 ```
 
-Wrap your app with <PlexUIProvider> from "@plexui/ui/components/PlexUIProvider"
+Wrap your app with <PlexUIProvider linkComponent={Link}> from "@plexui/ui/components/PlexUIProvider" (your router's Link, or "a")
 
 Size scale: 3xs, 2xs, xs, sm, md, lg, xl, 2xl, 3xl
 Colors: primary, secondary, danger, success, warning, caution, discovery, info
@@ -167,12 +170,12 @@ Checkbox for binary on/off selection with solid, pill, and ghost variants, an in
 Import: import { Checkbox } from "@plexui/ui/components/Checkbox"
 Docs: https://plexui.com/components/checkbox
 Props:
-  - variant ("solid" | "ghost") default: "solid" — Visual style — solid (filled background) or ghost (checkmark only)
+  - variant ("solid" | "ghost") default: "solid" — Visual style: solid (filled background) or ghost (checkmark only)
   - pill (boolean) default: false — Fully rounded indicator corners
   - checked (boolean | "indeterminate") — Controlled state
   - defaultChecked (boolean | "indeterminate") — Initial state (uncontrolled)
   - onCheckedChange ((next: boolean) => void) — Called when state changes
-  - label (ReactNode) — Accessible label — accepts ReactNode for rich content
+  - label (ReactNode) — Accessible label. Accepts ReactNode for rich content
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
@@ -228,7 +231,7 @@ Props:
   - min (DateTime) — Earliest allowed date
   - max (DateTime) — Latest allowed date
   - clearable (boolean) default: false — Show clear button when input has a value
-  - size (ControlSize) default: "md" — Input size (3xs–3xl)
+  - size (ControlSize) default: "md" — Input size (3xs to 3xl)
   - variant ("outline" | "soft") default: "outline" — Visual style
   - disabled (boolean) default: false — Disable input
   - invalid (boolean) default: false — Mark as invalid
@@ -334,7 +337,7 @@ Mobile-first file upload with MIME-type and size validation, multi-file selectio
 Import: import { FileUpload, FileCard, FileCardGroup } from "@plexui/ui/components/FileUpload"
 Docs: https://plexui.com/components/file-upload
 Props:
-  - variant ("compact" | "area") default: "compact" — Visual variant — compact button or larger tappable area
+  - variant ("compact" | "area") default: "compact" — Visual variant: compact button or larger tappable area
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
   - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
@@ -344,7 +347,7 @@ Props:
   - value (File[]) — Controlled file list
   - onValueChange ((files: File[]) => void) — Callback when files are added or removed
   - onFileReject ((file: File, reason: string) => void) — Callback when a file is rejected (wrong type, too large, over limit)
-  - errorMessage (string) — Error message — sets invalid visual state
+  - errorMessage (string) — Error message. Sets the invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when errorMessage is provided)
   - disabled (boolean) default: false — Disable all interactions
   FileCard:
@@ -383,7 +386,7 @@ Docs: https://plexui.com/components/indicators
     - size (number | string) — Size in px or any CSS length (or use --indicator-size CSS variable)
     - strokeWidth (number) — Stroke width
   CircularProgress:
-    - progress (number) — Static progress 0–100 (disables animation)
+    - progress (number) — Static progress 0-100 (disables animation)
     - size (number | string) — Diameter in px or any CSS length
     - strokeWidth (number) — Stroke thickness
     - done (boolean) — Completion state for animation
@@ -648,7 +651,7 @@ Props:
     - isActive (boolean) default: false — Highlight the current page
     - tooltip (string | ReactNode) — Label shown on hover when collapsed (icon mode). Hidden on mobile.
   SidebarGroupLabel:
-    - size ("sm" | "lg") default: "lg" — sm — compact, tertiary; lg — larger, primary, more spacing
+    - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
   SidebarMenuSub:
     - open (boolean) default: true — Whether submenu is expanded
     - hasIcons (boolean) default: false — Align child items with parent text that has icons
@@ -703,7 +706,7 @@ Props:
   - invertTrend (boolean) default: false — Invert trend colors (positive = bad)
   - trendPosition ("value" | "header") default: "value" — Where the trend indicator is rendered
   - trendVariant ("text" | "badge") default: "text" — Render trend as text or badge
-  - size ("default" | "sm") default: "default" — Card size — sm for compact analytics layouts
+  - size ("default" | "sm") default: "default" — Card size. Use sm for compact analytics layouts
   - icon (ReactNode) — Icon displayed on the left with a soft background
   - sparkline (ReactNode) — Chart rendered at the bottom
   - progress (number) — Progress bar value (0-100)
@@ -735,6 +738,7 @@ Examples: Overview, With label, With description, Label position, Label position
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table"
+Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
 Docs: https://plexui.com/components/table
   Table Primitives:
     - Table (table) — Root table container with horizontal scroll wrapper
@@ -748,7 +752,7 @@ Docs: https://plexui.com/components/table
   DataTable:
     - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API
     - data (TData[]) — Data array to display
-    - variant ("default" | "bordered") default: "default" — Visual variant — bordered adds a rounded border and tinted header
+    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
     - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
     - initialSorting (SortingState) — Initial column sorting state
     - globalFilter (string) — Controlled search/filter string
@@ -780,7 +784,7 @@ Docs: https://plexui.com/components/tabs
 Props:
   - value (string) — Selected tab value (controlled)
   - onChange ((value: string) => void) — Called when selection changes
-  - variant ("segmented" | "underline") default: "segmented" — Visual style — segmented (background highlight) or underline (line indicator)
+  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
   - size (ControlSize) default: "md" — Control height (3xs through 3xl)
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
@@ -862,7 +866,7 @@ Import: import { Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/tooltip
 Props:
   - content (ReactNode) — Tooltip content (null = no tooltip)
-  - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
+  - compact (boolean) default: false — Short 1-3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
   - maxWidth (number | "none") default: 300 — Max width of tooltip
   - openDelay (number) default: 150 — Delay before showing (ms)

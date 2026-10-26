@@ -1,6 +1,6 @@
 ---
 title: Shadcn Registry
-description: Add Plex UI components through the Shadcn CLI — one command per component
+description: Add Plex UI components through the Shadcn CLI, one command per component
 ---
 
 If your project already uses the Shadcn CLI, you can pull Plex UI components with a single command. The registry is a thin layer over the `@plexui/ui` npm package: the CLI installs the package, drops a typed re-export in your `components/ui/`, and you import from `@/components/ui/*` exactly like native Shadcn components.
@@ -18,11 +18,16 @@ Plex UI ships its own design tokens and CSS modules. Pull the style entry first.
 npx shadcn@latest add https://plexui.com/r/styles.json
 ```
 
-Then import the generated file in your app root (e.g. `app/layout.tsx`):
+The generated `app/plexui.css` imports the Plex UI styles and points Tailwind at the package, so Tailwind compiles the utility classes the components use. Import it from your global stylesheet right after Tailwind, not from JavaScript:
 
-```tsx
-import './plexui.css';
+```css
+/* app/globals.css */
+@layer theme, base, components, utilities;
+@import "tailwindcss";
+@import "./plexui.css";
 ```
+
+The `@layer` line keeps Plex UI's reset ahead of Tailwind's preflight (the [Installation](/docs/installation) guide explains why). The `@source` path inside `plexui.css` is relative to that file: with a `src/app` directory, change it to `../../node_modules/@plexui/ui`.
 
 You only need to do this once for the whole project.
 
@@ -83,7 +88,7 @@ npx shadcn-vue@latest add https://plexui.com/r/vue/button.json
 npx shadcn-vue@latest add https://plexui.com/r/vue/dialog.json
 ```
 
-Import the generated `assets/plexui.css` once before mounting the app, then use the components from `@/components/ui/*`:
+The styles entry installs `@plexui/vue` and `@plexui/styles` and writes `src/assets/plexui.css`. Import it from your main stylesheet right after Tailwind (e.g. `src/assets/main.css`: `@import "tailwindcss";` then `@import "./plexui.css";`), not from JavaScript, so Tailwind compiles the utility classes the components use. In Nuxt, move it next to your stylesheet and adjust its `@source` path, which is relative to the file. Then use the components from `@/components/ui/*`:
 
 ```vue
 <script setup lang="ts">

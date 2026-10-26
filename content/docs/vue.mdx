@@ -15,10 +15,10 @@ description: Install Plex UI for Vue 3. Add @plexui/vue, wire up the stylesheet,
 ### 1. Install the package
 
 ```bash
-npm install @plexui/vue
+npm install @plexui/vue @plexui/styles
 ```
 
-`@plexui/styles` (tokens, resets and the component CSS modules) is installed with it.
+`@plexui/styles` holds the tokens, resets and component CSS modules. `@plexui/vue` depends on it too, but your own stylesheet and Vite config import it directly, so install it as a dependency of your app (strict installs such as pnpm do not expose a package's dependencies to the app).
 
 ### 2. Setup styles
 

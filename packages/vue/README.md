@@ -7,10 +7,10 @@ Docs: [plexui.com/docs/vue](https://plexui.com/docs/vue) and every component pag
 ## Install
 
 ```bash
-npm install @plexui/vue
+npm install @plexui/vue @plexui/styles
 ```
 
-Requires Vue 3.5+ and Tailwind 4. `@plexui/styles` is installed with it.
+Requires Vue 3.5+ and Tailwind 4. Install `@plexui/styles` next to it: your stylesheet and Vite config import it directly.
 
 ```css
 /* main.css */

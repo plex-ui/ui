@@ -6,8 +6,8 @@
   "docsUrl": "https://plexui.com/components",
   "install": "npm install @plexui/ui",
   "setup": {
-    "css": "@import \"tailwindcss\";\n@import \"@plexui/ui/css\";",
-    "provider": "Wrap your app with <PlexUIProvider> from \"@plexui/ui/components/PlexUIProvider\""
+    "css": "@layer theme, base, components, utilities;\n@import \"tailwindcss\";\n@import \"@plexui/ui/css\";\n@source \"../node_modules/@plexui/ui\";",
+    "provider": "Wrap your app with <PlexUIProvider linkComponent={Link}> from \"@plexui/ui/components/PlexUIProvider\" (your router's Link, or \"a\")"
   },
   "sizeScale": [
     "3xs",
@@ -115,7 +115,7 @@
         {
           "name": "Multiple",
           "code": "<Accordion type=\"multiple\" defaultValue={[\"notifications\"]}>\n{items.map((item) => (\n  <Accordion.Item key={item.value} value={item.value}>\n    <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n    <Accordion.Content>{item.content}</Accordion.Content>\n  </Accordion.Item>\n))}\n</Accordion>",
-          "details": "Use type=\"multiple\" when readers can keep several sections open at once — settings pages, long FAQs, step-by-step references."
+          "details": "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references."
         },
         {
           "name": "Disabled",
@@ -125,7 +125,7 @@
         {
           "name": "Card",
           "code": "<Card>\n<Card.Header>\n  <Card.Title>Subscription & billing</Card.Title>\n  <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <Accordion type=\"single\" collapsible defaultValue=\"plans\">\n    {items.map((item) => (\n      <Accordion.Item key={item.value} value={item.value}>\n        <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n        <Accordion.Content>{item.content}</Accordion.Content>\n      </Accordion.Item>\n    ))}\n  </Accordion>\n</Card.Content>\n</Card>",
-          "details": "Composed inside Card — the most common landing-page FAQ pattern."
+          "details": "Composed inside Card, the most common landing-page FAQ pattern."
         }
       ],
       "subComponents": [
@@ -487,12 +487,12 @@
         {
           "name": "Orientation",
           "code": "<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n<Button uniform aria-label=\"Zoom in\"><PlusSm /></Button>\n<Button uniform aria-label=\"Zoom out\"><Minus /></Button>\n</ButtonGroup>",
-          "details": "Pass orientation=\"vertical\" to stack the buttons — useful for + / − steppers, zoom controls, or any vertical toolbar."
+          "details": "Pass orientation=\"vertical\" to stack the buttons, which is useful for + / − steppers, zoom controls, or any vertical toolbar."
         },
         {
           "name": "Size",
           "code": "<ButtonGroup>\n<Button size=\"sm\">Small</Button>\n<Button size=\"sm\">Button</Button>\n<Button size=\"sm\">Group</Button>\n<Button size=\"sm\" uniform aria-label=\"Add\"><PlusSm /></Button>\n</ButtonGroup>",
-          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons — each child keeps its own padding."
+          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons. Each child keeps its own padding."
         },
         {
           "name": "Nested",
@@ -502,7 +502,7 @@
         {
           "name": "Separator",
           "code": "<ButtonGroup>\n<Button variant=\"soft\" color=\"secondary\" size=\"sm\"><Undo /> Undo</Button>\n<ButtonGroup.Separator />\n<Button variant=\"soft\" color=\"secondary\" size=\"sm\">Redo <Redo /></Button>\n</ButtonGroup>",
-          "details": "Drop a ButtonGroup.Separator between items to add a visible divider — commonly used for Undo / Redo pairs or any \"two related actions\" toolbar."
+          "details": "Drop a ButtonGroup.Separator between items to add a visible divider, commonly used for Undo / Redo pairs or any \"two related actions\" toolbar."
         },
         {
           "name": "Split",
@@ -517,7 +517,7 @@
         {
           "name": "Input group",
           "code": "<ButtonGroup>\n<ButtonGroup>\n  <Button pill uniform aria-label=\"Add attachment\"><Plus /></Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Input\n    pill\n    placeholder={voiceEnabled ? \"Recording your idea…\" : \"Describe a component…\"}\n    disabled={voiceEnabled}\n    endAdornment={\n      <Input.AdornmentButton\n        color={voiceEnabled ? \"caution\" : undefined}\n        aria-label=\"Toggle voice mode\"\n        aria-pressed={voiceEnabled}\n        onClick={() => setVoiceEnabled((prev) => !prev)}\n      >\n        <Mic />\n      </Input.AdornmentButton>\n    }\n  />\n</ButtonGroup>\n</ButtonGroup>",
-          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton — it sizes off the input's own size token so the button stays concentric with the pill at every size."
+          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size."
         },
         {
           "name": "Dropdown menu",
@@ -532,7 +532,7 @@
         {
           "name": "Popover",
           "code": "<ButtonGroup>\n<Button><Sparkles /> Generate</Button>\n<Popover>\n  <Popover.Trigger>\n    <Button uniform aria-label=\"More generate options\"><ChevronDownMd /></Button>\n  </Popover.Trigger>\n  <Popover.Content side=\"bottom\" align=\"end\" className=\"p-4\">\n    <Card variant=\"ghost\" size=\"sm\">\n      <Card.Header>\n        <Card.Title>Generate a component</Card.Title>\n        <Card.Description>Describe what to build in plain English.</Card.Description>\n      </Card.Header>\n      <Card.Content>\n        <Textarea placeholder=\"A login form with email and password…\" rows={3} />\n      </Card.Content>\n      <Card.Footer>\n        <Card.Description>Plex will draft the code and preview it live.</Card.Description>\n      </Card.Footer>\n    </Card>\n  </Popover.Content>\n</Popover>\n</ButtonGroup>",
-          "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu — useful for richer panels (prompt composers, notification preferences, link previews)."
+          "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews)."
         }
       ],
       "subComponents": [
@@ -800,7 +800,7 @@
         {
           "name": "Icons",
           "code": "<Button color=\"secondary\" size=\"lg\" uniform variant=\"ghost\" aria-label=\"Add\">\n<PlusLg />\n</Button>",
-          "details": "Add icons as children — sizing is automatic via iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square — create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters — applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons."
+          "details": "Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons."
         },
         {
           "name": "Block",
@@ -900,7 +900,7 @@
         {
           "name": "Create project",
           "code": "<Card>\n<Card.Header>\n  <Card.Title>Create project</Card.Title>\n  <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>\n</Card.Header>\n<Card.Content>\n  <Field label=\"Name\"><Input placeholder=\"billing-service\" /></Field>\n  <Field label=\"Region\" description=\"Where your functions and database will live.\">\n    <Input placeholder=\"us-east-1\" />\n  </Field>\n</Card.Content>\n<Card.Footer style={{ justifyContent: 'flex-end' }}>\n  <Button variant=\"outline\" size=\"sm\" pill={false}>Cancel</Button>\n  <Button color=\"primary\" size=\"sm\" pill={false}>Deploy</Button>\n</Card.Footer>\n</Card>",
-          "details": "Right-aligned footer with Cancel / Submit — use style=\\{{justifyContent: 'flex-end'}} on Card.Footer."
+          "details": "Right-aligned footer with Cancel / Submit: use style=\\{{justifyContent: 'flex-end'}} on Card.Footer."
         },
         {
           "name": "Payment Method",
@@ -943,7 +943,7 @@
           "name": "variant",
           "type": "\"solid\" | \"ghost\"",
           "default": "\"solid\"",
-          "description": "Visual style — solid (filled background) or ghost (checkmark only)"
+          "description": "Visual style: solid (filled background) or ghost (checkmark only)"
         },
         {
           "name": "pill",
@@ -969,7 +969,7 @@
         {
           "name": "label",
           "type": "ReactNode",
-          "description": "Accessible label — accepts ReactNode for rich content"
+          "description": "Accessible label. Accepts ReactNode for rich content"
         },
         {
           "name": "disabled",
@@ -1052,7 +1052,7 @@
         {
           "name": "Disabled",
           "code": "{/* solid */}\n<Checkbox label=\"Unchecked\" disabled />\n<Checkbox label=\"Checked\" disabled defaultChecked />\n<Checkbox label=\"Indeterminate\" disabled checked=\"indeterminate\" />\n\n{/* solid pill */}\n<Checkbox label=\"Unchecked\" pill disabled />\n<Checkbox label=\"Checked\" pill disabled defaultChecked />\n\n{/* ghost */}\n<Checkbox label=\"Unchecked\" variant=\"ghost\" disabled />\n<Checkbox label=\"Checked\" variant=\"ghost\" disabled defaultChecked />",
-          "details": "When disabled is set, the checkbox is dimmed to 50% opacity and prevents interaction. Works consistently across all variants — solid, pill, and ghost."
+          "details": "When disabled is set, the checkbox is dimmed to 50% opacity and prevents interaction. Works consistently across all variants: solid, pill, and ghost."
         },
         {
           "name": "Label orientation",
@@ -1312,7 +1312,7 @@
           "name": "size",
           "type": "ControlSize",
           "default": "\"md\"",
-          "description": "Input size (3xs–3xl)"
+          "description": "Input size (3xs to 3xl)"
         },
         {
           "name": "variant",
@@ -1492,7 +1492,7 @@
         {
           "name": "Dropdown + time",
           "code": "<DatePicker\ncaptionLayout=\"dropdown\"\nshowTime\nyearRange={[2020, 2030]}\ntriggerDateFormat=\"MMM d, yyyy HH:mm\"\nplaceholder=\"Schedule event\"\nclearable pill\n/>",
-          "details": "Combine captionLayout=\"dropdown\" with showTime for quick month/year jumps and time selection in a single picker — useful for scheduling events at a specific date and time."
+          "details": "Combine captionLayout=\"dropdown\" with showTime for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time."
         },
         {
           "name": "Two fields",
@@ -1891,7 +1891,7 @@
         {
           "name": "Required",
           "code": "<Field label=\"Email\" required>\n<Input placeholder=\"Enter email...\" />\n</Field>",
-          "details": "Use required to show a visual asterisk after the label. This is purely visual and does not add the required HTML attribute — pass required directly to the child control for form validation."
+          "details": "Use required to show a visual asterisk after the label. This is purely visual and does not add the required HTML attribute. Pass required directly to the child control for form validation."
         },
         {
           "name": "Sizing",
@@ -1960,17 +1960,17 @@
         {
           "name": "Profile settings",
           "code": "<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Personal Information</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Your public profile details</p>\n</div>\n<div className=\"grid grid-cols-2 gap-3\">\n  <Field label=\"First name\"><Input placeholder=\"Jane\" /></Field>\n  <Field label=\"Last name\"><Input placeholder=\"Doe\" /></Field>\n</div>\n<Field label=\"Email\" description=\"This is the email associated with your account.\">\n  <Input placeholder=\"jane@example.com\" />\n</Field>\n<Field label=\"Bio\" description=\"Brief description for your profile. Max 160 characters.\">\n  <Textarea placeholder=\"Tell us about yourself...\" rows={3} />\n</Field>\n</fieldset>\n\n<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Preferences</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Customize your experience</p>\n</div>\n<Field label=\"Language\">\n  {(fp) => <Select id={fp.id} value={language} options={languages} />}\n</Field>\n<Field label=\"Theme\" description=\"Select your preferred appearance.\">\n  {() => <RadioGroup value={theme} onChange={setTheme} direction=\"col\">...</RadioGroup>}\n</Field>\n</fieldset>\n\n<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Notifications</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Manage how you receive updates</p>\n</div>\n<Field label=\"Email notifications\" description=\"Receive weekly digests.\" orientation=\"horizontal\">\n  {(fp) => <Switch id={fp.id} defaultChecked />}\n</Field>\n</fieldset>",
-          "details": "A profile settings form with three fieldset sections — personal info, preferences, and notifications — combining text inputs, select, radio group, and horizontal switch fields."
+          "details": "A profile settings form with three fieldset sections (personal info, preferences, and notifications), combining text inputs, select, radio group, and horizontal switch fields."
         },
         {
           "name": "Create project",
           "code": "<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">General</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Basic information about your project</p>\n</div>\n<Field label=\"Project name\" required>\n  <Input placeholder=\"my-project\" />\n</Field>\n<Field label=\"Description\" description=\"A short summary shown in project listings.\">\n  <Textarea placeholder=\"What does this project do?\" rows={3} />\n</Field>\n<Field label=\"Visibility\" description=\"Controls who can see this project.\">\n  {() => <RadioGroup value={visibility} onChange={setVisibility} direction=\"col\">...</RadioGroup>}\n</Field>\n</fieldset>\n\n<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Team Access</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Invite collaborators and set permissions</p>\n</div>\n<Field label=\"Team members\" description=\"Add people by email address.\">\n  {(fp) => <TagInput id={fp.id} placeholder=\"Add email...\" validator={(v) => v.includes('@')} />}\n</Field>\n<Field label=\"Permissions\" description=\"Default permissions for new members.\">\n  {() => <div className=\"flex flex-col gap-3 mt-1\">\n    <Checkbox label=\"Can view project\" defaultChecked />\n    <Checkbox label=\"Can edit resources\" defaultChecked />\n    <Checkbox label=\"Can manage members\" />\n  </div>}\n</Field>\n</fieldset>",
-          "details": "A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config — demonstrating diverse field types organized in sections."
+          "details": "A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections."
         },
         {
           "name": "Field configuration",
           "code": "<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Setup</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Define the basic field properties</p>\n</div>\n<Field label=\"Key\" description=\"Unique identifier used in the API.\">\n  <Input defaultValue=\"registration_method\" />\n</Field>\n<Field label=\"Label\" description=\"Human-readable name displayed in the UI.\">\n  <Input defaultValue=\"Registration method\" />\n</Field>\n<Field label=\"Type\">\n  {(fp) => <Select id={fp.id} value={type} options={types} />}\n</Field>\n</fieldset>\n\n<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Formatting</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Input constraints and sanitization rules</p>\n</div>\n<Field label=\"Max length\" description=\"Max length cannot exceed 4096.\">\n  <Input placeholder=\"256\" inputMode=\"numeric\" />\n</Field>\n<Field label=\"HTML sanitization\" description=\"Strip unsafe HTML tags.\" orientation=\"horizontal\">\n  {(fp) => <Switch id={fp.id} />}\n</Field>\n</fieldset>\n\n<fieldset className=\"flex flex-col gap-5\">\n<div className=\"mb-1\">\n  <h3 className=\"text-xs font-medium text-secondary uppercase tracking-wider\">Privacy & Access</h3>\n  <p className=\"text-xs text-tertiary mt-0.5\">Control field visibility and mutability</p>\n</div>\n<Field label=\"Not redactable\" description=\"Prevent from being redacted.\" orientation=\"horizontal\">\n  {(fp) => <Switch id={fp.id} />}\n</Field>\n<Field label=\"Write once\" description=\"Value can only be set once.\" orientation=\"horizontal\">\n  {(fp) => <Switch id={fp.id} />}\n</Field>\n</fieldset>",
-          "details": "A CMS-style field configuration form with setup, formatting, and privacy sections — matching the pattern used in content management systems for defining custom fields with type, validation, and access rules."
+          "details": "A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules."
         },
         {
           "name": "Birthday input",
@@ -1980,7 +1980,7 @@
         {
           "name": "Birthday with validation",
           "code": "<Field label=\"Birthday\" errorMessage={errorMessage}>\n<Input\n  placeholder=\"MM / DD / YYYY\"\n  value={birthday}\n  onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}\n  inputMode=\"numeric\"\n  maxLength={14}\n/>\n</Field>",
-          "details": "Birthday input with errorMessage on Field — Field automatically passes aria-invalid down and renders FieldError."
+          "details": "Birthday input with errorMessage on Field. Field automatically passes aria-invalid down and renders FieldError."
         },
         {
           "name": "Birthday segmented input",
@@ -2010,7 +2010,7 @@
           "name": "variant",
           "type": "\"compact\" | \"area\"",
           "default": "\"compact\"",
-          "description": "Visual variant — compact button or larger tappable area"
+          "description": "Visual variant: compact button or larger tappable area"
         },
         {
           "name": "label",
@@ -2061,7 +2061,7 @@
         {
           "name": "errorMessage",
           "type": "string",
-          "description": "Error message — sets invalid visual state"
+          "description": "Error message. Sets the invalid visual state"
         },
         {
           "name": "invalid",
@@ -2279,7 +2279,7 @@
         {
           "name": "Password input",
           "code": "<FloatingLabelInput label=\"Password\" type=\"password\" />",
-          "details": "A type=\"password\" field ships a built-in reveal toggle — click the eye to show or hide the value. Set revealable to false to remove it."
+          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
         },
         {
           "name": "SSN input",
@@ -2314,7 +2314,7 @@
         {
           "name": "Country select",
           "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Menu } from \"@plexui/ui/components/Menu\"\n\nconst [country, setCountry] = useState(null)\nconst selected = COUNTRIES.find((c) => c.value === country)\n\n<Menu>\n<Menu.Trigger>\n  <FloatingLabelSelect\n    label=\"Country\"\n    selected={!!selected}\n    onClearClick={() => setCountry(null)}\n  >\n    {selected?.flag} {selected?.label}\n  </FloatingLabelSelect>\n</Menu.Trigger>\n<Menu.Content>\n  <Menu.RadioGroup value={country} onChange={setCountry}>\n    {COUNTRIES.map((c) => (\n      <Menu.RadioItem key={c.value} value={c.value}>\n        {c.flag} {c.label}\n      </Menu.RadioItem>\n    ))}\n  </Menu.RadioGroup>\n</Menu.Content>\n</Menu>",
-          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell — the label floats up when a value is selected."
+          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell: the label floats up when a value is selected."
         },
         {
           "name": "Phone input",
@@ -2412,7 +2412,7 @@
             {
               "name": "progress",
               "type": "number",
-              "description": "Static progress 0–100 (disables animation)"
+              "description": "Static progress 0-100 (disables animation)"
             },
             {
               "name": "size",
@@ -2522,7 +2522,7 @@
         },
         {
           "name": "Dropdown",
-          "code": "const [unit, setUnit] = useState(\"kg\")\n\n<InputGroup>\n<InputGroup.Input defaultValue=\"72\" inputMode=\"decimal\" aria-label=\"Weight\" />\n<InputGroup.Addon>\n  <InputGroup.Text>Weight</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <Menu>\n    <Menu.Trigger>\n      <InputGroup.Button aria-label=\"Weight unit\">\n        {unit}\n        <ChevronDownMd />\n      </InputGroup.Button>\n    </Menu.Trigger>\n    <Menu.Content align=\"end\" minWidth={160}>\n      <Menu.RadioGroup value={unit} onChange={setUnit}>\n        <Menu.RadioItem value=\"kg\">Kilograms (kg)</Menu.RadioItem>\n        <Menu.RadioItem value=\"lb\">Pounds (lb)</Menu.RadioItem>\n        <Menu.RadioItem value=\"st\">Stones (st)</Menu.RadioItem>\n      </Menu.RadioGroup>\n    </Menu.Content>\n  </Menu>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "const UNITS = [\n{ value: \"kg\", label: \"Kilograms\" },\n{ value: \"lb\", label: \"Pounds\" },\n{ value: \"st\", label: \"Stones\" },\n]\nconst [unit, setUnit] = useState(\"kg\")\n\n<InputGroup>\n<InputGroup.Input defaultValue=\"72\" inputMode=\"decimal\" aria-label=\"Weight\" />\n<InputGroup.Addon>\n  <InputGroup.Text>Weight</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <Menu>\n    <Menu.Trigger>\n      <InputGroup.Button aria-label=\"Weight unit\">\n        {unit}\n        <ChevronDownMd />\n      </InputGroup.Button>\n    </Menu.Trigger>\n    <Menu.Content align=\"end\" minWidth={160}>\n      {UNITS.map((item) => (\n        <Menu.CheckboxItem\n          key={item.value}\n          checked={unit === item.value}\n          onCheckedChange={() => setUnit(item.value)}\n          indicatorVariant=\"ghost\"\n        >\n          {item.label} ({item.value})\n        </Menu.CheckboxItem>\n      ))}\n    </Menu.Content>\n  </Menu>\n</InputGroup.Addon>\n</InputGroup>",
           "details": "Wrap an InputGroup.Button in a Menu to pick a unit of measurement next to the value."
         },
         {
@@ -2651,7 +2651,7 @@
         {
           "name": "Start adornment",
           "code": "<Input\nplaceholder=\"Start adornment\"\nstartAdornment={<Search className=\"fill-tertiary\" />}\n/>",
-          "details": "You can add arbitrary content to the beginning of an input with startAdornment &ndash; like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes."
+          "details": "You can add arbitrary content to the beginning of an input with startAdornment, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes."
         },
         {
           "name": "Clear button",
@@ -2661,7 +2661,7 @@
         {
           "name": "End adornment",
           "code": "<Input\nplaceholder=\"Username\"\nvalue={username}\nonChange={(evt) => setUsername(evt.target.value)}\nmaxLength={16}\nendAdornment={\n  <span className=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">\n    {username.length}/16\n  </span>\n}\n/>",
-          "details": "You can add arbitrary content to the end of an input with endAdornment &ndash; like a character counter or custom icon. The same spacing guidance from startAdornment applies here."
+          "details": "You can add arbitrary content to the end of an input with endAdornment, like a character counter or custom icon. The same spacing guidance from startAdornment applies here."
         },
         {
           "name": "Password with visibility toggle",
@@ -2696,7 +2696,7 @@
         {
           "name": "Auto select text",
           "code": "<Input autoSelect placeholder=\"Add text...\" defaultValue=\"Toggle to auto select\" />",
-          "details": "Pass autoSelect to select all text in the input &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
+          "details": "Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
         },
         {
           "name": "Autofill extensions",
@@ -2745,7 +2745,7 @@
         {
           "name": "Label in Field",
           "code": "<Field label=\"Name on Card\">\n<Input placeholder=\"Aisha Cooper\" />\n</Field>\n\n<Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n<Input placeholder=\"1234 5678 9012 3456\" />\n</Field>\n\n{/* Month / Year / CVV in a 3-col grid */}\n{/* Billing Address section + checkbox */}\n{/* Comments textarea + Submit / Cancel */}",
-          "details": "For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component — it renders the label internally, hooks up htmlFor automatically, and handles the surrounding spacing."
+          "details": "For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component. It renders the label internally, hooks up htmlFor automatically, and handles the surrounding spacing."
         }
       ],
       "docsUrl": "https://plexui.com/components/label"
@@ -2828,7 +2828,7 @@
         {
           "name": "Toolbar end slot",
           "code": "<MarkdownEditor\nplaceholder=\"Enter text...\"\ntoolbarEnd={\n  <button aria-label=\"Edit translations\">\n    <Translate />\n  </button>\n}\n/>",
-          "details": "Use toolbarEnd to render custom content at the end of the toolbar &mdash; for example, an &ldquo;Edit translations&rdquo; button."
+          "details": "Use toolbarEnd to render custom content at the end of the toolbar, for example, an &ldquo;Edit translations&rdquo; button."
         },
         {
           "name": "Variants",
@@ -2921,7 +2921,7 @@
         {
           "name": "Natural sizing",
           "code": "<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\" className=\"font-semibold gap-1.5\"><Tools /> Tools</Button>\n</Menu.Trigger>\n<Menu.Content minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>\n  <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>\n</Menu.Content>\n</Menu>",
-          "details": "Menu supports several sizing strategies:Natural sizing &ndash; use minWidth=\"auto\" to have the menu fit naturally to the size of the content.Fixed size &ndash; use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing &ndash; minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing &ndash; apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection."
+          "details": "Menu supports several sizing strategies:Natural sizing: use minWidth=\"auto\" to have the menu fit naturally to the size of the content.Fixed size: use width and minWidth to set the menu to a fixed size, regardless of content size.Flexible sizing: minWidth can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of Menu.Content. maxWidth isn't exposed as a prop because it's reserved for Radix variables used in collision detection."
         },
         {
           "name": "Horizontal (icons only)",
@@ -3001,7 +3001,7 @@
         },
         {
           "name": "Menu.Item",
-          "description": "— List item. Use onSelect for actions; omit for non-interactive content.",
+          "description": "List item. Use onSelect for actions; omit for non-interactive content.",
           "props": [
             {
               "name": "description",
@@ -3361,12 +3361,12 @@
         {
           "name": "With label",
           "code": "<div>\n<div style={{ display: 'flex', justifyContent: 'space-between' }}>\n  <Label id=\"progress-upload-label\">Uploading plex-ui.zip</Label>\n  <span>3.2 / 4.8 MB</span>\n</div>\n<Progress aria-labelledby=\"progress-upload-label\" value={67} />\n</div>",
-          "details": "Pair a Label with a value readout above the bar — typical upload / onboarding progress pattern."
+          "details": "Pair a Label with a value readout above the bar, the typical upload / onboarding progress pattern."
         },
         {
           "name": "Controlled",
-          "code": "const [value, setValue] = useState(50);\n\nreturn (\n<>\n  <Progress value={value} aria-label=\"Progress\" />\n  <Slider value={value} onChange={setValue} min={0} max={100} step={1} />\n</>\n);",
-          "details": "Bind value to any source — here it follows a Slider."
+          "code": "const [value, setValue] = useState(50);\n\nreturn (\n<>\n  <Progress value={value} aria-label=\"Progress\" />\n  <Slider value={value} onChange={setValue} min={0} max={100} step={1} aria-label=\"Progress value\" />\n</>\n);",
+          "details": "Bind value to any source. Here it follows a Slider."
         }
       ],
       "docsUrl": "https://plexui.com/components/progress"
@@ -3451,7 +3451,7 @@
         {
           "name": "With description",
           "code": "<RadioGroup direction=\"col\" value={value} onChange={setValue} aria-label=\"Spacing\">\n<RadioGroup.Item value=\"default\">\n  <div className=\"flex flex-col\">\n    <span>Default</span>\n    <span className=\"text-xs text-secondary mt-0.5\">\n      Standard spacing for most use cases.\n    </span>\n  </div>\n</RadioGroup.Item>\n<RadioGroup.Item value=\"comfortable\">\n  <div className=\"flex flex-col\">\n    <span>Comfortable</span>\n    <span className=\"text-xs text-secondary mt-0.5\">\n      More space between elements.\n    </span>\n  </div>\n</RadioGroup.Item>\n<RadioGroup.Item value=\"compact\">\n  <div className=\"flex flex-col\">\n    <span>Compact</span>\n    <span className=\"text-xs text-secondary mt-0.5\">\n      Minimal spacing for dense layouts.\n    </span>\n  </div>\n</RadioGroup.Item>\n</RadioGroup>",
-          "details": "Radio items accept ReactNode children, so you can compose a label with secondary description text — useful for options that need additional context."
+          "details": "Radio items accept ReactNode children, so you can compose a label with secondary description text, useful for options that need additional context."
         },
         {
           "name": "With Field",
@@ -3600,7 +3600,7 @@
         {
           "name": "Selected",
           "code": "<SelectControl selected={false}>Select...</SelectControl>",
-          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you."
+          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you."
         },
         {
           "name": "Start icon",
@@ -3640,7 +3640,7 @@
         {
           "name": "Country selector",
           "code": "const countries = [\n{ value: \"us\", label: \"United States\" },\n{ value: \"gb\", label: \"United Kingdom\" },\n// ...60 countries\n];\n\nconst CountryView = ({ value }) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} width={20} />\n  {countries.find(c => c.value === value)?.label}\n</span>\n);\n\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchable\nTriggerView={CountryView}\nlistMinWidth={300}\n/>",
-          "details": "A plain country selector built with Select. Shows flag icons with country names — no dial codes. Useful for profile forms, shipping addresses, and other country-only fields."
+          "details": "A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields."
         },
         {
           "name": "Country code selector",
@@ -3650,7 +3650,7 @@
         {
           "name": "Phone form",
           "code": "import { useState, useCallback, useRef } from 'react';\nimport { Input } from '@plexui/ui/components/Input';\nimport { Select, type Option } from '@plexui/ui/components/Select';\nimport { Button } from '@plexui/ui/components/Button';\nimport { FieldError } from '@plexui/ui/components/FieldError';\n\n// Country data — include all 245 countries in production\ntype Country = { value: string; label: string; dialCode: string; flag: string };\n\nconst COUNTRIES: Country[] = [\n{ value: 'us', label: 'United States', dialCode: '+1', flag: '🇺🇸' },\n{ value: 'gb', label: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },\n{ value: 'de', label: 'Germany', dialCode: '+49', flag: '🇩🇪' },\n{ value: 'fr', label: 'France', dialCode: '+33', flag: '🇫🇷' },\n{ value: 'es', label: 'Spain', dialCode: '+34', flag: '🇪🇸' },\n{ value: 'it', label: 'Italy', dialCode: '+39', flag: '🇮🇹' },\n{ value: 'jp', label: 'Japan', dialCode: '+81', flag: '🇯🇵' },\n{ value: 'au', label: 'Australia', dialCode: '+61', flag: '🇦🇺' },\n{ value: 'br', label: 'Brazil', dialCode: '+55', flag: '🇧🇷' },\n{ value: 'in', label: 'India', dialCode: '+91', flag: '🇮🇳' },\n// ... full list of 245 countries\n];\n\nconst COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));\nconst COUNTRY_OPTIONS = COUNTRIES.map((c) => ({\n...c,\nlabel: `${c.label} (${c.dialCode})`,\n}));\n\n// Per-country phone number format patterns\nconst PHONE_FORMATS: Record<string, number[]> = {\nus: [3, 3, 4], ca: [3, 3, 4],   // 123 456 7890\ngb: [4, 3, 3], de: [3, 4, 4],   // 1234 567 890 | 123 4567 8901\nfr: [1, 2, 2, 2, 2],            // 1 23 45 67 89\nes: [3, 2, 2, 2],               // 123 45 67 89\nit: [3, 3, 4], jp: [2, 4, 4],\nau: [3, 3, 3], br: [2, 5, 4],\nin: [5, 5],                      // 12345 67890\n// ... add more countries as needed\n};\n\nfunction formatPhoneNumber(raw: string, countryCode?: string) {\nconst digits = raw.replace(/\\D/g, '');\nif (!digits) return '';\nconst format = (countryCode && PHONE_FORMATS[countryCode]) || [3, 3, 4];\nconst groups: string[] = [];\nlet i = 0;\nfor (const size of format) {\n  if (i >= digits.length) break;\n  groups.push(digits.slice(i, i + size));\n  i += size;\n}\nif (i < digits.length) groups.push(digits.slice(i));\nreturn groups.join(' ');\n}\n\n// Flag icon — SVG flags from lipis/flag-icons, all 4:3\nfunction FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {\nreturn (\n  <span\n    style={{\n      display: 'block',\n      height: trigger ? 'var(--start-icon-size, 18px)' : 16,\n      aspectRatio: '4 / 3',\n      borderRadius: 2,\n      overflow: 'hidden',\n      flexShrink: 0,\n    }}\n  >\n    <img\n      src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${code}.svg`}\n      alt=\"\"\n      loading=\"lazy\"\n      style={{\n        display: 'block',\n        width: '100%',\n        height: '100%',\n      }}\n    />\n  </span>\n);\n}\n\n// Custom trigger and option renderers\nconst CountryTriggerView = ({ value }: Option) => {\nconst country = COUNTRY_LOOKUP.get(value);\nif (!country) return null;\nreturn (\n  <span style={{ display: 'flex', alignItems: 'center', gap: 8, height: '100%' }}>\n    <FlagIcon code={value} trigger />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\nconst CountryOptionView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <FlagIcon code={value} />\n  {label}\n</span>\n);\n\n// Search matches country name or dial code\nconst searchPredicate = (option: Option, term: string) => {\nconst country = COUNTRY_LOOKUP.get(option.value);\nif (!country) return false;\nreturn (\n  country.label.toLowerCase().includes(term) ||\n  country.dialCode.includes(term)\n);\n};\n\nfunction PhoneForm() {\nconst [country, setCountry] = useState('us');\nconst [phone, setPhone] = useState('');\nconst [submitted, setSubmitted] = useState(false);\nconst phoneRef = useRef<HTMLInputElement>(null);\n\nconst dialCode = COUNTRY_LOOKUP.get(country)?.dialCode ?? '+1';\nconst digits = phone.replace(/\\D/g, '');\nconst isValid = digits.length >= 7 && digits.length <= 15;\nconst showError = submitted && !isValid;\n\nconst handleCountryChange = useCallback((option: Option) => {\n  setCountry(option.value);\n  setPhone('');\n  setSubmitted(false);\n  setTimeout(() => phoneRef.current?.focus(), 0);\n}, []);\n\nconst handlePhoneChange = useCallback(\n  (e: React.ChangeEvent<HTMLInputElement>) => {\n    setPhone(formatPhoneNumber(e.target.value.replace(/\\D/g, ''), country));\n    setSubmitted(false);\n  },\n  [country]\n);\n\nreturn (\n  <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} noValidate>\n    <div className=\"flex flex-col gap-2\">\n      <Select\n        value={country}\n        options={COUNTRY_OPTIONS}\n        onChange={handleCountryChange}\n        placeholder=\"Select country...\"\n        size=\"lg\"\n        block\n        searchPlaceholder=\"Search countries...\"\n        searchPredicate={searchPredicate}\n        TriggerView={CountryTriggerView}\n        OptionView={CountryOptionView}\n        listMinWidth={300}\n      />\n      <div>\n        <Input\n          ref={phoneRef}\n          value={phone}\n          onChange={handlePhoneChange}\n          placeholder=\"Phone number\"\n          type=\"tel\"\n          inputMode=\"tel\"\n          size=\"lg\"\n          invalid={showError}\n          startAdornment={\n            <span className=\"text-tertiary whitespace-nowrap select-none\">\n              {dialCode}\n            </span>\n          }\n        />\n        {showError && (\n      <FieldError className=\"mt-1.5\">Phone number is not valid.</FieldError>\n        )}\n      </div>\n    </div>\n<Button type=\"submit\" color=\"primary\" variant=\"solid\" size=\"lg\" className=\"w-full mt-3\">\n      Continue\n    </Button>\n  </form>\n);\n}",
-          "details": "Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit &mdash; the phone field shows an error state with FieldError when the number is too short or too long."
+          "details": "Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with FieldError when the number is too short or too long."
         },
         {
           "name": "Optical alignment",
@@ -3773,7 +3773,7 @@
         {
           "name": "With descriptions",
           "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n<div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n  {children}\n</div>\n);\n\nconst roles = [\n{\n  value: \"owner\",\n  label: \"Owner\",\n  description: (\n    <RoleOptionDescription>\n      Can modify project information and manage project members\n    </RoleOptionDescription>\n  ),\n},\n{\n  value: \"reader\",\n  label: \"Reader\",\n  description: (\n    <RoleOptionDescription>\n      Can make API requests that read or modify data\n    </RoleOptionDescription>\n  ),\n},\n];\n\n<Select\nvalue={role}\noptions={roles}\nplaceholder=\"Select role...\"\nalign=\"start\"\nlistMinWidth={260}\nvariant=\"ghost\"\nsize=\"lg\"\nonChange={({ value }) => setRole(value)}\nTriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>",
-          "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected) — the component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger."
+          "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger."
         },
         {
           "name": "Actions",
@@ -3885,18 +3885,18 @@
         {
           "name": "Semantic elements",
           "code": "<div className=\"flex flex-col gap-4\">\n<ShimmerText as=\"h2\" className=\"text-2xl font-bold\">Heading shimmer</ShimmerText>\n<ShimmerText as=\"p\" className=\"text-base\">Paragraph shimmer effect</ShimmerText>\n<ShimmerText as=\"span\" className=\"text-sm text-secondary\">Inline shimmer</ShimmerText>\n</div>",
-          "details": "Use the as prop to render as any text element: p, span, h1–h6, or div."
+          "details": "Use the as prop to render as any text element: p, span, h1 to h6, or div."
         },
         {
           "name": "Controllable shimmer",
           "code": "const [shimmer, setShimmer] = useState(true)\n\n<ShimmerableText shimmer={shimmer} className=\"text-lg font-semibold\">\nGenerating response...\n</ShimmerableText>",
-          "details": "ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully — no abrupt cut. Use this variant when text transitions between a loading and idle state."
+          "details": "ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut. Use this variant when text transitions between a loading and idle state."
         }
       ],
       "subComponents": [
         {
           "name": "ShimmerableText",
-          "description": "— controllable shimmer",
+          "description": "controllable shimmer",
           "props": [
             {
               "name": "as",
@@ -4049,7 +4049,7 @@
               "name": "size",
               "type": "\"sm\" | \"lg\"",
               "default": "\"lg\"",
-              "description": "sm — compact, tertiary; lg — larger, primary, more spacing"
+              "description": "sm: compact, tertiary. lg: larger, primary, more spacing"
             }
           ]
         },
@@ -4095,27 +4095,27 @@
           "properties": [
             {
               "name": "state",
-              "description": "ndash; Current state: `\"expanded\"` or `\"collapsed\"`"
+              "description": ": Current state: `\"expanded\"` or `\"collapsed\"`"
             },
             {
               "name": "open",
-              "description": "/ `setOpen` - Desktop sidebar open state"
+              "description": "/ `setOpen`: Desktop sidebar open state"
             },
             {
               "name": "openMobile",
-              "description": "/ `setOpenMobile` - Mobile menu open state"
+              "description": "/ `setOpenMobile`: Mobile menu open state"
             },
             {
               "name": "isMobile",
-              "description": "ndash; Whether the viewport is mobile"
+              "description": ": Whether the viewport is mobile"
             },
             {
               "name": "collapsible",
-              "description": "ndash; Current collapsible mode"
+              "description": ": Current collapsible mode"
             },
             {
               "name": "toggleSidebar",
-              "description": "ndash; Toggle function for both desktop and mobile"
+              "description": ": Toggle function for both desktop and mobile"
             }
           ]
         }
@@ -4365,7 +4365,7 @@
           "name": "size",
           "type": "\"default\" | \"sm\"",
           "default": "\"default\"",
-          "description": "Card size — sm for compact analytics layouts"
+          "description": "Card size. Use sm for compact analytics layouts"
         },
         {
           "name": "icon",
@@ -4549,7 +4549,7 @@
         {
           "name": "Label position with description",
           "code": "<Switch\nlabel=\"Dark mode\"\ndescription=\"Use dark theme across the entire application.\"\nlabelPosition=\"start\"\n/>",
-          "details": "The description follows the label position — both move together when {'labelPosition=\"start\"'} is set."
+          "details": "The description follows the label position: both move together when {'labelPosition=\"start\"'} is set."
         },
         {
           "name": "Default checked",
@@ -4569,7 +4569,7 @@
         {
           "name": "Disabled with label",
           "code": "<div className=\"flex flex-col gap-4\">\n<Switch label=\"Notifications\" disabled />\n<Switch label=\"Notifications\" disabled defaultChecked />\n</div>",
-          "details": "Disabled state works with labels — both the toggle and the label show a not-allowed cursor."
+          "details": "Disabled state works with labels: both the toggle and the label show a not-allowed cursor."
         },
         {
           "name": "Disabled with description",
@@ -4610,7 +4610,29 @@
         "TableBody",
         "TableRow",
         "TableHead",
-        "TableCell"
+        "TableCell",
+        "DataTable",
+        "DataTableColumnHeader"
+      ],
+      "imports": [
+        {
+          "path": "@plexui/ui/components/Table",
+          "names": [
+            "Table",
+            "TableHeader",
+            "TableBody",
+            "TableRow",
+            "TableHead",
+            "TableCell"
+          ]
+        },
+        {
+          "path": "@plexui/ui/components/DataTable",
+          "names": [
+            "DataTable",
+            "DataTableColumnHeader"
+          ]
+        }
       ],
       "examples": [
         {
@@ -4732,7 +4754,7 @@
               "name": "variant",
               "type": "\"default\" | \"bordered\"",
               "default": "\"default\"",
-              "description": "Visual variant — bordered adds a rounded border and tinted header"
+              "description": "Visual variant: bordered adds a rounded border and tinted header"
             },
             {
               "name": "pageSize",
@@ -4876,7 +4898,7 @@
           "name": "variant",
           "type": "\"segmented\" | \"underline\"",
           "default": "\"segmented\"",
-          "description": "Visual style — segmented (background highlight) or underline (line indicator)"
+          "description": "Visual style: segmented (background highlight) or underline (line indicator)"
         },
         {
           "name": "orientation",
@@ -4934,7 +4956,7 @@
         {
           "name": "Segmented with icons",
           "code": "<Tabs size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />}>Home</Tabs.Tab>\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />}>Settings</Tabs.Tab>\n<Tabs.Tab value=\"notifications\" icon={<Bell />}>Notifications</Tabs.Tab>\n</Tabs>",
-          "details": "Icons work with the segmented variant — use the icon prop on individual tabs. Icons are automatically sized to match the current size."
+          "details": "Icons work with the segmented variant. Use the icon prop on individual tabs. Icons are automatically sized to match the current size."
         },
         {
           "name": "Icon only",
@@ -4999,7 +5021,7 @@
         {
           "name": "Scrollable",
           "code": "<div className=\"max-w-[400px] flex\">\n<Tabs value={tab} onChange={setTab} aria-label=\"Scrollable tabs\">\n  <Tabs.Tab value=\"1\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"2\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"3\">Reports</Tabs.Tab>\n  <Tabs.Tab value=\"4\">Settings</Tabs.Tab>\n  <Tabs.Tab value=\"5\">Members</Tabs.Tab>\n  <Tabs.Tab value=\"6\">Billing</Tabs.Tab>\n  <Tabs.Tab value=\"7\">Security</Tabs.Tab>\n  <Tabs.Tab value=\"8\">Integrations</Tabs.Tab>\n</Tabs>\n</div>",
-          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed — just constrain the container width."
+          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width."
         }
       ],
       "subComponents": [
@@ -5303,7 +5325,7 @@
         {
           "name": "Auto select text",
           "code": "<div className=\"w-[400px]\">\n<Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} aria-label=\"Notes\" />\n</div>",
-          "details": "Pass autoSelect to select all text in the textarea &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
+          "details": "Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
         },
         {
           "name": "Autofill extensions",
@@ -5330,7 +5352,7 @@
         {
           "name": "Variants",
           "code": "toast.success(\"Inquiry ID copied\")\ntoast.error(\"Failed to assign owner\")\ntoast.warning(\"Session expires in 2 minutes\")\ntoast.info(\"New version available\")",
-          "details": "Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed — variants retheme automatically with data-theme."
+          "details": "Semantic variants map to PlexUI's success / danger / warning / info tokens. No richColors is passed. Variants retheme automatically with data-theme."
         },
         {
           "name": "Description",
@@ -5357,7 +5379,7 @@
         {
           "name": "Persistent",
           "code": "const id = toast(\"Backup scheduled for 2:00 AM UTC\", {\ndescription: \"This stays open until you dismiss it.\",\nduration: Infinity,\naction: { label: \"Dismiss\", onClick: () => toast.dismiss(id) },\n})",
-          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances — put a labelled action on the toast so dismissal is intentional and keyboard-accessible."
+          "details": "Pass duration: Infinity for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible."
         }
       ],
       "subComponents": [
@@ -5409,7 +5431,7 @@
           "name": "compact",
           "type": "boolean",
           "default": "false",
-          "description": "Short 1–3 word tooltips, inverse styling"
+          "description": "Short 1-3 word tooltips, inverse styling"
         },
         {
           "name": "interactive",
@@ -5494,5 +5516,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T15:02:22.724Z"
+  "generatedAt": "2026-10-26T15:54:29.143Z"
 }

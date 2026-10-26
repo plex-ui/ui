@@ -8,8 +8,8 @@
       "path": "app/plexui.css",
       "type": "registry:file",
       "target": "app/plexui.css",
-      "content": "@import '@plexui/ui/css';\n"
+      "content": "@import \"@plexui/ui/css\";\n/* Lets Tailwind find the classes Plex UI components use. Relative to this file. */\n@source \"../node_modules/@plexui/ui\";\n"
     }
   ],
-  "docs": "Add `import './plexui.css';` to your app root (e.g. app/layout.tsx) so Plex UI design tokens and component styles are loaded. Must be imported once, before rendering any Plex UI component."
+  "docs": "Import it from your global stylesheet right after Tailwind, so Tailwind compiles the utilities Plex UI components use: `@import \"tailwindcss\"; @import \"./plexui.css\";` in app/globals.css. Do not import it from JavaScript on its own. With a src/app directory, change the @source path to ../../node_modules/@plexui/ui. See https://plexui.com/docs/installation for the layer order."
 }
