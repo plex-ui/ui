@@ -172,9 +172,12 @@ function fuzzyMatch(query: string, text: string): boolean {
 }
 
 
+// Replaced with the package version at build time (tsup.config.ts)
+declare const __PLEXUI_MCP_VERSION__: string;
+
 const server = new McpServer({
   name: "plexui",
-  version: manifest.version || "1.0.0",
+  version: __PLEXUI_MCP_VERSION__,
 });
 
 server.tool(

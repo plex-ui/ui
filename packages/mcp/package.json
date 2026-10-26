@@ -1,6 +1,6 @@
 {
   "name": "@plexui/mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for PlexUI — browse components, props, and examples from AI editors",
   "type": "module",
   "bin": "./dist/index.js",

@@ -606,8 +606,9 @@
   flex-shrink: 0;
 }
 
-/* Rotate chevron when parent is expanded */
-[data-expanded="true"] .MenuChevron {
+/* Rotate chevron when its own item is expanded: not when only an outer item
+   is (a collapsed item nested under an expanded one keeps its chevron) */
+[data-expanded="true"] .MenuChevron:not([data-expanded="true"] li:not([data-expanded="true"]) .MenuChevron) {
   transform: rotate(90deg);
 }
 

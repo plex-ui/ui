@@ -1,15 +1,12 @@
 /* Tailwind & Reset */
 @import "./base";
-/* Tier 0 — radius / font / font-weight tokens, declared in :root so
-   semantic and components tiers can reference `var(--radius-*)`,
-   `var(--font-sans)`, `var(--font-weight-*)`. We deliberately do NOT
-   use `@theme static {…}` here: that would write into Tailwind's theme
-   layer, reset Tailwind's own `--radius-*` defaults via `--radius-*:
-   initial`, and break consumer-side Tailwind utilities like
-   `rounded-md`, `rounded-full`, `text-sm`. The standalone
-   `@plexui/ui/styles/variables-tailwind-theme.css` sub-export remains
-   for consumers who explicitly want Plex's scale to power their
-   Tailwind utilities. */
+/* Tier 0: radius / font / font-weight tokens, declared in an unlayered
+   :root so semantic and components tiers can reference `var(--radius-*)`,
+   `var(--font-sans)`, `var(--font-weight-*)`. Not `@theme static {…}`,
+   which would reset Tailwind's namespaces with `--radius-*: initial`.
+   Unlayered, they override the same names from Tailwind's theme layer,
+   so the consumer's `rounded-*` and font utilities use the Plex values
+   (see variables-tokens-root.css and /docs/installation). */
 @import "./variables-tokens-root";
 /* Tier 1 tokens: Primitives */
 @import "./variables-primitive";

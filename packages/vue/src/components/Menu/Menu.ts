@@ -614,10 +614,14 @@ export const MenuItemActions = defineComponent({
 export const MenuItemAction = defineComponent({
   name: "MenuItemAction",
   inheritAttrs: false,
+  props: {
+    /** Accessible name; the action is an icon-only button */
+    ariaLabel: String,
+  },
   emits: {
     click: (_event: MouseEvent) => true,
   },
-  setup(_props, { slots, emit }) {
+  setup(props, { slots, emit }) {
     const { setOpen } = useMenuContext()
 
     return () =>
@@ -630,6 +634,7 @@ export const MenuItemAction = defineComponent({
           uniform: true,
           iconSize: "sm",
           variant: "ghost",
+          "aria-label": props.ariaLabel,
           onClick: (evt: MouseEvent) => {
             evt.stopPropagation()
             setOpen(false)

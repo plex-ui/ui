@@ -151,6 +151,9 @@ const ReactFull = () => (
         <ReactMenu.ItemAction onClick={() => {}}>
           <ReactTrash />
         </ReactMenu.ItemAction>
+        <ReactMenu.ItemAction onClick={() => {}} aria-label="Delete thread">
+          <ReactTrash />
+        </ReactMenu.ItemAction>
       </ReactMenu.ItemActions>
     </ReactMenu.Item>
     <ReactMenu.Sub>
@@ -202,7 +205,10 @@ const vueFull = () => [
     default: () => [
       h("span", { class: "flex-1 truncate" }, "Thread"),
       h(MenuItemActions, { class: "actions" }, {
-        default: () => [h(MenuItemAction, { onClick: () => {} }, { default: () => [h(VueTrash)] })],
+        default: () => [
+          h(MenuItemAction, { onClick: () => {} }, { default: () => [h(VueTrash)] }),
+          h(MenuItemAction, { onClick: () => {}, ariaLabel: "Delete thread" }, { default: () => [h(VueTrash)] }),
+        ],
       }),
     ],
   }),

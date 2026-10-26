@@ -1,17 +1,16 @@
 /*
  * Plex UI tokens that semantic + components tiers reference via var(...).
  *
- * These live in `:root` (NOT in `@theme static`) so they don't interfere
- * with the consumer's Tailwind theme. With this layout:
- *   - Plex UI components see `--radius-md`, `--font-sans`, `--font-weight-medium`
- *     and render correctly.
- *   - Consumer's Tailwind utilities (`rounded-md`, `rounded-full`, `text-sm`)
- *     keep using Tailwind's own `@theme` defaults — Plex UI doesn't reset
- *     them with `--radius-*: initial`.
+ * These live in a plain `:root` block (NOT in `@theme static`), so Plex UI
+ * does not reset Tailwind's theme namespaces with `--radius-*: initial`.
+ * Being outside any cascade layer, they still win over the same names in
+ * Tailwind's `theme` layer: the consumer's `rounded-*`, `font-sans` and
+ * `font-*` weight utilities resolve to the Plex values (`rounded-md` is
+ * 8px). The installation guide documents this.
  *
- * If a consumer wants the Plex scale to also drive their Tailwind utilities,
- * they import the standalone `@plexui/ui/styles/variables-tailwind-theme.css`
- * file in addition to `@plexui/ui/css` (see /docs/installation).
+ * The standalone `@plexui/ui/styles/variables-tailwind-theme.css` file also
+ * maps the rest of the Plex scale (text sizes, breakpoints, ...) onto
+ * Tailwind's theme (see /docs/installation).
  */
 :root {
   /* Radii */

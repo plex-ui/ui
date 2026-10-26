@@ -164,9 +164,12 @@ const ItemActions = ({ className, children }: { className?: string; children: Re
 const ItemAction = ({
   children,
   onClick,
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode
   onClick: (evt: MouseEvent) => void
+  /** Accessible name; the action is an icon-only button */
+  "aria-label"?: string
 }) => {
   const { setOpen } = useMenuContext()
 
@@ -178,6 +181,7 @@ const ItemAction = ({
       uniform
       iconSize="sm"
       variant="ghost"
+      aria-label={ariaLabel}
       onClick={(evt) => {
         evt.stopPropagation()
         setOpen(false)
