@@ -305,7 +305,12 @@ const CalendarView = ({
     const daysInMonth = getDaysOfMonth(monthStart)
     const calendarCells = [...blankDays, ...daysInMonth]
 
-    const enabledDateInterval = Interval.fromDateTimes(min || monthStart, max || endOfMonth)
+    // Cells are start-of-day values and Interval excludes its end, so widen the
+    // bounds to whole days: min/max days themselves stay selectable.
+    const enabledDateInterval = Interval.fromDateTimes(
+      (min || monthStart).startOf("day"),
+      (max || endOfMonth).endOf("day"),
+    )
 
     return {
       startOfMonth: monthStart,
