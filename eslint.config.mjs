@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated, gitignored output: compiled workspace packages and
+    // fumadocs-mdx collections.
+    "packages/*/dist/**",
+    ".source/**",
   ]),
 ]);
 
