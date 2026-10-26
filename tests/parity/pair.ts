@@ -65,7 +65,7 @@ export const walkPair = async (
 type StateWalkTools<T> = {
   /** Updates the shared state and lets both frameworks settle */
   set: (patch: Partial<T>) => Promise<void>
-  /** Advances fake timers (setTimeout, requestAnimationFrame, Date) */
+  /** Advances fake timers (timeouts, intervals, animation frames, Date, performance) */
   advance: (ms: number) => Promise<void>
   /** Records the serialized DOM */
   snapshot: () => void
@@ -112,7 +112,9 @@ export const walkPairWithState = async <T extends object>(
     snapshot: () => {},
   }
 
-  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "Date"] })
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "requestAnimationFrame", "cancelAnimationFrame", "Date", "performance"],
+  })
   try {
     const react: string[] = []
     await act(async () => {

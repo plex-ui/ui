@@ -55,6 +55,10 @@
     "./dateUtils": {
       "types": "./dist/types/lib/dateUtils.d.ts",
       "default": "./dist/es/lib/dateUtils.js"
+    },
+    "./composables/*": {
+      "types": "./dist/types/composables/*.d.ts",
+      "default": "./dist/es/composables/*.js"
     }
   },
   "scripts": {
