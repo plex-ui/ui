@@ -90,6 +90,7 @@ jobs:
         run: npm run test:parity
 
       - name: Publish @plexui/styles
+        id: publish_styles
         if: steps.check.outputs.styles == 'publish'
         working-directory: packages/styles
         run: |
@@ -123,6 +124,7 @@ jobs:
           node scripts/check-published-types.mjs ui
 
       - name: Publish @plexui/ui
+        id: publish_ui
         if: steps.check.outputs.ui == 'publish'
         working-directory: packages/ui
         run: |
@@ -143,6 +145,7 @@ jobs:
           node scripts/check-published-types.mjs vue
 
       - name: Publish @plexui/vue
+        id: publish_vue
         if: steps.check.outputs.vue == 'publish'
         working-directory: packages/vue
         run: |
@@ -155,21 +158,30 @@ jobs:
         run: npm run build:mcp
 
       - name: Publish @plexui/mcp
+        id: publish_mcp
         if: steps.check.outputs.mcp == 'publish'
         working-directory: packages/mcp
         run: |
           if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
           else npm publish --access public --provenance; fi
 
-      # Also after a failed step: whatever did reach npm gets its tag, and a
-      # re-run (which skips published versions) finishes the rest
+      # Also after a failed step, and on a manual run with nothing to publish:
+      # every version this run published or npm already has gets its tag and
+      # the ui Release when they are missing. A version published a moment
+      # ago counts by its step's outcome, because npm can take minutes to
+      # serve it.
       - name: Tag the published versions and create the GitHub Release
-        if: always() && env.DRY_RUN != 'true' && steps.check.outputs.any == 'publish'
+        if: always() && env.DRY_RUN != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          PUBLISHED_styles: ${{ steps.publish_styles.outcome }}
+          PUBLISHED_ui: ${{ steps.publish_ui.outcome }}
+          PUBLISHED_vue: ${{ steps.publish_vue.outcome }}
+          PUBLISHED_mcp: ${{ steps.publish_mcp.outcome }}
         run: |
           on_npm() {
-            [ "$(npm view "@plexui/$1@$2" version 2>/dev/null)" = "$2" ]
+            published="PUBLISHED_$1"
+            [ "${!published}" = "success" ] || [ "$(npm view "@plexui/$1@$2" version 2>/dev/null)" = "$2" ]
           }
           also=""
           for pkg in styles vue mcp; do
