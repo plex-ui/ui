@@ -43,7 +43,7 @@ const cases: Array<[string, Props]> = [
   ["max tags counter", { maxTags: 5, defaultValue: tags("a", "b") }],
   ["max tags reached hides the input", { maxTags: 2, defaultValue: tags("a", "b") }],
   ["max tags reached while disabled", { maxTags: 2, defaultValue: tags("a", "b"), disabled: true }],
-  ["maxTags 0 renders 0 like React", { maxTags: 0 }],
+  ["maxTags 0 means no limit: no counter", { maxTags: 0 }],
   ["controlled", { value: tags("x", "y") }],
 ]
 
@@ -51,6 +51,13 @@ describe("TagInput parity", () => {
   test.each(cases)("%s", async (_name, props) => {
     const { react, vue } = await renderPair(createElement(RTagInput, props as never), () => h(TagInput, props as never))
     expect(vue).toBe(react)
+  })
+
+  test("maxTags 0 renders no counter and no stray 0, the input stays", async () => {
+    const { react } = await renderPair(createElement(RTagInput, { maxTags: 0 } as never), () => h(TagInput, { maxTags: 0 } as never))
+    expect(react).not.toMatch(/class="Limit"/)
+    expect(react).not.toMatch(/^\s*"0"$/m)
+    expect(react).toMatch(/<input/)
   })
 })
 

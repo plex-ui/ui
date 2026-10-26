@@ -455,12 +455,10 @@ export const TagInput = defineComponent({
           ]),
         ],
       ),
-      // `{maxTags && ...}` in React renders "0" for maxTags={0}
-      props.maxTags === 0
-        ? "0"
-        : props.maxTags
-          ? h("div", { class: s.Limit }, [String(tags.value.size), h("span", { class: "mx-px" }, "/"), String(props.maxTags)])
-          : null,
+      // 0 means no limit, as for the input above: no counter
+      props.maxTags
+        ? h("div", { class: s.Limit }, [String(tags.value.size), h("span", { class: "mx-px" }, "/"), String(props.maxTags)])
+        : null,
     ]
   },
 })

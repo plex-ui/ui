@@ -70,6 +70,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `DataTable` supports uncontrolled row selection, filtering and column visibility, also with only an `on*Change` callback (`row.getIsSelected()` threw without a `rowSelection` prop). It re-paginates when `pageSize` changes, including to and from `0` or `Infinity`, and labels its pagination buttons and rows-per-page select.
 - Space and Enter on the clear button of `SelectControl` and `FloatingLabelSelect` clear the value instead of opening the list, also inside a `Menu.Trigger`.
 - `CopyTooltip` copies with Enter or Space, not only with a pointer press.
+- `TagInput` with `maxTags={0}` (no limit, as the input already treated it) no longer renders a stray `0` where the counter goes.
 - `Input` and `Textarea` forward `autoComplete` and set `aria-invalid` when `invalid` is true. `FileUpload` puts `aria-invalid` and its error description on the visible trigger instead of the hidden file input.
 - `TextLink` keeps an explicit `target`, as `ButtonLink` already did.
 - A `TextLink` without `href` but with `onClick` is focusable and runs its action on Enter and Space.

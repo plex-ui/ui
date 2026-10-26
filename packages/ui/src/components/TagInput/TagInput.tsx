@@ -529,13 +529,14 @@ export const TagInput = (props: TagInputProps) => {
           )}
         </div>
       </div>
-      {maxTags && (
+      {/* 0 means no limit, as for the input above: no counter (and no stray "0") */}
+      {maxTags ? (
         <div className={s.Limit}>
           {tags.size}
           <span className="mx-px">/</span>
           {maxTags}
         </div>
-      )}
+      ) : null}
     </>
   )
 }

@@ -54,6 +54,8 @@ next-env.d.ts
 
 # AI tools & IDE
 .agent/
+# Keyhole per-machine task state (shared config .agents/keyhole.json stays trackable)
+.agents/keyhole/state/
 .cursor/
 .claude/
 .codex/
