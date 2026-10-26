@@ -1,0 +1,294 @@
+---
+title: Select Control
+description: Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+metaDescription: Vue 3 select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+---
+
+import { VueCountrySelectDemo, VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
+import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+
+export const STAGE = "flex-1 flex flex-col items-center justify-center py-12 w-full"
+export const NARROW_STAGE = "flex-1 flex flex-col gap-2 justify-center items-center py-10 w-full"
+export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+export const VARIANTS = ["soft", "outline", "ghost"]
+
+export const overview = `<Menu>
+  <MenuTrigger>
+    <SelectControl class="w-[200px]" :selected="!!value" @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select date..." }}</SelectControl>
+  </MenuTrigger>
+  <MenuContent :min-width="200" :width="200">
+    <MenuRadioGroup v-model:value="value">
+      <MenuRadioItem value="Today">Today</MenuRadioItem>
+      <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+      <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+      <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+    </MenuRadioGroup>
+  </MenuContent>
+</Menu>`
+
+export const variants = `<div class="w-[400px]">
+  <div class="flex flex-col gap-6">
+    <div v-for="variant in ['soft', 'outline', 'ghost']" :key="variant" class="flex items-center">
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+      <div class="flex-1">
+        <SelectControl
+          class="w-full"
+          :variant="variant"
+          selected
+          :StartIcon="Cabinet"
+          @clear-click="() => {}"
+          :invalid="invalid"
+          :disabled="disabled"
+        >Sample value</SelectControl>
+      </div>
+    </div>
+  </div>
+</div>`
+
+export const sizing = `<div class="flex flex-col gap-2 justify-start items-start w-[240px]">
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" dropdown-icon-type="none">Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" loading>Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant">Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" :StartIcon="Tools" dropdown-icon-type="none">Tool calls</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="Tools" dropdown-icon-type="none">With tool calls</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt" dropdown-icon-type="chevronDown">Today</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt">Today</SelectControl>
+</div>`
+
+export const selected = `<SelectControl class="w-[200px]" :selected="selected">Select...</SelectControl>`
+
+export const startIcon = `<SelectControl class="w-[200px]" :StartIcon="CalendarAlt">Select date...</SelectControl>`
+
+export const dropdownIcon = `<SelectControl class="w-[200px]" selected :dropdown-icon-type="dropdownIconType" :StartIcon="CalendarAlt">Select date...</SelectControl>`
+
+export const clearable = `<SelectControl class="w-[200px]" selected @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select..." }}</SelectControl>`
+
+export const loading = `<SelectControl class="w-[200px]" selected :loading="loading" :StartIcon="CalendarAlt">Loading...</SelectControl>`
+
+export const invalid = `<SelectControl class="w-[200px]" :invalid="invalid" selected>Pineapple on pizza</SelectControl>`
+
+export const disabled = `<SelectControl class="w-[200px]" :disabled="disabled" selected :StartIcon="User">Reader</SelectControl>`
+
+export const block = `<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <SelectControl size="lg" :block="block" :StartIcon="CalendarAlt">Select...</SelectControl>
+</div>`
+
+export const countrySelector = `<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countries"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ label }}</span>
+    </template>
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+  </Select>
+</div>`
+
+export const countryCodeSelector = `<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countryOptions"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :search-predicate="countrySearchPredicate"
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span v-if="countryOf(value)" style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ countryOf(value).label }} ({{ countryOf(value).dialCode }})</span>
+      <template v-else>{{ label }}</template>
+    </template>
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+  </Select>
+</div>`
+
+export const phoneForm = `<form class="w-[360px]" novalidate @submit.prevent="submitted = true">
+  <div class="flex flex-col gap-2">
+    <Select
+      v-model:value="country"
+      :options="countryOptions"
+      placeholder="Select country..."
+      :size="size"
+      variant="outline"
+      :pill="pill"
+      block
+      search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate"
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+      @change="() => { phone = ''; submitted = false; focusLater($refs.phoneInput) }"
+    >
+      <template #triggerView="{ value, label }">
+        <span v-if="countryOf(value)" style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ countryOf(value).label }} ({{ countryOf(value).dialCode }})</span>
+        <template v-else>{{ label }}</template>
+      </template>
+      <template #optionView="{ value, label }">
+        <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      </template>
+    </Select>
+    <div>
+      <Input
+        ref="phoneInput"
+        :value="phone"
+        @update:value="(raw) => { phone = formatPhoneNumber(raw, country); submitted = false }"
+        placeholder="Phone number"
+        type="tel"
+        inputmode="tel"
+        :size="size"
+        variant="outline"
+        :pill="pill"
+        :invalid="submitted && !isPhoneValid(phone)"
+      >
+        <template #startAdornment>
+          <span style="display: inline-flex; align-items: center; height: var(--input-size); line-height: 0" class="text-tertiary whitespace-nowrap select-none">{{ countryOf(country)?.dialCode ?? "+1" }}</span>
+        </template>
+      </Input>
+      <FieldError v-if="submitted && !isPhoneValid(phone)" class="mt-1.5">Phone number is not valid.</FieldError>
+    </div>
+  </div>
+  <Button type="submit" color="primary" variant="solid" :size="size" :pill="pill" class="w-full mt-3">Continue</Button>
+</form>`
+
+export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">Default</div>
+    <SelectControl class="w-full" selected variant="ghost">Ghost control</SelectControl>
+  </div>
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">optically-align="{{ opticallyAlign }}"</div>
+    <SelectControl class="w-full" selected variant="ghost" :optically-align="opticallyAlign">Ghost control</SelectControl>
+  </div>
+</div>`
+
+<UsageBlock>{`import { SelectControl } from "@plexui/vue/components/SelectControl";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo stageClassName={STAGE} template={overview} state={{ value: "" }} />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={variants} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={variants} controls={[{ name: "invalid", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Sizing & roundness
+
+<ComponentPreview language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>.</>} code={sizing} previewMinHeight={276}>
+  <VueSelectDemo template={sizing} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: false }, { name: "variant", type: "select", options: VARIANTS, default: "outline" }]} />
+</ComponentPreview>
+
+### Selected
+
+<ComponentPreview language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.</>} code={selected} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo stageClassName={NARROW_STAGE} template={selected} controls={[{ name: "selected", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Start icon
+
+<ComponentPreview language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically.</>} code={startIcon} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo stageClassName={STAGE} template={startIcon} />
+</ComponentPreview>
+
+### Dropdown icon
+
+<ComponentPreview language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator.</>} code={dropdownIcon} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={dropdownIcon} controls={[{ name: "dropdownIconType", type: "select", options: ["chevronDown", "dropdown", "none"], default: "dropdown" }]} />
+</ComponentPreview>
+
+### Clearable
+
+<ComponentPreview language="vue" details={<>Listen to <code>@clear-click</code> to enable the clearable action. The clear button shows while the control is <code>selected</code>.</>} code={clearable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo stageClassName={STAGE} template={clearable} state={{ value: "Selected value" }} />
+</ComponentPreview>
+
+### Loading
+
+<ComponentPreview language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, and the control ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={loading} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={loading} controls={[{ name: "loading", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Invalid
+
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state.</>} code={invalid} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={disabled} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Block
+
+<ComponentPreview language="vue" details={<>Create full-width controls with the <code>block</code> prop.</>} code={block} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo template={block} controls={[{ name: "block", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Country selector
+
+<ComponentPreview language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code.</>} code={countrySelector} previewMinHeight={168}>
+  <VueCountrySelectDemo stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Country code selector
+
+<ComponentPreview language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={countryCodeSelector} previewMinHeight={168}>
+  <VueCountrySelectDemo stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Phone form
+
+<ComponentPreview language="vue" details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={phoneForm} previewMinHeight={240}>
+  <VueCountrySelectDemo stageClassName="py-10" template={phoneForm} state={{ country: "es", phone: "", submitted: false }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Optical alignment
+
+<ComponentPreview language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control.</>} code={opticalAlignment} previewMinHeight={292}>
+  <VueSelectDemo stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
+</ComponentPreview>
+
+## Reference
+
+Use `SelectControl` with any floating UI (e.g. `MenuTrigger`, `PopoverTrigger`). The control renders the trigger; you provide the dropdown content. The default slot is the control's content. Attributes and listeners that are not props land on the control's `<span role="button">`; `@keydown` receives only the keys the control does not handle itself.
+
+<PropsTable data={[
+  { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected (affects placeholder styling)" },
+  { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Visual variant" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Control size (3xs to 3xl)" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded trigger" },
+  { prop: "StartIcon", type: "Component", description: "Icon at start" },
+  { prop: "@clear-click", type: "() => void", description: "Enables the clear button when set (a function prop, onClearClick)" },
+  { prop: "@interact", type: "() => void", description: "Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down" },
+  { prop: "dropdown-icon-type", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Dropdown indicator style" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid state" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable control" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Optical alignment" },
+]} />
+
+SelectControl shares the unified 9-step size scale with Button, Input, Select, and SegmentedControl.

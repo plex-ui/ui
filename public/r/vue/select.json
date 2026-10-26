@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "select",
+  "type": "registry:ui",
+  "title": "Select",
+  "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/select/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Select\"\n"
+    }
+  ],
+  "docs": "Import as `import { Select } from '@/components/ui/select'`. See https://plexui.com/vue/components/select for props and examples."
+}

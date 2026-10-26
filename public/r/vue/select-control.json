@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "select-control",
+  "type": "registry:ui",
+  "title": "Select Control",
+  "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/select-control/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/SelectControl\"\n"
+    }
+  ],
+  "docs": "Import as `import { SelectControl } from '@/components/ui/select-control'`. See https://plexui.com/vue/components/select-control for props and examples."
+}

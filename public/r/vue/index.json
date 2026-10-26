@@ -231,6 +231,22 @@
       ]
     },
     {
+      "name": "select",
+      "type": "registry:ui",
+      "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "select-control",
+      "type": "registry:ui",
+      "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "separator",
       "type": "registry:ui",
       "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",

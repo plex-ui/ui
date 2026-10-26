@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 41
+Components: 43
 
 ## Setup
 
@@ -1295,7 +1295,7 @@ Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/compon
 Docs: https://plexui.com/vue/components/copy-tooltip
 Props:
   - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copyValue (string) default: "Very cool content to copy" — Content to copy to clipboard
+  - copyValue (string) — Required. Content to copy to clipboard
   - openDelay (number) default: 150 — Tooltip open delay in milliseconds
   - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
   - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
@@ -3085,6 +3085,419 @@ Leverage component composition and class overrides to build card-style radio sel
 </RadioGroup>
 ```
 
+## Select
+Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+Import: import { Select } from "@plexui/vue/components/Select"
+Docs: https://plexui.com/vue/components/select
+Props:
+  - options (Options<T>) — Array of options or grouped options
+  - v-model:value (string | string[]) — Selected value (single) or values (multiple)
+  - @change ((option | options) => void) — Called when selection changes, with the selected option (or options with multiple)
+  - multiple (boolean) default: false — Allow multiple selection
+  - placeholder (string) default: "Select..." — Trigger placeholder
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
+  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
+  - pill (boolean) default: false — Rounded trigger
+  - clearable (boolean) default: false — Show clear button
+  - block (boolean) default: variant !== "ghost" — Full width trigger
+  - disabled (boolean) default: false — Disable select
+  - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
+  - actions (array) — Actions below options list
+  - #optionView / OptionView (slot (option) | Component) — Custom option render
+  - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
+  - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
+  - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
+  - search-placeholder (string) — Search input placeholder
+  - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+  - search-predicate ((option, term) => boolean) — Filters options while searching
+
+### Overview
+Bind the selection with v-model:value: a string, or an array of strings with multiple. The @change event carries the selected option (or options), like React's onChange.
+```vue
+<div style="width: 200px">
+  <Select
+    v-if="multiple"
+    key="multi"
+    placeholder="Select fruits..."
+    :options="fruitsOptions"
+    name="fruits"
+    multiple
+    :variant="variant"
+    :size="size"
+    :clearable="clearable"
+    :check-position="checkPosition"
+    v-model:value="multiFruits"
+  >
+    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+  </Select>
+  <Select
+    v-else
+    key="single"
+    placeholder="Select a fruit..."
+    :options="fruitsOptions"
+    name="fruits"
+    :multiple="false"
+    :variant="variant"
+    :size="size"
+    :clearable="clearable"
+    :check-position="checkPosition"
+    v-model:value="fruit"
+  />
+</div>
+```
+
+### With descriptions
+Options carrying a description field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning {''}. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no option-class-name needed. Pass a component to TriggerStartIcon to reflect the selected option's identity in the trigger.
+```vue
+<div style="width: 220px">
+  <Select
+    v-model:value="role"
+    :options="roles"
+    placeholder="Select role..."
+    align="start"
+    :list-min-width="260"
+    :variant="variant"
+    :size="size"
+    :check-position="checkPosition"
+    :TriggerStartIcon="triggerIcon ? (role === 'owner' ? UserLock : User) : undefined"
+  />
+</div>
+```
+
+### Actions
+Custom, arbitrary actions can be displayed below the options list via the actions prop. Each action has an id, a label, an optional Icon component and className, and an onSelect callback.
+```vue
+<div style="width: 150px">
+  <Select
+    variant="soft"
+    v-model:value="value"
+    block
+    :options="items"
+    placeholder="Select..."
+    align="start"
+    :list-min-width="240"
+    :actions="[
+      { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
+      { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
+    ]"
+  />
+</div>
+```
+
+### Grouped options
+Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
+```vue
+<div style="width: 200px">
+  <Select
+    variant="outline"
+    v-model:value="value"
+    side="bottom"
+    size="lg"
+    :options="groupedItems"
+    :list-min-width="300"
+    search-placeholder="Select an option..."
+    clearable
+  />
+</div>
+```
+
+### Multiple selection
+Multiple selection is supported through the multiple property. This changes how v-model:value, @change, and the #triggerView slot are typed, accepting and returning arrays of values.
+```vue
+<div style="width: 200px">
+  <Select
+    variant="soft"
+    placeholder="Select fruits..."
+    :options="fruitsOptions"
+    name="fruits"
+    multiple
+    clearable
+    v-model:value="fruits"
+  >
+    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+  </Select>
+</div>
+```
+
+### Column configuration
+A column-visibility panel built with Popover and Switch. Toggling a switch moves the column between shown and hidden groups.
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
+  </PopoverTrigger>
+  <PopoverContent :min-width="240" side="bottom" align="start">
+    <div class="py-1.5">
+      <div v-if="shown.length > 0">
+        <div
+          v-for="col in allColumns.filter((c) => shown.includes(c.id))"
+          :key="col.id"
+          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          @click="shown = shown.filter((c) => c !== col.id)"
+        >
+          <span class="text-sm">{{ col.label }}</span>
+          <Switch :checked="true" />
+        </div>
+      </div>
+      <div v-if="shown.length < allColumns.length">
+        <div
+          v-for="col in allColumns.filter((c) => !shown.includes(c.id))"
+          :key="col.id"
+          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          @click="shown = [...shown, col.id]"
+        >
+          <span class="text-sm text-tertiary">{{ col.label }}</span>
+          <Switch :checked="false" />
+        </div>
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>
+```
+
+## Select Control
+Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
+Docs: https://plexui.com/vue/components/select-control
+Props:
+  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+  - pill (boolean) default: false — Fully rounded trigger
+  - StartIcon (Component) — Icon at start
+  - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
+  - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
+  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+  - invalid (boolean) default: false — Invalid state
+  - disabled (boolean) default: false — Disable control
+  - block (boolean) default: false — Full width
+  - loading (boolean) default: false — Loading state
+  - optically-align ("start" | "end") — Optical alignment
+
+### Overview
+```vue
+<Menu>
+  <MenuTrigger>
+    <SelectControl class="w-[200px]" :selected="!!value" @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select date..." }}</SelectControl>
+  </MenuTrigger>
+  <MenuContent :min-width="200" :width="200">
+    <MenuRadioGroup v-model:value="value">
+      <MenuRadioItem value="Today">Today</MenuRadioItem>
+      <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+      <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+      <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+    </MenuRadioGroup>
+  </MenuContent>
+</Menu>
+```
+
+### Variants
+Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments.
+```vue
+<div class="w-[400px]">
+  <div class="flex flex-col gap-6">
+    <div v-for="variant in ['soft', 'outline', 'ghost']" :key="variant" class="flex items-center">
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+      <div class="flex-1">
+        <SelectControl
+          class="w-full"
+          :variant="variant"
+          selected
+          :StartIcon="Cabinet"
+          @clear-click="() => {}"
+          :invalid="invalid"
+          :disabled="disabled"
+        >Sample value</SelectControl>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Sizing & roundness
+Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill.
+```vue
+<div class="flex flex-col gap-2 justify-start items-start w-[240px]">
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" dropdown-icon-type="none">Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" loading>Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant">Select...</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" :StartIcon="Tools" dropdown-icon-type="none">Tool calls</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="Tools" dropdown-icon-type="none">With tool calls</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt" dropdown-icon-type="chevronDown">Today</SelectControl>
+  <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt">Today</SelectControl>
+</div>
+```
+
+### Selected
+Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.
+```vue
+<SelectControl class="w-[200px]" :selected="selected">Select...</SelectControl>
+```
+
+### Start icon
+Pass a component to StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically.
+```vue
+<SelectControl class="w-[200px]" :StartIcon="CalendarAlt">Select date...</SelectControl>
+```
+
+### Dropdown icon
+Use dropdown-icon-type to control the presentation of the dropdown indicator.
+```vue
+<SelectControl class="w-[200px]" selected :dropdown-icon-type="dropdownIconType" :StartIcon="CalendarAlt">Select date...</SelectControl>
+```
+
+### Clearable
+Listen to @clear-click to enable the clearable action. The clear button shows while the control is selected.
+```vue
+<SelectControl class="w-[200px]" selected @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select..." }}</SelectControl>
+```
+
+### Loading
+During loading, the dropdown icon and clear action are automatically hidden, and the control ignores pointer and keyboard interaction. Use disabled to add visual disablement.
+```vue
+<SelectControl class="w-[200px]" selected :loading="loading" :StartIcon="CalendarAlt">Loading...</SelectControl>
+```
+
+### Invalid
+Use invalid to visually indicate the control is in an invalid state.
+```vue
+<SelectControl class="w-[200px]" :invalid="invalid" selected>Pineapple on pizza</SelectControl>
+```
+
+### Disabled
+Use disabled to both visually and accessibly disable the control.
+```vue
+<SelectControl class="w-[200px]" :disabled="disabled" selected :StartIcon="User">Reader</SelectControl>
+```
+
+### Block
+Create full-width controls with the block prop.
+```vue
+<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <SelectControl size="lg" :block="block" :StartIcon="CalendarAlt">Select...</SelectControl>
+</div>
+```
+
+### Country selector
+A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {"{ value, label }"} options, and FlagIcon renders the flag image for a country code.
+```vue
+<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countries"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ label }}</span>
+    </template>
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+  </Select>
+</div>
+```
+
+### Country code selector
+A searchable country selector built with Select. The #triggerView and #optionView slots render flag icons and dial codes. A search-predicate matches both country name and dial code.
+```vue
+<div class="w-[320px]">
+  <Select
+    v-model:value="country"
+    :options="countryOptions"
+    placeholder="Select country..."
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    block
+    search-placeholder="Search countries..."
+    :search-predicate="countrySearchPredicate"
+    :list-min-width="300"
+    :option-class-name="countryOptionClass"
+  >
+    <template #triggerView="{ value, label }">
+      <span v-if="countryOf(value)" style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ countryOf(value).label }} ({{ countryOf(value).dialCode }})</span>
+      <template v-else>{{ label }}</template>
+    </template>
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+  </Select>
+</div>
+```
+
+### Phone form
+Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with FieldError when the number is too short or too long.
+```vue
+<form class="w-[360px]" novalidate @submit.prevent="submitted = true">
+  <div class="flex flex-col gap-2">
+    <Select
+      v-model:value="country"
+      :options="countryOptions"
+      placeholder="Select country..."
+      :size="size"
+      variant="outline"
+      :pill="pill"
+      block
+      search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate"
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+      @change="() => { phone = ''; submitted = false; focusLater($refs.phoneInput) }"
+    >
+      <template #triggerView="{ value, label }">
+        <span v-if="countryOf(value)" style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ countryOf(value).label }} ({{ countryOf(value).dialCode }})</span>
+        <template v-else>{{ label }}</template>
+      </template>
+      <template #optionView="{ value, label }">
+        <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      </template>
+    </Select>
+    <div>
+      <Input
+        ref="phoneInput"
+        :value="phone"
+        @update:value="(raw) => { phone = formatPhoneNumber(raw, country); submitted = false }"
+        placeholder="Phone number"
+        type="tel"
+        inputmode="tel"
+        :size="size"
+        variant="outline"
+        :pill="pill"
+        :invalid="submitted && !isPhoneValid(phone)"
+      >
+        <template #startAdornment>
+          <span style="display: inline-flex; align-items: center; height: var(--input-size); line-height: 0" class="text-tertiary whitespace-nowrap select-none">{{ countryOf(country)?.dialCode ?? "+1" }}</span>
+        </template>
+      </Input>
+      <FieldError v-if="submitted && !isPhoneValid(phone)" class="mt-1.5">Phone number is not valid.</FieldError>
+    </div>
+  </div>
+  <Button type="submit" color="primary" variant="solid" :size="size" :pill="pill" class="w-full mt-3">Continue</Button>
+</form>
+```
+
+### Optical alignment
+Use optically-align with either "start" or "end" to offset the gutter of the control.
+```vue
+<div class="flex flex-col gap-3 w-[280px]">
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">Default</div>
+    <SelectControl class="w-full" selected variant="ghost">Ghost control</SelectControl>
+  </div>
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">optically-align="{{ opticallyAlign }}"</div>
+    <SelectControl class="w-full" selected variant="ghost" :optically-align="opticallyAlign">Ghost control</SelectControl>
+  </div>
+</div>
+```
+
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
 Import: import { Separator } from "@plexui/vue/components/Separator"
@@ -3195,7 +3608,7 @@ Docs: https://plexui.com/vue/components/sidebar
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
-    - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. As in React, a listener without open leaves the change to the parent
+    - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
   Sidebar:
     - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
@@ -3775,10 +4188,10 @@ Props:
   - range (boolean) default: false — Enable multi-thumb range mode
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
   - reset-value (number) — Value for the reset option (single mode only)
-  - reset-tooltip (string) default: "Reset to default" — Tooltip of the reset button (single mode only)
+  - reset-tooltip (string) default: "Reset to default" — Tooltip and accessible name of the reset button (single mode only)
   - unit (string) — Unit displayed after the value (e.g. ms, px)
   - prefix-unit (string) — Unit displayed before the value (e.g. $)
-  - label (string) — Label text
+  - label (string) — Label text. Also names the slider thumbs for assistive technology
   - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
   - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
   - track-color (string) — Color of the slider track
@@ -4071,9 +4484,9 @@ Props:
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
 
-### Base
+### Overview
 ```vue
-<Switch />
+<Switch aria-label="Notifications" />
 ```
 
 ### With label
@@ -4123,8 +4536,8 @@ Bind v-model:checked to manage the state in a controlled manner. Here checked st
 Use disabled to prevent the user from toggling the control.
 ```vue
 <div class="flex gap-6">
-  <Switch disabled />
-  <Switch disabled checked />
+  <Switch disabled aria-label="Notifications" />
+  <Switch disabled checked aria-label="Dark mode" />
 </div>
 ```
 
@@ -4912,7 +5325,7 @@ Props:
   - disabled (boolean) default: false — Disable the textarea
   - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
   - invalid (boolean) default: false — Mark as invalid
-  - allow-autofill-extensions (boolean) default: false — Allow autofill extensions; true by default when name is set
+  - allow-autofill-extensions (boolean) default: !!name — Allow autofill extensions
   - auto-select (boolean) default: false — Select all contents when mounted
   - rows (number) default: 3 — Initial row count
   - auto-resize (boolean) default: false — Grow/shrink with content
@@ -4921,7 +5334,7 @@ Props:
   - @update:value ((value: string) => void) — Emitted on every input
   - @autofill (() => void) — Emitted when the browser autofills the textarea
 
-### Base
+### Overview
 ```vue
 <div class="w-[400px]">
   <Textarea placeholder="Enter text..." auto-resize :rows="3" />
@@ -4969,7 +5382,7 @@ Sizing of the textarea is controlled with size and gutter-size props. size sets 
 Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
 ```vue
 <div class="w-[400px]">
-  <Textarea :disabled="disabled" default-value="Jane Doe" />
+  <Textarea :disabled="disabled" default-value="Jane Doe" aria-label="Name" />
 </div>
 ```
 
@@ -4985,7 +5398,7 @@ Use the invalid prop to mark the textarea as invalid. You decide how this state 
 Pass auto-select to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 ```vue
 <div class="w-[400px]">
-  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" />
+  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" aria-label="Notes" />
 </div>
 ```
 

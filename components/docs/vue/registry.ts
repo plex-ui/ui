@@ -82,6 +82,8 @@ import {
 } from '@plexui/vue/components/ProgressSteps';
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
+import { Select } from '@plexui/vue/components/Select';
+import { SelectControl } from '@plexui/vue/components/SelectControl';
 import { Separator } from '@plexui/vue/components/Separator';
 import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
 import {
@@ -282,6 +284,8 @@ const components: Record<string, Component> = {
   SegmentedControl,
   SegmentedControlOption,
   SegmentedControlTab,
+  Select,
+  SelectControl,
   Separator,
   ShimmerableText,
   ShimmerText,

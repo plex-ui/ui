@@ -20,7 +20,7 @@ type Country = {
   flag: string;
 };
 
-const COUNTRIES: Country[] = [
+export const COUNTRIES: Country[] = [
   { value: 'af', label: 'Afghanistan', dialCode: '+93', flag: '🇦🇫' },
   { value: 'al', label: 'Albania', dialCode: '+355', flag: '🇦🇱' },
   { value: 'dz', label: 'Algeria', dialCode: '+213', flag: '🇩🇿' },
@@ -245,16 +245,16 @@ const COUNTRIES: Country[] = [
   { value: 'zw', label: 'Zimbabwe', dialCode: '+263', flag: '🇿🇼' },
 ];
 
-const COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));
+export const COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));
 
-const COUNTRY_OPTIONS: Country[] = COUNTRIES.map((c) => ({
+export const COUNTRY_OPTIONS: Country[] = COUNTRIES.map((c) => ({
   ...c,
   label: `${c.label} (${c.dialCode})`,
 }));
 
 
-const COUNTRY_OPTION_CLASS = 'phone-country-option';
-const COUNTRY_OPTION_STYLE = `.${COUNTRY_OPTION_CLASS} > div > div:first-child > div:first-child { order: 1; margin-left: auto; }`;
+export const COUNTRY_OPTION_CLASS = 'phone-country-option';
+export const COUNTRY_OPTION_STYLE = `.${COUNTRY_OPTION_CLASS} > div > div:first-child > div:first-child { order: 1; margin-left: auto; }`;
 
 // ============================================================
 // Per-country phone number formatting patterns
@@ -333,7 +333,7 @@ function FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {
 }
 
 
-function formatPhoneNumber(raw: string, countryCode?: string): string {
+export function formatPhoneNumber(raw: string, countryCode?: string): string {
   const allDigits = raw.replace(/\D/g, '');
   if (!allDigits) return '';
   const format = (countryCode && PHONE_FORMATS[countryCode]) || DEFAULT_PHONE_FORMAT;
@@ -349,7 +349,7 @@ function formatPhoneNumber(raw: string, countryCode?: string): string {
   return groups.join(' ');
 }
 
-function stripFormatting(formatted: string): string {
+export function stripFormatting(formatted: string): string {
   return formatted.replace(/\D/g, '');
 }
 
@@ -448,7 +448,7 @@ const CountryNameOptionView = ({ value, label }: Option) => {
 };
 
 
-const countrySearchPredicate = (option: Option, searchTerm: string): boolean => {
+export const countrySearchPredicate = (option: Option, searchTerm: string): boolean => {
   const country = COUNTRY_LOOKUP.get(option.value);
   if (!country) return option.label.toLowerCase().includes(searchTerm);
   return (

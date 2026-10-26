@@ -1,0 +1,204 @@
+---
+title: Select
+description: Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+metaDescription: Vue 3 select dropdown component with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+---
+
+import { VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
+
+export const STAGE = "flex-1 w-full py-12 flex items-center justify-center"
+export const VARIANTS = ["outline", "soft", "ghost"]
+export const SIZES = ["sm", "md", "lg"]
+export const CHECK_POSITIONS = ["start", "end"]
+
+export const overview = `<div style="width: 200px">
+  <Select
+    v-if="multiple"
+    key="multi"
+    placeholder="Select fruits..."
+    :options="fruitsOptions"
+    name="fruits"
+    multiple
+    :variant="variant"
+    :size="size"
+    :clearable="clearable"
+    :check-position="checkPosition"
+    v-model:value="multiFruits"
+  >
+    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+  </Select>
+  <Select
+    v-else
+    key="single"
+    placeholder="Select a fruit..."
+    :options="fruitsOptions"
+    name="fruits"
+    :multiple="false"
+    :variant="variant"
+    :size="size"
+    :clearable="clearable"
+    :check-position="checkPosition"
+    v-model:value="fruit"
+  />
+</div>`
+
+export const descriptions = `<div style="width: 220px">
+  <Select
+    v-model:value="role"
+    :options="roles"
+    placeholder="Select role..."
+    align="start"
+    :list-min-width="260"
+    :variant="variant"
+    :size="size"
+    :check-position="checkPosition"
+    :TriggerStartIcon="triggerIcon ? (role === 'owner' ? UserLock : User) : undefined"
+  />
+</div>`
+
+export const actions = `<div style="width: 150px">
+  <Select
+    variant="soft"
+    v-model:value="value"
+    block
+    :options="items"
+    placeholder="Select..."
+    align="start"
+    :list-min-width="240"
+    :actions="[
+      { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
+      { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
+    ]"
+  />
+</div>`
+
+export const grouped = `<div style="width: 200px">
+  <Select
+    variant="outline"
+    v-model:value="value"
+    side="bottom"
+    size="lg"
+    :options="groupedItems"
+    :list-min-width="300"
+    search-placeholder="Select an option..."
+    clearable
+  />
+</div>`
+
+export const multiple = `<div style="width: 200px">
+  <Select
+    variant="soft"
+    placeholder="Select fruits..."
+    :options="fruitsOptions"
+    name="fruits"
+    multiple
+    clearable
+    v-model:value="fruits"
+  >
+    <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+  </Select>
+</div>`
+
+export const columnConfig = `<Popover>
+  <PopoverTrigger>
+    <Button color="secondary" variant="outline" size="sm"><SettingsSlider :width="15" :height="15" /> Columns</Button>
+  </PopoverTrigger>
+  <PopoverContent :min-width="240" side="bottom" align="start">
+    <div class="py-1.5">
+      <div v-if="shown.length > 0">
+        <div
+          v-for="col in allColumns.filter((c) => shown.includes(c.id))"
+          :key="col.id"
+          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          @click="shown = shown.filter((c) => c !== col.id)"
+        >
+          <span class="text-sm">{{ col.label }}</span>
+          <Switch :checked="true" />
+        </div>
+      </div>
+      <div v-if="shown.length < allColumns.length">
+        <div
+          v-for="col in allColumns.filter((c) => !shown.includes(c.id))"
+          :key="col.id"
+          class="flex items-center justify-between gap-4 px-3 py-1.5 cursor-pointer hover:bg-alpha/5"
+          @click="shown = [...shown, col.id]"
+        >
+          <span class="text-sm text-tertiary">{{ col.label }}</span>
+          <Switch :checked="false" />
+        </div>
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>`
+
+<UsageBlock>{`import { Select } from "@plexui/vue/components/Select";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Bind the selection with <code>v-model:value</code>: a string, or an array of strings with <code>multiple</code>. The <code>@change</code> event carries the selected option (or options), like React's <code>onChange</code>.</>} code={overview} previewMinHeight={168}>
+  <VueSelectDemo stageClassName={STAGE} template={overview} state={{ fruit: "", multiFruits: [] }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "outline" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "checkPosition", type: "select", options: CHECK_POSITIONS, default: "start" }, { name: "clearable", type: "boolean", default: false }, { name: "multiple", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### With descriptions
+
+<ComponentPreview language="vue" details={<>Options carrying a <code>description</code> field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning <code>{'<div class="font-normal text-secondary py-px text-[0.935em] leading-[1.45]">'}</code>. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no <code>option-class-name</code> needed. Pass a component to <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger.</>} code={descriptions} previewMinHeight={168}>
+  <VueSelectDemo stageClassName={STAGE} template={descriptions} state={{ role: "reader" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "outline" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "checkPosition", type: "select", options: CHECK_POSITIONS, default: "start" }, { name: "triggerIcon", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Actions
+
+<ComponentPreview language="vue" details={<>Custom, arbitrary actions can be displayed below the options list via the <code>actions</code> prop. Each action has an <code>id</code>, a <code>label</code>, an optional <code>Icon</code> component and <code>className</code>, and an <code>onSelect</code> callback.</>} code={actions} previewMinHeight={168}>
+  <VueSelectDemo template={actions} state={{ value: "" }} />
+</ComponentPreview>
+
+### Grouped options
+
+<ComponentPreview language="vue" details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element, and per-option tooltips. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={grouped} previewMinHeight={168}>
+  <VueSelectDemo template={grouped} state={{ value: "1" }} />
+</ComponentPreview>
+
+### Multiple selection
+
+<ComponentPreview language="vue" details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>v-model:value</code>, <code>@change</code>, and the <code>#triggerView</code> slot are typed, accepting and returning arrays of values.</>} code={multiple} previewMinHeight={168}>
+  <VueSelectDemo template={multiple} state={{ fruits: [] }} />
+</ComponentPreview>
+
+### Column configuration
+
+<ComponentPreview language="vue" details={<>A column-visibility panel built with <code>Popover</code> and <code>Switch</code>. Toggling a switch moves the column between shown and hidden groups.</>} code={columnConfig} previewMinHeight={168}>
+  <VueSelectDemo template={columnConfig} state={{ shown: ["name", "email", "role", "status"] }} />
+</ComponentPreview>
+
+## Reference
+
+Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
+
+Searchable menus name their input `Search options` by default. Set `search-aria-label` for a more specific search label without changing the trigger's accessible name or the visible placeholder.
+
+<PropsTable data={[
+  { prop: "options", type: "Options<T>", description: "Array of options or grouped options" },
+  { prop: "v-model:value", type: "string | string[]", description: "Selected value (single) or values (multiple)" },
+  { prop: "@change", type: "(option | options) => void", description: "Called when selection changes, with the selected option (or options with multiple)" },
+  { prop: "multiple", type: "boolean", default: "false", description: "Allow multiple selection" },
+  { prop: "placeholder", type: "string", default: '"Select..."', description: "Trigger placeholder" },
+  { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger variant" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
+  { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
+  { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable select" },
+  { prop: "loading", type: "boolean", default: "false", description: "Loading state; shows loading-placeholder and keeps the menu closed" },
+  { prop: "actions", type: "array", description: "Actions below options list" },
+  { prop: "check-position", type: '"start" | "end" | "none"', default: '"start"', description: 'Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection' },
+  { prop: "#optionView / OptionView", type: "slot (option) | Component", description: "Custom option render" },
+  { prop: "#triggerView / TriggerView", type: "slot | Component", description: "Custom trigger render: the selected option, or { values, selectedAll } with multiple" },
+  { prop: "#trigger / trigger", type: "slot ({ open, onToggle }) | function", description: "Custom trigger element, wrapped as the popover trigger" },
+  { prop: "#searchEmptyMessage / search-empty-message", type: "slot | string", default: '"No results found."', description: "Shown when the search matches nothing" },
+  { prop: "search-placeholder", type: "string", description: "Search input placeholder" },
+  { prop: "search-aria-label", type: "string", default: '"Search options"', description: "Accessible name of the search input, independent of the trigger label" },
+  { prop: "search-predicate", type: "(option, term) => boolean", description: "Filters options while searching" },
+]} />
+
+Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.

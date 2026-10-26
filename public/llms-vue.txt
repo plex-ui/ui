@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 41
+Components: 43
 
 ## Setup
 
@@ -190,7 +190,7 @@ Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/compon
 Docs: https://plexui.com/vue/components/copy-tooltip
 Props:
   - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
-  - copyValue (string) default: "Very cool content to copy" — Content to copy to clipboard
+  - copyValue (string) — Required. Content to copy to clipboard
   - openDelay (number) default: 150 — Tooltip open delay in milliseconds
   - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
   - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
@@ -442,6 +442,53 @@ Props:
   - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
 Examples: Overview, Direction, Orientation, Group disabled, Item disabled, With description, Choice card, Card selection
 
+## Select
+Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
+Import: import { Select } from "@plexui/vue/components/Select"
+Docs: https://plexui.com/vue/components/select
+Props:
+  - options (Options<T>) — Array of options or grouped options
+  - v-model:value (string | string[]) — Selected value (single) or values (multiple)
+  - @change ((option | options) => void) — Called when selection changes, with the selected option (or options with multiple)
+  - multiple (boolean) default: false — Allow multiple selection
+  - placeholder (string) default: "Select..." — Trigger placeholder
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger variant
+  - size (ControlSize) default: "md" — Trigger size (3xs to 3xl)
+  - pill (boolean) default: false — Rounded trigger
+  - clearable (boolean) default: false — Show clear button
+  - block (boolean) default: variant !== "ghost" — Full width trigger
+  - disabled (boolean) default: false — Disable select
+  - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
+  - actions (array) — Actions below options list
+  - #optionView / OptionView (slot (option) | Component) — Custom option render
+  - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
+  - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
+  - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing
+  - search-placeholder (string) — Search input placeholder
+  - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+  - search-predicate ((option, term) => boolean) — Filters options while searching
+Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
+
+## Select Control
+Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
+Import: import { SelectControl } from "@plexui/vue/components/SelectControl"
+Docs: https://plexui.com/vue/components/select-control
+Props:
+  - selected (boolean) default: false — Whether a value is selected (affects placeholder styling)
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
+  - size (ControlSize) default: "md" — Control size (3xs to 3xl)
+  - pill (boolean) default: false — Fully rounded trigger
+  - StartIcon (Component) — Icon at start
+  - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
+  - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
+  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
+  - invalid (boolean) default: false — Invalid state
+  - disabled (boolean) default: false — Disable control
+  - block (boolean) default: false — Full width
+  - loading (boolean) default: false — Loading state
+  - optically-align ("start" | "end") — Optical alignment
+Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
+
 ## Separator
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
 Import: import { Separator } from "@plexui/vue/components/Separator"
@@ -467,7 +514,7 @@ Docs: https://plexui.com/vue/components/sidebar
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
-    - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. As in React, a listener without open leaves the change to the parent
+    - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
   Sidebar:
     - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
@@ -506,10 +553,10 @@ Props:
   - range (boolean) default: false — Enable multi-thumb range mode
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the slider
   - reset-value (number) — Value for the reset option (single mode only)
-  - reset-tooltip (string) default: "Reset to default" — Tooltip of the reset button (single mode only)
+  - reset-tooltip (string) default: "Reset to default" — Tooltip and accessible name of the reset button (single mode only)
   - unit (string) — Unit displayed after the value (e.g. ms, px)
   - prefix-unit (string) — Unit displayed before the value (e.g. $)
-  - label (string) — Label text
+  - label (string) — Label text. Also names the slider thumbs for assistive technology
   - label slot (VNode[]) — Rich label content (e.g. a tooltip); takes precedence over the label prop
   - marks (Array<{ value: number, label: string }>) — Marks below the track (horizontal only)
   - track-color (string) — Color of the slider track
@@ -567,7 +614,7 @@ Props:
   - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
-Examples: Base, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, Settings panel
+Examples: Overview, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, Settings panel
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
@@ -679,7 +726,7 @@ Props:
   - disabled (boolean) default: false — Disable the textarea
   - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
   - invalid (boolean) default: false — Mark as invalid
-  - allow-autofill-extensions (boolean) default: false — Allow autofill extensions; true by default when name is set
+  - allow-autofill-extensions (boolean) default: !!name — Allow autofill extensions
   - auto-select (boolean) default: false — Select all contents when mounted
   - rows (number) default: 3 — Initial row count
   - auto-resize (boolean) default: false — Grow/shrink with content
@@ -687,7 +734,7 @@ Props:
   - class (string) — Applied to the container <div>
   - @update:value ((value: string) => void) — Emitted on every input
   - @autofill (() => void) — Emitted when the browser autofills the textarea
-Examples: Base, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
+Examples: Overview, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
 
 ## Toast
 Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
