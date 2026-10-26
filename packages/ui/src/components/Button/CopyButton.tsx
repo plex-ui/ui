@@ -39,8 +39,11 @@ export const CopyButton = ({ children, copyValue, onClick, ...restProps }: CopyB
     }
   }, [])
 
+  // Icon-only copy buttons have no text content, so they need a name of their own
+  const ariaLabel = restProps["aria-label"] ?? (children == null ? (copied ? "Copied" : "Copy") : undefined)
+
   return (
-    <Button {...restProps} onClick={handleClick}>
+    <Button {...restProps} aria-label={ariaLabel} onClick={handleClick}>
       <Animate
         className="w-[var(--button-icon-size)] h-[var(--button-icon-size)]"
         initial={{ scale: 0.6 }}
