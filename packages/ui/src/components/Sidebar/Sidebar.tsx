@@ -68,7 +68,9 @@
 import clsx from "clsx"
 import { Slot } from "radix-ui"
 import {
+  cloneElement,
   forwardRef,
+  isValidElement,
   useCallback,
   useLayoutEffect,
   useState,
@@ -352,6 +354,19 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
   ({ isActive = false, tooltip, asChild = false, className, children, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
     const Comp = asChild ? Slot.Root : "button"
+    // With asChild the child element is the button, so the inner wrapper
+    // goes inside it. Wrapping the child instead would make Slot merge the
+    // button props onto the wrapper span.
+    const content =
+      asChild && isValidElement<{ children?: ReactNode }>(children) ? (
+        cloneElement(
+          children,
+          undefined,
+          <span className={s.MenuButtonInner}>{children.props.children}</span>,
+        )
+      ) : (
+        <span className={s.MenuButtonInner}>{children}</span>
+      )
 
     const button = (
       <Comp
@@ -361,7 +376,7 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
         className={clsx(s.MenuButton, className)}
         {...cleanProps(props)}
       >
-        <span className={s.MenuButtonInner}>{children}</span>
+        {content}
       </Comp>
     )
 
