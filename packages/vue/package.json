@@ -1,0 +1,60 @@
+{
+  "name": "@plexui/vue",
+  "version": "0.1.0",
+  "description": "Plex UI components for Vue 3, built on Reka UI and the shared @plexui/styles CSS",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "sideEffects": [
+    "*.css"
+  ],
+  "homepage": "https://plexui.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plex-ui/ui.git",
+    "directory": "packages/vue"
+  },
+  "keywords": [
+    "vue",
+    "ui",
+    "components",
+    "design-system",
+    "tailwind",
+    "plexui",
+    "reka-ui",
+    "ui-kit"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist/es/**",
+    "dist/types/**"
+  ],
+  "exports": {
+    "./components/*": {
+      "types": "./dist/types/components/*/index.d.ts",
+      "default": "./dist/es/components/*/index.js"
+    }
+  },
+  "scripts": {
+    "build:clean": "rm -rf dist",
+    "build:js": "tsc -p tsconfig.build.json",
+    "dev:js": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "dev": "npm run build:clean && npm run build:js && npm run dev:js",
+    "build": "npm run build:clean && npm run build:js",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@plexui/styles": "^0.1.0",
+    "clsx": "^2.1.1",
+    "reka-ui": "^2.11.0"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3",
+    "vue": "3.5.44"
+  }
+}

@@ -31,5 +31,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "packages/ui/dist", "packages/ui/src", "packages/mcp", "figma", "skills", "video"]
+  "exclude": ["node_modules", "packages/ui/dist", "packages/ui/src", "packages/styles", "packages/vue", "packages/mcp", "tests", "vitest.config.mts", "figma", "skills", "video"]
 }

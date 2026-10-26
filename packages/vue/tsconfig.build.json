@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist/es",
+    "sourceMap": true,
+    "inlineSources": true,
+    "target": "ES2022",
+    "noEmit": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}
