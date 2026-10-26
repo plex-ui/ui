@@ -107,7 +107,7 @@ const CheckboxComponent = defineComponent({
       const hasLabel = Boolean(slots.label || props.label)
       // The description only renders next to a label; it comes before any ids
       // the caller (a Field, say) passes
-      const descriptionId = hasLabel && (slots.description || props.description) ? `${id}-description` : undefined
+      const descriptionId = hasLabel && (slots.description || props.description) ? `${id}-label-description` : undefined
       const indeterminateDefault = props.defaultChecked === "indeterminate" ? false : props.defaultChecked
       const inputDefaultChecked = indeterminateDefault ?? (initialChecked === "indeterminate" ? false : initialChecked)
 

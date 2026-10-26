@@ -1,9 +1,11 @@
+import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { h } from "vue"
 import { OTPInput as ROTPInput } from "../../packages/ui/src/components/OTPInput"
 import { Tabs as ReactTabs } from "../../packages/ui/src/components/Tabs"
 import { OTPInput } from "../../packages/vue/src/components/OTPInput"
 import { Tabs, TabsTab } from "../../packages/vue/src/components/Tabs"
+import { flushVue, mountVue } from "./harness"
 import { walkPairWithState } from "./pair"
 
 // Fixes for Plex defects that apps worked around on their side.
@@ -53,6 +55,37 @@ describe("OTPInput: a field cleared from outside", () => {
     )
     expect(vue).toEqual(react)
     expect(outside).toEqual([true, true])
+  })
+})
+
+describe("OTPInput: a field the user empties", () => {
+  test("keeps the caret in the cell it was in", async () => {
+    const focusedIndex = () => Array.from(document.querySelectorAll("input")).indexOf(document.activeElement as HTMLInputElement)
+    const deleteOnlyDigit = async (flush: () => Promise<void>) => {
+      const fourth = () => document.querySelectorAll("input")[3]
+      fourth().focus()
+      await act(async () => {
+        fireEvent.change(fourth(), { target: { value: "5" } })
+      })
+      await flush()
+      fourth().focus()
+      await act(async () => {
+        fireEvent.keyDown(fourth(), { key: "Delete" })
+      })
+      await flush()
+      return focusedIndex()
+    }
+
+    render(<ROTPInput length={6} />)
+    const react = await deleteOnlyDigit(async () => {})
+    cleanup()
+
+    const vue = mountVue(() => h(OTPInput, { length: 6 }))
+    await flushVue()
+    const vueIndex = await deleteOnlyDigit(flushVue)
+    vue.unmount()
+
+    expect([react, vueIndex]).toEqual([3, 3])
   })
 })
 

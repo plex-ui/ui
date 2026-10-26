@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
 import { CopyButton as ReactCopyButton } from "../../packages/ui/src/components/Button"
 import { CopyButton as VueCopyButton } from "../../packages/vue/src/components/Button"
+import { CopyTooltip as ReactCopyTooltip } from "../../packages/ui/src/components/Tooltip"
+import { CopyTooltip as VueCopyTooltip } from "../../packages/vue/src/components/Tooltip"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 
@@ -92,5 +94,36 @@ describe("CopyButton follows the clipboard", () => {
     expect(onReactClick).toHaveBeenCalledTimes(1)
     expect(onVueClick).toHaveBeenCalledTimes(1)
     expect(writeText).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe("CopyTooltip after unmount", () => {
+  test("a write that settles after the tooltip is gone reports nothing", async () => {
+    let resolveWrite: () => void = () => {}
+    writeText.mockImplementation(() => new Promise<void>((resolve) => (resolveWrite = resolve)))
+
+    const onReactCopy = vi.fn()
+    const { unmount } = render(
+      <ReactCopyTooltip copyValue="secret" onCopy={onReactCopy}>
+        <button type="button">Copy</button>
+      </ReactCopyTooltip>,
+    )
+    fireEvent.pointerDown(document.querySelector("button")!)
+    unmount()
+    await act(async () => resolveWrite())
+
+    const onVueCopy = vi.fn()
+    const vue = mountVue(() =>
+      h(VueCopyTooltip, { copyValue: "secret", onCopy: onVueCopy }, () => h("button", { type: "button" }, "Copy")),
+    )
+    await flushVue()
+    fireEvent.pointerDown(document.querySelector("button")!)
+    vue.unmount()
+    resolveWrite()
+    await flushVue()
+
+    expect(writeText).toHaveBeenCalledTimes(2)
+    expect(onReactCopy).not.toHaveBeenCalled()
+    expect(onVueCopy).not.toHaveBeenCalled()
   })
 })

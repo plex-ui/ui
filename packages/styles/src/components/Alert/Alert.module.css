@@ -1,6 +1,7 @@
 .Alert {
   display: flex;
-  align-items: center;
+  /* The indicator sits on the first line of the message (see .Indicator) */
+  align-items: baseline;
   gap: var(--alert-gap);
   width: 100%;
   padding: var(--alert-gutter);
@@ -167,7 +168,18 @@
   }
 }
 
+/* A line box of the message's height with the icon centered in it. The
+   empty text gives it the message's baseline, so it lines up with the first
+   line of the title, also when the message is centered next to taller actions. */
 .Indicator {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+
+  &::before {
+    content: "\200b";
+  }
+
   svg {
     width: var(--alert-indicator-size, 20px);
     height: var(--alert-indicator-size, 20px);

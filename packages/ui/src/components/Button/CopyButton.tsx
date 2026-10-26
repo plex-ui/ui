@@ -14,7 +14,7 @@ export type CopyButtonProps = {
    * button shows the copied state only after a successful write.
    */
   onCopy?: (copied: boolean) => void
-} & Omit<ButtonProps, "children">
+} & Omit<ButtonProps, "children" | "onCopy">
 
 export const CopyButton = ({ children, copyValue, onClick, onCopy, ...restProps }: CopyButtonProps) => {
   const [copied, setCopied] = useState<boolean>(false)

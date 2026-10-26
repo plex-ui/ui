@@ -126,15 +126,20 @@ const childProp = (props: Props, name: string) => props[name] ?? props[camelize(
 
 /**
  * `cloneElement(child, fieldProps)` with React Field's merging rules. A child
- * without its own name (`aria-label`, `aria-labelledby`, `label`) is also
- * labelled by the field's label, which names triggers `for` cannot reach.
+ * without its own name (`aria-label`, `aria-labelledby`, `label`, a `#label`
+ * slot) is also labelled by the field's label, which names triggers `for`
+ * cannot reach.
  */
 const cloneWithFieldProps = (child: VNode, fieldChildProps: FieldChildProps, labelId: string): VNode => {
   const own: Props = { ...(child.props ?? {}) }
   const childDescribedBy = childProp(own, "aria-describedby") as string | undefined
   const childInvalid = childProp(own, "aria-invalid")
+  const childSlots = child.children
   const childNamed =
-    childProp(own, "aria-label") != null || childProp(own, "aria-labelledby") != null || own.label != null
+    childProp(own, "aria-label") != null ||
+    childProp(own, "aria-labelledby") != null ||
+    own.label != null ||
+    (childSlots != null && typeof childSlots === "object" && !Array.isArray(childSlots) && "label" in childSlots)
 
   const overrides: Props = {
     ...fieldChildProps,

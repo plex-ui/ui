@@ -92,11 +92,16 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
     inputRefs.current[0]?.focus()
   }, [autoFocus, disabled])
 
+  // The value the field's own last edit produced, until the value changes:
+  // a field the user empties keeps the caret where it is
+  const ownValueRef = useRef<string | null>(null)
+
   const commitDigits = useCallback(
     (nextDigits: string[]) => {
       // Kept when controlled too: the parent's value then keeps these gaps
       setCells(nextDigits)
       const nextValue = nextDigits.join("")
+      ownValueRef.current = nextValue
       if (nextValue !== currentValue) {
         onChange?.(nextValue)
       }
@@ -120,8 +125,10 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
   const hadValueRef = useRef(currentValue.length > 0)
   useEffect(() => {
     const filled = currentValue.length > 0
+    const fromOutside = ownValueRef.current !== currentValue
+    ownValueRef.current = null
     const root = rootRef.current
-    if (!filled && hadValueRef.current && !disabled && root?.contains(document.activeElement)) {
+    if (!filled && hadValueRef.current && fromOutside && !disabled && root?.contains(document.activeElement)) {
       focusCell(0)
     }
     hadValueRef.current = filled

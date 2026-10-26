@@ -84,6 +84,16 @@ describe("Field labels its control", () => {
   test.each([
     ["Checkbox with its own label", <RCheckbox key="c" label="Accept terms" />, () => h(Checkbox, { label: "Accept terms" })],
     ["Switch with its own label", <RSwitch key="s" label="Notify me" />, () => h(Switch, { label: "Notify me" })],
+    [
+      "Checkbox with a rich label (Vue: #label slot)",
+      <RCheckbox key="r" label={<strong>Email me</strong>} />,
+      () => h(Checkbox, null, { label: () => h("strong", "Email me") }),
+    ],
+    [
+      "Switch with a rich label (Vue: #label slot)",
+      <RSwitch key="w" label={<strong>Notify me</strong>} />,
+      () => h(Switch, null, { label: () => h("strong", "Notify me") }),
+    ],
     ["Input with aria-label", <RInput key="a" aria-label="Work email" />, () => h(Input, { "aria-label": "Work email" })],
     [
       "Select with aria-labelledby",
@@ -97,6 +107,19 @@ describe("Field labels its control", () => {
     expect(pair.vue).toBe(pair.react)
     const labelId = pair.react.match(/<label[^>]* id="([^"]+)"/)?.[1]
     expect(pair.react).not.toMatch(new RegExp(`aria-labelledby="[^"]*\\b${labelId}\\b`))
+  })
+
+  test.each([
+    ["Checkbox", <RCheckbox key="c" label="Email" description="Weekly digest" />, () => h(Checkbox, { label: "Email", description: "Weekly digest" })],
+    ["Switch", <RSwitch key="s" label="Email" description="Weekly digest" />, () => h(Switch, { label: "Email", description: "Weekly digest" })],
+  ])("a %s description and the field's description have their own ids", async (_name, reactChild, vueChild) => {
+    const pair = await renderPair(<RField id="n" label="Notifications" description="Pick what we send">{reactChild}</RField>, () =>
+      h(Field, { id: "n", label: "Notifications", description: "Pick what we send" }, vueChild),
+    )
+    expect(pair.vue).toBe(pair.react)
+    const ids = [...pair.react.matchAll(/ id="([^"]+)"/g)].map((match) => match[1])
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(pair.react).toContain('aria-describedby="n-label-description n-description"')
   })
 
   test("a render prop gets the label's id to spread", async () => {

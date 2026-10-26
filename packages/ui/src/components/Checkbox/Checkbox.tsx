@@ -67,7 +67,7 @@ export const Checkbox = ({
   const id = propsId ?? reactId
   // The description only renders next to a label; it comes before any ids
   // the caller (a Field, say) passes
-  const descriptionId = label && description ? `${id}-description` : undefined
+  const descriptionId = label && description ? `${id}-label-description` : undefined
   const ariaDescribedBy =
     [descriptionId, (restProps as { "aria-describedby"?: string })["aria-describedby"]].filter(Boolean).join(" ") ||
     undefined

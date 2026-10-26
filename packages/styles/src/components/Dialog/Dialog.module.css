@@ -110,6 +110,8 @@
 .Content:where([data-placement="top"]) {
   --dialog-content-align: flex-start;
   --dialog-content-padding: min(12vh, 6rem) 1rem 1rem;
+  /* A tall panel ends 1rem above the bottom edge, like a centered one */
+  --dialog-panel-max-height: calc(100dvh - min(12vh, 6rem) - 1rem);
 }
 
 .Content:where([data-placement="bottom"]) {
@@ -138,6 +140,15 @@
 .Content:where([data-placement="end"]) {
   --dialog-content-justify: flex-end;
   --dialog-panel-hidden-transform: translateX(100%);
+}
+
+/* Right to left, start is the right edge: the panel slides in from there */
+.Content:where([data-placement="start"]:dir(rtl)) {
+  --dialog-panel-hidden-transform: translateX(100%);
+}
+
+.Content:where([data-placement="end"]:dir(rtl)) {
+  --dialog-panel-hidden-transform: translateX(-100%);
 }
 
 .Content:where([data-placement="fullscreen"]) {

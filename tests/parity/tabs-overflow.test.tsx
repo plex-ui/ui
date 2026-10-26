@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { Fragment as ReactFragment } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { h } from "vue"
+import { Fragment, h, ref } from "vue"
 import { Tabs as RTabs } from "../../packages/ui/src/components/Tabs"
 import { fitCount, visibleTabCount } from "../../packages/ui/src/components/Tabs/overflow"
 import { Tabs, TabsTab } from "../../packages/vue/src/components/Tabs"
@@ -180,5 +181,232 @@ describe("Tabs overflow parity", () => {
     )
     expect(pair.vue).toBe(pair.react)
     expect(pair.react).not.toContain("data-overflow")
+  })
+})
+
+// Lets Vue, floating-ui and Reka's teleports settle
+const settle = async () => {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0))
+  })
+  await flushVue()
+}
+
+const openMenu = async () => {
+  await act(async () => {
+    fireEvent.pointerDown(document.querySelector('[aria-haspopup="menu"]')!, { button: 0, ctrlKey: false, pointerType: "mouse" })
+  })
+  await settle()
+}
+
+describe("Tabs overflow, review follow-ups", () => {
+  test("tabs inside a fragment overflow like any others", async () => {
+    const pair = await domOf(
+      () => (
+        <div>
+          <RTabs value="code" onChange={() => {}} aria-label="Repository" overflow="menu" data-test-width={300}>
+            <RTabs.Tab value="code">Code</RTabs.Tab>
+            <ReactFragment>
+              {tabs.slice(1).map((tab) => (
+                <RTabs.Tab key={tab.value} value={tab.value} badge={tab.badge}>
+                  {tab.label}
+                </RTabs.Tab>
+              ))}
+            </ReactFragment>
+          </RTabs>
+        </div>
+      ),
+      () =>
+        h("div", null, [
+          h(Tabs, { "value": "code", "aria-label": "Repository", "overflow": "menu", "data-test-width": 300 }, () => [
+            h(TabsTab, { value: "code" }, () => "Code"),
+            h(
+              Fragment,
+              tabs.slice(1).map((tab) => h(TabsTab, { key: tab.value, value: tab.value, badge: tab.badge }, () => tab.label)),
+            ),
+          ]),
+        ]),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(visibleTabs()).toEqual(["Code", "Issues3", "More"])
+  })
+
+  test("a disabled hidden tab stays disabled in the menu (Vue: the bare attribute)", async () => {
+    for (const run of ["react", "vue"] as const) {
+      const onChange = vi.fn()
+      let unmount = () => {}
+      if (run === "react") {
+        await act(async () => {
+          render(
+            <div>
+              <RTabs value="code" onChange={onChange} aria-label="Repository" overflow="menu" data-test-width={300}>
+                {tabs.map((tab) => (
+                  <RTabs.Tab key={tab.value} value={tab.value} disabled={tab.value === "actions"}>
+                    {tab.label}
+                  </RTabs.Tab>
+                ))}
+              </RTabs>
+            </div>,
+          )
+        })
+      } else {
+        // `<TabsTab disabled>` in a template: the raw prop is ""
+        unmount = mountVue(() =>
+          h("div", null, [
+            h(Tabs, { "value": "code", "onUpdate:value": onChange, "aria-label": "Repository", "overflow": "menu", "data-test-width": 300 }, () =>
+              tabs.map((tab) =>
+                h(TabsTab, { key: tab.value, value: tab.value, ...(tab.value === "actions" && { disabled: "" }) }, () => tab.label),
+              ),
+            ),
+          ]),
+        ).unmount
+        await settle()
+      }
+      await openMenu()
+      const item = screen.getByRole("menuitemradio", { name: "Actions" })
+      expect(item.getAttribute("aria-disabled"), run).toBe("true")
+      await act(async () => {
+        fireEvent.click(item)
+      })
+      await settle()
+      expect(onChange, run).not.toHaveBeenCalled()
+      cleanup()
+      unmount()
+    }
+  })
+
+  test("disabling the group disables the hidden tabs in an open menu", async () => {
+    for (const run of ["react", "vue"] as const) {
+      const onChange = vi.fn()
+      let disable = async () => {}
+      let unmount = () => {}
+      if (run === "react") {
+        const strip = (disabled: boolean) => (
+          <div>
+            <RTabs value="code" onChange={onChange} aria-label="Repository" overflow="menu" data-test-width={300} disabled={disabled}>
+              {tabs.map((tab) => (
+                <RTabs.Tab key={tab.value} value={tab.value}>
+                  {tab.label}
+                </RTabs.Tab>
+              ))}
+            </RTabs>
+          </div>
+        )
+        const view = render(strip(false))
+        disable = async () => {
+          await act(async () => view.rerender(strip(true)))
+        }
+      } else {
+        const disabled = ref(false)
+        unmount = mountVue(() =>
+          h("div", null, [
+            h(
+              Tabs,
+              { "value": "code", "onUpdate:value": onChange, "aria-label": "Repository", "overflow": "menu", "data-test-width": 300, "disabled": disabled.value },
+              () => tabs.map((tab) => h(TabsTab, { key: tab.value, value: tab.value }, () => tab.label)),
+            ),
+          ]),
+        ).unmount
+        disable = async () => {
+          disabled.value = true
+        }
+      }
+      await settle()
+      await openMenu()
+      await disable()
+      await settle()
+      const item = screen.getByRole("menuitemradio", { name: "Actions" })
+      expect(item.getAttribute("aria-disabled"), run).toBe("true")
+      cleanup()
+      unmount()
+    }
+  })
+
+  test("a longer menu label measures the strip again", async () => {
+    // 230px: "More" (60px) leaves room for two tabs, "More options" (140px) for one
+    const reactStrip = (label: string) => (
+      <div>
+        <RTabs value="code" onChange={() => {}} aria-label="Repository" overflow="menu" overflowLabel={label} data-test-width={230}>
+          {tabs.map((tab) => (
+            <RTabs.Tab key={tab.value} value={tab.value} badge={tab.badge}>
+              {tab.label}
+            </RTabs.Tab>
+          ))}
+        </RTabs>
+      </div>
+    )
+    const view = render(reactStrip("More"))
+    await settle()
+    expect(visibleTabs()).toEqual(["Code", "Issues3", "More"])
+    await act(async () => view.rerender(reactStrip("More options")))
+    await settle()
+    const react = visibleTabs()
+    cleanup()
+
+    const label = ref("More")
+    mountVue(() =>
+      h("div", null, [
+        h(Tabs, { "value": "code", "aria-label": "Repository", "overflow": "menu", "overflowLabel": label.value, "data-test-width": 230 }, () =>
+          tabs.map((tab) => h(TabsTab, { key: tab.value, value: tab.value, badge: tab.badge }, () => tab.label)),
+        ),
+      ]),
+    )
+    await settle()
+    expect(visibleTabs()).toEqual(["Code", "Issues3", "More"])
+    label.value = "More options"
+    await settle()
+    await settle()
+
+    expect(react).toEqual(["Code", "More options"])
+    expect(visibleTabs()).toEqual(react)
+  })
+
+  test("a hidden tab's icon and badge slots move into the menu (Vue)", async () => {
+    mountVue(() =>
+      h("div", null, [
+        h(Tabs, { "value": "code", "aria-label": "Repository", "overflow": "menu", "data-test-width": 300 }, () =>
+          tabs.map((tab) =>
+            h(
+              TabsTab,
+              { key: tab.value, value: tab.value },
+              tab.value === "insights"
+                ? { default: () => tab.label, icon: () => h("svg", { "data-testid": "insights-icon" }), badge: () => "7" }
+                : { default: () => tab.label },
+            ),
+          ),
+        ),
+      ]),
+    )
+    await settle()
+    await openMenu()
+    const item = screen.getByRole("menuitemradio", { name: /Insights/ })
+    expect(item.querySelector('[data-testid="insights-icon"]')).toBeTruthy()
+    expect(item.textContent).toContain("7")
+  })
+
+  test("switching to the menu after mount watches the container (Vue)", async () => {
+    const observed: Element[] = []
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe(element: Element) {
+          observed.push(element)
+        }
+        unobserve() {}
+        disconnect() {}
+      },
+    )
+    const overflow = ref<"scroll" | "menu">("scroll")
+    mountVue(() =>
+      h("section", { id: "box" }, [
+        h(Tabs, { "value": "code", "aria-label": "Repository", "overflow": overflow.value, "data-test-width": 300 }, () =>
+          tabs.map((tab) => h(TabsTab, { key: tab.value, value: tab.value }, () => tab.label)),
+        ),
+      ]),
+    )
+    await settle()
+    overflow.value = "menu"
+    await settle()
+    expect(observed).toContain(document.getElementById("box"))
   })
 })

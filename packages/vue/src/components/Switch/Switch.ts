@@ -93,8 +93,9 @@ const SwitchComponent = defineComponent({
       const id = props.id ?? generatedId
       const hasLabel = Boolean(slots.label || props.label)
       const hasDescription = Boolean(slots.description || props.description)
-      // The description only renders next to a label
-      const descriptionId = hasLabel && hasDescription ? `${id}-description` : undefined
+      // The description only renders next to a label; it comes before any ids
+      // the caller (a Field, say) passes
+      const descriptionId = hasLabel && hasDescription ? `${id}-label-description` : undefined
 
       // The consumer's listeners compose with Reka's; other attributes land
       // on the button after the component's own, as `{...restProps}` does
@@ -107,6 +108,8 @@ const SwitchComponent = defineComponent({
         if (isListener(key)) listeners[key] = value
         else buttonAttrs[key] = value
       }
+      const ariaDescribedBy =
+        [descriptionId, buttonAttrs["aria-describedby"] as string | undefined].filter(Boolean).join(" ") || undefined
 
       const label = () =>
         h("label", { for: id, class: s.Label }, slots.label ? slots.label() : props.label)
@@ -141,9 +144,9 @@ const SwitchComponent = defineComponent({
                     "drop": ["onKeydown"],
                     "id": id,
                     "class": s.Track,
-                    "aria-describedby": descriptionId,
                     "value": props.value ?? "on",
                     ...buttonAttrs,
+                    "aria-describedby": ariaDescribedBy,
                   },
                   { default: () => h(RekaSwitchThumb, { class: s.Thumb }) },
                 ),

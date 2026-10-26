@@ -43,6 +43,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Published modules use fully specified imports (`./Button.js`, `lodash/clamp.js`), so the package resolves under webpack 5's strict ESM rules, Node ESM and TypeScript `NodeNext`. The `PlexUI` global types now ship with the declarations instead of being dropped from them.
 - `Field` takes its label size from the child control: `<Field><Input size="sm" /></Field>` gets an `sm` label without repeating the size. An explicit `size` on Field still wins, and a render prop keeps `md`.
 - `FloatingLabelSelect` shows its error as the same plain line as `FloatingLabelInput`, so the two read alike on one form. It used to render `FieldError` with an icon.
+- The `Alert` icon sits on the first line of the message, next to the title, instead of in the middle of a title and a description. A one-line alert looks the same.
 
 ### Fixed
 
@@ -62,6 +63,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `SidebarProvider` with `onOpenChange` but no `open` expands and collapses again. Controlled mode follows the `open` prop; `onOpenChange` is always called.
 - `Image` renders a new `src` after an earlier one failed to load.
 - `Switch` no longer points `aria-describedby` at a description it does not render (a description without a label).
+- A `Checkbox` or `Switch` with a description inside a `Field` with one: the two descriptions have their own ids (the control's ends in `-label-description`) and the control is described by both. They shared an id, and a Switch dropped its own description.
 - `DataTable` supports uncontrolled row selection, filtering and column visibility, also with only an `on*Change` callback (`row.getIsSelected()` threw without a `rowSelection` prop). It re-paginates when `pageSize` changes, including to and from `0` or `Infinity`, and labels its pagination buttons and rows-per-page select.
 - Space and Enter on the clear button of `SelectControl` and `FloatingLabelSelect` clear the value instead of opening the list, also inside a `Menu.Trigger`.
 - `CopyTooltip` copies with Enter or Space, not only with a pointer press.
@@ -81,7 +83,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `CopyButton` (and so every `CodeBlock` copy button) and `CopyTooltip` show the copied state only after the clipboard write succeeds; a failed write used to show the check mark anyway. A second click while the write is in flight no longer copies twice.
 - A long `FieldError` message wraps inside the field, and its icon stays on the first line.
 - `Sidebar`: the collapsed header no longer hides or shrinks the collapse trigger; collapsed-state rules no longer hide labels, group labels and badges in an expanded sidebar nested inside a collapsed one; in React the phone layout is used on the first render instead of one frame of the desktop sidebar.
-- Toasts stay inside the screen on phones instead of keeping the 400px desktop width.
+- Toasts stay inside the screen on phones instead of keeping the 400px desktop width, with the same inset on both sides.
 - The opaque soft fills (`--color-background-{info,success,warning,caution,danger,discovery}-soft` and their hover and active states) have dark-theme values: they stayed light, under text that turned light.
 - `Checkbox` plays its check animation only for the checkbox in use, not for every checked box when a list first renders or a tab with checkboxes opens.
 - `OTPInput` cells narrow to fit a 320px screen, and a field cleared from outside (a wrong code wiped by the form) puts the caret back in the first cell when the focus was in the field.

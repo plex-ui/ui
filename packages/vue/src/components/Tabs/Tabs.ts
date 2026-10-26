@@ -663,12 +663,14 @@ const tabVNodes = (nodes: VNodeArrayChildren | undefined): VNode[] =>
 
 const slotsOf = (node: VNode) => (node.children && typeof node.children === "object" && !Array.isArray(node.children) ? (node.children as Slots) : {})
 
-/** A tab's default slot content; a vnode's raw slot may return a string or nothing */
-const labelContent = (node: VNode): VNodeArrayChildren => {
-  const content = slotsOf(node).default?.() as VNodeArrayChildren | VNodeArrayChildren[number] | undefined
+/** A tab's slot content; a vnode's raw slot may return a string or nothing */
+const slotContent = (node: VNode, name: string): VNodeArrayChildren => {
+  const content = slotsOf(node)[name]?.() as VNodeArrayChildren | VNodeArrayChildren[number] | undefined
   if (content == null) return []
   return Array.isArray(content) ? content : [content]
 }
+
+const labelContent = (node: VNode) => slotContent(node, "default")
 
 const plainText = (node: unknown): string => {
   if (typeof node === "string" || typeof node === "number") return String(node)
@@ -684,7 +686,26 @@ const plainText = (node: unknown): string => {
 
 const tabProps = (node: VNode) => (node.props ?? {}) as Record<string, unknown>
 
+/** Slot content that renders something: text, or a vnode other than a comment */
+const filled = (nodes: VNodeArrayChildren) =>
+  plainText(nodes) !== "" || nodes.some((node) => isVNode(node) && node.type !== Comment)
+
 const badgeText = (badge: unknown) => (isBadgeObject(badge as TabsBadgeProp) ? plainText((badge as { content: unknown }).content) : plainText(badge))
+
+/** A tab's icon: the `icon` slot, else the prop */
+const tabIcon = (node: VNode) => {
+  const iconSlot = slotContent(node, "icon")
+  return filled(iconSlot) ? iconSlot : renderIcon(tabProps(node).icon as TabsIconProp | undefined)
+}
+
+/** A tab's count as text: the `badge` slot, else the prop */
+const tabCount = (node: VNode) => plainText(slotContent(node, "badge")) || badgeText(tabProps(node).badge)
+
+/** A raw vnode prop holds a boolean attribute as written: `<TabsTab disabled>` is "" */
+const tabDisabled = (node: VNode) => {
+  const disabled = tabProps(node).disabled
+  return disabled != null && disabled !== false
+}
 
 /** A tab's name: its text, else its accessible name, else its value */
 const tabLabel = (node: VNode) =>
@@ -693,7 +714,14 @@ const tabLabel = (node: VNode) =>
 /** What a tab's width depends on: the strip measures again when it changes */
 const tabsSignature = (nodes: VNode[]) =>
   nodes
-    .map((node) => [tabProps(node).value, plainText(labelContent(node)), badgeText(tabProps(node).badge)].join("\u0000"))
+    .map((node) =>
+      [
+        tabProps(node).value,
+        plainText(labelContent(node)),
+        tabCount(node),
+        tabProps(node).icon != null || slotsOf(node).icon != null,
+      ].join("\u0000"),
+    )
     .join("\u0001")
 
 /**
@@ -783,12 +811,17 @@ const TabsPublic = defineComponent({
       measured.value = { count: visibleTabCount(widths, moreWidth, activeWidth, activeIndex, gap, available) }
     }
 
+    // The width to fit is the container's; reports during a measuring pass
+    // are skipped. The menu strip may appear or go after mount, with `overflow`
     let observer: ResizeObserver | undefined
-    onMounted(() => {
-      measure()
-      const box = hostRef.value?.parentElement
+    let observed: HTMLElement | null = null
+    const observeBox = () => {
+      const box = hostRef.value?.parentElement ?? null
+      if (box === observed) return
+      observer?.disconnect()
+      observer = undefined
+      observed = box
       if (!box || typeof ResizeObserver === "undefined") return
-      // The width to fit is the container's; reports during a measuring pass are skipped
       observer = new ResizeObserver(() => {
         if (lastRender.measuring) return
         const width = box.clientWidth
@@ -797,8 +830,15 @@ const TabsPublic = defineComponent({
         measured.value = { count: null }
       })
       observer.observe(box)
+    }
+    onMounted(() => {
+      measure()
+      observeBox()
     })
-    onUpdated(measure)
+    onUpdated(() => {
+      measure()
+      observeBox()
+    })
     onBeforeUnmount(() => observer?.disconnect())
 
     const forward = {
@@ -814,7 +854,10 @@ const TabsPublic = defineComponent({
       }
 
       const items = tabVNodes(slots.default?.() as VNodeArrayChildren | undefined)
-      const signature = tabsSignature(items)
+      // The strip's own props size the tabs and the menu button too
+      const signature = [overflowLabel, props.size, props.variant, props.gutterSize, props.pill, props.flush, tabsSignature(items)].join(
+        "\u0002",
+      )
       const activeIndex = items.findIndex((item) => tabProps(item).value === current.value)
       const { count } = measured.value
       // New tabs measure again; so does an active tab that moves under the
@@ -870,15 +913,19 @@ const TabsPublic = defineComponent({
                   default: () =>
                     hidden.map((item) => {
                       const itemProps = tabProps(item)
-                      const count = badgeText(itemProps.badge)
+                      const count = tabCount(item)
                       const label = labelContent(item)
                       return h(
                         MenuRadioItem,
-                        { key: String(itemProps.value), value: String(itemProps.value), disabled: !!itemProps.disabled },
+                        {
+                          key: String(itemProps.value),
+                          value: String(itemProps.value),
+                          disabled: props.disabled || tabDisabled(item),
+                        },
                         {
                           default: () => [
-                            renderIcon(itemProps.icon as TabsIconProp | undefined),
-                            plainText(label) !== "" || label.some((node) => isVNode(node) && node.type !== Comment)
+                            tabIcon(item),
+                            filled(label)
                               ? label
                               : ((itemProps["aria-label"] as string | undefined) ?? String(itemProps.value)),
                             // A tab's count moves into the menu with it

@@ -37,6 +37,19 @@
   box-shadow: var(--shadow), var(--shadow-hairline) !important;
 }
 
+/* On a phone Sonner makes the toaster as wide as the screen and shifts it by
+   the inset, so part of it is off screen: center the toast in the rest */
+@media (width <= 600px) {
+  .Toast {
+    right: calc(var(--mobile-offset-left, 16px) + var(--mobile-offset-right, 16px)) !important;
+  }
+
+  .Toaster[dir="rtl"] .Toast {
+    left: calc(var(--mobile-offset-left, 16px) + var(--mobile-offset-right, 16px)) !important;
+    right: 0 !important;
+  }
+}
+
 .Title {
   color: var(--color-text);
   font-size: var(--font-text-sm-size);

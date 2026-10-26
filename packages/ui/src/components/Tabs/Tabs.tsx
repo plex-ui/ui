@@ -4,6 +4,8 @@ import clsx from "clsx"
 import { ToggleGroup } from "radix-ui"
 import {
   Children,
+  cloneElement,
+  Fragment,
   isValidElement,
   useCallback,
   useEffect,
@@ -412,8 +414,12 @@ const MORE_VALUE = "__plexui_tabs_more__"
 
 type TabElement = ReactElement<TabProps>
 
+/** The tabs among the children, through fragments */
 const tabElements = (children: ReactNode): TabElement[] =>
-  Children.toArray(children).filter((child): child is TabElement => isValidElement<TabProps>(child))
+  Children.toArray(children).flatMap((child) => {
+    if (!isValidElement<{ children?: ReactNode }>(child)) return []
+    return child.type === Fragment ? tabElements(child.props.children) : [child as TabElement]
+  })
 
 const plainText = (node: unknown): string => {
   if (typeof node === "string" || typeof node === "number") return String(node)
@@ -430,7 +436,11 @@ const tabLabel = (item: TabElement) => plainText(item.props.children) || item.pr
 
 /** What a tab's width depends on: the strip measures again when it changes */
 const tabsSignature = (items: TabElement[]) =>
-  items.map((item) => [item.props.value, plainText(item.props.children), badgeText(item.props.badge)].join("\u0000")).join("\u0001")
+  items
+    .map((item) =>
+      [item.props.value, plainText(item.props.children), badgeText(item.props.badge), item.props.icon != null].join("\u0000"),
+    )
+    .join("\u0001")
 
 /**
  * `Menu.Trigger` sets `data-state` (open or closed) on its child, while a tab
@@ -450,7 +460,9 @@ const OverflowTabs = <T extends string>({
   ...restProps
 }: Omit<TabsProps<T>, "overflow"> & { overflowLabel: string }) => {
   const items = tabElements(children)
-  const signature = tabsSignature(items)
+  // The strip's own props size the tabs and the menu button too
+  const { size, variant, gutterSize, pill, flush } = restProps
+  const signature = [overflowLabel, size, variant, gutterSize, pill, flush, tabsSignature(items)].join("\u0002")
   const activeIndex = items.findIndex((item) => item.props.value === value)
 
   // null while the measuring pass renders every tab and the menu button
@@ -543,7 +555,8 @@ const OverflowTabs = <T extends string>({
             if (next !== MORE_VALUE) onChange?.(next as T)
           }}
         >
-          {shown}
+          {/* Keyed by value: tabs from different fragments may share a key */}
+          {shown.map((item) => cloneElement(item, { key: item.props.value }))}
           {(measuring || hidden.length > 0) && (
             <Menu.Trigger>
               <MoreTab value={MORE_VALUE}>
@@ -560,7 +573,11 @@ const OverflowTabs = <T extends string>({
             {hidden.map((item) => {
               const count = badgeText(item.props.badge)
               return (
-                <Menu.RadioItem<string> key={item.props.value} value={item.props.value} disabled={item.props.disabled}>
+                <Menu.RadioItem<string>
+                  key={item.props.value}
+                  value={item.props.value}
+                  disabled={restProps.disabled || item.props.disabled}
+                >
                   {item.props.icon}
                   {item.props.children ?? item.props["aria-label"] ?? item.props.value}
                   {/* A tab's count moves into the menu with it */}
