@@ -126,17 +126,22 @@ export const DataTable = <TData,>({
   const table = useReactTable({
     data,
     columns,
+    // Pass controlled state and handlers only when provided: an explicit
+    // undefined would override TanStack's internal state and setters, which
+    // breaks uncontrolled filtering, column visibility and row selection.
     state: {
       sorting,
-      globalFilter,
-      columnVisibility,
-      rowSelection,
+      ...(globalFilter !== undefined ? { globalFilter } : {}),
+      ...(columnVisibility !== undefined ? { columnVisibility } : {}),
+      ...(rowSelection !== undefined ? { rowSelection } : {}),
     },
     ...(shouldPaginate ? { initialState: { pagination: { pageIndex: 0, pageSize } } } : {}),
     onSortingChange: setSorting,
-    onGlobalFilterChange: handleGlobalFilterChange,
-    onColumnVisibilityChange: handleColumnVisibilityChange,
-    onRowSelectionChange: handleRowSelectionChange,
+    ...(handleGlobalFilterChange ? { onGlobalFilterChange: handleGlobalFilterChange } : {}),
+    ...(handleColumnVisibilityChange
+      ? { onColumnVisibilityChange: handleColumnVisibilityChange }
+      : {}),
+    ...(handleRowSelectionChange ? { onRowSelectionChange: handleRowSelectionChange } : {}),
     getRowId: getRowId ? (originalRow) => getRowId(originalRow) : undefined,
     enableRowSelection,
     getCoreRowModel: getCoreRowModel(),
