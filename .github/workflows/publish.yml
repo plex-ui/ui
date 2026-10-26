@@ -7,8 +7,10 @@ name: Publish packages to npm
 #
 # Auth: npm Trusted Publishing (OIDC) for packages that have this workflow
 # set as their trusted publisher. A package that is not on npm yet cannot
-# have one, so its first publish falls back to the NPM_TOKEN repository
-# secret (a granular token with publish access to @plexui) when it is set.
+# have one, so its first publish falls back to the NPM_BOOTSTRAP_TOKEN
+# repository secret (a granular token with publish access to @plexui) when
+# it is set. Delete that secret once the package has a trusted publisher.
+# (NPM_TOKEN is the token this workflow used before OIDC; it is not read.)
 
 on:
   release:
@@ -29,7 +31,7 @@ jobs:
       id-token: write
     env:
       # Without the secret, setup-node's own placeholder, as before: OIDC only
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'XXXXX-XXXXX-XXXXX-XXXXX' }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN || 'XXXXX-XXXXX-XXXXX-XXXXX' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
