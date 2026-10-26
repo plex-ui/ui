@@ -131,7 +131,7 @@ export const TagInput = (props: TagInputProps) => {
       defaultFocusEl.focus()
     } else {
       const selectedTagElement = containerRef.current.querySelector(
-        `[data-tag="${selectedTag}"]`,
+        `[data-tag="${CSS.escape(selectedTag)}"]`,
       ) as HTMLElement | null
       if (selectedTagElement) {
         selectedTagElement.focus()
