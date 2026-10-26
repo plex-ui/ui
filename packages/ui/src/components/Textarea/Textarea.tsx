@@ -157,6 +157,7 @@ export const Textarea = (props: TextareaProps) => {
         id={id || (allowAutofillExtensions ? undefined : onePasswordPreventionId)}
         className={s.Textarea}
         name={name}
+        autoComplete={autoComplete}
         readOnly={readOnly}
         disabled={disabled}
         rows={rows}

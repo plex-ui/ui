@@ -208,6 +208,7 @@ const InputRoot = (props: InputProps) => {
         id={id || (allowAutofillExtensions ? undefined : onePasswordPreventionId)}
         className={s.Input}
         type={type}
+        autoComplete={autoComplete}
         name={name}
         value={value}
         defaultValue={defaultValue}
