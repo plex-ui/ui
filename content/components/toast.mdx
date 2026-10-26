@@ -117,4 +117,9 @@ Re-exported from sonner. The full surface — `toast()`, `.success`, `.error`, `
 ### Theme sync
 
 `<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light ↔ dark rethemes toasts that are already on screen — no `next-themes` dependency.
+
+## Styling
+
+Toast has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+
 </div>

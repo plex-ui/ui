@@ -217,3 +217,20 @@ All other `<div>` or `<a>` attributes are forwarded to the root.
 | `Card.Content` | `<div>` | Primary body region |
 | `Card.Footer` | `<div>` | Trailing actions row |
 | `Card.Action` | `<div>` | Absolute top-right slot inside `Card.Header` |
+
+## Styling
+
+Card reads these component tokens. Override them at any scope to restyle it:
+
+- `--card-background`: background (default `var(--color-surface)`)
+- `--card-background-hover`: background hover (default `var(--color-surface-secondary)`)
+- `--card-border-color`: border color (default `var(--color-border)`)
+- `--card-border-color-hover`: border color hover (default `var(--color-border-primary-outline-hover)`)
+- `--card-description-color`: description color (default `var(--color-text-tertiary)`)
+- `--card-description-font-size`: description font size (default `var(--font-text-sm-size)`)
+- `--card-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--card-radius`: radius (default `var(--radius-xl)`)
+- `--card-text-color`: text color (default `var(--color-text)`)
+- `--card-title-color`: title color (default `var(--color-text)`)
+- `--card-title-font-size`: title font size (default `var(--font-heading-xs-size)`)
+- `--card-title-font-weight`: title font weight (default `var(--font-weight-semibold)`)

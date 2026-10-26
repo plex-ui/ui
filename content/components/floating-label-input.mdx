@@ -364,3 +364,25 @@ const selected = COUNTRIES.find((c) => c.value === country)
   { prop: "multiline", type: "boolean", default: "false", description: "Render as an auto-growing textarea" },
   { prop: "rows", type: "number", default: "2", description: "Initial visible text lines when multiline is true" },
 ]} />
+
+## Styling
+
+Float Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-color`: error color (default `var(--color-text-danger-outline)`)
+- `--field-error-font-size`: error font size (default `0.75rem`)
+- `--field-error-line-height`: error line height (default `var(--font-text-xs-line-height)`)
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--floating-input-background`: background (default `var(--color-surface)`)
+- `--floating-input-border-color`: border color
+- `--floating-input-border-color-focus`: border color focus (default `var(--alpha-50)`)
+- `--floating-input-border-color-hover`: border color hover
+- `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--floating-input-border-radius`: border radius (default `var(--radius-full)`)
+- `--floating-input-gutter`: gutter (default `1.25rem`)
+- `--floating-input-height`: height (default `3.25rem`)
+- `--floating-input-label-color`: label color (default `var(--color-text-tertiary)`)
+- `--floating-input-label-color-focus`: label color focus (default `var(--color-text)`)
+- `--floating-input-label-color-invalid`: label color invalid (default `var(--color-text-danger-outline)`)
+- `--floating-input-label-scale`: label scale (default `0.88`)
+- `--floating-input-transition-duration`: transition duration (default `80ms`)

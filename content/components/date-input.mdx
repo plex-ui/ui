@@ -101,3 +101,20 @@ import {
   { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
   { prop: "placeholder", type: "string", description: "Auto-generated from format if not set" },
 ]} />
+
+## Styling
+
+Date Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-gap-lg`: gap lg (default `10px`)
+- `--input-gap-md`: gap md (default `8px`)
+- `--input-gap-sm`: gap sm (default `6px`)
+- `--input-gap-xs`: gap xs (default `4px`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

@@ -393,3 +393,14 @@ Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control r
 ]} />
 
 SelectControl shares the unified 9-step size scale with Button, Input, Select, and SegmentedControl.
+
+## Styling
+
+Select Control reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

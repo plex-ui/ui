@@ -77,3 +77,9 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 ]} />
 
 **usePopoverController()** — Hook available inside `Popover.Content`. Returns `{ close: () => void, shake: () => void }`.
+
+## Styling
+
+Popover reads these component tokens. Override them at any scope to restyle it:
+
+- `--popover-radius`: radius (default `var(--radius-xl)`)

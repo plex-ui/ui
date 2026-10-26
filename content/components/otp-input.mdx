@@ -59,3 +59,16 @@ import {
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
   { prop: "autoFocus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
 ]} />
+
+## Styling
+
+OTP Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--floating-input-background`: background (default `var(--color-surface)`)
+- `--floating-input-border-color`: border color
+- `--floating-input-border-color-focus`: border color focus (default `var(--alpha-50)`)
+- `--floating-input-border-color-hover`: border color hover
+- `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--floating-input-border-radius`: border radius (default `var(--radius-full)`)
+- `--floating-input-transition-duration`: transition duration (default `80ms`)

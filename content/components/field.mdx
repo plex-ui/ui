@@ -483,3 +483,19 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby, and aria-invalid" },
 ]} />
+
+## Styling
+
+Field reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-color`: error color (default `var(--color-text-danger-outline)`)
+- `--field-error-font-size`: error font size (default `0.75rem`)
+- `--field-error-gap`: error gap (default `spacing(2)`)
+- `--field-error-icon-size`: error icon size (default `1rem`)
+- `--field-error-line-height`: error line height (default `var(--font-text-xs-line-height)`)
+- `--field-error-margin-bottom`: error margin bottom (default `spacing(3)`)
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--field-error-padding-inline`: error padding inline (default `0`)
+- `--field-horizontal-control-width`: horizontal control width (default `240px`)
+- `--field-horizontal-label-width`: horizontal label width (default `120px`)
+- `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)

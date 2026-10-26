@@ -130,3 +130,14 @@ Use `aria-labelledby` with the ID of a visible field label. The trigger includes
   { prop: "placeholder", type: "string", description: "Trigger placeholder" },
   { prop: "disabled", type: "boolean", description: "Disable picker" },
 ]} />
+
+## Styling
+
+Date Picker reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

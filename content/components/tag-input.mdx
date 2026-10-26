@@ -84,3 +84,12 @@ const available = SUGGESTIONS.filter((s) => !selectedValues.has(s));
   { prop: "pill", type: "boolean", default: "false", description: "Fully-rounded container and chips; matches Input/SelectControl pill" },
   { prop: "autoFocus", type: "boolean", default: "false", description: "Focus on mount" },
 ]} />
+
+## Styling
+
+Tag Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--button-font-weight`: font weight (default `var(--font-weight-medium)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

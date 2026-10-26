@@ -236,3 +236,20 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded pill shape" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies a negative margin using the current gutter to optically align with surrounding content" },
 ]} />
+
+## Styling
+
+Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-gap-lg`: gap lg (default `10px`)
+- `--input-gap-md`: gap md (default `8px`)
+- `--input-gap-sm`: gap sm (default `6px`)
+- `--input-gap-xs`: gap xs (default `4px`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

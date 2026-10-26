@@ -338,3 +338,12 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
   { prop: "className", type: "string", description: "CSS classes applied to wrapper node" },
   { prop: "id", type: "string", description: "The id of the checkbox element" },
 ]} />
+
+## Styling
+
+Checkbox reads these component tokens. Override them at any scope to restyle it:
+
+- `--checkbox-indicator-size`: indicator size (default `var(--radio-group-indicator-size)`)
+- `--checkbox-label-gap`: label gap (default `var(--radio-group-item-gap)`)
+- `--checkbox-label-line-height`: label line height (default `var(--radio-group-item-line-height)`)
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)

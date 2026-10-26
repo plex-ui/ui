@@ -119,3 +119,10 @@ import { Skeleton } from "@plexui/ui/components/Skeleton"
   { prop: "circle", type: "boolean", default: "false", description: "Render a circular skeleton" },
   { prop: "className", type: "string", description: "Set dimensions and custom styling" },
 ]} />
+
+## Styling
+
+Skeleton reads these component tokens. Override them at any scope to restyle it:
+
+- `--skeleton-background`: background (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--skeleton-radius`: radius (default `var(--radius-md)`)

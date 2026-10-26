@@ -303,3 +303,24 @@ return (
 **Menu.RadioGroup** / **Menu.RadioItem** — Radio group: `value`, `onChange`; RadioItem: `value`, `disabled`.
 
 **Menu.ItemActions** / **Menu.ItemAction** — ItemActions wraps hover actions; ItemAction accepts `onClick`.
+
+## Styling
+
+Menu reads these component tokens. Override them at any scope to restyle it:
+
+- `--menu-checkbox-indicator-size`: checkbox indicator size (default `var(--font-text-lg-size)`)
+- `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--menu-gutter`: gutter (default `spacing(1.5)`)
+- `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-item-gap`: item gap (default `spacing(1.5)`)
+- `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)
+- `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--menu-radio-indicator-hole-size`: radio indicator hole size (default `var(--font-text-3xs-size)`)
+- `--menu-radio-indicator-size`: radio indicator size (default `var(--font-text-lg-size)`)
+- `--menu-radius`: radius (default `var(--radius-xl)`)
+- `--menu-separator-background-color`: separator background color (default `var(--color-border)`)
+- `--menu-separator-gutter`: separator gutter (default `var(--menu-gutter) calc(-1 * var(--menu-gutter))`)
+- `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)
+- `--radio-group-indicator-border-color`: indicator border color (default `var(--color-border-primary-outline)`)
+- `--radio-group-indicator-border-color-hover`: indicator border color hover (default `var(--alpha-25)`)
+- `--radio-group-indicator-hole-background-color`: indicator hole background color (default `var(--color-text-primary-solid)`)

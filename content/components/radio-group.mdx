@@ -297,3 +297,19 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
 ]} />
+
+## Styling
+
+Radio Group reads these component tokens. Override them at any scope to restyle it:
+
+- `--radio-group-col-gap`: col gap (default `spacing(2.5)`)
+- `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)
+- `--radio-group-indicator-border-color`: indicator border color (default `var(--color-border-primary-outline)`)
+- `--radio-group-indicator-border-color-hover`: indicator border color hover (default `var(--alpha-25)`)
+- `--radio-group-indicator-hole-background-color`: indicator hole background color (default `var(--color-text-primary-solid)`)
+- `--radio-group-indicator-hole-size`: indicator hole size (default `0.375rem`)
+- `--radio-group-indicator-size`: indicator size (default `var(--font-text-lg-size)`)
+- `--radio-group-item-font-size`: item font size (default `var(--font-text-sm-size)`)
+- `--radio-group-item-gap`: item gap (default `spacing(1.5)`)
+- `--radio-group-item-line-height`: item line height (default `var(--font-text-sm-line-height)`)
+- `--radio-group-row-gap`: row gap (default `spacing(5)`)
