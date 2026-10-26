@@ -329,7 +329,7 @@ function EmailToolbar() {
 const PRO_FEATURES = [
   'Unlimited projects',
   'Priority support',
-  'All Figma kits',
+  'Custom domains',
   'Early components',
 ];
 

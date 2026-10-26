@@ -47,7 +47,7 @@ export default function BlogIndexPage() {
           <p className="text-xs font-semibold tracking-wide text-fd-muted-foreground uppercase">Plex UI Blog</p>
           <h1 className="text-3xl font-semibold tracking-tight text-fd-foreground md:text-4xl">Notes from the system layer</h1>
           <p className="max-w-3xl text-base leading-relaxed text-fd-muted-foreground">
-            Practical writing on design systems, component APIs, and the details that keep product UI consistent across Figma and React.
+            Practical writing on design systems, component APIs, and the details that keep product UI consistent.
           </p>
         </header>
 

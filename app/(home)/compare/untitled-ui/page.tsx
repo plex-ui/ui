@@ -12,11 +12,6 @@ interface ComparisonRow {
 
 const rows: ComparisonRow[] = [
   {
-    feature: 'Figma variants',
-    plexui: '22,000+',
-    competitor: '8,000+',
-  },
-  {
     feature: 'Size scale per component',
     plexui: '9 sizes (22px to 48px)',
     competitor: '4 to 5 sizes',
@@ -27,19 +22,14 @@ const rows: ComparisonRow[] = [
     competitor: 'Typically 2 layers',
   },
   {
-    feature: 'Token implementation',
-    plexui: 'CSS variables + Figma Variables',
-    competitor: 'Figma Variables first',
-  },
-  {
     feature: 'React library',
     plexui: 'Free MIT package',
     competitor: 'Paid in full bundle (~$299)',
   },
   {
-    feature: 'Figma-to-code parity',
-    plexui: 'Exact parity by design',
-    competitor: 'Approximate parity',
+    feature: 'Frameworks',
+    plexui: 'React and Vue, parity-tested',
+    competitor: 'React',
   },
   {
     feature: 'AI editor compatibility',
@@ -69,7 +59,7 @@ const rows: ComparisonRow[] = [
   {
     feature: 'Pricing',
     plexui: 'Free and open-source',
-    competitor: 'Figma kits from $79; React in higher-tier bundles',
+    competitor: 'Design kits from $79; React in higher-tier bundles',
   },
 ];
 
@@ -82,7 +72,7 @@ const faqJsonLd = {
       name: 'Is Plex UI an Untitled UI alternative?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Plex UI and Untitled UI both target design systems, but Plex UI focuses on exact Figma-to-code parity, a 9-step size scale, and a free React package.',
+        text: 'Yes. Plex UI and Untitled UI both target design systems, but Plex UI focuses on a 9-step size scale, three-layer tokens, free React and Vue packages, and tooling for AI agents.',
       },
     },
     {
@@ -90,7 +80,7 @@ const faqJsonLd = {
       name: 'When does Untitled UI fit better?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Untitled UI is often a strong option for design-first teams that prioritize broad template catalogs, established Figma patterns, and a long-running ecosystem.',
+        text: 'Untitled UI is often a strong option for design-first teams that prioritize broad template catalogs, established design patterns, and a long-running ecosystem.',
       },
     },
     {
@@ -98,7 +88,7 @@ const faqJsonLd = {
       name: 'When should teams choose Plex UI?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Choose Plex UI when you need consistent 9-size controls, three-layer tokens, and a synchronized workflow between Figma variables and production React components.',
+        text: 'Choose Plex UI when you need consistent 9-size controls, three-layer tokens, and free production components for React and Vue that AI agents use correctly.',
       },
     },
   ],
@@ -107,26 +97,26 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: 'Plex UI vs Untitled UI — Feature Comparison (2026)',
   description:
-    'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and Figma-to-code workflow.',
+    'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and React and Vue support.',
   alternates: {
     canonical: 'https://plexui.com/compare/untitled-ui',
   },
   openGraph: {
     title: 'Plex UI vs Untitled UI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and Figma-to-code workflow.',
+      'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and React and Vue support.',
     url: 'https://plexui.com/compare/untitled-ui',
     images: [{ url: '/opengraph-image.png' }],
   },
   twitter: {
     title: 'Plex UI vs Untitled UI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and Figma-to-code workflow.',
+      'Detailed comparison of Plex UI and Untitled UI design systems. Size scale, token architecture, pricing, and React and Vue support.',
   },
   keywords: [
     'untitled ui alternative',
     'plex ui vs untitled ui',
-    'figma react design system comparison',
+    'react design system comparison',
     'design system pricing comparison',
   ],
 };
@@ -158,8 +148,8 @@ export default function UntitledUiComparisonPage() {
             Plex UI vs Untitled UI
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-fd-muted-foreground md:text-lg">
-            A practical comparison for teams choosing between a design-first system and a Figma + React workflow with
-            exact parity.
+            A practical comparison for teams choosing between a design-first kit and a free, code-first system for React
+            and Vue.
           </p>
         </section>
 
@@ -171,7 +161,7 @@ export default function UntitledUiComparisonPage() {
              <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
                <li>Plex UI provides 9 control sizes and three-layer tokens for tighter design-to-code scaling.</li>
                <li>Untitled UI remains strong in templates, ecosystem maturity, and design-first workflows.</li>
-               <li>Plex UI keeps React components free and aligns Figma variables with production code.</li>
+               <li>Plex UI keeps its React and Vue components free and open-source.</li>
                <li>Both support modern dark mode and strong accessibility baselines.</li>
              </ul>
            </div>
@@ -245,7 +235,7 @@ export default function UntitledUiComparisonPage() {
              <li>9-size control system is more granular than typical 4 to 5 size scales.</li>
              <li>Free React library lowers implementation cost for engineering teams.</li>
              <li>Three-layer tokens improve maintainability for large product surfaces.</li>
-             <li>Exact Figma parity and AI editor focus support faster implementation loops.</li>
+             <li>An MCP server, llms.txt and a skill keep AI agents on the real component API.</li>
            </ul>
          </section>
 
@@ -267,14 +257,14 @@ export default function UntitledUiComparisonPage() {
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>A design-first library with many page templates ready early in a project.</li>
              <li>An ecosystem with broad market awareness and longer history.</li>
-             <li>Figma-first delivery where engineering assets are secondary.</li>
+             <li>Design-first delivery where engineering assets are secondary.</li>
            </ul>
 
            <h3 className="mt-6 text-base font-semibold text-fd-foreground">Choose Plex UI if you need</h3>
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-             <li>One system shared by designers and engineers with exact parity.</li>
+             <li>One system for React and Vue that AI agents use correctly.</li>
              <li>Fine-grained sizing flexibility across real product surfaces.</li>
-             <li>A free, open-source React library with exact Figma-to-code parity.</li>
+             <li>A free, open-source component library with no paid tier.</li>
            </ul>
          </section>
 

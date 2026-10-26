@@ -9,7 +9,7 @@ import packageJson from '../packages/ui/package.json';
 import './globals.css';
 
 const homeTitle = 'Plex UI — React Design System for AI Code Editors';
-const homeDescription = `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale (3xs–3xl), three-layer design tokens, and 6,600+ icons. Free MIT React library with pixel-perfect Figma parity. Built for Claude, Cursor, Codex.`;
+const homeDescription = `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale (3xs–3xl), three-layer design tokens, and 6,600+ icons. Free MIT library for React and Vue, built for Claude and Codex.`;
 const homeShortDescription = `${COMPONENTS_COUNT} React components with 9-size scale, three-layer design tokens, and 6,600+ icons. Free, open-source, and built for AI code editors.`;
 
 export const metadata: Metadata = {
@@ -61,10 +61,9 @@ const jsonLd = {
       email: 'plexuikit@gmail.com',
       founder: { '@id': 'https://plexui.com/#founder' },
       sameAs: [
-        'https://github.com/plex-ui/docs',
+        'https://github.com/plex-ui/ui',
         'https://www.threads.net/@plexuikit',
         'https://www.npmjs.com/package/@plexui/ui',
-        'https://www.figma.com/community/file/1605261673441035444',
       ],
     },
     {
@@ -79,7 +78,7 @@ const jsonLd = {
       '@id': 'https://plexui.com/#website',
       url: 'https://plexui.com',
       name: 'Plex UI',
-      description: `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, and 6,600+ icons. Free and open-source, with pixel-perfect Figma parity.`,
+      description: `Production-grade React design system with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, and 6,600+ icons for React and Vue. Free and open-source.`,
       publisher: { '@id': 'https://plexui.com/#organization' },
     },
     {
@@ -89,7 +88,7 @@ const jsonLd = {
       image: 'https://plexui.com/opengraph-image.png?v=3',
       applicationCategory: 'DeveloperApplication',
       operatingSystem: 'Any',
-      description: `Free, open-source React component library with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, and dark mode. Built on Radix UI and Tailwind CSS 4. Designed for AI code editors like Claude, Cursor, and Codex.`,
+      description: `Free, open-source React component library with ${COMPONENTS_COUNT} components, 9-size scale, three-layer design tokens, and dark mode. Built on Radix UI and Tailwind CSS 4. Designed for AI agents like Claude and Codex.`,
       url: 'https://plexui.com/components',
       downloadUrl: 'https://www.npmjs.com/package/@plexui/ui',
       softwareVersion: packageJson.version,
@@ -109,7 +108,7 @@ const jsonLd = {
         '6,600+ bundled icons',
         '14 React hooks',
         'Built on Radix UI + Tailwind CSS 4',
-        'AI code editor ready (Claude, Cursor, Codex)',
+        'Ready for AI agents (Claude, Codex)',
       ],
     },
 

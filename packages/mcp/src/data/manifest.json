@@ -1,7 +1,7 @@
 {
   "name": "@plexui/ui",
   "version": "latest",
-  "description": "The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.",
+  "description": "The most flexible UI kit for React. Production-grade components, design tokens and a 9-size scale that AI agents use correctly.",
   "homepage": "https://plexui.com",
   "docsUrl": "https://plexui.com/components",
   "install": "npm install @plexui/ui",
@@ -1083,7 +1083,7 @@
         },
         {
           "name": "Pricing",
-          "code": "const plans = [\n{ name: \"Starter\", price: \"$0\", highlighted: false, features: [\"1 project\", \"Community support\", \"Plex UI core\"] },\n{ name: \"Pro\", price: \"$19\", highlighted: true, features: [\"Unlimited projects\", \"Priority support\", \"All Figma kits\", \"Early components\"] },\n]\n\n<div style={{ display: \"grid\", gap: 16, gridTemplateColumns: \"repeat(auto-fit, minmax(240px, 1fr))\", maxWidth: 720 }}>\n{plans.map((plan) => (\n  <Card key={plan.name} variant={plan.highlighted ? \"solid\" : \"outline\"}>\n    <Card.Header>\n      <Card.Title>{plan.name}</Card.Title>\n      <Card.Description>\n        <span style={{ fontSize: 28, fontWeight: 600, color: \"var(--color-text)\" }}>{plan.price}</span>\n        <span style={{ marginLeft: 4 }}>/ month</span>\n      </Card.Description>\n    </Card.Header>\n    <Card.Content>\n      <ul style={{ listStyle: \"none\", padding: 0, margin: 0, display: \"flex\", flexDirection: \"column\", gap: 8 }}>\n        {plan.features.map((feature) => (\n          <li key={feature} style={{ display: \"flex\", alignItems: \"center\", gap: 8 }}>\n            <Check style={{ width: 16, height: 16, color: \"var(--color-text-success-soft)\" }} />\n            {feature}\n          </li>\n        ))}\n      </ul>\n    </Card.Content>\n    <Card.Footer style={{ marginTop: \"auto\", paddingTop: 4 }}>\n      <Button\n        color={plan.highlighted ? \"primary\" : \"secondary\"}\n        variant={plan.highlighted ? \"solid\" : \"outline\"}\n        block\n      >\n        Choose {plan.name}\n      </Button>\n    </Card.Footer>\n  </Card>\n))}\n</div>",
+          "code": "const plans = [\n{ name: \"Starter\", price: \"$0\", highlighted: false, features: [\"1 project\", \"Community support\", \"Plex UI core\"] },\n{ name: \"Pro\", price: \"$19\", highlighted: true, features: [\"Unlimited projects\", \"Priority support\", \"Custom domains\", \"Early components\"] },\n]\n\n<div style={{ display: \"grid\", gap: 16, gridTemplateColumns: \"repeat(auto-fit, minmax(240px, 1fr))\", maxWidth: 720 }}>\n{plans.map((plan) => (\n  <Card key={plan.name} variant={plan.highlighted ? \"solid\" : \"outline\"}>\n    <Card.Header>\n      <Card.Title>{plan.name}</Card.Title>\n      <Card.Description>\n        <span style={{ fontSize: 28, fontWeight: 600, color: \"var(--color-text)\" }}>{plan.price}</span>\n        <span style={{ marginLeft: 4 }}>/ month</span>\n      </Card.Description>\n    </Card.Header>\n    <Card.Content>\n      <ul style={{ listStyle: \"none\", padding: 0, margin: 0, display: \"flex\", flexDirection: \"column\", gap: 8 }}>\n        {plan.features.map((feature) => (\n          <li key={feature} style={{ display: \"flex\", alignItems: \"center\", gap: 8 }}>\n            <Check style={{ width: 16, height: 16, color: \"var(--color-text-success-soft)\" }} />\n            {feature}\n          </li>\n        ))}\n      </ul>\n    </Card.Content>\n    <Card.Footer style={{ marginTop: \"auto\", paddingTop: 4 }}>\n      <Button\n        color={plan.highlighted ? \"primary\" : \"secondary\"}\n        variant={plan.highlighted ? \"solid\" : \"outline\"}\n        block\n      >\n        Choose {plan.name}\n      </Button>\n    </Card.Footer>\n  </Card>\n))}\n</div>",
           "details": "Mix variant=\"outline\" and variant=\"solid\" to emphasize a highlighted plan."
         }
       ],
@@ -6575,5 +6575,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T19:27:44.029Z"
+  "generatedAt": "2026-10-26T19:44:20.470Z"
 }

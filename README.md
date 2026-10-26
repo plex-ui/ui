@@ -11,7 +11,7 @@
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-black)](https://plexui.com/docs/overview/skills)
 [![MCP server](https://img.shields.io/badge/MCP-server-black)](https://plexui.com/docs/overview/mcp)
 
-[Docs](https://plexui.com) &nbsp;·&nbsp; [Components](https://plexui.com/components) &nbsp;·&nbsp; [AI Skill](https://plexui.com/docs/overview/skills) &nbsp;·&nbsp; [Figma Kit](https://plexui.com/#pricing) &nbsp;·&nbsp; [Threads](https://www.threads.com/@plex_uikit)
+[Docs](https://plexui.com) &nbsp;·&nbsp; [Components](https://plexui.com/components) &nbsp;·&nbsp; [AI Skill](https://plexui.com/docs/overview/skills) &nbsp;·&nbsp; [Threads](https://www.threads.com/@plex_uikit)
 
 </div>
 
@@ -26,7 +26,6 @@ Plex UI is a production-grade React component library (Radix + CSS modules) with
 - 🎨 **Three-layer design tokens** — primitive → semantic → component, full dark mode
 - 🧩 **shadcn-compatible registry** — mix with existing shadcn projects in one command
 - 🟢 **Vue 3 too**: [`@plexui/vue`](./packages/vue) has every component with the same props, markup and styles
-- 🧵 **Figma kit with 22,000+ variants** — 1:1 parity with the React components
 - 📦 **~40K-token skill** fits the context window without blowing up your prompts
 
 ## Quick start
@@ -99,25 +98,12 @@ See [Skills](https://plexui.com/docs/overview/skills) for Cursor, Windsurf, Copi
 | **Styling** | CSS modules + tokens | Tokens documented for generation |
 | **Docs** | [plexui.com](https://plexui.com) | Indexed by skill / MCP |
 | **Examples** | MDX with live preview | Copy-paste-ready in skill |
-| **Figma** | 22,000+ variants | — |
 
 ## Components (excerpt)
 
 Alert · Avatar · Badge · Button · Checkbox · CodeBlock · DataTable · DateInput · DatePicker · Dialog · EmptyMessage · Field · FileUpload · FloatingLabelInput · Input · Markdown · Menu · OTPInput · Popover · RadioGroup · SegmentedControl · Select · Sidebar · Skeleton · Switch · Tabs · TagInput · Textarea · Tooltip · …
 
 See the [full list →](https://plexui.com/components)
-
-## Figma Design System PRO
-
-22,000+ meticulously crafted variants built entirely on Figma Variables.
-
-**[Get the Figma Kit →](https://plexui.com/#pricing)**
-
-| Personal | Team | Unlimited |
-|:--:|:--:|:--:|
-| **$49** | **$149** | **$299** |
-| 1 designer, 1 project | Up to 5 designers | Unlimited |
-| Lifetime updates | Lifetime updates | Lifetime updates |
 
 ## Star ⭐ if you find this useful
 
@@ -144,4 +130,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## License
 
-React library: [MIT](./packages/ui/LICENSE)  ·  Figma Kit: commercial via [plexui.com](https://plexui.com/#pricing)
+[MIT](./packages/ui/LICENSE)

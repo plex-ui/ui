@@ -22,19 +22,14 @@ const rows: ComparisonRow[] = [
     competitor: '28 primitives',
   },
   {
-    feature: 'Figma design system',
-    plexui: 'Official Figma library',
-    competitor: false,
+    feature: 'Frameworks',
+    plexui: 'React and Vue, parity-tested',
+    competitor: 'React (Vue via Reka UI, a separate port)',
   },
   {
     feature: 'Design tokens',
     plexui: '3-layer token architecture',
     competitor: 'No token system (unstyled)',
-  },
-  {
-    feature: 'Figma-to-code parity',
-    plexui: 'Exact parity by design',
-    competitor: 'No Figma workflow',
   },
   {
     feature: 'AI editor compatibility',
@@ -87,7 +82,7 @@ const faqJsonLd = {
       name: 'Is Plex UI a Radix UI alternative?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'They solve different problems. Radix provides unstyled, accessible primitives. Plex UI provides a complete styled design system with Figma parity. Plex UI uses Radix primitives internally for accessibility.',
+        text: 'They solve different problems. Radix provides unstyled, accessible primitives. Plex UI provides a complete styled design system for React and Vue. Plex UI uses Radix primitives internally for accessibility.',
       },
     },
     {
@@ -103,7 +98,7 @@ const faqJsonLd = {
       name: 'When does Plex UI make more sense?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'When you need a production-ready styled system with Figma assets, design tokens, and consistent sizing out of the box.',
+        text: 'When you need a production-ready styled system with design tokens, consistent sizing, and tooling for AI agents out of the box.',
       },
     },
   ],
@@ -112,26 +107,26 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: 'Plex UI vs Radix UI — Feature Comparison (2026)',
   description:
-    'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, Figma parity, design tokens, pricing, and more.',
+    'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, design tokens, React and Vue, pricing, and more.',
   alternates: {
     canonical: 'https://plexui.com/compare/radix-ui',
   },
   openGraph: {
     title: 'Plex UI vs Radix UI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, Figma parity, design tokens, pricing, and more.',
+      'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, design tokens, React and Vue, pricing, and more.',
     url: 'https://plexui.com/compare/radix-ui',
     images: [{ url: '/opengraph-image.png' }],
   },
   twitter: {
     title: 'Plex UI vs Radix UI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, Figma parity, design tokens, pricing, and more.',
+      'Detailed comparison of Plex UI and Radix UI. Styled system vs unstyled primitives, design tokens, React and Vue, pricing, and more.',
   },
   keywords: [
     'plex ui vs radix',
     'radix ui alternative',
-    'figma react design system comparison',
+    'react design system comparison',
     'plex ui comparison',
   ],
 };
@@ -175,7 +170,7 @@ export default function RadixComparisonPage() {
            <div className="mt-4 space-y-3">
              <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
                <li>Radix UI provides unstyled, accessible primitives — you bring all styling and design decisions.</li>
-               <li>Plex UI builds on Radix primitives and adds production-ready styles, design tokens, and Figma parity.</li>
+               <li>Plex UI builds on Radix primitives and adds production-ready styles, design tokens, and a Vue package with the same API.</li>
                <li>Radix is the right pick when you need full control over every visual detail from scratch.</li>
                <li>Plex UI is the right pick when you want a styled system that works out of the box with consistent sizing.</li>
              </ul>
@@ -249,7 +244,7 @@ export default function RadixComparisonPage() {
            <h2 className="mt-10 text-xl font-semibold tracking-tight text-fd-foreground md:text-2xl">Where Plex UI wins</h2>
            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Production-ready styles out of the box — no need to build a design system on top of primitives.</li>
-             <li>Official Figma design system with exact Figma-to-code parity.</li>
+             <li>The same components, props and markup in React and Vue, checked against each other by parity tests.</li>
              <li>9-step control sizing for precise density control across dashboards and marketing layouts.</li>
              <li>Three-layer design token architecture for scalable theming and component-level overrides.</li>
              <li>Built with explicit AI editor compatibility in mind for fast code generation workflows.</li>
@@ -262,8 +257,8 @@ export default function RadixComparisonPage() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
             Both are free and open-source. The difference is in the layer above the primitives: Plex UI ships styled,
-            token-driven components with exact Figma-to-code parity, while Radix stops at unstyled primitives and leaves
-            the design layer to you.
+            token-driven components for React and Vue, while Radix stops at unstyled primitives and leaves the design
+            layer to you.
           </p>
         </section>
 
@@ -280,7 +275,7 @@ export default function RadixComparisonPage() {
 
            <h3 className="mt-6 text-base font-semibold text-fd-foreground">Choose Plex UI if you need</h3>
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-             <li>Design and code systems that stay aligned over time.</li>
+             <li>One system for React and Vue that AI agents use correctly.</li>
              <li>Consistent sizing with 9-step controls across key components.</li>
              <li>A production-ready token architecture for long-term scaling.</li>
            </ul>

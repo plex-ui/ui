@@ -22,19 +22,14 @@ const rows: ComparisonRow[] = [
     competitor: '60+ components',
   },
   {
-    feature: 'Figma design system',
-    plexui: 'Official Figma library',
-    competitor: 'Official free Figma resources',
+    feature: 'Frameworks',
+    plexui: 'React and Vue, parity-tested',
+    competitor: 'React (Vue via community ant-design-vue)',
   },
   {
     feature: 'Design tokens',
     plexui: '3-layer token architecture',
     competitor: 'Design Token system (v5)',
-  },
-  {
-    feature: 'Figma-to-code parity',
-    plexui: 'Exact parity by design',
-    competitor: 'Partial parity',
   },
   {
     feature: 'AI editor compatibility',
@@ -92,7 +87,7 @@ const faqJsonLd = {
       name: 'Is Plex UI an Ant Design alternative?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Both provide comprehensive React component libraries, but Plex UI focuses on modern CSS (Tailwind 4, no runtime), a 9-step sizing scale, and tighter Figma-to-code parity, while Ant Design offers a larger component catalog with deep enterprise adoption.',
+        text: 'Yes. Both provide comprehensive React component libraries, but Plex UI focuses on modern CSS (Tailwind 4, no runtime), a 9-step sizing scale, and the same components for Vue, while Ant Design offers a larger component catalog with deep enterprise adoption.',
       },
     },
     {
@@ -108,7 +103,7 @@ const faqJsonLd = {
       name: 'When does Plex UI make more sense than Ant Design?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Plex UI is a better fit when you want zero-runtime CSS with Tailwind, precise Figma-to-code parity, a lightweight bundle without CSS-in-JS overhead, and AI-first development workflows with predictable component APIs.',
+        text: 'Plex UI is a better fit when you want zero-runtime CSS with Tailwind, the same components in React and Vue, a lightweight bundle without CSS-in-JS overhead, and AI-first development workflows with predictable component APIs.',
       },
     },
   ],
@@ -117,27 +112,27 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: 'Plex UI vs Ant Design — Feature Comparison (2026)',
   description:
-    'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, Figma parity, design tokens, bundle size, styling, and more.',
+    'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, design tokens, bundle size, styling, React and Vue, and more.',
   alternates: {
     canonical: 'https://plexui.com/compare/ant-design',
   },
   openGraph: {
     title: 'Plex UI vs Ant Design — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, Figma parity, design tokens, bundle size, styling, and more.',
+      'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, design tokens, bundle size, styling, React and Vue, and more.',
     url: 'https://plexui.com/compare/ant-design',
     images: [{ url: '/opengraph-image.png' }],
   },
   twitter: {
     title: 'Plex UI vs Ant Design — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, Figma parity, design tokens, bundle size, styling, and more.',
+      'Detailed comparison of Plex UI and Ant Design. 9 sizes vs 3, design tokens, bundle size, styling, React and Vue, and more.',
   },
   keywords: [
     'plex ui vs ant design',
     'ant design alternative',
     'antd alternative',
-    'figma react design system comparison',
+    'react design system comparison',
     'plex ui comparison',
   ],
 };
@@ -169,8 +164,8 @@ export default function AntDesignComparisonPage() {
             Plex UI vs Ant Design
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-fd-muted-foreground md:text-lg">
-            A fair, side-by-side comparison for teams evaluating an Ant Design alternative with modern CSS, tighter Figma
-            integration, and a lighter runtime footprint.
+            A fair, side-by-side comparison for teams evaluating an Ant Design alternative with modern CSS, predictable
+            sizing, and a lighter runtime footprint.
           </p>
         </section>
 
@@ -182,7 +177,7 @@ export default function AntDesignComparisonPage() {
              <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
                <li>Plex UI uses Tailwind CSS 4 with zero-runtime styling, while Ant Design relies on CSS-in-JS or Less.</li>
                <li>Ant Design provides 60+ battle-tested components with deep enterprise and data-heavy use cases.</li>
-               <li>Plex UI offers exact Figma-to-code parity and a 9-step sizing scale for precise layout control.</li>
+               <li>Plex UI offers a 9-step sizing scale for precise layout control and the same components for React and Vue.</li>
                <li>Both support TypeScript, design tokens, and dark mode out of the box.</li>
              </ul>
            </div>
@@ -256,7 +251,7 @@ export default function AntDesignComparisonPage() {
            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Modern CSS with Tailwind 4 and zero runtime overhead, no CSS-in-JS dependency.</li>
              <li>9-step control sizing gives more precision than Ant Design&apos;s 3 size presets.</li>
-             <li>Tighter Figma-to-code parity with an official Figma design system built in sync with React.</li>
+             <li>The same components, props and markup in React and Vue, checked against each other by parity tests.</li>
              <li>Lighter bundle size with tree-shaking and no CSS-in-JS runtime cost.</li>
              <li>Designed for AI-assisted development workflows from the ground up.</li>
            </ul>
@@ -287,7 +282,7 @@ export default function AntDesignComparisonPage() {
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Zero-runtime CSS with Tailwind and no CSS-in-JS overhead.</li>
              <li>Consistent sizing with 9-step controls across key components.</li>
-             <li>Exact Figma-to-code parity with a synchronized design system.</li>
+             <li>One system for React and Vue that AI agents use correctly.</li>
            </ul>
          </section>
 

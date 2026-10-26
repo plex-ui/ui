@@ -1,5 +1,5 @@
 # PlexUI
-> The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.
+> The most flexible UI kit for React. Production-grade components, design tokens and a 9-size scale that AI agents use correctly.
 
 Every example's code: https://plexui.com/llms-full.txt
 Vue 3: https://plexui.com/llms-vue.txt

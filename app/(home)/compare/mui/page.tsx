@@ -22,19 +22,14 @@ const rows: ComparisonRow[] = [
     competitor: '50+ components',
   },
   {
-    feature: 'Figma design system',
-    plexui: 'Official Figma library',
-    competitor: 'Official paid kit (Material UI for Figma)',
+    feature: 'Frameworks',
+    plexui: 'React and Vue, parity-tested',
+    competitor: 'React',
   },
   {
     feature: 'Design tokens',
     plexui: '3-layer token architecture',
     competitor: 'Theme object with createTheme()',
-  },
-  {
-    feature: 'Figma-to-code parity',
-    plexui: 'Exact parity by design',
-    competitor: 'Partial — Figma kit is separate product',
   },
   {
     feature: 'AI editor compatibility',
@@ -92,7 +87,7 @@ const faqJsonLd = {
       name: 'Is Plex UI a good alternative to MUI?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Both provide production-grade React component libraries, but Plex UI uses modern CSS (Tailwind CSS 4, no runtime styling), offers a 9-step control size scale, and maintains exact Figma-to-code parity by design.',
+        text: 'Yes. Both provide production-grade React component libraries, but Plex UI uses modern CSS (Tailwind CSS 4, no runtime styling), offers a 9-step control size scale, and ships the same components for Vue.',
       },
     },
     {
@@ -117,21 +112,21 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: 'Plex UI vs MUI — Feature Comparison (2026)',
   description:
-    'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, Figma parity, design tokens, styling approach, pricing, and more.',
+    'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, design tokens, styling approach, React and Vue, pricing, and more.',
   alternates: {
     canonical: 'https://plexui.com/compare/mui',
   },
   openGraph: {
     title: 'Plex UI vs MUI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, Figma parity, design tokens, styling approach, pricing, and more.',
+      'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, design tokens, styling approach, React and Vue, pricing, and more.',
     url: 'https://plexui.com/compare/mui',
     images: [{ url: '/opengraph-image.png' }],
   },
   twitter: {
     title: 'Plex UI vs MUI — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, Figma parity, design tokens, styling approach, pricing, and more.',
+      'Detailed comparison of Plex UI and MUI (Material UI). Bundle size, design tokens, styling approach, React and Vue, pricing, and more.',
   },
   keywords: [
     'mui alternative',
@@ -169,7 +164,7 @@ export default function MuiComparisonPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-fd-muted-foreground md:text-lg">
             A fair, side-by-side comparison for teams evaluating a Material UI alternative with modern CSS, lighter
-            bundles, tighter Figma parity, and predictable sizing.
+            bundles, and predictable sizing.
           </p>
         </section>
 
@@ -182,7 +177,7 @@ export default function MuiComparisonPage() {
                <li>MUI offers the largest React component catalog and the biggest community in the ecosystem.</li>
                <li>Plex UI uses Tailwind CSS 4 and CSS variables instead of runtime CSS-in-JS, resulting in lighter bundles.</li>
                <li>Plex UI provides 9 production-ready control sizes, while MUI provides 3 (small, medium, large).</li>
-               <li>Both have official Figma kits, but Plex UI maintains exact Figma-to-code parity by design.</li>
+               <li>Plex UI ships the same components for React and Vue, with an MCP server and llms.txt for AI agents.</li>
              </ul>
            </div>
         </section>
@@ -255,7 +250,7 @@ export default function MuiComparisonPage() {
            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Modern CSS approach (Tailwind CSS 4 + CSS variables) with no runtime styling overhead.</li>
              <li>Lighter bundle size without @emotion or styled-components dependencies.</li>
-             <li>Tighter Figma-to-code parity with exact design-to-implementation alignment.</li>
+             <li>The same components, props and markup in React and Vue, checked against each other by parity tests.</li>
              <li>9-step control sizing gives more precision than small/medium/large for complex layouts.</li>
              <li>Built with explicit AI editor compatibility for fast code generation workflows.</li>
            </ul>
@@ -287,7 +282,7 @@ export default function MuiComparisonPage() {
            <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Modern CSS without runtime overhead and smaller production bundles.</li>
              <li>Consistent sizing with 9-step controls across key components.</li>
-             <li>A production-ready token architecture with exact Figma parity.</li>
+             <li>A production-ready token architecture for long-term scaling.</li>
            </ul>
          </section>
 

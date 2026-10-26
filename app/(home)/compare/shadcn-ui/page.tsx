@@ -22,19 +22,14 @@ const rows: ComparisonRow[] = [
     competitor: 'Large open registry, setup-dependent',
   },
   {
-    feature: 'Figma design system',
-    plexui: 'Official Figma library',
-    competitor: false,
+    feature: 'Frameworks',
+    plexui: 'React and Vue, parity-tested',
+    competitor: 'React (Vue via community shadcn-vue)',
   },
   {
     feature: 'Design tokens',
     plexui: '3-layer token architecture',
     competitor: 'Project-level CSS variables',
-  },
-  {
-    feature: 'Figma-to-code parity',
-    plexui: 'Exact parity by design',
-    competitor: 'No official parity workflow',
   },
   {
     feature: 'AI editor compatibility',
@@ -69,7 +64,7 @@ const rows: ComparisonRow[] = [
   {
     feature: 'Pricing',
     plexui: 'Free and open-source',
-    competitor: 'React free; community Figma kits ~ $99',
+    competitor: 'Free and open-source',
   },
   {
     feature: 'Community size',
@@ -87,7 +82,7 @@ const faqJsonLd = {
       name: 'Is Plex UI a shadcn/ui alternative?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. Both provide React components on top of modern tooling, but Plex UI adds an official Figma system, a 9-step control size scale, and a tighter Figma-to-code workflow.',
+        text: 'Yes. Both provide React components on top of modern tooling, but Plex UI adds a 9-step control size scale, a three-layer token system, the same components for Vue, and an MCP server, llms.txt and a skill that keep AI agents on the real component API.',
       },
     },
     {
@@ -103,7 +98,7 @@ const faqJsonLd = {
       name: 'When does Plex UI make more sense?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Plex UI is a better fit when your team needs synchronized Figma and React assets, consistent 9-size controls across components, and production-ready tokens for scaling product UI.',
+        text: 'Plex UI is a better fit when your team needs consistent 9-size controls across components, production-ready tokens for scaling product UI, the same components in React and Vue, and AI agents that generate correct UI.',
       },
     },
   ],
@@ -112,26 +107,26 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: 'Plex UI vs shadcn/ui — Feature Comparison (2026)',
   description:
-    'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, Figma parity, design tokens, pricing, and more.',
+    'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, design tokens, React and Vue, AI agent tooling, pricing, and more.',
   alternates: {
     canonical: 'https://plexui.com/compare/shadcn-ui',
   },
   openGraph: {
     title: 'Plex UI vs shadcn/ui — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, Figma parity, design tokens, pricing, and more.',
+      'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, design tokens, React and Vue, AI agent tooling, pricing, and more.',
     url: 'https://plexui.com/compare/shadcn-ui',
     images: [{ url: '/opengraph-image.png' }],
   },
   twitter: {
     title: 'Plex UI vs shadcn/ui — Feature Comparison (2026)',
     description:
-      'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, Figma parity, design tokens, pricing, and more.',
+      'Detailed comparison of Plex UI and shadcn/ui. 9 sizes vs 4, design tokens, React and Vue, AI agent tooling, pricing, and more.',
   },
   keywords: [
     'plex ui vs shadcn',
     'shadcn alternative',
-    'figma react design system comparison',
+    'react design system comparison',
     'plex ui comparison',
   ],
 };
@@ -163,8 +158,8 @@ export default function ShadcnComparisonPage() {
             Plex UI vs shadcn/ui
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-fd-muted-foreground md:text-lg">
-            A fair, side-by-side comparison for teams evaluating a shadcn alternative with stronger Figma integration,
-            token architecture, and predictable sizing.
+            A fair, side-by-side comparison for teams evaluating a shadcn alternative with a token architecture,
+            predictable sizing, and tooling for AI agents.
           </p>
         </section>
 
@@ -176,7 +171,7 @@ export default function ShadcnComparisonPage() {
             <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
               <li>Plex UI gives you 9 production-ready control sizes, while shadcn/ui provides 4 common size presets.</li>
               <li>shadcn/ui stays unmatched for zero-cost entry and open-source ecosystem depth.</li>
-              <li>Plex UI adds an official Figma system and explicit Figma-to-code parity for design and engineering teams.</li>
+              <li>Plex UI ships the same components for React and Vue, plus an MCP server, llms.txt and a skill that keep AI agents on the real API.</li>
               <li>Both support modern React, TypeScript, accessibility, and Tailwind CSS 4 workflows.</li>
             </ul>
           </div>
@@ -248,7 +243,7 @@ export default function ShadcnComparisonPage() {
           <h2 className="mt-10 text-xl font-semibold tracking-tight text-fd-foreground md:text-2xl">Where Plex UI wins</h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
             <li>9-step control sizing gives more precision for dense dashboards and spacious marketing layouts.</li>
-            <li>Official Figma + React system improves handoff and consistency across design and engineering.</li>
+            <li>The same components, props and markup in React and Vue, checked against each other by parity tests.</li>
             <li>Three-layer token model scales better for theming and component-level overrides.</li>
             <li>Built with explicit AI editor compatibility in mind for fast code generation workflows.</li>
           </ul>
@@ -259,9 +254,9 @@ export default function ShadcnComparisonPage() {
             Pricing comparison: Plex UI vs shadcn/ui
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-            Both React libraries are free. The difference is in the design layer: Plex UI is designed in Figma and
-            maintains exact Figma-to-code parity, while shadcn/ui has no official Figma product and teams typically rely
-            on third-party community kits.
+            Both libraries are free and open-source under MIT. Plex UI installs as npm packages (@plexui/ui and
+            @plexui/vue) and also offers a shadcn registry, while shadcn/ui copies component source into your
+            project.
           </p>
         </section>
 
@@ -278,7 +273,7 @@ export default function ShadcnComparisonPage() {
 
           <h3 className="mt-6 text-base font-semibold text-fd-foreground">Choose Plex UI if you need</h3>
           <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
-            <li>Design and code systems that stay aligned over time.</li>
+            <li>One system for React and Vue that AI agents use correctly.</li>
             <li>Consistent sizing with 9-step controls across key components.</li>
             <li>A production-ready token architecture for long-term scaling.</li>
           </ul>

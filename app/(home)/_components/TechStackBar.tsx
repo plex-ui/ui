@@ -1,9 +1,10 @@
 const stack = [
   { name: 'Radix UI', url: 'https://radix-ui.com' },
+  { name: 'Reka UI', url: 'https://reka-ui.com' },
   { name: 'Tailwind CSS 4', url: 'https://tailwindcss.com' },
   { name: 'React 19', url: 'https://react.dev' },
+  { name: 'Vue 3', url: 'https://vuejs.org' },
   { name: 'TypeScript', url: 'https://typescriptlang.org' },
-  { name: 'Figma Variables', url: 'https://figma.com' },
 ];
 
 export function TechStackBar() {

@@ -260,7 +260,7 @@ export function CardPricingDemo() {
           features: [
             'Unlimited projects',
             'Priority support',
-            'All Figma kits',
+            'Custom domains',
             'Early components',
           ],
         },

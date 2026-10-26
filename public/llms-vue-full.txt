@@ -1349,7 +1349,7 @@ Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
   <Card
     v-for="plan in [
       { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },
-      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'All Figma kits', 'Early components'] },
+      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'Custom domains', 'Early components'] },
     ]"
     :key="plan.name"
     :variant="plan.highlighted ? 'solid' : 'outline'"

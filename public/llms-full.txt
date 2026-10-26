@@ -1,5 +1,5 @@
 # PlexUI: full reference
-> The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.
+> The most flexible UI kit for React. Production-grade components, design tokens and a 9-size scale that AI agents use correctly.
 
 React components with every documented example. Quick overview: https://plexui.com/llms.txt
 Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
@@ -1258,7 +1258,7 @@ Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
 ```tsx
 const plans = [
 { name: "Starter", price: "$0", highlighted: false, features: ["1 project", "Community support", "Plex UI core"] },
-{ name: "Pro", price: "$19", highlighted: true, features: ["Unlimited projects", "Priority support", "All Figma kits", "Early components"] },
+{ name: "Pro", price: "$19", highlighted: true, features: ["Unlimited projects", "Priority support", "Custom domains", "Early components"] },
 ]
 
 <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", maxWidth: 720 }}>

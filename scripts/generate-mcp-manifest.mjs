@@ -27,7 +27,7 @@ const FRAMEWORKS = {
     package: "@plexui/ui",
     docsUrl: "https://plexui.com/components",
     description:
-      "The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.",
+      "The most flexible UI kit for React. Production-grade components, design tokens and a 9-size scale that AI agents use correctly.",
     install: "npm install @plexui/ui",
     setup: {
       css: '@layer theme, base, components, utilities;\n@import "tailwindcss";\n@import "@plexui/ui/css";\n@source "../node_modules/@plexui/ui";',
