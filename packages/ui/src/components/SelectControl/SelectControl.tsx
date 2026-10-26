@@ -116,6 +116,11 @@ export const SelectControl = ({
 
   // Act like a <button> and fire the click handler on keyboard actions
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLSpanElement>) => {
+    // Keys from nested controls (the clear button) are theirs to handle
+    if (evt.target !== evt.currentTarget) {
+      onKeyDown?.(evt)
+      return
+    }
     switch (evt.key) {
       // NOTE: "Enter" does not open selects, as it may be an attempt to submit a form
       case "ArrowDown":

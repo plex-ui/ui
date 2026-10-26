@@ -67,7 +67,8 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
     const handleKeyDown = useCallback(
       (evt: React.KeyboardEvent<HTMLDivElement>) => {
         onKeyDown?.(evt)
-        if (disabled) return
+        // Keys from nested controls (the clear button) are theirs to handle
+        if (disabled || evt.target !== evt.currentTarget) return
 
         switch (evt.key) {
           case "ArrowDown":
