@@ -1,10 +1,9 @@
-import { defineComponent, h, type PropType } from "vue"
+import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
 import { useSimulatedProgress } from "../../composables/useSimulatedProgress.js"
 import { toCssVariables } from "../../lib/helpers.js"
 import s from "@plexui/styles/components/Indicator/CircularProgress.module.css"
 
-/** Port of packages/ui/src/components/Indicator/CircularProgress.tsx. */
-export const CircularProgress = defineComponent({
+const CircularProgressComponent = defineComponent({
   name: "CircularProgress",
   inheritAttrs: false,
   props: {
@@ -68,3 +67,13 @@ export const CircularProgress = defineComponent({
     }
   },
 })
+
+type CircularProgressOwnProps = InstanceType<typeof CircularProgressComponent>["$props"]
+
+/** CircularProgress props plus the native <div> attributes that fall through to it, as in React. */
+export type CircularProgressProps = CircularProgressOwnProps & Omit<HTMLAttributes, keyof CircularProgressOwnProps>
+
+/** Port of packages/ui/src/components/Indicator/CircularProgress.tsx. */
+export const CircularProgress = CircularProgressComponent as typeof CircularProgressComponent & {
+  new (): { $props: CircularProgressProps }
+}

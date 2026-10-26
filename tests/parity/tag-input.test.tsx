@@ -1,14 +1,14 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { h } from "vue"
+import { h, isProxy } from "vue"
 import { Field as RField } from "../../packages/ui/src/components/Field"
 import { TagInput as RTagInput } from "../../packages/ui/src/components/TagInput"
 import { Field } from "../../packages/vue/src/components/Field"
 import { TagInput } from "../../packages/vue/src/components/TagInput"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
-import { interact, renderPair } from "./pair"
+import { interact, renderPair, walkPairWithState } from "./pair"
 
 type Props = Record<string, unknown>
 
@@ -42,6 +42,7 @@ const cases: Array<[string, Props]> = [
   ["disabled", { disabled: true, defaultValue: tags("a") }],
   ["max tags counter", { maxTags: 5, defaultValue: tags("a", "b") }],
   ["max tags reached hides the input", { maxTags: 2, defaultValue: tags("a", "b") }],
+  ["max tags reached while disabled", { maxTags: 2, defaultValue: tags("a", "b"), disabled: true }],
   ["maxTags 0 renders 0 like React", { maxTags: 0 }],
   ["controlled", { value: tags("x", "y") }],
 ]
@@ -175,6 +176,75 @@ describe("TagInput behaviour parity", () => {
     expect(result.vueChanges).toEqual(result.reactChanges)
     expect(result.reactChanges).toEqual([tags("x", "a", "b")])
     expect(result.react[0]).not.toContain("<input")
+  })
+
+  test("at maxTags the container is the tab stop, and Backspace removes from there", async () => {
+    const result = await walk({ maxTags: 2, defaultValue: tags("a", "b") }, async (snap) => {
+      const container = () => document.querySelector("[data-size]") as HTMLElement
+      snap()
+      await interact(() => container().focus())
+      await key(container(), "Backspace") // selects "b"
+      await key(container(), "Backspace") // removes "b", the input comes back
+      snap()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueChanges).toEqual(result.reactChanges)
+    expect(result.react[0]).toMatch(/data-size="xl"[^>]*tabindex="0"/)
+    expect(result.reactChanges).toEqual([tags("a")])
+    expect(result.react[1]).toContain("<input")
+  })
+
+  test("disabled while a tag is selected: keys and an outside click change nothing", async () => {
+    const changes = { react: [] as unknown[], vue: [] as unknown[] }
+    const pending: string[] = []
+    const selected: string[] = []
+    let framework: "react" | "vue" = "react"
+    const props = (disabled: boolean) => ({ defaultValue: tags("a", "b"), disabled, onChange: (t: unknown) => changes[framework].push(t) })
+    const { react, vue } = await walkPairWithState(
+      { disabled: false },
+      (state) => createElement(RTagInput, props(state.disabled) as never),
+      (state) => h(TagInput, props(state.disabled) as never),
+      async ({ set, snapshot }) => {
+        const container = () => document.querySelector("[data-size]")!
+        await interact(() => document.querySelector("input")!.focus())
+        await key(container(), "ArrowLeft") // selects "b"
+        selected.push(document.activeElement?.getAttribute("data-tag") ?? "")
+        await set({ disabled: true })
+        await key(container(), "Backspace")
+        await key(container(), "ArrowLeft")
+        selected.push(document.activeElement?.getAttribute("data-tag") ?? "")
+        // CSS turns pointer events off when disabled; jsdom does not apply it
+        await interact(() => fireEvent.click(document.querySelector('[aria-label="Remove item"]')!))
+        snapshot()
+        await set({ disabled: false })
+        // Pending text is kept, not committed, by an outside click while disabled
+        await interact(() => fireEvent.input(document.querySelector("input")!, { target: { value: "pending" } }))
+        await set({ disabled: true })
+        await interact(() => fireEvent.mouseDown(document.body))
+        await set({ disabled: false })
+        pending.push(document.querySelector("input")!.value)
+        snapshot()
+        framework = "vue"
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(changes).toEqual({ react: [], vue: [] })
+    expect(selected).toEqual(["b", "b", "b", "b"])
+    expect(react[0]).toContain('data-tag="a"')
+    expect(pending).toEqual(["pending", "pending"])
+  })
+
+  test("uncontrolled change payloads hold the caller's tag objects, not proxies", async () => {
+    const initial = tags("a")
+    const changes: Array<Array<{ value: string }>> = []
+    mountVue(() => h(TagInput, { defaultValue: initial, onChange: (t: Array<{ value: string }>) => changes.push(t) }))
+    await flushVue()
+    await interact(() => fireEvent.input(document.querySelector("input")!, { target: { value: "b" } }))
+    await interact(() => fireEvent.keyDown(document.querySelector("input")!, { key: "Enter" }))
+    await interact(() => fireEvent.click(document.querySelectorAll('[aria-label="Remove item"]')[1]!))
+    expect(changes.map((list) => list.map((tag) => tag.value))).toEqual([["a", "b"], ["a"]])
+    expect(changes[1]![0]).toBe(initial[0])
+    expect(changes.flat().some((tag) => isProxy(tag))).toBe(false)
   })
 
   test("selecting a tag whose value needs CSS escaping focuses it", async () => {

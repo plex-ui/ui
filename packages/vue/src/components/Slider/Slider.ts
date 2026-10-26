@@ -26,6 +26,7 @@ import s from "@plexui/styles/components/Slider/Slider.module.css"
 // - `value` + `update:value` (also `change`, as React calls it `onChange`)
 //   support `v-model:value`; the value is a number, or an array with `range`.
 // - `label` is a prop or the `label` slot (rich content, e.g. a tooltip).
+// - `aria-label` / `aria-labelledby` are the `ariaLabel` / `ariaLabelledby` props.
 // - React's `onFocus` / `onBlur` become the `focus` / `blur` emits: from the
 //   value input, and from the thumbs (React's bubbling focus events, so
 //   `focusin` / `focusout` on the slider root).
@@ -278,6 +279,10 @@ const SliderComponent = defineComponent({
     prefixUnit: String,
     /** Label for the slider; the `label` slot takes rich content */
     label: String,
+    /** Accessible name for the slider when there is no visible `label` */
+    ariaLabel: String,
+    /** Id of an element that names the slider; takes precedence over `label` */
+    ariaLabelledby: String,
     /** List of marks to display below the slider track (horizontal only) */
     marks: Array as PropType<SliderMark[]>,
     /** Color of the slider track */
@@ -322,7 +327,8 @@ const SliderComponent = defineComponent({
       inputValue.value = nextValue.toFixed(precision.value)
     }
 
-    // prevents input from jumping around while the user is typing
+    // prevents input from jumping around while the user is typing; an
+    // immediate change (a key, blur) cancels the pending typed one
     const debouncedOnChange = debounce((value: number) => reportChange(value), 250)
     // React's useDebounceCallback means to cancel on unmount (and misses);
     // Vue drops emits after unmount anyway
@@ -350,25 +356,29 @@ const SliderComponent = defineComponent({
     // Calculate animation duration based on the distance the thumb needs to move
     // Skip custom animation for range mode: let Radix handle it
     const percent = computed(() => (isRange() ? 0 : ((props.value as number) - props.min) / (props.max - props.min)))
-    // Plex's usePrevious: the value moves into the ref when the effect of the
-    // previous value is cleaned up, i.e. after a commit that changed it
+    // Plex's usePrevious: the percent before its latest change (recorded after
+    // the render that changed it), the same across renders that keep it
+    let lastPercent = percent.value
     let previousPercent = percent.value
     watch(
       percent,
-      (_next, previous) => {
-        previousPercent = previous
+      (next) => {
+        previousPercent = lastPercent
+        lastPercent = next
       },
       { flush: "post" },
     )
+    const getPreviousPercent = () => (Object.is(lastPercent, percent.value) ? previousPercent : lastPercent)
 
-    // Sort marks for collision detection (re-sorted only when their count changes, as in React)
+    // Sort marks for collision detection (again only when a value or label changes, as in React)
+    const marksKey = () => JSON.stringify((props.marks ?? []).map(({ value, label }) => [value, label]))
     let sortedMarks: SliderMark[] = []
-    let sortedMarksLength = -1
+    let sortedMarksKey: string | undefined
     const getMarks = () => {
-      const propMarks = props.marks ?? []
-      if (propMarks.length !== sortedMarksLength) {
-        sortedMarks = [...propMarks].sort((a, b) => a.value - b.value)
-        sortedMarksLength = propMarks.length
+      const key = marksKey()
+      if (key !== sortedMarksKey) {
+        sortedMarks = [...(props.marks ?? [])].sort((a, b) => a.value - b.value)
+        sortedMarksKey = key
       }
       return sortedMarks
     }
@@ -412,22 +422,24 @@ const SliderComponent = defineComponent({
       clampOutOfBounds()
       syncInputValue()
     })
-    watch([() => props.marks?.length ?? 0, () => props.min, () => props.max], validateMarks, { flush: "post" })
+    watch([marksKey, () => props.min, () => props.max], validateMarks, { flush: "post" })
     watch([() => props.min, () => props.max, precision, isRange], clampOutOfBounds, { flush: "post" })
     watch([() => props.value, precision, isRange], syncInputValue, { flush: "post" })
 
-    // Single-mode keyboard handler
+    // Single-mode keyboard handler: a key's change replaces a pending typed one
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (isRange()) return
       const singleValue = props.value as number
       const { min, max, step } = props
       if (evt.key === "Home") {
         evt.preventDefault()
+        debouncedOnChange.cancel()
         reportChange(min)
         setInputValueNumber(min)
       }
       if (evt.key === "End") {
         evt.preventDefault()
+        debouncedOnChange.cancel()
         reportChange(max)
         setInputValueNumber(max)
       }
@@ -435,6 +447,7 @@ const SliderComponent = defineComponent({
         evt.preventDefault()
         const multiplier = evt.shiftKey ? 10 : 1
         const next = clamp(singleValue + step * multiplier, min, max)
+        debouncedOnChange.cancel()
         reportChange(next)
         setInputValueNumber(next)
       }
@@ -442,6 +455,7 @@ const SliderComponent = defineComponent({
         evt.preventDefault()
         const multiplier = evt.shiftKey ? 10 : 1
         const next = clamp(singleValue - step * multiplier, min, max)
+        debouncedOnChange.cancel()
         reportChange(next)
         setInputValueNumber(next)
       }
@@ -454,9 +468,15 @@ const SliderComponent = defineComponent({
     const handleInputChange = (evt: Event) => {
       if (isRange()) return
       const target = evt.currentTarget as HTMLInputElement
-      // React strips the first non-numeric character only (no `g` flag)
-      const nextValue = target.value.replace(/[^\d.]/, "").trim()
+      // Digits and dots, plus a leading minus when the slider goes below zero
+      const nextValue = target.value.replace(props.min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "").trim()
       let parsed = parseFloat(nextValue || "0")
+      if (Number.isNaN(parsed)) {
+        // A lone "-" or "." is a number still being typed: nothing to report yet
+        inputValue.value = nextValue
+        if (target.value !== nextValue) target.value = nextValue
+        return
+      }
       parsed = clamp(parsed, props.min, props.max)
       if (props.step >= 1) {
         parsed = Math.floor(parsed)
@@ -469,6 +489,8 @@ const SliderComponent = defineComponent({
 
     const handleInputBlur = (evt: FocusEvent) => {
       if (isRange()) return
+      // Blur commits the typed text, so its pending debounced change is dropped
+      debouncedOnChange.cancel()
       let parsed = parseFloat((evt.target as HTMLInputElement).value.trim()) || 0
       if (props.step >= 1) {
         parsed = Math.floor(parsed)
@@ -508,7 +530,7 @@ const SliderComponent = defineComponent({
       const inputWidth = Math.max(currentInputValue.length, 1) * (tabletAndUp ? 7.8 : 9.5)
 
       const animationDurationMS =
-        range || !mounted || isPointerDown ? 0 : Math.max(Math.abs(percent.value - previousPercent) * 300, 100)
+        range || !mounted || isPointerDown ? 0 : Math.max(Math.abs(percent.value - getPreviousPercent()) * 300, 100)
 
       const marks = getMarks()
 
@@ -532,6 +554,9 @@ const SliderComponent = defineComponent({
 
       const labelSlot = slots.label?.()
       const labelContent = hasContent(labelSlot) ? labelSlot : props.label
+      // What names the thumbs: an explicit labelledby, else the visible label
+      const nameId = props.ariaLabelledby ?? (labelContent ? labelId : undefined)
+      const { ariaLabel } = props
 
       return h("div", { "class": [s.SliderWrap, attrs.class], "data-orientation": orientation }, [
         labelContent
@@ -622,16 +647,23 @@ const SliderComponent = defineComponent({
                         "key": i,
                         "id": `${id}-thumb-${i}`,
                         "class": s.Thumb,
-                        // Label plus the thumb's own Radix name ("Minimum" / "Maximum"),
+                        // The marks measure the first thumb (all thumbs are the same size)
+                        "elementRef": i === 0 ? setThumb : undefined,
+                        // Name plus the thumb's own Radix name ("Minimum" / "Maximum"),
                         // so the endpoints stay distinguishable
-                        "aria-labelledby": labelContent ? `${labelId} ${id}-thumb-${i}` : undefined,
+                        "aria-labelledby": nameId ? `${nameId} ${id}-thumb-${i}` : undefined,
+                        // Only pass aria-label when set: it replaces the name Radix gives the thumb
+                        ...(!nameId && ariaLabel
+                          ? { "aria-label": `${ariaLabel} ${rangeThumbName(i, (value as number[]).length)}`.trim() }
+                          : {}),
                       }),
                     )
                   : [
                       h(SliderThumb, {
                         "class": s.Thumb,
                         "elementRef": setThumb,
-                        "aria-labelledby": labelContent ? labelId : undefined,
+                        "aria-labelledby": nameId,
+                        ...(!nameId && ariaLabel ? { "aria-label": ariaLabel } : {}),
                       }),
                     ]),
               ],
@@ -644,8 +676,48 @@ const SliderComponent = defineComponent({
   },
 })
 
+// Matches the names Radix gives range thumbs on its own
+const rangeThumbName = (index: number, count: number) =>
+  count === 2 ? (index === 0 ? "Minimum" : "Maximum") : count > 2 ? `Value ${index + 1} of ${count}` : ""
+
 type SliderOwnProps = InstanceType<typeof SliderComponent>["$props"]
 
-export type SliderProps = SliderOwnProps & { class?: unknown }
+type SliderBaseProps = Omit<
+  SliderOwnProps,
+  "range" | "value" | "resetValue" | "resetTooltip" | "minStepsBetweenThumbs" | "onUpdate:value" | "onChange"
+> & { class?: unknown }
 
-export const Slider = SliderComponent as typeof SliderComponent & { new (): { $props: SliderProps } }
+// As in React, `range` decides the value's type and the props that apply
+type SingleSliderProps = SliderBaseProps & {
+  /** When false or omitted, the slider has a single thumb */
+  range?: false
+  /** The current value of the slider (`v-model:value`) */
+  value: number
+  /** Value offered as a "reset to default" option */
+  resetValue?: number
+  /** Text of the reset button's tooltip. @default "Reset to default" */
+  resetTooltip?: string
+  "onUpdate:value"?: (value: number) => void
+  onChange?: (value: number) => void
+}
+
+type RangeSliderProps = SliderBaseProps & {
+  /** The slider has one thumb per value */
+  range: true
+  /** One value per thumb (`v-model:value`) */
+  value: number[]
+  /** Minimum number of steps between thumbs */
+  minStepsBetweenThumbs?: number
+  "onUpdate:value"?: (value: number[]) => void
+  onChange?: (value: number[]) => void
+}
+
+export type SliderProps = SingleSliderProps | RangeSliderProps
+
+// The component's own `$props` type the value and the callbacks for both
+// modes, so its instance type takes `SliderProps` in their place
+type SliderInstance = Omit<InstanceType<typeof SliderComponent>, "$props"> & { $props: SliderProps }
+
+export const Slider = SliderComponent as unknown as Omit<typeof SliderComponent, never> & {
+  new (): SliderInstance
+}

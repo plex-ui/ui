@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 import { useMemo } from "react"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { isBefore } from "../../lib/dateUtils"
+import { isAfter } from "../../lib/dateUtils"
 import { Popover, type PopoverContentProps } from "../Popover"
 import type { SelectControlProps } from "../SelectControl"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar"
@@ -75,7 +75,7 @@ export type DateRangePickerProps = {
   variant?: SelectControlProps["variant"]
   /**
    * Determines if the select trigger should be a fully rounded pill shape
-   * @default false
+   * @default true
    */
   pill?: boolean
   /**
@@ -118,7 +118,7 @@ export type DateRangePickerProps = {
   clearable?: boolean
   /**
    * Extends select to 100% of available width.
-   * @default true
+   * @default false
    */
   block?: boolean
 }
@@ -149,8 +149,9 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     triggerDateFormat = "MM/dd/yy",
   } = props
 
-  if (min && max && !isBefore(min, max)) {
-    throw new Error("DateRangePicker error: `min` date must be before the `max` date")
+  // min and max are inclusive, so equal bounds allow one date
+  if (min && max && isAfter(min, max)) {
+    throw new Error("DateRangePicker error: `min` date must not be after the `max` date")
   }
 
   // Create stable, mutable references to avoid memoization requirements from consumers

@@ -1,7 +1,8 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { useState, type ReactNode } from "react"
 import { describe, expect, test, vi } from "vitest"
-import { Fragment, defineComponent, h, reactive, type PropType, type VNode } from "vue"
+import { Fragment, defineComponent, h, reactive, renderSlot, type PropType, type VNode } from "vue"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Menu as ReactMenu } from "../../packages/ui/src/components/Menu"
 import { PlexUIProvider as ReactPlexUIProvider } from "../../packages/ui/src/components/PlexUIProvider"
@@ -289,12 +290,13 @@ describe("Menu parity", () => {
     }
   })
 
-  test("a closed submenu's trigger points at content that is not mounted, as in Radix", async () => {
+  test("a closed submenu's trigger has no aria-controls, as in Radix (radix-ui 1.8)", async () => {
     for (const dom of [
       await reactDom(reactDomCase({ open: true, full: true })),
       await vueDom(vueDomCase({ open: true, full: true })),
     ]) {
-      expect(dom).toMatch(/aria-controls="\[missing\]" aria-expanded="false" aria-haspopup="menu" class="MenuItem SubMenuItem"/)
+      expect(dom).toMatch(/<div aria-expanded="false" aria-haspopup="menu" class="MenuItem SubMenuItem"/)
+      expect(dom).not.toContain("[missing]")
     }
   })
 
@@ -1386,3 +1388,283 @@ describe("Menu selection after a canceled click", () => {
   })
 })
 
+
+// ---------------------------------------------------------------------------
+// Review fixes and QA round 2 (G6a)
+
+describe("Menu review fixes", () => {
+  // Mounts the React tree, runs the script, then the Vue tree and the same
+  // script; returns each run's result
+  const both = async <T,>(
+    reactTree: (log: Log) => ReactNode,
+    vueTree: (log: Log) => VNode,
+    script: (log: string[]) => Promise<T>,
+  ) => {
+    animation.disabled = true
+    const reactLog: string[] = []
+    await act(async () => {
+      render(<>{reactTree((entry) => reactLog.push(entry))}</>)
+    })
+    await settle()
+    const react = await script(reactLog)
+    cleanup()
+    await settle()
+    document.body.innerHTML = ""
+
+    const vueLog: string[] = []
+    mountVue(() => vueTree((entry) => vueLog.push(entry)))
+    await flushVue()
+    await settle()
+    const vue = await script(vueLog)
+    return { react, vue }
+  }
+
+  test("Menu.Trigger forwards its attributes and listeners to the child, merged as Radix's Slot does", async () => {
+    const result = await both(
+      (log) => (
+        <ReactMenu>
+          <ReactMenu.Trigger
+            {...({
+              "aria-label": "More actions",
+              "data-source": "trigger",
+              "className": "outer",
+              "onPointerDown": () => log("trigger pointerdown"),
+            } as object)}
+          >
+            <button type="button" className="inner" data-source="child" onPointerDown={() => log("child pointerdown")}>
+              More
+            </button>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content>
+            <ReactMenu.Item onSelect={() => {}}>Edit</ReactMenu.Item>
+          </ReactMenu.Content>
+        </ReactMenu>
+      ),
+      (log) =>
+        h(Menu, null, () => [
+          h(
+            MenuTrigger,
+            { "aria-label": "More actions", "data-source": "trigger", "class": "outer", "onPointerdown": () => log("trigger pointerdown") },
+            () => h("button", { type: "button", class: "inner", "data-source": "child", onPointerdown: () => log("child pointerdown") }, "More"),
+          ),
+          h(MenuContent, null, () => h(MenuItem, { onSelect: () => {} }, () => "Edit")),
+        ]),
+      async (log) => {
+        const closed = snapshotDom()
+        await pointerDown(trigger())
+        return { closed, open: !!document.querySelector('[role="menu"]'), log: [...log] }
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react.closed).toContain('aria-label="More actions"')
+    expect(result.react.closed).toContain('class="outer inner"')
+    expect(result.react.closed).toContain('data-source="child"')
+    expect(result.react.log).toEqual(["child pointerdown", "trigger pointerdown"])
+    expect(result.react.open).toBe(true)
+  })
+
+  test("Menu.Trigger: the caller's preventDefault() on pointerdown keeps it closed", async () => {
+    const prevent = (event: { preventDefault(): void }) => event.preventDefault()
+    const result = await both(
+      () => (
+        <ReactMenu>
+          <ReactMenu.Trigger {...({ onPointerDown: prevent } as object)}>
+            <button type="button">More</button>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content>
+            <ReactMenu.Item onSelect={() => {}}>Edit</ReactMenu.Item>
+          </ReactMenu.Content>
+        </ReactMenu>
+      ),
+      () =>
+        h(Menu, null, () => [
+          h(MenuTrigger, { onPointerdown: prevent }, () => h("button", { type: "button" }, "More")),
+          h(MenuContent, null, () => h(MenuItem, { onSelect: () => {} }, () => "Edit")),
+        ]),
+      async () => {
+        await pointerDown(trigger())
+        return !!document.querySelector('[role="menu"]')
+      },
+    )
+    expect(result).toEqual({ react: false, vue: false })
+  })
+
+  test("an item with only an onClick handler is interactive: clicking runs it and closes the menu", async () => {
+    const result = await both(
+      (log) => (
+        <ReactMenu>
+          <ReactMenu.Trigger>
+            <button type="button">More</button>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content>
+            <ReactMenu.Item onClick={() => log("click")}>Save</ReactMenu.Item>
+          </ReactMenu.Content>
+        </ReactMenu>
+      ),
+      (log) =>
+        h(Menu, null, () => [
+          h(MenuTrigger, null, () => h("button", { type: "button" }, "More")),
+          h(MenuContent, null, () => h(MenuItem, { onClick: () => log("click") }, () => "Save")),
+        ]),
+      async (log) => {
+        await pointerDown(trigger())
+        const dom = snapshotDom()
+        await click(item("Save"))
+        return { dom, log: [...log], open: !!document.querySelector('[role="menu"]') }
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react.dom).toMatch(/<div class="MenuItem" data-orientation="vertical" role="menuitem" tabindex="-1">/)
+    expect(result.react.log).toEqual(["click"])
+    expect(result.react.open).toBe(false)
+  })
+
+  // Next's Link runs the listeners it is given first, vue-router's RouterLink
+  // its own handler first; both skip navigating a canceled click
+  const ReactGuardedLink = ({ onClick, log, ...rest }: { onClick?: (event: React.MouseEvent) => void; log: Log; children?: ReactNode }) => (
+    <a
+      data-router=""
+      {...rest}
+      onClick={(event) => {
+        onClick?.(event)
+        log(event.defaultPrevented ? "no navigation" : "navigate")
+        event.preventDefault()
+      }}
+    />
+  )
+  const VueGuardedLink = defineComponent({
+    props: { to: String, href: String, log: { type: Function as PropType<Log>, required: true } },
+    setup(props, { slots }) {
+      return () =>
+        h(
+          "a",
+          {
+            "data-router": "",
+            "href": props.to ?? props.href,
+            "onClick": (event: Event) => {
+              props.log(event.defaultPrevented ? "no navigation" : "navigate")
+              event.preventDefault()
+            },
+          },
+          slots.default?.(),
+        )
+    },
+  })
+
+  test.each([
+    ["anchor, disabled", { disabled: true }],
+    ["router link, disabled", { disabled: true, router: true }],
+    ["router link, enabled", { router: true }],
+    ["router link, the caller cancels the click", { router: true, cancel: true }],
+  ] as const)("Menu.Link: %s", async (_name, options: { disabled?: boolean; router?: boolean; cancel?: boolean }) => {
+    const cancel = options.cancel ? { onClick: (event: { preventDefault(): void }) => event.preventDefault() } : {}
+    const result = await both(
+      (log) => (
+        <ReactMenu onClose={() => log("close")}>
+          <ReactMenu.Trigger>
+            <button type="button">More</button>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content>
+            <ReactMenu.Link
+              href="/target"
+              disabled={options.disabled}
+              {...(options.router ? { as: ReactGuardedLink, log } : {})}
+              {...cancel}
+            >
+              Target
+            </ReactMenu.Link>
+          </ReactMenu.Content>
+        </ReactMenu>
+      ),
+      (log) =>
+        h(Menu, { onClose: () => log("close") }, () => [
+          h(MenuTrigger, null, () => h("button", { type: "button" }, "More")),
+          h(MenuContent, null, () =>
+            h(
+              MenuLink,
+              { href: "/target", disabled: options.disabled, ...(options.router ? { as: VueGuardedLink, log } : {}), ...cancel },
+              () => "Target",
+            ),
+          ),
+        ]),
+      async (log) => {
+        await pointerDown(trigger())
+        let canceled = false
+        await interact(() => {
+          canceled = !fireEvent.click(document.querySelector("a")!)
+        })
+        await settle()
+        return { canceled, closed: log.includes("close"), open: !!document.querySelector('[role="menu"]'), navigation: log.filter((entry) => entry !== "close") }
+      },
+    )
+    // A caller's cancel comes after vue-router's own handler, too late to stop
+    // its navigation (React's router links run it first); the menu still
+    // treats it as canceled
+    const { navigation: reactNavigation, ...react } = result.react
+    const { navigation: vueNavigation, ...vue } = result.vue
+    expect(vue).toEqual(react)
+    if (!options.cancel) expect(vueNavigation).toEqual(reactNavigation)
+    if (options.disabled) {
+      expect(react).toEqual({ canceled: true, closed: false, open: true })
+      if (options.router) expect(reactNavigation).toEqual(["no navigation"])
+    } else if (options.cancel) {
+      expect(react).toEqual({ canceled: true, closed: false, open: true })
+    } else {
+      expect(react).toEqual({ canceled: true, closed: true, open: false })
+      expect(reactNavigation).toEqual(["navigate"])
+    }
+  })
+
+  test("Menu.Label uses the xs text tokens the theme defines", () => {
+    const read = (path: string) => readFileSync(`${process.cwd()}/${path}`, "utf8")
+    const label = read("packages/styles/src/components/Menu/Menu.module.css").match(/\n\.MenuLabel \{([^}]*)/)?.[1] ?? ""
+    const tokens = read("packages/styles/src/styles/variables-semantic.css")
+    const used = [...label.matchAll(/var\((--[\w-]+)\)/g)].map((match) => match[1]!)
+    expect(used).toContain("--font-text-xs-size")
+    expect(used).toContain("--font-text-xs-line-height")
+    for (const token of ["--font-text-xs-size", "--font-text-xs-line-height"]) expect(tokens).toContain(`${token}:`)
+  })
+})
+
+describe("Menu trigger through a forwarded slot", () => {
+  test("a child forwarded with <slot /> still becomes the trigger", async () => {
+    const ReactOpen = ({ children }: { children: ReactNode }) => <ReactMenu.Trigger>{children}</ReactMenu.Trigger>
+    // `<MenuTrigger><slot /></MenuTrigger>` in a template
+    const VueOpen = defineComponent((_props, { slots }) => () => h(MenuTrigger, null, { default: () => [renderSlot(slots, "default")] }))
+
+    const run = async () => {
+      const dom = [snapshotDom()]
+      await pointerDown(trigger())
+      dom.push(snapshotDom())
+      return dom
+    }
+    await act(async () => {
+      render(
+        <ReactMenu>
+          <ReactOpen>
+            <ReactButton color="secondary">Open</ReactButton>
+          </ReactOpen>
+          <ReactMenu.Content>
+            <ReactMenu.Item onSelect={() => {}}>Edit</ReactMenu.Item>
+          </ReactMenu.Content>
+        </ReactMenu>,
+      )
+    })
+    const react = await run()
+    cleanup()
+    const { unmount } = mountVue(() =>
+      h(Menu, null, {
+        default: () => [
+          h(VueOpen, null, { default: () => h(VueButton, { color: "secondary" }, () => "Open") }),
+          h(MenuContent, null, { default: () => h(MenuItem, { onSelect: () => {} }, () => "Edit") }),
+        ],
+      }),
+    )
+    await flushVue()
+    const vue = await run()
+    unmount()
+
+    expect(vue).toEqual(react)
+    expect(react[1]).toContain('role="menu"')
+  })
+})

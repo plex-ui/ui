@@ -511,10 +511,14 @@ const CalendarView = ({
 
             return (
               <div className={s.Day} key={dayIndex} data-is-selected={isSelected ? "" : undefined}>
+                {/* The full date names the day, which "15" alone does not across months */}
                 <button
                   type="button"
                   className={s.InteractiveDay}
                   disabled={!enabled}
+                  aria-label={d.toLocaleString(DateTime.DATE_HUGE)}
+                  aria-pressed={!!isSelected}
+                  aria-current={dayIsToday ? "date" : undefined}
                   onClick={() => d && onDateSelect?.(d)}
                 >
                   {d.day}

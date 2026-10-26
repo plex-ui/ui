@@ -33,6 +33,8 @@ const InputComponent = defineComponent({
     disabled: { type: Boolean, default: false },
     /** Makes the input read-only. @default false */
     readOnly: { type: Boolean, default: false },
+    /** Native spelling of `readOnly` (`<Input readonly />`). @default false */
+    readonly: { type: Boolean, default: false },
     /** Mark the input as invalid. @default false */
     invalid: { type: Boolean, default: false },
     /**
@@ -96,9 +98,12 @@ const InputComponent = defineComponent({
       const { clientX, clientY } = evt
       // "Before" the input: top/left
       const isBefore = clientY < top || clientX < left
+      // email, number and other types without the selection API throw on setSelectionRange
+      const hasSelection = input.selectionStart !== null
 
       // If this is the first click, clear the selection.
       if (evt.detail === 1) {
+        if (!hasSelection) return
         if (isBefore) {
           input.setSelectionRange(0, 0)
         } else {
@@ -108,6 +113,7 @@ const InputComponent = defineComponent({
       }
       // If this is the second click, select the first or last word
       else if (evt.detail === 2) {
+        if (!hasSelection) return
         // Split the input value into words and non-word characters
         const words = input.value.match(/\w+|[^\w\s]/g) || []
         const selectedWord = isBefore ? words.at(0) : words.at(-1)
@@ -129,6 +135,12 @@ const InputComponent = defineComponent({
     }
     onMounted(selectIfAuto)
     watch(() => props.autoSelect, selectIfAuto, { flush: "post" })
+
+    // The clear button unmounts once the value is gone, so keep focus in the input
+    const handleClear = (evt: MouseEvent) => {
+      inputRef.value?.focus()
+      props.onClear?.(evt)
+    }
 
     const handleAnimationStart = (evt: AnimationEvent) => {
       if (evt.animationName === "native-autofill-in") {
@@ -152,7 +164,8 @@ const InputComponent = defineComponent({
 
     return () => {
       const { class: className, ...restAttrs } = attrs
-      const { value, defaultValue, disabled, readOnly } = props
+      const { value, defaultValue, disabled } = props
+      const readOnly = props.readOnly || props.readonly
       // Default to `true` when type="password" or presence of `name`
       const allowAutofillExtensions = props.allowAutofillExtensions ?? (props.type === "password" || !!props.name)
       const startAdornment = slots.startAdornment?.()
@@ -218,7 +231,7 @@ const InputComponent = defineComponent({
             [[vDefaultValue, value === undefined ? defaultValue : undefined]],
           ),
           showClearButton
-            ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.Clear, "onClick": props.onClear }, [
+            ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.Clear, "onClick": handleClear }, [
                 h(X),
               ])
             : null,

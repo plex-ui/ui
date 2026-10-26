@@ -96,12 +96,8 @@
   outline: none;
 
   &:focus-visible {
-    box-shadow: inset 0 0 0 2px var(--green-600);
-    outline: none;
-  }
-
-  &:focus {
-    box-shadow: inset 0 0 0 2px var(--slider-range-color);
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
 
   &:active {

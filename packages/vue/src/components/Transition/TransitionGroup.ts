@@ -203,3 +203,5 @@ export const TransitionGroup = defineComponent({
     }
   },
 })
+
+export type TransitionGroupProps = InstanceType<typeof TransitionGroup>["$props"]

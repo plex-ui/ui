@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 export type DocumentTheme = "light" | "dark"
 
-export function useDocumentTheme() {
-  const [theme, setTheme] = useState<"dark" | "light">(getDocumentTheme)
+const subscribeToDocumentTheme = (onChange: () => void) => {
+  const observer = new MutationObserver(onChange)
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setTheme(getDocumentTheme())
-    })
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme", "class"],
-      characterData: false,
-      childList: false,
-      subtree: false,
-    })
-
-    return () => observer.disconnect()
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme", "class"],
+    characterData: false,
+    childList: false,
+    subtree: false,
   })
 
-  return theme
+  return () => observer.disconnect()
+}
+
+// The server has no document: it renders "light", and hydration starts from
+// it before reading the document's theme
+const getServerDocumentTheme = (): DocumentTheme => "light"
+
+export function useDocumentTheme() {
+  return useSyncExternalStore(subscribeToDocumentTheme, getDocumentTheme, getServerDocumentTheme)
 }
 
 export function getDocumentTheme() {

@@ -16,14 +16,18 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table"
 
-declare module "@tanstack/react-table" {
+// Augments table-core, which @tanstack/react-table re-exports: @plexui/vue
+// augments the same module, so both declarations merge when a project
+// type-checks the two packages together
+declare module "@tanstack/table-core" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
     align?: "left" | "center" | "right"
   }
 }
 import clsx from "clsx"
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { Checkbox } from "../Checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../Table"
 import { DataTablePagination } from "./DataTablePagination"
 import s from "@plexui/styles/components/DataTable/DataTable.module.css"
@@ -55,7 +59,8 @@ export type DataTableProps<TData> = {
   columnVisibility?: VisibilityState
   /** Callback when column visibility changes */
   onColumnVisibilityChange?: (visibility: VisibilityState) => void
-  /** Enable row selection checkboxes
+  /** Enable row selection: adds a first column with a checkbox per row and a
+   * header checkbox that selects every row
    * @default false
    */
   enableRowSelection?: boolean
@@ -75,6 +80,30 @@ export type DataTableProps<TData> = {
    * @default true
    */
   showPagination?: boolean
+}
+
+// Id of the checkbox column `enableRowSelection` puts before the columns
+const SELECT_COLUMN_ID = "select"
+
+const selectColumn: ColumnDef<unknown, unknown> = {
+  id: SELECT_COLUMN_ID,
+  header: ({ table }) => (
+    <Checkbox
+      aria-label="Select all rows"
+      checked={
+        table.getIsAllRowsSelected() ? true : table.getIsSomeRowsSelected() ? "indeterminate" : false
+      }
+      onCheckedChange={(checked) => table.toggleAllRowsSelected(checked)}
+    />
+  ),
+  cell: ({ row }) => (
+    <Checkbox
+      aria-label="Select row"
+      checked={row.getIsSelected()}
+      onCheckedChange={(checked) => row.toggleSelected(checked)}
+    />
+  ),
+  enableHiding: false,
 }
 
 const resolveUpdater = <T,>(updater: Updater<T>, value: T): T => {
@@ -157,9 +186,15 @@ export const DataTable = <TData,>({
     onRowSelectionChange,
   )
 
+  const tableColumns = useMemo(
+    () => (enableRowSelection ? [selectColumn as ColumnDef<TData, unknown>, ...columns] : columns),
+    [columns, enableRowSelection],
+  )
+  const isSelectColumn = (id: string) => enableRowSelection && id === SELECT_COLUMN_ID
+
   const table = useReactTable({
     data,
-    columns,
+    columns: tableColumns,
     state: {
       sorting,
       globalFilter: effectiveGlobalFilter,
@@ -205,7 +240,10 @@ export const DataTable = <TData,>({
 
   const rows = table.getRowModel().rows
   const totalRows = table.getFilteredRowModel().rows.length
-  const hasPagination = shouldPaginate && totalRows > pageSize
+  // Hidden only when every row fits on one page, both at the configured page
+  // size and at the one picked in the rows-per-page select
+  const hasPagination =
+    shouldPaginate && totalRows > Math.min(pageSize, table.getState().pagination.pageSize)
   const visibleColumnCount = Math.max(table.getVisibleLeafColumns().length, 1)
 
   return (
@@ -230,6 +268,8 @@ export const DataTable = <TData,>({
                   return (
                     <TableHead
                       key={header.id}
+                      colSpan={header.colSpan > 1 ? header.colSpan : undefined}
+                      className={isSelectColumn(header.column.id) ? s.SelectColumn : undefined}
                       style={align ? { textAlign: align } : undefined}
                       aria-sort={
                         sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
@@ -255,12 +295,35 @@ export const DataTable = <TData,>({
               rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  // Clickable rows are reached with Tab and activated with
+                  // Enter or Space, like a button
+                  tabIndex={onRowClick ? 0 : undefined}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          // Keys on a control inside the row are the control's
+                          if (event.target !== event.currentTarget) return
+                          if (event.key !== "Enter" && event.key !== " ") return
+                          event.preventDefault()
+                          onRowClick(row.original)
+                        }
+                      : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => {
                     const align = cell.column.columnDef.meta?.align
                     return (
-                      <TableCell key={cell.id} style={align ? { textAlign: align } : undefined}>
+                      <TableCell
+                        key={cell.id}
+                        style={align ? { textAlign: align } : undefined}
+                        // A click on a selection checkbox is not a row click
+                        onClick={
+                          onRowClick && isSelectColumn(cell.column.id)
+                            ? (event) => event.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     )

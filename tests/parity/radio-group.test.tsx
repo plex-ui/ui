@@ -124,13 +124,18 @@ const markupCases: [string, GroupCase][] = [
   // Radix's hidden radio inputs, only inside a form
   ["in a form", { props: { defaultValue: "weekly" }, items: ITEMS, form: true }],
   ["in a form, with name", { props: { name: "frequency", defaultValue: "daily" }, items: ITEMS, form: true }],
+  // radix-ui 1.8: the group's `required` reaches every hidden input, an item's own lands on its button
   [
-    "in a form, required: only the item's own reaches its input",
+    "in a form, required group and item",
     {
       props: { name: "frequency", required: true },
       items: [{ ...ITEMS[0]!, props: { required: true } }, ITEMS[1]!],
       form: true,
     },
+  ],
+  [
+    "in a form, required item only",
+    { props: { name: "frequency" }, items: [{ ...ITEMS[0]!, props: { required: true } }, ITEMS[1]!], form: true },
   ],
   ["in a form, disabled", { props: { name: "f", disabled: true, defaultValue: "weekly" }, items: ITEMS, form: true }],
 ]
@@ -655,13 +660,9 @@ describe("RadioGroup form parity", () => {
     expect(result.react[0]).toContain(
       'form: [["frequency","daily"]] | [["frequency","weekly"]] | [["frequency","monthly"]] | [["frequency","daily"]]',
     )
-    expect(result.reactLog.slice(0, 5)).toEqual([
-      "click daily false",
-      "change daily false",
-      "click weekly true",
-      "change weekly true",
-      "onChange weekly",
-    ])
+    // radix-ui 1.8: the radio that loses the selection reports it with a
+    // click that stops at its input, so only its change reaches the form
+    expect(result.reactLog.slice(0, 4)).toEqual(["change daily false", "click weekly true", "change weekly true", "onChange weekly"])
   })
 
   test("unnamed, controlled: each hidden radio reports its own change", async () => {
@@ -675,24 +676,21 @@ describe("RadioGroup form parity", () => {
     expect(result.vueLog).toEqual(result.reactLog)
     expect(result.reactLog).toEqual([
       "onChange weekly",
-      "click daily false",
       "change daily false",
       "click weekly true",
       "change weekly true",
       "onChange monthly",
-      "click weekly false",
       "change weekly false",
       "click monthly true",
       "change monthly true",
       "onChange weekly",
       "click weekly true",
       "change weekly true",
-      "click monthly false",
       "change monthly false",
     ])
   })
 
-  test("named and controlled from the start: the checked attribute follows the value", async () => {
+  test("named and controlled from the start: the checked attribute keeps the first value; a form reset restores it", async () => {
     const result = await formWalk(
       { items: ITEMS, props: { name: "frequency" }, initial: "weekly" },
       "controlled",

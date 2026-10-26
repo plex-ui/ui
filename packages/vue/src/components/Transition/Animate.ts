@@ -129,3 +129,5 @@ function getAnimationProperties({
 
   return { enterTotalDuration, exitTotalDuration, variables }
 }
+
+export type AnimateProps = InstanceType<typeof Animate>["$props"]

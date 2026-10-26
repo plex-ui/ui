@@ -48,6 +48,7 @@ export const DateInput = (props: DateInputProps) => {
     max,
     clearable = false,
     placeholder,
+    onBlur,
     ref,
     ...inputProps
   } = props
@@ -91,17 +92,19 @@ export const DateInput = (props: DateInputProps) => {
 
   const [inputValue, setInputValue] = useState("")
 
+  const format = (date: DateTime | null) => {
+    if (!date) return ""
+    return hasTime
+      ? maskitoStringifyDateTime(date.toJSDate(), dateTimeParams)
+      : maskitoStringifyDate(date.toJSDate(), dateParams)
+  }
+
+  const parse = (str: string) =>
+    hasTime ? maskitoParseDateTime(str, dateTimeParams) : maskitoParseDate(str, dateParams)
+
   const valueMsKey = value?.toMillis() ?? null
   useEffect(() => {
-    if (!value) {
-      setInputValue("")
-      return
-    }
-    setInputValue(
-      hasTime
-        ? maskitoStringifyDateTime(value.toJSDate(), dateTimeParams)
-        : maskitoStringifyDate(value.toJSDate(), dateParams),
-    )
+    setInputValue(format(value))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valueMsKey, hasTime, dateParams, dateTimeParams])
 
@@ -114,12 +117,19 @@ export const DateInput = (props: DateInputProps) => {
       return
     }
 
-    const parsed = hasTime
-      ? maskitoParseDateTime(str, dateTimeParams)
-      : maskitoParseDate(str, dateParams)
+    const parsed = parse(str)
 
     if (parsed) {
       onChange(DateTime.fromJSDate(parsed))
+    }
+  }
+
+  // Text that is not a complete date never reaches onChange, so leaving the
+  // field shows the value again instead of a date the value does not hold
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
+    onBlur?.(evt)
+    if (inputValue && !parse(inputValue)) {
+      setInputValue(format(value))
     }
   }
 
@@ -140,6 +150,7 @@ export const DateInput = (props: DateInputProps) => {
       ref={mergeRefs([maskRef as unknown as React.Ref<HTMLInputElement>, ref])}
       value={inputValue}
       onInput={handleInput}
+      onBlur={handleBlur}
       placeholder={placeholder ?? defaultPlaceholder}
       onClear={clearable ? handleClear : undefined}
     />

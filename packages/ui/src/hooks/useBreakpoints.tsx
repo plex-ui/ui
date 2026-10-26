@@ -16,6 +16,11 @@ const FALLBACK_BREAKPOINTS: Record<PlexUI.Breakpoint, number> = {
 
 const resolveBreakpoint = (bp: PlexUI.Breakpoint): number => {
   if (!cache.has(bp)) {
+    // No document while server rendering: use the defaults, uncached
+    if (typeof document === "undefined") {
+      return FALLBACK_BREAKPOINTS[bp in FALLBACK_BREAKPOINTS ? bp : "lg"]
+    }
+
     rootStyles ||= getComputedStyle(document.documentElement)
 
     const value = parseInt(
@@ -44,5 +49,7 @@ const resolveBreakpoint = (bp: PlexUI.Breakpoint): number => {
   return cache.get(bp)!
 }
 
+// False on the first render, on the server and the client alike (so hydration
+// matches), then the media query's value from a layout effect
 export const useBreakpoint = (bp: PlexUI.Breakpoint): boolean =>
-  useMediaQuery(`(min-width: ${resolveBreakpoint(bp)}px)`)
+  useMediaQuery(`(min-width: ${resolveBreakpoint(bp)}px)`, { initializeWithValue: false })

@@ -62,6 +62,8 @@ export const AnimateLayoutGroup = (props: AnimateLayoutGroupProps) => {
     className,
     transitionClassName,
     dimension = "height",
+    hideOverflow = false,
+    itemAnchor = "start",
     insertMethod,
     preventInitialTransition,
   } = props
@@ -107,7 +109,8 @@ export const AnimateLayoutGroup = (props: AnimateLayoutGroupProps) => {
     <TransitionGroup
       as={TagName}
       className={clsx(s.LayoutItem, className)}
-      style={variables}
+      // The wrapper of each item is the element that resizes
+      style={hideOverflow ? { ...variables, overflow: "hidden" } : variables}
       // Adding 32ms to timers because of the additional waitForAnimationFrame() calls
       enterDuration={enterTotalDuration + 32}
       exitDuration={exitTotalDuration + 32}
@@ -128,6 +131,7 @@ export const AnimateLayoutGroup = (props: AnimateLayoutGroupProps) => {
           // @ts-expect-error Pass-through the validation of `key` to <TransitionGroup>
           key={child.key || undefined}
           data-dimension={dimension}
+          data-item-anchor={itemAnchor}
         >
           {child}
         </TagName>

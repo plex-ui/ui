@@ -161,6 +161,38 @@ describe("Transition behaviour parity (animations on, fake timers)", () => {
     expect(log[0]).toContain("onExitComplete:a")
   })
 
+  test("AnimateLayoutGroup passes insertMethod and preventInitialTransition to its TransitionGroup", async () => {
+    animation.disabled = false
+    const props = { insertMethod: "prepend", preventInitialTransition: false }
+    const { react, vue } = await walkPairWithState(
+      { keys: ["a"] as string[] },
+      (state) => createElement(R.AnimateLayoutGroup, props, reactItems(state.keys)),
+      (state) => h(V.AnimateLayoutGroup, props, { default: () => vueItems(state.keys) }),
+      async ({ set, advance, snapshot }) => {
+        snapshot()
+        await advance(2000)
+        await set({ keys: ["a", "b"] })
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    // The first child enters on mount; the added child goes first
+    expect(react[0]).toContain("data-entering")
+    expect(react[1]!.indexOf('"b"')).toBeLessThan(react[1]!.indexOf('"a"'))
+  })
+
+  test("AnimateLayoutGroup hideOverflow clips each resizing wrapper; itemAnchor marks the items", async () => {
+    animation.disabled = false
+    const props = { hideOverflow: true, itemAnchor: "end" }
+    const { react, vue } = await renderPair(
+      createElement(R.AnimateLayoutGroup, props, reactItems(["a", "b"])),
+      () => h(V.AnimateLayoutGroup, props, { default: () => vueItems(["a", "b"]) }),
+    )
+    expect(vue).toBe(react)
+    expect(react.match(/overflow: hidden/g)).toHaveLength(2)
+    expect(react.match(/data-item-anchor="end"/g)).toHaveLength(2)
+  })
+
   test("TransitionGroup enterMountDelay and prepend", async () => {
     animation.disabled = false
     const props = { enterDuration: 50, exitDuration: 50, enterMountDelay: 120, insertMethod: "prepend" }
@@ -220,6 +252,28 @@ describe("TransitionGroup keyed identity parity", () => {
     expect(notes[1]).toEqual(notes[0])
     expect(notes[0]).toContain('b: "typed b" same element: true')
     expect(notes[0]).toContain("focus: b")
+  })
+
+  test.each([
+    ["TransitionGroup", R.TransitionGroup, V.TransitionGroup],
+    ["SlotTransitionGroup", R.SlotTransitionGroup, V.SlotTransitionGroup],
+    ["AnimateLayoutGroup", R.AnimateLayoutGroup, V.AnimateLayoutGroup],
+  ] as const)("%s adds children keyed like Object properties (constructor, toString)", async (_name, RGroup, VGroup) => {
+    // With animations on: animations off render the children directly
+    animation.disabled = false
+    const { react, vue } = await walkPairWithState(
+      { keys: ["a"] as string[] },
+      (state) => createElement(RGroup as never, {}, reactItems(state.keys)),
+      (state) => h(VGroup as never, null, { default: () => vueItems(state.keys) }),
+      async ({ set, advance, snapshot }) => {
+        await set({ keys: ["a", "constructor", "toString"] })
+        await advance(2000)
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('"constructor"')
+    expect(react[0]).toContain('"toString"')
   })
 
   test("a false child becoming an element replaces its empty wrapper (animations off)", async () => {

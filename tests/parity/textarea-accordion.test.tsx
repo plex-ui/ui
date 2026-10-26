@@ -1003,7 +1003,8 @@ describe("Accordion behaviour parity", () => {
     })
 
     const animationEnd = async (label: string, animationName: string) => {
-      const panel = document.getElementById(trigger(label).getAttribute("aria-controls")!)!
+      // A closed trigger has no aria-controls (radix-ui 1.8); the panel is still labelled by it
+      const panel = document.querySelector(`[aria-labelledby="${trigger(label).id}"]`)!
       const event = new Event("animationend", { bubbles: true })
       Object.defineProperty(event, "animationName", { value: animationName })
       await act(async () => {

@@ -125,7 +125,7 @@
   height: var(--cell-size);
   color: var(--color-text-secondary);
   font-size: 12px;
-  letter-spacing: var(--tracking-none);
+  letter-spacing: normal;
   text-align: center;
 }
 
@@ -276,7 +276,7 @@
 
   &:focus {
     background-color: light-dark(var(--alpha-06), var(--alpha-08));
-    outline: 2px solid var(--color-focus-ring);
+    outline: 2px solid var(--color-ring);
     outline-offset: -2px;
   }
 }

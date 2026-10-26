@@ -1245,7 +1245,7 @@
 }
 
 .Sidebar[data-variant="docs"] .MenuButton[data-active="true"] {
-  color: var(--color-text-emphasis);
+  color: var(--color-text);
   background: light-dark(var(--gray-150), var(--gray-300));
 }
 

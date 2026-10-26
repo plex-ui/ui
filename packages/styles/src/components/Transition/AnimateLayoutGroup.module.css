@@ -46,6 +46,22 @@
     left: 0;
   }
 
+  /* itemAnchor="end": the item pins to the end side while its wrapper resizes */
+  .LayoutItem:is([data-entering], [data-exiting]) > &[data-item-anchor="end"] {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .LayoutItem:is([data-entering], [data-exiting]) > &[data-item-anchor="end"][data-dimension="width"] {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    width: auto;
+  }
+
   /* Interruptions are allowed to experience delay, as opposed to <Animate> */
   /* This is because they may involve interplay with a non-clipped container, which then creates */
   /* unintended visual artifacts if the interruption is not delayed. */

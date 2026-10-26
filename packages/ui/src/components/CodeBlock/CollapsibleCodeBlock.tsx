@@ -7,6 +7,9 @@ import { Button } from "../Button"
 import { CodeBlockBase } from "./CodeBlock"
 import s from "@plexui/styles/components/CodeBlock/CodeBlock.module.css"
 
+// Room for the View Code button, unless `collapsedHeight` is smaller
+const MIN_COLLAPSED_HEIGHT = 140
+
 export type CollapsibleCodeBlockProps = {
   /** The code string to display */
   children: string
@@ -39,7 +42,7 @@ export function CollapsibleCodeBlock({
     ? maxExpandedHeight
       ? { maxHeight: maxExpandedHeight }
       : undefined
-    : { maxHeight: collapsedHeight }
+    : { maxHeight: collapsedHeight, minHeight: Math.min(collapsedHeight, MIN_COLLAPSED_HEIGHT) }
 
   return (
     <CodeBlockBase

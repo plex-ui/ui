@@ -4,6 +4,10 @@ import { describe, expect, test, vi } from "vitest"
 import { h, reactive, type FunctionalComponent, type VNodeArrayChildren } from "vue"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
+import { Badge as ReactBadge } from "../../packages/ui/src/components/Badge"
+import { Badge as VueBadge } from "../../packages/vue/src/components/Badge"
+import { Tooltip as ReactTooltip } from "../../packages/ui/src/components/Tooltip"
+import { Tooltip as VueTooltip } from "../../packages/vue/src/components/Tooltip"
 import { animation, flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 
@@ -119,6 +123,64 @@ describe.each([
   test.each(cases)("%s", async (_name, props, children) => {
     animation.disabled = disabled
     await expectParity(props, children)
+  })
+})
+
+describe("text wrapping inside components (Button, Badge)", () => {
+  const svg = () => (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M0 0h20v20H0z" />
+    </svg>
+  )
+  const vueSvg = () => h("svg", { "viewBox": "0 0 20 20", "aria-hidden": "true" }, [h("path", { d: "M0 0h20v20H0z" })])
+
+  test.each([
+    ["Button", ReactButton, VueButton],
+    ["Badge", ReactBadge, VueBadge],
+  ] as const)("%s: a Tooltip trigger keeps its single child", async (_name, RComponent, VComponent) => {
+    const RC = RComponent as unknown as (props: Props) => ReactNode
+    render(
+      <RC color="primary">
+        <ReactTooltip content="Tip">
+          <span>Info {svg()}</span>
+        </ReactTooltip>
+      </RC>,
+    )
+    const react = serializeDom()
+    cleanup()
+    const { unmount } = mountVue(() =>
+      h(VComponent as never, { color: "primary" }, {
+        default: () => [h(VueTooltip, { content: "Tip" }, { default: () => h("span", ["Info ", vueSvg()]) })],
+      }),
+    )
+    await flushVue()
+    const vue = serializeDom()
+    unmount()
+    expect(vue).toBe(react)
+    // The trigger span renders, with its text wrapped next to the icon
+    expect(react).toMatch(/<span data-state="closed">\s*<span>\s*"Info "/)
+  })
+
+  test("Button: a render-prop child (Vue: scoped slot) still renders", async () => {
+    const ReactRenderProp = ({ children }: { children: (label: string) => ReactNode }) => <>{children("Save")}</>
+    render(
+      <ReactButton color="primary">
+        <ReactRenderProp>{(label) => <b>{label}</b>}</ReactRenderProp>
+      </ReactButton>,
+    )
+    const react = serializeDom()
+    cleanup()
+    const VueRenderProp: FunctionalComponent = (_props, { slots }) => slots.default?.({ label: "Save" })
+    const { unmount } = mountVue(() =>
+      h(VueButton, null, {
+        default: () => [h(VueRenderProp, null, { default: ({ label }: { label: string }) => h("b", label) })],
+      }),
+    )
+    await flushVue()
+    const vue = serializeDom()
+    unmount()
+    expect(vue).toBe(react)
+    expect(react).toContain('<b>\n        "Save"')
   })
 })
 

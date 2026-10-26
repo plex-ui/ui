@@ -1,7 +1,8 @@
 import clsx from "clsx"
-import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type PropType, type VNodeChild } from "vue"
+import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type InputHTMLAttributes, type PropType, type VNodeChild } from "vue"
 import { Eye, EyeOff, X } from "../Icon/index.js"
-import { vDefaultValue } from "../../lib/defaultValue.js"
+import { vDefaultValue, vServerText } from "../../lib/defaultValue.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
 
 // A fallthrough listener is a function or, when merged, an array of them
@@ -11,13 +12,25 @@ const callListeners = (listener: unknown, evt: Event) => {
   }
 }
 
+// Attributes that only mean something on <input>; everything else (required,
+// maxlength, placeholder, key and clipboard listeners, aria-*, data-*) also
+// applies to the multiline <textarea>, as in React
+const INPUT_ONLY_ATTRS = new Set([
+  "accept", "alt", "capture", "checked", "height", "list", "max", "min", "multiple",
+  "pattern", "size", "src", "step", "width", "formaction", "formenctype",
+  "formmethod", "formnovalidate", "formtarget",
+])
+
+const textareaAttrs = (attrs: Record<string, unknown>) =>
+  Object.fromEntries(Object.entries(attrs).filter(([key]) => !INPUT_ONLY_ATTRS.has(key.toLowerCase())))
+
 /**
  * Port of packages/ui/src/components/FloatingLabelInput/FloatingLabelInput.tsx.
- * Attributes other than `class` go to the <input> (dropped for `multiline`,
- * as in React, except `@focus`/`@blur`). `value` + `update:value` support
- * `v-model:value`.
+ * Attributes other than `class` go to the <input>, or to the `multiline`
+ * <textarea> except the input-only ones, as in React. `value` +
+ * `update:value` support `v-model:value`.
  */
-export const FloatingLabelInput = defineComponent({
+const FloatingLabelInputComponent = defineComponent({
   name: "FloatingLabelInput",
   inheritAttrs: false,
   props: {
@@ -31,6 +44,8 @@ export const FloatingLabelInput = defineComponent({
     disabled: { type: Boolean, default: false },
     /** Makes the input read-only */
     readOnly: { type: Boolean, default: false },
+    /** Native spelling of `readOnly` (`<FloatingLabelInput readonly />`) */
+    readonly: { type: Boolean, default: false },
     /** Shows the clear button; called when it is clicked */
     onClear: Function as PropType<() => void>,
     /** Allow autofill extensions to appear in the input */
@@ -75,8 +90,30 @@ export const FloatingLabelInput = defineComponent({
       el.style.height = "auto"
       el.style.height = `${el.scrollHeight}px`
     }
-    onMounted(autoResize)
-    watch(() => props.multiline, autoResize, { flush: "post" })
+    // The multiline <textarea> gets its value imperatively, like React DOM: a
+    // `value` prop would make Vue mirror it into a `value` attribute, which
+    // React never renders (its text content carries the value instead)
+    const syncTextareaValue = () => {
+      const el = inputRef.value
+      if (!props.multiline || !el || props.value === undefined) return
+      const value = String(props.value)
+      if (el.value !== value) el.value = value
+    }
+    onMounted(() => {
+      // React's initTextarea: the initial text becomes the (dirty) value
+      const el = inputRef.value
+      if (props.multiline && el && el.textContent) el.value = el.textContent
+      autoResize()
+    })
+    // Also resize when a controlled value or rows changes without a keystroke
+    watch(
+      [() => props.multiline, () => props.value, () => props.rows],
+      () => {
+        syncTextareaValue()
+        autoResize()
+      },
+      { flush: "post" },
+    )
 
     // Handle clicks on the container to focus the input
     const handleContainerMouseDown = (evt: MouseEvent) => {
@@ -94,8 +131,16 @@ export const FloatingLabelInput = defineComponent({
       if (document.activeElement !== input) {
         input.focus()
       }
+      // email, number and other types without the selection API throw on setSelectionRange
+      if (input.selectionStart === null) return
       const length = input.value.length
       input.setSelectionRange(length, length)
+    }
+
+    // The clear button unmounts once the value is gone, so keep focus in the field
+    const handleClear = (evt: MouseEvent) => {
+      inputRef.value?.focus()
+      ;(props.onClear as ((evt: MouseEvent) => void) | undefined)?.(evt)
     }
 
     const handleInput = (evt: Event) => {
@@ -129,13 +174,17 @@ export const FloatingLabelInput = defineComponent({
 
     return () => {
       const inputId = props.id || `floating-label-input-${generatedId}`
-      const description: VNodeChild = slots.description?.() ?? props.description
+      // Slots that render nothing (a false v-if) count as absent, like a falsy ReactNode
+      const descriptionSlot = slots.description?.()
+      const description: VNodeChild = hasContent(descriptionSlot) ? descriptionSlot : props.description
       const descriptionId = description ? `${inputId}-description` : undefined
       const errorId = props.errorMessage ? `${inputId}-error` : undefined
-      const startAdornment = slots.startAdornment?.()
-      const endAdornment = slots.endAdornment?.()
-      // Caller focus/blur listeners run from the shared handlers, so the
-      // textarea (which gets no other attributes, as in React) calls them too
+      const startAdornmentSlot = slots.startAdornment?.()
+      const startAdornment = hasContent(startAdornmentSlot) ? startAdornmentSlot : undefined
+      const endAdornmentSlot = slots.endAdornment?.()
+      const endAdornment = hasContent(endAdornmentSlot) ? endAdornmentSlot : undefined
+      const readOnly = props.readOnly || props.readonly
+      // Caller focus/blur listeners run from the shared handlers
       const {
         "class": className,
         "aria-describedby": ariaDescribedByAttr,
@@ -146,7 +195,7 @@ export const FloatingLabelInput = defineComponent({
 
       const invalid = props.invalid ?? !!props.errorMessage
       // Determine if clear button should be shown
-      const showClearButton = !!props.onClear && hasValue.value && !props.disabled && !props.readOnly
+      const showClearButton = !!props.onClear && hasValue.value && !props.disabled && !readOnly
       // Built-in password reveal toggle
       const isPassword = props.type === "password"
       const revealable = props.revealable ?? (isPassword && !endAdornment)
@@ -163,8 +212,9 @@ export const FloatingLabelInput = defineComponent({
         // uncontrolled field must not carry one (it would reset typed text)
         ...(props.value !== undefined ? { value: props.value } : {}),
         "disabled": props.disabled,
-        "readonly": props.readOnly,
-        "aria-invalid": invalid ? true : undefined,
+        "readonly": readOnly,
+        // An explicit aria-invalid (e.g. from Field) wins over the computed state
+        "aria-invalid": restAttrs["aria-invalid"] ?? (invalid ? true : undefined),
         "aria-describedby": ariaDescribedBy,
         "onInput": handleInput,
         "onFocus": (evt: FocusEvent) => {
@@ -179,6 +229,10 @@ export const FloatingLabelInput = defineComponent({
       // Uncontrolled: `vDefaultValue` sets the initial value (server markup,
       // hydration and later changes as in React)
       const initialValue = props.value === undefined ? props.defaultValue : undefined
+      // The textarea's text content follows the controlled value, else
+      // `default-value`, as React keeps a textarea's defaultValue
+      const { value: _value, ...textareaControlProps } = controlProps as typeof controlProps & { value?: unknown }
+      const textContent = String(props.value ?? props.defaultValue ?? "")
 
       return h("div", { class: clsx(s.Root, className as string | undefined) }, [
         h(
@@ -189,7 +243,7 @@ export const FloatingLabelInput = defineComponent({
             "data-has-value": hasValue.value ? "" : undefined,
             "data-invalid": invalid ? "" : undefined,
             "data-disabled": props.disabled ? "" : undefined,
-            "data-readonly": props.readOnly ? "" : undefined,
+            "data-readonly": readOnly ? "" : undefined,
             "data-multiline": props.multiline ? "" : undefined,
             "onMousedown": handleContainerMouseDown,
           },
@@ -199,7 +253,18 @@ export const FloatingLabelInput = defineComponent({
             ]),
             startAdornment ? h("div", { class: s.StartAdornment }, startAdornment) : null,
             props.multiline
-              ? withDirectives(h("textarea", { ...controlProps, rows: props.rows, class: s.Textarea }), [[vDefaultValue, initialValue]])
+              ? withDirectives(
+                  h(
+                    "textarea",
+                    mergeProps(textareaAttrs(restAttrs), {
+                      ...textareaControlProps,
+                      rows: props.rows,
+                      class: s.Textarea,
+                      textContent,
+                    }),
+                  ),
+                  [[vServerText, textContent]],
+                )
               : withDirectives(
                   h(
                     "input",
@@ -216,7 +281,7 @@ export const FloatingLabelInput = defineComponent({
                 ),
             endAdornment ? h("div", { class: s.EndAdornment }, endAdornment) : null,
             showClearButton
-              ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.ClearButton, "onClick": props.onClear }, [h(X)])
+              ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.ClearButton, "onClick": handleClear }, [h(X)])
               : null,
             showRevealButton
               ? h(
@@ -233,3 +298,14 @@ export const FloatingLabelInput = defineComponent({
     }
   },
 })
+
+type FloatingLabelInputOwnProps = InstanceType<typeof FloatingLabelInputComponent>["$props"]
+
+/** FloatingLabelInput props plus the native <input> attributes that fall through to it, as in React. */
+export type FloatingLabelInputProps = FloatingLabelInputOwnProps &
+  Omit<InputHTMLAttributes, keyof FloatingLabelInputOwnProps>
+
+/** Text input whose label floats above the value, with optional reveal toggle and multiline mode. */
+export const FloatingLabelInput = FloatingLabelInputComponent as typeof FloatingLabelInputComponent & {
+  new (): { $props: FloatingLabelInputProps }
+}

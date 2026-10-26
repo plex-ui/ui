@@ -1,9 +1,8 @@
-import { defineComponent, h, type PropType } from "vue"
+import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
 import { Separator as RekaSeparator } from "reka-ui"
 import s from "@plexui/styles/components/Separator/Separator.module.css"
 
-/** Port of packages/ui/src/components/Separator/Separator.tsx on Reka UI's Separator. */
-export const Separator = defineComponent({
+const SeparatorComponent = defineComponent({
   name: "Separator",
   props: {
     /** Direction of the separator. @default "horizontal" */
@@ -19,3 +18,11 @@ export const Separator = defineComponent({
     return () => h(RekaSeparator, { orientation: props.orientation, decorative: props.decorative, class: s.Separator })
   },
 })
+
+type SeparatorOwnProps = InstanceType<typeof SeparatorComponent>["$props"]
+
+/** Separator props plus the native attributes that fall through to it, as in React. */
+export type SeparatorProps = SeparatorOwnProps & Omit<HTMLAttributes, keyof SeparatorOwnProps>
+
+/** Port of packages/ui/src/components/Separator/Separator.tsx on Reka UI's Separator. */
+export const Separator = SeparatorComponent as typeof SeparatorComponent & { new (): { $props: SeparatorProps } }

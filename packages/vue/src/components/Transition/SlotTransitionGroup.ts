@@ -130,3 +130,5 @@ export const SlotTransitionGroup = defineComponent({
     }
   },
 })
+
+export type SlotTransitionGroupProps = InstanceType<typeof SlotTransitionGroup>["$props"]

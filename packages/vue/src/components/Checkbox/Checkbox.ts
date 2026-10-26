@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, onMounted, ref, useId, watch, type PropType } from "vue"
 import { CheckboxIndicator as RekaCheckboxIndicator, CheckboxRoot as RekaCheckboxRoot } from "reka-ui"
-import { bubbleInputStyle, dispatchBubbleClick, useCheckedTracker, useIsFormControl, useSize } from "./bubbleInput.js"
+import { bubbleInputStyle, useBubbleInputEffect, useCheckedTracker, useIsFormControl, useSize } from "./bubbleInput.js"
 import { ControlButton, isListener, type Listeners } from "./ControlButton.js"
 import s from "@plexui/styles/components/Checkbox/Checkbox.module.css"
 
@@ -60,7 +60,10 @@ const CheckboxComponent = defineComponent({
     // only actual changes are reported
     const internalChecked = ref<CheckedState>(props.defaultChecked ?? false)
     const checked = computed(() => props.checked ?? internalChecked.value)
+    // The state a click asks for (Reka's toggle sets it), for the user click
+    let requestedChecked = true
     const setChecked = (next: CheckedState) => {
+      requestedChecked = next === true
       if (next === checked.value) return
       if (props.checked === undefined) internalChecked.value = next
       emit("update:checked", next)
@@ -69,7 +72,7 @@ const CheckboxComponent = defineComponent({
     const initialChecked = checked.value
     const isFormControl = useIsFormControl(control, () => attrs.form)
     const controlSize = useSize(() => (isFormControl.value ? control.value : null))
-    let consumerStoppedPropagation = false
+    const onUserClick = useBubbleInputEffect(bubbleInput, () => checked.value, true)
 
     onMounted(() => {
       control.value = (container.value?.firstElementChild as HTMLButtonElement | null) ?? null
@@ -84,22 +87,11 @@ const CheckboxComponent = defineComponent({
       onCleanup(() => form.removeEventListener("reset", reset))
     })
 
-    watch(
-      checked,
-      (next, previous) => {
-        if (bubbleInput.value && next !== previous) {
-          dispatchBubbleClick(bubbleInput.value, next, !consumerStoppedPropagation, true)
-        }
-      },
-      { flush: "post" },
-    )
-
     // In a form, the button's click stops here; the input's click bubbles instead
     const afterClick = (event: Event) => {
-      if (bubbleInput.value && isFormControl.value) {
-        consumerStoppedPropagation = event.cancelBubble
-        if (!consumerStoppedPropagation) event.stopPropagation()
-      }
+      const hasConsumerStoppedPropagation = event.cancelBubble
+      onUserClick({ requestedChecked, hasConsumerStoppedPropagation })
+      if (bubbleInput.value && isFormControl.value && !hasConsumerStoppedPropagation) event.stopPropagation()
     }
 
     // Prevents text selection when double-clicking the label

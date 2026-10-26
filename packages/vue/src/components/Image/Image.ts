@@ -1,4 +1,4 @@
-import { defineComponent, h, ref } from "vue"
+import { defineComponent, h, onMounted, ref } from "vue"
 import s from "@plexui/styles/components/Image/Image.module.css"
 
 const loadedSrcs = new Set<string>()
@@ -24,6 +24,17 @@ export const Image = defineComponent({
     // Track load/fail per src so a new src starts fresh after an error
     const loadedSrc = ref<string>()
     const failedSrc = ref<string>()
+    const img = ref<HTMLImageElement | null>(null)
+
+    // An image that loaded before hydration fired its load event before Vue
+    // listened for it: read the element instead, as React does
+    onMounted(() => {
+      const { src } = props
+      if (img.value && src && img.value.complete && img.value.naturalWidth > 0) {
+        loadedSrc.value = src
+        loadedSrcs.add(src)
+      }
+    })
 
     return () => {
       const { src } = props
@@ -37,6 +48,7 @@ export const Image = defineComponent({
 
       return h("img", {
         ...attrs,
+        "ref": img,
         "src": src,
         "class": [s.Image, attrs.class],
         "onLoad": (event: Event) => {

@@ -1,1 +1,1 @@
-export { Label } from "./Label.js"
+export { Label, type LabelProps } from "./Label.js"

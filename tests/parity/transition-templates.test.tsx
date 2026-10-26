@@ -1,5 +1,5 @@
 import { compile } from "@vue/compiler-dom"
-import { createElement, type ReactNode } from "react"
+import { createElement, Fragment, type ReactNode } from "react"
 import { describe, expect, test } from "vitest"
 import * as Vue from "vue"
 import { defineComponent, h, type Component } from "vue"
@@ -52,4 +52,31 @@ describe("Transition groups with compiled v-for children", () => {
       expect(react[2]).not.toContain('"b"')
     }
   })
+
+  test.each(["AnimateLayoutGroup", "TransitionGroup", "SlotTransitionGroup", "Animate"] as const)(
+    "%s keeps a keyed multi-root <template v-for> item together, like <Fragment key>",
+    async (name) => {
+      animation.disabled = true
+      const tag = name === "TransitionGroup" ? "PlexTransitionGroup" : name
+      const VueList = compiled(
+        `<${tag}><template v-for="key in keys" :key="key"><dt>{{ key }}</dt><dd>{{ key }}</dd></template></${tag}>`,
+        { [tag]: V[name] },
+      )
+      const reactPairs = (keys: string[]) =>
+        keys.map((key) => createElement(Fragment, { key }, createElement("dt", null, key), createElement("dd", null, key)))
+      const { react, vue } = await walkPairWithState(
+        { keys: ["a", "b"] },
+        (state) => createElement(R[name] as never, {}, reactPairs(state.keys)),
+        (state) => h(VueList, { keys: state.keys }),
+        async ({ set, snapshot }) => {
+          snapshot()
+          await set({ keys: ["b", "c"] })
+          snapshot()
+        },
+      )
+      expect(vue).toEqual(react)
+      expect(react[1]).toContain("<dt>")
+      expect(react[1]).not.toContain('"a"')
+    },
+  )
 })

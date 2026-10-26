@@ -503,6 +503,47 @@ describe("DateInput editing parity", () => {
   })
 })
 
+describe("DateInput blur parity", () => {
+  test("leaving a partly typed date shows the value again", async () => {
+    const { react, vue } = await walk({ value: date("2024-03-15") }, async ({ input, run, snap }) => {
+      await run(() => input().setSelectionRange(10, 10))
+      await run(() => edit(input(), "deleteContentBackward", null))
+      snap()
+      await run(() => input().blur())
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value: "15.03.202"')
+    expect(react[1]).toContain('value: "15.03.2024"')
+    expect(react.join("\n")).not.toContain("change")
+  })
+
+  test("without a value, leaving a partly typed date empties the field; a complete one stays", async () => {
+    const { react, vue } = await walk({ value: null }, async ({ input, run, snap }) => {
+      await run(() => typeText(input(), "1503"))
+      await run(() => input().blur())
+      snap()
+      await run(() => input().focus())
+      await run(() => typeText(input(), "15032024"))
+      await run(() => input().blur())
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value: ""')
+    expect(react[1]).toContain('value: "15.03.2024"')
+  })
+
+  test("the caller's blur listener still runs", async () => {
+    const calls = { react: 0, vue: 0 }
+    let framework: "react" | "vue" = "react"
+    await walk({ value: null, onBlur: () => calls[framework]++ }, async ({ input, run }) => {
+      await run(() => input().blur())
+      framework = "vue"
+    })
+    expect(calls).toEqual({ react: 1, vue: 1 })
+  })
+})
+
 describe("DateInput value flow parity", () => {
   test("controlled: the parent sets and clears the value", async () => {
     const { react, vue } = await walk({ value: null }, async ({ set, snap }) => {

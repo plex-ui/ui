@@ -48,12 +48,12 @@ const resolveBreakpoint = (bp: Breakpoint): number => {
 
 /**
  * True while the viewport is at least as wide as `bp` (from `--breakpoint-*`).
- * On the server it is `false` (the breakpoint is read from the document's CSS
- * variables, so nothing is resolved until the browser runs).
+ * It starts `false` on the server and the client alike (so hydration matches)
+ * and reads the media query on mount, like React's hook.
  */
 export const useBreakpoint = (bp: Breakpoint): Ref<boolean> => {
   const query = () => `(min-width: ${resolveBreakpoint(bp)}px)`
-  const matches = ref(typeof window !== "undefined" && window.matchMedia(query()).matches)
+  const matches = ref(false)
   let mediaQueryList: MediaQueryList | undefined
 
   const update = () => {

@@ -7,21 +7,24 @@ import {
   onMounted,
   provide,
   ref,
+  shallowRef,
   watch,
   type ComputedRef,
   type InjectionKey,
   type PropType,
+  type Ref,
 } from "vue"
 import { useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
 
 // Internal: Radix Slider (Root, Track, Range, Thumb) as Plex's Slider uses
-// it, rendered the Radix way. Reka's Slider renders different markup (no
-// positioning wrapper around the thumb, `data-slider-impl`,
-// `--reka-slider-thumb-transform`, its own hidden input), runs its handlers
-// before the caller's and has no counterpart for Radix's thumb focus order,
-// so the Radix primitive is ported here. Plex always controls the value
-// (`values` + `onValueChange`), so Radix's uncontrolled state and
-// `onValueCommit` (unused by Plex) are left out.
+// it, rendered the Radix way (@radix-ui/react-slider 1.6, from radix-ui
+// 1.8). Reka's Slider renders different markup (no positioning wrapper
+// around the thumb, `data-slider-impl`, `--reka-slider-thumb-transform`, its
+// own hidden input), runs its handlers before the caller's and has no
+// counterpart for Radix's thumb focus order, so the Radix primitive is ported
+// here. Plex always controls the value (`values` + `onValueChange`), so
+// Radix's uncontrolled state, `onValueCommit`, `name`, `form`, `dir`,
+// `inverted` and `preserveThumbOrder` (unused by Plex) are left out.
 
 type SliderOrientation = "horizontal" | "vertical"
 
@@ -40,6 +43,8 @@ type SliderContextValue = {
   orientation: ComputedRef<SliderOrientation>
   edges: ComputedRef<OrientationContext>
   valueIndexToChange: { current: number }
+  /** The values the last pointer or key change asked for (tells the hidden inputs a user change from a parent's) */
+  userRequestedValues: Ref<number[] | null>
   /** Thumb elements in mount order (Radix keeps them in a Set) */
   thumbs: Set<HTMLElement>
   /** Index of a thumb among the slider's thumbs, in DOM order (Radix's collection) */
@@ -118,11 +123,40 @@ const hasMinStepsBetweenValues = (values: number[], minStepsBetweenValues: numbe
   return true
 }
 
-const getDecimalCount = (value: number) => (String(value).split(".")[1] || "").length
+const getDecimalCount = (value: number) => {
+  if (!Number.isFinite(value)) return 0
+  const str = value.toString()
+  if (str.includes("e")) {
+    const [coefficient, exponent] = str.split("e")
+    const decimalPart = coefficient!.split(".")[1] || ""
+    return Math.max(0, decimalPart.length - Number(exponent))
+  }
+  return (str.split(".")[1] || "").length
+}
 
 const roundValue = (value: number, decimalCount: number) => {
   const rounder = Math.pow(10, decimalCount)
   return Math.round(value * rounder) / rounder
+}
+
+// A key step from a value off the step grid lands on the grid's next value first
+const getNextStepValue = (
+  value: number,
+  { min, step, direction, multiplier }: { min: number; step: number; direction: number; multiplier: number },
+) => {
+  const decimalCount = getDecimalCount(step)
+  const stepsFromMin = (value - min) / step
+  const nearestSteps = Math.round(stepsFromMin)
+  const isAligned = roundValue(nearestSteps * step + min, decimalCount) === roundValue(value, decimalCount)
+  let nextSteps
+  if (isAligned) {
+    nextSteps = nearestSteps + multiplier * direction
+  } else if (direction > 0) {
+    nextSteps = Math.ceil(stepsFromMin)
+  } else {
+    nextSteps = Math.floor(stepsFromMin)
+  }
+  return roundValue(nextSteps * step + min, decimalCount)
 }
 
 const callHandlers = (handlers: unknown, event: Event) => {
@@ -155,6 +189,9 @@ export const SliderRoot = defineComponent({
     const root = ref<HTMLElement | null>(null)
     const thumbs = new Set<HTMLElement>()
     const valueIndexToChange = { current: 0 }
+    const userRequestedValues = shallowRef<number[] | null>(null)
+    // A key change shows the focus ring on the thumb it focuses; a pointer does not
+    let isKeyboardInteraction = false
     let rect: DOMRect | undefined
 
     const isHorizontal = () => props.orientation === "horizontal"
@@ -172,12 +209,24 @@ export const SliderRoot = defineComponent({
       orientation: computed(() => props.orientation),
       edges: computed(() => (isHorizontal() ? HORIZONTAL : VERTICAL)),
       valueIndexToChange,
+      userRequestedValues,
       thumbs,
       thumbIndex: (thumb) => Array.from(root.value?.querySelectorAll('[role="slider"]') ?? []).indexOf(thumb),
     })
 
-    // Radix's controlled useControllableState: the updater runs against the
-    // current prop, and only a new array is reported (focusing the thumb first)
+    // Radix's controlled useControllableState: a new array is reported,
+    // focusing the thumb that changed first
+    const reportValues = (values: number[]) => {
+      const thumbList = [...thumbs]
+      thumbList[valueIndexToChange.current]?.focus({
+        preventScroll: true,
+        focusVisible: isKeyboardInteraction,
+      } as FocusOptions)
+      isKeyboardInteraction = false
+      props.onValueChange?.(values)
+    }
+
+    // The updater runs against the current prop, and only a changed array is reported
     const updateValues = (value: number, atIndex: number) => {
       const decimalCount = getDecimalCount(props.step)
       const snapToStep = roundValue(Math.round((value - props.min) / props.step) * props.step + props.min, decimalCount)
@@ -188,14 +237,27 @@ export const SliderRoot = defineComponent({
       if (hasMinStepsBetweenValues(nextValues, props.minStepsBetweenThumbs * props.step)) {
         valueIndexToChange.current = nextValues.indexOf(nextValue)
         const hasChanged = String(nextValues) !== String(prevValues)
+        if (hasChanged) userRequestedValues.value = nextValues
         result = hasChanged ? nextValues : prevValues
       }
-      if (result !== prevValues) {
-        const thumbList = [...thumbs]
-        thumbList[valueIndexToChange.current]?.focus()
-        props.onValueChange?.(result)
-      }
+      if (result !== prevValues) reportValues(result)
     }
+
+    // A form reset reports the values of the first render again
+    const initialValues = props.values
+    const handleFormReset = () => {
+      if (initialValues !== props.values) reportValues(initialValues)
+    }
+    watch(
+      root,
+      (element, _previous, onCleanup) => {
+        const form = element?.closest("form")
+        if (!(form instanceof HTMLFormElement)) return
+        form.addEventListener("reset", handleFormReset)
+        onCleanup(() => form.removeEventListener("reset", handleFormReset))
+      },
+      { flush: "post" },
+    )
 
     const getValueFromPointer = (event: PointerEvent) => {
       const element = root.value!
@@ -211,23 +273,35 @@ export const SliderRoot = defineComponent({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Home") {
-        if (!props.disabled) updateValues(props.min, 0)
+        if (!props.disabled) {
+          isKeyboardInteraction = true
+          updateValues(props.min, 0)
+        }
         event.preventDefault()
       } else if (event.key === "End") {
-        if (!props.disabled) updateValues(props.max, props.values.length - 1)
+        if (!props.disabled) {
+          isKeyboardInteraction = true
+          updateValues(props.max, props.values.length - 1)
+        }
         event.preventDefault()
       } else if (PAGE_KEYS.concat(ARROW_KEYS).includes(event.key)) {
         const slideDirection = isHorizontal() ? "from-left" : "from-bottom"
         const isBackKey = BACK_KEYS[slideDirection].includes(event.key)
         const stepDirection = isBackKey ? -1 : 1
         if (!props.disabled) {
+          isKeyboardInteraction = true
           const isPageKey = PAGE_KEYS.includes(event.key)
           const isSkipKey = isPageKey || (event.shiftKey && ARROW_KEYS.includes(event.key))
           const multiplier = isSkipKey ? 10 : 1
           const atIndex = valueIndexToChange.current
           const value = props.values[atIndex]!
-          const stepInDirection = props.step * multiplier * stepDirection
-          updateValues(value + stepInDirection, atIndex)
+          const nextValue = getNextStepValue(value, {
+            min: props.min,
+            step: props.step,
+            direction: stepDirection,
+            multiplier,
+          })
+          updateValues(nextValue, atIndex)
         }
         event.preventDefault()
       }
@@ -236,11 +310,12 @@ export const SliderRoot = defineComponent({
     const handlePointerDown = (event: PointerEvent) => {
       callHandlers(attrs.onPointerdown, event)
       if (event.defaultPrevented) return
+      if (!props.disabled) isKeyboardInteraction = false
       const target = event.target as HTMLElement
       target.setPointerCapture(event.pointerId)
       event.preventDefault()
       if (thumbs.has(target)) {
-        target.focus()
+        target.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
       } else {
         const value = getValueFromPointer(event)
         if (!props.disabled) updateValues(value, getClosestValueIndex(props.values, value))
@@ -339,14 +414,21 @@ export const SliderRange = defineComponent({
 
 // Radix's SliderBubbleInput: a hidden input whose value follows the thumb's.
 // A change sets it through the native setter and dispatches a bubbling
-// `input` event, so form listeners see it.
+// `input` event. Form listeners see it when a pointer or a key asked for the
+// value; when only the parent's value changed, the event stops at the input.
 const SliderBubbleInput = defineComponent({
   name: "SliderBubbleInput",
   props: {
     value: { type: Number, default: undefined },
+    index: { type: Number, required: true },
   },
   setup(props) {
+    const context = useSliderContext()
     const input = ref<HTMLInputElement | null>(null)
+    let shouldStopInputPropagation = false
+    let prevValue = props.value
+    let handledUserRequestedValues = context.userRequestedValues.value
+    let prevUserRequestedValues = context.userRequestedValues.value
 
     onMounted(() => {
       // React creates the input by setting its `value` property
@@ -354,14 +436,28 @@ const SliderBubbleInput = defineComponent({
     })
 
     watch(
-      () => props.value,
-      (next, previous) => {
+      [() => props.value, context.userRequestedValues],
+      ([value, userRequestedValues]) => {
         const element = input.value
-        if (!element || previous === next) return
+        if (!element) return
         const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set
-        if (!setValue) return
-        setValue.call(element, next as unknown as string)
-        element.dispatchEvent(new Event("input", { bubbles: true }))
+        const previousValue = prevValue
+        const valueChanged = previousValue !== value
+        prevValue = value
+        const isUserRequestFromThisRender = userRequestedValues !== prevUserRequestedValues
+        prevUserRequestedValues = userRequestedValues
+        if (valueChanged && setValue) {
+          const hasUnhandledUserRequest = userRequestedValues !== handledUserRequestedValues
+          handledUserRequestedValues = userRequestedValues
+          const requestedValue = userRequestedValues?.[props.index]
+          const isUserInteraction =
+            hasUnhandledUserRequest &&
+            ((isUserRequestFromThisRender && requestedValue !== previousValue) || requestedValue === value)
+          shouldStopInputPropagation = !isUserInteraction
+          setValue.call(element, value as unknown as string)
+          element.dispatchEvent(new Event("input", { bubbles: true }))
+          shouldStopInputPropagation = false
+        }
       },
       { flush: "post" },
     )
@@ -372,13 +468,17 @@ const SliderBubbleInput = defineComponent({
         "style": { display: "none" },
         // React's `defaultValue`, updated on every render
         "^value": props.value === undefined ? undefined : String(props.value),
+        "onInput": (event: Event) => {
+          if (shouldStopInputPropagation) event.stopPropagation()
+        },
       })
   },
 })
 
 /**
  * Radix `Slider.Thumb`: a positioning `<span>` holding the thumb and, inside
- * a form, a hidden input that reports value changes with an `input` event.
+ * a form, a hidden input next to it that reports value changes with an
+ * `input` event.
  */
 export const SliderThumb = defineComponent({
   name: "SliderThumb",
@@ -430,36 +530,40 @@ export const SliderThumb = defineComponent({
       const { "aria-label": ariaLabel, style, ...thumbAttrs } = attrs
       const disabled = context.disabled.value
 
-      return h(
-        "span",
-        {
-          style: {
-            transform: "var(--radix-slider-thumb-transform)",
-            position: "absolute",
-            [edges.startEdge]: `calc(${percent}% + ${thumbInBoundsOffset}px)`,
+      return [
+        h(
+          "span",
+          {
+            style: {
+              transform: "var(--radix-slider-thumb-transform)",
+              position: "absolute",
+              [edges.startEdge]: `calc(${percent}% + ${thumbInBoundsOffset}px)`,
+            },
           },
-        },
-        [
-          h("span", {
-            "role": "slider",
-            "aria-label": (ariaLabel as string | undefined) || label,
-            "aria-valuemin": context.min.value,
-            "aria-valuenow": currentValue,
-            "aria-valuemax": context.max.value,
-            "aria-orientation": context.orientation.value,
-            "data-orientation": context.orientation.value,
-            "data-disabled": disabled ? "" : undefined,
-            "tabindex": disabled ? undefined : 0,
-            ...thumbAttrs,
-            "ref": setThumb,
-            "style": currentValue === undefined ? { display: "none" } : style,
-            "onFocus": handleFocus,
-          }),
-          // Keyed by the index like Radix's, so the input remounts once the
-          // index is known (and never reports the initial value)
-          isFormControl.value ? h(SliderBubbleInput, { key: index.value, value: currentValue }) : null,
-        ],
-      )
+          [
+            h("span", {
+              "role": "slider",
+              "aria-label": (ariaLabel as string | undefined) || label,
+              "aria-valuemin": context.min.value,
+              "aria-valuenow": currentValue,
+              "aria-valuemax": context.max.value,
+              "aria-orientation": context.orientation.value,
+              "data-orientation": context.orientation.value,
+              "data-disabled": disabled ? "" : undefined,
+              "tabindex": disabled ? undefined : 0,
+              ...thumbAttrs,
+              "ref": setThumb,
+              "style": currentValue === undefined ? { display: "none" } : style,
+              "onFocus": handleFocus,
+            }),
+          ],
+        ),
+        // Keyed by the index like Radix's, so the input remounts once the
+        // index is known (and never reports the initial value)
+        isFormControl.value
+          ? h(SliderBubbleInput, { key: index.value, value: currentValue, index: index.value })
+          : null,
+      ]
     }
   },
 })

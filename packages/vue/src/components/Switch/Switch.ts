@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, onMounted, ref, useId, watch, type PropType } from "vue"
 import { SwitchRoot as RekaSwitchRoot, SwitchThumb as RekaSwitchThumb } from "reka-ui"
-import { bubbleInputStyle, dispatchBubbleClick, useCheckedTracker, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
+import { bubbleInputStyle, useBubbleInputEffect, useCheckedTracker, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
 import { ControlButton, isListener, type Listeners } from "../Checkbox/ControlButton.js"
 import s from "@plexui/styles/components/Switch/Switch.module.css"
 
@@ -8,9 +8,9 @@ import s from "@plexui/styles/components/Switch/Switch.module.css"
 // Switch (state, role, aria-checked, thumb). Where Reka's DOM differs from
 // Radix's, Radix's is rendered (see the parity tests): no `aria-label`
 // copied from the label text, the hidden form input is Radix's BubbleInput,
-// the consumer's handlers run before the toggle and can cancel it, and Enter
+// the consumer's handlers run before the toggle and can cancel it, Enter
 // is left to the browser (a native click), as Radix does, instead of Reka's
-// own Enter toggle.
+// own Enter toggle, and a form reset restores the initial state.
 
 const SwitchComponent = defineComponent({
   name: "Switch",
@@ -62,30 +62,30 @@ const SwitchComponent = defineComponent({
       emit("update:checked", next)
     }
 
+    const initialChecked = checked.value
     const isFormControl = useIsFormControl(control, () => attrs.form)
     const controlSize = useSize(() => (isFormControl.value ? control.value : null))
-    let consumerStoppedPropagation = false
+    const onUserClick = useBubbleInputEffect(bubbleInput, () => checked.value, false)
 
     onMounted(() => {
       control.value = (container.value?.firstElementChild as HTMLButtonElement | null) ?? null
     })
 
-    watch(
-      checked,
-      (next, previous) => {
-        if (bubbleInput.value && next !== previous) {
-          dispatchBubbleClick(bubbleInput.value, next, !consumerStoppedPropagation, false)
-        }
-      },
-      { flush: "post" },
-    )
+    // radix-ui 1.8: a reset of the switch's form restores the initial state
+    watch(control, (button, _, onCleanup) => {
+      const formId = attrs.form
+      const form = typeof formId === "string" ? button?.ownerDocument.getElementById(formId) : button?.form
+      if (!(form instanceof HTMLFormElement)) return
+      const reset = () => setChecked(initialChecked)
+      form.addEventListener("reset", reset)
+      onCleanup(() => form.removeEventListener("reset", reset))
+    })
 
     // In a form, the button's click stops here; the input's click bubbles instead
     const afterClick = (event: Event) => {
-      if (isFormControl.value) {
-        consumerStoppedPropagation = event.cancelBubble
-        if (!consumerStoppedPropagation) event.stopPropagation()
-      }
+      const hasConsumerStoppedPropagation = event.cancelBubble
+      onUserClick({ requestedChecked: !checked.value, hasConsumerStoppedPropagation })
+      if (bubbleInput.value && isFormControl.value && !hasConsumerStoppedPropagation) event.stopPropagation()
     }
 
     return () => {
@@ -154,7 +154,8 @@ const SwitchComponent = defineComponent({
                 "ref": bubbleInput,
                 "type": "checkbox",
                 "aria-hidden": "true",
-                "^checked": checked.value ? "" : undefined,
+                // React's `defaultChecked`: the prop, else the first state
+                "^checked": (props.defaultChecked ?? initialChecked) ? "" : undefined,
                 "name": props.name,
                 "^value": props.value ?? "on",
                 "required": props.required,

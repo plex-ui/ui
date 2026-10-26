@@ -4,16 +4,16 @@
 // - `data-radix-*` / `data-reka-*`, `data-dismissable-layer`, and
 //   `data-v-app` on the test's Vue mount container
 // - focus guard spans that Radix / Reka insert around modal content
-// - `pointer-events` inline styles set by the dismissable layer
 // - comments and empty text nodes (Vue fragment and teleport anchors)
 // - attribute order and inline-style declaration order
 // - generated ids (`radix-*`, `reka-*`, React/Vue useId) become `gen-1`, `gen-2`, ... in
 //   document order, and id references (`aria-labelledby`, `for`, ...) are rewritten
 //   to match, so a swapped label/description still shows. Explicit ids are
-//   kept as they are.
-// - the one allowed dangling reference: Radix points a closed dialog
-//   trigger's aria-controls at content that is not mounted (Reka omits it).
-//   Any other reference to a missing element is printed as "[missing]".
+//   kept as they are. A reference to a missing element is printed as
+//   "[missing]".
+//
+// Inline `pointer-events` stays: both dismissable layers set it the same way,
+// and a stray `pointer-events: none` would block clicks.
 //
 // Form controls also print their live state (`.value`, `.checked`,
 // `.indeterminate`, `.selected`) after the attributes: React and Vue set these
@@ -28,9 +28,6 @@ const GENERATED_ID = /^(radix-|reka-)|_[rR]_[\w]*_|«[rR][\w]*»|:[rR][\w]*:|(^|
 
 type IdNames = Map<string, string>
 
-const isClosedDialogTrigger = (element: Element) =>
-  element.getAttribute("aria-haspopup") === "dialog" && element.getAttribute("data-state") === "closed"
-
 const isFocusGuard = (element: Element) =>
   element.hasAttribute("data-radix-focus-guard") || element.hasAttribute("data-reka-focus-guard")
 
@@ -38,7 +35,7 @@ const normalizeStyle = (value: string) =>
   value
     .split(";")
     .map((declaration) => declaration.trim())
-    .filter((declaration) => declaration && !declaration.startsWith("pointer-events"))
+    .filter((declaration) => declaration)
     .map((declaration) => declaration.replace(/\s*:\s*/, ": "))
     .sort()
     .join("; ")
@@ -56,8 +53,6 @@ const attributesOf = (element: Element, doc: Document, idNames: IdNames) => {
 
     if (ID_REFERENCE.has(name)) {
       const ids = value.split(/\s+/).filter(Boolean)
-      const missing = ids.some((id) => !doc.getElementById(id))
-      if (missing && name === "aria-controls" && isClosedDialogTrigger(element)) continue
       const refs = ids.map((id) => (doc.getElementById(id) ? (idNames.get(id) ?? id) : "[missing]"))
       result.push(`${name}="${refs.join(" ")}"`)
       continue

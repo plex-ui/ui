@@ -181,6 +181,8 @@ export const FileUpload = (props: FileUploadProps) => {
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selected = Array.from(e.target.files || [])
+      // Without `multiple`, a pick replaces the file instead of adding to it
+      const kept = multiple ? files : []
       const accepted: File[] = []
 
       for (const file of selected) {
@@ -192,7 +194,7 @@ export const FileUpload = (props: FileUploadProps) => {
           onFileReject?.(file, `File too large: ${file.name} (${formatFileSize(file.size)})`)
           continue
         }
-        if (maxFiles && files.length + accepted.length >= maxFiles) {
+        if (maxFiles && kept.length + accepted.length >= maxFiles) {
           onFileReject?.(file, `Maximum ${maxFiles} files allowed`)
           continue
         }
@@ -200,12 +202,12 @@ export const FileUpload = (props: FileUploadProps) => {
       }
 
       if (accepted.length > 0) {
-        updateFiles([...files, ...accepted])
+        updateFiles([...kept, ...accepted])
       }
 
       e.target.value = ""
     },
-    [accept, maxSize, maxFiles, files, updateFiles, onFileReject],
+    [accept, maxSize, maxFiles, multiple, files, updateFiles, onFileReject],
   )
 
   const removeFile = useCallback(

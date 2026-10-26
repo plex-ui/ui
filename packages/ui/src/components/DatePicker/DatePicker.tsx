@@ -1,9 +1,9 @@
 "use client"
 
 import { DateTime } from "luxon"
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { isBefore } from "../../lib/dateUtils"
+import { isAfter } from "../../lib/dateUtils"
 import { Calendar } from "../Icon"
 import { Popover, type PopoverContentProps } from "../Popover"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
@@ -14,7 +14,7 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   /**
    * Allow targeting the input for forms and accessibility.
    */
-  id: string
+  id?: string
   /**
    * The selected date value.
    */
@@ -69,7 +69,7 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   variant?: SelectControlProps["variant"]
   /**
    * Determines if the select trigger should be a fully rounded pill shape
-   * @default false
+   * @default true
    */
   pill?: boolean
   /**
@@ -107,7 +107,7 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   clearable?: boolean
   /**
    * Extends select to 100% of available width.
-   * @default true
+   * @default false
    */
   block?: boolean
   /**
@@ -160,9 +160,14 @@ export const DatePicker = (props: DatePickerProps) => {
     triggerDateFormat = showTime ? "MM/dd/yy HH:mm" : "MM/dd/yy",
   } = props
 
-  if (min && max && !isBefore(min, max)) {
-    throw new Error("DatePicker error: `min` date must be before the `max` date")
+  // min and max are inclusive, so equal bounds allow one date
+  if (min && max && isAfter(min, max)) {
+    throw new Error("DatePicker error: `min` date must not be after the `max` date")
   }
+
+  // The value text needs an id for aria-labelledby, also when `id` is not set
+  const generatedId = useId()
+  const valueId = `${id ?? generatedId}-value`
 
   // Create stable, mutable references to avoid memoization requirements from consumers
   const onChangeRef = useLatestValue(onChange)
@@ -221,7 +226,7 @@ export const DatePicker = (props: DatePickerProps) => {
           <SelectControl
             id={id}
             aria-label={ariaLabel}
-            aria-labelledby={ariaLabelledBy ? `${ariaLabelledBy} ${id}-value` : undefined}
+            aria-labelledby={ariaLabelledBy ? `${ariaLabelledBy} ${valueId}` : undefined}
             aria-describedby={ariaDescribedBy}
             aria-invalid={ariaInvalid}
             className={triggerClassName}
@@ -236,7 +241,7 @@ export const DatePicker = (props: DatePickerProps) => {
             onClearClick={clearable ? handleClearClick : undefined}
           >
             {ariaLabelledBy ? (
-              <span id={`${id}-value`}>{value?.toFormat(triggerDateFormat) ?? placeholder}</span>
+              <span id={valueId}>{value?.toFormat(triggerDateFormat) ?? placeholder}</span>
             ) : value?.toFormat(triggerDateFormat) ?? placeholder}
           </SelectControl>
         </Popover.Trigger>

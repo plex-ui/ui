@@ -49,10 +49,23 @@ export const firstElementChild = (nodes: VNodeArrayChildren | undefined): VNode 
   return first && first.type !== Text ? first : undefined
 }
 
+/** Radix's `concatAriaDescribedby`: the ids of every value, once each, in order. */
+export const concatAriaDescribedby = (...values: unknown[]) => {
+  const ids = new Set<string>()
+  for (const value of values) {
+    if (typeof value !== "string") continue
+    for (const id of value.trim().split(/\s+/)) {
+      if (id) ids.add(id)
+    }
+  }
+  return ids.size > 0 ? Array.from(ids).join(" ") : undefined
+}
+
 /**
  * Clones `child` with `slotProps` merged in the way Radix's Slot does it: the
  * child's own props win, classes are joined (slot first), styles are merged
- * (child last) and handlers both run, the child's first.
+ * (child last), `aria-describedby` ids are joined (child first, radix-ui 1.8)
+ * and handlers both run, the child's first.
  */
 export const mergeSlotProps = (child: VNode, slotProps: Props): VNode => {
   const merged: Props = { ...slotProps }
@@ -64,6 +77,8 @@ export const mergeSlotProps = (child: VNode, slotProps: Props): VNode => {
       merged[key] = [...toHandlers(childValue), ...toHandlers(slotValue)]
     } else if (key === "class" || key === "style") {
       merged[key] = [slotValue, childValue]
+    } else if (key === "aria-describedby") {
+      merged[key] = concatAriaDescribedby(childValue, slotValue)
     } else {
       merged[key] = childValue
     }

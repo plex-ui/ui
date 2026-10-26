@@ -1,3 +1,3 @@
-export { CircularProgress } from "./CircularProgress.js"
-export { LoadingDots } from "./LoadingDots.js"
-export { LoadingIndicator } from "./LoadingIndicator.js"
+export { CircularProgress, type CircularProgressProps } from "./CircularProgress.js"
+export { LoadingDots, type LoadingDotsProps } from "./LoadingDots.js"
+export { LoadingIndicator, type LoadingIndicatorProps } from "./LoadingIndicator.js"

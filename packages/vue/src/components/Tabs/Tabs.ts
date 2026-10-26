@@ -456,7 +456,8 @@ const TabsComponent = defineComponent({
                 "listeners": listeners,
                 "class": [s.Tabs, className],
                 // `dir` comes from RovingFocusGroup ("ltr" unless set), like Radix
-                "role": "group",
+                // Radix ToggleGroup type="single" (radix-ui 1.8) is a radiogroup
+                "role": "radiogroup",
                 "onClick": (event: MouseEvent) => emit("click", event),
                 "data-variant": props.variant,
                 "data-orientation": props.orientation,
@@ -618,4 +619,4 @@ export type TabProps = TabOwnProps & { "aria-label"?: string }
 export const TabsTab = TabComponent as typeof TabComponent & { new (): { $props: TabProps } }
 
 /** Backward-compat alias of `TabsTab`, like React's `Tabs.Option` */
-export const TabsOption = TabsTab
+export const TabsOption: typeof TabsTab = TabsTab

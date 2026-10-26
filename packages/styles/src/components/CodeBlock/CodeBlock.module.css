@@ -38,12 +38,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The button's own outline stays off; keyboard focus shows Button's
+   ::after ring */
 .CopyButtonContainer button:focus,
 .CopyButtonContainer button:focus-visible {
-  outline: none !important;
-}
-
-.CopyButtonContainer button:focus-visible::after {
   outline: none !important;
 }
 
@@ -132,9 +130,16 @@
   transition: max-height 0.2s ease-out;
 }
 
+/* Expanded under `maxExpandedHeight`, the code shrinks to fit and scrolls
+   (the <pre> is the scroll container), with the copy button kept in view */
+.CollapsibleCodeBlock:not([data-collapsed]) {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The collapsed height (min and max) is set inline from `collapsedHeight` */
 .CollapsibleCodeBlock[data-collapsed] {
   overflow: hidden;
-  min-height: 140px;
 }
 
 .GradientOverlay {

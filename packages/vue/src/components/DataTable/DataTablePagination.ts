@@ -9,9 +9,9 @@ import s from "@plexui/styles/components/DataTable/DataTable.module.css"
 // React controls the rows-per-page <select> with `value={pageSize}`. React
 // DOM selects options through their `selected` property (no attribute) after
 // every render and after every change event, and when no option matches the
-// value it selects the first enabled option: a page size of 5 shows "10".
-// Vue's `value` binding would leave the select blank instead, so the same
-// option sync runs here on mount, on update and after a change. React's
+// value it selects the first enabled option. Vue's `value` binding would
+// leave the select blank instead, so the same option sync runs here on
+// mount, on update and after a change. React's
 // server markup marks the matching option `selected` (the attribute), so the
 // select shows the page size before hydration: `vSelectedOnServer` does that
 // at SSR only.
@@ -56,6 +56,11 @@ const DataTablePaginationComponent = defineComponent({
       const { pageIndex, pageSize } = table.getState().pagination
       const from = pageIndex * pageSize + 1
       const to = Math.min((pageIndex + 1) * pageSize, totalRows)
+      // The table's initial and current page sizes are options too, so the
+      // select always shows the real page size and can go back to the initial one
+      const pageSizes = [...new Set([...PAGE_SIZES, table.initialState.pagination.pageSize, pageSize])].sort(
+        (a, b) => a - b,
+      )
 
       return h("div", { class: s.Pagination }, [
         h("div", { class: s.PaginationLeft }, [
@@ -72,7 +77,7 @@ const DataTablePaginationComponent = defineComponent({
                 sync()
               },
             },
-            PAGE_SIZES.map((size) =>
+            pageSizes.map((size) =>
               withDirectives(h("option", { key: size, value: size }, size), [[vSelectedOnServer, size === pageSize]]),
             ),
           ),

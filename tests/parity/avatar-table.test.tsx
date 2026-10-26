@@ -108,6 +108,25 @@ describe("Avatar parity", () => {
     expect(remounted).toEqual([true, true])
   })
 
+  test("an image already loaded at mount (as before hydration) shows without a load event", async () => {
+    // React does not replay a load event fired before hydration; the element's own state tells
+    vi.spyOn(HTMLImageElement.prototype, "complete", "get").mockReturnValue(true)
+    vi.spyOn(HTMLImageElement.prototype, "naturalWidth", "get").mockReturnValue(48)
+    const props = { name: "Tyler", imageUrl: IMAGE }
+    const { react, vue } = await renderPair(reactAvatar(props), () => vueAvatar(props))
+    expect(vue).toBe(react)
+    expect(react).toContain("data-loaded")
+  })
+
+  test("a complete image without a width (failed) is not marked loaded", async () => {
+    vi.spyOn(HTMLImageElement.prototype, "complete", "get").mockReturnValue(true)
+    vi.spyOn(HTMLImageElement.prototype, "naturalWidth", "get").mockReturnValue(0)
+    const props = { name: "Tyler", imageUrl: IMAGE }
+    const { react, vue } = await renderPair(reactAvatar(props), () => vueAvatar(props))
+    expect(vue).toBe(react)
+    expect(react).not.toContain("data-loaded")
+  })
+
   test("adding and removing a click handler switches span and button", async () => {
     const { react, vue } = await walkPairWithState(
       { interactive: false },

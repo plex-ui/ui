@@ -1,5 +1,6 @@
 import clsx from "clsx"
 import {
+  cloneVNode,
   computed,
   createCommentVNode,
   defineComponent,
@@ -32,7 +33,6 @@ import {
   PopoverPortal as RekaPopoverPortal,
   PopoverRoot as RekaPopoverRoot,
   injectPopoverRootContext,
-  useForwardExpose,
   useId as useRekaId,
 } from "reka-ui"
 import type { ControlSize } from "@plexui/styles/types"
@@ -40,6 +40,7 @@ import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
+import { useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
 import { SelectControl, type DropdownIconType } from "../SelectControl/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { withRadixVariableNames } from "../Tooltip/Tooltip.js"
@@ -67,10 +68,12 @@ import s from "@plexui/styles/components/Select/Select.module.css"
 // Radix so the DOM and behaviour match React:
 // - The trigger is Radix's: its props are merged into the trigger (default
 //   or custom) after the child's own handlers, the click toggle is skipped
-//   when one called preventDefault(), it carries no `id` of Reka's and keeps
-//   `aria-controls` while closed.
+//   when one called preventDefault(), it carries no `id` of Reka's and sets
+//   `aria-controls` only while open (Radix 1.8.1).
 // - Open changes from Reka (dismiss, the trigger's click) are reported only
 //   when the state changes, like Radix's controlled state.
+// - A primary pointer down outside dismisses on its click, as in Radix 1.8.1
+//   (../Popover/deferredPointerDownOutside.ts).
 // - The content element is rendered here (Reka's `as`): Radix's custom
 //   property names (`--radix-popover-*`), no `dir`, no `aria-labelledby`.
 // - React handles events of portalled content at <body>, so stopping one
@@ -298,7 +301,11 @@ const useSelectContext = () => {
 type CustomSelectContextValue = {
   open: Ref<boolean>
   handleOpenChange: (maybeNextState?: boolean) => void
+  /** Radix's `onOpenChange` of the popover root: reports changes only */
+  handleRootOpenChange: (nextState: boolean) => void
   selectContentRef: ShallowRef<HTMLElement | null>
+  /** The trigger element, default or custom (React's ref on Popover.Trigger) */
+  popoverTriggerEl: ShallowRef<HTMLElement | null>
 }
 
 const CustomSelectContextKey: InjectionKey<CustomSelectContextValue> = Symbol("PlexUICustomSelect")
@@ -370,10 +377,9 @@ const SelectComponent = defineComponent({
   name: "Select",
   inheritAttrs: false,
   props: selectProps,
-  emits: {
-    "update:value": (_value: string | string[]) => true,
-    "change": (_selection: Option | Option[]) => true,
-  },
+  // Untyped here: SelectProps (below) types the payloads by `multiple`, and
+  // typed emits would also require each listener to take both shapes
+  emits: ["update:value", "change"],
   setup(rawProps, { emit, slots }) {
     const props = rawProps as unknown as SelectPropsValue
     // Block default is dynamic, based on `variant`
@@ -488,7 +494,7 @@ const SelectTrigger = defineComponent({
 
       // If not a command, check for typeahead
       // NOTE: Typeahead not supported in multi-select
-      if (!multiple && isValidTypeaheadChar(key)) {
+      if (!multiple && isTypeaheadKey(evt)) {
         const currentTypeaheadValue = typeahead(key)
         // Stop other listeners from reacting
         evt.stopPropagation()
@@ -569,19 +575,26 @@ const SelectTrigger = defineComponent({
           default: () => [
             props.ariaLabelledby ? h("span", { id: `${triggerId}-value` }, [renderTriggerView()]) : renderTriggerView(),
             props.name || props.id
-              ? h("input", {
-                  "id": props.id,
-                  "name": props.name,
-                  "value": firstValue,
-                  "tabindex": -1,
-                  "onFocus": () => {
-                    triggerEl.value?.focus()
-                  },
-                  // don't make this readOnly because that prevents the value from being required
-                  "required": props.required,
-                  "class": "sr-only w-full h-0 left-0 bottom-0 pointer-events-none",
-                  "aria-hidden": "true",
-                })
+              ? // One input per selected value, so a form submits every value of a
+                // multi-select; an empty one keeps `id` and `required` working
+                (multiple && (value as string[]).length ? (value as string[]) : [firstValue ?? ""]).map((formValue, index) =>
+                  h("input", {
+                    "key": index,
+                    "id": index === 0 ? props.id : undefined,
+                    "name": props.name,
+                    "value": formValue,
+                    // A disabled select is neither validated nor submitted
+                    "disabled": props.disabled,
+                    "tabindex": -1,
+                    "onFocus": () => {
+                      triggerEl.value?.focus()
+                    },
+                    // don't make this readOnly because that prevents the value from being required
+                    "required": props.required,
+                    "class": "sr-only w-full h-0 left-0 bottom-0 pointer-events-none",
+                    "aria-hidden": "true",
+                  }),
+                )
               : null,
           ],
         },
@@ -600,16 +613,15 @@ const SelectPopoverTrigger = defineComponent({
   setup(_props, { slots }) {
     const rootContext = injectPopoverRootContext()
     rootContext.contentId ||= useRekaId(undefined, "reka-popover-content")
-    const { forwardRef, currentElement } = useForwardExpose()
+    const { popoverTriggerEl } = inject(CustomSelectContextKey)!
 
-    // Focus returns here on close, and pointer-downs on it are not "outside"
-    watch(
-      currentElement,
-      (element) => {
-        rootContext.triggerElement.value = element
-      },
-      { immediate: true, flush: "post" },
-    )
+    // React's ref on Popover.Trigger: the element the child gives its ref
+    // (FloatingLabelSelect's field). Focus returns here on close, the content
+    // anchors to it, and pointer-downs on it are not "outside".
+    const setTriggerRef = (instance: unknown) => {
+      popoverTriggerEl.value = resolveElement(instance)
+      rootContext.triggerElement.value = popoverTriggerEl.value ?? undefined
+    }
 
     const onClick = composeEventHandlers(undefined, () => rootContext.onOpenToggle())
 
@@ -618,16 +630,21 @@ const SelectPopoverTrigger = defineComponent({
       if (!child) return null
 
       const isOpen = rootContext.open.value
-      return h(RekaPopoverAnchor, { asChild: true, ref: forwardRef }, {
+      return h(RekaPopoverAnchor, { asChild: true, reference: popoverTriggerEl.value ?? undefined }, {
         default: () =>
-          mergeSlotProps(child, {
-            "type": "button",
-            "aria-haspopup": "dialog",
-            "aria-expanded": isOpen,
-            "aria-controls": rootContext.contentId,
-            "data-state": isOpen ? "open" : "closed",
-            onClick,
-          }),
+          cloneVNode(
+            mergeSlotProps(child, {
+              "type": "button",
+              "aria-haspopup": "dialog",
+              "aria-expanded": isOpen,
+              "aria-controls": isOpen ? rootContext.contentId : undefined,
+              "data-state": isOpen ? "open" : "closed",
+              onClick,
+            }),
+            { ref: setTriggerRef },
+            // Keep the child's own ref
+            true,
+          ),
       })
     }
   },
@@ -643,6 +660,10 @@ const CustomSelect = defineComponent({
     const { props, slots, slotsVersion, triggerEl } = useSelectContext()
     const open = ref(false)
     const selectContentRef = shallowRef<HTMLElement | null>(null)
+    const popoverTriggerEl = shallowRef<HTMLElement | null>(null)
+    // Not before mount: server rendering and hydration render no teleport,
+    // as Radix's Portal renders nothing before mount
+    const mounted = ref(false)
 
     const handleOpenChange = (maybeNextState?: boolean) => {
       // Toggle the current state when called without a specific state
@@ -651,21 +672,22 @@ const CustomSelect = defineComponent({
 
       // When we're closing, manage focus back to trigger manually
       if (!nextState) {
+        // Read this now: with animations disabled the menu unmounts before the
+        // timeout below runs, so selectContentRef is already null by then
+        const focusWasInMenu = !!selectContentRef.value?.contains(document.activeElement)
+
         // Wait until the next tick to determine if another element has become focused
         setTimeout(() => {
-          // In the event that the content is gone, not focusing is safer.
-          if (!selectContentRef.value) {
-            return
-          }
-
           const activeElement = document.activeElement
+          const menu = selectContentRef.value
+          const focusInMenu = !!menu && !!activeElement && menu.contains(activeElement)
+          // Focus dropped with the closing menu lands on <body>: it was lost, not moved
+          const focusLost = !activeElement || activeElement === document.body
 
-          // Don't restore focus to the trigger if focus has moved outside of the select menu
-          if (activeElement && !selectContentRef.value.contains(activeElement)) {
-            return
+          // Focus that moved to another element outside the menu stays there
+          if (focusInMenu || (focusWasInMenu && focusLost)) {
+            popoverTriggerEl.value?.focus()
           }
-
-          triggerEl.value?.focus()
         })
       }
     }
@@ -673,8 +695,6 @@ const CustomSelect = defineComponent({
     useEscCloseStack(open, () => {
       handleOpenChange(false)
     })
-
-    provide(CustomSelectContextKey, { open, handleOpenChange, selectContentRef })
 
     const handleRootOpenChange = (nextState: boolean) => {
       // Radix's controlled state reports changes only
@@ -687,6 +707,14 @@ const CustomSelect = defineComponent({
 
       handleOpenChange(nextState)
     }
+
+    provide(CustomSelectContextKey, {
+      open,
+      handleOpenChange,
+      handleRootOpenChange,
+      selectContentRef,
+      popoverTriggerEl,
+    })
 
     const layer: SelectLayer = { parent: inject(SelectLayerKey, null), content: selectContentRef }
     provide(SelectLayerKey, layer)
@@ -706,6 +734,7 @@ const CustomSelect = defineComponent({
 
     let listenerDocument: Document | null = null
     onMounted(() => {
+      mounted.value = true
       mountedSelectLayers.add(layer)
       listenerDocument = triggerEl.value?.ownerDocument ?? document
       listenerDocument.addEventListener("focusin", handleFocusIn)
@@ -740,7 +769,7 @@ const CustomSelect = defineComponent({
             // TransitionGroup), so React DOM appends the new one to <body>.
             // A Teleport keeps its place in <body>: a new one per state moves
             // the wrapper to the end the same way.
-            h(RekaPopoverPortal, { key: open.value ? "open" : "closed", forceMount: true }, {
+            h(RekaPopoverPortal, { key: open.value ? "open" : "closed", forceMount: mounted.value }, {
               default: () => [
                 h(
                   TransitionGroup,
@@ -780,6 +809,13 @@ const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
     const { props, align, alignOffset, listMinWidth } = useSelectContext()
+    const { handleRootOpenChange, popoverTriggerEl } = inject(CustomSelectContextKey)!
+    // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
+    const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
+      // The trigger is not outside: Radix's non-modal content keeps the popover open
+      if (popoverTriggerEl.value?.contains(originalEvent.target as Node | null)) return
+      handleRootOpenChange(false)
+    })
 
     return () =>
       h(
@@ -797,6 +833,8 @@ const SelectPopoverContent = defineComponent({
           onOpenAutoFocus: preventDefaultHandler,
           onCloseAutoFocus: preventDefaultHandler,
           onEscapeKeyDown: preventDefaultHandler,
+          onPointerDownOutside,
+          onFocusOutside,
           style: toCssVariables({
             "select-list-width": props.listWidth,
             "select-list-min-width": listMinWidth.value,
@@ -993,7 +1031,7 @@ const CustomSelectMenu = defineComponent({
       }
 
       // If not a command, check for typeahead
-      if (isValidTypeaheadChar(key)) {
+      if (isTypeaheadKey(evt)) {
         // Skip typeahead logic when we're focused in the search input
         if (isFocusedInSearch) {
           return
@@ -1031,8 +1069,27 @@ const CustomSelectMenu = defineComponent({
       searchInputRef,
     })
 
+    // The focused element (the search input, or the list without one) points
+    // assistive tech at the highlighted option, when that option is rendered
+    const syncActiveDescendant = () => {
+      const target = searchInputRef.value || listRef.value
+      if (!target || !menuRef.value) {
+        return
+      }
+
+      const highlightedOption = highlightedValue.value ? findOptionByValue(highlightedValue.value, menuRef.value) : null
+      if (highlightedOption?.id) {
+        target.setAttribute("aria-activedescendant", highlightedOption.id)
+      } else {
+        target.removeAttribute("aria-activedescendant")
+      }
+    }
+    watch([highlightedValue, filteredOptions], syncActiveDescendant, { flush: "post" })
+
     // On mount behavior
     onMounted(() => {
+      syncActiveDescendant()
+
       // Like React's mount effect, the scroll target is the highlight at mount
       const initialHighlightedValue = highlightedValue.value
 
@@ -1049,8 +1106,9 @@ const CustomSelectMenu = defineComponent({
         currentOption?.scrollIntoView({ block: "center" })
       })
 
-      // Send initial focus to the menu container or search input, to capture key events
-      const autoFocusTarget = searchInputRef.value || menuRef.value
+      // Send initial focus to the search input, or the list without one (the
+      // menu container when there are no options), to capture key events
+      const autoFocusTarget = searchInputRef.value || listRef.value || menuRef.value
       if (autoFocusTarget) focusMounted(autoFocusTarget)
     })
 
@@ -1076,11 +1134,19 @@ const CustomSelectMenu = defineComponent({
     return () =>
       h(
         "div",
-        { id: listId, class: s.MenuInner, onKeydown: handleKeyDown, ref: menuRef, tabindex: 0 },
+        {
+          class: s.MenuInner,
+          onKeydown: handleKeyDown,
+          ref: menuRef,
+          // Without search, the list takes focus (and the tab stop); the container
+          // stays focusable so a click on it keeps the keys here
+          tabindex: !searchable.value && filteredOptions.value.length ? -1 : 0,
+        },
         [
           searchable.value
             ? h(CustomSelectSearch, {
                 "value": searchTerm.value,
+                "hasResults": !!filteredOptions.value.length,
                 "onUpdate:value": (next: string) => {
                   searchTerm.value = next
                 },
@@ -1097,6 +1163,8 @@ const CustomSelectSearch = defineComponent({
   name: "CustomSelectSearch",
   props: {
     value: { type: String, required: true },
+    /** Whether the list is rendered, for `aria-controls` */
+    hasResults: { type: Boolean, required: true },
   },
   emits: {
     "update:value": (_value: string) => true,
@@ -1132,7 +1200,8 @@ const CustomSelectSearch = defineComponent({
             "spellcheck": false,
             "aria-autocomplete": "list",
             "role": "combobox",
-            "aria-controls": listId,
+            // The list, while there is one: with no results it is not rendered
+            "aria-controls": props.hasResults ? listId : undefined,
             "aria-expanded": true,
           },
           {
@@ -1160,8 +1229,8 @@ const CustomSelectList = defineComponent({
     filteredOptions: { type: Array as PropType<Options<Option>>, required: true },
   },
   setup(props) {
-    const { props: selectProps, slots, slotsVersion } = useSelectContext()
-    const { listRef } = useCustomSelectMenuContext()
+    const { props: selectProps, slots, slotsVersion, triggerId, searchable } = useSelectContext()
+    const { listId, listRef } = useCustomSelectMenuContext()
     const setListRef = (el: unknown) => {
       listRef.value = (el as HTMLElement | null) ?? null
     }
@@ -1191,10 +1260,27 @@ const CustomSelectList = defineComponent({
             .slice(0, HARD_OPTIONS_LIMIT)
             .map((option) => h(CustomSelectOption, { key: option.value, option }))
 
-      return h("div", { class: s.OptionsList, ref: setListRef }, [
-        ...options,
-        hasHardLimit ? h(CustomSelectHardLimit, { numHidden: filteredOptions.length - HARD_OPTIONS_LIMIT }) : null,
-      ])
+      const { ariaLabel, ariaLabelledby } = selectProps
+      const customTrigger = !!(slots.trigger || selectProps.trigger)
+      return h(
+        "div",
+        {
+          "id": listId,
+          "class": s.OptionsList,
+          "ref": setListRef,
+          "role": "listbox",
+          // Named like the trigger: its label, or the default trigger itself
+          "aria-label": ariaLabel,
+          "aria-labelledby": ariaLabelledby ?? (ariaLabel || customTrigger ? undefined : triggerId),
+          "aria-multiselectable": selectProps.multiple || undefined,
+          // Without search, the list is the focused element
+          "tabindex": searchable.value ? undefined : 0,
+        },
+        [
+          ...options,
+          hasHardLimit ? h(CustomSelectHardLimit, { numHidden: filteredOptions.length - HARD_OPTIONS_LIMIT }) : null,
+        ],
+      )
     }
   },
 })
@@ -1279,6 +1365,7 @@ const CustomSelectExpandableLimit = defineComponent({
   setup(props) {
     const { props: selectProps } = useSelectContext()
     const { highlightedValue } = useCustomSelectMenuContext()
+    const optionId = useId()
 
     const handlePointerMove = () => {
       if (props.value === highlightedValue.value) {
@@ -1303,11 +1390,12 @@ const CustomSelectExpandableLimit = defineComponent({
       return h(
         "div",
         {
+          "id": optionId,
           "class": clsx(s.Option, s.OptionsLimit),
           "data-option-id": props.value,
           "data-highlight": isHighlighted ? "" : undefined,
+          // Not selectable: no aria-selected
           "role": "option",
-          "aria-selected": isHighlighted,
           "onPointerup": props.onPointerUp,
           "onPointermove": handlePointerMove,
           "onPointerleave": handlePointerLeave,
@@ -1334,6 +1422,8 @@ const CustomSelectOption = defineComponent({
   setup(props) {
     const { props: selectProps, slots, slotsVersion, onSelect } = useSelectContext()
     const { openingValue, requestClose, highlightedValue } = useCustomSelectMenuContext()
+    // Referenced by the list's aria-activedescendant while highlighted
+    const optionId = useId()
 
     // NOTE: SingleSelect mode keeps the opening value instead of the live value
     // to avoid selecting the item as the select closes.
@@ -1392,10 +1482,12 @@ const CustomSelectOption = defineComponent({
       return h(
         "div",
         {
+          "id": optionId,
           "class": clsx(s.Option, selectProps.optionClassName),
           "data-highlight": isHighlighted ? "" : undefined,
           "role": "option",
-          "aria-selected": isHighlighted,
+          // The selection; the highlight is the list's aria-activedescendant
+          "aria-selected": selected,
           "data-selected": selected ? "" : undefined,
           // Internal attribute for selecting DOM nodes
           [INTERNAL_DOM_SELECTION_DATA_ATTR]: value,
@@ -1688,6 +1780,18 @@ const createTypeahead = () => {
 
 const isValidTypeaheadChar = (char: string): boolean => /^[a-zA-Z0-9]$/.test(char)
 
+// A shortcut (Ctrl+C, Cmd+A, Alt+letter) or a key another handler took is not typeahead
+const isTypeaheadKey = (evt: KeyboardEvent): boolean =>
+  isValidTypeaheadChar(evt.key) && !evt.ctrlKey && !evt.metaKey && !evt.altKey && !evt.defaultPrevented
+
+const resolveElement = (instance: unknown): HTMLElement | null => {
+  const node = instance && typeof instance === "object" && "$el" in instance ? (instance as { $el: unknown }).$el : instance
+  // A multi-root component's $el is the text node opening its fragment; the
+  // element follows it (as in Reka)
+  const element = node instanceof Text ? node.nextElementSibling : node
+  return element instanceof HTMLElement ? element : null
+}
+
 const getTypeaheadOption = <T extends Option>(
   options: Options<T>,
   typeaheadValue: string,
@@ -1699,7 +1803,6 @@ const getTypeaheadOption = <T extends Option>(
   }
 
   let matchBeforeHighlight: T | undefined
-  let matchAfterHighlight: T | undefined
   // If we aren't provided a highlighted value, start from the top (e.g., act like it's found)
   let foundHighlightedValue: boolean = !currentHighlightValue
 
@@ -1719,9 +1822,8 @@ const getTypeaheadOption = <T extends Option>(
       for (const option of opt.options) {
         if (optionValidAndMatches(option)) {
           if (foundHighlightedValue) {
-            matchAfterHighlight = option
-            // We're done after we've found an after match
-            break
+            // We're done after we've found an after match, in any group
+            return option
           } else {
             // Keep the first found "before" match
             matchBeforeHighlight = matchBeforeHighlight || option
@@ -1731,9 +1833,8 @@ const getTypeaheadOption = <T extends Option>(
     } else {
       if (optionValidAndMatches(opt)) {
         if (foundHighlightedValue) {
-          matchAfterHighlight = opt
           // We're done after we've found an after match
-          break
+          return opt
         } else {
           // Keep the first found "before" match
           matchBeforeHighlight = matchBeforeHighlight || opt
@@ -1742,13 +1843,35 @@ const getTypeaheadOption = <T extends Option>(
     }
   }
 
-  return matchAfterHighlight || matchBeforeHighlight
+  return matchBeforeHighlight
 }
 
-export type SelectProps = InstanceType<typeof SelectComponent>["$props"]
+type SelectOwnProps = InstanceType<typeof SelectComponent>["$props"]
+
+type SingleSelectProps = {
+  /** Determines if the select should support multiple selection. @default false */
+  multiple?: false
+  /** Selected value. Bind `v-model:value`. */
+  value: string
+  onChange?: (option: Option) => void
+  "onUpdate:value"?: (value: string) => void
+}
+
+type MultiSelectProps = {
+  /** Determines if the select should support multiple selection. @default false */
+  multiple: true
+  /** Selected values. Bind `v-model:value`. */
+  value: string[]
+  onChange?: (options: Option[]) => void
+  "onUpdate:value"?: (value: string[]) => void
+}
+
+/** As in React, `multiple` decides the type of `value` and of the `change` and `update:value` payloads. */
+export type SelectProps = Omit<SelectOwnProps, "multiple" | "value" | "onChange" | "onUpdate:value"> &
+  (SingleSelectProps | MultiSelectProps)
 
 /**
  * Select dropdown with option groups, descriptions, search (over 15
  * options), multiple selection and actions. Bind `v-model:value`.
  */
-export const Select = SelectComponent
+export const Select = SelectComponent as typeof SelectComponent & { new (): { $props: SelectProps } }

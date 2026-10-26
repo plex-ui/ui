@@ -24,6 +24,7 @@ import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useIsMounted } from "../../hooks/useIsMounted"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { usePrevious } from "../../hooks/usePrevious"
+import { useStableCallback } from "../../hooks/useStableCallback"
 import { toCssVariables } from "../../lib/helpers"
 import { Button } from "../Button"
 import { Reload } from "../Icon"
@@ -183,7 +184,12 @@ export const Slider = memo((props: SliderProps) => {
 
   // prevents input from jumping around while the user is typing
   const singleOnChange = isRange ? undefined : (onChange as (v: number) => void)
-  const debouncedOnChange = useDebounceCallback(singleOnChange ?? (() => {}), 250)
+  // One debounced function for the slider's lifetime (calling the latest
+  // onChange), so an immediate change can cancel the pending typed one
+  const debouncedOnChange = useDebounceCallback(
+    useStableCallback((nextValue: number) => singleOnChange?.(nextValue)),
+    250,
+  )
   const [pointerDown, setPointerDown] = useState(false)
   const isMounted = useIsMounted()
 
@@ -206,11 +212,12 @@ export const Slider = memo((props: SliderProps) => {
   // We assume that the width of the thumb does not change from render to render
   const thumbRef = useRef<HTMLDivElement>(null)
 
-  // Sort marks for collision detection
+  // Sort marks for collision detection, again only when a value or label changes
+  const marksKey = JSON.stringify(propMarks.map(({ value, label }) => [value, label]))
   const marks = useMemo<SliderMark[]>(
     () => [...propMarks].sort((a, b) => a.value - b.value),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [propMarks.length],
+    [marksKey],
   )
 
   // Validate marks
@@ -248,16 +255,18 @@ export const Slider = memo((props: SliderProps) => {
     }
   }, [value, setInputValueNumber, isRange])
 
-  // Single-mode keyboard handler
+  // Single-mode keyboard handler: a key's change replaces a pending typed one
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (evt) => {
     if (isRange || !singleOnChange) return
     if (evt.key === "Home") {
       evt.preventDefault()
+      debouncedOnChange.cancel()
       singleOnChange(min)
       setInputValueNumber(min)
     }
     if (evt.key === "End") {
       evt.preventDefault()
+      debouncedOnChange.cancel()
       singleOnChange(max)
       setInputValueNumber(max)
     }
@@ -265,6 +274,7 @@ export const Slider = memo((props: SliderProps) => {
       evt.preventDefault()
       const multiplier = evt.shiftKey ? 10 : 1
       const next = clamp(singleValue + step * multiplier, min, max)
+      debouncedOnChange.cancel()
       singleOnChange(next)
       setInputValueNumber(next)
     }
@@ -272,6 +282,7 @@ export const Slider = memo((props: SliderProps) => {
       evt.preventDefault()
       const multiplier = evt.shiftKey ? 10 : 1
       const next = clamp(singleValue - step * multiplier, min, max)
+      debouncedOnChange.cancel()
       singleOnChange(next)
       setInputValueNumber(next)
     }
@@ -283,8 +294,14 @@ export const Slider = memo((props: SliderProps) => {
 
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (evt) => {
     if (isRange || !singleOnChange) return
-    const nextValue = evt.currentTarget.value.replace(/[^\d.]/, "").trim()
+    // Digits and dots, plus a leading minus when the slider goes below zero
+    const nextValue = evt.currentTarget.value.replace(min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "").trim()
     let parsed = parseFloat(nextValue || "0")
+    if (Number.isNaN(parsed)) {
+      // A lone "-" or "." is a number still being typed: nothing to report yet
+      setInputValue(nextValue)
+      return
+    }
     parsed = clamp(parsed, min, max)
     if (step >= 1) {
       parsed = Math.floor(parsed)
@@ -295,6 +312,8 @@ export const Slider = memo((props: SliderProps) => {
 
   const handleInputBlur: FocusEventHandler<HTMLInputElement> = (evt) => {
     if (isRange || !singleOnChange) return
+    // Blur commits the typed text, so its pending debounced change is dropped
+    debouncedOnChange.cancel()
     let parsed = parseFloat(evt.target.value.trim()) || 0
     if (step >= 1) {
       parsed = Math.floor(parsed)
@@ -420,6 +439,8 @@ export const Slider = memo((props: SliderProps) => {
                 key={i}
                 id={`${id}-thumb-${i}`}
                 className={s.Thumb}
+                // The marks measure the first thumb (all thumbs are the same size)
+                ref={i === 0 ? thumbRef : undefined}
                 // Name plus the thumb's own Radix name ("Minimum" / "Maximum"),
                 // so the endpoints stay distinguishable
                 aria-labelledby={nameId ? `${nameId} ${id}-thumb-${i}` : undefined}

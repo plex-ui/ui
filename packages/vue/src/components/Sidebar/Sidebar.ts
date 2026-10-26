@@ -7,9 +7,11 @@ import {
   ref,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
+  type DefineComponent,
   type HTMLAttributes,
   type LiHTMLAttributes,
   type PropType,
+  type Slots,
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
@@ -17,7 +19,7 @@ import { Button } from "../Button/index.js"
 import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
 import { Tooltip } from "../Tooltip/index.js"
-import { firstElementChild, mergeSlotProps } from "../Tooltip/slot.js"
+import { composeEventHandlers, firstElementChild, flattenSlot, mergeSlotProps } from "../Tooltip/slot.js"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 import {
   SidebarProvider,
@@ -30,15 +32,16 @@ import {
 // Vue port of packages/ui/src/components/Sidebar/Sidebar.tsx. Exports are
 // flat, as in React's index. Every part renders its React element with the
 // caller's attributes applied after its own (React spreads `...props` last),
-// so a caller's attribute or listener replaces the part's own: an `@click` on
-// SidebarTrigger or SidebarMobileMenuButton replaces the toggle, as `onClick`
-// does in React. `class` is merged. `data-toggle` (injected by MDX) is
-// dropped, as React's `cleanProps` does.
+// so a caller's attribute or listener replaces the part's own. `class` is
+// merged. An `@click` on SidebarTrigger or SidebarMobileMenuButton runs before
+// the toggle and cancels it with `preventDefault()`, as `onClick` does in
+// React. `data-toggle` (injected by MDX) is dropped, as React's `cleanProps`
+// does.
 // - `asChild` (SidebarGroupLabel, SidebarMenuButton, SidebarMenuSubButton)
 //   merges into the first element of the default slot the way Radix's Slot
-//   does. SidebarMenuButton's slot child is its own inner `<span>`, so with
-//   `asChild` it renders that `<span>` carrying the button's attributes, with
-//   the slot content inside, as in React.
+//   does. SidebarMenuButton puts its inner `<span>` inside that element,
+//   around the element's own content, as React clones it; with no single
+//   element child it merges into the inner `<span>` instead.
 // - ReactNode props are slots: SidebarMenuButton `tooltip` (prop or
 //   `#tooltip` slot), SidebarTrigger's icon (default slot), SidebarInput's
 //   `startAdornment` (slot, Search icon by default).
@@ -57,8 +60,13 @@ const cleanAttrs = (attrs: Attrs) => {
   return { className, rest }
 }
 
+// An explicit type keeps the published declaration on Vue's `DefineComponent`
+// alias; an inferred one is expanded there and fails consumers' type checks
+// (`GlobalComponents` against `Record<string, Component>`, TS2344).
+type Part<A> = DefineComponent & { new (): { $props: A } }
+
 /** A part that renders one element with its class and the caller's attributes. */
-const part = <A>(name: string, tag: string, className: string | undefined) => {
+const part = <A>(name: string, tag: string, className: string | undefined): Part<A> => {
   const component = defineComponent({
     name,
     inheritAttrs: false,
@@ -69,7 +77,7 @@ const part = <A>(name: string, tag: string, className: string | undefined) => {
       }
     },
   })
-  return component as typeof component & { new (): { $props: A } }
+  return component as unknown as Part<A>
 }
 
 // =============================================
@@ -224,6 +232,24 @@ const renderAsChild = (children: VNodeArrayChildren | undefined, slotProps: Attr
   return child ? mergeSlotProps(child, slotProps) : null
 }
 
+/**
+ * React's `cloneElement(child, undefined, wrap(child.props.children))`: the
+ * same element (key and ref kept) with its content, or its default slot for a
+ * component such as RouterLink, passed through `wrap`.
+ */
+const wrapChildContent = (child: VNode, wrap: (content: VNodeArrayChildren | undefined) => VNode): VNode => {
+  const content = child.children
+  let children: VNodeArrayChildren | Slots
+  if (content && typeof content === "object" && !Array.isArray(content)) {
+    // Drop the compiled-slots flag so the new default slot is always used
+    const { _: _compiled, ...slotFns } = content as Slots & { _?: unknown }
+    children = { ...slotFns, default: () => [wrap(slotFns.default?.())] }
+  } else {
+    children = [wrap(typeof content === "string" ? [content] : (content ?? undefined))]
+  }
+  return h(child.type as string, { ...child.props, key: child.key ?? undefined, ref: child.ref as never }, children as never)
+}
+
 const SidebarGroupLabelComponent = defineComponent({
   name: "SidebarGroupLabel",
   inheritAttrs: false,
@@ -326,8 +352,19 @@ const SidebarMenuButtonComponent = defineComponent({
         "class": [s.MenuButton, className],
         ...rest,
       }
-      const inner = h("span", { class: s.MenuButtonInner }, slots.default?.())
-      const button: VNode = props.asChild ? mergeSlotProps(inner, ownProps) : h("button", ownProps, [inner])
+      const content = slots.default?.()
+      const wrap = (children: VNodeArrayChildren | undefined) => h("span", { class: s.MenuButtonInner }, children)
+      let button: VNode
+      if (props.asChild) {
+        // With asChild the child element is the button, so the inner wrapper
+        // goes inside it. Wrapping the child instead would merge the button
+        // attributes onto the wrapper span.
+        const nodes = flattenSlot(content)
+        const child = nodes.length === 1 ? firstElementChild(nodes) : undefined
+        button = mergeSlotProps(child ? wrapChildContent(child, wrap) : wrap(content), ownProps)
+      } else {
+        button = h("button", ownProps, [wrap(content)])
+      }
 
       // Show tooltip when collapsed (icon mode) and not mobile
       if ((props.tooltip || slots.tooltip) && sidebar.state === "collapsed" && !sidebar.isMobile) {
@@ -476,6 +513,9 @@ const SidebarMenuSubComponent = defineComponent({
         {
           "data-state": props.open ? "open" : "closed",
           "data-has-icons": props.hasIcons ? "true" : undefined,
+          // Collapsed items are only hidden visually: keep them out of the tab
+          // order. "" renders `inert=""` (a DOM property in browsers)
+          "inert": props.open ? undefined : "",
           "class": [s.MenuSub, className],
           ...rest,
         },
@@ -669,18 +709,20 @@ export const SidebarTrigger = defineComponent({
       }
 
       const { className, rest } = cleanAttrs(attrs)
+      const { onClick, ...others } = rest
       return h(
         "button",
         {
           "type": "button",
           "class": [s.Trigger, className],
-          "onClick": sidebar.toggleSidebar,
+          // The caller's listener runs first and can cancel the toggle
+          "onClick": composeEventHandlers(onClick, () => sidebar.toggleSidebar()),
           "aria-label": sidebar.isMobile
             ? "Open menu"
             : sidebar.state === "expanded"
               ? "Collapse sidebar"
               : "Expand sidebar",
-          ...rest,
+          ...others,
         },
         [
           h("span", { class: s.TriggerInner }, [
@@ -707,15 +749,17 @@ export const SidebarMobileMenuButton = defineComponent({
 
     return () => {
       const { className, rest } = cleanAttrs(attrs)
+      const { onClick, ...others } = rest
       return h(
         "button",
         {
           "type": "button",
           "data-expanded": sidebar.openMobile ? "" : undefined,
           "class": [s.MobileMenuButton, className],
-          "onClick": () => sidebar.setOpenMobile(!sidebar.openMobile),
+          // The caller's listener runs first and can cancel the toggle
+          "onClick": composeEventHandlers(onClick, () => sidebar.setOpenMobile(!sidebar.openMobile)),
           "aria-label": sidebar.openMobile ? "Close menu" : "Open menu",
-          ...rest,
+          ...others,
         },
         [
           h("span", { class: s.MobileMenuIcon }, [

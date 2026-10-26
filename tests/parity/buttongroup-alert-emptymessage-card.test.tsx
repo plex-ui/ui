@@ -563,6 +563,39 @@ describe("Card parity", () => {
     expect(vue).toBe(react)
   })
 
+  test("a router link that requires `to` (vue-router's RouterLink) gets the href", async () => {
+    // React link components take `href`; Vue's RouterLink requires `to`
+    const ReactStrictLink = ({ href, children, ...rest }: { href?: string; children?: ReactNode }) => (
+      <a data-router="" {...rest} href={`#resolved${href}`}>
+        {children}
+      </a>
+    )
+    const VueStrictLink = defineComponent({
+      props: { to: { type: String, required: true } },
+      setup(props, { slots }) {
+        return () => h("a", { "data-router": "", "href": `#resolved${props.to}` }, slots.default?.())
+      },
+    })
+    const { react, vue } = await renderPair(
+      <RPlexUIProvider linkComponent={ReactStrictLink as never}>
+        <RCard href="/settings">Body</RCard>
+        <RCard href="/billing" as={ReactStrictLink as never}>
+          Body
+        </RCard>
+      </RPlexUIProvider>,
+      () =>
+        h(PlexUIProvider, { linkComponent: VueStrictLink }, {
+          default: () => [
+            h(Card, { href: "/settings" }, () => "Body"),
+            h(Card, { href: "/billing", as: VueStrictLink }, () => "Body"),
+          ],
+        }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('href="#resolved/settings"')
+    expect(react).toContain('href="#resolved/billing"')
+  })
+
   test("full anatomy with classes and attributes", async () => {
     const { react, vue } = await renderPair(
       <RCard>

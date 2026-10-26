@@ -391,7 +391,7 @@ const findTab = (label: string) => {
 const focusedLabel = () => {
   const active = document.activeElement as HTMLElement | null
   if (!active || active === document.body) return "(body)"
-  return active.getAttribute("role") === "group" ? "(group)" : (active.textContent || active.getAttribute("aria-label") || "?")
+  return active.getAttribute("role") === "radiogroup" ? "(group)" : (active.textContent || active.getAttribute("aria-label") || "?")
 }
 
 const fakeTimers = () =>
@@ -423,7 +423,7 @@ const makeTools = (calls: Call[], out: string[]): Tools => ({
     await settle()
   },
   focusGroup: async () => {
-    await interact(() => document.querySelector<HTMLElement>("[role=group]")!.focus())
+    await interact(() => document.querySelector<HTMLElement>("[role=radiogroup]")!.focus())
     await settle()
   },
   key: async (key, init = {}) => {
@@ -571,7 +571,7 @@ describe("Tabs behaves like React", () => {
     })
     expect(vue).toEqual(react)
     expect(reactCalls).toEqual([["click"]])
-    expect(react[0]).toContain('role="group" style="outline: none" tabindex="-1"')
+    expect(react[0]).toContain('role="radiogroup" style="outline: none" tabindex="-1"')
   })
 
   test("a caller click handler that calls preventDefault() cancels the selection", async () => {
@@ -778,7 +778,7 @@ const TAB_HEIGHT = 28
 const GUTTER = 2
 
 const metric = (el: HTMLElement, name: string): number => {
-  const isRoot = el.getAttribute("role") === "group"
+  const isRoot = el.getAttribute("role") === "radiogroup"
   const isTab = el.getAttribute("role") === "radio"
   if (isRoot) {
     const tabs = tabsOf(el)
@@ -824,7 +824,7 @@ const METRICS = ["clientWidth", "clientHeight", "scrollWidth", "scrollHeight", "
 const resize = async () => {
   await interact(() => {
     for (const observer of observers.filter((o) => !o.disconnected)) {
-      const root = document.querySelector<HTMLElement>("[role=group]")!
+      const root = document.querySelector<HTMLElement>("[role=radiogroup]")!
       const width = root.scrollWidth
       const height = root.scrollHeight
       const entry = { contentBoxSize: [{ inlineSize: width, blockSize: height }], contentRect: { width, height } }

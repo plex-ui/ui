@@ -1,6 +1,6 @@
 import { fireEvent } from "@testing-library/react"
 import { createElement, type ComponentType } from "react"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test, vi } from "vitest"
 import { h, type Component } from "vue"
 import { CircularProgress as RCircularProgress, LoadingDots as RLoadingDots, LoadingIndicator as RLoadingIndicator } from "../../packages/ui/src/components/Indicator"
 import { Image as RImage } from "../../packages/ui/src/components/Image"
@@ -109,6 +109,20 @@ describe("Primitive behaviour parity (4.1)", () => {
     expect(vue).toEqual(react)
     expect(react[2]).toContain("data-idle")
     expect(react[3]).not.toContain("data-idle")
+  })
+
+  test("Image already loaded at mount (as before hydration) is marked loaded without a load event", async () => {
+    // React does not replay a load event fired before hydration; the element's own state tells
+    vi.spyOn(HTMLImageElement.prototype, "complete", "get").mockReturnValue(true)
+    const width = vi.spyOn(HTMLImageElement.prototype, "naturalWidth", "get").mockReturnValue(0)
+    // Complete with no width is a failed image: not loaded
+    const failed = await parity(RImage as never, Image, { src: "/complete-broken.png" })
+    expect(failed.vue).toBe(failed.react)
+    expect(failed.react).not.toContain("data-loaded")
+    width.mockReturnValue(64)
+    const { react, vue } = await parity(RImage as never, Image, { src: "/complete.png", alt: "" })
+    expect(vue).toBe(react)
+    expect(react).toContain("data-loaded")
   })
 
   test("Image marks loaded, drops on error unless forced", async () => {

@@ -6,6 +6,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  shallowRef,
   watch,
   type PropType,
 } from "vue"
@@ -66,7 +67,8 @@ export const TagInput = defineComponent({
     "change": (_tags: Tag[]) => true,
   },
   setup(props, { emit }) {
-    const internalTags = ref<Tag[]>(props.defaultValue)
+    // Shallow, like React state: emitted lists hold the caller's tag objects, not proxies
+    const internalTags = shallowRef<Tag[]>(props.defaultValue)
     const value = computed(() => props.value ?? internalTags.value)
     const isControlled = computed(() => props.value !== undefined)
     const tags = computed(() => new Map(value.value.map((tag) => [tag.value, tag])))
@@ -194,6 +196,9 @@ export const TagInput = defineComponent({
     const addTag = (tagValue: string) => addTags([tagValue])
 
     const removeTag = (tag: string) => {
+      if (props.disabled) {
+        return
+      }
       const next = new Map(tags.value)
       next.delete(tag)
       setTags(Array.from(next.values()))
@@ -235,13 +240,18 @@ export const TagInput = defineComponent({
     const handleContainerBlur = () => {
       focused.value = false
       selectedTag.value = null
-      if (currentInput.value) {
+      // A disabled tag input keeps the pending text instead of committing it
+      if (currentInput.value && !props.disabled) {
         addTag(currentInput.value)
         currentInput.value = ""
       }
     }
 
     const handleContainerKeyDown = (e: KeyboardEvent) => {
+      // A tag can keep focus while the input turns disabled: no selecting or removing then
+      if (props.disabled) {
+        return
+      }
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         if (isEmptyStartingSelection()) {
           e.preventDefault()
@@ -390,7 +400,9 @@ export const TagInput = defineComponent({
           "data-focused": focused.value ? "" : undefined,
           "data-empty": tags.value.size === 0 ? "" : undefined,
           "data-pill": props.pill ? "" : undefined,
-          "tabindex": -1,
+          // At maxTags the input is gone, so the container becomes the tab stop;
+          // arrow keys and Backspace then select and remove tags from here
+          "tabindex": showInput.value || props.disabled ? -1 : 0,
           "style": toCssVariables({ "min-rows": String(props.rows) }),
           "data-disabled": props.disabled ? "" : undefined,
         },
@@ -452,3 +464,5 @@ export const TagInput = defineComponent({
     ]
   },
 })
+
+export type TagInputProps = InstanceType<typeof TagInput>["$props"]

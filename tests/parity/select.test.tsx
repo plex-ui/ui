@@ -1,11 +1,15 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ComponentType, type ReactElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { Fragment, h, reactive, type Component, type VNode } from "vue"
+import { renderToStaticMarkup } from "react-dom/server"
+import { Fragment, createSSRApp, h, reactive, type Component, type VNode } from "vue"
+import { renderToString } from "vue/server-renderer"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
+import { FloatingLabelSelect as ReactFloatingLabelSelect } from "../../packages/ui/src/components/FloatingLabelSelect"
 import { Plus as RPlus, User as RUser, Workspace as RWorkspace } from "../../packages/ui/src/components/Icon"
 import { Select as ReactSelect } from "../../packages/ui/src/components/Select"
 import { Button } from "../../packages/vue/src/components/Button"
+import { FloatingLabelSelect } from "../../packages/vue/src/components/FloatingLabelSelect"
 import { Plus, User, Workspace } from "../../packages/vue/src/components/Icon"
 import { Select } from "../../packages/vue/src/components/Select"
 import { animation, flushVue, mountVue } from "./harness"
@@ -174,6 +178,12 @@ const nestedSelect = (framework: "react" | "vue"): Opt[] => [
   },
 ]
 
+// Typeahead "a" matches in two groups
+const aGroups = [
+  { label: "A", options: [{ label: "Apple", value: "apple" }, { label: "Avocado", value: "avocado" }] },
+  { label: "B", options: [{ label: "Apricot", value: "apricot" }, { label: "Banana", value: "banana" }] },
+]
+
 // Values that are not valid in a CSS selector unescaped
 const quoted: Opt[] = [
   { label: "Say hi", value: 'say "hi"' },
@@ -195,6 +205,7 @@ type OptionSet =
   | "nestedSelect"
   | "empty"
   | "quoted"
+  | "aGroups"
 
 const optionSet = (name: OptionSet, framework: "react" | "vue") => {
   switch (name) {
@@ -222,6 +233,8 @@ const optionSet = (name: OptionSet, framework: "react" | "vue") => {
       return []
     case "quoted":
       return quoted
+    case "aGroups":
+      return aGroups
   }
 }
 
@@ -239,7 +252,8 @@ type Case = {
   triggerView?: boolean
   /** Two actions; "renamed" relabels one (same length), "three" adds one */
   actions?: boolean | "renamed" | "three"
-  customTrigger?: "plain" | "prevented"
+  /** A Button, one that prevents its click, or a FloatingLabelSelect */
+  customTrigger?: "plain" | "prevented" | "floating"
   richEmpty?: boolean
   labelledBy?: boolean
   describedBy?: boolean
@@ -285,7 +299,9 @@ const reactSelect = (c: Case, update: Update): ReactElement => {
   if (c.optionView) extra.OptionView = ReactOptionView
   if (c.triggerView) extra.TriggerView = ReactTriggerView
   if (c.actions) extra.actions = actionList(c.actions, RPlus, RWorkspace)
-  if (c.customTrigger)
+  if (c.customTrigger === "floating")
+    extra.trigger = ({ open }: { open: boolean }) => <ReactFloatingLabelSelect label="Fruit" open={open} />
+  else if (c.customTrigger)
     extra.trigger = ({ open, onToggle }: { open: boolean; onToggle: () => void }) => (
       <ReactButton
         color="secondary"
@@ -331,7 +347,9 @@ const vueSelect = (c: Case, update: Update): VNode => {
   if (c.optionView) (c.vueProps ? extra : slots)[c.vueProps ? "OptionView" : "optionView"] = VueOptionView
   if (c.triggerView) (c.vueProps ? extra : slots)[c.vueProps ? "TriggerView" : "triggerView"] = vueTriggerView
   if (c.actions) extra.actions = actionList(c.actions, Plus, Workspace)
-  if (c.customTrigger)
+  if (c.customTrigger === "floating")
+    custom.trigger = ({ open }: { open: boolean }) => h(FloatingLabelSelect, { label: "Fruit", open })
+  else if (c.customTrigger)
     custom.trigger = ({ open, onToggle }: { open: boolean; onToggle: () => void }) =>
       h(
         Button,
@@ -398,7 +416,7 @@ type Tools = {
 }
 
 const TRIGGER = '[role="button"]'
-const MENU = ".MenuInner"
+const LIST = '[role="listbox"]'
 const SEARCH = 'input[role="combobox"]'
 const option = (value: string) => `[data-option-id="${value}"]`
 const mouse = { pointerType: "mouse" }
@@ -541,12 +559,16 @@ const closedCases: Array<[string, Case]> = [
   ["aria-describedby", { describedBy: true }],
   ["multiple, nothing selected", { multiple: true, props: { placeholder: "Select fruits..." } }],
   ["multiple, one selected", { multiple: true, value: ["grapes"], props: { name: "fruits" } }],
+  ["multiple with name: one hidden input per value", { multiple: true, value: ["mango", "apple"], props: { name: "fruits", id: "fruits" } }],
+  ["multiple with name, nothing selected: one empty input", { multiple: true, props: { name: "fruits", required: true } }],
+  ["disabled with name: the hidden input is disabled", { value: "apple", props: { name: "fruit", required: true, disabled: true } }],
   ["multiple, two selected", { multiple: true, value: ["mango", "apple"] }],
   ["multiple, all selected", { multiple: true, value: fruits.map((f) => f.value) }],
   ["multiple, loading", { multiple: true, value: ["mango"], props: { loading: true } }],
   ["custom trigger view", { value: "apple", triggerView: true }],
   ["custom multiple trigger view", { multiple: true, value: ["apple", "mango"], triggerView: true }],
   ["custom trigger", { customTrigger: "plain" }],
+  ["custom trigger: FloatingLabelSelect", { customTrigger: "floating" }],
 ]
 
 const openCases: Array<[string, Case]> = [
@@ -574,6 +596,9 @@ const openCases: Array<[string, Case]> = [
   ["no options: custom empty message", { options: "empty", props: { searchEmptyMessage: "Nothing to pick" } }],
   ["no options: rich empty message", { options: "empty", richEmpty: true }],
   ["aria-labelledby", { value: "apple", labelledBy: true }],
+  ["aria-label names the list", { value: "apple", props: { "aria-label": "Fruit" } }],
+  ["multiple: the list is multiselectable", { multiple: true, value: ["apple"], props: { "aria-label": "Fruits" } }],
+  ["unknown value: no active option", { value: "kiwi" }],
 ]
 
 describe.each([
@@ -604,7 +629,7 @@ describe("Select markup details", () => {
     expect(dom).toContain('data-state="open"')
     expect(dom).toContain("--radix-popover-content-transform-origin: var(--radix-popper-transform-origin)")
     expect(dom).toContain("--select-list-max-width: auto")
-    expect(dom).toMatch(/focus: <div class="MenuInner">/)
+    expect(dom).toMatch(/focus: <div class="OptionsList" role="listbox">/)
     expect(dom).toContain("scrolls: grapes:center")
   })
 
@@ -700,21 +725,64 @@ describe("Select pointer behaviour parity", () => {
     expect(result.react[1]).not.toContain('role="dialog"')
   })
 
-  test("pointer down or focus outside closes", async () => {
+  // Radix 1.8.1's popover dismisses on the click that follows a primary
+  // pointer down outside; other buttons dismiss on the pointer down
+  test("pointer down outside closes on its click (other buttons at once); focus outside closes", async () => {
     const result = await walk({ value: "apple" }, async ({ open, fire, focus, advance, snapshot }) => {
       await open()
       await fire(() => document.body, "pointerDown", mouse)
       await advance(1)
-      snapshot()
+      snapshot() // still open
+      await fire(() => document.body, "click", mouse)
+      await advance(1)
+      snapshot() // closed, focus back on the trigger
+      await open()
+      await fire(() => document.body, "pointerDown", { button: 2, ...mouse })
+      await advance(1)
+      snapshot() // closed
       await open()
       await focus('[data-testid="outside"]')
       await advance(1)
       snapshot()
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).not.toContain('role="dialog"')
+    expect(result.react[0]).toContain('role="dialog"')
     expect(result.react[1]).not.toContain('role="dialog"')
+    expect(result.react[1]).toMatch(/focus: <span class="SelectControl" role="button">/)
+    expect(result.react[2]).not.toContain('role="dialog"')
+    expect(result.react[3]).not.toContain('role="dialog"')
+    expect(result.react[3]).toContain('focus: <button class=""> "Outside"')
+  })
+
+  test("a press outside whose click is stopped, or a pointer down inside before the click, keeps it open", async () => {
+    const outside = '[data-testid="outside"]'
+    const stop = (evt: Event) => evt.stopPropagation()
+    const result = await walk({ value: "apple" }, async ({ open, fire, focus, advance, snapshot }) => {
+      await open()
+      document.querySelector(outside)!.addEventListener("click", stop)
+      await fire(outside, "pointerDown", mouse)
+      await fire(outside, "click", mouse)
+      await advance(1)
+      snapshot() // still open: the click never reached the document
+      document.querySelector(outside)!.removeEventListener("click", stop)
+      await fire(outside, "pointerDown", mouse)
+      await focus(outside)
+      await advance(1)
+      snapshot() // still open: focus outside waits for the click
+      await fire(option("banana"), "pointerDown", mouse)
+      await fire(() => document.body, "click", mouse)
+      await advance(1)
+      snapshot() // still open: the pointer down inside ended the press
+      await fire(outside, "pointerDown", mouse)
+      await fire(outside, "click", mouse)
+      await advance(1)
+      snapshot() // closed, focus stays outside
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react.slice(0, 3).every((dom) => dom.includes('role="dialog"'))).toBe(true)
     expect(result.react[1]).toContain('focus: <button class=""> "Outside"')
+    expect(result.react[3]).not.toContain('role="dialog"')
+    expect(result.react[3]).toContain('focus: <button class=""> "Outside"')
   })
 
   test.each([
@@ -809,7 +877,7 @@ describe("Select keyboard behaviour parity", () => {
       snapshot()
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toMatch(/focus: <div class="MenuInner">/)
+    expect(result.react[0]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
     expect(result.react[1]).toMatch(/data-highlight=""[^\n]*data-option-id="4"/)
     expect(result.react[2]).toMatch(/data-highlight=""[^\n]*data-option-id="6"/)
     expect(result.react[3]).toMatch(/data-highlight=""[^\n]*data-option-id="2"/)
@@ -879,12 +947,12 @@ describe("Select keyboard behaviour parity", () => {
       await focus(".Action:last-child")
       await key("Tab")
       snapshot() // last tabbable: back to the list
-      await fire(MENU, "keyDown", { key: "Tab", shiftKey: true })
+      await fire(LIST, "keyDown", { key: "Tab", shiftKey: true })
       snapshot() // first tabbable: to the last action
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toMatch(/focus: <div class="MenuInner">/)
-    expect(result.react[1]).toMatch(/focus: <div class="MenuInner">/)
+    expect(result.react[0]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
+    expect(result.react[1]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
     expect(result.react[2]).toMatch(/focus: <div class="Action"> "Organization overview"/)
   })
 
@@ -1129,6 +1197,20 @@ describe("Select actions and triggers parity", () => {
     expect(result.react[0]).not.toContain('role="dialog"')
   })
 
+  test("custom trigger: a press on it is not outside, so a prevented click keeps the menu open", async () => {
+    const trigger = '[data-testid="custom-trigger"]'
+    const result = await walk({ customTrigger: "prevented" }, async ({ fire, advance, snapshot }) => {
+      await fire(trigger, "dblClick")
+      await advance(1)
+      await fire(trigger, "pointerDown", mouse)
+      await fire(trigger, "click", mouse)
+      await advance(1)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('role="dialog"')
+  })
+
   test("focusing the hidden input focuses the trigger", async () => {
     const result = await walk({ value: "apple", props: { name: "fruit", id: "fruit" } }, async ({ focus, snapshot }) => {
       await focus("#fruit")
@@ -1275,5 +1357,287 @@ describe("Select edge behaviour parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toMatch(/data-option-id="apple" data-selected=""/)
     expect(result.react[0]).toContain('"Mango"')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Accessibility
+
+/** The serialized line of the first element matching `pattern` */
+const lineOf = (dom: string, pattern: RegExp) => dom.split("\n").find((line) => pattern.test(line)) ?? ""
+const attrOf = (line: string, name: string) => line.match(new RegExp(`[ <]${name}="([^"]*)"`))?.[1]
+const LISTBOX_LINE = /role="listbox"/
+const COMBOBOX_LINE = /role="combobox"/
+/** The data-option-id of the option the line's aria-activedescendant points at */
+const activeOptionOf = (dom: string, holder: RegExp) => {
+  const id = attrOf(lineOf(dom, holder), "aria-activedescendant")
+  return id ? attrOf(lineOf(dom, new RegExp(` id="${id}" role="option"`)), "data-option-id") : undefined
+}
+const selectedOptionsOf = (dom: string) =>
+  dom
+    .split("\n")
+    .filter((line) => line.includes('role="option"') && line.includes('aria-selected="true"'))
+    .map((line) => attrOf(line, "data-option-id"))
+
+describe("Select listbox semantics parity", () => {
+  test("the options are a listbox named by the trigger; aria-selected is the selection, aria-activedescendant the highlight", async () => {
+    const result = await walk({ value: "grapes" }, async ({ open, key, fire, snapshot }) => {
+      await open()
+      snapshot() // grapes selected and active
+      await key("ArrowDown")
+      snapshot() // mango active, grapes still selected
+      await fire(option("mango"), "pointerLeave", mouse)
+      snapshot() // nothing highlighted: no active option
+    })
+    expect(result.vue).toEqual(result.react)
+    const [opened, moved, left] = result.react as [string, string, string]
+    const listbox = lineOf(opened, LISTBOX_LINE)
+    expect(attrOf(listbox, "aria-labelledby")).toBe(attrOf(lineOf(opened, /class="SelectControl"/), "id"))
+    expect(attrOf(listbox, "aria-multiselectable")).toBeUndefined()
+    expect(attrOf(listbox, "tabindex")).toBe("0")
+    expect(attrOf(lineOf(opened, /class="MenuInner"/), "tabindex")).toBe("-1")
+    expect(opened).toMatch(/focus: <div class="OptionsList" role="listbox">/)
+    expect(activeOptionOf(opened, LISTBOX_LINE)).toBe("grapes")
+    expect(selectedOptionsOf(opened)).toEqual(["grapes"])
+    expect(activeOptionOf(moved, LISTBOX_LINE)).toBe("mango")
+    expect(selectedOptionsOf(moved)).toEqual(["grapes"])
+    expect(attrOf(lineOf(left, LISTBOX_LINE), "aria-activedescendant")).toBeUndefined()
+  })
+
+  test("multiple: multiselectable, every selected option is aria-selected while the highlight moves", async () => {
+    const result = await walk({ multiple: true, value: ["banana", "mango"], controlled: true }, async ({ open, key, fire, snapshot }) => {
+      await open()
+      snapshot()
+      await key("ArrowDown")
+      snapshot() // blueberry active
+      await fire(option("apple"), "pointerUp", mouse)
+      snapshot() // apple added
+    })
+    expect(result.vue).toEqual(result.react)
+    const [opened, moved, added] = result.react as [string, string, string]
+    expect(attrOf(lineOf(opened, LISTBOX_LINE), "aria-multiselectable")).toBe("true")
+    expect(activeOptionOf(opened, LISTBOX_LINE)).toBe("banana")
+    expect(selectedOptionsOf(opened)).toEqual(["banana", "mango"])
+    expect(activeOptionOf(moved, LISTBOX_LINE)).toBe("blueberry")
+    expect(selectedOptionsOf(moved)).toEqual(["banana", "mango"])
+    expect(selectedOptionsOf(added)).toEqual(["apple", "banana", "mango"])
+  })
+
+  test("search: the combobox controls the list and points at the highlight; no results, no list to point at", async () => {
+    const result = await walk({ options: "many", value: "o3" }, async ({ open, type, key, snapshot }) => {
+      await open()
+      snapshot()
+      await key("ArrowDown")
+      snapshot() // o4
+      await type("zzz")
+      snapshot() // no results
+      await type("odd")
+      snapshot() // o2, the first match
+    })
+    expect(result.vue).toEqual(result.react)
+    const [opened, moved, empty, filtered] = result.react as [string, string, string, string]
+    const combobox = lineOf(opened, COMBOBOX_LINE)
+    expect(attrOf(combobox, "aria-controls")).toBe(attrOf(lineOf(opened, LISTBOX_LINE), "id"))
+    expect(activeOptionOf(opened, COMBOBOX_LINE)).toBe("o3")
+    // The list is not focusable and holds no active descendant of its own
+    expect(attrOf(lineOf(opened, LISTBOX_LINE), "tabindex")).toBeUndefined()
+    expect(attrOf(lineOf(opened, LISTBOX_LINE), "aria-activedescendant")).toBeUndefined()
+    expect(activeOptionOf(moved, COMBOBOX_LINE)).toBe("o4")
+    expect(empty).not.toContain('role="listbox"')
+    expect(attrOf(lineOf(empty, COMBOBOX_LINE), "aria-controls")).toBeUndefined()
+    expect(attrOf(lineOf(empty, COMBOBOX_LINE), "aria-activedescendant")).toBeUndefined()
+    expect(activeOptionOf(filtered, COMBOBOX_LINE)).toBe("o2")
+  })
+
+  test("the list's name: aria-labelledby's label, aria-label, or none for a custom trigger", async () => {
+    const named = await walk({ value: "apple", labelledBy: true }, async ({ open, snapshot }) => {
+      await open()
+      snapshot()
+    })
+    const labelled = await walk({ value: "apple", props: { "aria-label": "Fruit" } }, async ({ open, snapshot }) => {
+      await open()
+      snapshot()
+    })
+    const custom = await walk({ customTrigger: "plain" }, async ({ fire, advance, snapshot }) => {
+      await fire('[data-testid="custom-trigger"]', "click")
+      await advance(1)
+      snapshot()
+    })
+    expect(named.vue).toEqual(named.react)
+    expect(labelled.vue).toEqual(labelled.react)
+    expect(custom.vue).toEqual(custom.react)
+    expect(attrOf(lineOf(named.react[0]!, LISTBOX_LINE), "aria-labelledby")).toBe("fruit-label")
+    expect(attrOf(lineOf(labelled.react[0]!, LISTBOX_LINE), "aria-label")).toBe("Fruit")
+    expect(attrOf(lineOf(labelled.react[0]!, LISTBOX_LINE), "aria-labelledby")).toBeUndefined()
+    expect(attrOf(lineOf(custom.react[0]!, LISTBOX_LINE), "aria-labelledby")).toBeUndefined()
+  })
+
+  test("the Show all row can be the active option; it is not selectable", async () => {
+    const result = await walk({ options: "grouped", value: "6" }, async ({ open, key, snapshot }) => {
+      await open()
+      await key("ArrowDown")
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    // 16 options: searchable, the combobox holds the active option
+    expect(activeOptionOf(result.react[0]!, COMBOBOX_LINE)).toBe("group-limit-[id]")
+    expect(lineOf(result.react[0]!, /data-option-id="group-limit-/)).not.toContain("aria-selected")
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Typeahead
+
+describe("Select typeahead parity", () => {
+  test("grouped options: the first match after the highlight, across groups", async () => {
+    const result = await walk({ options: "aGroups", controlled: true }, async ({ focus, key, advance, open, snapshot }) => {
+      await focus(TRIGGER)
+      await key("a")
+      snapshot() // apple, not apricot from the last group
+      await advance(500)
+      await key("a")
+      snapshot() // avocado
+      await advance(500)
+      await open()
+      await key("a")
+      snapshot() // apricot, in the next group
+      await advance(500)
+      await key("a")
+      snapshot() // wraps to apple
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('events: change {"value":"apple","label":"Apple"}')
+    expect(result.react[1]).toContain('events: change {"value":"avocado","label":"Avocado"}')
+    expect(result.react[2]).toMatch(/data-highlight=""[^\n]*data-option-id="apricot"/)
+    expect(result.react[3]).toMatch(/data-highlight=""[^\n]*data-option-id="apple"/)
+  })
+
+  test("Ctrl, Meta and Alt letters are shortcuts, not typeahead", async () => {
+    const result = await walk({ value: "apple", controlled: true }, async ({ focus, fire, key, open, snapshot }) => {
+      await focus(TRIGGER)
+      await fire(TRIGGER, "keyDown", { key: "c", ctrlKey: true })
+      await fire(TRIGGER, "keyDown", { key: "m", metaKey: true })
+      await fire(TRIGGER, "keyDown", { key: "b", altKey: true })
+      snapshot() // still apple
+      await open()
+      await fire(LIST, "keyDown", { key: "m", ctrlKey: true })
+      snapshot() // apple still highlighted
+      await key("m")
+      snapshot() // a plain letter: mango
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toMatch(/events: $/)
+    expect(result.react[0]).toContain('"Apple"')
+    expect(result.react[1]).toMatch(/data-highlight=""[^\n]*data-option-id="apple"/)
+    expect(result.react[2]).toMatch(/data-highlight=""[^\n]*data-option-id="mango"/)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Forms
+
+describe("Select form parity", () => {
+  type FormCase = { multiple?: boolean; value: string | string[]; required?: boolean; disabled?: boolean }
+  const formCases: Array<[string, FormCase, { values: string[]; valid: boolean }]> = [
+    ["single", { value: "apple" }, { values: ["apple"], valid: true }],
+    ["multiple: every value", { multiple: true, value: ["apple", "mango"] }, { values: ["apple", "mango"], valid: true }],
+    ["multiple, required, empty: invalid", { multiple: true, value: [], required: true }, { values: [""], valid: false }],
+    ["disabled: not submitted", { value: "apple", disabled: true }, { values: [], valid: true }],
+    ["disabled, required, empty: not validated", { value: "", required: true, disabled: true }, { values: [], valid: true }],
+    ["disabled multiple: not submitted", { multiple: true, value: ["apple", "mango"], disabled: true }, { values: [], valid: true }],
+  ]
+
+  test.each(formCases)("%s", async (_name, c, expected) => {
+    const props = { options: fruits, name: "fruits", onChange: () => {}, ...c }
+    const formState = () => {
+      const form = document.querySelector("form")!
+      return { values: new FormData(form).getAll("fruits"), valid: form.checkValidity() }
+    }
+    await act(async () => {
+      render(<form>{createElement(ReactSelect as unknown as ComponentType<Record<string, unknown>>, props)}</form>)
+    })
+    const react = formState()
+    cleanup()
+    const { unmount } = mountVue(() => h("form", [h(Select as unknown as Component, props)]))
+    await flushVue()
+    const vue = formState()
+    unmount()
+    expect(vue).toEqual(react)
+    expect(react).toEqual(expected)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FloatingLabelSelect as the trigger
+
+describe("Select with a FloatingLabelSelect trigger parity", () => {
+  test("Space, Enter and ArrowDown open it; focus returns to the field after Escape and a choice", async () => {
+    const FIELD = '[role="button"][aria-expanded]'
+    const result = await walk({ customTrigger: "floating", controlled: true }, async ({ focus, key, advance, snapshot }) => {
+      await focus(FIELD)
+      await key(" ")
+      await advance(1)
+      snapshot() // open
+      await key("Escape")
+      await advance(1)
+      snapshot() // closed, focus on the field
+      await key("Enter")
+      await advance(1)
+      await key("ArrowDown")
+      await key("Enter")
+      await advance(1)
+      snapshot() // banana chosen, focus on the field
+      await key("ArrowDown")
+      await advance(1)
+      snapshot() // open again
+    })
+    expect(result.vue).toEqual(result.react)
+    const field = /focus: <div class="FieldFootprint" role="button">/
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[0]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
+    expect(result.react[1]).not.toContain('role="dialog"')
+    expect(result.react[1]).toMatch(field)
+    expect(result.react[2]).toContain('events: change {"value":"banana","label":"Banana"}')
+    expect(result.react[2]).not.toContain('role="dialog"')
+    expect(result.react[2]).toMatch(field)
+    expect(result.react[3]).toContain('role="dialog"')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Server rendering
+
+describe("Select server rendering parity", () => {
+  test("a closed select renders no portal on the server and hydrates cleanly", async () => {
+    const props = { options: fruits, value: "apple", name: "fruit", onChange: () => {} }
+    const reactHtml = renderToStaticMarkup(createElement(ReactSelect as unknown as ComponentType<Record<string, unknown>>, props))
+    const context: { teleports?: Record<string, string> } = {}
+    const vueApp = () => h(Select as unknown as Component, props)
+    const vueHtml = await renderToString(createSSRApp({ render: vueApp }), context)
+    expect(context.teleports ?? {}).toEqual({})
+
+    const serialize = (html: string) => {
+      const container = document.createElement("div")
+      container.innerHTML = html
+      return serializeDom(container)
+    }
+    expect(serialize(vueHtml)).toBe(serialize(reactHtml))
+
+    // Hydration: no mismatch, then the empty menu wrapper joins <body> as in React
+    const errors: string[] = []
+    const error = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
+      errors.push(args.map(String).join(" "))
+    })
+    const container = document.createElement("div")
+    container.innerHTML = vueHtml
+    document.body.appendChild(container)
+    const app = createSSRApp({ render: vueApp })
+    app.mount(container)
+    await flushVue()
+    error.mockRestore()
+    expect(errors).toEqual([])
+    expect(document.body.innerHTML).toContain('<span class="Menu">')
+    app.unmount()
+    container.remove()
   })
 })

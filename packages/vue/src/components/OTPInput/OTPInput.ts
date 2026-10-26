@@ -1,10 +1,15 @@
 import clsx from "clsx"
-import { computed, defineComponent, h, nextTick, onMounted, onUpdated, ref, useId, watch, type PropType } from "vue"
+import { computed, defineComponent, h, nextTick, onMounted, onUpdated, ref, shallowRef, useId, watch, type PropType } from "vue"
 import { FieldError } from "../FieldError/index.js"
 import s from "@plexui/styles/components/OTPInput/OTPInput.module.css"
 
 function sanitizeDigits(value: string, length: number): string {
   return value.replace(/\D/g, "").slice(0, length)
+}
+
+// One entry per cell, "" when empty
+function toCells(value: string, length: number): string[] {
+  return Array.from({ length }, (_, index) => value[index] ?? "")
 }
 
 function shouldShowGap(index: number, grouping: number[]): boolean {
@@ -45,7 +50,9 @@ export const OTPInput = defineComponent({
     const controlledValue = computed(() => sanitizeDigits(props.value ?? "", length.value))
     const isControlled = computed(() => props.value !== undefined)
 
-    const internalValue = ref(sanitizeDigits(props.value ?? "", length.value))
+    // The digit of every cell, so clearing or filling one cell never moves the
+    // others; the value is the filled cells' digits in order
+    const cells = shallowRef(toCells(controlledValue.value, length.value))
     const focusedIndex = ref(-1)
 
     const rootRef = ref<HTMLDivElement | null>(null)
@@ -53,19 +60,13 @@ export const OTPInput = defineComponent({
 
     expose({ root: rootRef })
 
-    watch(
-      [controlledValue, isControlled, length],
-      () => {
-        if (isControlled.value) {
-          internalValue.value = controlledValue.value
-          return
-        }
-        internalValue.value = sanitizeDigits(internalValue.value, length.value)
-      },
+    const ownCells = computed(() => Array.from({ length: length.value }, (_, index) => cells.value[index] ?? ""))
+    const currentValue = computed(() => (isControlled.value ? controlledValue.value : ownCells.value.join("")))
+    // The cells keep their gaps while they spell the value; any other value
+    // (set by the parent) fills the cells from the start
+    const digits = computed(() =>
+      ownCells.value.join("") === currentValue.value ? ownCells.value : toCells(currentValue.value, length.value),
     )
-
-    const currentValue = computed(() => (isControlled.value ? controlledValue.value : internalValue.value))
-    const digits = computed(() => Array.from({ length: length.value }, (_, index) => currentValue.value[index] ?? ""))
 
     const errorId = `otp-input-${useId()}-error`
 
@@ -87,12 +88,11 @@ export const OTPInput = defineComponent({
     onMounted(runAutoFocus)
     watch([() => props.autoFocus, () => props.disabled], runAutoFocus, { flush: "post" })
 
-    const commitValue = (nextValueRaw: string) => {
-      const nextValue = sanitizeDigits(nextValueRaw, length.value)
+    const commitDigits = (nextDigits: string[]) => {
       const previous = currentValue.value
-      if (!isControlled.value) {
-        internalValue.value = nextValue
-      }
+      // Kept when controlled too: the parent's value then keeps these gaps
+      cells.value = nextDigits
+      const nextValue = nextDigits.join("")
       if (nextValue !== previous) {
         emit("update:value", nextValue)
         emit("change", nextValue)
@@ -101,7 +101,6 @@ export const OTPInput = defineComponent({
         emit("complete", nextValue)
       }
       void nextTick(syncInputs)
-      return nextValue
     }
 
     const focusCell = (index: number) => {
@@ -132,8 +131,9 @@ export const OTPInput = defineComponent({
         writeIndex += 1
       }
 
-      const nextValue = commitValue(nextDigits.join(""))
-      focusCell(Math.min(nextValue.length, length.value - 1))
+      commitDigits(nextDigits)
+      // The cell after the pasted digits
+      focusCell(Math.min(writeIndex, length.value - 1))
     }
 
     const handleChange = (index: number, evt: Event) => {
@@ -143,7 +143,7 @@ export const OTPInput = defineComponent({
       if (!typedDigits) {
         const nextDigits = [...digits.value]
         nextDigits[index] = ""
-        commitValue(nextDigits.join(""))
+        commitDigits(nextDigits)
         return
       }
 
@@ -151,8 +151,8 @@ export const OTPInput = defineComponent({
 
       if (typedDigits.length === 1) {
         nextDigits[index] = typedDigits[0]!
-        const nextValue = commitValue(nextDigits.join(""))
-        if (index < length.value - 1 && nextValue.length > index) {
+        commitDigits(nextDigits)
+        if (index < length.value - 1) {
           focusCell(index + 1)
         }
         return
@@ -165,8 +165,9 @@ export const OTPInput = defineComponent({
         writeIndex += 1
       }
 
-      const nextValue = commitValue(nextDigits.join(""))
-      focusCell(Math.min(nextValue.length, length.value - 1))
+      commitDigits(nextDigits)
+      // The cell after the typed digits
+      focusCell(Math.min(writeIndex, length.value - 1))
     }
 
     const handleKeyDown = (index: number, evt: KeyboardEvent) => {
@@ -178,13 +179,13 @@ export const OTPInput = defineComponent({
 
         if (nextDigits[index]) {
           nextDigits[index] = ""
-          commitValue(nextDigits.join(""))
+          commitDigits(nextDigits)
           return
         }
 
         if (index > 0) {
           nextDigits[index - 1] = ""
-          commitValue(nextDigits.join(""))
+          commitDigits(nextDigits)
           focusCell(index - 1)
         }
         return
@@ -194,7 +195,7 @@ export const OTPInput = defineComponent({
         evt.preventDefault()
         const nextDigits = [...digits.value]
         nextDigits[index] = ""
-        commitValue(nextDigits.join(""))
+        commitDigits(nextDigits)
         return
       }
 
@@ -274,3 +275,5 @@ export const OTPInput = defineComponent({
       ])
   },
 })
+
+export type OTPInputProps = InstanceType<typeof OTPInput>["$props"]

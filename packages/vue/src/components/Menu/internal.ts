@@ -389,6 +389,26 @@ export const callListener = (listener: unknown, event: Event) => {
 }
 
 /**
+ * Calls the listener(s) and tells whether one of them called
+ * `preventDefault()`, also on an event that was canceled already.
+ */
+const callListenerTrackingCancel = (listener: unknown, event: Event) => {
+  let canceled = false
+  const preventDefault = event.preventDefault
+  event.preventDefault = function (this: Event) {
+    canceled = true
+    preventDefault.call(this)
+  }
+  try {
+    callListener(listener, event)
+  } finally {
+    // Back to the prototype's method
+    delete (event as { preventDefault?: unknown }).preventDefault
+  }
+  return canceled
+}
+
+/**
  * Radix's composeEventHandlers: the consumer's handler runs first, ours only
  * when it did not call preventDefault().
  */
@@ -556,11 +576,12 @@ export const useMenuItemSelect = (
     // runs its own click handler (which prevents the navigation) before the
     // listeners passed to it, where React's runs after, so a link
     // component's cancel from after the capture phase is its own and is
-    // ignored; only the consumer's preventDefault() then skips the selection.
+    // ignored; only the consumer's preventDefault() then skips the selection
+    // (also when the link had canceled the event already).
     onClick: (event) => {
       const canceledByLink = linkComponent && event.defaultPrevented && !canceledBeforeItem
-      callListener(consumer.onClick, event)
-      if (event.defaultPrevented && !canceledByLink) return
+      const canceledByConsumer = callListenerTrackingCancel(consumer.onClick, event)
+      if (canceledByLink ? canceledByConsumer : event.defaultPrevented) return
       handleSelect()
     },
     onPointerdown: (event) => {

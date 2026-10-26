@@ -167,6 +167,23 @@ const collapsibleCases: [string, Props][] = [
 
 const vueProps = ({ className, ...props }: Props) => ({ ...props, ...(className ? { class: className } : {}) })
 
+describe("CollapsibleCodeBlock collapsed height", () => {
+  test.each([
+    ["default", {}, "max-height: 140px; min-height: 140px"],
+    ["below the View Code room", { collapsedHeight: 60 }, "max-height: 60px; min-height: 60px"],
+    ["above it", { collapsedHeight: 300 }, "max-height: 300px; min-height: 140px"],
+    ["zero", { collapsedHeight: 0 }, "max-height: 0px; min-height: 0px"],
+  ] as [string, Props, string][])("%s: collapsedHeight is the max height, and the min height up to 140px", async (_name, props, style) => {
+    const code = CODE_BLOCK_SAMPLES.tsx
+    const pair = await renderPair(
+      createElement(RCollapsibleCodeBlock as ComponentType<Props>, { language: "tsx", ...props }, code),
+      () => h(CollapsibleCodeBlock, { language: "tsx", ...vueProps(props) }, { default: () => code }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain(`style="${style}"`)
+  })
+})
+
 describe.each([
   ["animations off (jsdom default)", true],
   ["animations on (browser)", false],

@@ -48,21 +48,27 @@ import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.cs
 // - As in React, `update:value` / `change` also fire once when the editor is
 //   created and whenever `disabled` changes (`setEditable` emits an update).
 // - Options React reads only when it creates the editor (`placeholder`, the
-//   initial content) are read once here too; `id`, `aria-describedby` and
-//   `aria-invalid` follow the props, as React re-applies them on render.
+//   initial content) are read once here too; `id`, `aria-label`,
+//   `aria-labelledby`, `aria-describedby` and `aria-invalid` follow the
+//   props, as React re-applies them on render.
 // - `toolbarEnd` is the `#toolbarEnd` slot. Like React, only `class` is
 //   applied (to the container); other attributes are not forwarded.
 // - The link dialog is teleported to <body>. React portal events bubble
 //   through the component tree, so a mousedown inside the dialog reaches the
 //   container's handler; the dialog's two root elements call it here.
-// - Kept from React: link saves that insert `<a href>` HTML (a new title, or
-//   no selection) go through tiptap-markdown's parser with `html: false`, so
-//   the tag lands in the text escaped instead of becoming a link.
 
 type EditorLike = Pick<CoreEditor, "isActive" | "state">
 
 const getMarkdown = (editor: CoreEditor) =>
   (editor.storage as unknown as Record<string, { getMarkdown?: () => string }>).markdown?.getMarkdown?.() ?? ""
+
+// A link inserted as a text node, not as `<a>` HTML: the markdown parser runs
+// with `html: false`, so HTML would land in the text as written
+const linkText = (text: string, href: string) => ({
+  type: "text",
+  text,
+  marks: [{ type: "link", attrs: { href } }],
+})
 
 export const markdownEditorStyles = {
   toolbarButton: s.ToolbarButton,
@@ -98,13 +104,25 @@ const LinkDialog = defineComponent({
     )
 
     const handleKeyDown = (evt: KeyboardEvent) => {
-      if (evt.key === "Enter") {
+      // Enter in a field saves; on a button it is that button's own click
+      if (evt.key === "Enter" && evt.target instanceof HTMLInputElement) {
         evt.preventDefault()
         props.onSave(url.value, title.value)
       }
       if (evt.key === "Escape") {
         evt.preventDefault()
         props.onCancel()
+      }
+      // The dialog is modal: Tab from the last control wraps to the first, and
+      // Shift+Tab from the first to the last
+      if (evt.key === "Tab") {
+        const controls = Array.from((evt.currentTarget as HTMLElement).querySelectorAll<HTMLElement>("input, button"))
+        const first = controls[0]
+        const last = controls[controls.length - 1]
+        if (evt.target === (evt.shiftKey ? first : last)) {
+          evt.preventDefault()
+          ;(evt.shiftKey ? last : first)?.focus()
+        }
       }
     }
 
@@ -122,6 +140,7 @@ const LinkDialog = defineComponent({
           {
             "class": s.LinkDialogContent,
             "role": "dialog",
+            "aria-modal": "true",
             "aria-label": "Link",
             "onKeydown": handleKeyDown,
             "onMousedown": props.onTreeMousedown,
@@ -201,6 +220,8 @@ const ToolbarButton = defineComponent({
                 "type": "button",
                 "class": s.ToolbarButton,
                 "data-active": props.active || undefined,
+                // Formatting buttons are toggles: announce their on/off state
+                "aria-pressed": String(props.active),
                 // React DOM never calls onClick on a disabled button, even
                 // for a dispatched event; Vue's listener would run
                 "onClick": () => {
@@ -236,6 +257,10 @@ const MarkdownEditorComponent = defineComponent({
     rows: { type: Number, default: 1 },
     /** `id` of the editable element */
     id: String,
+    /** Accessible name of the editable element; a `<label for>` cannot name a contenteditable region */
+    ariaLabel: String,
+    /** Id of the element that names the editor, such as a Field label */
+    ariaLabelledby: String,
     /** `aria-describedby` of the editable element */
     ariaDescribedby: String,
     /** Sets `aria-invalid="true"` on the editable element and the invalid style */
@@ -278,6 +303,8 @@ const MarkdownEditorComponent = defineComponent({
       "role": "textbox",
       "aria-multiline": "true",
       ...(props.id && { id: props.id }),
+      ...(props.ariaLabel && { "aria-label": props.ariaLabel }),
+      ...(props.ariaLabelledby && { "aria-labelledby": props.ariaLabelledby }),
       ...(props.ariaDescribedby && { "aria-describedby": props.ariaDescribedby }),
       ...(props.ariaInvalid && { "aria-invalid": "true" }),
     })
@@ -356,6 +383,8 @@ const MarkdownEditorComponent = defineComponent({
       if (props.disabled || !instance) return
       const target = evt.target as Element
       if (target.closest("button, [type='button'], [role='button'], a, input, label")) return
+      // A press in the text places the caret there itself
+      if (instance.view.dom.contains(target)) return
       if (instance.isFocused) return
       evt.preventDefault()
       instance.commands.focus("end")
@@ -402,7 +431,7 @@ const MarkdownEditorComponent = defineComponent({
       const isOnExistingLink = instance.isActive("link")
 
       if (empty && !isOnExistingLink) {
-        instance.chain().focus().insertContent(`<a href="${url}">${title || url}</a>`).run()
+        instance.chain().focus().insertContent(linkText(title || url, url)).run()
       } else if (isOnExistingLink) {
         instance.chain().focus().extendMarkRange("link").run()
         const linkRange = instance.state.selection
@@ -410,13 +439,13 @@ const MarkdownEditorComponent = defineComponent({
           instance
             .chain()
             .focus()
-            .insertContentAt({ from: linkRange.from, to: linkRange.to }, `<a href="${url}">${title}</a>`)
+            .insertContentAt({ from: linkRange.from, to: linkRange.to }, linkText(title, url))
             .run()
         } else {
           instance.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
         }
       } else if (title && title !== selectedText) {
-        instance.chain().focus().deleteSelection().insertContent(`<a href="${url}">${title}</a>`).run()
+        instance.chain().focus().deleteSelection().insertContent(linkText(title, url)).run()
       } else {
         instance.chain().focus().setLink({ href: url }).run()
       }

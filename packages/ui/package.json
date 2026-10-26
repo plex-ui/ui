@@ -100,6 +100,7 @@
     "@maskito/react": "^5.2.2",
     "@plexui/styles": "^0.1.0",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/table-core": "^8.21.3",
     "@tiptap/core": "^3.21.0",
     "@tiptap/extension-bold": "^3.21.0",
     "@tiptap/extension-bullet-list": "^3.21.0",

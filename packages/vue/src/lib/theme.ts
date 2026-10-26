@@ -2,9 +2,13 @@ import { onBeforeUnmount, onMounted, ref, type Ref } from "vue"
 
 export type DocumentTheme = "light" | "dark"
 
-/** Vue counterpart of React's `useDocumentTheme`: tracks `data-theme` / `.dark` on <html>. */
+/**
+ * Vue counterpart of React's `useDocumentTheme`: tracks `data-theme` / `.dark` on <html>.
+ * It is "light" during setup (the server has no document, and hydration must
+ * match it) and reads the document's theme on mount.
+ */
 export function useDocumentTheme(): Ref<DocumentTheme> {
-  const theme = ref<DocumentTheme>(getDocumentTheme())
+  const theme = ref<DocumentTheme>("light")
   let observer: MutationObserver | undefined
 
   onMounted(() => {

@@ -78,13 +78,7 @@ const CloseIcon = () =>
     [h("line", { x1: "18", y1: "6", x2: "6", y2: "18" }), h("line", { x1: "6", y1: "6", x2: "18", y2: "18" })],
   )
 
-/**
- * Toast viewport. Every other vue-sonner `Toaster` prop (`expand`,
- * `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, ...) is forwarded,
- * last, as React spreads `restProps`. Icon slots (`success-icon`, ...,
- * `close-icon`) replace the default icons.
- */
-export const Toaster = defineComponent({
+const ToasterComponent = defineComponent({
   name: "Toaster",
   inheritAttrs: false,
   props: {
@@ -175,7 +169,7 @@ export const Toaster = defineComponent({
   },
 })
 
-type ToasterOwnProps = InstanceType<typeof Toaster>["$props"]
+type ToasterOwnProps = InstanceType<typeof ToasterComponent>["$props"]
 
 /** Toaster props plus the vue-sonner `Toaster` props it forwards. */
 export type ToasterProps = ToasterOwnProps &
@@ -183,3 +177,11 @@ export type ToasterProps = ToasterOwnProps &
     SonnerToasterProps,
     "position" | "duration" | "closeButton" | "offset" | "gap" | "theme" | "richColors" | "toastOptions" | "style"
   >
+
+/**
+ * Toast viewport. Every other vue-sonner `Toaster` prop (`expand`,
+ * `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, ...) is forwarded,
+ * last, as React spreads `restProps`. Icon slots (`success-icon`, ...,
+ * `close-icon`) replace the default icons.
+ */
+export const Toaster = ToasterComponent as typeof ToasterComponent & { new (): { $props: ToasterProps } }

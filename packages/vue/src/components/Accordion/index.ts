@@ -1,1 +1,10 @@
-export { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./Accordion.js"
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  type AccordionContentProps,
+  type AccordionItemProps,
+  type AccordionProps,
+  type AccordionTriggerProps,
+} from "./Accordion.js"

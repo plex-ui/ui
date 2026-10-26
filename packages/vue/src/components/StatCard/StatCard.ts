@@ -100,7 +100,17 @@ const StatCardComponent = defineComponent({
         h("div", { class: s.LabelRow }, [
           h("div", { class: s.Label }, label),
           tooltip
-            ? h(Tooltip, { content: tooltip }, { default: () => h("span", { class: s.InfoIcon }, [h(InfoCircle)]) })
+            ? h(
+                Tooltip,
+                { content: tooltip },
+                {
+                  // Focusable and named so keyboard and screen-reader users reach the tooltip
+                  default: () =>
+                    h("span", { "class": s.InfoIcon, "tabindex": 0, "role": "img", "aria-label": "More information" }, [
+                      h(InfoCircle),
+                    ]),
+                },
+              )
             : null,
         ]),
         trendPosition === "header" && trendEl ? h("div", { class: s.HeaderEnd }, [trendEl]) : null,

@@ -1,8 +1,13 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
+import type { ReactNode } from "react"
+import { renderToString as renderReactToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
-import { h, reactive } from "vue"
+import { createSSRApp, defineComponent, h, reactive, renderSlot } from "vue"
+import { renderToString as renderVueToString } from "vue/server-renderer"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Dialog as ReactDialog } from "../../packages/ui/src/components/Dialog"
+import { Tooltip as ReactTooltip } from "../../packages/ui/src/components/Tooltip"
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
 import {
   Dialog,
@@ -14,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../packages/vue/src/components/Dialog"
+import { Tooltip } from "../../packages/vue/src/components/Tooltip"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 
@@ -139,7 +145,7 @@ describe("Dialog parity", () => {
     for (const dom of [await reactDom({ open: true }), await vueDom({ open: true })]) {
       expect(dom).toContain('role="dialog"')
       expect(dom).toContain('aria-label="Close dialog"')
-      expect(dom).toContain('style="--dialog-width: 480px"')
+      expect(dom).toContain("--dialog-width: 480px")
       const titleId = dom.match(/<h2 class="Title" id="(gen-\d+)">/)?.[1]
       const descriptionId = dom.match(/<p class="Description" id="(gen-\d+)">/)?.[1]
       expect(titleId).toBeDefined()
@@ -259,5 +265,217 @@ describe("Dialog behaviour parity", () => {
     expect(result.vueChanges).toEqual(result.reactChanges)
     expect(result.reactChanges).toEqual([true, false])
     expect(result.react[0]).not.toContain('role="dialog"')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Review fixes and radix-ui 1.8 (G6a)
+
+describe("Dialog parity, radix-ui 1.8", () => {
+  // Radix registers its outside-press listener a task after the layer mounts
+  const nextTask = () => act(async () => new Promise((resolve) => setTimeout(resolve, 0)))
+
+  const fire = async (target: () => Element | null, event: keyof typeof fireEvent, init?: object) => {
+    await act(async () => {
+      ;(fireEvent[event] as (element: Element, init?: object) => boolean)(target()!, init)
+    })
+    await flushVue()
+  }
+
+  const overlay = () => document.querySelector('[class~="Overlay"]')
+  const dialogOpen = () => !!document.querySelector('[role="dialog"]')
+
+  test("without Title and Description the content is not labelled or described", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    await act(async () => {
+      render(
+        <ReactDialog open>
+          <ReactDialog.Content>
+            <p>Body</p>
+          </ReactDialog.Content>
+        </ReactDialog>,
+      )
+    })
+    const react = serializeDom()
+    cleanup()
+    const { unmount } = mountVue(() =>
+      h(Dialog, { open: true }, { default: () => h(DialogContent, null, { default: () => h("p", null, "Body") }) }),
+    )
+    await flushVue()
+    const vue = serializeDom()
+    unmount()
+    expect(vue).toBe(react)
+    expect(react).toContain('role="dialog"')
+    expect(react).not.toContain("aria-labelledby")
+    expect(react).not.toContain("aria-describedby")
+  })
+
+  // Presses on the overlay, outside the content: the primary button closes on
+  // the click that follows; Ctrl+click and the secondary button never close
+  test.each([
+    ["primary button: open after pointerdown, closed after the click", {}, [true, false]],
+    ["Ctrl+click keeps it open", { ctrlKey: true }, [true, true]],
+    ["secondary button keeps it open", { button: 2 }, [true, true]],
+  ] as const)("overlay press, %s", async (_name, init, expected) => {
+    const run = async () => {
+      const states: boolean[] = []
+      await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
+      await nextTask()
+      await fire(overlay, "pointerDown", { pointerType: "mouse", ...init })
+      states.push(dialogOpen())
+      await fire(overlay, "pointerUp", { pointerType: "mouse", ...init })
+      await fire(overlay, "click", init)
+      await nextTask()
+      await flushVue()
+      states.push(dialogOpen())
+      return { states, dom: serializeDom() }
+    }
+    const reactChanges: boolean[] = []
+    await act(async () => {
+      render(<ReactExample onOpenChange={(open) => reactChanges.push(open)} />)
+    })
+    const react = await run()
+    cleanup()
+    const vueChanges: boolean[] = []
+    const { unmount } = mountVue(() => vueExample({}, (open) => vueChanges.push(open)))
+    await flushVue()
+    const vue = await run()
+    unmount()
+    expect(vue).toEqual(react)
+    expect(vueChanges).toEqual(reactChanges)
+    expect(react.states).toEqual(expected)
+  })
+
+  test("the overlay is the dialog's own dismiss surface: a click stopped above it still closes", async () => {
+    const run = async () => {
+      await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
+      await nextTask()
+      // Something between the overlay and the document stops the click
+      document.querySelector('[class~="Transition"]')!.addEventListener("click", (event) => event.stopPropagation())
+      await fire(overlay, "pointerDown", { pointerType: "mouse" })
+      await fire(overlay, "click")
+      await nextTask()
+      await flushVue()
+      return dialogOpen()
+    }
+    await act(async () => {
+      render(<ReactExample />)
+    })
+    const react = await run()
+    cleanup()
+    const { unmount } = mountVue(() => vueExample({}))
+    await flushVue()
+    const vue = await run()
+    unmount()
+    expect(vue).toBe(react)
+    expect(react).toBe(false)
+  })
+
+  test("Escape closes the dialog before a forced-open Tooltip outside it", async () => {
+    const run = async () => {
+      await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
+      await fire(() => document.activeElement ?? document.body, "keyDown", { key: "Escape", code: "Escape" })
+      return serializeDom()
+    }
+    const reactChanges: boolean[] = []
+    await act(async () => {
+      render(
+        <>
+          <ReactTooltip content="Tip" forceOpen>
+            <button className="tip-trigger">Help</button>
+          </ReactTooltip>
+          <ReactExample onOpenChange={(open) => reactChanges.push(open)} />
+        </>,
+      )
+    })
+    const react = await run()
+    cleanup()
+    const vueChanges: boolean[] = []
+    const { unmount } = mountVue(() =>
+      h("div", [
+        h(Tooltip, { content: "Tip", forceOpen: true }, { default: () => h("button", { class: "tip-trigger" }, "Help") }),
+        vueExample({}, (open) => vueChanges.push(open)),
+      ]),
+    )
+    await flushVue()
+    const vue = await run()
+    unmount()
+    expect(vueChanges).toEqual(reactChanges)
+    expect(reactChanges).toEqual([true, false])
+    expect(vue).not.toContain('role="dialog"')
+    expect(react).not.toContain('role="dialog"')
+  })
+
+  test("Trigger and Close children passed through a forwarded slot", async () => {
+    const ReactOpen = ({ children }: { children: ReactNode }) => <ReactDialog.Trigger>{children}</ReactDialog.Trigger>
+    const ReactCancel = ({ children }: { children: ReactNode }) => <ReactDialog.Close>{children}</ReactDialog.Close>
+    // `<DialogTrigger><slot /></DialogTrigger>` in a template
+    const VueOpen = defineComponent((_props, { slots }) => () => h(DialogTrigger, null, { default: () => [renderSlot(slots, "default")] }))
+    const VueCancel = defineComponent((_props, { slots }) => () => h(DialogClose, null, { default: () => [renderSlot(slots, "default")] }))
+
+    const run = async () => {
+      const dom = [serializeDom()]
+      await fire(() => document.querySelector(".open"), "click")
+      dom.push(serializeDom())
+      await fire(() => document.querySelector(".cancel"), "click")
+      dom.push(serializeDom())
+      return dom
+    }
+    await act(async () => {
+      render(
+        <ReactDialog>
+          <ReactOpen>
+            <button className="open">Open</button>
+          </ReactOpen>
+          <ReactDialog.Content showClose={false}>
+            <ReactDialog.Title>Title</ReactDialog.Title>
+            <ReactCancel>
+              <button className="cancel">Cancel</button>
+            </ReactCancel>
+          </ReactDialog.Content>
+        </ReactDialog>,
+      )
+    })
+    const react = await run()
+    cleanup()
+    const { unmount } = mountVue(() =>
+      h(Dialog, null, {
+        default: () => [
+          h(VueOpen, null, { default: () => h("button", { class: "open" }, "Open") }),
+          h(DialogContent, { showClose: false }, {
+            default: () => [
+              h(DialogTitle, null, { default: () => "Title" }),
+              h(VueCancel, null, { default: () => h("button", { class: "cancel" }, "Cancel") }),
+            ],
+          }),
+        ],
+      }),
+    )
+    await flushVue()
+    const vue = await run()
+    unmount()
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('<button aria-expanded="false" aria-haspopup="dialog" class="open" data-state="closed" type="button">')
+    expect(react[1]).toContain('role="dialog"')
+    expect(react[2]).not.toContain('role="dialog"')
+  })
+
+  test("server rendering a closed or open dialog emits no portal content", async () => {
+    for (const open of [false, true]) {
+      const react = renderReactToString(<ReactExample open={open} />)
+      const context: { teleports?: Record<string, string> } = {}
+      const vue = await renderVueToString(createSSRApp({ render: () => vueExample({ open }) }), context)
+      expect(react).not.toContain("Transition")
+      expect(vue).not.toContain("Transition")
+      expect(context.teleports?.body ?? "").toBe("")
+    }
+  })
+
+  test("presses around the panel reach the overlay (the positioning layer lets them through)", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8")
+    const rule = (selector: string) => css.match(new RegExp(`\\n\\${selector} \\{([^}]*)`))?.[1] ?? ""
+    // !important beats the dismissable layer's inline pointer-events
+    expect(rule(".Content")).toContain("pointer-events: none !important;")
+    expect(rule(".Panel")).toContain("pointer-events: auto;")
   })
 })

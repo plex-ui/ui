@@ -40,6 +40,8 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 //     React children array, so `<A v-if="x" /><Input />` is not cloned.
 //   - anything else (text, several roots, a `v-for` list) renders as it is,
 //     like a React child that is not a single element.
+//   - content a wrapper forwards with `<slot />` counts as its own roots, as
+//     React's `children` passed on to Field are the elements themselves.
 // - As in React only `class` reaches the root element; other attributes are
 //   dropped.
 
@@ -92,9 +94,24 @@ const isElementVNode = (node: VNode) => {
 const isTemplateComment = (node: VNodeArrayChildren[number]) =>
   isVNode(node) && node.type === Comment && !!node.children && node.children !== "v-if"
 
+/**
+ * Unwraps content forwarded through a wrapper's `<slot />`: the fragment
+ * `renderSlot` creates, keyed `_<slot name>`.
+ */
+const unwrapForwardedSlots = (nodes: VNodeArrayChildren): VNodeArrayChildren =>
+  nodes.flatMap((node) =>
+    isVNode(node) &&
+    node.type === Fragment &&
+    typeof node.key === "string" &&
+    node.key.startsWith("_") &&
+    Array.isArray(node.children)
+      ? unwrapForwardedSlots(node.children)
+      : [node],
+  )
+
 /** The one element a non-render-prop slot holds, if it holds exactly one. */
 const singleElement = (nodes: VNodeArrayChildren): VNode | undefined => {
-  const roots = nodes.filter((node) => !isTemplateComment(node))
+  const roots = unwrapForwardedSlots(nodes).filter((node) => !isTemplateComment(node))
   if (roots.length !== 1) return undefined
   const [root] = roots
   return isVNode(root) && isElementVNode(root) ? root : undefined

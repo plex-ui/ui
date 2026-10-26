@@ -51,3 +51,12 @@ describe("serializeDom live form state", () => {
     )
   })
 })
+
+describe("serializeDom inline styles", () => {
+  test("a pointer-events difference shows", () => {
+    const a = mount('<button style="color: red; pointer-events: auto">Go</button>')
+    const b = mount('<button style="pointer-events: none; color: red">Go</button>')
+    expect(serializeDom(a)).not.toBe(serializeDom(b))
+    expect(serializeDom(a)).toContain('style="color: red; pointer-events: auto"')
+  })
+})

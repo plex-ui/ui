@@ -1,4 +1,4 @@
-import { onBeforeUnmount, ref, toValue, watch, type MaybeRefOrGetter, type Ref } from "vue"
+import { onBeforeUnmount, onMounted, ref, toValue, watch, type MaybeRefOrGetter, type Ref } from "vue"
 
 /**
  * Returns a version of `value` that updates to the latest `value` after `delay`
@@ -9,18 +9,19 @@ export function useTrailingValue<T>(value: MaybeRefOrGetter<T>, delay: MaybeRefO
   const trailing = ref(toValue(value)) as Ref<T>
   let timeouts: ReturnType<typeof setTimeout>[] = []
 
-  // React schedules on mount as well, which re-applies the initial value
-  watch(
-    () => toValue(value),
-    (next) => {
-      const timer = setTimeout(() => {
-        trailing.value = next
-        timeouts = timeouts.filter((t) => t !== timer)
-      }, toValue(delay))
-      timeouts.push(timer)
-    },
-    { immediate: true },
-  )
+  const schedule = (next: T) => {
+    const timer = setTimeout(() => {
+      trailing.value = next
+      timeouts = timeouts.filter((t) => t !== timer)
+    }, toValue(delay))
+    timeouts.push(timer)
+  }
+
+  // React schedules on mount as well, which re-applies the initial value.
+  // Timers start on mount only, so server rendering leaves none behind
+  onMounted(() => {
+    watch(() => toValue(value), schedule, { immediate: true })
+  })
 
   // clear up any unsettled timeouts on unmount
   onBeforeUnmount(() => {

@@ -98,24 +98,20 @@ export function computeNextRenderChildren<
   createDefaultRenderChildProps: (child: ReactElementWithKey) => RenderChild,
   insertMethod: InsertMethod,
 ): RenderChild[] {
-  const propChildKeyMap = propChildrenArray.reduce<Record<string, number>>(
-    (acc, child) => ({ ...acc, [child.key]: 1 }),
-    {},
-  )
-  const currentRenderChildKeyMap = currentRenderChildren.reduce<Record<string, number>>(
-    (acc, child) => ({ ...acc, [child.component.key]: 1 }),
-    {},
-  )
+  // Sets, not plain objects: a key such as "constructor" must not match an
+  // inherited Object property
+  const propChildKeys = new Set(propChildrenArray.map((child) => child.key))
+  const currentRenderChildKeys = new Set(currentRenderChildren.map((child) => child.component.key))
 
   const newRenderChildren: RenderChild[] = propChildrenArray
-    .filter((propChild) => !currentRenderChildKeyMap[propChild.key])
+    .filter((propChild) => !currentRenderChildKeys.has(propChild.key))
     .map(createDefaultRenderChildProps)
 
   const updatedCurrentChildren: RenderChild[] = currentRenderChildren.map((childProps) => ({
     ...childProps,
     component:
       propChildrenArray.find(({ key }) => key === childProps.component.key) || childProps.component,
-    shouldRender: !!propChildKeyMap[childProps.component.key],
+    shouldRender: propChildKeys.has(childProps.component.key),
   }))
 
   return insertMethod === "append"

@@ -117,14 +117,13 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2);
-  padding-inline: var(--spacing-4);
+  gap: spacing(2);
+  padding-inline: spacing(4);
   align-self: stretch;
   background: var(--button-group-text-background);
   color: var(--button-group-text-color);
   font-size: var(--button-group-text-font-size);
   font-weight: var(--button-group-text-font-weight);
-  font-family: var(--font-family-text);
   line-height: 1;
   white-space: nowrap;
   border-radius: var(--radius-md);

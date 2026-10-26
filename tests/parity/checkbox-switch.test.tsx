@@ -745,11 +745,13 @@ describe("Form parity", () => {
     expect(vueLog).toEqual(reactLog)
     expect(vueChanges).toEqual(reactChanges)
     expect(react[1]).toContain('data-state="checked"')
-    expect(reactLog).toEqual(["click input false", "click input true"])
+    // radix-ui 1.8: a change the user did not click (the reset) is reported
+    // with a click that stops at the hidden input
+    expect(reactLog).toEqual(["click input false"])
     expect(reactChanges).toEqual([false, true])
   })
 
-  test("Switch: the button's click stays put, the hidden input's click reaches the form; reset keeps the state", async () => {
+  test("Switch: the button's click stays put, the hidden input's click reaches the form; reset restores the initial state", async () => {
     const reactChanges: unknown[] = []
     const vueChanges: unknown[] = []
     const { react, vue, reactLog, vueLog } = await formWalk(
@@ -770,8 +772,9 @@ describe("Form parity", () => {
     expect(vueLog).toEqual(reactLog)
     expect(vueChanges).toEqual(reactChanges)
     expect(reactLog).toEqual(["click input true", "click input false", "click input true"])
-    expect(reactChanges).toEqual([true, false, true])
-    expect(react[3]).toContain('aria-checked="true"')
+    // radix-ui 1.8's Switch restores its initial state on a form reset
+    expect(reactChanges).toEqual([true, false, true, false])
+    expect(react[3]).toContain('aria-checked="false"')
   })
 
   // React's form onChange is a synthetic event: React derives it from the
@@ -828,7 +831,7 @@ describe("Form parity", () => {
       "change input false",
       "click input true",
       "change input true",
-      "click input false",
+      // The reset's click stops at the input; its change still reaches the form
       "change input false",
     ])
     expect(native.react).toEqual([])
@@ -879,17 +882,15 @@ describe("Form parity", () => {
     )
     expect(vue).toEqual(react)
     expect(vueLog).toEqual(reactLog)
+    // radix-ui 1.8: the parent's changes are reported with clicks that stop
+    // at the input; only their changes reach the form
     expect(reactLog).toEqual([
       "click span",
-      "click input false",
       "click span",
-      "click input true",
       "change input true",
       "click span",
-      "click input false",
       "change input false",
       "click span",
-      "click input false",
       // The consumer stopped the next click: the input's click stays put and
       // React's tracker misses it, so the click after reports no change
       "click input false",
@@ -919,10 +920,11 @@ describe("Form parity", () => {
       "change input true",
       "click input false",
       "change input false",
+      // radix-ui 1.8's Switch restores its initial state on a form reset
+      "change input true",
     ])
-    // Radix's Switch keeps its state on a form reset: nothing to report
     expect(native.react).toEqual([])
-    expect(native.vue).toEqual(["change input false", "change input true", "change input false"])
+    expect(native.vue).toEqual(["change input false", "change input true", "change input false", "change input true"])
   })
 
   test("the hidden input takes the button's size and follows resizes", async () => {
@@ -945,11 +947,15 @@ describe("Form parity", () => {
             )
           })
           snapshot()
+          // radix-ui 1.8 applies the new size on the next animation frame
+          await interact(() => new Promise((resolve) => requestAnimationFrame(() => resolve(undefined))))
+          snapshot()
         },
       )
       expect(vue).toEqual(react)
       expect(react[0]).toContain("height: 16px")
-      expect(react[1]).toContain("width: 32px")
+      expect(react[1]).toContain("width: 16px")
+      expect(react[2]).toContain("width: 32px")
     }
   })
 })

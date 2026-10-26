@@ -1,4 +1,5 @@
 import { defineComponent, h, type PropType } from "vue"
+import { takesToProp } from "../../lib/renderHelpers.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import s from "@plexui/styles/components/TextLink/TextLink.module.css"
@@ -81,7 +82,10 @@ export const TextLink = defineComponent({
         // An explicit target wins, as in ButtonLink; external links default to _blank
         ...(isExternal
           ? { target: props.target ?? "_blank", rel: "noopener noreferrer", href: href ?? to }
-          : { href, to, target: props.target }),
+          : // A router link (`to` required) gets the href as `to`
+            to === undefined && takesToProp(Component)
+            ? { to: href, target: props.target }
+            : { href, to, target: props.target }),
         ...sharedProps,
       })
 

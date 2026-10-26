@@ -9,11 +9,18 @@ export type DataTablePaginationProps<TData> = {
   table: Table<TData>
 }
 
+const PAGE_SIZES = [10, 20, 50, 100]
+
 export const DataTablePagination = <TData,>({ table }: DataTablePaginationProps<TData>) => {
   const totalRows = table.getFilteredRowModel().rows.length
   const { pageIndex, pageSize } = table.getState().pagination
   const from = pageIndex * pageSize + 1
   const to = Math.min((pageIndex + 1) * pageSize, totalRows)
+  // The table's initial and current page sizes are options too, so the select
+  // always shows the real page size and can go back to the initial one
+  const pageSizes = [...new Set([...PAGE_SIZES, table.initialState.pagination.pageSize, pageSize])].sort(
+    (a, b) => a - b,
+  )
 
   return (
     <div className={s.Pagination}>
@@ -25,7 +32,7 @@ export const DataTablePagination = <TData,>({ table }: DataTablePaginationProps<
           value={pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
         >
-          {[10, 20, 50, 100].map((size) => (
+          {pageSizes.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>

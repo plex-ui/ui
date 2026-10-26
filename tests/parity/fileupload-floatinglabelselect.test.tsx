@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useState, type ReactNode } from "react"
+import { createElement, createRef, useState, type ReactNode } from "react"
 import { describe, expect, test } from "vitest"
 import { defineComponent, h, ref } from "vue"
 import {
@@ -8,8 +8,10 @@ import {
   FileUpload as RFileUpload,
 } from "../../packages/ui/src/components/FileUpload"
 import { FloatingLabelSelect as RFloatingLabelSelect } from "../../packages/ui/src/components/FloatingLabelSelect"
+import { Menu as RMenu } from "../../packages/ui/src/components/Menu"
 import { FileCard, FileCardGroup, FileUpload } from "../../packages/vue/src/components/FileUpload"
 import { FloatingLabelSelect } from "../../packages/vue/src/components/FloatingLabelSelect"
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "../../packages/vue/src/components/Menu"
 import { animation, flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 import { interact, renderPair, walkPair } from "./pair"
@@ -256,19 +258,34 @@ describe("FileUpload behaviour parity", () => {
     expect(reactLog.at(-1)).toEqual(["valueChange", ["UPPER.PDF", "doc.pdf", "pic", "data.json"]])
   })
 
-  test("without multiple, each pick still appends to the list (React quirk)", async () => {
-    const { react, vue, reactLog, vueLog } = await walkUpload({}, async (snap) => {
+  test("without multiple, a pick replaces the file; a rejected pick keeps it", async () => {
+    const { react, vue, reactLog, vueLog } = await walkUpload({ accept: ".pdf,.png" }, async (snap) => {
       await selectFiles([PDF])
       snap()
+      await selectFiles([PNG])
+      snap()
+      await selectFiles([file("notes.txt", 10, "text/plain")])
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[1]).not.toContain(PDF.name)
+    expect(react[2]).toEqual(react[1])
+    expect(vueLog).toEqual(reactLog)
+    expect(reactLog).toEqual([
+      ["valueChange", [PDF.name]],
+      ["valueChange", [PNG.name]],
+      ["fileReject", "notes.txt", "File type not accepted: notes.txt"],
+    ])
+  })
+
+  test("without multiple, maxFiles 1 still takes a replacement", async () => {
+    const { react, vue, reactLog, vueLog } = await walkUpload({ maxFiles: 1, value: [PDF] }, async (snap) => {
       await selectFiles([PNG])
       snap()
     })
     expect(vue).toEqual(react)
     expect(vueLog).toEqual(reactLog)
-    expect(reactLog).toEqual([
-      ["valueChange", [PDF.name]],
-      ["valueChange", [PDF.name, PNG.name]],
-    ])
+    expect(reactLog).toEqual([["valueChange", [PNG.name]]])
   })
 
   test("controlled without updates reports changes but keeps its list", async () => {
@@ -744,3 +761,155 @@ describe("FloatingLabelSelect behaviour parity", () => {
   })
 })
 
+
+// ---------------------------------------------------------------------------
+// FloatingLabelSelect inside a trigger
+// ---------------------------------------------------------------------------
+
+describe("FloatingLabelSelect without onInteract parity", () => {
+  test("ArrowDown, ArrowUp, Space and Enter click the field, which opens a wrapping trigger", async () => {
+    type Run = { log: string[]; reachedDocument: number }
+    const runs: Record<string, Run[]> = { react: [], vue: [] }
+    for (const framework of ["react", "vue"] as const) {
+      for (const disabled of [false, true]) {
+        const log: string[] = []
+        const onClick = () => log.push("click")
+        if (framework === "react") render(<RFloatingLabelSelect label="Role" disabled={disabled} onClick={onClick} />)
+        else mountVue(() => h(FloatingLabelSelect, { label: "Role", disabled, onClick }))
+        await interact(() => {})
+        let reachedDocument = 0
+        const onDocument = () => reachedDocument++
+        document.addEventListener("keydown", onDocument)
+        for (const key of ["ArrowDown", "ArrowUp", " ", "Enter", "Escape", "a"]) {
+          await interact(() => {
+            log.push(`${key}: ${fireEvent.keyDown(field(), { key })}`)
+          })
+        }
+        document.removeEventListener("keydown", onDocument)
+        runs[framework]!.push({ log, reachedDocument })
+        cleanup()
+        document.body.innerHTML = ""
+      }
+    }
+    expect(runs.vue).toEqual(runs.react)
+    const [enabled, disabled] = runs.react as [Run, Run]
+    expect(enabled.log).toEqual([
+      "click", "ArrowDown: false",
+      "click", "ArrowUp: false",
+      "click", " : false",
+      "click", "Enter: false",
+      "Escape: true",
+      "a: true",
+    ])
+    expect(enabled.reachedDocument).toBe(2)
+    expect(disabled.log.filter((entry) => entry === "click")).toEqual([])
+  })
+
+  test("a caller's preventDefault cancels the built-in handling", async () => {
+    const runs: Record<string, string[]> = {}
+    for (const framework of ["react", "vue"] as const) {
+      const log: string[] = []
+      const consumer = (evt: { key: string; preventDefault: () => void }) => {
+        if (evt.key === " ") evt.preventDefault()
+      }
+      const onInteract = () => log.push("interact")
+      if (framework === "react") render(<RFloatingLabelSelect label="Role" onInteract={onInteract} onKeyDown={consumer} />)
+      else mountVue(() => h(FloatingLabelSelect, { label: "Role", onInteract, onKeydown: consumer }))
+      await interact(() => {})
+      const onDocument = (evt: KeyboardEvent) => log.push(`document ${evt.key}`)
+      document.addEventListener("keydown", onDocument)
+      for (const key of [" ", "ArrowDown"]) {
+        await interact(() => {
+          log.push(`${key}: ${fireEvent.keyDown(field(), { key })}`)
+        })
+      }
+      document.removeEventListener("keydown", onDocument)
+      runs[framework] = log
+      cleanup()
+      document.body.innerHTML = ""
+    }
+    expect(runs.vue).toEqual(runs.react)
+    // Space: prevented by the caller, so no interact and no stopPropagation
+    expect(runs.react).toEqual(["document  ", " : false", "interact", "ArrowDown: false"])
+  })
+
+  test("a parent's ref resolves to the field, not the root that also holds the error", async () => {
+    const reactRef = createRef<HTMLDivElement>()
+    render(<RFloatingLabelSelect ref={reactRef} label="Role" errorMessage="Required" />)
+    const react = reactRef.current?.className
+    cleanup()
+    let instance: unknown = null
+    mountVue(() => h(FloatingLabelSelect, { ref: (el: unknown) => (instance = el), label: "Role", errorMessage: "Required" }))
+    await flushVue()
+    const vue = ((instance as { $el?: Element } | null)?.$el as Element | undefined)?.className
+    expect(vue).toBe(react)
+    expect(react).toBe("FieldFootprint")
+  })
+})
+
+describe("FloatingLabelSelect in a Menu trigger parity", () => {
+  const settle = async () => {
+    await interact(() => new Promise((resolve) => setTimeout(resolve, 0)))
+    await flushVue()
+  }
+  const footprint = () => document.querySelector(".FieldFootprint") as HTMLElement
+  const describeActive = () => {
+    const element = document.activeElement
+    if (!element || element === document.body) return "body"
+    return `${element.tagName.toLowerCase()}.${element.className} "${(element.textContent ?? "").trim()}"`
+  }
+  const press = async (key: string) => {
+    await interact(() => {
+      fireEvent.keyDown(document.activeElement ?? document.body, { key })
+    })
+    await settle()
+  }
+
+  test("the keyboard opens the menu; Escape and a chosen item return focus to the field", async () => {
+    const runs: Record<string, string[]> = {}
+    for (const framework of ["react", "vue"] as const) {
+      const log: string[] = []
+      let unmount = () => {}
+      if (framework === "react") {
+        render(
+          <RMenu>
+            <RMenu.Trigger>
+              <RFloatingLabelSelect label="Role" errorMessage="Required" />
+            </RMenu.Trigger>
+            <RMenu.Content>
+              <RMenu.Item onSelect={() => log.push("select")}>Designer</RMenu.Item>
+            </RMenu.Content>
+          </RMenu>,
+        )
+      } else {
+        ;({ unmount } = mountVue(() =>
+          h(Menu, null, {
+            default: () => [
+              h(MenuTrigger, null, { default: () => h(FloatingLabelSelect, { label: "Role", errorMessage: "Required" }) }),
+              h(MenuContent, null, {
+                default: () => h(MenuItem, { onSelect: () => log.push("select") }, { default: () => "Designer" }),
+              }),
+            ],
+          }),
+        ))
+      }
+      await settle()
+      footprint().focus()
+      await press("Enter")
+      log.push(describeActive())
+      await press("Escape")
+      log.push(describeActive())
+      await press(" ")
+      await press("Enter")
+      log.push(describeActive())
+      runs[framework] = log
+      cleanup()
+      unmount()
+      await settle()
+      document.body.innerHTML = ""
+    }
+    expect(runs.vue).toEqual(runs.react)
+    const field = 'div.FieldFootprint "Role"'
+    expect(runs.react).toEqual(['div.MenuItem "Designer"', field, "select", field])
+  })
+})

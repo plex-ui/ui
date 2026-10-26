@@ -31,6 +31,24 @@ const flattenTextNodes = (children: ReactNode): ReactNode[] => {
   return result
 }
 
+// Wraps the text inside an element's children. The children keep their shape:
+// a single element stays one element (Radix's Slot, as in a Tooltip trigger,
+// needs exactly one), and children that are not a list of nodes (a lone
+// string, a render-prop function) are returned untouched.
+const wrapElementChildren = (element: ReactElement<{ children?: ReactNode }>): ReactElement => {
+  const innerChildren = element.props.children
+
+  if (isValidElement<{ children?: ReactNode }>(innerChildren)) {
+    return cloneElement(element, undefined, wrapElementChildren(innerChildren))
+  }
+
+  if (Array.isArray(innerChildren)) {
+    return cloneElement(element, undefined, wrapTextNodeSiblings(innerChildren))
+  }
+
+  return element
+}
+
 // Helper to wrap text node siblings of other elements in a tag,
 // which enables sibling selectors to behave as expected for certain conditions
 export const wrapTextNodeSiblings = (children: ReactNode): ReactNode => {
@@ -49,15 +67,8 @@ export const wrapTextNodeSiblings = (children: ReactNode): ReactNode => {
     }
 
     // For valid elements, recursively render to capture wrapped children
-    if (isValidElement(child)) {
-      const element = child as ReactElement<{ children?: ReactNode }>
-      const { children: innerChildren, ...restProps } = element.props
-
-      if (innerChildren != null) {
-        return cloneElement(element, restProps, wrapTextNodeSiblings(innerChildren))
-      }
-
-      return element
+    if (isValidElement<{ children?: ReactNode }>(child)) {
+      return wrapElementChildren(child)
     }
 
     return child

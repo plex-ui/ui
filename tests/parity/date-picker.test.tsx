@@ -329,6 +329,8 @@ const openCases: Array<[string, Case]> = [
   ["show time, no value", { props: { showTime: true } }],
   ["show time with a value", { value: mar3, props: { showTime: true } }],
   ["dropdown caption and time", { value: mar3, props: { captionLayout: "dropdown", showTime: true, yearRange: [2020, 2030] } }],
+  // Inclusive bounds: equal min and max allow one day (this used to throw)
+  ["min equal to max allows one day", { props: { min: DateTime.local(2026, 10, 16, 9), max: DateTime.local(2026, 10, 16, 9) } }],
   ["side top, offset 12", { props: { side: "top", sideOffset: 12 } }],
   ["align start (offset -5)", { props: { align: "start" } }],
   ["align end, offset 4", { props: { align: "end", alignOffset: 4 } }],
@@ -666,6 +668,56 @@ describe("DatePicker parity: behaviour", () => {
         tools.snapshot()
       }),
     )
+  })
+
+  test("time: a time past min or max on their days is clamped to the bound", async () => {
+    const min = DateTime.local(2026, 10, 10, 15, 30)
+    const max = DateTime.local(2026, 10, 24, 9, 15)
+    const result = await walk({ controlled: true, props: { showTime: true, min, max } }, async (tools) => {
+      await tools.open()
+      // The pending 12:00 on the min day is before min
+      await tools.click(day(10))
+      await tools.advance(100)
+      tools.snapshot()
+      await tools.focus(button("Hour"))
+      await tools.key("ArrowDown")
+      tools.snapshot()
+      await tools.focus(button("Minute"))
+      await tools.type(button("Minute"), "00")
+      tools.snapshot()
+      // The pending 15:30 on the max day is after max
+      await tools.click(day(24))
+      await tools.advance(100)
+      tools.snapshot()
+      await tools.focus(button("Hour"))
+      await tools.key("ArrowUp")
+      tools.snapshot()
+      await tools.blur(button("Hour"))
+      tools.snapshot()
+    })
+    expectSame(result)
+    expect(result.react[0]).toContain("change 2026-10-10T15:30:00.000")
+    expect(result.react[2]).toContain('inputs: Hour="15" Minute="30"')
+    expect(result.react[3]).toContain("change 2026-10-24T09:15:00.000")
+    expect(result.react[4]).toContain('inputs: Hour="09" Minute="15"')
+  })
+
+  test("day buttons: full-date name, pressed state and today", async () => {
+    const result = await pair({ value: oct20 }, { open: true })
+    expectSame(result)
+    const name = (date: DateTime) => date.toLocaleString(DateTime.DATE_HUGE)
+    expect(result.react[0]).toContain(`<button aria-label="${name(oct20)}" aria-pressed="true" class="InteractiveDay" type="button">`)
+    expect(result.react[0]).toContain(`<button aria-label="${name(oct20.minus({ days: 1 }))}" aria-pressed="false" class="InteractiveDay" type="button">`)
+    expect(result.react[0]).toContain(
+      `<button aria-current="date" aria-label="${name(DateTime.local(2026, 10, 14))}" aria-pressed="false" class="InteractiveDay" type="button">`,
+    )
+  })
+
+  test("aria-labelledby without an id: the value text gets a generated id", async () => {
+    const result = await pair({ value: oct20, labelledBy: true, props: { id: undefined } })
+    expectSame(result)
+    expect(result.react[0]).toMatch(/aria-labelledby="dob-label gen-\d+"/)
+    expect(result.react[0]).not.toContain("undefined")
   })
 
   test("calendar grid: day buttons have no key handling of their own", async () => {

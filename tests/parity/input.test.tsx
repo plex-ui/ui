@@ -502,6 +502,73 @@ describe("Input behaviour parity", () => {
     expect(container.hasAttribute("data-has-start-adornment")).toBe(false)
     expect(container.hasAttribute("data-has-end-adornment")).toBe(false)
   })
+
+  // Browsers and jsdom throw InvalidStateError from setSelectionRange on these types
+  test.each([
+    ["email", "a@b.co"],
+    ["number", "12"],
+  ])("frame mousedown on a %s input focuses it without throwing", async (type, defaultValue) => {
+    const errors: unknown[] = []
+    const onError = (evt: ErrorEvent) => {
+      errors.push(evt.error)
+      evt.preventDefault()
+    }
+    window.addEventListener("error", onError)
+    const focused: boolean[] = []
+    try {
+      await walk(
+        () => render(reactInput({ type, defaultValue, startAdornment: "search" })),
+        () => vueInput({ type, defaultValue, startAdornment: "search" }),
+        async (_snap, input) => {
+          for (const detail of [1, 2, 3]) {
+            await interact(() => fireEvent.mouseDown(document.querySelector("svg")!, { detail }))
+            focused.push(document.activeElement === input())
+            input().blur()
+          }
+        },
+      )
+    } finally {
+      window.removeEventListener("error", onError)
+    }
+    expect(errors).toEqual([])
+    expect(focused).toEqual([true, true, true, true, true, true])
+  })
+
+  test("the clear button keeps focus in the input", async () => {
+    const focused: boolean[] = []
+    function ReactApp() {
+      const [value, setValue] = useState("plex")
+      return reactInput({ value, onChange: (evt: { target: HTMLInputElement }) => setValue(evt.target.value), onClear: () => setValue("") })
+    }
+    const VueApp = defineComponent({
+      setup() {
+        const value = ref("plex")
+        return () =>
+          h(Input, { "value": value.value, "onUpdate:value": (next: string) => (value.value = next), "onClear": () => (value.value = "") })
+      },
+    })
+    await walk(
+      () => render(<ReactApp />),
+      () => h(VueApp),
+      async (_snap, input) => {
+        const clear = document.querySelector('button[aria-label="Clear input"]') as HTMLButtonElement
+        clear.focus()
+        await interact(() => fireEvent.click(clear))
+        expect(document.querySelector('button[aria-label="Clear input"]')).toBeNull()
+        focused.push(document.activeElement === input())
+      },
+    )
+    expect(focused).toEqual([true, true])
+  })
+
+  test("native readonly works like readOnly", async () => {
+    const { react, vue } = await renderPair(reactInput({ readOnly: true, defaultValue: "key", onClear: noop }), () =>
+      h(Input, { readonly: true, defaultValue: "key", onClear: noop }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain("data-readonly")
+    expect(react).not.toContain("Clear input")
+  })
 })
 
 // Server-renders both, then hydrates each markup in the document. Returns the

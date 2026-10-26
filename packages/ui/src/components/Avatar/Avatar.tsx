@@ -135,6 +135,12 @@ const AvatarImage = ({
   return (
     <span className={s.AvatarImageContainer}>
       <img
+        // An image that loaded before hydration fired its load event before
+        // React listened for it, and React does not replay it: read the
+        // element instead
+        ref={(img) => {
+          if (img && status !== "loaded" && img.complete && img.naturalWidth > 0) onLoad()
+        }}
         src={url}
         className={s.AvatarImage}
         data-loaded={status === "loaded" ? "" : undefined}

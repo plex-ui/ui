@@ -376,6 +376,8 @@ const openCases: Array<[string, Case, number?]> = [
   ["below md: no shortcuts", { props: { shortcuts: dayShortcuts } }, 700],
   ["below sm: one calendar", { value: oct5to12, props: { shortcuts: dayShortcuts } }, 500],
   ["below sm, max this month: no shift", { props: { max: DateTime.local(2026, 10, 20) } }, 500],
+  // Inclusive bounds: equal min and max allow one day (this used to throw)
+  ["min equal to max allows one day", { props: { min: DateTime.local(2026, 10, 16), max: DateTime.local(2026, 10, 16) } }],
   ["side top, offset 12", { props: { side: "top", sideOffset: 12 } }],
   ["align start (offset -5)", { props: { align: "start" } }],
   ["align end, offset 4", { props: { align: "end", alignOffset: 4 } }],
@@ -550,6 +552,50 @@ describe("DateRangePicker parity: behaviour", () => {
     )
   })
 
+  test.each<[string, Record<string, unknown>, string[]]>([
+    ["before min", { min: DateTime.local(2026, 10, 1) }, ["Last 30 days"]],
+    ["after max", { max: DateTime.local(2026, 10, 13) }, ["Today", "Last 7 days", "Last 30 days"]],
+    ["longer than maxRangeDays", { maxRangeDays: 7 }, ["Last 7 days", "Last 30 days"]],
+    ["within maxRangeDays", { maxRangeDays: 8 }, ["Last 30 days"]],
+  ])("shortcuts: a range %s is disabled", async (_name, props, disabled) => {
+    const result = await walk({ props: { shortcuts: dayShortcuts, ...props } }, async (tools) => {
+      await tools.open()
+      const labels = Array.from(document.querySelectorAll<HTMLButtonElement>(".Shortcuts button"))
+        .filter((element) => element.disabled)
+        .map((element) => element.textContent)
+      expect(labels).toEqual(disabled)
+      tools.snapshot()
+    })
+    expectSame(result)
+  })
+
+  test("clearing the value drops an unfinished selection", async () => {
+    const result = await walk({ value: oct5to12 }, async (tools) => {
+      await tools.open()
+      await tools.click(day(20))
+      await tools.set({ value: null })
+      tools.snapshot()
+      // A fresh start, not the end of the October 20 selection
+      await tools.click(day(22))
+      await tools.advance(100)
+      tools.snapshot()
+    })
+    expectSame(result)
+    expect(result.react[1]).toMatch(/events: $/)
+  })
+
+  test("day buttons: full-date name, pressed state across the range and today", async () => {
+    const result = await pair({ value: range([2026, 10, 13], [2026, 11, 6]) }, { open: true })
+    expectSame(result)
+    const dayButton = (date: DateTime, pressed: boolean, today = false) =>
+      `<button ${today ? 'aria-current="date" ' : ""}aria-label="${date.toLocaleString(DateTime.DATE_HUGE)}" aria-pressed="${pressed}" class="InteractiveDay">`
+    expect(result.react[0]).toContain(dayButton(DateTime.local(2026, 10, 12), false))
+    expect(result.react[0]).toContain(dayButton(DateTime.local(2026, 10, 13), true))
+    expect(result.react[0]).toContain(dayButton(DateTime.local(2026, 10, 14), true, true))
+    expect(result.react[0]).toContain(dayButton(DateTime.local(2026, 11, 6), true))
+    expect(result.react[0]).toContain(dayButton(DateTime.local(2026, 11, 7), false))
+  })
+
   test.each([true, false])("month navigation buttons (animations %s)", async (animated) => {
     animation.disabled = !animated
     expectSame(
@@ -711,5 +757,16 @@ describe("DateRangePicker parity: behaviour", () => {
     )
     await flushVue()
     expect(container.querySelector(".TriggerText")?.textContent).toBe("10/05/26-10/12/26")
+  })
+
+  test("ref() holding a range: assigning one endpoint updates the picker", async () => {
+    const holder = ref<DateRange | null>([oct5to12[0], oct5to12[1]])
+    const { container } = mountVue(() =>
+      h(DateRangePicker, { "value": holder.value, "onUpdate:value": (next: DateRange | null) => (holder.value = next) }),
+    )
+    await flushVue()
+    holder.value![1] = DateTime.local(2026, 10, 20).endOf("day")
+    await flushVue()
+    expect(container.querySelector(".TriggerText")?.textContent).toBe("10/05/26-10/20/26")
   })
 })

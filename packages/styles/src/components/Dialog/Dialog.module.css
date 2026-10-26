@@ -37,6 +37,10 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  /* The positioning layer covers the overlay: presses around the panel go
+     through to the overlay, outside the dialog, so they dismiss it.
+     !important beats the dismissable layer's inline pointer-events. */
+  pointer-events: none !important;
 
   &:focus {
     outline: none;
@@ -56,6 +60,7 @@
   background: var(--color-surface-elevated);
   box-shadow: var(--shadow-lg), var(--shadow-hairline);
   padding: 1.25rem;
+  pointer-events: auto;
 
   .Transition[data-entering] & {
     opacity: 0;

@@ -8,6 +8,7 @@ import {
   onMounted,
   provide,
   ref,
+  shallowRef,
   useId,
   watch,
   withCtx,
@@ -35,11 +36,16 @@ import s from "@plexui/styles/components/RadioGroup/RadioGroup.module.css"
 
 type Direction = "col" | "row"
 
+type BubbleInputEffect = { input: Ref<HTMLInputElement | null>; run: () => void }
+
 type RadioGroupContextValue = {
   disabled: ComputedRef<boolean>
+  required: ComputedRef<boolean>
   name: ComputedRef<string | undefined>
   value: ComputedRef<string | null>
   setValue: (value: string) => void
+  bubbleInputEffects: Set<BubbleInputEffect>
+  runBubbleInputEffects: () => void
 }
 
 const RadioGroupContextKey: InjectionKey<RadioGroupContextValue> = Symbol("PlexUIRadioGroup")
@@ -174,11 +180,42 @@ const RadioGroupComponent = defineComponent({
       { flush: "post" },
     )
 
+    // React runs the items' hidden-input effects in tree order; Vue's post
+    // watchers run in the order they were triggered, so the first item's
+    // watcher runs them all here, in document order (each is a no-op when
+    // nothing changed for it)
+    const bubbleInputEffects = new Set<BubbleInputEffect>()
+    const runBubbleInputEffects = () => {
+      const effects = [...bubbleInputEffects].sort((a, b) => {
+        const first = a.input.value
+        const second = b.input.value
+        if (!first || !second) return 0
+        return first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+      })
+      for (const effect of effects) effect.run()
+    }
+
     provide(RadioGroupContextKey, {
       disabled: computed(() => props.disabled),
+      required: computed(() => props.required),
       name: computed(() => props.name),
       value,
       setValue,
+      bubbleInputEffects,
+      runBubbleInputEffects,
+    })
+
+    // Radix: a reset of the group's form sets the value it first rendered
+    const initialValue = value.value
+    onMounted(() => {
+      const element = (groupRef.value as { $el?: unknown } | null)?.$el
+      const form = element instanceof Element ? element.closest("form") : null
+      if (!form) return
+      const reset = () => {
+        if (initialValue !== null) setValue(initialValue)
+      }
+      form.addEventListener("reset", reset)
+      onBeforeUnmount(() => form.removeEventListener("reset", reset))
     })
 
     // Radix moves focus into the group onto the checked radio, then the last
@@ -235,8 +272,8 @@ const RadioGroupComponent = defineComponent({
 })
 
 // React's value tracker per hidden input: its `checked` on mount, then the
-// one React last saw in a click that bubbled to its root. The native setter
-// Radix uses bypasses it.
+// one React last saw in a click that reached its root (also when a handler
+// stopped it from bubbling further). The native setter Radix uses bypasses it.
 const trackedChecked = new WeakMap<HTMLInputElement, boolean>()
 
 const useCheckedTracker = (input: Ref<HTMLInputElement | null>) =>
@@ -254,17 +291,21 @@ const useCheckedTracker = (input: Ref<HTMLInputElement | null>) =>
 
 /**
  * Radix's RadioBubbleInput effect: sets the hidden radio's `checked` through
- * the native setter and dispatches a bubbling `click` so form listeners see
- * the change. React turns that click into the form's `onChange` when the
- * input's `checked` differs from its value tracker, then refreshes the
- * trackers of the other radios with the same name in the same form; Vue's
- * form listeners are native, so a native `change` follows in those cases.
+ * the native setter (unless `checked` is undefined) and dispatches a bubbling
+ * `click`, which the input stops when `stop` is set, so form listeners see
+ * the user's radio only. React turns that click into the form's `onChange`
+ * when the input's `checked` differs from its value tracker, then refreshes
+ * the trackers of the other radios with the same name in the same form;
+ * Vue's form listeners are native, so a native `change` follows in those
+ * cases.
  */
-const dispatchBubbleClick = (input: HTMLInputElement, checked: boolean) => {
+const dispatchBubbleClick = (input: HTMLInputElement, checked: boolean | undefined, stop: boolean) => {
   const setChecked = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "checked")?.set
   if (!setChecked) return
-  setChecked.call(input, checked)
-  input.dispatchEvent(new Event("click", { bubbles: true }))
+  if (checked !== undefined) setChecked.call(input, checked)
+  const click = new Event("click", { bubbles: true })
+  if (stop) input.addEventListener("click", (event) => event.stopPropagation(), { once: true })
+  input.dispatchEvent(click)
   if (trackedChecked.get(input) === input.checked) return
   trackedChecked.set(input, input.checked)
   input.dispatchEvent(new Event("change", { bubbles: true }))
@@ -286,7 +327,7 @@ const RadioGroupItemComponent = defineComponent({
     value: { type: String, required: true },
     /** Determines if a given radio item is disabled. @default false */
     disabled: { type: Boolean, default: false },
-    /** Marks the hidden form input of this item as required */
+    /** Sets `required` on this item's radio button (the hidden form input follows the group's) */
     required: { type: Boolean, default: undefined },
     /** Stretches the item to fill the available width. @default false */
     block: { type: Boolean, default: false },
@@ -328,18 +369,42 @@ const RadioGroupItemComponent = defineComponent({
       document.removeEventListener("keyup", handleDocumentKeyUp)
     })
 
-    watch(
-      checked,
-      (next, previous) => {
-        if (bubbleInput.value && next !== previous) dispatchBubbleClick(bubbleInput.value, next)
+    // Radix's RadioBubbleInput effect: the radio the user clicked reports its
+    // click (also when the value did not change); a radio whose `checked`
+    // changed otherwise reports it with a click that stops at the input
+    type UserClick = { hasConsumerStoppedPropagation: boolean }
+    const userClick = shallowRef<UserClick | null>(null)
+    let prevChecked = checked.value
+    let handledUserClick: UserClick | null = null
+    const bubbleInputEffect: BubbleInputEffect = {
+      input: bubbleInput,
+      run: () => {
+        const input = bubbleInput.value
+        if (!input) return
+        const isChecked = checked.value
+        const checkedChanged = prevChecked !== isChecked
+        prevChecked = isChecked
+        const isNewUserClick = userClick.value !== null && userClick.value !== handledUserClick
+        handledUserClick = userClick.value
+        if (isNewUserClick) dispatchBubbleClick(input, checkedChanged ? isChecked : undefined, false)
+        else if (checkedChanged) dispatchBubbleClick(input, isChecked, true)
       },
-      { flush: "post" },
-    )
+    }
+    context.bubbleInputEffects.add(bubbleInputEffect)
+    onBeforeUnmount(() => context.bubbleInputEffects.delete(bubbleInputEffect))
+    watch([bubbleInput, checked, userClick], context.runBubbleInputEffects, { flush: "post" })
+
+    // Radix's RadioBubbleInput renders `defaultChecked` from its first render
+    let defaultChecked: boolean | undefined
 
     const handleClick = (event: MouseEvent) => {
       // React does not dispatch mouse handlers on a disabled button
       if (disabled.value) return
-      if (!checked.value) context.setValue(props.value)
+      if (!checked.value) {
+        // Plex passes no click handler a consumer could stop
+        userClick.value = { hasConsumerStoppedPropagation: false }
+        context.setValue(props.value)
+      }
       // In a form, the button's click stops here; the hidden input's click
       // bubbles instead (Plex passes no click handler a consumer could stop)
       if (isFormControl.value) event.stopPropagation()
@@ -366,6 +431,8 @@ const RadioGroupItemComponent = defineComponent({
       const isDisabled = disabled.value
       const state = isChecked ? "checked" : "unchecked"
       const itemId = `${props.value}-${id}`
+      if (isFormControl.value) defaultChecked ??= isChecked
+      else defaultChecked = undefined
 
       // Providing an extra wrapper enables `label` to be inline-flex, avoiding clickable whitespace
       // when radio options are of varied lengths.
@@ -398,6 +465,8 @@ const RadioGroupItemComponent = defineComponent({
                         "data-disabled": isDisabled ? "" : undefined,
                         "disabled": isDisabled,
                         "value": props.value,
+                        // radix-ui 1.8: the item's own `required` lands on its button
+                        "required": props.required ? "" : undefined,
                         "id": itemId,
                         "class": s.RadioItem,
                         // Reka's RovingFocusItem marks the active item; Radix does not
@@ -431,12 +500,12 @@ const RadioGroupItemComponent = defineComponent({
                     "ref": bubbleInput,
                     "type": "radio",
                     "aria-hidden": "true",
-                    // React's `defaultChecked`, updated on every render
-                    "^checked": isChecked ? "" : undefined,
+                    // React's `defaultChecked`, from the input's first render
+                    "^checked": defaultChecked ? "" : undefined,
                     "name": context.name.value,
                     "^value": props.value,
-                    // Only the item's own `required` reaches Radix's input
-                    "required": props.required,
+                    // radix-ui 1.8: the group's `required` reaches every input
+                    "required": context.required.value,
                     "disabled": isDisabled,
                     "tabindex": -1,
                     "style": bubbleInputStyle(controlSize.value, { transform: "translateX(-100%)" }),
@@ -470,7 +539,11 @@ export const RadioGroupItem = RadioGroupItemComponent as typeof RadioGroupItemCo
  * Single-choice group of radio items. Flat export `RadioGroupItem` for
  * templates; `RadioGroup.Item` for render functions and SFCs.
  */
-export const RadioGroup = Object.assign(
+// Typed explicitly so the published declaration refers to the parts instead of
+// expanding them (an expanded component type fails consumers' type checks)
+export const RadioGroup: typeof RadioGroupComponent & { new (): { $props: RadioGroupProps } } & {
+  Item: typeof RadioGroupItem
+} = Object.assign(
   RadioGroupComponent as typeof RadioGroupComponent & { new (): { $props: RadioGroupProps } },
   { Item: RadioGroupItem },
 )

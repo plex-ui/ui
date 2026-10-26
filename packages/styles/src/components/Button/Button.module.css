@@ -215,6 +215,10 @@
   /* =============================================
     Gutter sizes
   ============================================= */
+  &:where([data-gutter-size="3xs"]) {
+    --button-gutter: 0.25rem; /* 4px, below the smallest control gutter */
+  }
+
   &:where([data-gutter-size="2xs"]) {
     --button-gutter: var(--control-gutter-2xs);
   }

@@ -6,6 +6,9 @@ import s from "@plexui/styles/components/CodeBlock/CodeBlock.module.css"
 // React's inline `style={{ maxHeight: n }}`: numbers get "px", except 0
 const toPx = (value: number) => (value === 0 ? "0" : `${value}px`)
 
+// Room for the View Code button, unless `collapsedHeight` is smaller
+const MIN_COLLAPSED_HEIGHT = 140
+
 /**
  * Vue port of packages/ui/src/components/CodeBlock/CollapsibleCodeBlock.tsx.
  * The code is the default slot's text or the `code` prop; like React, only
@@ -39,7 +42,10 @@ export const CollapsibleCodeBlock = defineComponent({
         ? props.maxExpandedHeight
           ? { maxHeight: toPx(props.maxExpandedHeight) }
           : undefined
-        : { maxHeight: toPx(props.collapsedHeight) }
+        : {
+            maxHeight: toPx(props.collapsedHeight),
+            minHeight: toPx(Math.min(props.collapsedHeight, MIN_COLLAPSED_HEIGHT)),
+          }
 
       return h(
         CodeBlockBase,

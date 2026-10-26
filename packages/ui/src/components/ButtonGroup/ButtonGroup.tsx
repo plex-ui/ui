@@ -47,8 +47,9 @@ export type ButtonGroupSeparatorProps = Omit<
   "orientation"
 > & {
   /**
-   * When omitted, flips to match the surrounding ButtonGroup axis.
-   * Pass explicitly to override (rare).
+   * When omitted, uses `"vertical"`, the axis that looks right between
+   * horizontal items. Pass explicitly inside a vertical group.
+   * @default "vertical"
    */
   orientation?: ButtonGroupOrientation
 }

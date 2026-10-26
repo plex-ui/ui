@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useState, type ComponentType, type ReactElement } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { h, ref, type VNode } from "vue"
+import { defineComponent, h, ref, type VNode } from "vue"
 import { InputGroup as RInputGroup } from "../../packages/ui/src/components/InputGroup"
 import { Menu as RMenu } from "../../packages/ui/src/components/Menu"
 import RSearch from "../../packages/ui/src/components/Icon/svg/Search"
@@ -266,6 +266,41 @@ describe("InputGroup behaviour parity", () => {
     expect(vue).toEqual(react)
     expect(calls).toEqual(["caller", "caller"])
     expect(react[0]).toContain("active: BODY")
+  })
+
+  // A wrapper whose root is InputGroup with its own @mousedown, given another
+  // @mousedown: Vue merges both into an array on the group
+  test("merged mousedown listeners all run, then the frame focuses the control", async () => {
+    const calls: string[] = []
+    const errors: unknown[] = []
+    const onError = (evt: ErrorEvent) => {
+      errors.push(evt.error)
+      evt.preventDefault()
+    }
+    const SearchField = defineComponent({
+      setup(_props, { slots }) {
+        return () => h(InputGroup, { onMousedown: () => calls.push("inner") }, slots)
+      },
+    })
+    window.addEventListener("error", onError)
+    try {
+      const vue = await runVue(
+        () =>
+          h(SearchField, { onMousedown: () => calls.push("outer") }, () => [
+            h(InputGroupInput, { placeholder: "Search..." }),
+            h(InputGroupAddon, null, () => h(InputGroupText, null, () => "USD")),
+          ]),
+        async (snap) => {
+          await mouseDown(document.querySelector("[data-slot='input-group-text']")!)
+          snap()
+        },
+      )
+      expect(vue[0]).toContain("active: INPUT")
+    } finally {
+      window.removeEventListener("error", onError)
+    }
+    expect(errors).toEqual([])
+    expect(calls).toEqual(["inner", "outer"])
   })
 
   test("typing into a controlled input and a v-model textarea", async () => {

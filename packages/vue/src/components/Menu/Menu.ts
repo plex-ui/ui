@@ -1,5 +1,4 @@
 import {
-  Comment,
   cloneVNode,
   computed,
   createCommentVNode,
@@ -17,7 +16,6 @@ import {
   type InjectionKey,
   type PropType,
   type ShallowRef,
-  type VNode,
 } from "vue"
 import {
   DropdownMenuContent as RekaDropdownMenuContent,
@@ -29,10 +27,12 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { firstElementChild } from "../Tooltip/slot.js"
 import { preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { Check, ChevronRight } from "../Icon/index.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
+import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import { TransitionGroup } from "../Transition/index.js"
 import {
@@ -215,19 +215,10 @@ export const Menu = defineComponent({
 // ---------------------------------------------------------------------------
 // Trigger
 
-const firstChild = (nodes: VNode[] | undefined) => nodes?.find((node) => node.type !== Comment)
-
-/** Merges props into the slot's child; attributes the child sets itself win (Radix's Slot). */
-const withChildProps = (child: VNode | undefined, props: Record<string, unknown>) => {
-  if (!child) return null
-  const own = child.props ?? {}
-  const extra = Object.fromEntries(
-    Object.entries(props).filter(([key]) => key === "ref" || /^on[A-Z]/.test(key) || !(key in own)),
-  )
-  return cloneVNode(child, extra, true)
-}
-
-/** Renders its child as the menu's trigger (Radix's `asChild`). */
+/**
+ * Renders its child as the menu's trigger (Radix's `asChild`). Other
+ * attributes and listeners reach the child too, merged as Radix's Slot does.
+ */
 export const MenuTrigger = defineComponent({
   name: "MenuTrigger",
   inheritAttrs: false,
@@ -235,7 +226,7 @@ export const MenuTrigger = defineComponent({
     /** Prevents the menu from opening */
     disabled: { type: Boolean, default: false },
   },
-  setup(props, { slots }) {
+  setup(props, { slots, attrs }) {
     const rootContext = injectDropdownMenuRootContext()
     const internals = useMenuRootInternals()
     const level = useMenuLevel()
@@ -276,7 +267,13 @@ export const MenuTrigger = defineComponent({
 
     return () => {
       const open = level.open()
-      return withChildProps(firstChild(slots.default?.()), {
+      // Looks through fragments, so a child forwarded with `<slot />` works too
+      const child = firstElementChild(slots.default?.())
+      if (!child) return null
+      // Radix's trigger props, then the caller's (React's Menu.Trigger
+      // forwards them), with its handlers after the caller's
+      const { onPointerdown: callerPointerdown, onKeydown: callerKeydown, ...restAttrs } = attrs
+      const triggerProps = {
         "type": "button",
         "id": rootContext.triggerId,
         "aria-haspopup": "menu",
@@ -285,10 +282,11 @@ export const MenuTrigger = defineComponent({
         "data-state": getOpenState(open),
         "data-disabled": props.disabled ? "" : undefined,
         "disabled": props.disabled,
-        "ref": setRef,
-        onPointerdown,
-        onKeydown,
-      })
+        ...restAttrs,
+        "onPointerdown": composeEventHandlers(callerPointerdown, onPointerdown),
+        "onKeydown": composeEventHandlers(callerKeydown, onKeydown),
+      }
+      return cloneVNode(mergeSlotProps(child, triggerProps), { ref: setRef }, true)
     }
   },
 })
@@ -515,7 +513,7 @@ const MenuItemInteractive = defineComponent({
   props: {
     className: [String, Array, Object] as PropType<unknown>,
     disabled: Boolean,
-    onSelect: { type: Function as PropType<(event: Event) => void>, required: true },
+    onSelect: Function as PropType<(event: Event) => void>,
     onItemClick: { type: Function as PropType<(event: MouseEvent) => void>, required: true },
   },
   setup(props, { slots }) {
@@ -547,8 +545,8 @@ const MenuItemInteractive = defineComponent({
 })
 
 /**
- * A menu item. Interactive (focusable, selectable) when it has a `@select`
- * handler; read-only content otherwise.
+ * A menu item. Interactive (focusable, selectable) when it has a `@select` or
+ * a `@click` handler; read-only content otherwise.
  */
 export const MenuItem = defineComponent({
   name: "MenuItem",
@@ -563,17 +561,16 @@ export const MenuItem = defineComponent({
     /** Disables the menu item */
     disabled: { type: Boolean, default: false },
     /**
-     * Called when the item is selected (`@select`). Without it the item is
-     * read-only content. Call `event.preventDefault()` to keep the menu open.
+     * Called when the item is selected (`@select`). Without it or `@click`
+     * the item is read-only content. Call `event.preventDefault()` to keep
+     * the menu open.
      */
     onSelect: Function as PropType<(event: Event) => void>,
+    /** Called when the item is clicked (`@click`); also makes the item interactive */
+    onClick: Function as PropType<(event: MouseEvent) => void>,
   },
-  emits: {
-    /** The item was clicked */
-    click: (_event: MouseEvent) => true,
-  },
-  setup(props, { slots, attrs, emit }) {
-    const onItemClick = (event: MouseEvent) => emit("click", event)
+  setup(props, { slots, attrs }) {
+    const onItemClick = (event: MouseEvent) => props.onClick?.(event)
 
     return () => {
       const description = slots.description ? slots.description() : props.description
@@ -589,8 +586,8 @@ export const MenuItem = defineComponent({
               ]),
             ]
 
-      // Custom click handlers
-      if (props.onSelect) {
+      // Custom click handlers: either callback makes the item interactive
+      if (props.onSelect || props.onClick) {
         return h(
           MenuItemInteractive,
           { className: attrs.class, disabled: props.disabled, onSelect: props.onSelect, onItemClick },
@@ -693,6 +690,10 @@ export const MenuLink = defineComponent({
       // The link's own attributes and listeners come first, as the slot
       // child's do in React
       const { listeners, rest } = splitListeners(attrs)
+      // A disabled item is not selected; its link must not navigate either.
+      // Canceled in the capture phase, before a router link's own handler
+      // (vue-router's runs ahead of the listeners passed to it)
+      if (props.disabled) listeners.onClickCapture = [listeners.onClickCapture ?? [], preventDefaultHandler].flat()
       const { class: className, ...restProps } = rest
       const linkProps = isExternal ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to } : { href, to }
 
@@ -951,7 +952,8 @@ export const MenuSubTrigger = defineComponent({
           "id": subInternals.triggerId,
           "aria-haspopup": "menu",
           "aria-expanded": open,
-          "aria-controls": subInternals.contentId,
+          // Radix (radix-ui 1.8) points at the submenu only while it is open
+          "aria-controls": open ? subInternals.contentId : undefined,
           "data-state": getOpenState(open),
           "class": [s.MenuItem, s.SubMenuItem, attrs.class],
           "ref": setRef,

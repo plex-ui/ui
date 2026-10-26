@@ -513,6 +513,8 @@ export const SidebarMenuSub = forwardRef<HTMLUListElement, SidebarMenuSubProps>(
       ref={ref}
       data-state={open ? "open" : "closed"}
       data-has-icons={hasIcons ? "true" : undefined}
+      // Collapsed items are only hidden visually: keep them out of the tab order
+      inert={open ? undefined : true}
       className={clsx(s.MenuSub, className)}
       {...cleanProps(props)}
     />
@@ -689,7 +691,7 @@ export type SidebarTriggerProps = ComponentProps<"button"> & {
 }
 
 export const SidebarTrigger = forwardRef<HTMLButtonElement, SidebarTriggerProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, onClick, ...props }, ref) => {
     const { state, collapsible, isMobile, toggleSidebar } = useSidebar()
 
     // Don't render if collapsible="none" (text-only sidebars)
@@ -705,7 +707,11 @@ export const SidebarTrigger = forwardRef<HTMLButtonElement, SidebarTriggerProps>
         ref={ref}
         type="button"
         className={clsx(s.Trigger, className)}
-        onClick={toggleSidebar}
+        onClick={(event) => {
+          // The caller's handler runs first and can cancel the toggle
+          onClick?.(event)
+          if (!event.defaultPrevented) toggleSidebar()
+        }}
         aria-label={
           isMobile ? "Open menu" : state === "expanded" ? "Collapse sidebar" : "Expand sidebar"
         }
@@ -727,7 +733,7 @@ SidebarTrigger.displayName = "SidebarTrigger"
 export type SidebarMobileMenuButtonProps = ComponentProps<"button">
 
 export const SidebarMobileMenuButton = forwardRef<HTMLButtonElement, SidebarMobileMenuButtonProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onClick, ...props }, ref) => {
     const { openMobile, setOpenMobile } = useSidebar()
 
     return (
@@ -736,7 +742,11 @@ export const SidebarMobileMenuButton = forwardRef<HTMLButtonElement, SidebarMobi
         type="button"
         data-expanded={openMobile ? "" : undefined}
         className={clsx(s.MobileMenuButton, className)}
-        onClick={() => setOpenMobile(!openMobile)}
+        onClick={(event) => {
+          // The caller's handler runs first and can cancel the toggle
+          onClick?.(event)
+          if (!event.defaultPrevented) setOpenMobile(!openMobile)
+        }}
         aria-label={openMobile ? "Close menu" : "Open menu"}
         {...cleanProps(props)}
       >

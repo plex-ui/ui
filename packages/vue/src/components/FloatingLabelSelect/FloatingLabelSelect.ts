@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { defineComponent, h, useId, type PropType } from "vue"
+import { defineComponent, h, shallowRef, useId, type PropType } from "vue"
 import { FieldError } from "../FieldError/index.js"
 import { Button } from "../Button/index.js"
 import { Dropdown, X } from "../Icon/index.js"
@@ -20,9 +20,11 @@ const callListeners = (listeners: unknown, event: KeyboardEvent) => {
  * and listener to the `role="button"` field, spread after the component's
  * own (so, as in React, a consumer `@pointerdown` replaces the built-in
  * one, while a consumer `@keydown` runs before the built-in handling).
- * `onClearClick` (`@clear-click`) is a function prop because the clear button
- * renders only when it is set; `interact` is emitted on pointer down and on
- * ArrowDown, ArrowUp and Space.
+ * `onClearClick` (`@clear-click`) and `onInteract` (`@interact`) are function
+ * props, as in React: the clear button renders only when the first is set,
+ * and without the second, the keys that open the field click it instead, so
+ * a wrapping trigger (Select's `#trigger`) opens from the keyboard too.
+ * A parent's ref resolves `$el` to the field, as React forwards its ref there.
  */
 export const FloatingLabelSelect = defineComponent({
   name: "FloatingLabelSelect",
@@ -42,19 +44,22 @@ export const FloatingLabelSelect = defineComponent({
     open: { type: Boolean, default: false },
     /** Shows the clear button (when selected and enabled); called when it is clicked */
     onClearClick: Function as PropType<() => void>,
+    /** Called on pointer down, ArrowDown, ArrowUp and Space on the field (`@interact`) */
+    onInteract: Function as PropType<() => void>,
   },
-  emits: {
-    /** Pointer down, ArrowDown, ArrowUp or Space on the field */
-    interact: () => true,
-  },
-  setup(props, { attrs, slots, emit }) {
+  setup(props, { attrs, slots, expose }) {
     const generatedId = useId()
     const errorId = `floating-label-select-${generatedId}-error`
+    const fieldRef = shallowRef<HTMLElement | null>(null)
+
+    // React forwards its ref to the field: a wrapping trigger returns focus
+    // to it and anchors to it, not to the root that also holds the error
+    expose(Object.defineProperty({}, "$el", { enumerable: true, get: () => fieldRef.value }))
 
     const handlePointerDown = (evt: PointerEvent) => {
       if (evt.button === 2 || props.disabled) return
       evt.preventDefault()
-      emit("interact")
+      props.onInteract?.()
     }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
@@ -62,15 +67,26 @@ export const FloatingLabelSelect = defineComponent({
       // control: neither this handler nor a wrapping trigger's may take them
       if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) return
       callListeners(attrs.onKeydown, evt)
-      if (props.disabled) return
+      // A handler that prevented the default (the caller's, or a wrapping
+      // MenuTrigger's that opened its menu) cancels the built-in handling
+      if (props.disabled || evt.defaultPrevented) return
 
       switch (evt.key) {
         case "ArrowDown":
         case "ArrowUp":
         case " ":
+        case "Enter":
+          // Enter activates the field only without onInteract, as it
+          // would the button a wrapping trigger usually renders
+          if (evt.key === "Enter" && props.onInteract) break
           evt.stopPropagation()
           evt.preventDefault()
-          emit("interact")
+          if (props.onInteract) {
+            props.onInteract()
+          } else {
+            // A wrapping trigger (Select's `#trigger`, a PopoverTrigger) opens on click
+            ;(evt.currentTarget as HTMLElement).click()
+          }
           break
       }
     }
@@ -106,6 +122,7 @@ export const FloatingLabelSelect = defineComponent({
         h(
           "div",
           {
+            "ref": fieldRef,
             "class": clsx(s.FieldFootprint, { [s.HasValue!]: selected }),
             "role": "button",
             "tabindex": disabled ? -1 : 0,

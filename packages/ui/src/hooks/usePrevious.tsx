@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react"
 
+// The value before the latest change of `value`; renders that keep `value`
+// return the same previous value
 export function usePrevious<T>(value: T): T {
-  const ref = useRef<T>(value)
+  const ref = useRef({ value, previous: value })
 
   useEffect(() => {
-    return () => {
-      ref.current = value
+    if (!Object.is(ref.current.value, value)) {
+      ref.current = { value, previous: ref.current.value }
     }
   }, [value])
 
-  return ref.current
+  return Object.is(ref.current.value, value) ? ref.current.previous : ref.current.value
 }

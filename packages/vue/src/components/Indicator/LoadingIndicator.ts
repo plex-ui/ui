@@ -1,8 +1,8 @@
-import { defineComponent, h, type PropType } from "vue"
+import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
 import { toCssVariables } from "../../lib/helpers.js"
 import s from "@plexui/styles/components/Indicator/LoadingIndicator.module.css"
 
-export const LoadingIndicator = defineComponent({
+const LoadingIndicatorComponent = defineComponent({
   name: "LoadingIndicator",
   props: {
     /** Size of the indicator, in pixels. Defaults to 1em. */
@@ -24,3 +24,12 @@ export const LoadingIndicator = defineComponent({
       })
   },
 })
+
+type LoadingIndicatorOwnProps = InstanceType<typeof LoadingIndicatorComponent>["$props"]
+
+/** LoadingIndicator props plus the native <span> attributes that fall through to it, as in React. */
+export type LoadingIndicatorProps = LoadingIndicatorOwnProps & Omit<HTMLAttributes, keyof LoadingIndicatorOwnProps>
+
+export const LoadingIndicator = LoadingIndicatorComponent as typeof LoadingIndicatorComponent & {
+  new (): { $props: LoadingIndicatorProps }
+}

@@ -1,1 +1,1 @@
-export { OTPInput } from "./OTPInput.js"
+export { OTPInput, type OTPInputProps } from "./OTPInput.js"

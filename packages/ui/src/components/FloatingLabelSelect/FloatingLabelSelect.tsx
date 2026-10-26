@@ -70,15 +70,26 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
         // control: neither this handler nor a wrapping trigger's may take them
         if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) return
         onKeyDown?.(evt)
-        if (disabled) return
+        // A handler that prevented the default (the caller's, or a wrapping
+        // Menu.Trigger's that opened its menu) cancels the built-in handling
+        if (disabled || evt.defaultPrevented) return
 
         switch (evt.key) {
           case "ArrowDown":
           case "ArrowUp":
           case " ":
+          case "Enter":
+            // Enter activates the field only without onInteract, as it
+            // would the button a wrapping trigger usually renders
+            if (evt.key === "Enter" && onInteract) break
             evt.stopPropagation()
             evt.preventDefault()
-            onInteract?.()
+            if (onInteract) {
+              onInteract()
+            } else {
+              // A wrapping trigger (Select's `trigger`, a Popover.Trigger) opens on click
+              evt.currentTarget.click()
+            }
             break
         }
       },
@@ -99,8 +110,10 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
     )
 
     return (
-      <div className={clsx(s.Root, className)} ref={ref}>
+      <div className={clsx(s.Root, className)}>
         <div
+          // The ref is the focusable field: a wrapping trigger returns focus to it and anchors to it
+          ref={ref}
           className={clsx(s.FieldFootprint, {
             [s.HasValue]: selected,
           })}

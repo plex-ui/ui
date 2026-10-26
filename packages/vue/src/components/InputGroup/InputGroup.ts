@@ -15,7 +15,7 @@ import {
   type TextareaHTMLAttributes,
 } from "vue"
 import type { ControlSize, Variants } from "@plexui/styles/types"
-import { Button, type ButtonColor } from "../Button/index.js"
+import { Button, type ButtonColor, type ButtonProps } from "../Button/index.js"
 import { vDefaultValue, vServerText } from "../../lib/defaultValue.js"
 import s from "@plexui/styles/components/InputGroup/InputGroup.module.css"
 
@@ -39,6 +39,13 @@ type InputGroupContext = {
 const InputGroupKey: InjectionKey<InputGroupContext> = Symbol("InputGroup")
 
 const CONTROL_SELECTOR = "[data-slot='input-group-control']"
+
+// A fallthrough listener is a function or, when merged, an array of them
+const callListeners = (listener: unknown, evt: Event) => {
+  for (const fn of Array.isArray(listener) ? listener : [listener]) {
+    if (typeof fn === "function") fn(evt)
+  }
+}
 
 /** Button size for each group size: the closest Button that fits inside the control */
 const BUTTON_SIZE: Record<ControlSize, ControlSize> = {
@@ -86,8 +93,7 @@ const InputGroupComponent = defineComponent({
 
     // Clicks on the frame, icons and text focus the control, as in Input
     const handleMouseDown = (evt: MouseEvent) => {
-      const onMousedown = attrs.onMousedown as ((evt: MouseEvent) => void) | undefined
-      onMousedown?.(evt)
+      callListeners(attrs.onMousedown, evt)
       const control = (evt.currentTarget as HTMLElement).querySelector<HTMLElement>(CONTROL_SELECTOR)
       const { target } = evt
       if (evt.defaultPrevented || !control || !(target instanceof Element) || control.contains(target)) {
@@ -292,11 +298,7 @@ export const InputGroupAddon = defineComponent({
 export type InputGroupAddonProps = InstanceType<typeof InputGroupAddon>["$props"] &
   Omit<HTMLAttributes, keyof InstanceType<typeof InputGroupAddon>["$props"]>
 
-/**
- * A ghost `Button` sized from the group (React `InputGroup.Button`). Takes the
- * Button props except `size`; `pill` and `disabled` default to the group's.
- */
-export const InputGroupButton = defineComponent({
+const InputGroupButtonComponent = defineComponent({
   name: "InputGroupButton",
   props: {
     /** Color for the button. @default "secondary" */
@@ -324,7 +326,19 @@ export const InputGroupButton = defineComponent({
   },
 })
 
-export type InputGroupButtonProps = InstanceType<typeof InputGroupButton>["$props"]
+type InputGroupButtonOwnProps = InstanceType<typeof InputGroupButtonComponent>["$props"]
+
+/** InputGroupButton props plus the Button props (except `size`) that fall through to it, as in React. */
+export type InputGroupButtonProps = InputGroupButtonOwnProps &
+  Omit<ButtonProps, keyof InputGroupButtonOwnProps | "size">
+
+/**
+ * A ghost `Button` sized from the group (React `InputGroup.Button`). Takes the
+ * Button props except `size`; `pill` and `disabled` default to the group's.
+ */
+export const InputGroupButton = InputGroupButtonComponent as typeof InputGroupButtonComponent & {
+  new (): { $props: InputGroupButtonProps }
+}
 
 /** Text and icons inside an addon: prefixes, units, counters (React `InputGroup.Text`). */
 export const InputGroupText = defineComponent({

@@ -89,6 +89,42 @@ const buttonLinkCases: Case[] = [
   ["as override", { href: "/docs" }, { as: true }],
 ]
 
+describe("a router link that requires `to` (vue-router's RouterLink) gets the href", () => {
+  // React link components take `href`; Vue's RouterLink requires `to` and
+  // resolves the href itself (base path, hash history)
+  const ReactStrictLink = ({ href, children, ...rest }: { href?: string; children?: ReactNode }) => (
+    <a data-router="" {...rest} href={`#resolved${href}`}>
+      {children}
+    </a>
+  )
+  const VueStrictLink = defineComponent({
+    props: { to: { type: String, required: true } },
+    setup(props, { slots }) {
+      return () => h("a", { "data-router": "", "href": `#resolved${props.to}` }, slots.default?.())
+    },
+  })
+
+  test.each([
+    ["TextLink", ReactTextLink, VueTextLink],
+    ["ButtonLink", ReactButtonLink, VueButtonLink],
+  ] as const)("%s, from the provider and as an `as` override", async (_name, RLink, VLink) => {
+    for (const via of ["provider", "as"] as const) {
+      const reactEl = createElement(RLink as never, { href: "/settings", ...(via === "as" ? { as: ReactStrictLink } : {}) }, "Settings")
+      const vueRender = () =>
+        h(VLink as never, { href: "/settings", ...(via === "as" ? { as: VueStrictLink } : {}) }, { default: () => "Settings" })
+      const { react, vue } =
+        via === "provider"
+          ? await renderPair(
+              <ReactPlexUIProvider linkComponent={ReactStrictLink}>{reactEl}</ReactPlexUIProvider>,
+              () => h(VuePlexUIProvider, { linkComponent: VueStrictLink }, { default: vueRender }),
+            )
+          : await renderPair(reactEl, vueRender)
+      expect(vue).toBe(react)
+      expect(react).toContain('href="#resolved/settings"')
+    }
+  })
+})
+
 describe("TextLink parity", () => {
   test.each(textLinkCases)("%s", async (...testCase) => {
     const { react, vue } = await pair(ReactTextLink as never, VueTextLink, testCase)

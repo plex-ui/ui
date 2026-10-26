@@ -16,6 +16,7 @@ import {
   computed,
   defineComponent,
   h,
+  mergeProps,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -31,7 +32,8 @@ import { Input, type InputProps } from "../Input/index.js"
 // - `value` + `update:value` (`v-model:value`) and `change` mirror React's
 //   `value` + `onChange`: both fire with a Luxon DateTime once a complete
 //   valid date is typed, and with `null` when the field is emptied or cleared.
-//   What is typed in between stays in the field without an event.
+//   What is typed in between stays in the field without an event until the
+//   field loses focus, which shows the value again.
 // - Every other attribute, listener and the `startAdornment` /
 //   `endAdornment` slots go to Input, like React's `...inputProps`. React
 //   sets `onInput` and `onClear` itself, so `@input` and `@clear` given to
@@ -105,17 +107,20 @@ const DateInputComponent = defineComponent({
 
     const inputValue = ref("")
 
+    const format = (date: DateTime | null) => {
+      if (!date) return ""
+      return hasTime.value
+        ? maskitoStringifyDateTime(date.toJSDate(), dateTimeParams.value)
+        : maskitoStringifyDate(date.toJSDate(), dateParams.value)
+    }
+
+    const parse = (str: string) =>
+      hasTime.value ? maskitoParseDateTime(str, dateTimeParams.value) : maskitoParseDate(str, dateParams.value)
+
     // React formats the value in an effect: the first render (and the server
     // markup) has an empty field, without the clear button
     const syncInputValue = () => {
-      const { value } = props
-      if (!value) {
-        inputValue.value = ""
-        return
-      }
-      inputValue.value = hasTime.value
-        ? maskitoStringifyDateTime(value.toJSDate(), dateTimeParams.value)
-        : maskitoStringifyDate(value.toJSDate(), dateParams.value)
+      inputValue.value = format(props.value)
     }
     const valueMsKey = computed(() => props.value?.toMillis() ?? null)
     watch([valueMsKey, hasTime, dateParams, dateTimeParams], syncInputValue)
@@ -139,12 +144,18 @@ const DateInputComponent = defineComponent({
         return
       }
 
-      const parsed = hasTime.value
-        ? maskitoParseDateTime(str, dateTimeParams.value)
-        : maskitoParseDate(str, dateParams.value)
+      const parsed = parse(str)
 
       if (parsed) {
         change(DateTime.fromJSDate(parsed))
+      }
+    }
+
+    // Text that is not a complete date never reaches `change`, so leaving the
+    // field shows the value again instead of a date the value does not hold
+    const handleBlur = () => {
+      if (inputValue.value && !parse(inputValue.value)) {
+        inputValue.value = format(props.value)
       }
     }
 
@@ -179,16 +190,17 @@ const DateInputComponent = defineComponent({
       return withDirectives(
         h(
           Input,
-          {
-            ...inputProps,
+          // mergeProps keeps the caller's `@blur` and runs it first, as React does
+          mergeProps(inputProps, {
             "ref": inputComponent,
             "value": inputValue.value,
             "onUpdate:value": (str: string) => {
               inputValue.value = str
             },
+            "onBlur": handleBlur,
             "placeholder": props.placeholder ?? defaultPlaceholder.value,
             "onClear": props.clearable ? handleClear : undefined,
-          },
+          }),
           {
             ...(slots.startAdornment ? { startAdornment: slots.startAdornment } : {}),
             ...(slots.endAdornment ? { endAdornment: slots.endAdornment } : {}),

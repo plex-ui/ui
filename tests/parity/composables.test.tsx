@@ -1,17 +1,22 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { useRef, useState, type ReactNode } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as renderReactToString } from "react-dom/server"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { defineComponent, h, ref, type VNode } from "vue"
+import { createSSRApp, defineComponent, h, ref, type VNode } from "vue"
+import { renderToString as renderVueToString } from "vue/server-renderer"
 import { useAnimatedScrollTo as useAnimatedScrollToReact } from "../../packages/ui/src/hooks/useAnimatedScrollTo"
 import { useAutoGrowTextarea as useAutoGrowTextareaReact } from "../../packages/ui/src/hooks/useAutoGrowTextarea"
 import { useBreakpoint as useBreakpointReact } from "../../packages/ui/src/hooks/useBreakpoints"
 import { useCharactersPerSecond as useCharactersPerSecondReact } from "../../packages/ui/src/hooks/useCharactersPerSecond"
 import { useDocumentVisible as useDocumentVisibleReact } from "../../packages/ui/src/hooks/useDocumentVisible"
 import { useEscCloseStack as useEscCloseStackReact } from "../../packages/ui/src/hooks/useEscCloseStack"
+import { usePrevious as usePreviousReact } from "../../packages/ui/src/hooks/usePrevious"
 import { useScrollable as useScrollableReact } from "../../packages/ui/src/hooks/useScrollable"
 import { useSimulatedProgress as useSimulatedProgressReact } from "../../packages/ui/src/hooks/useSimulatedProgress"
 import { useTextSelection as useTextSelectionReact } from "../../packages/ui/src/hooks/useTextSelection"
 import { useTrailingValue as useTrailingValueReact } from "../../packages/ui/src/hooks/useTrailingValue"
+import { useDocumentTheme as useDocumentThemeReact } from "../../packages/ui/src/lib/theme"
 import { useAnimatedScrollTo } from "../../packages/vue/src/composables/useAnimatedScrollTo"
 import { useAutoGrowTextarea } from "../../packages/vue/src/composables/useAutoGrowTextarea"
 import { useBreakpoint } from "../../packages/vue/src/composables/useBreakpoints"
@@ -22,6 +27,7 @@ import { useScrollable } from "../../packages/vue/src/composables/useScrollable"
 import { useSimulatedProgress } from "../../packages/vue/src/composables/useSimulatedProgress"
 import { useTextSelection } from "../../packages/vue/src/composables/useTextSelection"
 import { useTrailingValue } from "../../packages/vue/src/composables/useTrailingValue"
+import { useDocumentTheme } from "../../packages/vue/src/lib/theme"
 import { flushVue, mountVue } from "./harness"
 import { interact, walkPairWithState } from "./pair"
 
@@ -365,7 +371,8 @@ describe("Composables match the React hooks", () => {
 describe("useBreakpoint on the server", () => {
   // No window or document while rendering, as in SSR: the composable reads the
   // breakpoint from the document's CSS variables only in the browser
-  test("renders false without touching the document, also inside Slider", async () => {
+  // (fresh modules load slowly, hence the longer timeouts)
+  test("renders false without touching the document, also inside Slider", { timeout: 30_000 }, async () => {
     // Fresh modules: the breakpoint module caches the resolved values
     vi.resetModules()
     const { renderToString } = await import("vue/server-renderer")
@@ -386,5 +393,203 @@ describe("useBreakpoint on the server", () => {
     } finally {
       vi.unstubAllGlobals()
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Server rendering and hydration: the server has no window, document or
+// navigator; the client hydrates the server's markup without a mismatch
+// ---------------------------------------------------------------------------
+
+/** Runs `render` as a server would: without window and document */
+const asServer = async <T,>(render: () => T | Promise<T>) => {
+  vi.stubGlobal("window", undefined)
+  vi.stubGlobal("document", undefined)
+  try {
+    return await render()
+  } finally {
+    vi.unstubAllGlobals()
+  }
+}
+
+/** Hydrates React's server markup; returns the text after effects and the recoverable (mismatch) errors */
+const hydrateReact = async (element: ReactNode, html: string) => {
+  const container = document.createElement("div")
+  container.innerHTML = html
+  document.body.appendChild(container)
+  const errors: string[] = []
+  let root: ReturnType<typeof hydrateRoot> | undefined
+  await act(async () => {
+    root = hydrateRoot(container, element, { onRecoverableError: (error) => errors.push(String(error)) })
+  })
+  return {
+    container,
+    errors,
+    unmount: () =>
+      act(() => {
+        root!.unmount()
+        container.remove()
+      }),
+  }
+}
+
+/** Hydrates Vue's server markup; returns the text after mount and Vue's mismatch report */
+const hydrateVue = async (component: Parameters<typeof createSSRApp>[0], html: string) => {
+  const container = document.createElement("div")
+  container.innerHTML = html
+  document.body.appendChild(container)
+  const errors = vi.spyOn(console, "error").mockImplementation(() => {})
+  const app = createSSRApp(component)
+  app.mount(container)
+  await flushVue()
+  const mismatches = errors.mock.calls.map((args) => args.map(String).join(" "))
+  errors.mockRestore()
+  return {
+    container,
+    errors: mismatches,
+    unmount: () => {
+      app.unmount()
+      container.remove()
+    },
+  }
+}
+
+const stubMatchMedia = (matches: boolean) =>
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches,
+    media: query,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+  }))
+
+const ReactBreakpoint = () => <span>{String(useBreakpointReact("md"))}</span>
+const VueBreakpoint = defineComponent({
+  setup() {
+    const md = useBreakpoint("md")
+    return () => h("span", String(md.value))
+  },
+})
+
+const ReactTheme = () => <span>{useDocumentThemeReact()}</span>
+const VueTheme = defineComponent({
+  setup() {
+    const theme = useDocumentTheme()
+    return () => h("span", theme.value)
+  },
+})
+
+describe("Server rendering and hydration", () => {
+  afterEach(() => {
+    document.documentElement.removeAttribute("data-theme")
+  })
+
+  test("React useBreakpoint renders false on the server, also inside Slider", { timeout: 30_000 }, async () => {
+    // Fresh modules: the breakpoint module caches the resolved values and the root styles
+    vi.resetModules()
+    const { useBreakpoint: useFreshBreakpoint } = await import("../../packages/ui/src/hooks/useBreakpoints")
+    const { Slider } = await import("../../packages/ui/src/components/Slider")
+    const Probe = () => <span>{String(useFreshBreakpoint("md"))}</span>
+    await asServer(() => {
+      expect(renderReactToString(<Probe />)).toBe("<span>false</span>")
+      expect(renderReactToString(<Slider value={30} min={0} max={100} step={1} label="Volume" onChange={() => {}} />)).toContain(
+        "Volume",
+      )
+    })
+  })
+
+  test("useBreakpoint hydrates the server's false, then reads the viewport", async () => {
+    const reactHtml = await asServer(() => renderReactToString(<ReactBreakpoint />))
+    const vueHtml = await asServer(() => renderVueToString(createSSRApp(VueBreakpoint)))
+    expect(vueHtml).toBe(reactHtml)
+    expect(reactHtml).toBe("<span>false</span>")
+
+    stubMatchMedia(true)
+    const react = await hydrateReact(<ReactBreakpoint />, reactHtml)
+    const reactText = react.container.textContent
+    await react.unmount()
+    const vue = await hydrateVue(VueBreakpoint, vueHtml)
+    const vueText = vue.container.textContent
+    vue.unmount()
+    expect(react.errors).toEqual([])
+    expect(vue.errors).toEqual([])
+    expect(vueText).toBe(reactText)
+    expect(reactText).toBe("true")
+  })
+
+  test("useDocumentTheme renders light on the server, hydrates, then follows the document", async () => {
+    const reactHtml = await asServer(() => renderReactToString(<ReactTheme />))
+    const vueHtml = await asServer(() => renderVueToString(createSSRApp(VueTheme)))
+    expect(vueHtml).toBe(reactHtml)
+    expect(reactHtml).toBe("<span>light</span>")
+
+    const texts = { react: [] as (string | null)[], vue: [] as (string | null)[] }
+    document.documentElement.setAttribute("data-theme", "dark")
+    const react = await hydrateReact(<ReactTheme />, reactHtml)
+    texts.react.push(react.container.textContent)
+    await interact(() => document.documentElement.setAttribute("data-theme", "light"))
+    texts.react.push(react.container.textContent)
+    await interact(() => document.documentElement.classList.add("dark"))
+    texts.react.push(react.container.textContent)
+    await react.unmount()
+
+    document.documentElement.classList.remove("dark")
+    document.documentElement.setAttribute("data-theme", "dark")
+    const vue = await hydrateVue(VueTheme, vueHtml)
+    texts.vue.push(vue.container.textContent)
+    await interact(() => document.documentElement.setAttribute("data-theme", "light"))
+    await flushVue()
+    texts.vue.push(vue.container.textContent)
+    await interact(() => document.documentElement.classList.add("dark"))
+    await flushVue()
+    texts.vue.push(vue.container.textContent)
+    vue.unmount()
+    document.documentElement.classList.remove("dark")
+
+    expect(react.errors).toEqual([])
+    expect(vue.errors).toEqual([])
+    expect(texts.vue).toEqual(texts.react)
+    // data-theme wins over the dark class
+    expect(texts.react).toEqual(["dark", "light", "light"])
+  })
+
+  test("useTrailingValue starts no timer on the server", async () => {
+    fakeTimers()
+    expect(renderReactToString(<ReactTrailing value="a" />)).toBe('<span id="out">a</span>')
+    expect(await renderVueToString(createSSRApp(() => h(VueTrailing, { value: "a" })))).toBe('<span id="out">a</span>')
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  test("the userAgent helpers load without a navigator", { timeout: 30_000 }, async () => {
+    vi.resetModules()
+    vi.stubGlobal("navigator", undefined)
+    const react = await import("../../packages/ui/src/lib/userAgent")
+    const vue = await import("../../packages/vue/src/lib/userAgent")
+    for (const lib of [react, vue]) {
+      expect([lib.isMobileDevice(), lib.isIosChromeBrowser(), lib.isSafariBrowser(), lib.isMacDevice(), lib.isFirefoxBrowser()]).toEqual([
+        false,
+        false,
+        false,
+        false,
+        false,
+      ])
+    }
+  })
+})
+
+describe("usePrevious (React; Vue's Slider inlines it)", () => {
+  test("returns the value before the latest change, also across renders that keep the value", () => {
+    const seen: number[] = []
+    const Probe = ({ value }: { value: number; tick: number }) => {
+      seen.push(usePreviousReact(value))
+      return null
+    }
+    const { rerender } = render(<Probe value={1} tick={0} />)
+    rerender(<Probe value={2} tick={0} />)
+    rerender(<Probe value={2} tick={1} />)
+    rerender(<Probe value={3} tick={1} />)
+    rerender(<Probe value={4} tick={1} />)
+    expect(seen).toEqual([1, 1, 1, 2, 3])
   })
 })

@@ -189,6 +189,8 @@ export const FileUpload = defineComponent({
       const files = getFiles()
       const { accept, maxSize, maxFiles } = props
       const selected = Array.from(target.files || [])
+      // Without `multiple`, a pick replaces the file instead of adding to it
+      const kept = props.multiple ? files : []
       const accepted: File[] = []
 
       for (const file of selected) {
@@ -200,7 +202,7 @@ export const FileUpload = defineComponent({
           emit("fileReject", file, `File too large: ${file.name} (${formatFileSize(file.size)})`)
           continue
         }
-        if (maxFiles && files.length + accepted.length >= maxFiles) {
+        if (maxFiles && kept.length + accepted.length >= maxFiles) {
           emit("fileReject", file, `Maximum ${maxFiles} files allowed`)
           continue
         }
@@ -208,7 +210,7 @@ export const FileUpload = defineComponent({
       }
 
       if (accepted.length > 0) {
-        updateFiles([...files, ...accepted])
+        updateFiles([...kept, ...accepted])
       }
 
       target.value = ""

@@ -10,6 +10,8 @@ import {
   toRef,
   watch,
   withCtx,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
   type InjectionKey,
   type PropType,
 } from "vue"
@@ -344,7 +346,8 @@ export const AccordionTrigger = defineComponent({
               "button",
               {
                 "type": "button",
-                "aria-controls": collapsibleContext.contentId,
+                // Radix (radix-ui 1.8) points at the panel only while open
+                "aria-controls": open ? collapsibleContext.contentId : undefined,
                 "aria-expanded": open || false,
                 "data-state": getState(open),
                 "data-disabled": disabled ? "" : undefined,
@@ -498,3 +501,19 @@ export const AccordionContent = defineComponent({
       )
   },
 })
+
+type AccordionOwnProps = InstanceType<typeof Accordion>["$props"]
+type AccordionItemOwnProps = InstanceType<typeof AccordionItem>["$props"]
+type AccordionContentOwnProps = InstanceType<typeof AccordionContent>["$props"]
+
+/** Accordion props plus the attributes that fall through to the root `<div>`, as in React. */
+export type AccordionProps = AccordionOwnProps & Omit<HTMLAttributes, keyof AccordionOwnProps>
+
+/** AccordionItem props plus the attributes that fall through to the item `<div>`. */
+export type AccordionItemProps = AccordionItemOwnProps & Omit<HTMLAttributes, keyof AccordionItemOwnProps>
+
+/** AccordionTrigger takes the attributes of its `<button>`. */
+export type AccordionTriggerProps = ButtonHTMLAttributes
+
+/** AccordionContent props plus the attributes of the panel `<div>`. */
+export type AccordionContentProps = AccordionContentOwnProps & Omit<HTMLAttributes, keyof AccordionContentOwnProps>

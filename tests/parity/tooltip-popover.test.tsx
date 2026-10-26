@@ -1,7 +1,9 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ReactElement } from "react"
+import { renderToString as renderReactToString } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { defineComponent, h, reactive, type VNode } from "vue"
+import { createSSRApp, defineComponent, h, reactive, type VNode } from "vue"
+import { renderToString as renderVueToString } from "vue/server-renderer"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Popover as ReactPopover, usePopoverController as useReactPopoverController } from "../../packages/ui/src/components/Popover"
 import { CopyTooltip as ReactCopyTooltip, Tooltip as ReactTooltip } from "../../packages/ui/src/components/Tooltip"
@@ -257,16 +259,96 @@ describe("Tooltip parity", () => {
     expect(vue).toBe(react)
   })
 
-  test("open tooltip: trigger described by the hidden copy, Radix custom properties", async () => {
+  test("open tooltip: trigger described by the tooltip element itself, Radix custom properties", async () => {
     const { react, vue } = await pair(reactTooltip({ forceOpen: true }), () => vueTooltip({ forceOpen: true }))
     expect(vue).toBe(react)
     expect(react).toContain('aria-describedby="gen-1"')
-    expect(react).toMatch(/<span id="gen-1" role="tooltip"/)
+    // radix-ui 1.8: the content is the role="tooltip" element, with no hidden copy
+    expect(react).toMatch(/<div class="Tooltip" [^>]*id="gen-1" role="tooltip"/)
+    expect(react).not.toContain("<span id=")
     expect(react).toContain("--radix-tooltip-content-transform-origin: var(--radix-popper-transform-origin)")
     expect(react).not.toContain("[missing]")
   })
 
-  test("rich content is copied into the hidden tooltip text", async () => {
+  test("aria-label on the content: a visually hidden tooltip element carries it", async () => {
+    const { react, vue } = await pair(
+      <ReactTooltip.Root open onOpenChange={() => {}}>
+        <ReactTooltip.Trigger>
+          <button data-testid="trigger">Trigger</button>
+        </ReactTooltip.Trigger>
+        <ReactTooltip.Content aria-label="Accessible tip">Visible tip</ReactTooltip.Content>
+      </ReactTooltip.Root>,
+      () =>
+        h(TooltipRoot, { open: true }, {
+          default: () => [
+            h(TooltipTrigger, null, { default: () => h("button", { "data-testid": "trigger" }, "Trigger") }),
+            h(TooltipContent, { "aria-label": "Accessible tip" }, { default: () => "Visible tip" }),
+          ],
+        }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toMatch(/<div class="Tooltip" (?![^>]*role=)[^>]*>\n\s+"Visible tip"\n\s+<span id="gen-1" role="tooltip"/)
+    expect(react).toContain('aria-describedby="gen-1"')
+  })
+
+  test("an id on the content becomes the id the trigger points at", async () => {
+    const { react, vue } = await pair(
+      <div>
+        <p id="own-help">Own</p>
+        <p id="child-help">Child</p>
+        <ReactTooltip.Root open onOpenChange={() => {}}>
+          <ReactTooltip.Trigger aria-describedby="own-help">
+            <button data-testid="trigger" aria-describedby="child-help">
+              Trigger
+            </button>
+          </ReactTooltip.Trigger>
+          <ReactTooltip.Content id="custom-tip">Tip</ReactTooltip.Content>
+        </ReactTooltip.Root>
+      </div>,
+      () =>
+        h("div", [
+          h("p", { id: "own-help" }, "Own"),
+          h("p", { id: "child-help" }, "Child"),
+          h(TooltipRoot, { open: true }, {
+            default: () => [
+              h(TooltipTrigger, { "aria-describedby": "own-help" }, {
+                default: () => h("button", { "data-testid": "trigger", "aria-describedby": "child-help" }, "Trigger"),
+              }),
+              h(TooltipContent, { id: "custom-tip" }, { default: () => "Tip" }),
+            ],
+          }),
+        ]),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('aria-describedby="child-help own-help custom-tip"')
+    expect(react).toMatch(/id="custom-tip" role="tooltip"/)
+  })
+
+  test("aria-describedby on Tooltip and on its child are kept next to the tooltip's id", async () => {
+    const { react, vue } = await pair(
+      <div>
+        <p id="outer-help">Outer</p>
+        <p id="inner-help">Inner</p>
+        <ReactTooltip content="Tip" forceOpen {...({ "aria-describedby": "outer-help" } as object)}>
+          <button data-testid="trigger" aria-describedby="inner-help">
+            Trigger
+          </button>
+        </ReactTooltip>
+      </div>,
+      () =>
+        h("div", [
+          h("p", { id: "outer-help" }, "Outer"),
+          h("p", { id: "inner-help" }, "Inner"),
+          h(Tooltip, { "content": "Tip", "forceOpen": true, "aria-describedby": "outer-help" }, {
+            default: () => h("button", { "data-testid": "trigger", "aria-describedby": "inner-help" }, "Trigger"),
+          }),
+        ]),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('aria-describedby="inner-help outer-help gen-1"')
+  })
+
+  test("rich content renders once, in the tooltip element", async () => {
     const { react, vue } = await pair(
       <ReactTooltip content={<strong className="tip">Bold tip</strong>} forceOpen>
         <button data-testid="trigger">Trigger</button>
@@ -282,7 +364,7 @@ describe("Tooltip parity", () => {
         ),
     )
     expect(vue).toBe(react)
-    expect(react.match(/<strong class="tip">/g)).toHaveLength(2)
+    expect(react.match(/<strong class="tip">/g)).toHaveLength(1)
   })
 
   test("attributes on Tooltip land on the trigger, merged Radix-style", async () => {
@@ -304,12 +386,18 @@ describe("Tooltip parity", () => {
     expect(react).toContain('data-extra="child"')
   })
 
-  test("a text child renders nothing, as Radix's Slot does", async () => {
-    const { react, vue } = await pair(<ReactTooltip content="Tip">Just text</ReactTooltip>, () =>
-      h(Tooltip, { content: "Tip" }, { default: () => "Just text" }),
+  // radix-ui 1.8's Slot throws for a text child (it rendered nothing before).
+  // The Vue port keeps rendering nothing, as it does for other children
+  // Radix's Slot rejects, rather than failing the whole render.
+  test("a text child: React's Slot throws, Vue renders no trigger", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+    await expect(reactDom(<ReactTooltip content="Tip">Just text</ReactTooltip>)).rejects.toThrow(
+      "Slot failed to slot onto its children",
     )
-    expect(vue).toBe(react)
-    expect(react).not.toContain("Just text")
+    cleanup()
+    consoleError.mockRestore()
+    const vue = await vueDom(() => h(Tooltip, { content: "Tip" }, { default: () => "Just text" }))
+    expect(vue).toBe("<div>\nfocus: body")
   })
 
   test.each([
@@ -919,17 +1007,77 @@ describe("Popover behaviour parity", () => {
     expect(result.react[0]).toMatch(/focus: <button class="Button"/)
   })
 
-  test("pointer down outside closes without moving focus to the trigger", async () => {
+  // radix-ui 1.8 defers a primary-button press outside to the click that follows
+  test("a press outside closes on its click, without moving focus to the trigger", async () => {
     const result = await popoverWalk({}, async ({ fire, advance, snapshot }) => {
       await fire(TRIGGER, "click")
       await advance(1)
       await fire(() => document.body, "pointerDown", mouse)
       await advance(1)
-      snapshot()
+      snapshot() // still open
+      await fire(() => document.body, "pointerUp", mouse)
+      await fire(() => document.body, "click")
+      await advance(1)
+      snapshot() // closed
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).not.toContain('role="dialog"')
-    expect(result.react[0]).toContain("focus: body")
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[1]).not.toContain('role="dialog"')
+    expect(result.react[1]).toContain("focus: body")
+  })
+
+  test("a press outside: focus moving out keeps it open, a click stopped on its way keeps it open", async () => {
+    const outside = document.createElement("button")
+    outside.className = "outside"
+    outside.textContent = "Outside"
+    outside.addEventListener("click", (event) => event.stopPropagation())
+    document.body.append(outside)
+    try {
+      const result = await popoverWalk({}, async ({ fire, focus, advance, snapshot }) => {
+        await fire(TRIGGER, "click")
+        await advance(1)
+        await fire(".outside", "pointerDown", mouse)
+        await focus(".outside")
+        await advance(1)
+        snapshot() // focus outside, still open
+        await fire(".outside", "pointerUp", mouse)
+        await fire(".outside", "click")
+        await advance(1)
+        snapshot() // the click never reached the document: still open
+        await fire(() => document.body, "pointerDown", mouse)
+        await fire(() => document.body, "click")
+        await advance(1)
+        snapshot() // closed
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[0]).toContain('role="dialog"')
+      expect(result.react[0]).toContain('focus: <button class="outside">')
+      expect(result.react[1]).toContain('role="dialog"')
+      expect(result.react[2]).not.toContain('role="dialog"')
+    } finally {
+      outside.remove()
+    }
+  })
+
+  test("closed and reopened: the trigger points at the panel only while open", async () => {
+    // Read from the live DOM: the serializer drops a closed dialog trigger's
+    // dangling aria-controls (radix-ui before 1.8 rendered one)
+    const ariaControls: Array<string | null> = []
+    const result = await popoverWalk({}, async ({ fire, advance, snapshot }) => {
+      await fire(TRIGGER, "click")
+      await advance(1)
+      snapshot()
+      ariaControls.push(resolve(TRIGGER).getAttribute("aria-controls"))
+      await fire(() => document.activeElement, "keyDown", { key: "Escape", code: "Escape" })
+      await advance(1)
+      snapshot()
+      ariaControls.push(resolve(TRIGGER).getAttribute("aria-controls"))
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toMatch(/<button aria-controls="gen-1" aria-expanded="true"/)
+    expect(result.react[1]).toMatch(/<button aria-expanded="false"/)
+    // React open, React closed, Vue open, Vue closed
+    expect(ariaControls.map((value) => value !== null)).toEqual([true, false, true, false])
   })
 
   test("the controller shakes and closes from inside the content", async () => {
@@ -1211,5 +1359,19 @@ describe("Popover behaviour parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).not.toContain('role="dialog"')
     expect(result.react[0]).toMatch(/focus: <(button|a) class=""> "New"/)
+  })
+})
+
+describe("Popover server rendering", () => {
+  // Radix's portal renders once mounted; the port's must not server-render
+  // a teleport either, or hydration of a closed popover mismatches
+  test("a closed popover renders its trigger only, and no teleport", async () => {
+    const react = renderReactToString(reactPopover({}))
+    const context: { teleports?: Record<string, string> } = {}
+    const vue = await renderVueToString(createSSRApp({ render: () => vuePopover({}) }), context)
+    expect(react).not.toContain("Transition")
+    expect(vue).not.toContain("Transition")
+    expect(context.teleports?.body ?? "").toBe("")
+    expect(vue).toContain('aria-haspopup="dialog"')
   })
 })

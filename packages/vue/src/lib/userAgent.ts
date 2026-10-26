@@ -1,4 +1,5 @@
-const userAgent = navigator.userAgent
+// Empty where there is no navigator (server rendering): every check is false
+const userAgent = typeof navigator === "undefined" ? "" : navigator.userAgent
 
 export function isIosBrowser() {
   return /iPad|iPhone|iPod/.test(userAgent)
@@ -9,7 +10,7 @@ export function isAndroidBrowser() {
 }
 
 export function isIosChromeBrowser() {
-  return isIosBrowser() && navigator.userAgent.includes("CriOS")
+  return isIosBrowser() && userAgent.includes("CriOS")
 }
 
 export function isMobileDevice() {

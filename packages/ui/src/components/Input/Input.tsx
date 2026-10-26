@@ -141,9 +141,12 @@ const InputRoot = (props: InputProps) => {
     const { clientX, clientY } = evt
     // "Before" the input: top/left
     const isBefore = clientY < top || clientX < left
+    // email, number and other types without the selection API throw on setSelectionRange
+    const hasSelection = input.selectionStart !== null
 
     // If this is the first click, clear the selection.
     if (evt.detail === 1) {
+      if (!hasSelection) return
       if (isBefore) {
         input.setSelectionRange(0, 0)
       } else {
@@ -153,6 +156,7 @@ const InputRoot = (props: InputProps) => {
     }
     // If this is the second click, select the first or last word
     else if (evt.detail === 2) {
+      if (!hasSelection) return
       // Split the textarea value into words and non-word characters
       const words = input.value.match(/\w+|[^\w\s]/g) || []
       const selectedWord = isBefore ? words.at(0) : words.at(-1)
@@ -176,6 +180,12 @@ const InputRoot = (props: InputProps) => {
       inputRef.current?.select()
     }
   }, [autoSelect])
+
+  // The clear button unmounts once the value is gone, so keep focus in the input
+  const handleClear = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    inputRef.current?.focus()
+    ;(onClear as React.MouseEventHandler<HTMLButtonElement> | undefined)?.(evt)
+  }
 
   const handleAnimationStart = (evt: React.AnimationEvent<HTMLInputElement>) => {
     onAnimationStart?.(evt)
@@ -230,7 +240,7 @@ const InputRoot = (props: InputProps) => {
         data-1p-ignore={allowAutofillExtensions ? undefined : true}
       />
       {showClearButton && (
-        <button type="button" aria-label="Clear input" className={s.Clear} onClick={onClear}>
+        <button type="button" aria-label="Clear input" className={s.Clear} onClick={handleClear}>
           <X />
         </button>
       )}

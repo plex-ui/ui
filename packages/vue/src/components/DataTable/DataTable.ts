@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, shallowRef, watch, type PropType, type VNode, type VNodeChild } from "vue"
+import { computed, defineComponent, h, ref, shallowRef, watch, type PropType, type VNode, type VNodeChild } from "vue"
 import {
   FlexRender,
   getCoreRowModel,
@@ -13,11 +13,15 @@ import {
   type Updater,
   type VisibilityState,
 } from "@tanstack/vue-table"
+import { Checkbox, type CheckedState } from "../Checkbox/index.js"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../Table/index.js"
 import { DataTablePagination } from "./DataTablePagination.js"
 import s from "@plexui/styles/components/DataTable/DataTable.module.css"
 
-declare module "@tanstack/vue-table" {
+// Augments table-core, which @tanstack/vue-table re-exports: @plexui/ui
+// augments the same module, so both declarations merge when a project
+// type-checks the two packages together
+declare module "@tanstack/table-core" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
     align?: "left" | "center" | "right"
@@ -35,6 +39,7 @@ declare module "@tanstack/vue-table" {
 // - `onRowClick` is a function prop (`@row-click` in templates) because its
 //   presence makes the rows interactive (`data-clickable`).
 // - `emptyMessage` is a prop with the `emptyMessage` slot taking precedence.
+// - `enableRowSelection` puts the same checkbox column first, with Checkbox.
 // - React passes only its own props: the root takes the caller's `class`.
 //
 // useReactTable and useVueTable merge options differently: React spreads
@@ -43,6 +48,26 @@ declare module "@tanstack/vue-table" {
 // falls back to its internal state for undefined keys, so that internal
 // state starts undefined for those three keys (`initialState`) and no
 // updater ever writes them (each has its own change handler).
+
+// Id of the checkbox column `enableRowSelection` puts before the columns
+const SELECT_COLUMN_ID = "select"
+
+const selectColumn: ColumnDef<any, unknown> = {
+  id: SELECT_COLUMN_ID,
+  header: ({ table }) =>
+    h(Checkbox, {
+      "aria-label": "Select all rows",
+      "checked": table.getIsAllRowsSelected() ? true : table.getIsSomeRowsSelected() ? "indeterminate" : false,
+      "onUpdate:checked": (checked: CheckedState) => table.toggleAllRowsSelected(checked === true),
+    }),
+  cell: ({ row }) =>
+    h(Checkbox, {
+      "aria-label": "Select row",
+      "checked": row.getIsSelected(),
+      "onUpdate:checked": (checked: CheckedState) => row.toggleSelected(checked === true),
+    }),
+  enableHiding: false,
+}
 
 const resolveUpdater = <T>(updater: Updater<T>, value: T): T => {
   return typeof updater === "function" ? (updater as (old: T) => T)(value) : updater
@@ -111,7 +136,10 @@ const DataTableComponent = defineComponent({
     initialSorting: Array as PropType<SortingState>,
     /** Controlled column visibility (`v-model:column-visibility`) */
     columnVisibility: Object as PropType<VisibilityState>,
-    /** Enable row selection. @default false */
+    /**
+     * Enable row selection: adds a first column with a checkbox per row and a
+     * header checkbox that selects every row. @default false
+     */
     enableRowSelection: { type: Boolean, default: false },
     /** Controlled row selection state (`v-model:row-selection`) */
     rowSelection: Object as PropType<RowSelectionState>,
@@ -152,12 +180,15 @@ const DataTableComponent = defineComponent({
       (next) => emit("update:rowSelection", next),
     )
 
+    const columns = computed(() => (props.enableRowSelection ? [selectColumn, ...props.columns] : props.columns))
+    const isSelectColumn = (id: string) => props.enableRowSelection && id === SELECT_COLUMN_ID
+
     const table = useVueTable<any>({
       get data() {
         return props.data
       },
       get columns() {
-        return props.columns
+        return columns.value
       },
       state: {
         get sorting() {
@@ -224,7 +255,10 @@ const DataTableComponent = defineComponent({
       const headerGroups = table.getHeaderGroups()
       const rows = table.getRowModel().rows
       const totalRows = table.getFilteredRowModel().rows.length
-      const hasPagination = shouldPaginate() && totalRows > props.pageSize
+      // Hidden only when every row fits on one page, both at the configured
+      // page size and at the one picked in the rows-per-page select
+      const hasPagination =
+        shouldPaginate() && totalRows > Math.min(props.pageSize, table.getState().pagination.pageSize)
       const visibleColumnCount = Math.max(table.getVisibleLeafColumns().length, 1)
       const { onRowClick } = props
 
@@ -236,9 +270,19 @@ const DataTableComponent = defineComponent({
             default: () =>
               headerGroup.headers.map((header) => {
                 const align = header.column.columnDef.meta?.align
+                // aria-sort goes on one header at a time: the primary sort
+                // column's real header, not its group placeholders
+                const sorted =
+                  !header.isPlaceholder && header.column.getSortIndex() === 0 ? header.column.getIsSorted() : false
                 return h(
                   TableHead,
-                  { key: header.id, ...(align ? { style: { textAlign: align } } : {}) },
+                  {
+                    "key": header.id,
+                    "colspan": header.colSpan > 1 ? header.colSpan : undefined,
+                    "class": isSelectColumn(header.column.id) ? s.SelectColumn : undefined,
+                    ...(align ? { style: { textAlign: align } } : {}),
+                    "aria-sort": sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined,
+                  },
                   {
                     default: () =>
                       header.isPlaceholder
@@ -268,14 +312,38 @@ const DataTableComponent = defineComponent({
               const cells = row.getVisibleCells()
               return h(
                 TableRow,
-                { key: row.id, ...(onRowClick ? { onClick: () => onRowClick(row.original) } : {}) },
+                {
+                  key: row.id,
+                  ...(onRowClick
+                    ? {
+                        // Clickable rows are reached with Tab and activated
+                        // with Enter or Space, like a button
+                        tabindex: 0,
+                        onClick: () => onRowClick(row.original),
+                        onKeydown: (event: KeyboardEvent) => {
+                          // Keys on a control inside the row are the control's
+                          if (event.target !== event.currentTarget) return
+                          if (event.key !== "Enter" && event.key !== " ") return
+                          event.preventDefault()
+                          onRowClick(row.original)
+                        },
+                      }
+                    : {}),
+                },
                 {
                   default: () =>
                     cells.map((cell) => {
                       const align = cell.column.columnDef.meta?.align
                       return h(
                         TableCell,
-                        { key: cell.id, ...(align ? { style: { textAlign: align } } : {}) },
+                        {
+                          key: cell.id,
+                          ...(align ? { style: { textAlign: align } } : {}),
+                          // A click on a selection checkbox is not a row click
+                          ...(onRowClick && isSelectColumn(cell.column.id)
+                            ? { onClick: (event: MouseEvent) => event.stopPropagation() }
+                            : {}),
+                        },
                         {
                           default: () =>
                             h(FlexRender, { render: cell.column.columnDef.cell, props: cell.getContext() }),
@@ -330,7 +398,7 @@ export type DataTableProps<TData> = {
   columnVisibility?: VisibilityState
   /** Called with the next column visibility (`v-model:column-visibility`) */
   "onUpdate:columnVisibility"?: (visibility: VisibilityState) => void
-  /** Enable row selection. @default false */
+  /** Enable row selection: a first column of checkboxes, with select-all in the header. @default false */
   enableRowSelection?: boolean
   /** Controlled row selection state */
   rowSelection?: RowSelectionState

@@ -260,6 +260,9 @@ export const TagInput = (props: TagInputProps) => {
   const addTag = (tagValue: string) => addTags([tagValue])
 
   const removeTag = (tag: string) => {
+    if (disabled) {
+      return
+    }
     const newSet = new Map(tags)
     newSet.delete(tag)
     const newTags = Array.from(newSet.values())
@@ -315,7 +318,8 @@ export const TagInput = (props: TagInputProps) => {
   const handleContainerBlur = () => {
     setFocused(false)
     setSelectedTag(null)
-    if (currentInput) {
+    // A disabled tag input keeps the pending text instead of committing it
+    if (currentInput && !disabled) {
       addTag(currentInput)
       setCurrentInput("")
     }
@@ -326,6 +330,10 @@ export const TagInput = (props: TagInputProps) => {
   // ============================================
 
   const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // A tag can keep focus while the input turns disabled: no selecting or removing then
+    if (disabled) {
+      return
+    }
     if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       if (isEmptyStartingSelection()) {
         e.preventDefault()

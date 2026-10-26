@@ -34,6 +34,11 @@ function sanitizeDigits(value: string, length: number): string {
   return value.replace(/\D/g, "").slice(0, length)
 }
 
+// One entry per cell, "" when empty
+function toCells(value: string, length: number): string[] {
+  return Array.from({ length }, (_, index) => value[index] ?? "")
+}
+
 function shouldShowGap(index: number, grouping: number[]): boolean {
   let pos = 0
   for (const groupSize of grouping) {
@@ -61,7 +66,9 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
   const controlledValue = useMemo(() => sanitizeDigits(value ?? "", length), [value, length])
   const isControlled = value !== undefined
 
-  const [internalValue, setInternalValue] = useState(() => sanitizeDigits(value ?? "", length))
+  // The digit of every cell, so clearing or filling one cell never moves the
+  // others; the value is the filled cells' digits in order
+  const [cells, setCells] = useState(() => toCells(controlledValue, length))
   const [focusedIndex, setFocusedIndex] = useState(-1)
 
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -69,18 +76,13 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
 
   useImperativeHandle(ref, () => rootRef.current as HTMLDivElement, [])
 
-  useEffect(() => {
-    if (isControlled) {
-      setInternalValue(controlledValue)
-      return
-    }
-    setInternalValue((current) => sanitizeDigits(current, length))
-  }, [controlledValue, isControlled, length])
-
-  const currentValue = isControlled ? controlledValue : internalValue
+  const ownCells = useMemo(() => Array.from({ length }, (_, index) => cells[index] ?? ""), [cells, length])
+  const currentValue = isControlled ? controlledValue : ownCells.join("")
+  // The cells keep their gaps while they spell the value; any other value
+  // (set by the parent) fills the cells from the start
   const digits = useMemo(
-    () => Array.from({ length }, (_, index) => currentValue[index] ?? ""),
-    [currentValue, length],
+    () => (ownCells.join("") === currentValue ? ownCells : toCells(currentValue, length)),
+    [ownCells, currentValue, length],
   )
 
   const errorId = `otp-input-${useId()}-error`
@@ -90,21 +92,19 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
     inputRefs.current[0]?.focus()
   }, [autoFocus, disabled])
 
-  const commitValue = useCallback(
-    (nextValueRaw: string) => {
-      const nextValue = sanitizeDigits(nextValueRaw, length)
-      if (!isControlled) {
-        setInternalValue(nextValue)
-      }
+  const commitDigits = useCallback(
+    (nextDigits: string[]) => {
+      // Kept when controlled too: the parent's value then keeps these gaps
+      setCells(nextDigits)
+      const nextValue = nextDigits.join("")
       if (nextValue !== currentValue) {
         onChange?.(nextValue)
       }
       if (nextValue.length === length) {
         onComplete?.(nextValue)
       }
-      return nextValue
     },
-    [currentValue, isControlled, length, onChange, onComplete],
+    [currentValue, length, onChange, onComplete],
   )
 
   const focusCell = useCallback((index: number) => {
@@ -136,11 +136,11 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
         writeIndex += 1
       }
 
-      const nextValue = commitValue(nextDigits.join(""))
-      const nextFocusIndex = Math.min(nextValue.length, length - 1)
-      focusCell(nextFocusIndex)
+      commitDigits(nextDigits)
+      // The cell after the pasted digits
+      focusCell(Math.min(writeIndex, length - 1))
     },
-    [commitValue, digits, disabled, focusCell, length],
+    [commitDigits, digits, disabled, focusCell, length],
   )
 
   const handleChange = useCallback(
@@ -151,7 +151,7 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
       if (!typedDigits) {
         const nextDigits = [...digits]
         nextDigits[index] = ""
-        commitValue(nextDigits.join(""))
+        commitDigits(nextDigits)
         return
       }
 
@@ -159,8 +159,8 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
 
       if (typedDigits.length === 1) {
         nextDigits[index] = typedDigits[0]
-        const nextValue = commitValue(nextDigits.join(""))
-        if (index < length - 1 && nextValue.length > index) {
+        commitDigits(nextDigits)
+        if (index < length - 1) {
           focusCell(index + 1)
         }
         return
@@ -173,11 +173,11 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
         writeIndex += 1
       }
 
-      const nextValue = commitValue(nextDigits.join(""))
-      const nextFocusIndex = Math.min(nextValue.length, length - 1)
-      focusCell(nextFocusIndex)
+      commitDigits(nextDigits)
+      // The cell after the typed digits
+      focusCell(Math.min(writeIndex, length - 1))
     },
-    [commitValue, digits, disabled, focusCell, length],
+    [commitDigits, digits, disabled, focusCell, length],
   )
 
   const handleKeyDown = useCallback(
@@ -190,13 +190,13 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
 
         if (nextDigits[index]) {
           nextDigits[index] = ""
-          commitValue(nextDigits.join(""))
+          commitDigits(nextDigits)
           return
         }
 
         if (index > 0) {
           nextDigits[index - 1] = ""
-          commitValue(nextDigits.join(""))
+          commitDigits(nextDigits)
           focusCell(index - 1)
         }
         return
@@ -206,7 +206,7 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
         evt.preventDefault()
         const nextDigits = [...digits]
         nextDigits[index] = ""
-        commitValue(nextDigits.join(""))
+        commitDigits(nextDigits)
         return
       }
 
@@ -221,7 +221,7 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
         focusCell(index + 1)
       }
     },
-    [commitValue, digits, disabled, focusCell],
+    [commitDigits, digits, disabled, focusCell],
   )
 
   const handleBlur = useCallback(() => {

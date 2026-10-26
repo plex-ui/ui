@@ -28,6 +28,7 @@ import { focusableElements, preventDefaultHandler, toCssVariables } from "../../
 import { TransitionGroup } from "../Transition/index.js"
 import { withRadixVariableNames } from "../Tooltip/Tooltip.js"
 import { composeEventHandlers, firstElementChild, mergeSlotProps } from "../Tooltip/slot.js"
+import { useDeferredPointerDownOutside } from "./deferredPointerDownOutside.js"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent.js"
 import { PopoverContextKey, usePopoverContext, type PopoverContextValue } from "./usePopoverContext.js"
 import { usePopoverController } from "./usePopoverController.js"
@@ -41,11 +42,15 @@ import s from "@plexui/styles/components/Popover/Popover.module.css"
 // Reka keeps positioning, the dismissable layer, the focus scope and focus
 // return. As in Tooltip, the port follows Radix where they differ:
 // - The trigger is Radix's: it runs after the child's handlers and toggles
-//   only when none called preventDefault(), carries no `id`, and keeps
-//   `aria-controls` while closed.
+//   only when none called preventDefault(), carries no `id`, and has
+//   `aria-controls` only while open.
 // - The content element is rendered here (Reka's `as`): Radix's custom
 //   property names (the shared CSS reads `--radix-popover-content-*`), no
 //   `dir`, no `aria-labelledby`.
+// - A press outside closes it on the click that follows, as Radix's
+//   deferred outside press does (./deferredPointerDownOutside.ts).
+// - The portal renders once mounted, as Radix's does, so a closed popover
+//   server-renders nothing.
 
 export type PopoverSide = "top" | "right" | "bottom" | "left"
 export type PopoverAlign = "start" | "center" | "end"
@@ -253,7 +258,7 @@ export const PopoverTrigger = defineComponent({
         "type": "button",
         "aria-haspopup": "dialog",
         "aria-expanded": isOpen,
-        "aria-controls": rootContext.contentId,
+        "aria-controls": isOpen ? rootContext.contentId : undefined,
         "data-state": isOpen ? "open" : "closed",
         onPointerdown,
         onClick,
@@ -320,8 +325,20 @@ const PopoverContentImpl = defineComponent({
   inheritAttrs: false,
   props: contentProps,
   setup(props, { slots, attrs }) {
-    const { showOnHover, shake, contentRef } = usePopoverContext()
+    const { showOnHover, shake, contentRef, setOpen, triggerRef } = usePopoverContext()
     const controller = usePopoverController()
+
+    // Radix's non-modal content: a press on the trigger is left to the
+    // trigger, and focus does not return to it after a press outside
+    let pressedOutside = false
+    const outsidePress = useDeferredPointerDownOutside((originalEvent) => {
+      if (triggerRef.value?.contains(originalEvent.target as Node)) return
+      pressedOutside = true
+      setOpen(false)
+    })
+    const handleCloseAutoFocus = (event: Event) => {
+      if (showOnHover.value || pressedOutside) event.preventDefault()
+    }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
       const contentElement = contentRef.value
@@ -385,7 +402,9 @@ const PopoverContentImpl = defineComponent({
             "popover-min-width": props.minWidth,
             "popover-max-width": props.maxWidth,
           }),
-          "onCloseAutoFocus": showOnHover.value ? preventDefaultHandler : undefined,
+          "onCloseAutoFocus": handleCloseAutoFocus,
+          "onPointerDownOutside": outsidePress.onPointerDownOutside,
+          "onFocusOutside": outsidePress.onFocusOutside,
           "data-animate": shake.value ? "shake" : undefined,
           "data-translucent": props.translucent ? "true" : undefined,
           "side": props.side,
@@ -515,7 +534,7 @@ export const PopoverContent = defineComponent({
     })
 
     return () =>
-      h(RekaPopoverPortal, { forceMount: true }, {
+      h(RekaPopoverPortal, null, {
         default: () => [
           h(
             TransitionGroup,
@@ -538,7 +557,12 @@ export const PopoverContent = defineComponent({
 })
 
 /** Popover root. Uncontrolled by default; bind `v-model:open` to control it. */
-export const Popover = Object.assign(PopoverComponent, {
+// Typed explicitly so the published declaration refers to the parts instead of
+// expanding them (an expanded component type fails consumers' type checks)
+export const Popover: typeof PopoverComponent & {
+  Trigger: typeof PopoverTrigger
+  Content: typeof PopoverContent
+} = Object.assign(PopoverComponent, {
   Trigger: PopoverTrigger,
   Content: PopoverContent,
 })

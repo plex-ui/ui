@@ -176,6 +176,8 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
     // Merge aria-describedby with error id
     const ariaDescribedBy =
       [ariaDescribedByProp, errorId, descriptionId].filter(Boolean).join(" ") || undefined
+    // An explicit aria-invalid (e.g. from Field) wins over the computed state
+    const ariaInvalid = restProps["aria-invalid"] ?? (invalid ? true : undefined)
 
     // Handle clicks on the container to focus the input
     const handleContainerMouseDown = useCallback((evt: React.MouseEvent<HTMLDivElement>) => {
@@ -193,9 +195,20 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
       if (document.activeElement !== input) {
         input.focus()
       }
+      // email, number and other types without the selection API throw on setSelectionRange
+      if (input.selectionStart === null) return
       const length = input.value.length
       input.setSelectionRange(length, length)
     }, [])
+
+    // The clear button unmounts once the value is gone, so keep focus in the field
+    const handleClear = useCallback(
+      (evt: React.MouseEvent<HTMLButtonElement>) => {
+        inputRef.current?.focus()
+        ;(onClear as React.MouseEventHandler<HTMLButtonElement> | undefined)?.(evt)
+      },
+      [onClear],
+    )
 
     const handleFocus = useCallback(
       (evt: React.FocusEvent<HTMLInputElement>) => {
@@ -276,7 +289,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
               defaultValue={defaultValue}
               disabled={disabled}
               readOnly={readOnly}
-              aria-invalid={invalid ? true : undefined}
+              aria-invalid={ariaInvalid}
               aria-describedby={ariaDescribedBy}
               onChange={handleChange as unknown as React.ChangeEventHandler<HTMLTextAreaElement>}
               onFocus={handleFocus as unknown as React.FocusEventHandler<HTMLTextAreaElement>}
@@ -294,7 +307,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
               defaultValue={defaultValue}
               disabled={disabled}
               readOnly={readOnly}
-              aria-invalid={invalid ? true : undefined}
+              aria-invalid={ariaInvalid}
               aria-describedby={ariaDescribedBy}
               onChange={handleChange}
               onFocus={handleFocus}
@@ -314,7 +327,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
               type="button"
               aria-label="Clear input"
               className={s.ClearButton}
-              onClick={onClear}
+              onClick={handleClear}
             >
               <X />
             </button>

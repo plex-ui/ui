@@ -111,15 +111,15 @@ export const DateRangeCalendar = defineComponent({
     watch(
       () => context.value,
       (value) => {
-        // No-op when value is empty
-        if (!value) {
-          return
-        }
-
         // When a new value is received, it could be out of band from the control of this calendar.
         // For example, a shortcut could be selected, or clear could be pressed. In either case, selection
         // should be reset so that the new `value` can be displayed fully.
         selectionRange.value = null
+
+        // Nothing else to do when value is empty
+        if (!value) {
+          return
+        }
 
         // Check if `value` is still within view of our calendar
         const viewInterval = Interval.fromDateTimes(
@@ -383,13 +383,17 @@ const CalendarView = defineComponent({
                   "data-is-last-range-trail": isLastRangeTrail ? "" : undefined,
                 },
                 [
+                  // The full date names the day, which "15" alone does not across months
                   h(
                     "button",
                     {
-                      class: s.InteractiveDay,
-                      disabled: !enabled,
-                      onClick: () => d && props.onDateSelect?.(d),
-                      onMouseenter: () => d && props.onDateMouseEnter?.(d),
+                      "class": s.InteractiveDay,
+                      "disabled": !enabled,
+                      "aria-label": d.toLocaleString(DateTime.DATE_HUGE),
+                      "aria-pressed": isStart || isEnd || isInRange ? "true" : "false",
+                      "aria-current": dayIsToday ? "date" : undefined,
+                      "onClick": () => d && props.onDateSelect?.(d),
+                      "onMouseenter": () => d && props.onDateMouseEnter?.(d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],
                   ),
@@ -418,7 +422,7 @@ export const DateRangeShortcuts = defineComponent({
         return null
       }
 
-      const { value, onChange } = context
+      const { value, min, max, maxRangeDays, onChange } = context
 
       return h(
         "div",
@@ -441,6 +445,7 @@ export const DateRangeShortcuts = defineComponent({
               iconSize: "sm",
               block: true,
               selected: isActive,
+              disabled: !isRangeWithinLimits(range, min, max, maxRangeDays),
               onClick: () => onChange(range, shortcut),
             },
             { default: () => [h("span", { class: s.ButtonText }, label), isActive ? h(Check) : null] },
@@ -450,6 +455,13 @@ export const DateRangeShortcuts = defineComponent({
     }
   },
 })
+
+// A shortcut follows the calendar's limits: whole days from min to max, and
+// no more than maxRangeDays days
+const isRangeWithinLimits = ([start, end]: DateRange, min?: DateTime, max?: DateTime, maxRangeDays?: number) =>
+  !(min && isBefore(start, min.startOf("day"))) &&
+  !(max && isAfter(end, max.endOf("day"))) &&
+  !(maxRangeDays != null && isAfter(end.startOf("day"), start.startOf("day").plus({ days: maxRangeDays - 1 })))
 
 const getLeftCalendarDate = (targetDate: DateTime, maxDate?: DateTime) => {
   if (!maxDate) {

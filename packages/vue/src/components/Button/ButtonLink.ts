@@ -1,7 +1,7 @@
 import { defineComponent, h, mergeProps, type PropType } from "vue"
 import type { ControlSize, Sizes, Variants } from "@plexui/styles/types"
 import { handlePressableMouseEnter } from "../../lib/helpers.js"
-import { wrapTextNodeSiblings } from "../../lib/renderHelpers.js"
+import { takesToProp, wrapTextNodeSiblings } from "../../lib/renderHelpers.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import type { ButtonColor } from "./Button.js"
@@ -83,7 +83,12 @@ export const ButtonLink = defineComponent({
 
       const linkProps = defined(
         mergeProps(
-          isExternal ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to } : { href, to },
+          isExternal
+            ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to }
+            : // A router link (`to` required) gets the href as `to`
+              to === undefined && takesToProp(LinkComponent)
+              ? { to: href }
+              : { href, to },
           sharedProps,
           restAttrs,
         ),

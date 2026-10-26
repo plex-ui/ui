@@ -117,15 +117,15 @@ export const DateRangeCalendar = () => {
 
   // Force re-renders when `value` changes out of brand from direct user-selection
   useEffect(() => {
-    // No-op when value is empty
-    if (!value) {
-      return
-    }
-
     // When a new value is received, it could be out of band from the control of this calendar.
     // For example, a shortcut could be selected, or clear could be pressed. In either case, selection
     // should be reset so that the new `value` can be displayed fully.
     setSelectionRange(null)
+
+    // Nothing else to do when value is empty
+    if (!value) {
+      return
+    }
 
     // Check if `value` is still within view of our calendar
     const viewInterval = Interval.fromDateTimes(
@@ -387,9 +387,13 @@ const CalendarView = ({
                 data-is-first-range-trail={isFirstRangeTrail ? "" : undefined}
                 data-is-last-range-trail={isLastRangeTrail ? "" : undefined}
               >
+                {/* The full date names the day, which "15" alone does not across months */}
                 <button
                   className={s.InteractiveDay}
                   disabled={!enabled}
+                  aria-label={d.toLocaleString(DateTime.DATE_HUGE)}
+                  aria-pressed={!!(isStart || isEnd || isInRange)}
+                  aria-current={dayIsToday ? "date" : undefined}
                   onClick={() => d && onDateSelect?.(d)}
                   onMouseEnter={() => d && onDateMouseEnter?.(d)}
                 >
@@ -407,7 +411,7 @@ const CalendarView = ({
 
 export const DateRangeShortcuts = ({ shortcuts }: { shortcuts?: DateRangeShortcut[] }) => {
   const isMediumUp = useBreakpoint("md")
-  const { value, onChangeRef } = useDateRangeContext()
+  const { value, min, max, maxRangeDays, onChangeRef } = useDateRangeContext()
 
   if (!isMediumUp || !shortcuts?.length) {
     return null
@@ -432,6 +436,7 @@ export const DateRangeShortcuts = ({ shortcuts }: { shortcuts?: DateRangeShortcu
             iconSize="sm"
             block
             selected={isActive}
+            disabled={!isRangeWithinLimits(range, min, max, maxRangeDays)}
             onClick={() => onChangeRef.current(range, shortcut)}
           >
             <span className={s.ButtonText}>{label}</span>
@@ -442,6 +447,21 @@ export const DateRangeShortcuts = ({ shortcuts }: { shortcuts?: DateRangeShortcu
     </div>
   )
 }
+
+// A shortcut follows the calendar's limits: whole days from min to max, and
+// no more than maxRangeDays days
+const isRangeWithinLimits = (
+  [start, end]: DateRange,
+  min?: DateTime,
+  max?: DateTime,
+  maxRangeDays?: number,
+) =>
+  !(min && isBefore(start, min.startOf("day"))) &&
+  !(max && isAfter(end, max.endOf("day"))) &&
+  !(
+    maxRangeDays != null &&
+    isAfter(end.startOf("day"), start.startOf("day").plus({ days: maxRangeDays - 1 }))
+  )
 
 const getLeftCalendarDate = (targetDate: DateTime, maxDate?: DateTime) => {
   if (!maxDate) {

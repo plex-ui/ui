@@ -1,7 +1,7 @@
 import type { DateTime } from "luxon"
 import { computed, defineComponent, h, provide, toRaw, type PropType } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
-import { isBefore } from "../../lib/dateUtils.js"
+import { isAfter } from "../../lib/dateUtils.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
 import type { DropdownIconType } from "../SelectControl/index.js"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar.js"
@@ -71,12 +71,13 @@ const DateRangePickerComponent = defineComponent({
   setup(props, { emit }) {
     const unwrap = <T>(value: T): T => (value ? toRaw(value) : value)
 
-    // A new range only when `value` changes, as the identity React's effects see
+    // A new range only when `value` or one of its endpoints changes, as the
+    // identity React's effects see. The endpoints are read through the array
+    // so that `range.value[0] = date` on a `ref()` range is tracked.
     const value = computed<DateRange | null>(() => {
-      const range = unwrap(props.value)
+      const range = props.value
       if (!range) return null
-      const [start, end] = range
-      return start === toRaw(start) && end === toRaw(end) ? range : [toRaw(start), toRaw(end)]
+      return [toRaw(range[0]), toRaw(range[1])]
     })
 
     const store: DateRangeContextValue = {
@@ -142,8 +143,9 @@ const DateRangePickerComponent = defineComponent({
       const { min, max } = store
       const { align } = props
 
-      if (min && max && !isBefore(min, max)) {
-        throw new Error("DateRangePicker error: `min` date must be before the `max` date")
+      // min and max are inclusive, so equal bounds allow one date
+      if (min && max && isAfter(min, max)) {
+        throw new Error("DateRangePicker error: `min` date must not be after the `max` date")
       }
 
       return h(Popover, null, {

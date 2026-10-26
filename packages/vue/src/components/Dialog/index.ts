@@ -7,4 +7,6 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  type DialogContentProps,
+  type DialogProps,
 } from "./Dialog.js"

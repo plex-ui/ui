@@ -1,7 +1,7 @@
 import type { DateTime } from "luxon"
-import { defineComponent, h, provide, toRaw, type PropType } from "vue"
+import { defineComponent, h, provide, toRaw, useId, type PropType } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
-import { isBefore } from "../../lib/dateUtils.js"
+import { isAfter } from "../../lib/dateUtils.js"
 import { Calendar } from "../Icon/index.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
 import { SelectControl, type DropdownIconType } from "../SelectControl/index.js"
@@ -23,7 +23,7 @@ const DatePickerComponent = defineComponent({
   inheritAttrs: false,
   props: {
     /** Allow targeting the input for forms and accessibility. */
-    id: { type: String, required: true },
+    id: String,
     "ariaLabel": String,
     "ariaLabelledby": String,
     "ariaDescribedby": String,
@@ -113,14 +113,20 @@ const DatePickerComponent = defineComponent({
       onChange(null)
     }
 
+    // The value text needs an id for aria-labelledby, also when `id` is not set
+    const generatedId = useId()
+
     return () => {
       const { id, ariaLabelledby, align, placeholder } = props
       const value = store.value
       const { min, max } = store
 
-      if (min && max && !isBefore(min, max)) {
-        throw new Error("DatePicker error: `min` date must be before the `max` date")
+      // min and max are inclusive, so equal bounds allow one date
+      if (min && max && isAfter(min, max)) {
+        throw new Error("DatePicker error: `min` date must not be after the `max` date")
       }
+
+      const valueId = `${id ?? generatedId}-value`
 
       const triggerDateFormat = props.triggerDateFormat ?? (props.showTime ? "MM/dd/yy HH:mm" : "MM/dd/yy")
       const text = value?.toFormat(triggerDateFormat) ?? placeholder
@@ -134,7 +140,7 @@ const DatePickerComponent = defineComponent({
                 {
                   "id": id,
                   "aria-label": props.ariaLabel,
-                  "aria-labelledby": ariaLabelledby ? `${ariaLabelledby} ${id}-value` : undefined,
+                  "aria-labelledby": ariaLabelledby ? `${ariaLabelledby} ${valueId}` : undefined,
                   "aria-describedby": props.ariaDescribedby,
                   "aria-invalid": props.ariaInvalid,
                   "class": props.triggerClassName,
@@ -148,7 +154,7 @@ const DatePickerComponent = defineComponent({
                   "dropdownIconType": props.dropdownIconType,
                   "onClearClick": props.clearable ? handleClearClick : undefined,
                 },
-                { default: () => [ariaLabelledby ? h("span", { id: `${id}-value` }, text) : text] },
+                { default: () => [ariaLabelledby ? h("span", { id: valueId }, text) : text] },
               ),
             ],
           }),

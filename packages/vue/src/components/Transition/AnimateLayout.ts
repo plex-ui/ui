@@ -284,3 +284,5 @@ function getAnimationProperties({
     variables,
   }
 }
+
+export type AnimateLayoutProps = InstanceType<typeof AnimateLayout>["$props"]

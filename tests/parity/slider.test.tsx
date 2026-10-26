@@ -120,6 +120,12 @@ const markupCases: [string, Props, boolean?][] = [
   ["range, vertical, disabled", { range: true, label: "Band", min: 0, max: 100, step: 1, value: [20, 60], orientation: "vertical", disabled: true }],
   ["range ignores resetValue", { range: true, label: "R", min: 0, max: 100, step: 1, value: [20, 60], resetValue: 10 }],
   ["range without a label", { range: true, min: 0, max: 100, step: 1, value: [20, 60] }],
+  ["aria-label names the thumb without a label", { min: 0, max: 100, step: 1, value: 30, "aria-label": "Volume" }],
+  ["a visible label wins over aria-label", { ...BASE, "aria-label": "Ignored" }],
+  ["aria-labelledby wins over the label", { ...BASE, "aria-labelledby": "external" }],
+  ["range: aria-label plus each thumb's name", { range: true, min: 0, max: 100, step: 1, value: [20, 60], "aria-label": "Price" }],
+  ["range, three thumbs: aria-label plus each thumb's name", { range: true, min: 0, max: 100, step: 1, value: [10, 40, 70], "aria-label": "Stops" }],
+  ["range: aria-labelledby plus each thumb", { range: true, label: "R", min: 0, max: 100, step: 1, value: [20, 60], "aria-labelledby": "external" }],
   ["in a form", { ...BASE, resetValue: 1000 }, true],
   ["range in a form", { range: true, label: "R", min: 0, max: 100, step: 1, value: [20, 60] }, true],
 ]
@@ -609,7 +615,7 @@ describe("Slider value input parity", () => {
       t.snapshot()
       await t.advance(1)
       t.snapshot()
-      // Only the first character that is not a digit or a dot is stripped
+      // Every character that is not a digit or a dot is stripped
       await t.type("1a2b3")
       t.snapshot()
       await t.advance(250)
@@ -621,11 +627,11 @@ describe("Slider value input parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(result.vueLog).toEqual(result.reactLog)
-    expect(result.reactLog).toEqual(["focus input.ValueInput", "change 1555", "change 12", "change 2000"])
-    expect(result.react[3]).toContain('value="12b3"')
+    expect(result.reactLog).toEqual(["focus input.ValueInput", "change 1555", "change 123", "change 2000"])
+    expect(result.react[3]).toContain('value="123"')
   })
 
-  test("blur commits the typed value (floored, clamped), and the pending debounce still fires", async () => {
+  test("blur commits the typed value (floored, clamped) and drops the pending debounced change", async () => {
     const result = await sliderWalk({ ...BASE }, "controlled", async (t) => {
       await t.focus("input.ValueInput")
       await t.type("733.7")
@@ -636,12 +642,7 @@ describe("Slider value input parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(result.vueLog).toEqual(result.reactLog)
-    expect(result.reactLog).toEqual([
-      "focus input.ValueInput",
-      "change 733",
-      "blur input.ValueInput",
-      "change 733",
-    ])
+    expect(result.reactLog).toEqual(["focus input.ValueInput", "change 733", "blur input.ValueInput"])
   })
 
   test("a decimal step rounds on blur to its precision", async () => {
@@ -734,9 +735,9 @@ describe("Slider value input parity", () => {
     // Blurring commits the input's text, even over a newer value from the
     // parent; then the new bounds clamp it
     expect(result.reactLog).toEqual(["focus input.ValueInput", "change 410", "blur input.ValueInput", "change 500"])
-    // Plex's usePrevious lags: the duration compares with the value two
-    // changes back until something else re-renders the slider
-    expect(result.react.map(durationOf)).toEqual(["100ms", "165ms", "100ms", "119.99999999999999ms", "118.5ms", "100ms"])
+    // The duration compares with the value before the latest change, also
+    // when nothing else re-renders the slider (the input is focused)
+    expect(result.react.map(durationOf)).toEqual(["100ms", "165ms", "100ms", "118.5ms", "118.5ms", "100ms"])
   })
 })
 
@@ -853,3 +854,191 @@ describe("Slider form, focus and tooltip parity", () => {
   })
 })
 
+
+describe("Slider review fixes", () => {
+  test("the value input takes a minus sign when the slider goes below zero", async () => {
+    const result = await sliderWalk({ label: "Offset", min: -10, max: 10, step: 1, value: 0 }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      // A lone minus is a number still being typed: nothing is reported
+      await t.type("-")
+      await t.advance(250)
+      t.snapshot()
+      await t.type("-5")
+      await t.advance(250)
+      t.snapshot()
+      // Only a leading minus counts
+      await t.type("5-")
+      await t.advance(250)
+      await t.type("-15")
+      await t.blur()
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toEqual(["focus input.ValueInput", "change -5", "change 5", "change -10", "blur input.ValueInput"])
+    expect(result.react[0]).toContain('value="-"')
+  })
+
+  test("without negative values a minus sign is stripped", async () => {
+    const result = await sliderWalk({ ...BASE }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("-5")
+      await t.advance(250)
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toEqual(["focus input.ValueInput", "change 5"])
+  })
+
+  test("a key in the value input replaces the typed value that is still pending", async () => {
+    const result = await sliderWalk({ ...BASE }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("25")
+      await t.key("End")
+      await t.advance(250)
+      t.snapshot()
+      await t.type("700")
+      await t.key("ArrowDown")
+      await t.advance(250)
+      t.snapshot()
+      // Also when the parent renders (a new onChange) while the typed value waits
+      await t.type("300")
+      await t.set({ unit: "s" })
+      await t.key("Home")
+      await t.advance(250)
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toEqual(["focus input.ValueInput", "change 2000", "change 1990", "change 0"])
+  })
+
+  test("new marks with the same count replace the old ones, also with new bounds", async () => {
+    const result = await sliderWalk(
+      { label: "Size", min: 0, max: 100, step: 1, value: 50, marks: [{ value: 0, label: "0%" }, { value: 100, label: "100%" }] },
+      "controlled",
+      async (t) => {
+        t.snapshot()
+        await t.set({ max: 10, value: 5, marks: [{ value: 0, label: "0" }, { value: 10, label: "10" }] })
+        t.snapshot()
+        await t.set({ marks: [{ value: 0, label: "Low" }, { value: 10, label: "High" }] })
+        t.snapshot()
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[1]).toContain('"10"')
+    expect(result.react[1]).not.toContain('"100%"')
+    expect(result.react[2]).toContain('"High"')
+  })
+
+  test("range: marks are positioned from the first thumb", async () => {
+    rects = (element) => {
+      const el = element as HTMLElement
+      if (el.getAttribute("role") === "slider") return { left: 0, top: 0, width: 16, height: 16 }
+      if (el.hasAttribute("data-mark")) return { left: parseFloat(el.style.left) || 0, top: 0, width: 20, height: 15 }
+      return undefined
+    }
+    const result = await sliderWalk(
+      { range: true, label: "Grade", min: 1, max: 5, step: 1, value: [2, 4], marks: MARKS },
+      "controlled",
+      async (t) => {
+        await t.run(() => {
+          const observer = observers
+            .filter((o) => o.targets.some((target) => target.isConnected && target.parentElement?.classList.contains("MarksContainer")))
+            .at(-1)!
+          observer.callback(
+            [{ contentBoxSize: [{ inlineSize: 300, blockSize: 15 }] } as unknown as ResizeObserverEntry],
+            observer as unknown as ResizeObserver,
+          )
+        })
+        t.snapshot()
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('class="Mark" data-mark="true" style="left: 69px"')
+  })
+
+  test("a key step from a value off the step grid lands on the grid", async () => {
+    const result = await sliderWalk({ ...BASE, value: 1005 }, "controlled", async (t) => {
+      await t.run(() => thumbs()[0]!.focus())
+      await t.key("ArrowRight")
+      t.snapshot()
+      await t.set({ value: 1005 })
+      await t.key("ArrowLeft")
+      t.snapshot()
+      await t.set({ value: 1005 })
+      await t.key("PageUp")
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    // Even a Page key stops at the grid first
+    expect(result.react.map(valueOf)).toEqual(["1010", "1000", "1010"])
+  })
+
+  test("a thumb focused by a key shows the focus ring; one focused by the pointer does not", async () => {
+    rects = (element) =>
+      element.classList.contains("Slider") ? { left: 100, top: 50, width: 200, height: 200 } : undefined
+    const calls: string[] = []
+    const focus = HTMLElement.prototype.focus
+    vi.spyOn(HTMLElement.prototype, "focus").mockImplementation(function (this: HTMLElement, options?: FocusOptions) {
+      calls.push(`${describeElement(this)} ${JSON.stringify(options ?? null)}`)
+      focus.call(this, options)
+    })
+    const result = await sliderWalk(
+      { range: true, label: "Price range", min: 0, max: 100, step: 1, value: [25, 26] },
+      "controlled",
+      async (t) => {
+        calls.length = 0
+        await t.run(() => thumbs()[1]!.focus())
+        await t.key("ArrowLeft")
+        await t.key("ArrowLeft")
+        await t.fire(".Track", "pointerDown", { pointerId: 1, clientX: 280 })
+        await t.fire(".Track", "pointerUp", { pointerId: 1, clientX: 280 })
+        await t.run(() => fireEvent.pointerDown(thumbs()[0]!, { pointerId: 2, clientX: 150 }))
+        t.snapshot(calls.join("\n"))
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('thumb 25 {"preventScroll":true,"focusVisible":true}')
+    expect(result.react[0]).toContain('{"preventScroll":true,"focusVisible":false}')
+  })
+
+  test("in a form, a value from the parent reaches the hidden input without an input event", async () => {
+    const result = await sliderWalk(
+      { range: true, label: "R", min: 0, max: 100, step: 1, value: [20, 60] },
+      "controlled",
+      async (t) => {
+        await t.set({ value: [30, 60] })
+        await t.run(() => thumbs()[1]!.focus())
+        await t.key("ArrowRight")
+        await t.set({ value: [30, 70] })
+        t.snapshot()
+      },
+      true,
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toEqual(["focus thumb 60", "change [30,61]", "input 61"])
+    expect(result.react[0]).toContain('value="70"')
+  })
+
+  test("a form reset reports the first value again", async () => {
+    const result = await sliderWalk(
+      { ...BASE },
+      "controlled",
+      async (t) => {
+        await t.run(() => thumbs()[0]!.focus())
+        await t.key("ArrowRight")
+        await t.run(() => $<HTMLFormElement>("form").reset())
+        t.snapshot()
+      },
+      true,
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toContain("change 1000")
+    expect(valueOf(result.react[0]!)).toBe("1000")
+  })
+})

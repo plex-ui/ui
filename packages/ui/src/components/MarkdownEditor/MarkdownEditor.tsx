@@ -66,6 +66,14 @@ export type MarkdownEditorProps = {
   "aria-invalid"?: boolean
 }
 
+// A link inserted as a text node, not as `<a>` HTML: the markdown parser runs
+// with `html: false`, so HTML would land in the text as written
+const linkText = (text: string, href: string) => ({
+  type: "text",
+  text,
+  marks: [{ type: "link", attrs: { href } }],
+})
+
 function LinkDialog({
   open,
   initialUrl,
@@ -95,14 +103,26 @@ function LinkDialog({
     }
   }, [open, initialUrl, initialTitle])
 
-  const handleKeyDown = (evt: React.KeyboardEvent) => {
-    if (evt.key === "Enter") {
+  const handleKeyDown = (evt: React.KeyboardEvent<HTMLDivElement>) => {
+    // Enter in a field saves; on a button it is that button's own click
+    if (evt.key === "Enter" && evt.target instanceof HTMLInputElement) {
       evt.preventDefault()
       onSave(url, title)
     }
     if (evt.key === "Escape") {
       evt.preventDefault()
       onCancel()
+    }
+    // The dialog is modal: Tab from the last control wraps to the first, and
+    // Shift+Tab from the first to the last
+    if (evt.key === "Tab") {
+      const controls = Array.from(evt.currentTarget.querySelectorAll<HTMLElement>("input, button"))
+      const first = controls[0]
+      const last = controls[controls.length - 1]
+      if (evt.target === (evt.shiftKey ? first : last)) {
+        evt.preventDefault()
+        ;(evt.shiftKey ? last : first)?.focus()
+      }
     }
   }
 
@@ -111,7 +131,13 @@ function LinkDialog({
   return createPortal(
     <>
       <div className={s.LinkDialogOverlay} onClick={onCancel} />
-      <div className={s.LinkDialogContent} role="dialog" aria-label="Link" onKeyDown={handleKeyDown}>
+      <div
+        className={s.LinkDialogContent}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Link"
+        onKeyDown={handleKeyDown}
+      >
         <div className={s.LinkDialogBody}>
           <h3 className={s.LinkDialogTitle}>Link</h3>
           <div className={s.LinkDialogFields}>
@@ -297,6 +323,8 @@ export function MarkdownEditor({
     if (disabled || !editor) return
     const target = evt.target as Element
     if (target.closest("button, [type='button'], [role='button'], a, input, label")) return
+    // A press in the text places the caret there itself
+    if (editor.view.dom.contains(target)) return
     if (editor.isFocused) return
     evt.preventDefault()
     editor.commands.focus("end")
@@ -341,17 +369,17 @@ export function MarkdownEditor({
     const isOnExistingLink = editor.isActive("link")
 
     if (empty && !isOnExistingLink) {
-      editor.chain().focus().insertContent(`<a href="${url}">${title || url}</a>`).run()
+      editor.chain().focus().insertContent(linkText(title || url, url)).run()
     } else if (isOnExistingLink) {
       editor.chain().focus().extendMarkRange("link").run()
       const linkRange = editor.state.selection
       if (title && title !== editor.state.doc.textBetween(linkRange.from, linkRange.to, "")) {
-        editor.chain().focus().insertContentAt({ from: linkRange.from, to: linkRange.to }, `<a href="${url}">${title}</a>`).run()
+        editor.chain().focus().insertContentAt({ from: linkRange.from, to: linkRange.to }, linkText(title, url)).run()
       } else {
         editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
       }
     } else if (title && title !== selectedText) {
-      editor.chain().focus().deleteSelection().insertContent(`<a href="${url}">${title}</a>`).run()
+      editor.chain().focus().deleteSelection().insertContent(linkText(title, url)).run()
     } else {
       editor.chain().focus().setLink({ href: url }).run()
     }

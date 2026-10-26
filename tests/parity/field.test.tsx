@@ -315,6 +315,26 @@ describe("Field label wiring", () => {
   })
 })
 
+// A wrapper component that forwards its children to Field: React passes the
+// elements on, Vue forwards them through `<slot />` (a fragment)
+describe("Field inside a wrapper that forwards its children", () => {
+  test("the forwarded control still gets the field props", async () => {
+    const RWrapper = ({ children }: { children?: ReactNode }) =>
+      createElement(RField as R, { label: "Email", description: "Help", errorMessage: "Required", id: "email" }, children)
+    const VWrapper = defineComponent({
+      components: { Field },
+      template: `<Field label="Email" description="Help" error-message="Required" id="email"><slot /></Field>`,
+    })
+    const { react, vue } = await renderPair(
+      createElement(RWrapper, null, createElement(RInput as R, { placeholder: "you@example.com" })),
+      () => h(VWrapper, null, { default: () => [h(Input, { placeholder: "you@example.com" })] }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('aria-describedby="email-description email-error"')
+    expect(react).toMatch(/<input[^>]* id="email"/)
+  })
+})
+
 // Stateful walks: the same steps against a React app and a Vue app
 const walk = async (
   mountReact: () => void,

@@ -38,7 +38,19 @@
 :where(.DataTable[data-clickable]) {
   :where(tbody tr) {
     cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-ring);
+      outline-offset: -2px;
+    }
   }
+}
+
+/* The row selection column: as wide as its checkboxes (the table's fixed
+   layout takes column widths from the header row) */
+.SelectColumn {
+  box-sizing: content-box;
+  width: var(--checkbox-indicator-size);
 }
 
 .Pagination {

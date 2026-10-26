@@ -86,7 +86,8 @@ const wrapChildrenOf = (node: VNode): VNode => {
     if (typeof defaultSlot === "function") {
       return withChildren(node, {
         ...slots,
-        default: (...args: unknown[]) => wrapTextNodeSiblings(defaultSlot(...args)),
+        // A render-function slot may return a single vnode instead of an array
+        default: (...args: unknown[]) => wrapTextNodeSiblings([defaultSlot(...args)]),
       })
     }
   }
@@ -101,6 +102,17 @@ const withChildren = (node: VNode, children: VNode["children"]) => {
   // the renderer drop them and diff this node in full
   clone.patchFlag = -2
   return clone
+}
+
+/**
+ * Whether a link component declares a `to` prop, as vue-router's RouterLink
+ * (where it is required) and NuxtLink do. Card, ButtonLink and TextLink hand
+ * such a component their `href` as `to`; React's link components take `href`.
+ */
+export const takesToProp = (component: unknown): boolean => {
+  if (!component || (typeof component !== "object" && typeof component !== "function")) return false
+  const { props } = component as { props?: unknown }
+  return Array.isArray(props) ? props.includes("to") : !!props && typeof props === "object" && "to" in props
 }
 
 // Helper to wrap text node siblings of other elements in a tag,

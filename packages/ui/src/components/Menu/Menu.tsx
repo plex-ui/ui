@@ -137,8 +137,8 @@ const Item = ({ className, children, description, disabled, onSelect, onClick }:
       </div>
     )
 
-  // Custom click handlers
-  if (onSelect) {
+  // Custom click handlers: either callback makes the item interactive
+  if (onSelect || onClick) {
     return (
       <DropdownMenu.Item
         className={clsx(s.MenuItem, className)}
@@ -246,7 +246,15 @@ const Link = ((
       onPointerMove={isExternal ? undefined : handlePreventAfterClose}
       onPointerLeave={isExternal ? undefined : handlePreventAfterClose}
     >
-      <Component {...linkProps} {...restProps}>
+      <Component
+        {...linkProps}
+        {...restProps}
+        onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+          restProps.onClick?.(event)
+          // Radix skips selecting a disabled item, not the link's navigation
+          if (disabled) event.preventDefault()
+        }}
+      >
         <span className={s.PressableInner}>{children}</span>
       </Component>
     </DropdownMenu.Item>

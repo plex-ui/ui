@@ -1,4 +1,5 @@
-import { defineComponent, h, mergeProps, type HTMLAttributes, type PropType } from "vue"
+import { defineComponent, h, mergeProps, type AnchorHTMLAttributes, type DefineComponent, type HTMLAttributes, type PropType } from "vue"
+import { takesToProp } from "../../lib/renderHelpers.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import s from "@plexui/styles/components/Card/Card.module.css"
@@ -56,7 +57,12 @@ const CardComponent = defineComponent({
       const href = props.href as string
       const isExternal = props.external ?? /^https?:\/\//.test(href)
       const LinkComponent = props.as || (isExternal ? "a" : DefaultLink.value)
-      const linkAttrs = isExternal ? { target: "_blank", rel: "noopener noreferrer", href } : { href }
+      const linkAttrs = isExternal
+        ? { target: "_blank", rel: "noopener noreferrer", href }
+        : // A router link (`to` required) gets the href as `to`
+          takesToProp(LinkComponent)
+          ? { to: href }
+          : { href }
       const linkProps = defined(mergeProps(sharedProps, linkAttrs, restAttrs))
 
       return typeof LinkComponent === "string"
@@ -69,18 +75,26 @@ const CardComponent = defineComponent({
 type CardOwnProps = InstanceType<typeof CardComponent>["$props"]
 
 /** Card props plus the native <div> / <a> attributes that fall through to it, as in React. */
-export type CardProps = CardOwnProps & Omit<HTMLAttributes, keyof CardOwnProps>
+export type CardProps = CardOwnProps & Omit<HTMLAttributes & AnchorHTMLAttributes, keyof CardOwnProps>
 
 /** Surface primitive. Renders a `<div>`, or a link when `href` is set. */
 export const Card = CardComponent as typeof CardComponent & { new (): { $props: CardProps } }
 
-const part = (name: string, tag: string, className: string | undefined) =>
-  defineComponent({
+// An explicit type keeps the published declaration on Vue's `DefineComponent`
+// alias; an inferred one is expanded there and fails consumers' type checks
+// (`GlobalComponents` against `Record<string, Component>`, TS2344).
+type CardPart = DefineComponent & { new (): { $props: CardSlotProps } }
+
+const part = (name: string, tag: string, className: string | undefined): CardPart => {
+  const component = defineComponent({
     name,
     setup(_props, { slots }) {
       return () => h(tag, { class: className }, slots.default?.())
     },
   })
+  // Attributes fall through to the part's element
+  return component as unknown as CardPart
+}
 
 /** Title + description + optional action (React `Card.Header`). */
 export const CardHeader = part("CardHeader", "div", s.Header)

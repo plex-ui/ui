@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement } from "react"
+import { createElement, useState } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { h } from "vue"
+import { defineComponent, h, ref } from "vue"
 import { OTPInput as ROTPInput } from "../../packages/ui/src/components/OTPInput"
 import { OTPInput } from "../../packages/vue/src/components/OTPInput"
 import { flushVue, mountVue } from "./harness"
@@ -137,6 +137,70 @@ describe("OTPInput behaviour parity", () => {
     )
     expect(vue).toEqual(react)
     expect(log).toEqual([-1, 0, -1, 0, -1, 0, -1, 0])
+  })
+
+  test("a digit stays in the cell it was typed in; clearing a cell does not move the others", async () => {
+    const result = await walk({}, async (snap, cell) => {
+      await interact(() => fireEvent.click(cell(3).parentElement!))
+      await type(cell(3), "5")
+      snap() // ___5__, focus on the 5th cell
+      for (const [i, d] of [[0, "1"], [1, "2"], [2, "3"], [4, "6"], [5, "7"]] as const) await type(cell(i), d)
+      snap()
+      await key(cell(2), "Backspace")
+      snap() // 12_567
+      await type(cell(2), "9")
+      snap()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueEvents).toEqual(result.reactEvents)
+    const values = result.react.map((snapshot) => snapshot.split("\n").at(-2))
+    expect(values).toEqual(["|||5||", "1|2|3|5|6|7", "1|2||5|6|7", "1|2|9|5|6|7"])
+    expect(result.react[0]).toContain("active=4")
+    expect(result.reactEvents).toEqual([
+      "change:5", "change:15", "change:125", "change:1235", "change:12356", "change:123567", "complete:123567",
+      "change:12567", "change:129567", "complete:129567",
+    ])
+  })
+
+  test("controlled: a parent taking each value keeps the gaps; another value fills from the start", async () => {
+    let setOutside = (_value: string) => {}
+    function ReactApp() {
+      const [value, setValue] = useState("")
+      setOutside = setValue
+      return createElement(ROTPInput, { value, onChange: setValue })
+    }
+    const VueApp = defineComponent({
+      setup() {
+        const value = ref("")
+        setOutside = (next) => (value.value = next)
+        return () => h(OTPInput, { "value": value.value, "onUpdate:value": (next: string) => (value.value = next) })
+      },
+    })
+    const runs: string[][] = []
+    for (const framework of ["react", "vue"] as const) {
+      const values = () => Array.from(document.querySelectorAll("input")).map((i) => i.value).join("|")
+      const seen: string[] = []
+      if (framework === "react") {
+        render(createElement(ReactApp))
+        await interact(() => {})
+      } else {
+        mountVue(() => h(VueApp))
+        await flushVue()
+      }
+      const cell = (i: number) => document.querySelectorAll("input")[i] as HTMLInputElement
+      await type(cell(2), "4")
+      seen.push(values())
+      await key(cell(2), "Backspace")
+      await type(cell(4), "8")
+      seen.push(values())
+      await interact(() => setOutside("31"))
+      await flushVue()
+      seen.push(values())
+      runs.push(seen)
+      if (framework === "react") cleanup()
+    }
+    expect(runs[1]).toEqual(runs[0])
+    expect(runs[0]).toEqual(["||4|||", "||||8|", "3|1||||"])
   })
 
   test("blur clears focus after a frame", async () => {

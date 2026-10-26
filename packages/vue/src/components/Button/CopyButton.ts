@@ -3,14 +3,9 @@ import { copyToClipboard, type ClipboardContent } from "../../lib/copyToClipboar
 import Check from "../Icon/svg/CheckMd.js"
 import Copy from "../Icon/svg/Copy.js"
 import { Animate } from "../Transition/index.js"
-import { Button } from "./Button.js"
+import { Button, type ButtonProps } from "./Button.js"
 
-/**
- * Port of packages/ui/src/components/Button/CopyButton.tsx. Every Button
- * prop passes through; the default slot receives `{ copied }`, like the
- * React render-function child.
- */
-export const CopyButton = defineComponent({
+const CopyButtonComponent = defineComponent({
   name: "CopyButton",
   props: {
     copyValue: {
@@ -73,3 +68,15 @@ export const CopyButton = defineComponent({
     }
   },
 })
+
+type CopyButtonOwnProps = InstanceType<typeof CopyButtonComponent>["$props"]
+
+/** CopyButton props plus every Button prop, which pass through to the Button. */
+export type CopyButtonProps = CopyButtonOwnProps & Omit<ButtonProps, keyof CopyButtonOwnProps>
+
+/**
+ * Port of packages/ui/src/components/Button/CopyButton.tsx. Every Button
+ * prop passes through; the default slot receives `{ copied }`, like the
+ * React render-function child.
+ */
+export const CopyButton = CopyButtonComponent as typeof CopyButtonComponent & { new (): { $props: CopyButtonProps } }

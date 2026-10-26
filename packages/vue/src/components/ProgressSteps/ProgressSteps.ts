@@ -131,8 +131,9 @@ const ProgressStepsComponent = defineComponent({
 
       // Minimal variant: render horizontal bar segments
       if (props.variant === "minimal") {
+        // A div, not nav: role="progressbar" is not allowed on <nav>
         return h(
-          "nav",
+          "div",
           {
             "aria-label": "Progress",
             "role": "progressbar",

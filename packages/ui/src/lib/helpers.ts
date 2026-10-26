@@ -172,7 +172,9 @@ export function groupByProperty<T extends object, K extends keyof T, F = T[K]>(
   items: T[],
   key: K,
   format: (raw: T[K], item: T) => F = (raw) => raw as F,
-) {
+  // Explicit: the inferred `Pretty<...>` is expanded in the published
+  // declaration into a form consumers' type checks reject (TS2536)
+): ({ [P in K]: F } & { items: T[] })[] {
   const groups: Pretty<{ [P in K]: F } & { items: T[] }>[] = []
   const indexMap = new Map<unknown, number>() // maps group value -> index in groups array
 

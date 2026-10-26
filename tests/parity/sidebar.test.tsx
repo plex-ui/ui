@@ -499,13 +499,24 @@ describe("Sidebar markup", () => {
       "SidebarGroupLabel asChild merges into the child",
       n("SidebarGroupLabel", { asChild: true, size: "sm", class: "outer", title: "slot" }, n("a", { href: "#x", class: "inner", title: "child" }, "Link")),
     ],
-    ["SidebarGroupLabel asChild with a text child renders nothing", n("SidebarGroupLabel", { asChild: true }, "Text")],
     ["SidebarMenuItem expanded false", n("SidebarMenuItem", { expanded: false }, "Item")],
     ["SidebarMenuButton inactive", n("SidebarMenuButton", { class: "b" }, "Item")],
     ["SidebarMenuButton active", n("SidebarMenuButton", { isActive: true }, "Item")],
     [
-      "SidebarMenuButton asChild renders its inner span with the button attributes",
-      n("SidebarMenuButton", { asChild: true, isActive: true, class: "outer", title: "t" }, n("a", { href: "#home" }, "Home")),
+      "SidebarMenuButton asChild puts the button attributes on the child, the inner span inside it",
+      n("SidebarMenuButton", { asChild: true, isActive: true, class: "outer", title: "t" }, n("a", { href: "#home", class: "inner" }, "Home")),
+    ],
+    [
+      "SidebarMenuButton asChild with a component child wraps the component's content",
+      n("SidebarMenuButton", { asChild: true, isActive: true, class: "outer" }, n("Badge", { color: "info", class: "inner" }, "New")),
+    ],
+    [
+      "SidebarMenuButton asChild with an empty element child",
+      n("SidebarMenuButton", { asChild: true, title: "t" }, n("a", { href: "#empty" })),
+    ],
+    [
+      "SidebarMenuButton asChild without a single element child merges into the inner span",
+      n("SidebarMenuButton", { asChild: true, isActive: true, class: "outer" }, n("a", { href: "#a" }, "A"), n("a", { href: "#b" }, "B")),
     ],
     ["SidebarMenuButtonLabel with shortLabel and class", n("SidebarMenuButtonLabel", { shortLabel: "Short", class: "c", title: "only-long" }, "A long label")],
     ["SidebarMenuButtonLabel empty shortLabel", n("SidebarMenuButtonLabel", { shortLabel: "" }, "Label")],
@@ -536,6 +547,42 @@ describe("Sidebar markup", () => {
   test.each(parts)("%s", async (_name, part) => {
     const { react, vue } = await pair(n("SidebarProvider", { collapsible: "icon" }, part))
     expect(vue).toBe(react)
+  })
+
+  test("SidebarMenuButton asChild: the link is the button", async () => {
+    const { react, vue } = await pair(
+      n("SidebarProvider", null, n("SidebarMenuButton", { asChild: true, isActive: true }, n("a", { href: "#home" }, "Home"))),
+    )
+    expect(vue).toBe(react)
+    expect(react).toMatch(/<a aria-current="page" class="MenuButton" data-active="true" href="#home">\s*<span class="MenuButtonInner">/)
+  })
+
+  test("a closed SidebarMenuSub is inert, an open one is not", async () => {
+    const sub = (open: boolean) => n("SidebarMenuSub", { open }, n("SidebarMenuSubItem", null, n("SidebarMenuSubButton", null, "Sub")))
+    const { react, vue } = await pair(n("SidebarProvider", null, sub(false), sub(true)))
+    expect(vue).toBe(react)
+    expect(react.match(/ inert=""/g)).toHaveLength(1)
+    expect(react).toMatch(/data-state="closed" inert=""/)
+  })
+
+  test("asChild with a text child: React's Slot throws (radix-ui 1.8.1), Vue renders nothing", async () => {
+    const spec = n("SidebarProvider", null, n("SidebarGroupLabel", { asChild: true }, "Text"))
+    const error = vi.spyOn(console, "error").mockImplementation(() => {})
+    try {
+      await expect(
+        act(async () => {
+          render(reactTree(spec))
+        }),
+      ).rejects.toThrow(/failed to slot onto its children/)
+    } finally {
+      error.mockRestore()
+      cleanup()
+    }
+    const { unmount } = mountVue(() => vueTree(spec))
+    await flushVue()
+    expect(document.body.textContent).toBe("")
+    expect(document.body.querySelector("[data-size]")).toBeNull()
+    unmount()
   })
 
   test("SidebarInput passes slots and the start adornment can be replaced", async () => {
@@ -732,18 +779,28 @@ describe("Sidebar collapse state", () => {
     expect(react[2]).toBe("false,true")
   })
 
-  test("a caller click listener on SidebarTrigger replaces the toggle", async () => {
+  test("a caller click listener on SidebarTrigger runs before the toggle; preventDefault cancels it", async () => {
     const calls: string[] = []
+    let cancel = false
+    const listener = (name: string) => (event: Event) => {
+      calls.push(name)
+      if (cancel) event.preventDefault()
+    }
     const { react, vue } = await walkSpec(
       {},
       () =>
         n(
           "SidebarProvider",
           null,
-          n("SidebarTrigger", { onClick: () => calls.push("click") }),
-          n("SidebarMobileMenuButton", { onClick: () => calls.push("mobile") }),
+          n("SidebarTrigger", { onClick: listener("click") }),
+          n("SidebarMobileMenuButton", { onClick: listener("mobile") }),
         ),
       async ({ snapshot, fire, note }) => {
+        cancel = true
+        await fire(TRIGGER, "click")
+        await fire('button[class*="MobileMenuButton"]', "click")
+        snapshot()
+        cancel = false
         await fire(TRIGGER, "click")
         await fire('button[class*="MobileMenuButton"]', "click")
         snapshot()
@@ -753,7 +810,9 @@ describe("Sidebar collapse state", () => {
     expect(vue).toEqual(react)
     expect(react[0]).toContain('data-sidebar="expanded"')
     expect(react[0]).toContain('data-mobile-menu="hidden"')
-    expect(react[1]).toBe("click,mobile")
+    expect(react[1]).toContain('data-sidebar="collapsed"')
+    expect(react[1]).toContain('data-mobile-menu="visible"')
+    expect(react[2]).toBe("click,mobile,click,mobile")
   })
 
   test("SidebarGroup open / onOpenChange only set data-state", async () => {

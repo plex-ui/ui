@@ -1,11 +1,13 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, type ReactElement, type ReactNode } from "react"
+import { createElement, useState, type ReactElement, type ReactNode } from "react"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
-import { createSSRApp, h, type VNode } from "vue"
+import { createCommentVNode, createSSRApp, defineComponent, h, ref, type VNode } from "vue"
 import { renderToString as vueRenderToString } from "vue/server-renderer"
+import { Field as RField } from "../../packages/ui/src/components/Field"
 import { FloatingLabelInput as RFloatingLabelInput } from "../../packages/ui/src/components/FloatingLabelInput"
+import { Field } from "../../packages/vue/src/components/Field"
 import { FloatingLabelInput } from "../../packages/vue/src/components/FloatingLabelInput"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
@@ -64,7 +66,15 @@ const cases: Array<[string, Props]> = [
   ["revealable forced on text", { label: "SSN", revealable: true }],
   ["revealable off on password", { label: "Password", type: "password", revealable: false }],
   ["start adornment floats the label", { label: "Amount", startAdornment: "$" }],
-  ["multiline", { label: "Comments", id: "c", multiline: true, rows: 4, placeholder: "dropped like React" }],
+  ["multiline", { label: "Comments", id: "c", multiline: true, rows: 4, placeholder: "forwarded like React" }],
+  [
+    "multiline forwards textarea attributes, not input-only ones",
+    { label: "Comments", id: "c", multiline: true, required: true, maxLength: 500, "aria-label": "Notes", "data-x": "y", min: 1, pattern: "\\d+", step: 2 },
+  ],
+  ["multiline with a controlled value", { label: "Comments", multiline: true, value: "Hello\nworld", onChange: noop }],
+  ["multiline with a default value", { label: "Comments", multiline: true, defaultValue: "Draft" }],
+  ["explicit aria-invalid", { label: "Email", "aria-invalid": true }],
+  ["explicit aria-invalid false wins over invalid", { label: "Email", invalid: true, "aria-invalid": false }],
   ["autofill extensions allowed", { label: "Email", allowAutofillExtensions: true }],
 ]
 
@@ -217,6 +227,152 @@ describe("FloatingLabelInput behaviour parity", () => {
     await flushVue()
     await interact(() => fireEvent.input(document.querySelector("input")!, { target: { value: "Ada" } }))
     expect(values).toEqual(["Ada"])
+  })
+})
+
+describe("FloatingLabelInput review fixes", () => {
+  test("multiline textarea gets the textarea attributes and drops the input-only ones", async () => {
+    const { react } = await pair(cases.find(([name]) => name.startsWith("multiline forwards"))![1])
+    expect(react).toContain('maxlength="500"')
+    expect(react).toContain("required")
+    expect(react).toContain('aria-label="Notes"')
+    expect(react).not.toMatch(/ (min|pattern|step)=/)
+  })
+
+  test("explicit aria-invalid wins, also from Field", async () => {
+    expect((await pair({ label: "Email", "aria-invalid": true })).react).toContain('aria-invalid="true"')
+    const { react, vue } = await renderPair(
+      createElement(RField, { errorMessage: "Required" }, createElement(RFloatingLabelInput, { label: "Email" })),
+      () => h(Field, { errorMessage: "Required" }, () => h(FloatingLabelInput, { label: "Email" })),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('aria-invalid="true"')
+  })
+
+  test.each([[false], [true]])("caller input listeners run (multiline %s)", async (multiline) => {
+    const calls: number[] = []
+    for (const framework of ["react", "vue"] as const) {
+      let count = 0
+      if (framework === "react") {
+        render(createElement(RFloatingLabelInput, { label: "Message", multiline, onChange: () => count++ }))
+        await interact(() => {})
+      } else {
+        mountVue(() => h(FloatingLabelInput, { label: "Message", multiline, onInput: () => count++ }))
+        await flushVue()
+      }
+      await interact(() => fireEvent.input(document.querySelector("input, textarea")!, { target: { value: "hi" } }))
+      calls.push(count)
+      if (framework === "react") cleanup()
+    }
+    expect(calls).toEqual([1, 1])
+  })
+
+  test("multiline resizes when a controlled value or rows change without a keystroke", async () => {
+    // jsdom has no layout: 20px per line plus 1px per row
+    vi.spyOn(Element.prototype, "scrollHeight", "get").mockImplementation(function (this: Element) {
+      const field = this as HTMLTextAreaElement
+      return field.value === undefined ? 0 : field.value.split("\n").length * 20 + field.rows
+    })
+    const heights: string[] = []
+    // Heights only: a controlled Vue textarea also mirrors its value into a
+    // `value` attribute, where React keeps it as text content
+    await walkPairWithState(
+      { value: "one", rows: 2 },
+      (state) => createElement(RFloatingLabelInput, { label: "Notes", id: "n", multiline: true, onChange: noop, ...state }),
+      (state) => h(FloatingLabelInput, { label: "Notes", id: "n", multiline: true, value: state.value, rows: state.rows }),
+      async ({ set }) => {
+        const read = () => heights.push((document.querySelector("textarea") as HTMLTextAreaElement).style.height)
+        read()
+        await set({ value: "one\ntwo\nthree" })
+        read()
+        await set({ rows: 5 })
+        read()
+      },
+    )
+    vi.restoreAllMocks()
+    expect(heights).toEqual(["22px", "62px", "65px", "22px", "62px", "65px"])
+  })
+
+  // Browsers and jsdom throw InvalidStateError from setSelectionRange on these types
+  test.each(["email", "number"])("label mousedown on a %s field focuses it without throwing", async (type) => {
+    const errors: unknown[] = []
+    const onError = (evt: ErrorEvent) => {
+      errors.push(evt.error)
+      evt.preventDefault()
+    }
+    window.addEventListener("error", onError)
+    const focused: boolean[] = []
+    const props = { label: "Field", id: "f", type, defaultValue: "1" }
+    try {
+      for (const framework of ["react", "vue"] as const) {
+        if (framework === "react") {
+          render(createElement(RFloatingLabelInput, props))
+          await interact(() => {})
+        } else {
+          mountVue(() => h(FloatingLabelInput, props))
+          await flushVue()
+        }
+        await interact(() => fireEvent.mouseDown(document.querySelector("label")!))
+        focused.push(document.activeElement === document.querySelector("input"))
+        if (framework === "react") cleanup()
+      }
+    } finally {
+      window.removeEventListener("error", onError)
+    }
+    expect(errors).toEqual([])
+    expect(focused).toEqual([true, true])
+  })
+
+  test("the clear button keeps focus in the field", async () => {
+    const focused: boolean[] = []
+    function ReactApp() {
+      const [value, setValue] = useState("plex")
+      return createElement(RFloatingLabelInput, { label: "Search", value, onChange: (evt) => setValue(evt.target.value), onClear: () => setValue("") })
+    }
+    const VueApp = defineComponent({
+      setup() {
+        const value = ref("plex")
+        return () =>
+          h(FloatingLabelInput, { "label": "Search", "value": value.value, "onUpdate:value": (next: string) => (value.value = next), "onClear": () => (value.value = "") })
+      },
+    })
+    for (const framework of ["react", "vue"] as const) {
+      if (framework === "react") {
+        render(<ReactApp />)
+        await interact(() => {})
+      } else {
+        mountVue(() => h(VueApp))
+        await flushVue()
+      }
+      const clear = document.querySelector('button[aria-label="Clear input"]') as HTMLButtonElement
+      clear.focus()
+      await interact(() => fireEvent.click(clear))
+      await flushVue()
+      expect(document.querySelector('button[aria-label="Clear input"]')).toBeNull()
+      focused.push(document.activeElement === document.querySelector("input"))
+      if (framework === "react") cleanup()
+    }
+    expect(focused).toEqual([true, true])
+  })
+
+  test("native readonly works like readOnly", async () => {
+    const { react, vue } = await renderPair(
+      createElement(RFloatingLabelInput, { label: "Key", readOnly: true, defaultValue: "abc", onClear: noop }),
+      () => h(FloatingLabelInput, { label: "Key", readonly: true, defaultValue: "abc", onClear: noop }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain("data-readonly")
+    expect(react).not.toContain("Clear input")
+  })
+
+  test("slots that render nothing count as absent, like a falsy ReactNode", async () => {
+    const empty = () => [createCommentVNode("v-if", true)]
+    const { react, vue } = await renderPair(
+      createElement(RFloatingLabelInput, { label: "Password", id: "p", type: "password" }),
+      () => h(FloatingLabelInput, { label: "Password", id: "p", type: "password" }, { startAdornment: empty, endAdornment: empty, description: empty }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('aria-label="Show"')
   })
 })
 

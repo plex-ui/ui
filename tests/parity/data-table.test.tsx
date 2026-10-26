@@ -545,9 +545,17 @@ describe("DataTable markup parity", () => {
   })
 
   const grouped = once(groupedColumns)
-  test("grouped columns: placeholder headers render empty", async () => {
+  test("grouped columns: placeholder headers render empty, group headers span their columns", async () => {
     const result = await tablePair((fw) => ({ columns: grouped(fw), data: users.slice(0, 2) }))
     expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('<th class="TableHead" colspan="2">')
+    expect(result.react[0].match(/colspan=/g)).toHaveLength(1)
+  })
+
+  test("grouped columns with row selection: the checkbox column has a placeholder above it", async () => {
+    const result = await tablePair((fw) => ({ columns: grouped(fw), data: users.slice(0, 2), enableRowSelection: true }))
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0].match(/role="checkbox"/g)).toHaveLength(3)
   })
 
   const defaults = once(defaultRenderColumns)
@@ -587,10 +595,11 @@ describe("DataTable markup parity", () => {
     expect(result.react[0]).toContain('"USR-002:true:true"')
   })
 
-  test("row selection disabled by default: getCanSelect false", async () => {
+  test("row selection disabled by default: getCanSelect false, no checkbox column", async () => {
     const result = await tablePair((fw) => ({ columns: api(fw), data: users.slice(0, 2), rowSelection: {} }))
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toContain('"0:false:false"')
+    expect(result.react[0]).not.toContain('role="checkbox"')
   })
 
   const probe = once((fw) => apiColumns(fw, { selected: false }))
@@ -723,10 +732,10 @@ describe("DataTable pagination parity", () => {
     expect(result.react[3]).toEqual(result.react[2])
   })
 
-  test("rows-per-page select: a size not in the list shows the first option", async () => {
+  test("rows-per-page select: a page size not in the list is an option too", async () => {
     const result = await tablePair((fw) => ({ columns: basic(fw), data: users, pageSize: 5 }), {
       steps: async ({ click, choose, snapshot }) => {
-        snapshot() // 5 per page, select shows "10"
+        snapshot() // 5 per page, select shows "5"
         await click(NEXT)
         await choose("select", "20")
         snapshot() // 20 per page, page 1: "1–15 of 15", controls stay (15 > 5)
@@ -736,12 +745,17 @@ describe("DataTable pagination parity", () => {
         snapshot() // page 2 of 10
         await choose("select", "50")
         snapshot() // floor(10 / 50) = page 1
+        await choose("select", "5")
+        snapshot() // back to the initial size
       },
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toContain('select value="10" index=0')
-    expect(result.react[1]).toContain('select value="20" index=1')
+    expect(result.react[0]).toContain('select value="5" index=0')
+    expect(result.react[0]).toContain('"1–5 of 15"')
+    expect(result.react[1]).toContain('select value="20" index=2')
     expect(result.react[1]).toContain('"1–15 of 15"')
+    expect(result.react[5]).toContain('select value="5" index=0')
+    expect(result.react[5]).toContain('"1–5 of 15"')
   })
 
   test("select follows the state after a change from an out-of-range size", async () => {
@@ -753,7 +767,8 @@ describe("DataTable pagination parity", () => {
       },
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[1]).toContain('select value="100" index=3')
+    expect(result.react[0]).toContain('select value="1" index=0')
+    expect(result.react[1]).toContain('select value="100" index=4')
   })
 
   test("pageSize prop changes after mount are applied; turning pagination off shows every row", async () => {
@@ -778,7 +793,7 @@ describe("DataTable pagination parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toContain('"11–15 of 15"')
     expect(result.react[1]).toContain('"11–15 of 15"')
-    expect(result.react[1]).toContain('select value="10" index=0')
+    expect(result.react[1]).toContain('select value="10" index=1')
     expect(result.react[2]).not.toContain("Pagination")
     expect(rowCount(result.react[2]!)).toBe(15)
     expect(result.react[3]).toContain('"1–3 of 15"')
@@ -1142,6 +1157,184 @@ describe("DataTable controlled state parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(result.react[1]).toEqual(result.react[0])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Row selection column, keyboard rows, pagination visibility
+
+describe("DataTable row selection column parity", () => {
+  const basic = once(basicColumns)
+  const ALL = 'thead button[role="checkbox"]'
+  const ROW_BOX = (index: number) => () => document.querySelectorAll('tbody button[role="checkbox"]')[index]
+
+  test("enableRowSelection puts a checkbox column first: rows, select all, mixed state", async () => {
+    const calls: Record<FW, string[]> = { react: [], vue: [] }
+    const result = await tablePair(
+      (fw) => ({
+        columns: basic(fw),
+        data: users,
+        pageSize: 5,
+        enableRowSelection: true,
+        onRowSelectionChange: (selection: Record<string, boolean>) => calls[fw].push(JSON.stringify(selection)),
+      }),
+      {
+        steps: async ({ click, snapshot }) => {
+          snapshot()
+          await click(ROW_BOX(1))
+          snapshot() // one row: the header checkbox is mixed
+          await click(ALL)
+          snapshot() // every row, on every page
+          await click(ROW_BOX(0))
+          snapshot() // mixed again
+          await click(ALL) // from mixed: every row
+          await click(ALL) // none
+          snapshot()
+        },
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(calls.vue).toEqual(calls.react)
+    expect(result.react[0].match(/role="checkbox"/g)).toHaveLength(6)
+    expect(result.react[0]).toContain('aria-label="Select all rows"')
+    expect(result.react[0]).toContain('aria-label="Select row"')
+    expect(result.react[1]).toContain('aria-checked="mixed"')
+    expect(result.react[3]).toContain('aria-checked="mixed"')
+    expect(result.react[4]).not.toContain('aria-checked="true"')
+    expect(calls.react[0]).toBe('{"1":true}')
+    expect(Object.keys(JSON.parse(calls.react[1]!))).toHaveLength(15)
+    expect(calls.react.at(-1)).toBe("{}")
+  })
+
+  test("controlled selection drives the checkboxes; a parent that ignores changes keeps them", async () => {
+    type S = { rowSelection: Record<string, boolean>; follow: boolean }
+    const result = await tablePair<S>(
+      (fw, state, set) => ({
+        columns: basic(fw),
+        data: users.slice(0, 3),
+        enableRowSelection: true,
+        getRowId: (row: User) => row.id,
+        rowSelection: state.rowSelection,
+        onRowSelectionChange: (selection: Record<string, boolean>) => {
+          if (state.follow) set({ rowSelection: selection })
+        },
+      }),
+      {
+        initial: { rowSelection: { "USR-003": true }, follow: false },
+        steps: async ({ click, set, snapshot }) => {
+          snapshot()
+          await click(ROW_BOX(0))
+          snapshot() // unchanged: the parent did not follow
+          await set({ follow: true })
+          await click(ROW_BOX(0))
+          snapshot()
+          await set({ rowSelection: { "USR-001": true, "USR-002": true, "USR-003": true } })
+          snapshot() // every row: the header checkbox is checked
+        },
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[1]).toEqual(result.react[0])
+    expect(result.react[3]).toContain('aria-checked="true" aria-label="Select all rows"')
+  })
+
+  test("a click on a row checkbox selects the row without a row click", async () => {
+    const calls: Record<FW, string[]> = { react: [], vue: [] }
+    const result = await tablePair(
+      (fw) => ({
+        columns: basic(fw),
+        data: users.slice(0, 3),
+        enableRowSelection: true,
+        onRowClick: (row: User) => calls[fw].push(row.id),
+      }),
+      {
+        steps: async ({ click, snapshot }) => {
+          await click(ROW_BOX(1))
+          await click(byText("td", "Design"))
+          snapshot()
+        },
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(calls.vue).toEqual(calls.react)
+    expect(calls.react).toEqual(["USR-002"])
+    expect(result.react[0]).toContain('aria-checked="true" aria-label="Select row"')
+  })
+})
+
+describe("DataTable keyboard rows parity", () => {
+  const basic = once(basicColumns)
+  const ROW = (index: number) => () => document.querySelectorAll("tbody tr")[index]
+  const ROW_BOX = (index: number) => () => document.querySelectorAll('tbody button[role="checkbox"]')[index]
+
+  test("clickable rows take Tab and activate on Enter and Space; keys inside the row are left alone", async () => {
+    const calls: Record<FW, string[]> = { react: [], vue: [] }
+    const logs: string[][] = []
+    const result = await tablePair(
+      (fw) => ({
+        columns: basic(fw),
+        data: users.slice(0, 3),
+        enableRowSelection: true,
+        onRowClick: (row: User) => calls[fw].push(row.id),
+      }),
+      {
+        steps: async ({ fire, snapshot }) => {
+          const log: string[] = []
+          logs.push(log)
+          const listener = (event: KeyboardEvent) => log.push(`${JSON.stringify(event.key)} prevented=${event.defaultPrevented}`)
+          document.addEventListener("keydown", listener)
+          snapshot()
+          await fire(ROW(1), "keyDown", { key: "Enter" })
+          await fire(ROW(2), "keyDown", { key: " " })
+          await fire(ROW(0), "keyDown", { key: "a" })
+          await fire(ROW_BOX(0), "keyDown", { key: "Enter" })
+          document.removeEventListener("keydown", listener)
+          snapshot()
+        },
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(calls.vue).toEqual(calls.react)
+    expect(logs[1]).toEqual(logs[0])
+    expect(calls.react).toEqual(["USR-002", "USR-003"])
+    expect(logs[0]).toEqual(['"Enter" prevented=true', '" " prevented=true', '"a" prevented=false', '"Enter" prevented=true'])
+    expect(result.react[0].match(/<tr class="TableRow" tabindex="0">/g)).toHaveLength(3)
+  })
+
+  test("rows without onRowClick take no Tab stop and ignore keys", async () => {
+    const result = await tablePair((fw) => ({ columns: basic(fw), data: users.slice(0, 2) }), {
+      steps: async ({ fire, snapshot }) => {
+        await fire(ROW(0), "keyDown", { key: "Enter" })
+        snapshot()
+      },
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).not.toContain("tabindex")
+  })
+})
+
+describe("DataTable pagination visibility parity", () => {
+  const basic = once(basicColumns)
+
+  test("controls stay while the rows overflow the picked page size, under the configured one", async () => {
+    const rowCount = (snapshot: string) => snapshot.match(/<tr/g)!.length - 1
+    const result = await tablePair<{ globalFilter: string }>(
+      (fw, state) => ({ columns: basic(fw), data: [...users, ...users], pageSize: 20, globalFilter: state.globalFilter }),
+      {
+        initial: { globalFilter: "" },
+        steps: async ({ choose, set, snapshot }) => {
+          await choose("select", "10")
+          await set({ globalFilter: "engineering" })
+          snapshot() // 14 rows, 10 per page
+          await set({ globalFilter: "design" })
+          snapshot() // 6 rows fit at both sizes: controls hidden
+        },
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('"1–10 of 14"')
+    expect(rowCount(result.react[0]!)).toBe(10)
+    expect(result.react[1]).not.toContain("Pagination")
   })
 })
 

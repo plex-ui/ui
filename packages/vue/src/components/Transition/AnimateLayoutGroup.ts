@@ -35,10 +35,13 @@ export const AnimateLayoutGroup = defineComponent({
   inheritAttrs: false,
   props: {
     as: { type: String as PropType<"div" | "span">, default: "span" },
-    // Accepted for API parity; React's AnimateLayoutGroup does not pass them on either
+    /** Determines how new children are added. @default "append" */
     insertMethod: String as PropType<InsertMethod>,
+    /** When false, children run their enter transition on the initial mount. @default true */
     preventInitialTransition: { type: Boolean, default: undefined },
+    /** Determines if `overflow: hidden` is applied to the wrapper element. @default false */
     hideOverflow: { type: Boolean, default: false },
+    /** Determines which side of the container the items will pin to during enter/exit. @default "start" */
     itemAnchor: { type: String as PropType<"start" | "end">, default: "start" },
     /** Determines which property will be animated during transitions. @default "height" */
     dimension: { type: String as PropType<"width" | "height">, default: "height" },
@@ -97,7 +100,8 @@ export const AnimateLayoutGroup = defineComponent({
         {
           as: props.as,
           class: clsx(s.LayoutItem, attrs.class as string | undefined),
-          style: variables,
+          // The wrapper of each item is the element that resizes
+          style: props.hideOverflow ? { ...variables, overflow: "hidden" } : variables,
           // Adding 32ms to timers because of the additional waitForAnimationFrame() calls
           enterDuration: enterTotalDuration + 32,
           exitDuration: exitTotalDuration + 32,
@@ -106,6 +110,8 @@ export const AnimateLayoutGroup = defineComponent({
           onEnterComplete: handleEnterComplete,
           onExit: handleExit,
           onExitActive: handleExitActive,
+          insertMethod: props.insertMethod,
+          preventInitialTransition: props.preventInitialTransition,
         },
         {
           default: () =>
@@ -117,6 +123,7 @@ export const AnimateLayoutGroup = defineComponent({
                   "key": child.key ?? `.${index}`,
                   "class": clsx(s.TransitionItem, props.transitionClassName),
                   "data-dimension": props.dimension,
+                  "data-item-anchor": props.itemAnchor,
                 },
                 [child],
               ),
@@ -243,3 +250,5 @@ function getAnimationProperties({
     variables,
   }
 }
+
+export type AnimateLayoutGroupProps = InstanceType<typeof AnimateLayoutGroup>["$props"]

@@ -72,6 +72,11 @@
   overflow: auto;
   flex: 1;
   padding: var(--menu-gutter);
+
+  /* Focused without search: the highlighted option shows where the keys go */
+  &:focus {
+    outline: 0;
+  }
 }
 
 .Option {

@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, type Component, type HTMLAttributes, type PropType, type VNode } from "vue"
+import { defineComponent, h, onMounted, ref, type Component, type HTMLAttributes, type PropType, type Ref, type VNode } from "vue"
 import type { SemanticColors, Variants } from "@plexui/styles/types"
 import { toCssVariables } from "../../lib/helpers.js"
 import s from "@plexui/styles/components/Avatar/Avatar.module.css"
@@ -45,9 +45,16 @@ const validateImageUrl = (imageUrl?: string): string | undefined => {
   return imageUrl
 }
 
-const renderImage = (url: string, status: ImageStatus, onLoad: () => void, onError: () => void) =>
+const renderImage = (
+  url: string,
+  status: ImageStatus,
+  onLoad: () => void,
+  onError: () => void,
+  imgRef: Ref<HTMLImageElement | null>,
+) =>
   h("span", { class: s.AvatarImageContainer }, [
     h("img", {
+      "ref": imgRef,
       "onLoad": onLoad,
       "onError": onError,
       "src": url,
@@ -81,6 +88,15 @@ const AvatarInner = defineComponent({
   props: avatarProps,
   setup(props, { attrs }) {
     const imageStatus = ref<ImageStatus>()
+    const img = ref<HTMLImageElement | null>(null)
+
+    // An image that loaded before hydration fired its load event before Vue
+    // listened for it: read the element instead, as React does
+    onMounted(() => {
+      if (img.value && imageStatus.value !== "loaded" && img.value.complete && img.value.naturalWidth > 0) {
+        imageStatus.value = "loaded"
+      }
+    })
 
     return () => {
       const { class: className, ...restAttrs } = attrs
@@ -106,6 +122,7 @@ const AvatarInner = defineComponent({
                 imageStatus.value,
                 () => (imageStatus.value = "loaded"),
                 () => (imageStatus.value = "error"),
+                img,
               ),
             ]
           : [placeholder]

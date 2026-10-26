@@ -663,7 +663,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
 
     // If not a command, check for typeahead
     // NOTE: Typeahead not supported in multi-select
-    if (!multiple && isValidTypeaheadChar(key)) {
+    if (!multiple && isTypeaheadKey(evt)) {
       const currentTypeaheadValue = typeahead(key)
       // Stop other listeners from reacting
       evt.stopPropagation()
@@ -712,23 +712,29 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
           {multiple ? <TriggerView {...multipleTriggerViewProps} /> : <TriggerView {...selectedItem} />}
         </span>
       ) : multiple ? <TriggerView {...multipleTriggerViewProps} /> : <TriggerView {...selectedItem} />}
-      {(name || id) && (
-        <input
-          id={id}
-          name={name}
-          value={firstValue}
-          tabIndex={-1}
-          onFocus={() => {
-            document.getElementById(triggerId)?.focus()
-          }}
-          // keep react from complaining - don't make this readOnly because that
-          // prevents the value from being required
-          onChange={() => {}}
-          required={required}
-          className="sr-only w-full h-0 left-0 bottom-0 pointer-events-none"
-          aria-hidden="true"
-        />
-      )}
+      {(name || id) &&
+        // One input per selected value, so a form submits every value of a
+        // multi-select; an empty one keeps `id` and `required` working
+        (multiple && value.length ? value : [firstValue ?? ""]).map((formValue, index) => (
+          <input
+            key={index}
+            id={index === 0 ? id : undefined}
+            name={name}
+            value={formValue}
+            // A disabled select is neither validated nor submitted
+            disabled={disabled}
+            tabIndex={-1}
+            onFocus={() => {
+              document.getElementById(triggerId)?.focus()
+            }}
+            // keep react from complaining - don't make this readOnly because that
+            // prevents the value from being required
+            onChange={() => {}}
+            required={required}
+            className="sr-only w-full h-0 left-0 bottom-0 pointer-events-none"
+            aria-hidden="true"
+          />
+        ))}
     </SelectControl>
   )
 }
@@ -738,7 +744,6 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
 // ============================================================
 const CustomSelect = () => {
   const {
-    triggerId,
     loading,
     side,
     align,
@@ -751,6 +756,8 @@ const CustomSelect = () => {
   } = useSelectContext()
   const [open, setOpen] = useState<boolean>(false)
   const selectContentRef = useRef<HTMLDivElement>(null)
+  // The trigger element, the default one or a custom `trigger` (which has no `triggerId`)
+  const popoverTriggerRef = useRef<HTMLButtonElement>(null)
 
   const handleOpenChange = (maybeNextState?: boolean) => {
     // Toggle the current state when called without a specific state
@@ -773,7 +780,7 @@ const CustomSelect = () => {
 
         // Focus that moved to another element outside the menu stays there
         if (focusInMenu || (focusWasInMenu && focusLost)) {
-          document.getElementById(triggerId)?.focus()
+          popoverTriggerRef.current?.focus()
         }
       })
     }
@@ -796,7 +803,7 @@ const CustomSelect = () => {
       }}
       modal={false}
     >
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild ref={popoverTriggerRef}>
         {trigger ? trigger({ open, onToggle: () => setOpen((current) => !current) }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
@@ -1024,7 +1031,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     }
 
     // If not a command, check for typeahead
-    if (isValidTypeaheadChar(key)) {
+    if (isTypeaheadKey(evt)) {
       // Skip typeahead logic when we're focused in the search input
       if (isFocusedInSearch) {
         return
@@ -1086,8 +1093,9 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
       currentOption?.scrollIntoView({ block: "center" })
     })
 
-    // Send initial focus to the menu container or search input, to capture key events
-    const autoFocusTarget = searchInputRef.current || menuRef.current
+    // Send initial focus to the search input, or the list without one (the
+    // menu container when there are no options), to capture key events
+    const autoFocusTarget = searchInputRef.current || listRef.current || menuRef.current
     autoFocusTarget?.focus({ preventScroll: true })
 
     // Required for <StrictMode>, because we need to unset this token
@@ -1121,10 +1129,35 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     if (maybeFirstOption) setHighlightedValue(maybeFirstOption.value)
   }, [filteredOptions])
 
+  // The focused element (the search input, or the list without one) points
+  // assistive tech at the highlighted option, when that option is rendered
+  useLayoutEffect(() => {
+    const target = searchInputRef.current || listRef.current
+    if (!target || !menuRef.current) {
+      return
+    }
+
+    const highlightedOption = highlightedValue ? findOptionByValue(highlightedValue, menuRef.current) : null
+    if (highlightedOption?.id) {
+      target.setAttribute("aria-activedescendant", highlightedOption.id)
+    } else {
+      target.removeAttribute("aria-activedescendant")
+    }
+  }, [highlightedValue, filteredOptions])
+
   return (
     <CustomSelectMenuContext value={store}>
-      <div id={listId} className={s.MenuInner} onKeyDown={handleKeyDown} ref={menuRef} tabIndex={0}>
-        {searchable && <CustomSelectSearch value={searchTerm} onChange={setSearchTerm} />}
+      <div
+        className={s.MenuInner}
+        onKeyDown={handleKeyDown}
+        ref={menuRef}
+        // Without search, the list takes focus (and the tab stop); the container
+        // stays focusable so a click on it keeps the keys here
+        tabIndex={!searchable && filteredOptions.length ? -1 : 0}
+      >
+        {searchable && (
+          <CustomSelectSearch value={searchTerm} onChange={setSearchTerm} hasResults={!!filteredOptions.length} />
+        )}
         <CustomSelectList filteredOptions={filteredOptions} />
         <CustomSelectActions />
       </div>
@@ -1135,9 +1168,11 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
 type CustomSelectSearchProps = {
   value: string
   onChange: (nextSearchTerm: string) => void
+  /** Whether the list is rendered, for `aria-controls` */
+  hasResults: boolean
 }
 
-const CustomSelectSearch = ({ value, onChange }: CustomSelectSearchProps) => {
+const CustomSelectSearch = ({ value, onChange, hasResults }: CustomSelectSearchProps) => {
   const { searchPlaceholder, searchAriaLabel } = useSelectContext()
   const { listId, searchInputRef } = useCustomSelectMenuContext()
 
@@ -1166,7 +1201,8 @@ const CustomSelectSearch = ({ value, onChange }: CustomSelectSearchProps) => {
         spellCheck={false}
         aria-autocomplete="list"
         role="combobox"
-        aria-controls={listId}
+        // The list, while there is one: with no results it is not rendered
+        aria-controls={hasResults ? listId : undefined}
         aria-expanded
       />
     </div>
@@ -1190,8 +1226,16 @@ const CustomSelectList = <T extends Option>({
 }: {
   filteredOptions: Options<T>
 }) => {
-  const { searchEmptyMessage } = useSelectContext()
-  const { listRef } = useCustomSelectMenuContext()
+  const {
+    searchEmptyMessage,
+    multiple,
+    searchable,
+    triggerId,
+    trigger,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+  } = useSelectContext()
+  const { listId, listRef } = useCustomSelectMenuContext()
 
   if (!filteredOptions.length) {
     return typeof searchEmptyMessage === "string" ? (
@@ -1214,7 +1258,18 @@ const CustomSelectList = <T extends Option>({
         .map((option) => <CustomSelectOption key={option.value} {...option} />)
 
   return (
-    <div className={s.OptionsList} ref={listRef}>
+    <div
+      id={listId}
+      className={s.OptionsList}
+      ref={listRef}
+      role="listbox"
+      // Named like the trigger: its label, or the default trigger itself
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy ?? (ariaLabel || trigger ? undefined : triggerId)}
+      aria-multiselectable={multiple || undefined}
+      // Without search, the list is the focused element
+      tabIndex={searchable ? undefined : 0}
+    >
       {options}
       {hasHardLimit && (
         <CustomSelectHardLimit numHidden={filteredOptions.length - HARD_OPTIONS_LIMIT} />
@@ -1307,6 +1362,7 @@ const CustomSelectExpandableLimit = ({
 }: CustomSelectExpandableLimitProps) => {
   const { checkPosition } = useSelectContext()
   const { highlightedValue, setHighlightedValue } = useCustomSelectMenuContext()
+  const optionId = useId()
 
   const isHighlighted = value === highlightedValue
 
@@ -1331,11 +1387,12 @@ const CustomSelectExpandableLimit = ({
   // keyboard navigation, UX, etc.
   return (
     <div
+      id={optionId}
       className={clsx(s.Option, s.OptionsLimit)}
       data-option-id={value}
       data-highlight={isHighlighted ? "" : undefined}
+      // Not selectable: no aria-selected
       role="option"
-      aria-selected={isHighlighted}
       onPointerUp={onPointerUp}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
@@ -1364,6 +1421,8 @@ const CustomSelectOption = (option: Option) => {
   const { openingValue, requestCloseRef, highlightedValue, setHighlightedValue } =
     useCustomSelectMenuContext()
   const { value, disabled, tooltip } = option
+  // Referenced by the list's aria-activedescendant while highlighted
+  const optionId = useId()
 
   // NOTE: SingleSelect mode keeps the opening value instead of the live `propsValue`
   // to avoid selecting the item as the select closes.
@@ -1400,10 +1459,12 @@ const CustomSelectOption = (option: Option) => {
 
   return (
     <div
+      id={optionId}
       className={clsx(s.Option, optionClassName)}
       data-highlight={isHighlighted ? "" : undefined}
       role="option"
-      aria-selected={isHighlighted}
+      // The selection; the highlight is the list's aria-activedescendant
+      aria-selected={isSelected}
       data-selected={isSelected ? "" : undefined}
       // Internal attribute for selecting DOM nodes
       {...{ [INTERNAL_DOM_SELECTION_DATA_ATTR]: value }}
@@ -1675,6 +1736,10 @@ const createTypeahead = () => {
 
 const isValidTypeaheadChar = (char: string): boolean => /^[a-zA-Z0-9]$/.test(char)
 
+// A shortcut (Ctrl+C, Cmd+A, Alt+letter) or a key another handler took is not typeahead
+const isTypeaheadKey = (evt: React.KeyboardEvent): boolean =>
+  isValidTypeaheadChar(evt.key) && !evt.ctrlKey && !evt.metaKey && !evt.altKey && !evt.defaultPrevented
+
 const getTypeaheadOption = <T extends Option>(
   options: Options<T>,
   typeaheadValue: string,
@@ -1686,7 +1751,6 @@ const getTypeaheadOption = <T extends Option>(
   }
 
   let matchBeforeHighlight: T | undefined
-  let matchAfterHighlight: T | undefined
   // If we' aren't provided a highlighted value, start from the top (e.g., act like it's found)
   let foundHighlightedValue: boolean = !currentHighlightValue
 
@@ -1706,9 +1770,8 @@ const getTypeaheadOption = <T extends Option>(
       for (const option of opt.options) {
         if (optionValidAndMatches(option)) {
           if (foundHighlightedValue) {
-            matchAfterHighlight = option
-            // We're done after we've found an after match
-            break
+            // We're done after we've found an after match, in any group
+            return option
           } else {
             // Keep the first found "before" match
             matchBeforeHighlight = matchBeforeHighlight || option
@@ -1718,9 +1781,8 @@ const getTypeaheadOption = <T extends Option>(
     } else {
       if (optionValidAndMatches(opt)) {
         if (foundHighlightedValue) {
-          matchAfterHighlight = opt
           // We're done after we've found an after match
-          break
+          return opt
         } else {
           // Keep the first found "before" match
           matchBeforeHighlight = matchBeforeHighlight || opt
@@ -1729,5 +1791,5 @@ const getTypeaheadOption = <T extends Option>(
     }
   }
 
-  return matchAfterHighlight || matchBeforeHighlight
+  return matchBeforeHighlight
 }

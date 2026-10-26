@@ -70,9 +70,18 @@ export const DateCalendar = defineComponent({
       }
     }
 
+    // The calendar limits whole days; with a time picker the chosen time on a
+    // min or max day can still cross the bound, so clamp the full date-time
+    const clampToBounds = (dateTime: DateTime) => {
+      const { min, max } = context
+      if (min && dateTime.toMillis() < min.toMillis()) return min
+      if (max && dateTime.toMillis() > max.toMillis()) return max
+      return dateTime
+    }
+
     const handleDateSelect = (selectedDate: DateTime) => {
       if (context.showTime) {
-        context.onChange(selectedDate.set({ hour: pendingHour.value, minute: pendingMinute.value }))
+        context.onChange(clampToBounds(selectedDate.set({ hour: pendingHour.value, minute: pendingMinute.value })))
       } else {
         context.onChange(selectedDate)
         closePopover()
@@ -80,10 +89,13 @@ export const DateCalendar = defineComponent({
     }
 
     const handleTimeChange = (hour: number, minute: number) => {
-      pendingHour.value = hour
-      pendingMinute.value = minute
-      if (context.value) {
-        context.onChange(context.value.set({ hour, minute }))
+      const value = context.value
+      const next = value ? clampToBounds(value.set({ hour, minute })) : null
+      // Show the time that was actually applied, even when clamping left value unchanged
+      pendingHour.value = next ? next.hour : hour
+      pendingMinute.value = next ? next.minute : minute
+      if (next) {
+        context.onChange(next)
       }
     }
 
@@ -374,6 +386,8 @@ const TimeInput = defineComponent({
       minuteText.value = raw
       if (raw.length === 2) {
         props.onChange(props.hour, Math.min(59, Number(raw)))
+        // Show the accepted value: the parent may clamp it to min/max
+        minuteText.value = null
       }
       restore(target, minuteValue)
     }
@@ -385,30 +399,28 @@ const TimeInput = defineComponent({
       minuteText.value = null
     }
 
+    // Arrow steps drop the draft text so the field shows the accepted value,
+    // which the parent may have clamped to min/max
     const handleKeyDown = (e: KeyboardEvent, type: "hour" | "minute") => {
       const step = e.shiftKey ? 10 : 1
       const { hour, minute } = props
       if (e.key === "ArrowUp") {
         e.preventDefault()
         if (type === "hour") {
-          const h = (hour + step) % 24
-          props.onChange(h, minute)
-          hourText.value = pad(h)
+          props.onChange((hour + step) % 24, minute)
+          hourText.value = null
         } else {
-          const m = (minute + step) % 60
-          props.onChange(hour, m)
-          minuteText.value = pad(m)
+          props.onChange(hour, (minute + step) % 60)
+          minuteText.value = null
         }
       } else if (e.key === "ArrowDown") {
         e.preventDefault()
         if (type === "hour") {
-          const h = (hour - step + 24) % 24
-          props.onChange(h, minute)
-          hourText.value = pad(h)
+          props.onChange((hour - step + 24) % 24, minute)
+          hourText.value = null
         } else {
-          const m = (minute - step + 60) % 60
-          props.onChange(hour, m)
-          minuteText.value = pad(m)
+          props.onChange(hour, (minute - step + 60) % 60)
+          minuteText.value = null
         }
       }
     }
@@ -543,13 +555,17 @@ const CalendarView = defineComponent({
                 const dayIsToday = isToday(d)
 
                 return h("div", { "class": s.Day, "key": dayIndex, "data-is-selected": isSelected ? "" : undefined }, [
+                  // The full date names the day, which "15" alone does not across months
                   h(
                     "button",
                     {
-                      type: "button",
-                      class: s.InteractiveDay,
-                      disabled: !enabled,
-                      onClick: () => d && props.onDateSelect?.(d),
+                      "type": "button",
+                      "class": s.InteractiveDay,
+                      "disabled": !enabled,
+                      "aria-label": d.toLocaleString(DateTime.DATE_HUGE),
+                      "aria-pressed": isSelected ? "true" : "false",
+                      "aria-current": dayIsToday ? "date" : undefined,
+                      "onClick": () => d && props.onDateSelect?.(d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],
                   ),

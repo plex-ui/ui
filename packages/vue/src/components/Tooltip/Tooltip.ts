@@ -24,10 +24,11 @@ import {
   TooltipTrigger as RekaTooltipTrigger,
   injectTooltipProviderContext,
   injectTooltipRootContext,
+  useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { preventDefaultHandler } from "../../lib/helpers.js"
-import { composeEventHandlers, firstElementChild, flattenSlot, mergeSlotProps } from "./slot.js"
+import { composeEventHandlers, concatAriaDescribedby, firstElementChild, flattenSlot, mergeSlotProps } from "./slot.js"
 import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
 
 // Vue port of packages/ui/src/components/Tooltip/Tooltip.tsx on Reka UI.
@@ -46,9 +47,12 @@ import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
 //   asks for one; Reka also does it for any change of the `open` prop, which
 //   Plex uses to close on Escape and after a copy.
 // - The state attribute is computed when `open` changes, as Radix memoizes it.
-// - The content element is rendered here (Reka's `as`): Radix's visually
-//   hidden copy of the content, Radix's custom property names, no `dir` and
-//   no `data-grace-area-trigger`.
+// - The content element is rendered here (Reka's `as`) the radix-ui 1.8 way:
+//   it is the `role="tooltip"` element itself, without the visually hidden
+//   copy of the text Reka adds; an `id` on the content becomes the id the
+//   trigger points at, and only an `aria-label` gets a visually hidden
+//   element. Radix's custom property names, no `dir` and no
+//   `data-grace-area-trigger`.
 
 export type TooltipSide = "top" | "right" | "bottom" | "left"
 export type TooltipAlign = "start" | "center" | "end"
@@ -89,6 +93,10 @@ export const withRadixVariableNames = (style: unknown, part: string) => {
 }
 
 type ProviderHooks = { onOpen: () => void; onClose: () => void }
+
+// The content's own `id`, which Radix uses as the content id (Reka's
+// `contentId` is a plain string the trigger reads once)
+const ContentIdKey: InjectionKey<Ref<string | undefined>> = Symbol("PlexUITooltipContentId")
 
 const REKA_PROVIDER_HOOKS = Symbol("rekaProviderHooks")
 const REKA_STATE = Symbol("rekaStateAttribute")
@@ -149,6 +157,7 @@ export const TooltipRoot = defineComponent({
   setup(props, { slots, emit }) {
     const hooks: ProviderHooks = { onOpen: () => {}, onClose: () => {} }
     const onOpenChange = (nextState: boolean) => emit("update:open", nextState)
+    provide(ContentIdKey, ref<string>())
 
     useEscCloseStack(
       () => props.open,
@@ -200,6 +209,9 @@ export const TooltipTrigger = defineComponent({
   setup(props, { slots, attrs }) {
     const rootContext = injectTooltipRootContext()
     const providerContext = injectTooltipProviderContext()
+    // Set before the first render, which describes the trigger by it
+    rootContext.contentId ||= useId(undefined, "reka-tooltip-content")
+    const contentIdProp = inject(ContentIdKey, undefined)
     let isPointerDown = false
     let hasPointerMoveOpened = false
 
@@ -239,7 +251,16 @@ export const TooltipTrigger = defineComponent({
       const child = props.asChild ? firstElementChild(slots.default?.()) : h("button", null, slots.default?.())
       if (!child) return null
 
-      const triggerProps: Record<string, unknown> = { ...attrs, "data-grace-area-trigger": undefined }
+      const contentId = contentIdProp?.value ?? rootContext.contentId
+      const triggerProps: Record<string, unknown> = {
+        ...attrs,
+        // Radix adds the content id to the trigger's own while open (the
+        // child's own ids come first, as in Radix's Slot)
+        "aria-describedby": rootContext.open.value
+          ? concatAriaDescribedby(attrs["aria-describedby"], contentId)
+          : attrs["aria-describedby"],
+        "data-grace-area-trigger": undefined,
+      }
       for (const [key, handler] of Object.entries(handlers)) {
         triggerProps[key] = composeEventHandlers(attrs[key], handler)
       }
@@ -256,26 +277,33 @@ type ContentChildren = {
 
 const ContentChildrenKey: InjectionKey<ContentChildren> = Symbol("PlexUITooltipContent")
 
-// The element Reka's content renders (`as`). It replaces Reka's visually
-// hidden text with Radix's copy of the content. Raw, as Reka may pass `as`
-// through reactive props.
+// The element Reka's content renders (`as`), in place of Reka's visually
+// hidden copy of the text. Raw, as Reka may pass `as` through reactive props.
 const TooltipContentElement = markRaw(defineComponent({
   name: "TooltipContentElement",
   inheritAttrs: false,
   setup(_props, { attrs }) {
     const rootContext = injectTooltipRootContext()
     const content = inject(ContentChildrenKey)!
+    const contentIdProp = inject(ContentIdKey, undefined)
 
     return () => {
-      const { dir: _dir, style, ...rest } = attrs
-      return h("div", { ...rest, style: withRadixVariableNames(style, "tooltip") }, [
-        content.render(),
-        h(
-          "span",
-          { id: rootContext.contentId || undefined, role: "tooltip", style: VISUALLY_HIDDEN_STYLE },
-          (content.ariaLabel() as string | undefined) || content.render(),
-        ),
-      ])
+      const { dir: _dir, style, id: _id, ...rest } = attrs
+      const ariaLabel = content.ariaLabel() as string | undefined
+      const contentId = contentIdProp?.value ?? (rootContext.contentId || undefined)
+      return h(
+        "div",
+        {
+          role: ariaLabel ? undefined : "tooltip",
+          id: ariaLabel ? undefined : contentId,
+          ...rest,
+          style: withRadixVariableNames(style, "tooltip"),
+        },
+        [
+          content.render(),
+          ariaLabel ? h("span", { id: contentId, role: "tooltip", style: VISUALLY_HIDDEN_STYLE }, ariaLabel) : null,
+        ],
+      )
     }
   },
 }))
@@ -313,8 +341,23 @@ export const TooltipContent = defineComponent({
       ariaLabel: () => attrs["aria-label"],
     })
 
+    // Radix's content `id` replaces the generated content id while mounted
+    const contentIdProp = inject(ContentIdKey, undefined)
+    if (contentIdProp) {
+      watch(
+        () => attrs.id as string | undefined,
+        (id) => {
+          contentIdProp.value = id || undefined
+        },
+        { immediate: true },
+      )
+      onBeforeUnmount(() => {
+        contentIdProp.value = undefined
+      })
+    }
+
     return () => {
-      const { class: className, style, "aria-label": _ariaLabel, ...restProps } = attrs
+      const { class: className, style, "aria-label": _ariaLabel, id: _id, ...restProps } = attrs
 
       return h(RekaTooltipPortal, null, {
         default: () =>
@@ -502,7 +545,14 @@ const TooltipComponent = defineComponent({
  * Tooltip for any trigger element (the default slot). Content comes from the
  * `content` prop or the `#content` slot; `null` disables the tooltip.
  */
-export const Tooltip = Object.assign(TooltipComponent, {
+// Typed explicitly so the published declaration refers to the parts instead of
+// expanding them (an expanded component type fails consumers' type checks)
+export const Tooltip: typeof TooltipComponent & {
+  Root: typeof TooltipRoot
+  Content: typeof TooltipContent
+  Trigger: typeof TooltipTrigger
+  TriggerDecorator: typeof TooltipTriggerDecorator
+} = Object.assign(TooltipComponent, {
   Root: TooltipRoot,
   Content: TooltipContent,
   Trigger: TooltipTrigger,

@@ -137,6 +137,34 @@ describe("wrapTextNodeSiblings()", () => {
     expect(container.textContent).toBe("   a12b")
   })
 
+  it("keeps a component's single element child a single element", () => {
+    // Radix's Slot (a Tooltip trigger) renders only a single element child
+    const Single = ({ children }: { children?: React.ReactNode }) =>
+      React.isValidElement(children) ? children : <i>not an element</i>
+    const { container } = render(
+      <>
+        {wrapTextNodeSiblings(
+          <Single>
+            <b>
+              foo <svg />
+            </b>
+          </Single>,
+        )}
+      </>,
+    )
+    expect(container.querySelectorAll("i").length).toBe(0)
+    expect(container.querySelectorAll("b > span").length).toBe(1)
+    expect(container.textContent).toBe("foo ")
+  })
+
+  it("leaves render-prop children untouched", () => {
+    const RenderProp = ({ children }: { children: (label: string) => React.ReactNode }) => children("foo")
+    const { container } = render(
+      <>{wrapTextNodeSiblings(<RenderProp>{(label) => <b>{label}</b>}</RenderProp>)}</>,
+    )
+    expect(container.innerHTML).toBe("<b>foo</b>")
+  })
+
   it("does not wrap when there are no text nodes", () => {
     const { container } = render(<>{wrapTextNodeSiblings([<strong key="b" />, <em key="i" />])}</>)
     expect(container.querySelectorAll("span").length).toBe(0)

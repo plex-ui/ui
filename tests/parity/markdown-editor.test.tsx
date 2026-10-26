@@ -70,6 +70,8 @@ type Case = {
   rows?: number
   className?: string
   id?: string
+  ariaLabel?: string
+  ariaLabelledby?: string
   ariaDescribedby?: string
   ariaInvalid?: boolean
   /** Renders the docs' "Edit translations" toolbarEnd button */
@@ -84,10 +86,12 @@ const resetEvents = () => {
   events.log = []
 }
 
-const reactEditor = ({ className, ariaDescribedby, ariaInvalid, toolbarEnd, ...props }: Case) => (
+const reactEditor = ({ className, ariaLabel, ariaLabelledby, ariaDescribedby, ariaInvalid, toolbarEnd, ...props }: Case) => (
   <ReactMarkdownEditor
     {...props}
     className={className}
+    aria-label={ariaLabel}
+    aria-labelledby={ariaLabelledby}
     aria-describedby={ariaDescribedby}
     aria-invalid={ariaInvalid}
     onChange={(md) => {
@@ -109,12 +113,14 @@ const reactEditor = ({ className, ariaDescribedby, ariaInvalid, toolbarEnd, ...p
   />
 )
 
-const vueEditor = ({ className, ariaDescribedby, ariaInvalid, toolbarEnd, ...props }: Case) =>
+const vueEditor = ({ className, ariaLabel, ariaLabelledby, ariaDescribedby, ariaInvalid, toolbarEnd, ...props }: Case) =>
   h(
     MarkdownEditor,
     {
       ...props,
       "class": className,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledby,
       "aria-describedby": ariaDescribedby,
       "aria-invalid": ariaInvalid,
       "onUpdate:value": (md: string) => events.values.push(md),
@@ -319,6 +325,8 @@ const renderCases: Array<[string, Case]> = [
   ["aria-invalid", { ariaInvalid: true }],
   ["aria-invalid false", { ariaInvalid: false }],
   ["id + aria-describedby (Field wiring)", { id: "description", ariaDescribedby: "description-help" }],
+  ["aria-label", { ariaLabel: "Notes" }],
+  ["aria-labelledby (a Field label)", { ariaLabelledby: "notes-label", ariaDescribedby: "notes-help" }],
   ["rows", { rows: 4 }],
   ["fractional rows", { rows: 2.5 }],
   ["class", { className: "custom-editor" }],
@@ -343,6 +351,14 @@ describe("MarkdownEditor parity: initial render", () => {
       () => h(MarkdownEditor, null, { toolbarEnd: () => [] }),
     )
     expect(pair.vue).toBe(pair.react)
+  })
+
+  test("toolbar buttons are toggles; aria-label and aria-labelledby reach the editable element", async () => {
+    const props: Case = { ariaLabel: "Notes", ariaLabelledby: "notes-label" }
+    const pair = await renderPair(reactEditor(props), () => vueEditor(props))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react.match(/aria-pressed="false"/g)).toHaveLength(5)
+    expect(pair.react).toContain('aria-label="Notes" aria-labelledby=')
   })
 
   test("markdownEditorStyles exposes the toolbar button class", () => {
@@ -385,6 +401,7 @@ describe("MarkdownEditor parity: toolbar", () => {
         snapshot()
         await advance(20)
         snapshot()
+        expect(document.querySelector('button[aria-label="Bold"]')!.getAttribute("aria-pressed")).toBe("true")
         await fire(button("Italic"), "click")
         await advance(20)
         snapshot()
@@ -553,6 +570,17 @@ describe("MarkdownEditor parity: focus", () => {
     )
   })
 
+  test("mousedown in the text is left to the browser, which places the caret", async () => {
+    const result = await walkEditor({ defaultValue: "Hello world" }, async ({ snapshot, fire, advance }) => {
+      await fire(`${PM} p`, "mouseDown", {}, "paragraph")
+      await advance(20)
+      snapshot()
+    })
+    expectSame(result)
+    expect(result.react[0]).toContain('"paragraph: not prevented"')
+    expect(result.react[0]).toContain("focus: body")
+  })
+
   test("mousedown on a disabled container does nothing", async () => {
     expectSame(
       await walkEditor({ defaultValue: "Locked", disabled: true }, async ({ snapshot, fire, advance }) => {
@@ -620,34 +648,50 @@ describe("MarkdownEditor parity: link dialog", () => {
   })
 
   test("a new title replaces the selected text", async () => {
-    expectSame(
-      await walkEditor({ defaultValue: "Read the docs today" }, async ({ snapshot, command, fire, advance }) => {
-        await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
-        await fire(button("Link"), "click")
-        await advance(20)
-        await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
-        await fire(TITLE_INPUT, "input", { target: { value: "the guide" } })
-        snapshot()
-        await fire(dialogButton("Save"), "click")
-        await advance(20)
-        snapshot()
-      }),
-    )
+    const result = await walkEditor({ defaultValue: "Read the docs today" }, async ({ snapshot, command, fire, advance }) => {
+      await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
+      await fire(button("Link"), "click")
+      await advance(20)
+      await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
+      await fire(TITLE_INPUT, "input", { target: { value: "the guide" } })
+      snapshot()
+      await fire(dialogButton("Save"), "click")
+      await advance(20)
+      snapshot()
+    })
+    expectSame(result)
+    expect(result.react[1]).toContain('markdown: "Read the [the guide](https://example.com) today"')
   })
 
   test("a new title on an existing link", async () => {
-    expectSame(
-      await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, advance }) => {
-        await command((e) => e.commands.setTextSelection(7))
-        await fire(button("Link"), "click")
-        await advance(20)
-        snapshot()
-        await fire(TITLE_INPUT, "input", { target: { value: "documentation" } })
-        await fire(dialogButton("Save"), "click")
-        await advance(20)
-        snapshot()
-      }),
-    )
+    const result = await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, advance }) => {
+      await command((e) => e.commands.setTextSelection(7))
+      await fire(button("Link"), "click")
+      await advance(20)
+      snapshot()
+      await fire(TITLE_INPUT, "input", { target: { value: "documentation" } })
+      await fire(dialogButton("Save"), "click")
+      await advance(20)
+      snapshot()
+    })
+    expectSame(result)
+    expect(result.react[1]).toContain('markdown: "See [documentation](https://a.com) now"')
+  })
+
+  test("link text and URL are taken as written, not as HTML", async () => {
+    const result = await walkEditor({ defaultValue: "Read the docs today" }, async ({ snapshot, command, fire, advance }) => {
+      await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
+      await fire(button("Link"), "click")
+      await advance(20)
+      await fire(URL_INPUT, "input", { target: { value: 'https://example.com/?q="x"' } })
+      await fire(TITLE_INPUT, "input", { target: { value: "a <b>bold</b> guide" } })
+      await fire(dialogButton("Save"), "click")
+      await advance(20)
+      snapshot()
+    })
+    expectSame(result)
+    expect(result.react[0]).toContain('<a href="https://example.com/?q="x"" rel="noopener noreferrer nofollow" target="_blank">')
+    expect(result.react[0]).toContain('"a <b>bold</b> guide"')
   })
 
   test("saving an empty URL unsets the link", async () => {
@@ -719,7 +763,51 @@ describe("MarkdownEditor parity: link dialog", () => {
         await fire(dialogButton("Save"), "click")
         await advance(20)
         snapshot()
+        expect(markdown()).toBe("Pick a word here[a wo](https://end.com)")
       }),
+    )
+  })
+
+  test("Enter on a dialog button is that button's: Enter on Cancel does not save", async () => {
+    const result = await walkEditor({ defaultValue: "One two three" }, async ({ snapshot, command, fire, advance }) => {
+      await command((e) => e.commands.setTextSelection({ from: 1, to: 4 }))
+      await fire(button("Link"), "click")
+      await advance(20)
+      await fire(URL_INPUT, "input", { target: { value: "https://one.com" } })
+      await fire(dialogButton("Cancel"), "keyDown", { key: "Enter" }, "Enter on Cancel")
+      await advance(20)
+      snapshot() // still open, nothing saved
+      await fire(dialogButton("Cancel"), "click")
+      await advance(20)
+      snapshot()
+    })
+    expectSame(result)
+    expect(result.react[0]).toContain('"Enter on Cancel: not prevented"')
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[1]).toContain('markdown: "One two three"')
+  })
+
+  test("the dialog is modal: Tab and Shift+Tab wrap around its controls", async () => {
+    const result = await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, focus, advance }) => {
+      await command((e) => e.commands.setTextSelection(7))
+      await fire(button("Link"), "click")
+      await advance(20)
+      snapshot() // the URL field has focus
+      await focus(dialogButton("Save"))
+      await fire(dialogButton("Save"), "keyDown", { key: "Tab" }, "Tab on Save")
+      snapshot() // back to the URL field
+      await fire(URL_INPUT, "keyDown", { key: "Tab", shiftKey: true }, "Shift+Tab on the URL field")
+      snapshot() // on Save
+      await fire(dialogButton("Save"), "keyDown", { key: "Tab", shiftKey: true }, "Shift+Tab on Save")
+      await fire(TITLE_INPUT, "keyDown", { key: "Tab" }, "Tab on the title field")
+      snapshot() // left to the browser
+    })
+    expectSame(result)
+    expect(result.react[0]).toContain('aria-modal="true"')
+    expect(result.react[1]).toContain('focus: <input class="LinkDialogInput" id="md-editor-link-url">')
+    expect(result.react[2]).toContain('focus: <button class="LinkDialogButtonSave">')
+    expect(result.react[3]).toContain(
+      '["Tab on Save: prevented","Shift+Tab on the URL field: prevented","Shift+Tab on Save: not prevented","Tab on the title field: not prevented"]',
     )
   })
 })
@@ -821,9 +909,9 @@ describe("MarkdownEditor parity: value", () => {
   test("props follow updates; placeholder is read once (as in React)", async () => {
     expectSame(
       await walkEditor({ placeholder: "First placeholder" } as Case, async ({ snapshot, set }) => {
-        await set({ id: "editor", ariaDescribedby: "help", ariaInvalid: true })
+        await set({ id: "editor", ariaDescribedby: "help", ariaInvalid: true, ariaLabel: "Notes", ariaLabelledby: "notes" })
         snapshot()
-        await set({ ariaInvalid: false, ariaDescribedby: undefined })
+        await set({ ariaInvalid: false, ariaDescribedby: undefined, ariaLabel: undefined, ariaLabelledby: undefined })
         snapshot()
         await set({ variant: "soft", invalid: true, rows: 5, className: "grown" })
         snapshot()
