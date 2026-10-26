@@ -3,23 +3,8 @@
 import { type ComponentType, type ForwardRefExoticComponent, type ReactNode } from "react"
 import { PlexUIContext } from "./PlexUIContext"
 
-/// <reference path="../../global.d.ts" />
-
-interface DefaultConfig {
-  LinkComponent: "a"
-}
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface PlexUIConfig {}
-}
-
-// Utility type to merge defaults with overrides. The override keys take precedence.
-type MergeOverrides<Defaults, Overrides> = Omit<Defaults, keyof Overrides> & Overrides
-
-export type Config = MergeOverrides<DefaultConfig, PlexUIConfig>
-
-export type LinkComponent = Config["LinkComponent"]
+// The link component's type comes from PlexUIConfig in global.d.ts, which is
+// what ButtonLink, TextLink and Menu.Link read.
 
 /**
  * Shared context for all Plex UI components - wrap your app in this

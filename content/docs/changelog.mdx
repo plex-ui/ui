@@ -57,6 +57,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `FloatingLabelInput` with `multiline` forwards props such as `required`, `maxLength` and key handlers to its textarea, and resizes when a controlled `value` or `rows` changes.
 - `Menu.Trigger` forwards its props and `ref` to the trigger element.
 - `AnimateLayoutGroup` applies `insertMethod` and `preventInitialTransition`.
+- `ButtonLink`, `TextLink` and `Menu.Link` type their props from the link component set in `PlexUIConfig`, as the installation guide describes. The augmentation used to reach only `PlexUIProvider`, so `<ButtonLink to="/x">` with a router `Link` failed to type-check. `PlexUIOverrides` still works.
 - `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 - An `Avatar` with `onClick` uses `name` as its accessible name instead of announcing only the initial, or nothing for icon avatars.
 
