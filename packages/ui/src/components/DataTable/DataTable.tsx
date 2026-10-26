@@ -82,8 +82,9 @@ const resolveUpdater = <T,>(updater: Updater<T>, value: T): T => {
 }
 
 // One piece of table state: controlled when `controlled` is defined, otherwise
-// held here, with `onChange` as a notification either way. Updates resolve
-// against the latest value, so several updaters in one event accumulate.
+// held here, with `onChange` as a notification either way. Updaters dispatched
+// together (one event) build on each other; every new batch starts from the
+// current value, so a change the parent rejected or rewrote does not leak in.
 const useTableState = <T,>(
   controlled: T | undefined,
   initial: T,
@@ -91,14 +92,18 @@ const useTableState = <T,>(
 ): [T, OnChangeFn<T>] => {
   const [internal, setInternal] = useState<T>(initial)
   const value = controlled ?? internal
-  const latest = useRef(value)
-  useEffect(() => {
-    latest.current = value
-  }, [value])
+  const batch = useRef<{ base: T; next: T } | null>(null)
 
   const handleChange: OnChangeFn<T> = (updater) => {
-    const next = resolveUpdater(updater, latest.current)
-    latest.current = next
+    const pending = batch.current
+    const previous = pending && pending.base === value ? pending.next : value
+    const next = resolveUpdater(updater, previous)
+    if (!pending) {
+      queueMicrotask(() => {
+        batch.current = null
+      })
+    }
+    batch.current = { base: value, next }
     if (controlled === undefined) {
       setInternal(next)
     }
