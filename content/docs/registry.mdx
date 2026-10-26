@@ -12,7 +12,7 @@ If your project already uses the Shadcn CLI, you can pull Plex UI components wit
 
 ## Install the styles once
 
-Plex UI ships its own design tokens and CSS modules. Pull the style entry first — this installs the npm package and drops a CSS entrypoint:
+Plex UI ships its own design tokens and CSS modules. Pull the style entry first. This installs the npm package and drops a CSS entrypoint:
 
 ```bash
 npx shadcn@latest add https://plexui.com/r/styles.json
@@ -67,7 +67,7 @@ The Shadcn CLI treats Plex UI the same way it treats any registry:
 3. Writes a typed re-export at `components/ui/<name>.tsx`
 4. Recursively fetches `registryDependencies` (pulls in `styles.json` on first use)
 
-Unlike classic Shadcn components — which copy the full source into your repo — Plex UI components stay inside `@plexui/ui`, so you always get bug fixes and new features with a single `npm upgrade @plexui/ui`. The local `components/ui/*.tsx` file is a one-line re-export that keeps imports identical to native Shadcn components, so your team can mix both libraries without friction.
+Unlike classic Shadcn components, which copy the full source into your repo, Plex UI components stay inside `@plexui/ui`, so you always get bug fixes and new features with a single `npm upgrade @plexui/ui`. The local `components/ui/*.tsx` file is a one-line re-export that keeps imports identical to native Shadcn components, so your team can mix both libraries without friction.
 
 ## Index
 

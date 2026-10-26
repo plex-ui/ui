@@ -38,9 +38,9 @@ Add the foundation styles and Tailwind layers to the top of your global styleshe
 /* The rest of your application CSS */
 ```
 
-#### On Vite — use the official plugin
+#### On Vite, use the official plugin
 
-If your bundler is Vite, drop the manual `@layer` line, the `css.transformer` override, and the `<style>` failsafe — `@plexui/ui/vite` does all three for you:
+If your bundler is Vite, drop the manual `@layer` line, the `css.transformer` override, and the `<style>` failsafe. `@plexui/ui/vite` does all three for you:
 
 ```ts
 // vite.config.ts
@@ -54,7 +54,7 @@ export default defineConfig({
 
 The plugin pins `css.transformer = 'postcss'` and `build.cssMinify = 'esbuild'` (so Vite 8's Lightning CSS minifier doesn't strip the layer declaration), and injects `<style>@layer theme, base, components, utilities;</style>` into `<head>` as a runtime failsafe before any other stylesheet.
 
-Your `main.css` then only needs the imports — no `@layer …;` line, no other ceremony:
+Your `main.css` then only needs the imports, with no `@layer …;` line and no other ceremony:
 
 ```css
 @import "tailwindcss";
@@ -73,9 +73,9 @@ If you're on **Vite** (default in Vite 5+) Lightning CSS is the active CSS trans
 - Pill controls render square because `--radius-full` falls through
 - Solid buttons render with invisible text (preflight `color: inherit` wins over component CSS)
 
-Three things together cover both Vite 5–7 and Vite 8:
+Three things together cover both Vite 5-7 and Vite 8:
 
-1. **Keep the explicit `@layer` line at the top of `main.css`** — it's enough on its own in Vite 5–7.
+1. **Keep the explicit `@layer` line at the top of `main.css`**: it's enough on its own in Vite 5-7.
 2. **Pin the CSS transformer + minifier** so Lightning CSS doesn't strip the layer declaration on Vite 8:
 
    ```ts
@@ -86,7 +86,7 @@ Three things together cover both Vite 5–7 and Vite 8:
    });
    ```
 
-3. **HTML failsafe** — inject the layer order through `<head>` so it survives any minification path:
+3. **HTML failsafe**: inject the layer order through `<head>` so it survives any minification path:
 
    ```html
    <!-- index.html -->
@@ -127,7 +127,7 @@ If you want `rounded-md` to render with the Plex radius (`0.5rem`), `rounded-ful
 @source "../node_modules/@plexui/ui";
 ```
 
-This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-*`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. Use only if you actively want that — it's a project-wide decision, not a per-page one.
+This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-*`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. Use only if you actively want that. It's a project-wide decision, not a per-page one.
 
 Then import your stylesheet *before* rendering any components:
 
