@@ -65,8 +65,8 @@
  *   - shortcut?: string (keyboard shortcut display)
  */
 
-import { Slot } from "@radix-ui/react-slot"
 import clsx from "clsx"
+import { Slot } from "radix-ui"
 import {
   forwardRef,
   useCallback,
@@ -267,7 +267,7 @@ export type SidebarGroupLabelProps = ComponentProps<"span"> & {
 
 export const SidebarGroupLabel = forwardRef<HTMLSpanElement, SidebarGroupLabelProps>(
   ({ asChild = false, size = "lg", className, ...props }, ref) => {
-    const Comp = asChild ? Slot : "span"
+    const Comp = asChild ? Slot.Root : "span"
     return (
       <Comp
         ref={ref}
@@ -351,7 +351,7 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({ isActive = false, tooltip, asChild = false, className, children, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot.Root : "button"
 
     const button = (
       <Comp
@@ -527,7 +527,7 @@ export type SidebarMenuSubButtonProps = ComponentProps<"button"> & {
 
 export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
   ({ isActive = false, asChild = false, indent = 0, className, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot.Root : "button"
     return (
       <Comp
         ref={ref}
