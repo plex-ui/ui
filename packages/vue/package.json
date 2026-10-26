@@ -35,6 +35,26 @@
     "./components/*": {
       "types": "./dist/types/components/*/index.d.ts",
       "default": "./dist/es/components/*/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/types.d.ts",
+      "default": "./dist/es/types.js"
+    },
+    "./theme": {
+      "types": "./dist/types/lib/theme.d.ts",
+      "default": "./dist/es/lib/theme.js"
+    },
+    "./helpers": {
+      "types": "./dist/types/lib/helpers.d.ts",
+      "default": "./dist/es/lib/helpers.js"
+    },
+    "./userAgent": {
+      "types": "./dist/types/lib/userAgent.d.ts",
+      "default": "./dist/es/lib/userAgent.js"
+    },
+    "./dateUtils": {
+      "types": "./dist/types/lib/dateUtils.d.ts",
+      "default": "./dist/es/lib/dateUtils.js"
     }
   },
   "scripts": {
@@ -51,9 +71,11 @@
   "dependencies": {
     "@plexui/styles": "^0.1.0",
     "clsx": "^2.1.1",
+    "luxon": "3.7.1",
     "reka-ui": "^2.11.0"
   },
   "devDependencies": {
+    "@types/luxon": "^3.7.1",
     "typescript": "5.7.3",
     "vue": "3.5.44"
   }

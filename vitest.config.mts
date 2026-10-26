@@ -14,6 +14,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["tests/parity/**/*.test.{ts,tsx}"],
+    setupFiles: ["tests/parity/setup.ts"],
     css: {
       include: [/\.module\.css$/],
       modules: { classNameStrategy: "non-scoped" },

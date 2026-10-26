@@ -7,15 +7,6 @@ import { Button as VueButton } from "../../packages/vue/src/components/Button"
 import { animation, flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 
-vi.mock("../../packages/ui/src/components/Transition/getDisableAnimations", async () => {
-  const { animation } = await import("./harness")
-  return { default: () => animation.disabled }
-})
-vi.mock("../../packages/vue/src/components/Transition/getDisableAnimations", async () => {
-  const { animation } = await import("./harness")
-  return { default: () => animation.disabled }
-})
-
 type Props = Record<string, unknown>
 
 const COLORS = ["primary", "secondary", "danger", "success", "info", "discovery", "caution", "warning"]

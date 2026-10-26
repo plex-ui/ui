@@ -1,11 +1,22 @@
-import { canUseDOM, hasDocument } from "./environment.js"
+// Port of packages/ui/src/lib/helpers.ts with Vue-facing types (events are
+// DOM events, style objects are plain records). Keep the logic identical: the
+// parity tests compare the DOM these produce with the React output.
 
-// Ports of packages/ui/src/lib/helpers.ts. Keep the behaviour identical:
-// the parity tests compare the DOM these produce with the React output.
+import { canUseDOM, hasDocument, hasWindow } from "./environment.js"
+import type { Pretty } from "./utilityTypes.js"
+
+export const prefersReducedMotion = () => {
+  if (!hasWindow || typeof window.matchMedia !== "function") {
+    return false
+  }
+
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
 
 export const handlePressableMouseEnter = (evt: Event) => {
   const target = evt.currentTarget
 
+  // Safely coerce type to HTMLElement so TS is peaceful with `evt.target`
   if (!(target instanceof HTMLElement)) {
     return
   }
@@ -27,7 +38,14 @@ export const handlePressableMouseEnter = (evt: Event) => {
   target.style.setProperty("--scale", scale.toString())
 }
 
-export const waitForAnimationFrame = (cb: () => void, options?: { frames: number }) => {
+interface CancelAnimationFrame {
+  (): void
+}
+
+export const waitForAnimationFrame = (
+  cb: () => void,
+  options?: { frames: number },
+): CancelAnimationFrame => {
   const runAfterTick = () => {
     const id = setTimeout(cb)
     return () => {
@@ -64,18 +82,118 @@ export const waitForAnimationFrame = (cb: () => void, options?: { frames: number
 export const toCssVariables = (
   variables: Record<string, string | number | undefined>,
 ): Record<string, string> => {
-  return Object.keys(variables).reduce(
+  const formattedVariables = Object.keys(variables).reduce(
     (acc, variable) => {
+      // Ensure value is truthy
       const value = variables[variable]
       // Accept 0 as a valid value
       if (value || value === 0) {
         // Add the prefix if it wasn't already provided
         const prefix = variable.startsWith("--") ? "" : "--"
-        acc[`${prefix}${variable}`] = typeof value === "number" ? `${value}px` : value
+        const formattedValue = typeof value === "number" ? `${value}px` : value
+
+        acc[`${prefix}${variable}`] = formattedValue
       }
 
       return acc
     },
     {} as Record<string, string>,
   )
+
+  // Safe casting because we know we've formatted an object of CSS Variable strings
+  return formattedVariables
+}
+
+export const toAngle = (value: number | string): string =>
+  typeof value === "number" ? `${value}deg` : value
+
+export const toOpacityProperty = (opacity: number): string => String(opacity)
+
+export const toMsDurationProperty = (duration: number): string => `${duration}ms`
+
+export const toTransformProperty = ({
+  x,
+  y,
+  scale,
+  rotate,
+  skewX,
+  skewY,
+}: {
+  x?: number
+  y?: number
+  scale?: number
+  rotate?: number | string
+  skewX?: number | string
+  skewY?: number | string
+} = {}): string => {
+  const transforms = [
+    x == null ? null : `translateX(${x}px)`,
+    y == null ? null : `translateY(${y}px)`,
+    scale == null ? null : `scale(${scale})`,
+    rotate == null ? null : `rotate(${toAngle(rotate)})`,
+    skewX == null ? null : `skewX(${toAngle(skewX)})`,
+    skewY == null ? null : `skewY(${toAngle(skewY)})`,
+  ].filter(Boolean)
+
+  return transforms.length ? transforms.join(" ") : "none"
+}
+
+export const toFilterProperty = ({ blur }: { blur?: number | undefined } = {}) => {
+  // Maybe add more support in the future
+  const filters = [blur == null ? null : `blur(${blur}px)`].filter(Boolean)
+
+  return filters.length ? filters.join(" ") : "none"
+}
+
+export const preventDefaultHandler = (evt: Event) => {
+  evt.preventDefault()
+}
+
+/*
+ * Intentionally simple selector string. Purposeful exclusions: (for now)
+ * - select, because our selects are better recognized as button
+ * - unused selectors like iframe, object, .etc.
+ * - states like [inert]
+ */
+export const focusableElements = (element: HTMLElement) =>
+  element.querySelectorAll<HTMLElement>(
+    'a[href], input:not([disabled]):not([type="hidden"]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex^="-"]), [contenteditable]',
+  )
+
+export const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Group an array of objects by a property, preserving the *first-seen* order
+ * of each group.
+ *
+ * @example
+ * groupByOrdered(people, "team")
+ * // => [ { team: "infra", items:[...] }, { team:"design", items:[...] }, ... ]
+ */
+export function groupByProperty<T extends object, K extends keyof T, F = T[K]>(
+  items: T[],
+  key: K,
+  format: (raw: T[K], item: T) => F = (raw) => raw as F,
+) {
+  const groups: Pretty<{ [P in K]: F } & { items: T[] }>[] = []
+  const indexMap = new Map<unknown, number>() // maps group value -> index in groups array
+
+  for (const item of items) {
+    const value = format(item[key], item)
+
+    // Add to existing group
+    const existing = indexMap.get(value)
+    if (existing !== undefined) {
+      groups[existing].items.push(item)
+      continue
+    }
+
+    // Create new group
+    const group = { [key]: value, items: [item] } as { [P in K]: F } & { items: T[] }
+    indexMap.set(value, groups.length)
+    groups.push(group)
+  }
+
+  return groups
 }

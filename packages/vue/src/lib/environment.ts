@@ -1,5 +1,3 @@
-// Mirrors packages/ui/src/lib/environment.ts so both packages agree on
-// test detection (which turns animations off).
 const META_ENV = typeof import.meta !== "undefined" ? import.meta.env : undefined
 
 const NODE_ENV =
