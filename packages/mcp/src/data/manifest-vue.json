@@ -68,6 +68,11 @@
           "name": "Disabled",
           "code": "<Accordion type=\"single\" collapsible default-value=\"history\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"history\">\n    <AccordionTrigger>Can I see my usage history?</AccordionTrigger>\n    <AccordionContent>\n      Yes, the Activity tab logs every API call, deploy, and admin action\n      for the last 90 days. Longer retention requires the Enterprise plan.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"audit\" disabled>\n    <AccordionTrigger>Audit log export (Enterprise only)</AccordionTrigger>\n    <AccordionContent>\n      Upgrade to Enterprise to stream audit events to S3, Splunk, or your\n      SIEM of choice.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"two-factor\">\n    <AccordionTrigger>How do I enable two-factor auth?</AccordionTrigger>\n    <AccordionContent>\n      Settings → Security → Two-factor. You can use an authenticator app or\n      a FIDO2 hardware key. Recovery codes are issued once at enrollment.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>",
           "details": "Pass disabled to an AccordionItem to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it."
+        },
+        {
+          "name": "Card",
+          "code": "<Card style=\"width: 100%; max-width: 384px\">\n  <CardHeader>\n    <CardTitle>Subscription & billing</CardTitle>\n    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <Accordion type=\"single\" collapsible default-value=\"plans\">\n      <AccordionItem\n        v-for=\"item in [\n          {\n            value: 'plans',\n            trigger: 'What subscription plans do you offer?',\n            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',\n          },\n          {\n            value: 'billing',\n            trigger: 'How does billing work?',\n            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',\n          },\n          {\n            value: 'cancel',\n            trigger: 'How do I cancel my subscription?',\n            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',\n          },\n        ]\"\n        :key=\"item.value\"\n        :value=\"item.value\"\n      >\n        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n        <AccordionContent>{{ item.content }}</AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  </CardContent>\n</Card>",
+          "details": "Composed inside Card, the most common landing-page FAQ pattern."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/accordion"
@@ -607,6 +612,11 @@
           "details": "Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …."
         },
         {
+          "name": "Select",
+          "code": "<ButtonGroup>\n  <ButtonGroup>\n    <Select\n      :options=\"unitOptions\"\n      v-model:value=\"unit\"\n      variant=\"outline\"\n      :size=\"size\"\n      :block=\"false\"\n    />\n    <Input placeholder=\"2.50\" :size=\"size\" inputmode=\"decimal\" />\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Log weight\">\n      <ArrowRight />\n    </Button>\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any \"qualifier + value\" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance."
+        },
+        {
           "name": "Popover",
           "code": "<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\"><Sparkles /> Generate</Button>\n  <Popover>\n    <PopoverTrigger>\n      <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\" uniform aria-label=\"More generate options\">\n        <ChevronDownMd />\n      </Button>\n    </PopoverTrigger>\n    <PopoverContent :min-width=\"320\" side=\"bottom\" align=\"end\" class=\"p-4\">\n      <Card variant=\"ghost\" size=\"sm\">\n        <CardHeader>\n          <CardTitle>Generate a component</CardTitle>\n          <CardDescription>Describe what to build in plain English.</CardDescription>\n        </CardHeader>\n        <CardContent>\n          <Textarea placeholder=\"A login form with email and password…\" :rows=\"3\" />\n        </CardContent>\n        <CardFooter>\n          <CardDescription>Plex will draft the code and preview it live.</CardDescription>\n        </CardFooter>\n      </Card>\n    </PopoverContent>\n  </Popover>\n</ButtonGroup>",
           "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews)."
@@ -773,9 +783,29 @@
           "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>Project activity</CardTitle>\n    <CardDescription>\n      Your team opened 12 issues and closed 8 pull requests over the last 7 days.\n    </CardDescription>\n  </CardHeader>\n  <CardFooter>\n    <Button color=\"primary\" variant=\"solid\" size=\"sm\">View report</Button>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Dismiss</Button>\n  </CardFooter>\n</Card>"
         },
         {
+          "name": "Login",
+          "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>Log in to your account</CardTitle>\n    <CardDescription>Enter your email below to log in to your account.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <div style=\"display: flex; flex-direction: column; gap: 20px\">\n      <Field label=\"Email\">\n        <Input type=\"email\" placeholder=\"you@example.com\" />\n      </Field>\n      <div style=\"display: flex; flex-direction: column; gap: 6px\">\n        <div style=\"display: flex; align-items: center; justify-content: space-between; gap: 8px\">\n          <Label for=\"card-login-password\">Password</Label>\n          <TextLink href=\"#\" primary>Forgot your password?</TextLink>\n        </div>\n        <Input id=\"card-login-password\" type=\"password\" />\n      </div>\n    </div>\n  </CardContent>\n  <CardFooter style=\"flex-direction: column; align-items: stretch; gap: 12px\">\n    <Button color=\"primary\" variant=\"solid\" block>Log in</Button>\n    <!-- Description sits flush under a title by default; here it follows a button -->\n    <CardDescription class=\"text-center\" style=\"margin: 0\">\n      Don't have an account?\n      <TextLink href=\"#\" primary>Sign up</TextLink>\n    </CardDescription>\n  </CardFooter>\n</Card>",
+          "details": "A classic login form with a primary Log in CTA and an inline Sign up link below."
+        },
+        {
+          "name": "Create project",
+          "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>Create project</CardTitle>\n    <CardDescription>Deploy a new project in one-click with sensible defaults.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <div style=\"display: flex; flex-direction: column; gap: 20px\">\n      <Field label=\"Name\">\n        <Input placeholder=\"billing-service\" />\n      </Field>\n      <Field label=\"Region\" description=\"Where your functions and database will live.\">\n        <Input placeholder=\"us-east-1\" />\n      </Field>\n    </div>\n  </CardContent>\n  <CardFooter style=\"justify-content: flex-end\">\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Cancel</Button>\n    <Button color=\"primary\" variant=\"solid\" size=\"sm\">Deploy</Button>\n  </CardFooter>\n</Card>",
+          "details": "Right-aligned footer with Cancel / Submit. Use style=\"justify-content: flex-end\" on CardFooter."
+        },
+        {
+          "name": "Payment Method",
+          "code": "<Card style=\"max-width: 420px\">\n  <div style=\"display: flex; flex-direction: column; gap: 16px\">\n    <CardHeader>\n      <CardTitle>Payment Method</CardTitle>\n      <CardDescription>All transactions are secure and encrypted</CardDescription>\n    </CardHeader>\n\n    <Field label=\"Name on Card\">\n      <Input placeholder=\"Aisha Cooper\" />\n    </Field>\n\n    <Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n      <Input placeholder=\"1234 5678 9012 3456\" inputmode=\"numeric\" />\n    </Field>\n\n    <div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px\">\n      <Field label=\"Month\">\n        <Select v-model:value=\"month\" :options=\"monthOptions\" placeholder=\"MM\" />\n      </Field>\n      <Field label=\"Year\">\n        <Select v-model:value=\"year\" :options=\"yearOptions\" placeholder=\"YYYY\" />\n      </Field>\n      <Field label=\"CVV\">\n        <Input placeholder=\"123\" inputmode=\"numeric\" />\n      </Field>\n    </div>\n\n    <Separator />\n\n    <CardHeader>\n      <CardTitle>Billing Address</CardTitle>\n      <CardDescription>The billing address associated with your payment method</CardDescription>\n    </CardHeader>\n\n    <Checkbox v-model:checked=\"sameAsShipping\" label=\"Same as shipping address\" />\n\n    <Separator />\n\n    <Field label=\"Comments\">\n      <Textarea placeholder=\"Add any additional comments\" :rows=\"3\" />\n    </Field>\n\n    <div style=\"display: flex; gap: 8px\">\n      <Button color=\"primary\" variant=\"solid\">Submit</Button>\n      <Button color=\"secondary\" variant=\"outline\">Cancel</Button>\n    </div>\n  </div>\n</Card>",
+          "details": "Full-fidelity payment form. Card Number + CVV share a 2fr/1fr row with a helper line; Month/Year use Select. Sections are divided by subtle hrs for Billing Address and Comments."
+        },
+        {
           "name": "No team members (empty state)",
           "code": "<Card style=\"max-width: 380px; padding: 24px\">\n  <EmptyMessage>\n    <EmptyMessageIcon>\n      <UserAdd />\n    </EmptyMessageIcon>\n    <EmptyMessageTitle>No team members</EmptyMessageTitle>\n    <EmptyMessageDescription>\n      Invite your team to collaborate on this project.\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow>\n      <Button color=\"primary\" variant=\"solid\" size=\"sm\">Invite members</Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</Card>",
           "details": "Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action."
+        },
+        {
+          "name": "How did you hear about us?",
+          "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>How did you hear about us?</CardTitle>\n    <CardDescription>Select the option that best describes how you heard about us.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <RadioGroup v-model:value=\"source\" direction=\"col\">\n      <RadioGroupItem value=\"social\" block>Social Media</RadioGroupItem>\n      <RadioGroupItem value=\"search\" block>Search Engine</RadioGroupItem>\n      <RadioGroupItem value=\"referral\" block>Referral</RadioGroupItem>\n      <RadioGroupItem value=\"other\" block>Other</RadioGroupItem>\n    </RadioGroup>\n  </CardContent>\n  <CardFooter>\n    <Button color=\"primary\" variant=\"solid\" block>Submit</Button>\n  </CardFooter>\n</Card>",
+          "details": "A single-question survey using RadioGroup with direction=\"col\" and a full-width submit button."
         },
         {
           "name": "Processing your request",
@@ -891,6 +921,16 @@
           "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox label=\"Same as billing address\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" />\n  <Checkbox label=\"Subscribe to newsletter\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" default-checked />\n</div>"
         },
         {
+          "name": "With Radio Group",
+          "code": "<div class=\"flex flex-col gap-6 w-full max-w-md\">\n  <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\" v-slot=\"{ id }\">\n    <RadioGroup :direction=\"direction\" default-value=\"email\" aria-label=\"Notification channel\">\n      <RadioGroupItem\n        v-for=\"channel in [\n          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },\n          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },\n          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },\n        ]\"\n        :key=\"channel.value\"\n        :value=\"channel.value\"\n      >\n        <div v-if=\"description === 'true'\" class=\"flex flex-col\">\n          <span class=\"font-medium\">{{ channel.label }}</span>\n          <span class=\"text-xs text-secondary mt-0.5\">{{ channel.description }}</span>\n        </div>\n        <template v-else>{{ channel.label }}</template>\n      </RadioGroupItem>\n    </RadioGroup>\n  </Field>\n  <Field label=\"Topics\" description=\"Select the topics you want to follow.\" v-slot=\"{ id }\">\n    <div :class=\"direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'\">\n      <Checkbox\n        v-for=\"topic in [\n          { label: 'Product updates', description: 'New features and improvements.', checked: true },\n          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },\n          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },\n        ]\"\n        :key=\"topic.label\"\n        :default-checked=\"topic.checked\"\n      >\n        <template #label>\n          <div v-if=\"description === 'true'\" class=\"flex flex-col\">\n            <span class=\"font-medium\">{{ topic.label }}</span>\n            <span class=\"text-xs text-secondary mt-0.5\">{{ topic.description }}</span>\n          </div>\n          <template v-else>{{ topic.label }}</template>\n        </template>\n      </Checkbox>\n    </div>\n  </Field>\n</div>",
+          "details": "Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts."
+        },
+        {
+          "name": "Descriptions",
+          "code": "<div class=\"flex flex-col max-w-sm w-full divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Email notifications\" description=\"Configure which emails you receive.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-2.5\">\n        <Checkbox v-model:checked=\"settings.marketing\">\n          <template #label>\n            <div class=\"flex flex-col\">\n              <span class=\"font-medium\">Marketing</span>\n              <span class=\"text-xs text-secondary mt-0.5\">Receive emails about new products and features.</span>\n            </div>\n          </template>\n        </Checkbox>\n        <Checkbox v-model:checked=\"settings.security\">\n          <template #label>\n            <div class=\"flex flex-col\">\n              <span class=\"font-medium\">Security</span>\n              <span class=\"text-xs text-secondary mt-0.5\">Receive emails about account activity and security.</span>\n            </div>\n          </template>\n        </Checkbox>\n      </div>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Push notifications\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-3\">\n        <Checkbox label=\"Everything\" v-model:checked=\"settings.everything\" />\n        <Checkbox label=\"Direct messages and mentions\" v-model:checked=\"settings.mentions\" />\n        <Checkbox label=\"Nothing\" v-model:checked=\"settings.nothing\" />\n      </div>\n    </Field>\n  </div>\n</div>",
+          "details": "Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory."
+        },
+        {
           "name": "Variants",
           "code": "<div class=\"flex flex-wrap gap-x-12 gap-y-6\">\n  <div\n    v-for=\"group in [\n      { name: 'solid' },\n      { name: 'solid pill', pill: true },\n      { name: 'ghost', variant: 'ghost' },\n    ]\"\n    :key=\"group.name\"\n    class=\"flex flex-col gap-3 items-start\"\n  >\n    <span class=\"text-xs text-secondary font-mono mb-1\">{{ group.name }}</span>\n    <Checkbox label=\"Unchecked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" />\n    <Checkbox label=\"Checked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" default-checked />\n    <Checkbox label=\"Indeterminate\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" checked=\"indeterminate\" />\n  </div>\n</div>",
           "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill."
@@ -927,13 +967,28 @@
         },
         {
           "name": "Without label",
-          "code": "<div class=\"flex gap-4\">\n  <Checkbox />\n  <Checkbox default-checked />\n  <Checkbox checked=\"indeterminate\" />\n</div>",
-          "details": "When no label is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate."
+          "code": "<div class=\"flex gap-4\">\n  <Checkbox aria-label=\"Accept terms\" />\n  <Checkbox aria-label=\"Subscribe\" default-checked />\n  <Checkbox aria-label=\"Select all\" checked=\"indeterminate\" />\n</div>",
+          "details": "When no label is provided, the checkbox renders as a standalone control, so pass aria-label to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate."
         },
         {
           "name": "Group with select all",
           "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox\n    label=\"Permissions\"\n    :checked=\"items.every((i) => i.checked) ? true : items.some((i) => i.checked) ? 'indeterminate' : false\"\n    @update:checked=\"(next) => items.forEach((i) => (i.checked = next))\"\n  />\n  <div class=\"flex flex-col gap-3 pl-6\">\n    <Checkbox\n      v-for=\"item in items\"\n      :key=\"item.id\"\n      :label=\"item.label\"\n      v-model:checked=\"item.checked\"\n    />\n  </div>\n</div>",
           "details": "Combine a parent checkbox with child checkboxes to create a \"select all\" pattern. The parent shows an indeterminate state when only some children are checked. Each child binds v-model:checked to its item in items."
+        },
+        {
+          "name": "Group with description",
+          "code": "<div class=\"max-w-sm w-full\">\n  <Field label=\"Show on desktop\" description=\"Select the items you want to display on the desktop.\" v-slot=\"{ id }\">\n    <div class=\"flex flex-col gap-3\">\n      <Checkbox v-for=\"item in items\" :key=\"item.id\" :label=\"item.label\" v-model:checked=\"item.checked\" />\n    </div>\n  </Field>\n</div>",
+          "details": "Wrap a group of checkboxes in a Field for a shared label and description. This is a common pattern for preference lists and settings panels."
+        },
+        {
+          "name": "With Field",
+          "code": "<div class=\"flex flex-col gap-4 max-w-sm w-full\">\n  <Field\n    label=\"Terms\"\n    description=\"Please review and accept the terms before continuing.\"\n    :error-message=\"showError ? 'You must accept the terms to continue.' : undefined\"\n    v-slot=\"{ id }\"\n  >\n    <div class=\"flex flex-col gap-3 mt-1\">\n      <Checkbox label=\"I agree to the Terms of Service\" v-model:checked=\"agreed\" />\n      <Checkbox label=\"Subscribe to product updates\" />\n    </div>\n  </Field>\n</div>",
+          "details": "Wrap checkboxes in a Field component for form layout with label, description, and error message support. The Field provides aria-describedby and aria-invalid linking automatically."
+        },
+        {
+          "name": "Grouped sections",
+          "code": "<div class=\"flex flex-col max-w-sm w-full divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Email notifications\" description=\"Configure which emails you receive.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-4\">\n        <Checkbox v-model:checked=\"settings.emailMarketing\">\n          <template #label>\n            <div class=\"flex flex-col\">\n              <span class=\"font-medium\">Marketing</span>\n              <span class=\"text-xs text-secondary mt-0.5\">Receive emails about new products and features.</span>\n            </div>\n          </template>\n        </Checkbox>\n        <Checkbox v-model:checked=\"settings.emailSecurity\">\n          <template #label>\n            <div class=\"flex flex-col\">\n              <span class=\"font-medium\">Security</span>\n              <span class=\"text-xs text-secondary mt-0.5\">Receive emails about account activity and security.</span>\n            </div>\n          </template>\n        </Checkbox>\n      </div>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Push notifications\" description=\"Configure which push notifications you receive.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-3\">\n        <Checkbox label=\"Everything\" v-model:checked=\"settings.pushEverything\" />\n        <Checkbox label=\"Direct messages and mentions\" v-model:checked=\"settings.pushMentions\" />\n        <Checkbox label=\"Nothing\" v-model:checked=\"settings.pushNothing\" />\n      </div>\n    </Field>\n  </div>\n</div>",
+          "details": "Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a Field with its own label and description."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/checkbox"
@@ -1366,6 +1421,16 @@
           "name": "Two fields",
           "code": "<div style=\"display: flex; gap: 8px; align-items: center\">\n  <DatePicker\n    id=\"date-picker-two-field-date\"\n    trigger-date-format=\"MMM d, yyyy\"\n    size=\"lg\"\n    pill\n    caption-layout=\"dropdown\"\n    :trigger-show-icon=\"false\"\n    dropdown-icon-type=\"none\"\n    placeholder=\"Select date\"\n    :value=\"selectedDate\"\n    @update:value=\"selectedDate = withTime($event, time)\"\n  />\n  <Input\n    id=\"date-picker-two-field-time\"\n    size=\"lg\"\n    pill\n    :value=\"time\"\n    @update:value=\"time = formatTime($event); selectedDate = applyTime(selectedDate, time)\"\n    placeholder=\"HH:MM\"\n    maxlength=\"5\"\n    style=\"width: 72px\"\n  />\n</div>",
           "details": "Compose DatePicker and Input side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here formatTime masks the typed time as HH:MM, applyTime moves the date to a complete typed time, and withTime gives a newly picked date the typed time."
+        },
+        {
+          "name": "Date input",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput v-model:value=\"selectedDate\" mode=\"mm/dd/yyyy\" separator=\"/\" aria-label=\"Date\" />\n</div>",
+          "details": "For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type."
+        },
+        {
+          "name": "DateTime input",
+          "code": "<div class=\"w-[260px]\">\n  <DateInput\n    v-model:value=\"selectedDate\"\n    mode=\"mm/dd/yyyy\"\n    separator=\"/\"\n    time-mode=\"HH:MM\"\n    aria-label=\"Date and time\"\n  />\n</div>",
+          "details": "Pass time-mode=\"HH:MM\" to DateInput to type the date and time in one field."
         },
         {
           "name": "Without Icon",
@@ -2142,14 +2207,44 @@
           "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
         },
         {
+          "name": "SSN input",
+          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Social Security Number\"\n      :value=\"formatSSN(digits)\"\n      maxlength=\"11\"\n      inputmode=\"numeric\"\n      autocomplete=\"off\"\n      :style=\"{\n        fontFamily: 'var(--font-mono, ui-monospace, monospace)',\n        ...(!visible && digits\n          ? { color: 'transparent', caretColor: 'transparent' }\n          : focused && ssnMask(digits).suffix\n            ? { caretColor: 'transparent' }\n            : {}),\n      }\"\n      revealable\n      @update:value=\"(raw) => (digits = nextSSNDigits(raw, digits))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n      @revealed-change=\"(revealed) => (visible = revealed)\"\n    />\n    <div\n      v-if=\"(!visible && digits) || (focused && ssnMask(digits).suffix)\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden\"\n    >\n      <span v-if=\"!visible && digits\" style=\"white-space: pre\">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>\n      <span v-else style=\"visibility: hidden; white-space: pre\">{{ formatSSN(digits) }}</span>\n      <template v-if=\"focused && ssnMask(digits).suffix\">\n        <span v-if=\"ssnMask(digits).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).before }}</span>\n        <span\n          v-if=\"ssnMask(digits).highlight\"\n          style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n        >{{ ssnMask(digits).highlight }}</span>\n        <span v-if=\"ssnMask(digits).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).after }}</span>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN, nextSSNDigits and ssnMask are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday input",
+          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Birthday\"\n      :value=\"birthday\"\n      maxlength=\"14\"\n      inputmode=\"numeric\"\n      :style=\"focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n    />\n    <div\n      v-if=\"focused && birthdayMask(birthday).suffix\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden\"\n    >\n      <span style=\"visibility: hidden; white-space: pre\">{{ birthday }}</span>\n      <span v-if=\"birthdayMask(birthday).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).before }}</span>\n      <span\n        v-if=\"birthdayMask(birthday).highlight\"\n        style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n      >{{ birthdayMask(birthday).highlight }}</span>\n      <span v-if=\"birthdayMask(birthday).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).after }}</span>\n    </div>\n  </div>\n</div>",
+          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). nextBirthday and birthdayMask are plain helper functions of the example."
+        },
+        {
           "name": "Birthday with validation",
-          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    label=\"Birthday\"\n    default-value=\"02 / 30 / 2001\"\n    invalid\n    error-message=\"Please enter a valid date.\"\n  />\n</div>",
-          "details": "Use invalid and error-message to display the birthday validation state."
+          "code": "<div class=\"w-[360px]\">\n  <div class=\"flex flex-col gap-1.5\">\n    <component\n      :is=\"BirthdayMaskedInput\"\n      v-model:value=\"birthday\"\n      :invalid=\"!!birthday && !isValidBirthday(birthday)\"\n      :aria-describedby=\"birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined\"\n    />\n    <FieldError v-if=\"birthday && !isValidBirthday(birthday)\" id=\"birthday-validation-demo-error\">\n      Please enter a valid date.\n    </FieldError>\n  </div>\n</div>",
+          "details": "Use invalid and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, BirthdayMaskedInput, and the error shows in a FieldError below it."
         },
         {
           "name": "Birthday states",
-          "code": "<div class=\"flex flex-col items-center gap-8 py-8\">\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n    <FloatingLabelInput label=\"Birthday\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n    <FloatingLabelInput label=\"Birthday\" default-value=\"01 / 15 / 1995\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n    <FloatingLabelInput invalid label=\"Birthday\" default-value=\"02 / 30 / 2001\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n    <FloatingLabelInput disabled label=\"Birthday\" default-value=\"01 / 15 / 1995\" class=\"w-[320px]\" />\n  </div>\n</div>",
+          "code": "<div class=\"flex flex-col items-center gap-8 py-8 w-full\">\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Empty</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"emptyBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Filled</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"filledBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Invalid</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"invalidBirthday\" invalid class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Disabled</div>\n    <component :is=\"BirthdayMaskedInput\" value=\"01 / 15 / 1995\" disabled class=\"flex-1 min-w-0\" />\n  </div>\n</div>",
           "details": "Overview of birthday input states."
+        },
+        {
+          "name": "Select",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"role\"\n    :options=\"roleOptions\"\n    search-placeholder=\"Search roles...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Role\"\n        :selected=\"!!role\"\n        :open=\"open\"\n        :on-clear-click=\"role ? () => (role = '') : undefined\"\n      >\n        {{ roleOptions.find((option) => option.value === role)?.label }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling."
+        },
+        {
+          "name": "Multiple selection",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    multiple\n    clearable\n    v-model:value=\"skills\"\n    :options=\"skillOptions\"\n    search-placeholder=\"Search skills...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Skills\"\n        :selected=\"skills.length > 0\"\n        :open=\"open\"\n        :on-clear-click=\"skills.length > 0 ? () => (skills = []) : undefined\"\n      >\n        {{\n          skills.length === 1\n            ? skillOptions.find((option) => option.value === skills[0])?.label\n            : skills.length > 1\n              ? skills.length + ' skills'\n              : ''\n        }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list."
+        },
+        {
+          "name": "Country select",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"countries\"\n    search-placeholder=\"Search countries...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Country\"\n        :selected=\"!!countryOf(country)\"\n        :open=\"open\"\n        :on-clear-click=\"countryOf(country) ? () => (country = '') : undefined\"\n      >\n        <span\n          v-if=\"countryOf(country)\"\n          style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"\n        ><component :is=\"FlagIcon\" :code=\"country\" />{{ countryOf(country).label }}</span>\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected."
+        },
+        {
+          "name": "Phone input",
+          "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
+          "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/floating-label-input"
@@ -2449,6 +2544,10 @@
           "name": "With button",
           "code": "<div class=\"flex w-[320px] gap-2\">\n  <Input placeholder=\"jane.doe@gmail.com\" :size=\"size\" :variant=\"variant\" />\n  <Button color=\"primary\" :size=\"size\" :variant=\"variant\">Subscribe</Button>\n</div>",
           "details": "You can pair Input and Button components together by using the same size value."
+        },
+        {
+          "name": "Optical alignment",
+          "code": "<div class=\"w-[400px]\">\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-6 px-8\">\n    <div class=\"mb-5 text-secondary text-sm\">\n      {{ opticallyAlign ? 'optically-align=\"start\"' : 'Default' }}\n    </div>\n    <div class=\"flex flex-col gap-5\">\n      <Field label=\"Full name\" :optically-align=\"opticallyAlign ? 'start' : undefined\">\n        <Input placeholder=\"Jane Doe\" :pill=\"pill\" />\n      </Field>\n      <Field\n        label=\"Email\"\n        description=\"We'll never share your email.\"\n        error-message=\"Please enter a valid email address.\"\n        required\n        :optically-align=\"opticallyAlign ? 'start' : undefined\"\n      >\n        <Input placeholder=\"jane@example.com\" :pill=\"pill\" />\n      </Field>\n    </div>\n    <Button class=\"mt-6\" color=\"primary\" variant=\"soft\" :pill=\"pill\">Submit</Button>\n  </div>\n</div>"
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/input"
@@ -2466,6 +2565,11 @@
           "name": "Overview",
           "code": "<div style=\"display: flex; align-items: center; gap: 8px\">\n  <Checkbox id=\"label-demo-terms\" v-model:checked=\"accepted\" />\n  <Label for=\"label-demo-terms\">Accept terms and conditions</Label>\n</div>",
           "details": "Clicking the label toggles the checkbox it points at. Here accepted starts as true."
+        },
+        {
+          "name": "Label in Field",
+          "code": "<div style=\"width: 100%; max-width: 420px\">\n  <div style=\"display: flex; flex-direction: column; gap: 16px\">\n    <CardHeader>\n      <CardTitle>Payment Method</CardTitle>\n      <CardDescription>All transactions are secure and encrypted</CardDescription>\n    </CardHeader>\n\n    <Field label=\"Name on Card\">\n      <Input placeholder=\"Aisha Cooper\" />\n    </Field>\n\n    <Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n      <Input placeholder=\"1234 5678 9012 3456\" inputmode=\"numeric\" />\n    </Field>\n\n    <div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px\">\n      <Field label=\"Month\">\n        <Select v-model:value=\"month\" :options=\"monthOptions\" placeholder=\"MM\" />\n      </Field>\n      <Field label=\"Year\">\n        <Select v-model:value=\"year\" :options=\"yearOptions\" placeholder=\"YYYY\" />\n      </Field>\n      <Field label=\"CVV\">\n        <Input placeholder=\"123\" inputmode=\"numeric\" />\n      </Field>\n    </div>\n\n    <Separator />\n\n    <CardHeader>\n      <CardTitle>Billing Address</CardTitle>\n      <CardDescription>The billing address associated with your payment method</CardDescription>\n    </CardHeader>\n\n    <Checkbox v-model:checked=\"sameAsShipping\" label=\"Same as shipping address\" />\n\n    <Separator />\n\n    <Field label=\"Comments\">\n      <Textarea placeholder=\"Add any additional comments\" :rows=\"3\" />\n    </Field>\n\n    <div style=\"display: flex; gap: 8px\">\n      <Button color=\"primary\" variant=\"solid\">Submit</Button>\n      <Button color=\"secondary\" variant=\"outline\">Cancel</Button>\n    </div>\n  </div>\n</div>",
+          "details": "For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component. It renders the label internally, hooks up for automatically, and handles the surrounding spacing."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/label"
@@ -2581,13 +2685,18 @@
           "details": "Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle."
         },
         {
+          "name": "With Field",
+          "code": "<div class=\"w-[500px]\">\n  <Field label=\"Description\" description=\"Supports bold, italic, lists, and links.\">\n    <MarkdownEditor placeholder=\"Enter description...\" />\n  </Field>\n</div>",
+          "details": "Wrap with Field to add label, description, and error handling. The editor receives id and aria-describedby automatically."
+        },
+        {
           "name": "Toolbar end slot",
-          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor placeholder=\"Enter text...\">\n    <template #toolbarEnd>\n      <button\n        type=\"button\"\n        :class=\"markdownEditorStyles.toolbarButton\"\n        aria-label=\"Edit translations\"\n        title=\"Edit translations\"\n      >\n        <Translate />\n      </button>\n    </template>\n  </MarkdownEditor>\n</div>",
+          "code": "<div class=\"w-[500px]\">\n  <Field label=\"Text markdown\">\n    <MarkdownEditor placeholder=\"Enter text...\">\n      <template #toolbarEnd>\n        <button\n          type=\"button\"\n          :class=\"markdownEditorStyles.toolbarButton\"\n          aria-label=\"Edit translations\"\n          title=\"Edit translations\"\n        >\n          <Translate />\n        </button>\n      </template>\n    </MarkdownEditor>\n  </Field>\n</div>",
           "details": "Use the #toolbarEnd slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons."
         },
         {
           "name": "Variants",
-          "code": "<div class=\"flex flex-col gap-4 w-[500px]\">\n  <MarkdownEditor placeholder=\"Outline variant...\" variant=\"outline\" />\n  <MarkdownEditor placeholder=\"Soft variant...\" variant=\"soft\" />\n</div>",
+          "code": "<div class=\"flex flex-col gap-4 w-[500px]\">\n  <Field label=\"Outline\">\n    <MarkdownEditor placeholder=\"Outline variant...\" variant=\"outline\" />\n  </Field>\n  <Field label=\"Soft\">\n    <MarkdownEditor placeholder=\"Soft variant...\" variant=\"soft\" />\n  </Field>\n</div>",
           "details": "Use variant to switch between outline (default) and soft styles."
         },
         {
@@ -2597,8 +2706,8 @@
         },
         {
           "name": "Invalid",
-          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor placeholder=\"Tell us about yourself...\" invalid />\n</div>",
-          "details": "Use invalid to show an error state."
+          "code": "<div class=\"w-[500px]\">\n  <Field label=\"Bio\" error-message=\"This field is required.\">\n    <MarkdownEditor placeholder=\"Tell us about yourself...\" invalid />\n  </Field>\n</div>",
+          "details": "Use invalid or wrap with Field and pass error-message to show an error state."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/markdown-editor"
@@ -3159,6 +3268,16 @@
           "code": "<div>\n  <h3 class=\"font-semibold text-sm mb-3\">Notification frequency</h3>\n  <RadioGroup direction=\"col\" v-model:value=\"frequency\" aria-label=\"Notification frequency\">\n    <RadioGroupItem value=\"daily\">Daily</RadioGroupItem>\n    <RadioGroupItem value=\"weekly\">Weekly</RadioGroupItem>\n    <RadioGroupItem value=\"monthly\">Monthly</RadioGroupItem>\n    <RadioGroupItem value=\"never\">Never</RadioGroupItem>\n  </RadioGroup>\n</div>"
         },
         {
+          "name": "With Checkbox",
+          "code": "<div class=\"flex flex-col gap-6 w-full max-w-md\">\n  <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\" v-slot=\"{ id }\">\n    <RadioGroup :direction=\"direction\" default-value=\"email\" aria-label=\"Notification channel\">\n      <RadioGroupItem\n        v-for=\"channel in [\n          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },\n          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },\n          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },\n        ]\"\n        :key=\"channel.value\"\n        :value=\"channel.value\"\n      >\n        <div v-if=\"description === 'true'\" class=\"flex flex-col\">\n          <span class=\"font-medium\">{{ channel.label }}</span>\n          <span class=\"text-xs text-secondary mt-0.5\">{{ channel.description }}</span>\n        </div>\n        <template v-else>{{ channel.label }}</template>\n      </RadioGroupItem>\n    </RadioGroup>\n  </Field>\n  <Field label=\"Topics\" description=\"Select the topics you want to follow.\" v-slot=\"{ id }\">\n    <div :class=\"direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'\">\n      <Checkbox\n        v-for=\"topic in [\n          { label: 'Product updates', description: 'New features and improvements.', checked: true },\n          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },\n          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },\n        ]\"\n        :key=\"topic.label\"\n        :default-checked=\"topic.checked\"\n      >\n        <template #label>\n          <div v-if=\"description === 'true'\" class=\"flex flex-col\">\n            <span class=\"font-medium\">{{ topic.label }}</span>\n            <span class=\"text-xs text-secondary mt-0.5\">{{ topic.description }}</span>\n          </div>\n          <template v-else>{{ topic.label }}</template>\n        </template>\n      </Checkbox>\n    </div>\n  </Field>\n</div>",
+          "details": "Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts."
+        },
+        {
+          "name": "Descriptions",
+          "code": "<div class=\"flex flex-col max-w-sm w-full divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"channel\" aria-label=\"Notification channel\">\n        <RadioGroupItem value=\"email\">\n          <div class=\"flex flex-col\">\n            <span class=\"font-medium\">Email</span>\n            <span class=\"text-xs text-secondary mt-0.5\">Messages delivered to your inbox.</span>\n          </div>\n        </RadioGroupItem>\n        <RadioGroupItem value=\"sms\">\n          <div class=\"flex flex-col\">\n            <span class=\"font-medium\">SMS</span>\n            <span class=\"text-xs text-secondary mt-0.5\">Text messages to your phone number.</span>\n          </div>\n        </RadioGroupItem>\n        <RadioGroupItem value=\"push\">\n          <div class=\"flex flex-col\">\n            <span class=\"font-medium\">Push</span>\n            <span class=\"text-xs text-secondary mt-0.5\">Real-time alerts on your device.</span>\n          </div>\n        </RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Notification frequency\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"frequency\" aria-label=\"Notification frequency\">\n        <RadioGroupItem value=\"daily\">Daily</RadioGroupItem>\n        <RadioGroupItem value=\"weekly\">Weekly</RadioGroupItem>\n        <RadioGroupItem value=\"monthly\">Monthly</RadioGroupItem>\n        <RadioGroupItem value=\"never\">Never</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n</div>",
+          "details": "Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory."
+        },
+        {
           "name": "Direction",
           "code": "<RadioGroup :direction=\"direction\" default-value=\"light\" aria-label=\"Theme\">\n  <RadioGroupItem value=\"light\">Light</RadioGroupItem>\n  <RadioGroupItem value=\"dark\">Dark</RadioGroupItem>\n  <RadioGroupItem value=\"system\">System</RadioGroupItem>\n</RadioGroup>",
           "details": "Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation."
@@ -3184,6 +3303,16 @@
           "details": "Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context."
         },
         {
+          "name": "With Field",
+          "code": "<div class=\"max-w-sm\">\n  <Field label=\"Notification method\" description=\"Choose how you want to receive notifications.\" v-slot=\"{ id }\">\n    <RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Notification method\">\n      <RadioGroupItem value=\"email\">Email</RadioGroupItem>\n      <RadioGroupItem value=\"sms\">SMS</RadioGroupItem>\n      <RadioGroupItem value=\"push\">Push notification</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
+          "details": "Wrap a RadioGroup in a Field for a shared label and description. The Field provides aria-describedby linking automatically."
+        },
+        {
+          "name": "With Field error",
+          "code": "<div class=\"max-w-sm\">\n  <Field\n    label=\"Subscription plan\"\n    description=\"Select a plan to continue.\"\n    :error-message=\"showError ? 'Please select a subscription plan.' : undefined\"\n    v-slot=\"fieldProps\"\n  >\n    <RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Subscription plan\" v-bind=\"fieldProps\">\n      <RadioGroupItem value=\"monthly\">Monthly ($9.99/month)</RadioGroupItem>\n      <RadioGroupItem value=\"yearly\">Yearly ($99.99/year)</RadioGroupItem>\n      <RadioGroupItem value=\"lifetime\">Lifetime ($299.99)</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
+          "details": "When a Field has an error-message, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group."
+        },
+        {
           "name": "Choice card",
           "code": "<RadioGroup class=\"flex-col w-[320px] gap-3\" v-model:value=\"value\" aria-label=\"Workspace type\">\n  <div\n    v-for=\"card in [\n      { id: 'personal', title: 'Personal', description: 'For hobby projects and experimentation.' },\n      { id: 'team', title: 'Team', description: 'Collaborate with up to 10 members.' },\n      { id: 'business', title: 'Business', description: 'SSO, audit logs, and priority support.' },\n    ]\"\n    :key=\"card.id\"\n    :style=\"{\n      border: '1px solid',\n      borderColor: value === card.id ? 'var(--color-background-primary-solid)' : 'var(--color-border-primary-outline)',\n      borderRadius: 'var(--radius-lg)',\n      backgroundColor: value === card.id ? 'var(--color-background-primary-soft-alpha)' : undefined,\n      transition: 'border-color 150ms ease, background-color 150ms ease',\n    }\"\n  >\n    <RadioGroupItem :value=\"card.id\" block :orientation=\"orientation\" class=\"gap-3 p-3\">\n      <div class=\"flex flex-col flex-1\">\n        <span class=\"font-semibold\">{{ card.title }}</span>\n        <span class=\"text-xs text-secondary mt-0.5\">{{ card.description }}</span>\n      </div>\n    </RadioGroupItem>\n  </div>\n</RadioGroup>",
           "details": "Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation=\"right\" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element."
@@ -3192,6 +3321,11 @@
           "name": "Card selection",
           "code": "<RadioGroup class=\"flex-col w-[390px] gap-4\" aria-label=\"Sample options\">\n  <RadioGroupItem class=\"gap-2.5\" value=\"basic\">\n    <div>\n      <h4 class=\"font-semibold mb-1\">Basic Plan</h4>\n      <p class=\"text-secondary text-sm\">5 GB storage • Email support • Free</p>\n    </div>\n  </RadioGroupItem>\n  <hr class=\"border-default\" />\n  <RadioGroupItem class=\"gap-2.5\" value=\"standard\">\n    <div>\n      <h4 class=\"font-semibold mb-1\">Standard Plan</h4>\n      <p class=\"text-secondary text-sm\">100 GB storage • Priority email support • $9.99/m</p>\n    </div>\n  </RadioGroupItem>\n  <hr class=\"border-default\" />\n  <Tooltip :max-width=\"258\" interactive>\n    <template #content>\n      Contact our <TextLink href=\"#\">support team</TextLink> for more information on enterprise plans.\n    </template>\n    <TooltipTrigger>\n      <RadioGroupItem class=\"gap-2.5\" value=\"enterprise\" disabled>\n        <div>\n          <h4 class=\"font-semibold mb-1\">Enterprise Plan</h4>\n          <p class=\"text-secondary text-sm\">Unlimited storage • 24/7 phone support • Custom pricing</p>\n        </div>\n      </RadioGroupItem>\n    </TooltipTrigger>\n  </Tooltip>\n</RadioGroup>",
           "details": "Leverage component composition and class overrides to build card-style radio selections with rich content per option."
+        },
+        {
+          "name": "Grouped sections",
+          "code": "<div class=\"flex flex-col max-w-sm w-full divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Visibility\" description=\"Control who can see project resources.\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"visibility\" aria-label=\"Visibility\">\n        <RadioGroupItem value=\"hidden\">Hidden</RadioGroupItem>\n        <RadioGroupItem value=\"owners\">Visible to organization owners</RadioGroupItem>\n        <RadioGroupItem value=\"everyone\">Visible to everyone</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Digest frequency\" description=\"How often you receive summary emails.\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"frequency\" aria-label=\"Digest frequency\">\n        <RadioGroupItem value=\"daily\">Daily</RadioGroupItem>\n        <RadioGroupItem value=\"weekly\">Weekly</RadioGroupItem>\n        <RadioGroupItem value=\"monthly\">Monthly</RadioGroupItem>\n        <RadioGroupItem value=\"never\">Never</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n</div>",
+          "details": "Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/radio-group"
@@ -4298,9 +4432,24 @@
           "details": "Combine disabled with label and description for read-only settings that need explanation."
         },
         {
+          "name": "With Field",
+          "code": "<div class=\"self-stretch mx-auto !max-w-[480px]\">\n  <Field\n    label=\"Marketing emails\"\n    orientation=\"horizontal\"\n    class=\"items-center justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n    v-slot=\"fieldProps\"\n  >\n    <Switch :id=\"fieldProps.id\" v-model:checked=\"enabled\" />\n  </Field>\n</div>",
+          "details": "Pair a Switch with Field using orientation=\"horizontal\" for inline toggle settings."
+        },
+        {
+          "name": "With Field and description",
+          "code": "<div class=\"self-stretch mx-auto !max-w-[480px]\">\n  <Field\n    label=\"Access Control\"\n    description=\"Disable user-based API keys across your entire organization. You can also choose to disable them on a project-by-project basis if needed.\"\n    v-slot=\"fieldProps\"\n  >\n    <Switch :id=\"fieldProps.id\" label=\"Disable user API keys\" v-model:checked=\"enabled\" />\n  </Field>\n</div>",
+          "details": "Use Field with description for the settings pattern with a section heading, description, and a labeled switch underneath."
+        },
+        {
           "name": "Settings panel",
           "code": "<div class=\"flex w-full max-w-lg flex-col gap-8\">\n  <Switch\n    label=\"Enable custom providers for evals\"\n    description=\"Allow eval runs to use third-party models you configure under Custom model providers.\"\n  />\n  <Switch\n    label=\"Enable OpenRouter models\"\n    description=\"Make OpenRouter models available for evaluation runs.\"\n  />\n  <Switch\n    label=\"Disable user API keys\"\n    description=\"Disable user-based API keys across your entire organization.\"\n    default-checked\n  />\n</div>",
           "details": "Combine label and description to build settings-style toggle panels."
+        },
+        {
+          "name": "Grouped sections",
+          "code": "<div class=\"w-full max-w-lg divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Notifications\" description=\"Configure how you receive notifications.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-4\">\n        <Switch\n          label=\"Push notifications\"\n          description=\"Receive push notifications on your devices.\"\n          default-checked\n        />\n        <Switch\n          label=\"Email notifications\"\n          description=\"Get notified via email for important updates.\"\n        />\n      </div>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Privacy\" description=\"Control your data sharing preferences.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-4\">\n        <Switch\n          label=\"Share usage data\"\n          description=\"Help us improve by sharing anonymous usage statistics.\"\n        />\n        <Switch\n          label=\"Personalized content\"\n          description=\"Allow personalized recommendations based on your activity.\"\n          default-checked\n        />\n      </div>\n    </Field>\n  </div>\n</div>",
+          "details": "Use dividers to separate switch groups into logical sections. Each section can be wrapped in a Field with its own label and description."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/switch"
@@ -4817,6 +4966,11 @@
           "code": "<div class=\"w-[480px]\">\n  <TagInput placeholder=\"Add a tag...\" :size=\"size\" :rows=\"Number(rows)\" :pill=\"pill\" />\n</div>"
         },
         {
+          "name": "Inline filter row",
+          "code": "<div class=\"flex w-full max-w-2xl items-start gap-2\">\n  <Field label=\"Where\" class=\"w-[160px] shrink-0\">\n    <Menu>\n      <MenuTrigger>\n        <SelectControl :size=\"size\" :pill=\"pill\" :selected=\"!!field\" class=\"w-full\">\n          {{ fieldOptions.find((option) => option.value === field)?.label ?? '' }}\n        </SelectControl>\n      </MenuTrigger>\n      <MenuContent :min-width=\"160\" @close-auto-focus=\"(event) => event.preventDefault()\">\n        <MenuCheckboxItem\n          v-for=\"option in fieldOptions\"\n          :key=\"option.value\"\n          :checked=\"field === option.value\"\n          indicator-variant=\"ghost\"\n          @update:checked=\"field = option.value\"\n        >\n          {{ option.label }}\n        </MenuCheckboxItem>\n      </MenuContent>\n    </Menu>\n  </Field>\n  <Field label=\"Is in\" class=\"flex-1\">\n    <TagInput :size=\"size\" :pill=\"pill\" v-model:value=\"tags\" placeholder=\"Add value, press Enter…\" />\n  </Field>\n</div>",
+          "details": "When rows=1, TagInput matches the height of an Input or SelectControl of the same size, so it composes cleanly into horizontal filter rows. Toggle pill on both controls to keep the pair visually consistent."
+        },
+        {
           "name": "Suggestions",
           "code": "<script setup lang=\"ts\">\nimport { computed, ref } from \"vue\"\nimport { Button } from \"@plexui/vue/components/Button\"\nimport { TagInput, type Tag } from \"@plexui/vue/components/TagInput\"\n\nconst SUGGESTIONS = [\"React\", \"TypeScript\", \"Next.js\", \"Tailwind CSS\", \"Node.js\", \"GraphQL\", \"PostgreSQL\", \"Redis\", \"Docker\", \"AWS\"]\n\nconst tags = ref<Tag[]>([\n  { value: \"React\", valid: true },\n  { value: \"TypeScript\", valid: true },\n])\n\nconst available = computed(() => {\n  const selected = new Set(tags.value.map((t) => t.value))\n  return SUGGESTIONS.filter((s) => !selected.has(s))\n})\n</script>\n\n<template>\n  <div class=\"flex flex-col gap-3\">\n    <TagInput v-model:value=\"tags\" placeholder=\"Add a skill...\" />\n    <div v-if=\"available.length > 0\" class=\"flex flex-wrap gap-1.5\">\n      <Button\n        v-for=\"s in available\"\n        :key=\"s\"\n        size=\"xs\"\n        color=\"secondary\"\n        variant=\"soft\"\n        :pill=\"false\"\n        @click=\"tags = [...tags, { value: s, valid: true }]\"\n      >\n        {{ s }}\n      </Button>\n    </div>\n  </div>\n</template>",
           "details": "Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected."
@@ -5204,7 +5358,7 @@
       ],
       "examples": [
         {
-          "name": "Base",
+          "name": "Overview",
           "code": "<Tooltip content=\"This is additional context that appears when the trigger is hovered or focused\">\n  <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>\n</Tooltip>"
         },
         {
@@ -5226,5 +5380,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T12:59:14.088Z"
+  "generatedAt": "2026-10-26T13:44:07.922Z"
 }

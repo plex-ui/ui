@@ -299,6 +299,29 @@ export const withButton = `<div class="flex w-[320px] gap-2">
   <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
 </div>`
 
+export const opticalAlign = `<div class="w-[400px]">
+  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
+    <div class="mb-5 text-secondary text-sm">
+      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
+    </div>
+    <div class="flex flex-col gap-5">
+      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
+        <Input placeholder="Jane Doe" :pill="pill" />
+      </Field>
+      <Field
+        label="Email"
+        description="We'll never share your email."
+        error-message="Please enter a valid email address."
+        required
+        :optically-align="opticallyAlign ? 'start' : undefined"
+      >
+        <Input placeholder="jane@example.com" :pill="pill" />
+      </Field>
+    </div>
+    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
+  </div>
+</div>`
+
 <UsageBlock>{`import { Input, InputAdornmentButton } from "@plexui/vue/components/Input";`}</UsageBlock>
 
 ## Examples
@@ -413,6 +436,21 @@ Plex UI also provides a `FieldError` component (`@plexui/vue/components/FieldErr
     template={withButton}
     stageClassName="py-10"
     controls={[variantControl, { name: "size", type: "select", options: sizeOptions, default: "lg" }]}
+  />
+</ComponentPreview>
+
+### Optical alignment
+
+Use `optically-align` with either `"start"` or `"end"` to offset the gutter, aligning the input text with surrounding content. Works with `Field`: pass `optically-align` on the Field and it forwards to the child control automatically.
+
+<ComponentPreview language="vue" code={opticalAlign}>
+  <VueDemo
+    template={opticalAlign}
+    stageClassName="py-10"
+    controls={[
+      { name: "opticallyAlign", type: "boolean", default: true },
+      { name: "pill", type: "boolean", default: true },
+    ]}
   />
 </ComponentPreview>
 

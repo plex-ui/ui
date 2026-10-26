@@ -28,7 +28,7 @@ Variants: solid, soft, outline, ghost
 Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
 Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
 Docs: https://plexui.com/vue/components/accordion
-Examples: Overview, Single, Multiple, Disabled
+Examples: Overview, Single, Multiple, Disabled, Card
 
 ## Alert
 Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
@@ -112,7 +112,7 @@ Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disable
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
 Docs: https://plexui.com/vue/components/button-group
-Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Popover
+Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
 
 ## Button Link
 A semantic anchor with full button styling, for internal and external links with icons and block layout.
@@ -141,7 +141,7 @@ Examples: Overview, Internal link, External link, Colors & variants, Sizing & ro
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
 Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
 Docs: https://plexui.com/vue/components/card
-Examples: Overview, No team members (empty state), Processing your request, Pricing
+Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
 
 ## Checkbox
 Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
@@ -164,7 +164,7 @@ Props:
   - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
   - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
-Examples: Overview, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all
+Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
 
 ## Code Block
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
@@ -240,7 +240,7 @@ Props:
   - trigger-date-format (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when show-time is enabled
   - placeholder (string) — Trigger placeholder
   - disabled (boolean) — Disable picker
-Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Without Icon, Disabled
+Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon, Disabled
 
 ## Date Range Picker
 Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
@@ -358,7 +358,7 @@ Props:
   - @clear (() => void) — Shows the clear button and fires when it is clicked
   - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
   - @autofill (() => void) — Fires when the browser autofills the input
-Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, Birthday with validation, Birthday states
+Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
@@ -397,13 +397,13 @@ Props:
   - pill (boolean) default: false — Fully rounded pill shape
   - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
   - type (string) default: "button" — Button type
-Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button
+Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
 
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/vue/components/Label"
 Docs: https://plexui.com/vue/components/label
-Examples: Overview
+Examples: Overview, Label in Field
 
 ## Markdown
 Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
@@ -429,7 +429,7 @@ Props:
   - @change ((markdown: string) => void) — Called on content change
   - #toolbarEnd (slot) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
-Examples: Placeholder, All formatting, Toolbar end slot, Variants, Disabled, Invalid
+Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants, Disabled, Invalid
 
 ## Menu
 Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
@@ -531,7 +531,7 @@ Props:
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
   - block (boolean) default: false — Stretch item to fill available width
   - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
-Examples: Overview, Direction, Orientation, Group disabled, Item disabled, With description, Choice card, Card selection
+Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Select
 Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.
@@ -705,7 +705,7 @@ Props:
   - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
-Examples: Overview, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, Settings panel
+Examples: Overview, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, With Field, With Field and description, Settings panel, Grouped sections
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
@@ -788,7 +788,7 @@ Props:
   - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
   - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
   - auto-focus (boolean) default: false — Focus on mount
-Examples: Overview, Suggestions
+Examples: Overview, Inline filter row, Suggestions
 
 ## Text Link
 Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
@@ -854,4 +854,4 @@ Props:
   - gutterSize ("sm" | "md" | "lg") default: "md" — Content padding
   - contentClassName (string) — Class for tooltip content
   - forceOpen (boolean) — Force open or closed
-Examples: Base, Different triggers, Conditionally enabled, Compact tooltips
+Examples: Overview, Different triggers, Conditionally enabled, Compact tooltips

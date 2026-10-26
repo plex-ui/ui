@@ -51,6 +51,27 @@ export const disabledWithDescription = `<div class="flex flex-col gap-4">
   />
 </div>`
 
+export const withField = `<div class="self-stretch mx-auto !max-w-[480px]">
+  <Field
+    label="Marketing emails"
+    orientation="horizontal"
+    class="items-center justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
+    v-slot="fieldProps"
+  >
+    <Switch :id="fieldProps.id" v-model:checked="enabled" />
+  </Field>
+</div>`
+
+export const withFieldDescription = `<div class="self-stretch mx-auto !max-w-[480px]">
+  <Field
+    label="Access Control"
+    description="Disable user-based API keys across your entire organization. You can also choose to disable them on a project-by-project basis if needed."
+    v-slot="fieldProps"
+  >
+    <Switch :id="fieldProps.id" label="Disable user API keys" v-model:checked="enabled" />
+  </Field>
+</div>`
+
 export const settingsPanel = `<div class="flex w-full max-w-lg flex-col gap-8">
   <Switch
     label="Enable custom providers for evals"
@@ -65,6 +86,39 @@ export const settingsPanel = `<div class="flex w-full max-w-lg flex-col gap-8">
     description="Disable user-based API keys across your entire organization."
     default-checked
   />
+</div>`
+
+export const groupedSections = `<div class="w-full max-w-lg divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Notifications" description="Configure how you receive notifications." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Switch
+          label="Push notifications"
+          description="Receive push notifications on your devices."
+          default-checked
+        />
+        <Switch
+          label="Email notifications"
+          description="Get notified via email for important updates."
+        />
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Privacy" description="Control your data sharing preferences." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Switch
+          label="Share usage data"
+          description="Help us improve by sharing anonymous usage statistics."
+        />
+        <Switch
+          label="Personalized content"
+          description="Allow personalized recommendations based on your activity."
+          default-checked
+        />
+      </div>
+    </Field>
+  </div>
 </div>`
 
 <UsageBlock>{`import { Switch } from "@plexui/vue/components/Switch";`}</UsageBlock>
@@ -131,10 +185,28 @@ export const settingsPanel = `<div class="flex w-full max-w-lg flex-col gap-8">
   <VueDemo template={disabledWithDescription} />
 </ComponentPreview>
 
+### With Field
+
+<ComponentPreview language="vue" details={<>Pair a <code>Switch</code> with <code>Field</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={withField} previewMinHeight={168}>
+  <VueDemo template={withField} state={{ enabled: false }} />
+</ComponentPreview>
+
+### With Field and description
+
+<ComponentPreview language="vue" details={<>Use <code>Field</code> with <code>description</code> for the settings pattern with a section heading, description, and a labeled switch underneath.</>} code={withFieldDescription} previewMinHeight={200}>
+  <VueDemo template={withFieldDescription} state={{ enabled: true }} />
+</ComponentPreview>
+
 ### Settings panel
 
 <ComponentPreview language="vue" details={<>Combine <code>label</code> and <code>description</code> to build settings-style toggle panels.</>} code={settingsPanel} previewMinHeight={240}>
   <VueDemo template={settingsPanel} />
+</ComponentPreview>
+
+### Grouped sections
+
+<ComponentPreview language="vue" details={<>Use dividers to separate switch groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSections} previewMinHeight={400}>
+  <VueDemo template={groupedSections} />
 </ComponentPreview>
 
 ## Reference

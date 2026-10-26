@@ -13,6 +13,88 @@ export const overview = `<div class="flex flex-col gap-3">
   <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
 </div>`
 
+export const withRadioGroup = `<div class="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
+      <RadioGroupItem
+        v-for="channel in [
+          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
+          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
+          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
+        ]"
+        :key="channel.value"
+        :value="channel.value"
+      >
+        <div v-if="description === 'true'" class="flex flex-col">
+          <span class="font-medium">{{ channel.label }}</span>
+          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
+        </div>
+        <template v-else>{{ channel.label }}</template>
+      </RadioGroupItem>
+    </RadioGroup>
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
+    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
+      <Checkbox
+        v-for="topic in [
+          { label: 'Product updates', description: 'New features and improvements.', checked: true },
+          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
+          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
+        ]"
+        :key="topic.label"
+        :default-checked="topic.checked"
+      >
+        <template #label>
+          <div v-if="description === 'true'" class="flex flex-col">
+            <span class="font-medium">{{ topic.label }}</span>
+            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
+          </div>
+          <template v-else>{{ topic.label }}</template>
+        </template>
+      </Checkbox>
+    </div>
+  </Field>
+</div>`
+
+export const alignmentControls = [
+  { name: "direction", type: "select", options: ["row", "col"], default: "col" },
+  { name: "description", type: "select", options: ["true", "false"], default: "true" },
+]
+
+export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Email notifications" description="Configure which emails you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-2.5">
+        <Checkbox v-model:checked="settings.marketing">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Marketing</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+            </div>
+          </template>
+        </Checkbox>
+        <Checkbox v-model:checked="settings.security">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Security</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+            </div>
+          </template>
+        </Checkbox>
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Push notifications" v-slot="{ id }">
+      <div class="flex flex-col gap-3">
+        <Checkbox label="Everything" v-model:checked="settings.everything" />
+        <Checkbox label="Direct messages and mentions" v-model:checked="settings.mentions" />
+        <Checkbox label="Nothing" v-model:checked="settings.nothing" />
+      </div>
+    </Field>
+  </div>
+</div>`
+
 export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
   <div
     v-for="group in [
@@ -91,9 +173,9 @@ export const disabled = `<div class="flex flex-wrap gap-x-12 gap-y-6">
 export const orientation = `<Checkbox label="Accept terms and conditions" :orientation="orientation" />`
 
 export const withoutLabel = `<div class="flex gap-4">
-  <Checkbox />
-  <Checkbox default-checked />
-  <Checkbox checked="indeterminate" />
+  <Checkbox aria-label="Accept terms" />
+  <Checkbox aria-label="Subscribe" default-checked />
+  <Checkbox aria-label="Select all" checked="indeterminate" />
 </div>`
 
 export const group = `<div class="flex flex-col gap-3">
@@ -112,6 +194,62 @@ export const group = `<div class="flex flex-col gap-3">
   </div>
 </div>`
 
+export const groupWithDescription = `<div class="max-w-sm w-full">
+  <Field label="Show on desktop" description="Select the items you want to display on the desktop." v-slot="{ id }">
+    <div class="flex flex-col gap-3">
+      <Checkbox v-for="item in items" :key="item.id" :label="item.label" v-model:checked="item.checked" />
+    </div>
+  </Field>
+</div>`
+
+export const withField = `<div class="flex flex-col gap-4 max-w-sm w-full">
+  <Field
+    label="Terms"
+    description="Please review and accept the terms before continuing."
+    :error-message="showError ? 'You must accept the terms to continue.' : undefined"
+    v-slot="{ id }"
+  >
+    <div class="flex flex-col gap-3 mt-1">
+      <Checkbox label="I agree to the Terms of Service" v-model:checked="agreed" />
+      <Checkbox label="Subscribe to product updates" />
+    </div>
+  </Field>
+</div>`
+
+export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Email notifications" description="Configure which emails you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Checkbox v-model:checked="settings.emailMarketing">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Marketing</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+            </div>
+          </template>
+        </Checkbox>
+        <Checkbox v-model:checked="settings.emailSecurity">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Security</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+            </div>
+          </template>
+        </Checkbox>
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Push notifications" description="Configure which push notifications you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-3">
+        <Checkbox label="Everything" v-model:checked="settings.pushEverything" />
+        <Checkbox label="Direct messages and mentions" v-model:checked="settings.pushMentions" />
+        <Checkbox label="Nothing" v-model:checked="settings.pushNothing" />
+      </div>
+    </Field>
+  </div>
+</div>`
+
 <UsageBlock>{`import { Checkbox } from "@plexui/vue/components/Checkbox";`}</UsageBlock>
 
 ## Examples
@@ -127,6 +265,22 @@ export const group = `<div class="flex flex-col gap-3">
       { name: "pill", type: "boolean", default: false },
       { name: "disabled", type: "boolean", default: false },
     ]}
+  />
+</ComponentPreview>
+
+### With Radio Group
+
+<ComponentPreview language="vue" details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={withRadioGroup} previewMinHeight={168}>
+  <VueDemo template={withRadioGroup} stageClassName={stage} controls={alignmentControls} />
+</ComponentPreview>
+
+### Descriptions
+
+<ComponentPreview language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={descriptions} previewMinHeight={380}>
+  <VueDemo
+    template={descriptions}
+    stageClassName={stage}
+    state={{ settings: { marketing: true, security: true, everything: false, mentions: true, nothing: false } }}
   />
 </ComponentPreview>
 
@@ -174,7 +328,7 @@ export const group = `<div class="flex flex-col gap-3">
 
 ### Without label
 
-<ComponentPreview language="vue" details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={withoutLabel} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>When no <code>label</code> is provided, the checkbox renders as a standalone control, so pass <code>aria-label</code> to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.</>} code={withoutLabel} previewMinHeight={168}>
   <VueDemo template={withoutLabel} />
 </ComponentPreview>
 
@@ -189,6 +343,46 @@ export const group = `<div class="flex flex-col gap-3">
         { id: "write", label: "Write", checked: false },
         { id: "execute", label: "Execute", checked: false },
       ],
+    }}
+  />
+</ComponentPreview>
+
+### Group with description
+
+<ComponentPreview language="vue" details={<>Wrap a group of checkboxes in a <code>Field</code> for a shared label and description. This is a common pattern for preference lists and settings panels.</>} code={groupWithDescription} previewMinHeight={240}>
+  <VueDemo
+    template={groupWithDescription}
+    stageClassName={stage}
+    state={{
+      items: [
+        { id: "hard-disks", label: "Hard disks", checked: true },
+        { id: "external-disks", label: "External disks", checked: false },
+        { id: "cds-dvds", label: "CDs, DVDs, and iPods", checked: false },
+        { id: "connected-servers", label: "Connected servers", checked: false },
+      ],
+    }}
+  />
+</ComponentPreview>
+
+### With Field
+
+<ComponentPreview language="vue" details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. The Field provides <code>aria-describedby</code> and <code>aria-invalid</code> linking automatically.</>} code={withField} previewMinHeight={200}>
+  <VueDemo
+    template={withField}
+    stageClassName={stage}
+    state={{ agreed: false }}
+    controls={[{ name: "showError", type: "boolean", default: true }]}
+  />
+</ComponentPreview>
+
+### Grouped sections
+
+<ComponentPreview language="vue" details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSections} previewMinHeight={320}>
+  <VueDemo
+    template={groupedSections}
+    stageClassName={stage}
+    state={{
+      settings: { emailMarketing: true, emailSecurity: true, pushEverything: false, pushMentions: true, pushNothing: false },
     }}
   />
 </ComponentPreview>

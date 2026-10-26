@@ -11,9 +11,67 @@ export const overview = `<div style="display: flex; align-items: center; gap: 8p
   <Label for="label-demo-terms">Accept terms and conditions</Label>
 </div>`
 
+export const paymentMethodState = {
+  month: "",
+  year: "",
+  sameAsShipping: true,
+  monthOptions: Array.from({ length: 12 }, (_, i) => ({ label: String(i + 1).padStart(2, "0"), value: String(i + 1).padStart(2, "0") })),
+  yearOptions: Array.from({ length: 6 }, (_, i) => ({ label: String(2024 + i), value: String(2024 + i) })),
+}
+
+export const labelInField = `<div style="width: 100%; max-width: 420px">
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <CardHeader>
+      <CardTitle>Payment Method</CardTitle>
+      <CardDescription>All transactions are secure and encrypted</CardDescription>
+    </CardHeader>
+
+    <Field label="Name on Card">
+      <Input placeholder="Aisha Cooper" />
+    </Field>
+
+    <Field label="Card Number" description="Enter your 16-digit card number">
+      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
+    </Field>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
+      <Field label="Month">
+        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
+      </Field>
+      <Field label="Year">
+        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" inputmode="numeric" />
+      </Field>
+    </div>
+
+    <Separator />
+
+    <CardHeader>
+      <CardTitle>Billing Address</CardTitle>
+      <CardDescription>The billing address associated with your payment method</CardDescription>
+    </CardHeader>
+
+    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
+
+    <Separator />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" :rows="3" />
+    </Field>
+
+    <div style="display: flex; gap: 8px">
+      <Button color="primary" variant="solid">Submit</Button>
+      <Button color="secondary" variant="outline">Cancel</Button>
+    </div>
+  </div>
+</div>`
+
+
 <UsageBlock>{`import { Label } from "@plexui/vue/components/Label";`}</UsageBlock>
 
-Pair a standalone `Label` with a checkbox, switch, or any control through its `id`, wherever a full field layout would be overkill.
+For stacked form fields, prefer [`Field`](/vue/components/field): it bundles label, description, and error handling. Reach for a standalone `Label` when you pair it directly with a checkbox, switch, or any control where Field's layout is overkill.
 
 ## Examples
 
@@ -21,6 +79,12 @@ Pair a standalone `Label` with a checkbox, switch, or any control through its `i
 
 <ComponentPreview language="vue" details={<>Clicking the label toggles the checkbox it points at. Here <code>accepted</code> starts as <code>true</code>.</>} code={overview}>
   <VueDemo template={overview} state={{ accepted: true }} />
+</ComponentPreview>
+
+### Label in Field
+
+<ComponentPreview language="vue" details={<>For stacked form rows with descriptions, errors, and horizontal layouts, use the <a href="/vue/components/field"><code>Field</code></a> component. It renders the label internally, hooks up <code>for</code> automatically, and handles the surrounding spacing.</>} code={labelInField}>
+  <VueDemo template={labelInField} state={paymentMethodState} />
 </ComponentPreview>
 
 ## API

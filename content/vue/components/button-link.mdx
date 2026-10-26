@@ -133,7 +133,9 @@ export const disabled = `<ButtonLink href="#" color="primary" :disabled="disable
   { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on click, unless disabled" },
 ]} />
 
-### Configure your router
+### Configure your Router
+
+#### Provider
 
 ```vue
 <script setup lang="ts">
@@ -153,6 +155,8 @@ Elsewhere, internal links go through the router:
 ```vue
 <ButtonLink to="/help">Get Help</ButtonLink>
 ```
+
+#### Component-level
 
 You can also pass your link component to the `as` prop:
 

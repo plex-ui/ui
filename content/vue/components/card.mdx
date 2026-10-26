@@ -1,7 +1,7 @@
 ---
 title: Card
 description: Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
-metaDescription: Vue 3 card surface component for composing login flows, sign-up forms, pricing tiles, empty states, and stat showcases.
+metaDescription: Vue 3 card surface component for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
@@ -19,6 +19,113 @@ export const overview = `<Card style="max-width: 380px">
   </CardFooter>
 </Card>`
 
+export const login = `<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Log in to your account</CardTitle>
+    <CardDescription>Enter your email below to log in to your account.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <Field label="Email">
+        <Input type="email" placeholder="you@example.com" />
+      </Field>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+          <Label for="card-login-password">Password</Label>
+          <TextLink href="#" primary>Forgot your password?</TextLink>
+        </div>
+        <Input id="card-login-password" type="password" />
+      </div>
+    </div>
+  </CardContent>
+  <CardFooter style="flex-direction: column; align-items: stretch; gap: 12px">
+    <Button color="primary" variant="solid" block>Log in</Button>
+    <!-- Description sits flush under a title by default; here it follows a button -->
+    <CardDescription class="text-center" style="margin: 0">
+      Don't have an account?
+      <TextLink href="#" primary>Sign up</TextLink>
+    </CardDescription>
+  </CardFooter>
+</Card>`
+
+export const createProject = `<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Create project</CardTitle>
+    <CardDescription>Deploy a new project in one-click with sensible defaults.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <Field label="Name">
+        <Input placeholder="billing-service" />
+      </Field>
+      <Field label="Region" description="Where your functions and database will live.">
+        <Input placeholder="us-east-1" />
+      </Field>
+    </div>
+  </CardContent>
+  <CardFooter style="justify-content: flex-end">
+    <Button color="secondary" variant="outline" size="sm">Cancel</Button>
+    <Button color="primary" variant="solid" size="sm">Deploy</Button>
+  </CardFooter>
+</Card>`
+
+export const paymentMethodState = {
+  month: "",
+  year: "",
+  sameAsShipping: true,
+  monthOptions: Array.from({ length: 12 }, (_, i) => ({ label: String(i + 1).padStart(2, "0"), value: String(i + 1).padStart(2, "0") })),
+  yearOptions: Array.from({ length: 6 }, (_, i) => ({ label: String(2024 + i), value: String(2024 + i) })),
+}
+
+export const paymentMethod = `<Card style="max-width: 420px">
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <CardHeader>
+      <CardTitle>Payment Method</CardTitle>
+      <CardDescription>All transactions are secure and encrypted</CardDescription>
+    </CardHeader>
+
+    <Field label="Name on Card">
+      <Input placeholder="Aisha Cooper" />
+    </Field>
+
+    <Field label="Card Number" description="Enter your 16-digit card number">
+      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
+    </Field>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
+      <Field label="Month">
+        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
+      </Field>
+      <Field label="Year">
+        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" inputmode="numeric" />
+      </Field>
+    </div>
+
+    <Separator />
+
+    <CardHeader>
+      <CardTitle>Billing Address</CardTitle>
+      <CardDescription>The billing address associated with your payment method</CardDescription>
+    </CardHeader>
+
+    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
+
+    <Separator />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" :rows="3" />
+    </Field>
+
+    <div style="display: flex; gap: 8px">
+      <Button color="primary" variant="solid">Submit</Button>
+      <Button color="secondary" variant="outline">Cancel</Button>
+    </div>
+  </div>
+</Card>`
+
 export const noTeamMembers = `<Card style="max-width: 380px; padding: 24px">
   <EmptyMessage>
     <EmptyMessageIcon>
@@ -32,6 +139,24 @@ export const noTeamMembers = `<Card style="max-width: 380px; padding: 24px">
       <Button color="primary" variant="solid" size="sm">Invite members</Button>
     </EmptyMessageActionRow>
   </EmptyMessage>
+</Card>`
+
+export const survey = `<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>How did you hear about us?</CardTitle>
+    <CardDescription>Select the option that best describes how you heard about us.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <RadioGroup v-model:value="source" direction="col">
+      <RadioGroupItem value="social" block>Social Media</RadioGroupItem>
+      <RadioGroupItem value="search" block>Search Engine</RadioGroupItem>
+      <RadioGroupItem value="referral" block>Referral</RadioGroupItem>
+      <RadioGroupItem value="other" block>Other</RadioGroupItem>
+    </RadioGroup>
+  </CardContent>
+  <CardFooter>
+    <Button color="primary" variant="solid" block>Submit</Button>
+  </CardFooter>
 </Card>`
 
 export const processing = `<Card style="max-width: 380px; padding: 24px">
@@ -104,10 +229,34 @@ export const pricing = `<div style="display: grid; gap: 16px; grid-template-colu
   <VueDemo template={overview} />
 </ComponentPreview>
 
+### Login
+
+<ComponentPreview language="vue" details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={login}>
+  <VueDemo template={login} />
+</ComponentPreview>
+
+### Create project
+
+<ComponentPreview language="vue" details={<>Right-aligned footer with Cancel / Submit. Use <code>style="justify-content: flex-end"</code> on <code>CardFooter</code>.</>} code={createProject}>
+  <VueDemo template={createProject} />
+</ComponentPreview>
+
+### Payment Method
+
+<ComponentPreview language="vue" details={<>Full-fidelity payment form. <strong>Card Number</strong> + <strong>CVV</strong> share a 2fr/1fr row with a helper line; <strong>Month</strong>/<strong>Year</strong> use <code>Select</code>. Sections are divided by subtle <code>hr</code>s for Billing Address and Comments.</>} code={paymentMethod}>
+  <VueDemo template={paymentMethod} state={paymentMethodState} />
+</ComponentPreview>
+
 ### No team members (empty state)
 
 <ComponentPreview language="vue" details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={noTeamMembers}>
   <VueDemo template={noTeamMembers} />
+</ComponentPreview>
+
+### How did you hear about us?
+
+<ComponentPreview language="vue" details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={survey}>
+  <VueDemo template={survey} state={{ source: "social" }} />
 </ComponentPreview>
 
 ### Processing your request

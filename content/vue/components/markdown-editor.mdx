@@ -27,24 +27,36 @@ export const allFormatting = `<div class="w-[500px]">
   <MarkdownEditor :default-value="allFormattingMd" />
 </div>`
 
+export const withField = `<div class="w-[500px]">
+  <Field label="Description" description="Supports bold, italic, lists, and links.">
+    <MarkdownEditor placeholder="Enter description..." />
+  </Field>
+</div>`
+
 export const toolbarEnd = `<div class="w-[500px]">
-  <MarkdownEditor placeholder="Enter text...">
-    <template #toolbarEnd>
-      <button
-        type="button"
-        :class="markdownEditorStyles.toolbarButton"
-        aria-label="Edit translations"
-        title="Edit translations"
-      >
-        <Translate />
-      </button>
-    </template>
-  </MarkdownEditor>
+  <Field label="Text markdown">
+    <MarkdownEditor placeholder="Enter text...">
+      <template #toolbarEnd>
+        <button
+          type="button"
+          :class="markdownEditorStyles.toolbarButton"
+          aria-label="Edit translations"
+          title="Edit translations"
+        >
+          <Translate />
+        </button>
+      </template>
+    </MarkdownEditor>
+  </Field>
 </div>`
 
 export const variants = `<div class="flex flex-col gap-4 w-[500px]">
-  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
-  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+  <Field label="Outline">
+    <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+  </Field>
+  <Field label="Soft">
+    <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+  </Field>
 </div>`
 
 export const disabled = `<div class="w-[500px]">
@@ -52,7 +64,9 @@ export const disabled = `<div class="w-[500px]">
 </div>`
 
 export const invalid = `<div class="w-[500px]">
-  <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+  <Field label="Bio" error-message="This field is required.">
+    <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+  </Field>
 </div>`
 
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor";`}</UsageBlock>
@@ -69,6 +83,12 @@ export const invalid = `<div class="w-[500px]">
 
 <ComponentPreview language="vue" details={<>Example with all supported formatting: <strong>bold</strong>, <em>italic</em>, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.</>} code={allFormatting} previewMinHeight={300}>
   <VueDemo template={allFormatting} state={{ allFormattingMd }} />
+</ComponentPreview>
+
+### With Field
+
+<ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add label, description, and error handling. The editor receives <code>id</code> and <code>aria-describedby</code> automatically.</>} code={withField} previewMinHeight={200}>
+  <VueDemo template={withField} />
 </ComponentPreview>
 
 ### Toolbar end slot
@@ -91,7 +111,7 @@ export const invalid = `<div class="w-[500px]">
 
 ### Invalid
 
-<ComponentPreview language="vue" details={<>Use <code>invalid</code> to show an error state.</>} code={invalid} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> or wrap with <code>Field</code> and pass <code>error-message</code> to show an error state.</>} code={invalid} previewMinHeight={200}>
   <VueDemo template={invalid} />
 </ComponentPreview>
 

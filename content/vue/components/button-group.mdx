@@ -137,6 +137,24 @@ export const dropdownMenu = `<ButtonGroup>
   </Menu>
 </ButtonGroup>`
 
+export const select = `<ButtonGroup>
+  <ButtonGroup>
+    <Select
+      :options="unitOptions"
+      v-model:value="unit"
+      variant="outline"
+      :size="size"
+      :block="false"
+    />
+    <Input placeholder="2.50" :size="size" inputmode="decimal" />
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Log weight">
+      <ArrowRight />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>`
+
 export const popover = `<ButtonGroup>
   <Button variant="outline" color="secondary" :pill="false" :size="size"><Sparkles /> Generate</Button>
   <Popover>
@@ -220,6 +238,23 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 <ComponentPreview language="vue" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
   <VueDemo template={dropdownMenu} controls={sizeControl} />
+</ComponentPreview>
+
+### Select
+
+<ComponentPreview language="vue" details={<>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</>} code={select}>
+  <VueDemo
+    template={select}
+    controls={sizeControl}
+    state={{
+      unit: "kg",
+      unitOptions: [
+        { value: "kg", label: "kg · Kilogram" },
+        { value: "lb", label: "lb · Pound" },
+        { value: "oz", label: "oz · Ounce" },
+      ],
+    }}
+  />
 </ComponentPreview>
 
 ### Popover

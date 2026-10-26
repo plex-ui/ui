@@ -145,6 +145,45 @@ Pass disabled to an AccordionItem to make it read-only. The row stays visible so
 </Accordion>
 ```
 
+### Card
+Composed inside Card, the most common landing-page FAQ pattern.
+```vue
+<Card style="width: 100%; max-width: 384px">
+  <CardHeader>
+    <CardTitle>Subscription & billing</CardTitle>
+    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Accordion type="single" collapsible default-value="plans">
+      <AccordionItem
+        v-for="item in [
+          {
+            value: 'plans',
+            trigger: 'What subscription plans do you offer?',
+            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',
+          },
+          {
+            value: 'billing',
+            trigger: 'How does billing work?',
+            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',
+          },
+          {
+            value: 'cancel',
+            trigger: 'How do I cancel my subscription?',
+            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',
+          },
+        ]"
+        :key="item.value"
+        :value="item.value"
+      >
+        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+        <AccordionContent>{{ item.content }}</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  </CardContent>
+</Card>
+```
+
 ## Alert
 Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
 Import: import { Alert } from "@plexui/vue/components/Alert"
@@ -834,6 +873,28 @@ Compose a primary action with a Menu trigger for follow-up options. Common for E
 </ButtonGroup>
 ```
 
+### Select
+Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance.
+```vue
+<ButtonGroup>
+  <ButtonGroup>
+    <Select
+      :options="unitOptions"
+      v-model:value="unit"
+      variant="outline"
+      :size="size"
+      :block="false"
+    />
+    <Input placeholder="2.50" :size="size" inputmode="decimal" />
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Log weight">
+      <ArrowRight />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>
+```
+
 ### Popover
 Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).
 ```vue
@@ -991,6 +1052,117 @@ Docs: https://plexui.com/vue/components/card
 </Card>
 ```
 
+### Login
+A classic login form with a primary Log in CTA and an inline Sign up link below.
+```vue
+<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Log in to your account</CardTitle>
+    <CardDescription>Enter your email below to log in to your account.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <Field label="Email">
+        <Input type="email" placeholder="you@example.com" />
+      </Field>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+          <Label for="card-login-password">Password</Label>
+          <TextLink href="#" primary>Forgot your password?</TextLink>
+        </div>
+        <Input id="card-login-password" type="password" />
+      </div>
+    </div>
+  </CardContent>
+  <CardFooter style="flex-direction: column; align-items: stretch; gap: 12px">
+    <Button color="primary" variant="solid" block>Log in</Button>
+    <!-- Description sits flush under a title by default; here it follows a button -->
+    <CardDescription class="text-center" style="margin: 0">
+      Don't have an account?
+      <TextLink href="#" primary>Sign up</TextLink>
+    </CardDescription>
+  </CardFooter>
+</Card>
+```
+
+### Create project
+Right-aligned footer with Cancel / Submit. Use style="justify-content: flex-end" on CardFooter.
+```vue
+<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Create project</CardTitle>
+    <CardDescription>Deploy a new project in one-click with sensible defaults.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <Field label="Name">
+        <Input placeholder="billing-service" />
+      </Field>
+      <Field label="Region" description="Where your functions and database will live.">
+        <Input placeholder="us-east-1" />
+      </Field>
+    </div>
+  </CardContent>
+  <CardFooter style="justify-content: flex-end">
+    <Button color="secondary" variant="outline" size="sm">Cancel</Button>
+    <Button color="primary" variant="solid" size="sm">Deploy</Button>
+  </CardFooter>
+</Card>
+```
+
+### Payment Method
+Full-fidelity payment form. Card Number + CVV share a 2fr/1fr row with a helper line; Month/Year use Select. Sections are divided by subtle hrs for Billing Address and Comments.
+```vue
+<Card style="max-width: 420px">
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <CardHeader>
+      <CardTitle>Payment Method</CardTitle>
+      <CardDescription>All transactions are secure and encrypted</CardDescription>
+    </CardHeader>
+
+    <Field label="Name on Card">
+      <Input placeholder="Aisha Cooper" />
+    </Field>
+
+    <Field label="Card Number" description="Enter your 16-digit card number">
+      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
+    </Field>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
+      <Field label="Month">
+        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
+      </Field>
+      <Field label="Year">
+        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" inputmode="numeric" />
+      </Field>
+    </div>
+
+    <Separator />
+
+    <CardHeader>
+      <CardTitle>Billing Address</CardTitle>
+      <CardDescription>The billing address associated with your payment method</CardDescription>
+    </CardHeader>
+
+    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
+
+    <Separator />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" :rows="3" />
+    </Field>
+
+    <div style="display: flex; gap: 8px">
+      <Button color="primary" variant="solid">Submit</Button>
+      <Button color="secondary" variant="outline">Cancel</Button>
+    </div>
+  </div>
+</Card>
+```
+
 ### No team members (empty state)
 Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action.
 ```vue
@@ -1007,6 +1179,28 @@ Compose Card with EmptyMessage for a center-aligned empty state with icon badge,
       <Button color="primary" variant="solid" size="sm">Invite members</Button>
     </EmptyMessageActionRow>
   </EmptyMessage>
+</Card>
+```
+
+### How did you hear about us?
+A single-question survey using RadioGroup with direction="col" and a full-width submit button.
+```vue
+<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>How did you hear about us?</CardTitle>
+    <CardDescription>Select the option that best describes how you heard about us.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <RadioGroup v-model:value="source" direction="col">
+      <RadioGroupItem value="social" block>Social Media</RadioGroupItem>
+      <RadioGroupItem value="search" block>Search Engine</RadioGroupItem>
+      <RadioGroupItem value="referral" block>Referral</RadioGroupItem>
+      <RadioGroupItem value="other" block>Other</RadioGroupItem>
+    </RadioGroup>
+  </CardContent>
+  <CardFooter>
+    <Button color="primary" variant="solid" block>Submit</Button>
+  </CardFooter>
 </Card>
 ```
 
@@ -1096,6 +1290,91 @@ Props:
 <div class="flex flex-col gap-3">
   <Checkbox label="Same as billing address" :variant="variant" :pill="pill" :disabled="disabled" />
   <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
+</div>
+```
+
+### With Radio Group
+Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.
+```vue
+<div class="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
+      <RadioGroupItem
+        v-for="channel in [
+          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
+          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
+          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
+        ]"
+        :key="channel.value"
+        :value="channel.value"
+      >
+        <div v-if="description === 'true'" class="flex flex-col">
+          <span class="font-medium">{{ channel.label }}</span>
+          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
+        </div>
+        <template v-else>{{ channel.label }}</template>
+      </RadioGroupItem>
+    </RadioGroup>
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
+    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
+      <Checkbox
+        v-for="topic in [
+          { label: 'Product updates', description: 'New features and improvements.', checked: true },
+          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
+          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
+        ]"
+        :key="topic.label"
+        :default-checked="topic.checked"
+      >
+        <template #label>
+          <div v-if="description === 'true'" class="flex flex-col">
+            <span class="font-medium">{{ topic.label }}</span>
+            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
+          </div>
+          <template v-else>{{ topic.label }}</template>
+        </template>
+      </Checkbox>
+    </div>
+  </Field>
+</div>
+```
+
+### Descriptions
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.
+```vue
+<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Email notifications" description="Configure which emails you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-2.5">
+        <Checkbox v-model:checked="settings.marketing">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Marketing</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+            </div>
+          </template>
+        </Checkbox>
+        <Checkbox v-model:checked="settings.security">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Security</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+            </div>
+          </template>
+        </Checkbox>
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Push notifications" v-slot="{ id }">
+      <div class="flex flex-col gap-3">
+        <Checkbox label="Everything" v-model:checked="settings.everything" />
+        <Checkbox label="Direct messages and mentions" v-model:checked="settings.mentions" />
+        <Checkbox label="Nothing" v-model:checked="settings.nothing" />
+      </div>
+    </Field>
+  </div>
 </div>
 ```
 
@@ -1205,12 +1484,12 @@ By default the checkbox renders to the left of the label. Set orientation="right
 ```
 
 ### Without label
-When no label is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate.
+When no label is provided, the checkbox renders as a standalone control, so pass aria-label to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate.
 ```vue
 <div class="flex gap-4">
-  <Checkbox />
-  <Checkbox default-checked />
-  <Checkbox checked="indeterminate" />
+  <Checkbox aria-label="Accept terms" />
+  <Checkbox aria-label="Subscribe" default-checked />
+  <Checkbox aria-label="Select all" checked="indeterminate" />
 </div>
 ```
 
@@ -1230,6 +1509,74 @@ Combine a parent checkbox with child checkboxes to create a "select all" pattern
       :label="item.label"
       v-model:checked="item.checked"
     />
+  </div>
+</div>
+```
+
+### Group with description
+Wrap a group of checkboxes in a Field for a shared label and description. This is a common pattern for preference lists and settings panels.
+```vue
+<div class="max-w-sm w-full">
+  <Field label="Show on desktop" description="Select the items you want to display on the desktop." v-slot="{ id }">
+    <div class="flex flex-col gap-3">
+      <Checkbox v-for="item in items" :key="item.id" :label="item.label" v-model:checked="item.checked" />
+    </div>
+  </Field>
+</div>
+```
+
+### With Field
+Wrap checkboxes in a Field component for form layout with label, description, and error message support. The Field provides aria-describedby and aria-invalid linking automatically.
+```vue
+<div class="flex flex-col gap-4 max-w-sm w-full">
+  <Field
+    label="Terms"
+    description="Please review and accept the terms before continuing."
+    :error-message="showError ? 'You must accept the terms to continue.' : undefined"
+    v-slot="{ id }"
+  >
+    <div class="flex flex-col gap-3 mt-1">
+      <Checkbox label="I agree to the Terms of Service" v-model:checked="agreed" />
+      <Checkbox label="Subscribe to product updates" />
+    </div>
+  </Field>
+</div>
+```
+
+### Grouped sections
+Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a Field with its own label and description.
+```vue
+<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Email notifications" description="Configure which emails you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Checkbox v-model:checked="settings.emailMarketing">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Marketing</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
+            </div>
+          </template>
+        </Checkbox>
+        <Checkbox v-model:checked="settings.emailSecurity">
+          <template #label>
+            <div class="flex flex-col">
+              <span class="font-medium">Security</span>
+              <span class="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
+            </div>
+          </template>
+        </Checkbox>
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Push notifications" description="Configure which push notifications you receive." v-slot="{ id }">
+      <div class="flex flex-col gap-3">
+        <Checkbox label="Everything" v-model:checked="settings.pushEverything" />
+        <Checkbox label="Direct messages and mentions" v-model:checked="settings.pushMentions" />
+        <Checkbox label="Nothing" v-model:checked="settings.pushNothing" />
+      </div>
+    </Field>
   </div>
 </div>
 ```
@@ -1545,6 +1892,28 @@ Compose DatePicker and Input side by side for maximum flexibility in form layout
     placeholder="HH:MM"
     maxlength="5"
     style="width: 72px"
+  />
+</div>
+```
+
+### Date input
+For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type.
+```vue
+<div class="w-[200px]">
+  <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" aria-label="Date" />
+</div>
+```
+
+### DateTime input
+Pass time-mode="HH:MM" to DateInput to type the date and time in one field.
+```vue
+<div class="w-[260px]">
+  <DateInput
+    v-model:value="selectedDate"
+    mode="mm/dd/yyyy"
+    separator="/"
+    time-mode="HH:MM"
+    aria-label="Date and time"
   />
 </div>
 ```
@@ -2847,39 +3216,250 @@ A type="password" field ships a built-in reveal toggle: click the eye to show or
 </div>
 ```
 
-### Birthday with validation
-Use invalid and error-message to display the birthday validation state.
+### SSN input
+A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN, nextSSNDigits and ssnMask are plain helper functions of the example.
 ```vue
 <div class="w-[360px]">
-  <FloatingLabelInput
-    label="Birthday"
-    default-value="02 / 30 / 2001"
-    invalid
-    error-message="Please enter a valid date."
-  />
+  <div style="position: relative">
+    <FloatingLabelInput
+      label="Social Security Number"
+      :value="formatSSN(digits)"
+      maxlength="11"
+      inputmode="numeric"
+      autocomplete="off"
+      :style="{
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        ...(!visible && digits
+          ? { color: 'transparent', caretColor: 'transparent' }
+          : focused && ssnMask(digits).suffix
+            ? { caretColor: 'transparent' }
+            : {}),
+      }"
+      revealable
+      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @revealed-change="(revealed) => (visible = revealed)"
+    />
+    <div
+      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
+      aria-hidden="true"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden"
+    >
+      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
+      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
+      <template v-if="focused && ssnMask(digits).suffix">
+        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
+        <span
+          v-if="ssnMask(digits).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ ssnMask(digits).highlight }}</span>
+        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+      </template>
+    </div>
+  </div>
+</div>
+```
+
+### Birthday input
+A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). nextBirthday and birthdayMask are plain helper functions of the example.
+```vue
+<div class="w-[360px]">
+  <div style="position: relative">
+    <FloatingLabelInput
+      label="Birthday"
+      :value="birthday"
+      maxlength="14"
+      inputmode="numeric"
+      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      @focus="focused = true"
+      @blur="focused = false"
+    />
+    <div
+      v-if="focused && birthdayMask(birthday).suffix"
+      aria-hidden="true"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
+    >
+      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+      <span
+        v-if="birthdayMask(birthday).highlight"
+        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+      >{{ birthdayMask(birthday).highlight }}</span>
+      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+    </div>
+  </div>
+</div>
+```
+
+### Birthday with validation
+Use invalid and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, BirthdayMaskedInput, and the error shows in a FieldError below it.
+```vue
+<div class="w-[360px]">
+  <div class="flex flex-col gap-1.5">
+    <component
+      :is="BirthdayMaskedInput"
+      v-model:value="birthday"
+      :invalid="!!birthday && !isValidBirthday(birthday)"
+      :aria-describedby="birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined"
+    />
+    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="birthday-validation-demo-error">
+      Please enter a valid date.
+    </FieldError>
+  </div>
 </div>
 ```
 
 ### Birthday states
 Overview of birthday input states.
 ```vue
-<div class="flex flex-col items-center gap-8 py-8">
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Birthday" class="w-[320px]" />
+<div class="flex flex-col items-center gap-8 py-8 w-full">
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Empty</div>
+    <component :is="BirthdayMaskedInput" v-model:value="emptyBirthday" class="flex-1 min-w-0" />
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Filled</div>
+    <component :is="BirthdayMaskedInput" v-model:value="filledBirthday" class="flex-1 min-w-0" />
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Birthday" default-value="02 / 30 / 2001" class="w-[320px]" />
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Invalid</div>
+    <component :is="BirthdayMaskedInput" v-model:value="invalidBirthday" invalid class="flex-1 min-w-0" />
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Disabled</div>
+    <component :is="BirthdayMaskedInput" value="01 / 15 / 1995" disabled class="flex-1 min-w-0" />
   </div>
+</div>
+```
+
+### Select
+Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling.
+```vue
+<div class="w-[360px]">
+  <Select
+    v-model:value="role"
+    :options="roleOptions"
+    search-placeholder="Search roles..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Role"
+        :selected="!!role"
+        :open="open"
+        :on-clear-click="role ? () => (role = '') : undefined"
+      >
+        {{ roleOptions.find((option) => option.value === role)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>
+```
+
+### Multiple selection
+Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.
+```vue
+<div class="w-[360px]">
+  <Select
+    multiple
+    clearable
+    v-model:value="skills"
+    :options="skillOptions"
+    search-placeholder="Search skills..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Skills"
+        :selected="skills.length > 0"
+        :open="open"
+        :on-clear-click="skills.length > 0 ? () => (skills = []) : undefined"
+      >
+        {{
+          skills.length === 1
+            ? skillOptions.find((option) => option.value === skills[0])?.label
+            : skills.length > 1
+              ? skills.length + ' skills'
+              : ''
+        }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>
+```
+
+### Country select
+Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.
+```vue
+<div class="w-[360px]">
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country"
+        :selected="!!countryOf(country)"
+        :open="open"
+        :on-clear-click="countryOf(country) ? () => (country = '') : undefined"
+      >
+        <span
+          v-if="countryOf(country)"
+          style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"
+        ><component :is="FlagIcon" :code="country" />{{ countryOf(country).label }}</span>
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>
+```
+
+### Phone input
+A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value.
+```vue
+<div class="w-[360px] flex flex-col gap-3">
+  <Select
+    v-model:value="country"
+    :options="phoneCountryOptions"
+    search-placeholder="Search countries..."
+    :search-predicate="phoneCountrySearchPredicate"
+    :list-min-width="360"
+    block
+    size="3xl"
+    check-position="end"
+    @change="focusLater($refs.phoneInput)"
+  >
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+    <template #trigger="{ open, onToggle }">
+      <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
+    </template>
+  </Select>
+  <FloatingLabelInput
+    ref="phoneInput"
+    label="Phone number"
+    :value="phone"
+    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))"
+    type="tel"
+    inputmode="tel"
+  >
+    <template #startAdornment>
+      <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
+    </template>
+  </FloatingLabelInput>
 </div>
 ```
 
@@ -3341,6 +3921,32 @@ You can pair Input and Button components together by using the same size value.
 </div>
 ```
 
+### Optical alignment
+```vue
+<div class="w-[400px]">
+  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
+    <div class="mb-5 text-secondary text-sm">
+      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
+    </div>
+    <div class="flex flex-col gap-5">
+      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
+        <Input placeholder="Jane Doe" :pill="pill" />
+      </Field>
+      <Field
+        label="Email"
+        description="We'll never share your email."
+        error-message="Please enter a valid email address."
+        required
+        :optically-align="opticallyAlign ? 'start' : undefined"
+      >
+        <Input placeholder="jane@example.com" :pill="pill" />
+      </Field>
+    </div>
+    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
+  </div>
+</div>
+```
+
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/vue/components/Label"
@@ -3352,6 +3958,59 @@ Clicking the label toggles the checkbox it points at. Here accepted starts as tr
 <div style="display: flex; align-items: center; gap: 8px">
   <Checkbox id="label-demo-terms" v-model:checked="accepted" />
   <Label for="label-demo-terms">Accept terms and conditions</Label>
+</div>
+```
+
+### Label in Field
+For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component. It renders the label internally, hooks up for automatically, and handles the surrounding spacing.
+```vue
+<div style="width: 100%; max-width: 420px">
+  <div style="display: flex; flex-direction: column; gap: 16px">
+    <CardHeader>
+      <CardTitle>Payment Method</CardTitle>
+      <CardDescription>All transactions are secure and encrypted</CardDescription>
+    </CardHeader>
+
+    <Field label="Name on Card">
+      <Input placeholder="Aisha Cooper" />
+    </Field>
+
+    <Field label="Card Number" description="Enter your 16-digit card number">
+      <Input placeholder="1234 5678 9012 3456" inputmode="numeric" />
+    </Field>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
+      <Field label="Month">
+        <Select v-model:value="month" :options="monthOptions" placeholder="MM" />
+      </Field>
+      <Field label="Year">
+        <Select v-model:value="year" :options="yearOptions" placeholder="YYYY" />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" inputmode="numeric" />
+      </Field>
+    </div>
+
+    <Separator />
+
+    <CardHeader>
+      <CardTitle>Billing Address</CardTitle>
+      <CardDescription>The billing address associated with your payment method</CardDescription>
+    </CardHeader>
+
+    <Checkbox v-model:checked="sameAsShipping" label="Same as shipping address" />
+
+    <Separator />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" :rows="3" />
+    </Field>
+
+    <div style="display: flex; gap: 8px">
+      <Button color="primary" variant="solid">Submit</Button>
+      <Button color="secondary" variant="outline">Cancel</Button>
+    </div>
+  </div>
 </div>
 ```
 
@@ -3407,22 +4066,34 @@ Example with all supported formatting: bold, italic, links, ordered lists, and u
 </div>
 ```
 
+### With Field
+Wrap with Field to add label, description, and error handling. The editor receives id and aria-describedby automatically.
+```vue
+<div class="w-[500px]">
+  <Field label="Description" description="Supports bold, italic, lists, and links.">
+    <MarkdownEditor placeholder="Enter description..." />
+  </Field>
+</div>
+```
+
 ### Toolbar end slot
 Use the #toolbarEnd slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.
 ```vue
 <div class="w-[500px]">
-  <MarkdownEditor placeholder="Enter text...">
-    <template #toolbarEnd>
-      <button
-        type="button"
-        :class="markdownEditorStyles.toolbarButton"
-        aria-label="Edit translations"
-        title="Edit translations"
-      >
-        <Translate />
-      </button>
-    </template>
-  </MarkdownEditor>
+  <Field label="Text markdown">
+    <MarkdownEditor placeholder="Enter text...">
+      <template #toolbarEnd>
+        <button
+          type="button"
+          :class="markdownEditorStyles.toolbarButton"
+          aria-label="Edit translations"
+          title="Edit translations"
+        >
+          <Translate />
+        </button>
+      </template>
+    </MarkdownEditor>
+  </Field>
 </div>
 ```
 
@@ -3430,8 +4101,12 @@ Use the #toolbarEnd slot to render custom content at the end of the toolbar, for
 Use variant to switch between outline (default) and soft styles.
 ```vue
 <div class="flex flex-col gap-4 w-[500px]">
-  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
-  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+  <Field label="Outline">
+    <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+  </Field>
+  <Field label="Soft">
+    <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+  </Field>
 </div>
 ```
 
@@ -3444,10 +4119,12 @@ Use disabled to prevent editing and grey out the component.
 ```
 
 ### Invalid
-Use invalid to show an error state.
+Use invalid or wrap with Field and pass error-message to show an error state.
 ```vue
 <div class="w-[500px]">
-  <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+  <Field label="Bio" error-message="This field is required.">
+    <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+  </Field>
 </div>
 ```
 
@@ -4082,6 +4759,94 @@ Props:
 </div>
 ```
 
+### With Checkbox
+Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.
+```vue
+<div class="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
+      <RadioGroupItem
+        v-for="channel in [
+          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
+          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
+          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
+        ]"
+        :key="channel.value"
+        :value="channel.value"
+      >
+        <div v-if="description === 'true'" class="flex flex-col">
+          <span class="font-medium">{{ channel.label }}</span>
+          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
+        </div>
+        <template v-else>{{ channel.label }}</template>
+      </RadioGroupItem>
+    </RadioGroup>
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
+    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
+      <Checkbox
+        v-for="topic in [
+          { label: 'Product updates', description: 'New features and improvements.', checked: true },
+          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
+          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
+        ]"
+        :key="topic.label"
+        :default-checked="topic.checked"
+      >
+        <template #label>
+          <div v-if="description === 'true'" class="flex flex-col">
+            <span class="font-medium">{{ topic.label }}</span>
+            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
+          </div>
+          <template v-else>{{ topic.label }}</template>
+        </template>
+      </Checkbox>
+    </div>
+  </Field>
+</div>
+```
+
+### Descriptions
+Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.
+```vue
+<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="channel" aria-label="Notification channel">
+        <RadioGroupItem value="email">
+          <div class="flex flex-col">
+            <span class="font-medium">Email</span>
+            <span class="text-xs text-secondary mt-0.5">Messages delivered to your inbox.</span>
+          </div>
+        </RadioGroupItem>
+        <RadioGroupItem value="sms">
+          <div class="flex flex-col">
+            <span class="font-medium">SMS</span>
+            <span class="text-xs text-secondary mt-0.5">Text messages to your phone number.</span>
+          </div>
+        </RadioGroupItem>
+        <RadioGroupItem value="push">
+          <div class="flex flex-col">
+            <span class="font-medium">Push</span>
+            <span class="text-xs text-secondary mt-0.5">Real-time alerts on your device.</span>
+          </div>
+        </RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Notification frequency" v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
+        <RadioGroupItem value="daily">Daily</RadioGroupItem>
+        <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+        <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+        <RadioGroupItem value="never">Never</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+</div>
+```
+
 ### Direction
 Use direction to control whether the items flow in a column or row. An optimal gap will be dynamically applied based on the orientation.
 ```vue
@@ -4149,6 +4914,39 @@ Radio items take any content in their default slot, so you can compose a label w
 </RadioGroup>
 ```
 
+### With Field
+Wrap a RadioGroup in a Field for a shared label and description. The Field provides aria-describedby linking automatically.
+```vue
+<div class="max-w-sm">
+  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="{ id }">
+    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method">
+      <RadioGroupItem value="email">Email</RadioGroupItem>
+      <RadioGroupItem value="sms">SMS</RadioGroupItem>
+      <RadioGroupItem value="push">Push notification</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>
+```
+
+### With Field error
+When a Field has an error-message, it sets aria-invalid on the child control for screen readers. The error message is displayed below the group.
+```vue
+<div class="max-w-sm">
+  <Field
+    label="Subscription plan"
+    description="Select a plan to continue."
+    :error-message="showError ? 'Please select a subscription plan.' : undefined"
+    v-slot="fieldProps"
+  >
+    <RadioGroup direction="col" v-model:value="value" aria-label="Subscription plan" v-bind="fieldProps">
+      <RadioGroupItem value="monthly">Monthly ($9.99/month)</RadioGroupItem>
+      <RadioGroupItem value="yearly">Yearly ($99.99/year)</RadioGroupItem>
+      <RadioGroupItem value="lifetime">Lifetime ($299.99)</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>
+```
+
 ### Choice card
 Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use orientation="right" to place the indicator after the content. Wrap each RadioGroupItem in a card container with border and borderRadius on the same element.
 ```vue
@@ -4210,6 +5008,32 @@ Leverage component composition and class overrides to build card-style radio sel
     </TooltipTrigger>
   </Tooltip>
 </RadioGroup>
+```
+
+### Grouped sections
+Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
+```vue
+<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Visibility" description="Control who can see project resources." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="visibility" aria-label="Visibility">
+        <RadioGroupItem value="hidden">Hidden</RadioGroupItem>
+        <RadioGroupItem value="owners">Visible to organization owners</RadioGroupItem>
+        <RadioGroupItem value="everyone">Visible to everyone</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Digest frequency" description="How often you receive summary emails." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="frequency" aria-label="Digest frequency">
+        <RadioGroupItem value="daily">Daily</RadioGroupItem>
+        <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+        <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+        <RadioGroupItem value="never">Never</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+</div>
 ```
 
 ## Select
@@ -5695,6 +6519,35 @@ Combine disabled with label and description for read-only settings that need exp
 </div>
 ```
 
+### With Field
+Pair a Switch with Field using orientation="horizontal" for inline toggle settings.
+```vue
+<div class="self-stretch mx-auto !max-w-[480px]">
+  <Field
+    label="Marketing emails"
+    orientation="horizontal"
+    class="items-center justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
+    v-slot="fieldProps"
+  >
+    <Switch :id="fieldProps.id" v-model:checked="enabled" />
+  </Field>
+</div>
+```
+
+### With Field and description
+Use Field with description for the settings pattern with a section heading, description, and a labeled switch underneath.
+```vue
+<div class="self-stretch mx-auto !max-w-[480px]">
+  <Field
+    label="Access Control"
+    description="Disable user-based API keys across your entire organization. You can also choose to disable them on a project-by-project basis if needed."
+    v-slot="fieldProps"
+  >
+    <Switch :id="fieldProps.id" label="Disable user API keys" v-model:checked="enabled" />
+  </Field>
+</div>
+```
+
 ### Settings panel
 Combine label and description to build settings-style toggle panels.
 ```vue
@@ -5712,6 +6565,43 @@ Combine label and description to build settings-style toggle panels.
     description="Disable user-based API keys across your entire organization."
     default-checked
   />
+</div>
+```
+
+### Grouped sections
+Use dividers to separate switch groups into logical sections. Each section can be wrapped in a Field with its own label and description.
+```vue
+<div class="w-full max-w-lg divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Notifications" description="Configure how you receive notifications." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Switch
+          label="Push notifications"
+          description="Receive push notifications on your devices."
+          default-checked
+        />
+        <Switch
+          label="Email notifications"
+          description="Get notified via email for important updates."
+        />
+      </div>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Privacy" description="Control your data sharing preferences." v-slot="{ id }">
+      <div class="flex flex-col gap-4">
+        <Switch
+          label="Share usage data"
+          description="Help us improve by sharing anonymous usage statistics."
+        />
+        <Switch
+          label="Personalized content"
+          description="Allow personalized recommendations based on your activity."
+          default-checked
+        />
+      </div>
+    </Field>
+  </div>
 </div>
 ```
 
@@ -6326,6 +7216,36 @@ Props:
 </div>
 ```
 
+### Inline filter row
+When rows=1, TagInput matches the height of an Input or SelectControl of the same size, so it composes cleanly into horizontal filter rows. Toggle pill on both controls to keep the pair visually consistent.
+```vue
+<div class="flex w-full max-w-2xl items-start gap-2">
+  <Field label="Where" class="w-[160px] shrink-0">
+    <Menu>
+      <MenuTrigger>
+        <SelectControl :size="size" :pill="pill" :selected="!!field" class="w-full">
+          {{ fieldOptions.find((option) => option.value === field)?.label ?? '' }}
+        </SelectControl>
+      </MenuTrigger>
+      <MenuContent :min-width="160" @close-auto-focus="(event) => event.preventDefault()">
+        <MenuCheckboxItem
+          v-for="option in fieldOptions"
+          :key="option.value"
+          :checked="field === option.value"
+          indicator-variant="ghost"
+          @update:checked="field = option.value"
+        >
+          {{ option.label }}
+        </MenuCheckboxItem>
+      </MenuContent>
+    </Menu>
+  </Field>
+  <Field label="Is in" class="flex-1">
+    <TagInput :size="size" :pill="pill" v-model:value="tags" placeholder="Add value, press Enter…" />
+  </Field>
+</div>
+```
+
 ### Suggestions
 Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.
 ```vue
@@ -6663,7 +7583,7 @@ Props:
   - contentClassName (string) — Class for tooltip content
   - forceOpen (boolean) — Force open or closed
 
-### Base
+### Overview
 ```vue
 <Tooltip content="This is additional context that appears when the trigger is hovered or focused">
   <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>

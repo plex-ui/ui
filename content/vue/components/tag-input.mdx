@@ -10,6 +10,32 @@ export const overview = `<div class="w-[480px]">
   <TagInput placeholder="Add a tag..." :size="size" :rows="Number(rows)" :pill="pill" />
 </div>`
 
+export const inlineFilterRow = `<div class="flex w-full max-w-2xl items-start gap-2">
+  <Field label="Where" class="w-[160px] shrink-0">
+    <Menu>
+      <MenuTrigger>
+        <SelectControl :size="size" :pill="pill" :selected="!!field" class="w-full">
+          {{ fieldOptions.find((option) => option.value === field)?.label ?? '' }}
+        </SelectControl>
+      </MenuTrigger>
+      <MenuContent :min-width="160" @close-auto-focus="(event) => event.preventDefault()">
+        <MenuCheckboxItem
+          v-for="option in fieldOptions"
+          :key="option.value"
+          :checked="field === option.value"
+          indicator-variant="ghost"
+          @update:checked="field = option.value"
+        >
+          {{ option.label }}
+        </MenuCheckboxItem>
+      </MenuContent>
+    </Menu>
+  </Field>
+  <Field label="Is in" class="flex-1">
+    <TagInput :size="size" :pill="pill" v-model:value="tags" placeholder="Add value, press Enter…" />
+  </Field>
+</div>`
+
 export const suggestions = `<div class="flex w-full max-w-sm flex-col gap-3">
   <TagInput v-model:value="tags" placeholder="Add a skill..." :size="size" :pill="pill" />
   <div v-if="suggestions.some((s) => !tags.some((t) => t.value === s))" class="flex flex-wrap gap-1.5">
@@ -79,6 +105,32 @@ const available = computed(() => {
       { name: "rows", type: "select", options: ["1", "2", "3"], default: "1" },
       { name: "pill", type: "boolean", default: false },
     ]}
+  />
+</ComponentPreview>
+
+### Inline filter row
+
+<ComponentPreview language="vue" details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={inlineFilterRow} previewMinHeight={168}>
+  <VueDemo
+    template={inlineFilterRow}
+    controls={[
+      { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+      { name: "pill", type: "boolean", default: false },
+    ]}
+    state={{
+      field: "email",
+      fieldOptions: [
+        { value: "email", label: "Email" },
+        { value: "name", label: "Name" },
+        { value: "role", label: "Role" },
+        { value: "team", label: "Team" },
+        { value: "country", label: "Country" },
+      ],
+      tags: [
+        { value: "ada@plexui.com", valid: true },
+        { value: "grace@plexui.com", valid: true },
+      ],
+    }}
   />
 </ComponentPreview>
 

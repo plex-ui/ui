@@ -18,6 +18,91 @@ export const overview = `<div>
   </RadioGroup>
 </div>`
 
+export const withCheckbox = `<div class="flex flex-col gap-6 w-full max-w-md">
+  <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+    <RadioGroup :direction="direction" default-value="email" aria-label="Notification channel">
+      <RadioGroupItem
+        v-for="channel in [
+          { value: 'email', label: 'Email', description: 'Messages delivered to your inbox.' },
+          { value: 'sms', label: 'SMS', description: 'Text messages to your phone number.' },
+          { value: 'push', label: 'Push', description: 'Real-time alerts on your device.' },
+        ]"
+        :key="channel.value"
+        :value="channel.value"
+      >
+        <div v-if="description === 'true'" class="flex flex-col">
+          <span class="font-medium">{{ channel.label }}</span>
+          <span class="text-xs text-secondary mt-0.5">{{ channel.description }}</span>
+        </div>
+        <template v-else>{{ channel.label }}</template>
+      </RadioGroupItem>
+    </RadioGroup>
+  </Field>
+  <Field label="Topics" description="Select the topics you want to follow." v-slot="{ id }">
+    <div :class="direction === 'row' ? 'flex flex-row gap-5' : 'flex flex-col gap-2.5'">
+      <Checkbox
+        v-for="topic in [
+          { label: 'Product updates', description: 'New features and improvements.', checked: true },
+          { label: 'Security alerts', description: 'Account activity and login notifications.', checked: true },
+          { label: 'Community', description: 'Events, meetups, and discussions.', checked: false },
+        ]"
+        :key="topic.label"
+        :default-checked="topic.checked"
+      >
+        <template #label>
+          <div v-if="description === 'true'" class="flex flex-col">
+            <span class="font-medium">{{ topic.label }}</span>
+            <span class="text-xs text-secondary mt-0.5">{{ topic.description }}</span>
+          </div>
+          <template v-else>{{ topic.label }}</template>
+        </template>
+      </Checkbox>
+    </div>
+  </Field>
+</div>`
+
+export const alignmentControls = [
+  { name: "direction", type: "select", options: ["row", "col"], default: "col" },
+  { name: "description", type: "select", options: ["true", "false"], default: "true" },
+]
+
+export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Notification channel" description="Choose how you'd like to be notified." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="channel" aria-label="Notification channel">
+        <RadioGroupItem value="email">
+          <div class="flex flex-col">
+            <span class="font-medium">Email</span>
+            <span class="text-xs text-secondary mt-0.5">Messages delivered to your inbox.</span>
+          </div>
+        </RadioGroupItem>
+        <RadioGroupItem value="sms">
+          <div class="flex flex-col">
+            <span class="font-medium">SMS</span>
+            <span class="text-xs text-secondary mt-0.5">Text messages to your phone number.</span>
+          </div>
+        </RadioGroupItem>
+        <RadioGroupItem value="push">
+          <div class="flex flex-col">
+            <span class="font-medium">Push</span>
+            <span class="text-xs text-secondary mt-0.5">Real-time alerts on your device.</span>
+          </div>
+        </RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Notification frequency" v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="frequency" aria-label="Notification frequency">
+        <RadioGroupItem value="daily">Daily</RadioGroupItem>
+        <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+        <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+        <RadioGroupItem value="never">Never</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+</div>`
+
 export const direction = `<RadioGroup :direction="direction" default-value="light" aria-label="Theme">
   <RadioGroupItem value="light">Light</RadioGroupItem>
   <RadioGroupItem value="dark">Dark</RadioGroupItem>
@@ -64,6 +149,31 @@ export const withDescription = `<RadioGroup direction="col" v-model:value="value
     </div>
   </RadioGroupItem>
 </RadioGroup>`
+
+export const withField = `<div class="max-w-sm">
+  <Field label="Notification method" description="Choose how you want to receive notifications." v-slot="{ id }">
+    <RadioGroup direction="col" v-model:value="value" aria-label="Notification method">
+      <RadioGroupItem value="email">Email</RadioGroupItem>
+      <RadioGroupItem value="sms">SMS</RadioGroupItem>
+      <RadioGroupItem value="push">Push notification</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>`
+
+export const withFieldError = `<div class="max-w-sm">
+  <Field
+    label="Subscription plan"
+    description="Select a plan to continue."
+    :error-message="showError ? 'Please select a subscription plan.' : undefined"
+    v-slot="fieldProps"
+  >
+    <RadioGroup direction="col" v-model:value="value" aria-label="Subscription plan" v-bind="fieldProps">
+      <RadioGroupItem value="monthly">Monthly ($9.99/month)</RadioGroupItem>
+      <RadioGroupItem value="yearly">Yearly ($99.99/year)</RadioGroupItem>
+      <RadioGroupItem value="lifetime">Lifetime ($299.99)</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>`
 
 export const choiceCard = `<RadioGroup class="flex-col w-[320px] gap-3" v-model:value="value" aria-label="Workspace type">
   <div
@@ -120,6 +230,28 @@ export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-
   </Tooltip>
 </RadioGroup>`
 
+export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
+  <div class="pb-5">
+    <Field label="Visibility" description="Control who can see project resources." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="visibility" aria-label="Visibility">
+        <RadioGroupItem value="hidden">Hidden</RadioGroupItem>
+        <RadioGroupItem value="owners">Visible to organization owners</RadioGroupItem>
+        <RadioGroupItem value="everyone">Visible to everyone</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+  <div class="pt-5">
+    <Field label="Digest frequency" description="How often you receive summary emails." v-slot="{ id }">
+      <RadioGroup direction="col" v-model:value="frequency" aria-label="Digest frequency">
+        <RadioGroupItem value="daily">Daily</RadioGroupItem>
+        <RadioGroupItem value="weekly">Weekly</RadioGroupItem>
+        <RadioGroupItem value="monthly">Monthly</RadioGroupItem>
+        <RadioGroupItem value="never">Never</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </div>
+</div>`
+
 <UsageBlock>{`import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup";`}</UsageBlock>
 
 ## Examples
@@ -128,6 +260,18 @@ export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-
 
 <ComponentPreview language="vue" code={overview} previewMinHeight={168}>
   <VueDemo template={overview} state={{ frequency: "daily" }} />
+</ComponentPreview>
+
+### With Checkbox
+
+<ComponentPreview language="vue" details={<>Place <code>RadioGroup</code> alongside <code>Checkbox</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={withCheckbox} previewMinHeight={168}>
+  <VueDemo template={withCheckbox} stageClassName={stage} controls={alignmentControls} />
+</ComponentPreview>
+
+### Descriptions
+
+<ComponentPreview language="vue" details={<>Combine <code>Field</code>-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory.</>} code={descriptions} previewMinHeight={380}>
+  <VueDemo template={descriptions} stageClassName={stage} state={{ channel: "email", frequency: "weekly" }} />
 </ComponentPreview>
 
 ### Direction
@@ -168,6 +312,23 @@ export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-
   <VueDemo template={withDescription} stageClassName={stage} state={{ value: "default" }} />
 </ComponentPreview>
 
+### With Field
+
+<ComponentPreview language="vue" details={<>Wrap a <code>RadioGroup</code> in a <code>Field</code> for a shared label and description. The Field provides <code>aria-describedby</code> linking automatically.</>} code={withField} previewMinHeight={200}>
+  <VueDemo template={withField} stageClassName={stage} state={{ value: "email" }} />
+</ComponentPreview>
+
+### With Field error
+
+<ComponentPreview language="vue" details={<>When a <code>Field</code> has an <code>error-message</code>, it sets <code>aria-invalid</code> on the child control for screen readers. The error message is displayed below the group.</>} code={withFieldError} previewMinHeight={240}>
+  <VueDemo
+    template={withFieldError}
+    stageClassName={stage}
+    state={{ value: null }}
+    controls={[{ name: "showError", type: "boolean", default: true }]}
+  />
+</ComponentPreview>
+
 ### Choice card
 
 <ComponentPreview language="vue" details={<>Style each radio option as a bordered card with visual selection state. The selected card gets a highlighted border using design tokens. Use <code>orientation="right"</code> to place the indicator after the content. Wrap each <code>RadioGroupItem</code> in a card container with <code>border</code> and <code>borderRadius</code> on the same element.</>} code={choiceCard} previewMinHeight={240}>
@@ -183,6 +344,12 @@ export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-
 
 <ComponentPreview language="vue" details={<>Leverage component composition and <code>class</code> overrides to build card-style radio selections with rich content per option.</>} className="justify-start" code={cardSelection} previewMinHeight={168}>
   <VueDemo template={cardSelection} />
+</ComponentPreview>
+
+### Grouped sections
+
+<ComponentPreview language="vue" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSections} previewMinHeight={380}>
+  <VueDemo template={groupedSections} state={{ visibility: "owners", frequency: "weekly" }} />
 </ComponentPreview>
 
 ## Reference

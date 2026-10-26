@@ -5,6 +5,7 @@ metaDescription: Vue 3 floating label input component with validation messages, 
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueFloatingLabelInputDemo } from "@/components/docs/vue/VueFloatingLabelInputDemos"
 
 export const overview = `<div class="w-[360px]">
   <FloatingLabelInput label="Email address" />
@@ -94,32 +95,219 @@ export const password = `<div class="w-[360px]">
   <FloatingLabelInput label="Password" type="password" />
 </div>`
 
-export const birthdayValidation = `<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Birthday"
-    default-value="02 / 30 / 2001"
-    invalid
-    error-message="Please enter a valid date."
-  />
+export const ssn = `<div class="w-[360px]">
+  <div style="position: relative">
+    <FloatingLabelInput
+      label="Social Security Number"
+      :value="formatSSN(digits)"
+      maxlength="11"
+      inputmode="numeric"
+      autocomplete="off"
+      :style="{
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        ...(!visible && digits
+          ? { color: 'transparent', caretColor: 'transparent' }
+          : focused && ssnMask(digits).suffix
+            ? { caretColor: 'transparent' }
+            : {}),
+      }"
+      revealable
+      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @revealed-change="(revealed) => (visible = revealed)"
+    />
+    <div
+      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
+      aria-hidden="true"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden"
+    >
+      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
+      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
+      <template v-if="focused && ssnMask(digits).suffix">
+        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
+        <span
+          v-if="ssnMask(digits).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ ssnMask(digits).highlight }}</span>
+        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+      </template>
+    </div>
+  </div>
 </div>`
 
-export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8">
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Birthday" class="w-[320px]" />
+export const birthday = `<div class="w-[360px]">
+  <div style="position: relative">
+    <FloatingLabelInput
+      label="Birthday"
+      :value="birthday"
+      maxlength="14"
+      inputmode="numeric"
+      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      @focus="focused = true"
+      @blur="focused = false"
+    />
+    <div
+      v-if="focused && birthdayMask(birthday).suffix"
+      aria-hidden="true"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
+    >
+      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+      <span
+        v-if="birthdayMask(birthday).highlight"
+        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+      >{{ birthdayMask(birthday).highlight }}</span>
+      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+    </div>
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+</div>`
+
+export const birthdayValidation = `<div class="w-[360px]">
+  <div class="flex flex-col gap-1.5">
+    <component
+      :is="BirthdayMaskedInput"
+      v-model:value="birthday"
+      :invalid="!!birthday && !isValidBirthday(birthday)"
+      :aria-describedby="birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined"
+    />
+    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="birthday-validation-demo-error">
+      Please enter a valid date.
+    </FieldError>
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Birthday" default-value="02 / 30 / 2001" class="w-[320px]" />
+</div>`
+
+export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8 w-full">
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Empty</div>
+    <component :is="BirthdayMaskedInput" v-model:value="emptyBirthday" class="flex-1 min-w-0" />
   </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Filled</div>
+    <component :is="BirthdayMaskedInput" v-model:value="filledBirthday" class="flex-1 min-w-0" />
   </div>
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Invalid</div>
+    <component :is="BirthdayMaskedInput" v-model:value="invalidBirthday" invalid class="flex-1 min-w-0" />
+  </div>
+  <div class="flex items-center w-full max-w-[432px]">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Disabled</div>
+    <component :is="BirthdayMaskedInput" value="01 / 15 / 1995" disabled class="flex-1 min-w-0" />
+  </div>
+</div>`
+
+export const select = `<div class="w-[360px]">
+  <Select
+    v-model:value="role"
+    :options="roleOptions"
+    search-placeholder="Search roles..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Role"
+        :selected="!!role"
+        :open="open"
+        :on-clear-click="role ? () => (role = '') : undefined"
+      >
+        {{ roleOptions.find((option) => option.value === role)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>`
+
+export const multiple = `<div class="w-[360px]">
+  <Select
+    multiple
+    clearable
+    v-model:value="skills"
+    :options="skillOptions"
+    search-placeholder="Search skills..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Skills"
+        :selected="skills.length > 0"
+        :open="open"
+        :on-clear-click="skills.length > 0 ? () => (skills = []) : undefined"
+      >
+        {{
+          skills.length === 1
+            ? skillOptions.find((option) => option.value === skills[0])?.label
+            : skills.length > 1
+              ? skills.length + ' skills'
+              : ''
+        }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>`
+
+export const country = `<div class="w-[360px]">
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country"
+        :selected="!!countryOf(country)"
+        :open="open"
+        :on-clear-click="countryOf(country) ? () => (country = '') : undefined"
+      >
+        <span
+          v-if="countryOf(country)"
+          style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"
+        ><component :is="FlagIcon" :code="country" />{{ countryOf(country).label }}</span>
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+</div>`
+
+export const phone = `<div class="w-[360px] flex flex-col gap-3">
+  <Select
+    v-model:value="country"
+    :options="phoneCountryOptions"
+    search-placeholder="Search countries..."
+    :search-predicate="phoneCountrySearchPredicate"
+    :list-min-width="360"
+    block
+    size="3xl"
+    check-position="end"
+    @change="focusLater($refs.phoneInput)"
+  >
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+    <template #trigger="{ open, onToggle }">
+      <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
+    </template>
+  </Select>
+  <FloatingLabelInput
+    ref="phoneInput"
+    label="Phone number"
+    :value="phone"
+    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))"
+    type="tel"
+    inputmode="tel"
+  >
+    <template #startAdornment>
+      <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
+    </template>
+  </FloatingLabelInput>
 </div>`
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput";`}</UsageBlock>
@@ -192,16 +380,55 @@ export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8
   <VueDemo template={password} />
 </ComponentPreview>
 
+### SSN input
+
+<ComponentPreview language="vue" details={<>A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (<code>XXX-XX-XXXX</code>) with highlighted segment, value masking that hides digits behind bullets (<code>•••-••-••••</code>), and a built-in <code>revealable</code> toggle to reveal the real value. <code>formatSSN</code>, <code>nextSSNDigits</code> and <code>ssnMask</code> are plain helper functions of the example.</>} code={ssn} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={ssn} stageClassName="py-10" state={{ digits: "", visible: false, focused: false }} />
+</ComponentPreview>
+
+### Birthday input
+
+<ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). <code>nextBirthday</code> and <code>birthdayMask</code> are plain helper functions of the example.</>} code={birthday} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={birthday} stageClassName="py-10" state={{ birthday: "", focused: false }} />
+</ComponentPreview>
+
 ### Birthday with validation
 
-<ComponentPreview language="vue" details={<>Use <code>invalid</code> and <code>error-message</code> to display the birthday validation state.</>} code={birthdayValidation} previewMinHeight={168}>
-  <VueDemo template={birthdayValidation} />
+<ComponentPreview language="vue" details={<>Use <code>invalid</code> and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, <code>BirthdayMaskedInput</code>, and the error shows in a <code>FieldError</code> below it.</>} code={birthdayValidation} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
 </ComponentPreview>
 
 ### Birthday states
 
 <ComponentPreview language="vue" details={<>Overview of birthday input states.</>} code={birthdayStates} previewMinHeight={168}>
-  <VueDemo template={birthdayStates} />
+  <VueFloatingLabelInputDemo
+    template={birthdayStates}
+    state={{ emptyBirthday: "", filledBirthday: "01 / 15 / 1995", invalidBirthday: "02 / 30 / 2001" }}
+  />
+</ComponentPreview>
+
+### Select
+
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={select} stageClassName="py-10" state={{ role: "" }} />
+</ComponentPreview>
+
+### Multiple selection
+
+<ComponentPreview language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={multiple} stageClassName="py-10" state={{ skills: [] }} />
+</ComponentPreview>
+
+### Country select
+
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
+</ComponentPreview>
+
+### Phone input
+
+<ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value.</>} code={phone} previewMinHeight={200}>
+  <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
 ## Reference

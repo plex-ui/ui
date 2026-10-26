@@ -109,6 +109,41 @@ export const disabled = `<Accordion type="single" collapsible default-value="his
   </AccordionItem>
 </Accordion>`
 
+export const card = `<Card style="width: 100%; max-width: 384px">
+  <CardHeader>
+    <CardTitle>Subscription & billing</CardTitle>
+    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Accordion type="single" collapsible default-value="plans">
+      <AccordionItem
+        v-for="item in [
+          {
+            value: 'plans',
+            trigger: 'What subscription plans do you offer?',
+            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',
+          },
+          {
+            value: 'billing',
+            trigger: 'How does billing work?',
+            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',
+          },
+          {
+            value: 'cancel',
+            trigger: 'How do I cancel my subscription?',
+            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',
+          },
+        ]"
+        :key="item.value"
+        :value="item.value"
+      >
+        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+        <AccordionContent>{{ item.content }}</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  </CardContent>
+</Card>`
+
 <UsageBlock>{`import {
   Accordion,
   AccordionContent,
@@ -142,6 +177,12 @@ Compose with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Built 
 
 <ComponentPreview language="vue" details={<>Pass <code>disabled</code> to an <code>AccordionItem</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={disabled}>
   <VueDemo template={disabled} />
+</ComponentPreview>
+
+### Card
+
+<ComponentPreview language="vue" details={<>Composed inside <code>Card</code>, the most common landing-page FAQ pattern.</>} code={card}>
+  <VueDemo template={card} />
 </ComponentPreview>
 
 ## API

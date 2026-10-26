@@ -87,6 +87,20 @@ export const twoFields = `<div style="display: flex; gap: 8px; align-items: cent
   />
 </div>`
 
+export const dateInput = `<div class="w-[200px]">
+  <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" aria-label="Date" />
+</div>`
+
+export const dateTimeInput = `<div class="w-[260px]">
+  <DateInput
+    v-model:value="selectedDate"
+    mode="mm/dd/yyyy"
+    separator="/"
+    time-mode="HH:MM"
+    aria-label="Date and time"
+  />
+</div>`
+
 export const withoutIcon = `<DatePicker
   id="date-picker-no-icon"
   trigger-date-format="MM/dd/yy"
@@ -142,6 +156,18 @@ export const disabled = `<DatePicker
 
 <ComponentPreview language="vue" details={<>Compose <code>DatePicker</code> and <code>Input</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here <code>formatTime</code> masks the typed time as HH:MM, <code>applyTime</code> moves the date to a complete typed time, and <code>withTime</code> gives a newly picked date the typed time.</>} code={twoFields} previewMinHeight={100}>
   <VueDatePickerDemo template={twoFields} state={{ time: "10:30" }} />
+</ComponentPreview>
+
+### Date input
+
+<ComponentPreview language="vue" details={<>For typing a date directly instead of picking it, use <a href="/vue/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={dateInput} previewMinHeight={80}>
+  <VueDatePickerDemo template={dateInput} />
+</ComponentPreview>
+
+### DateTime input
+
+<ComponentPreview language="vue" details={<>Pass <code>time-mode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={dateTimeInput} previewMinHeight={80}>
+  <VueDatePickerDemo template={dateTimeInput} />
 </ComponentPreview>
 
 ### Without Icon
