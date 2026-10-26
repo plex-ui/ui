@@ -1,7 +1,7 @@
 import { compile, type CompilerOptions } from '@vue/compiler-dom';
 import * as Vue from 'vue';
 import { registerRuntimeCompiler, type Component, type RenderFunction } from 'vue';
-import { Button, ButtonLink } from '@plexui/vue/components/Button';
+import { Button, ButtonLink, CopyButton } from '@plexui/vue/components/Button';
 import {
   Dialog,
   DialogClose,
@@ -14,6 +14,13 @@ import {
 } from '@plexui/vue/components/Dialog';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
 import { TextLink } from '@plexui/vue/components/TextLink';
+import {
+  Animate,
+  AnimateLayout,
+  AnimateLayoutGroup,
+  SlotTransitionGroup,
+  TransitionGroup,
+} from '@plexui/vue/components/Transition';
 import * as Icons from '@plexui/vue/components/Icon';
 
 // The `vue` package resolves to the runtime-only build, so preview templates
@@ -43,8 +50,12 @@ function compileToFunction(template: string | HTMLElement, options?: CompilerOpt
 registerRuntimeCompiler(compileToFunction as Parameters<typeof registerRuntimeCompiler>[0]);
 
 const components: Record<string, Component> = {
+  Animate,
+  AnimateLayout,
+  AnimateLayoutGroup,
   Button,
   ButtonLink,
+  CopyButton,
   Dialog,
   DialogClose,
   DialogContent,
@@ -54,7 +65,9 @@ const components: Record<string, Component> = {
   DialogTitle,
   DialogTrigger,
   PlexUIProvider,
+  SlotTransitionGroup,
   TextLink,
+  TransitionGroup,
 };
 
 // Icons whose names clash with a component (Card, Menu, Sidebar, ...) are

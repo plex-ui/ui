@@ -1,20 +1,9 @@
 import clsx from "clsx"
-import {
-  Comment,
-  defineComponent,
-  h,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
-  shallowRef,
-  watch,
-  type PropType,
-  type StyleValue,
-  type VNode,
-} from "vue"
-import { waitForAnimationFrame } from "../../lib/helpers.js"
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, type PropType, type StyleValue, type VNode } from "vue"
 import getDisableAnimations from "./getDisableAnimations.js"
-import { getInitialTransitionState, transitionReducer, type TransitionStateAction } from "./transitionReducer.js"
+import { isPlaceholder, useChildList } from "./childList.js"
+import type { InsertMethod, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
+import { useTransitionChild } from "./useTransitionChild.js"
 import s from "@plexui/styles/components/Transition/TransitionGroup.module.css"
 
 // Port of packages/ui/src/components/Transition/TransitionGroup.tsx. Same
@@ -22,8 +11,10 @@ import s from "@plexui/styles/components/Transition/TransitionGroup.module.css"
 
 type Tag = "div" | "span"
 
-const TransitionGroupChild = defineComponent({
-  name: "TransitionGroupChild",
+const callbackProp = Function as PropType<TransitionGroupChildCallback>
+
+const TransitionGroupChildInner = defineComponent({
+  name: "TransitionGroupChildInner",
   props: {
     as: { type: String as PropType<Tag>, required: true },
     className: String,
@@ -34,62 +25,17 @@ const TransitionGroupChild = defineComponent({
     enterDuration: { type: Number, required: true },
     exitDuration: { type: Number, required: true },
     removeChild: { type: Function as PropType<() => void>, required: true },
+    callbacks: Object as PropType<TransitionGroupChildCallbacks>,
   },
   setup(props, { slots }) {
-    const state = reactive(getInitialTransitionState(props.preventMountTransition))
-    const dispatch = (action: TransitionStateAction) => {
-      Object.assign(state, transitionReducer(state, action))
-    }
-    // Allow a child to prevent mount transition, but still experience
-    // future enter transition events, when applicable.
-    let preventedMountTransition = false
-    let cancel: (() => void) | undefined
-
-    const run = (shouldRender: boolean) => {
-      cancel?.()
-      cancel = undefined
-
-      // Exit transition
-      if (!shouldRender) {
-        let exitTimeout: number | undefined
-        dispatch({ type: "exit-before" })
-        const cancelFrame = waitForAnimationFrame(() => {
-          dispatch({ type: "exit-active" })
-          exitTimeout = window.setTimeout(() => props.removeChild(), props.exitDuration)
-        })
-        cancel = () => {
-          cancelFrame()
-          if (exitTimeout !== undefined) clearTimeout(exitTimeout)
-        }
-        return
-      }
-
-      // Enter transition
-      if (props.preventMountTransition && !preventedMountTransition) {
-        preventedMountTransition = true
-        return
-      }
-
-      let enterTimeout: number | undefined
-      dispatch({ type: "enter-before" })
-      const cancelFrame = waitForAnimationFrame(() => {
-        dispatch({ type: "enter-active" })
-        enterTimeout = window.setTimeout(() => dispatch({ type: "done" }), props.enterDuration)
-      })
-      cancel = () => {
-        cancelFrame()
-        if (enterTimeout !== undefined) clearTimeout(enterTimeout)
-      }
-    }
-
-    onMounted(() => run(props.shouldRender))
-    watch(() => props.shouldRender, run, { flush: "post" })
-    onBeforeUnmount(() => cancel?.())
+    const element = ref<HTMLElement | null>(null)
+    const state = useTransitionChild(props, () => element.value)
 
     return () =>
       h(
         props.as,
         {
+          "ref": element,
           "class": clsx(props.className, s.TransitionGroupChild),
           "data-transition-id": props.transitionId,
           "style": props.styleValue,
@@ -104,14 +50,33 @@ const TransitionGroupChild = defineComponent({
   },
 })
 
-type RenderChild = {
-  key: PropertyKey
-  vnode: VNode
-  shouldRender: boolean
-  preventMountTransition?: boolean
+/** Delays mounting a child by `enterMountDelay` ms, except on the initial (prevented) mount. */
+export const useMountDelay = (preventMountTransition: boolean | undefined, enterMountDelay: number | undefined) => {
+  const mountDelay = !preventMountTransition && enterMountDelay != null ? enterMountDelay : null
+  const mounted = ref(mountDelay == null)
+  let timeout: number | undefined
+  onMounted(() => {
+    if (!mounted.value) timeout = window.setTimeout(() => (mounted.value = true), mountDelay!)
+  })
+  onBeforeUnmount(() => clearTimeout(timeout))
+  return mounted
 }
 
-const isPlaceholder = (vnode: VNode) => vnode.type === Comment
+const TransitionGroupChild = defineComponent({
+  name: "TransitionGroupChild",
+  inheritAttrs: false,
+  props: {
+    preventMountTransition: Boolean,
+    enterMountDelay: Number,
+  },
+  setup(props, { attrs, slots }) {
+    const mounted = useMountDelay(props.preventMountTransition, props.enterMountDelay)
+    return () =>
+      mounted.value
+        ? h(TransitionGroupChildInner, { ...attrs, preventMountTransition: props.preventMountTransition } as never, slots)
+        : null
+  },
+})
 
 /**
  * Wraps each keyed child in a `<span>` (or `<div>`) that carries
@@ -135,64 +100,49 @@ export const TransitionGroup = defineComponent({
     exitDuration: { type: Number, default: 0 },
     /** Determines if children should have an enter transition applied during mounting of the TransitionGroup. */
     preventInitialTransition: { type: Boolean, default: true },
+    /** Delay in MS to wait before mounting a child. Unset for no delay (default). */
+    enterMountDelay: Number,
     /** Render children changes immediately, bypassing transition timings */
     disableAnimations: { type: Boolean, default: () => getDisableAnimations() },
     /** Determines how new children are added to the children array */
-    insertMethod: { type: String as PropType<"append" | "prepend">, default: "append" },
+    insertMethod: { type: String as PropType<InsertMethod>, default: "append" },
+    /** Called when an enter animation is staged (e.g., component mounted to the DOM) */
+    onEnter: callbackProp,
+    /** Called when an enter animation starts */
+    onEnterActive: callbackProp,
+    /** Called when an enter animation completes */
+    onEnterComplete: callbackProp,
+    /** Called when an exit animation is staged */
+    onExit: callbackProp,
+    /** Called when an exit animation starts */
+    onExitActive: callbackProp,
+    /** Called when an exit animation completes (e.g., component unmounted from the DOM) */
+    onExitComplete: callbackProp,
   },
   setup(props, { slots, attrs }) {
-    let renderChildren: RenderChild[] | null = null
-    // Bumped when an exited child is removed, to re-render without it
-    const removals = shallowRef(0)
-
-    const removeChild = (key: PropertyKey) => {
-      renderChildren = (renderChildren ?? []).filter((child) => child.key !== key)
-      removals.value += 1
-    }
-
-    const nextRenderChildren = (propChildren: VNode[]): RenderChild[] => {
-      if (renderChildren === null) {
-        // Lock preventMountTransition to its value on the first render
-        return propChildren.map((vnode) => ({
-          key: vnode.key!,
-          vnode,
-          shouldRender: true,
-          preventMountTransition: props.preventInitialTransition,
-        }))
-      }
-
-      const propKeys = new Set(propChildren.map((vnode) => vnode.key))
-      const currentKeys = new Set(renderChildren.map((child) => child.key))
-
-      const added = propChildren
-        .filter((vnode) => !currentKeys.has(vnode.key!))
-        .map((vnode) => ({ key: vnode.key!, vnode, shouldRender: true }))
-
-      const updated = renderChildren.map((child) => ({
-        ...child,
-        vnode: propChildren.find((vnode) => vnode.key === child.key) ?? child.vnode,
-        shouldRender: propKeys.has(child.key),
-      }))
-
-      return props.insertMethod === "append" ? updated.concat(added) : added.concat(updated)
+    const children = useChildList("TransitionGroup")
+    // Read at call time, so callers can swap handlers between renders
+    const callbacks: TransitionGroupChildCallbacks = {
+      onEnter: (el) => props.onEnter?.(el),
+      onEnterActive: (el) => props.onEnterActive?.(el),
+      onEnterComplete: (el) => props.onEnterComplete?.(el),
+      onExit: (el) => props.onExit?.(el),
+      onExitActive: (el) => props.onExitActive?.(el),
+      onExitComplete: (el) => props.onExitComplete?.(el),
     }
 
     return () => {
-      void removals.value
-      const children = slots.default?.() ?? []
+      const slotChildren: VNode[] = slots.default?.() ?? []
       const className = attrs.class as string | undefined
       const style = attrs.style as StyleValue | undefined
-
-      const keyedChildren = children.filter((vnode) => !isPlaceholder(vnode))
-      for (const vnode of keyedChildren) {
-        if (vnode.key == null) {
-          throw new Error("Child elements of <TransitionGroup /> must include a `key`")
-        }
-      }
-      renderChildren = nextRenderChildren(keyedChildren)
+      const renderChildren = children.next(
+        children.keyedChildren(slotChildren),
+        props.insertMethod,
+        props.preventInitialTransition,
+      )
 
       if (props.disableAnimations) {
-        return children.map((vnode) =>
+        return slotChildren.map((vnode) =>
           h(
             props.as,
             { "class": className, style, "data-transition-id": props.transitionId },
@@ -206,15 +156,17 @@ export const TransitionGroup = defineComponent({
           TransitionGroupChild,
           {
             key: child.key,
+            preventMountTransition: child.preventMountTransition,
+            enterMountDelay: props.enterMountDelay,
             as: props.as,
             className,
             transitionId: props.transitionId,
             styleValue: style,
-            preventMountTransition: child.preventMountTransition,
             shouldRender: child.shouldRender,
             enterDuration: props.enterDuration,
             exitDuration: props.exitDuration,
-            removeChild: () => removeChild(child.key),
+            removeChild: () => children.remove(child.key),
+            callbacks,
           },
           { default: () => [child.vnode] },
         ),
