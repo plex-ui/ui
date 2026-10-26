@@ -351,6 +351,8 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
     setMinuteText(raw)
     if (raw.length === 2) {
       onChange(hour, Math.min(59, Number(raw)))
+      // Show the accepted value: the parent may clamp it to min/max
+      setMinuteText(null)
     }
   }
 
@@ -361,29 +363,27 @@ const TimeInput = ({ hour, minute, onChange }: TimeInputProps) => {
     setMinuteText(null)
   }
 
+  // Arrow steps drop the draft text so the field shows the accepted value,
+  // which the parent may have clamped to min/max
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: "hour" | "minute") => {
     const step = e.shiftKey ? 10 : 1
     if (e.key === "ArrowUp") {
       e.preventDefault()
       if (type === "hour") {
-        const h = (hour + step) % 24
-        onChange(h, minute)
-        setHourText(String(h).padStart(2, "0"))
+        onChange((hour + step) % 24, minute)
+        setHourText(null)
       } else {
-        const m = (minute + step) % 60
-        onChange(hour, m)
-        setMinuteText(String(m).padStart(2, "0"))
+        onChange(hour, (minute + step) % 60)
+        setMinuteText(null)
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault()
       if (type === "hour") {
-        const h = (hour - step + 24) % 24
-        onChange(h, minute)
-        setHourText(String(h).padStart(2, "0"))
+        onChange((hour - step + 24) % 24, minute)
+        setHourText(null)
       } else {
-        const m = (minute - step + 60) % 60
-        onChange(hour, m)
-        setMinuteText(String(m).padStart(2, "0"))
+        onChange(hour, (minute - step + 60) % 60)
+        setMinuteText(null)
       }
     }
   }
