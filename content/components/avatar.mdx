@@ -1,7 +1,7 @@
 ---
 title: Avatar
 description: An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
-metaDescription: React avatar component for user identities — initials, photo, or icon fallback, with overflow counts, semantic colors, and roundness options
+metaDescription: React avatar component for user identities with initials, photo or icon fallback, overflow counts, semantic colors, and roundness options.
 ---
 
 import { Avatar } from "@plexui/ui/components/Avatar"
@@ -39,7 +39,7 @@ import {
 
 ### Image
 
-<ComponentPreview details={<>To display an image avatar, provide an absolute URL to the image with <code>imageUrl</code>. Images will have a soft fade entrance once loaded, or fallback to a text display if the image fail to load.</>} code={`<Avatar
+<ComponentPreview details={<>To display an image avatar, provide an absolute URL to the image with <code>imageUrl</code>. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.</>} code={`<Avatar
   name="Tyler"
   imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
   size={48}
@@ -74,11 +74,26 @@ import {
 
 ### Colors & variants
 
-<ComponentPreview details={<>You can stylize the display of the avatar using the <code>color</code> and <code>variant</code> props.</>} code={`<div className="flex gap-4 flex-wrap">
-  <Avatar name="A" color="primary" variant="soft" size={40} />
-  <Avatar name="B" color="primary" variant="solid" size={40} />
-  <Avatar name="C" color="success" variant="soft" size={40} />
-  <Avatar name="D" color="danger" variant="solid" size={40} />
+<ComponentPreview details={<>You can stylize the display of the avatar using the <code>color</code> and <code>variant</code> props.</>} code={`<div
+  className="grid items-center gap-x-8 gap-y-5"
+  style={{ gridTemplateColumns: "repeat(2, minmax(0, auto)) auto", justifyItems: "center" }}
+>
+  {(["soft", "solid"] as const).map((variant) => (
+    <div key={variant} className="text-sm font-medium" style={{ color: "var(--color-text-tertiary)" }}>
+      {variant}
+    </div>
+  ))}
+  <div />
+  {(["primary", "secondary", "success", "danger", "info", "discovery"] as const).map((color, idx) => (
+    <Fragment key={color}>
+      {(["soft", "solid"] as const).map((variant) => (
+        <Avatar key={variant} name={String.fromCharCode(65 + idx)} color={color} variant={variant} size={48} />
+      ))}
+      <div className="text-sm font-medium justify-self-start" style={{ color: "var(--color-text-tertiary)" }}>
+        {color}
+      </div>
+    </Fragment>
+  ))}
 </div>`} previewMinHeight={168}>
   <AvatarColorsDemo />
 </ComponentPreview>
@@ -91,11 +106,16 @@ import {
 
 ### Interactive
 
-<ComponentPreview details={<>Avatars can be used as interactive elements by passing an <code>onClick</code> handler. The avatar will automatically apply semantic and visual interaction styles.</>} code={`<Avatar
-  name="Will"
-  size={48}
-  onClick={saySup}
-/>`} previewMinHeight={168}>
+<ComponentPreview details={<>Avatars can be used as interactive elements by passing an <code>onClick</code> (or <code>onPointerDown</code>) handler. The avatar then renders a <code>button</code> and applies semantic and visual interaction styles.</>} code={`<div className="flex items-center gap-4">
+  <Avatar name="Will" size={48} onClick={saySup} />
+  <Avatar
+    imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
+    name="Tyler"
+    size={48}
+    onClick={saySup}
+  />
+  <Avatar name="Tech support" Icon={Robot} size={48} color="info" onClick={saySup} />
+</div>`} previewMinHeight={168}>
   <AvatarInteractiveDemo />
 </ComponentPreview>
 
@@ -107,9 +127,11 @@ import {
   { prop: "Icon", type: "React.ComponentType", description: "Icon component for icon avatar" },
   { prop: "size", type: "number", description: "Width and height in pixels" },
   { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color for text/icon avatar" },
-  { prop: "variant", type: '"soft" | "solid"', description: "Style variant" },
+  { prop: "variant", type: '"soft" | "solid"', default: '"soft"', description: "Style variant" },
   { prop: "overflowCount", type: "number", description: "Show overflow count (e.g. +9)" },
-  { prop: "onClick", type: "function", description: "Makes avatar interactive" },
+  { prop: "className", type: "string", description: "Applied to the avatar root" },
+  { prop: "onClick", type: "() => void", description: "Makes avatar interactive (renders a button)" },
+  { prop: "onPointerDown", type: "() => void", description: "Makes avatar interactive (renders a button)" },
 ]} />
 
 ## Styling

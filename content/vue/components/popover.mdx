@@ -86,9 +86,11 @@ export const controller = `<Popover>
   <PopoverContent side="right" v-slot="{ close, shake }">
     <form
       @submit.prevent="
-        if (!prompt) return shake();
-        submitting = true;
-        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+        if (!prompt) shake();
+        else {
+          submitting = true;
+          submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+        }
       "
     >
       <textarea
@@ -121,7 +123,7 @@ export const controller = `<Popover>
 
 ### Sizing the popover
 
-<ComponentPreview language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of the popper's viewport detection.</>} code={sizing} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>The popover can be sized with any combination of <code>width</code>, <code>min-width</code>, or <code>max-width</code>. All popovers default to a <code>min-width</code> of <code>300px</code>, and a <code>max-width</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={sizing} previewMinHeight={168}>
   <VueDemo template={sizing} />
 </ComponentPreview>
 
@@ -143,13 +145,15 @@ All floating UI components in Plex UI can be infinitely nested by relying on `z-
 
 Additionally, `esc` keypresses are handled independently as a stacking order.
 
-## Reference
+## API
 
 **Popover** (root)
 
 <PropsTable data={[
-  { prop: "showOnHover", type: "boolean", description: "Open on hover and focus instead of click" },
   { prop: "open / v-model:open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
+  { prop: "@update:open", type: "(nextState: boolean) => void", description: "Emitted when the popover opens or closes" },
+  { prop: "show-on-hover", type: "boolean", default: "false", description: "Open on hover and focus instead of click" },
+  { prop: "hover-open-delay", type: "number", default: "150", description: "Delay before a hover popover opens (ms)" },
 ]} />
 
 **PopoverTrigger**: Renders the element that toggles the popover. The trigger should be the user's point of interaction for revealing the popup. No specific props.
@@ -157,13 +161,24 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 **PopoverContent**
 
 <PropsTable data={[
-  { prop: "width", type: "number | string", description: "Panel width (px or CSS value)" },
-  { prop: "minWidth", type: "number | string", default: "300", description: "Minimum panel width in px" },
-  { prop: "maxWidth", type: "number | string", description: "Maximum panel width" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
-  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
-  { prop: "sideOffset", type: "number", description: "Offset from trigger (px)" },
-  { prop: "alignOffset", type: "number", description: "Alignment offset (px)" },
+  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
+  { prop: "min-width", type: 'number | "auto"', default: "300", description: "Minimum panel width in px" },
+  { prop: "max-width", type: "number", default: "700", description: "Maximum panel width in px, capped by the space available in the viewport" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement; flips when it collides" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
+  { prop: "side-offset", type: "number", default: "8", description: "Offset from trigger (px)" },
+  { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment (px)" },
+  { prop: "avoid-collisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
+  { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
+  { prop: "auto-focus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
+  { prop: "class", type: "string", description: "Applied to the panel" },
+  { prop: "default slot", type: "{ close, shake }", description: "Panel content; receives the controller functions" },
 ]} />
 
 **usePopoverController()**: Composable available in components inside `PopoverContent`. Returns `{ close: () => void, shake: () => void }`, the same functions the content's default slot receives.
+
+## Styling
+
+Popover reads these component tokens. Override them at any scope to restyle it:
+
+- `--popover-radius`: radius (default `var(--radius-xl)`)

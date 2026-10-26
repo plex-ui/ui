@@ -92,7 +92,7 @@ export function MenuBaseDemo() {
         <Menu.Content width={210} minWidth={210}>
           <Menu.Item description="sam.smith@gmail.com">Sam Smith</Menu.Item>
           <Menu.Separator />
-          <Menu.Link href="/settings">Your profile</Menu.Link>
+          <Menu.Link href="#">Your profile</Menu.Link>
           <Menu.Link href="#">Terms & policies</Menu.Link>
           <Menu.Item disabled onSelect={() => { }}>
             Feature flags
@@ -380,15 +380,19 @@ export function MenuHorizontalIconsOnlyDemoWithControls() {
           <Menu.Content layout="horizontal" size={size} minWidth="auto">
             <Menu.Item onSelect={() => { }}>
               <EditPencil />
+              <span className="sr-only">Edit</span>
             </Menu.Item>
             <Menu.Item onSelect={() => { }}>
               <SettingsCog />
+              <span className="sr-only">Settings</span>
             </Menu.Item>
             <Menu.Item onSelect={() => { }}>
               <Play />
+              <span className="sr-only">Play</span>
             </Menu.Item>
             <Menu.Item onSelect={() => { }}>
               <UnfoldHorizontal />
+              <span className="sr-only">Expand</span>
             </Menu.Item>
           </Menu.Content>
         </Menu>

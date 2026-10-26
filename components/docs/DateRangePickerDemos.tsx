@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { DateTime } from 'luxon';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   DateRangePicker,
   type DateRange,
@@ -51,7 +51,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -92,14 +92,16 @@ const dayShortcuts: DateRangeShortcut[] = [
     label: 'Last 7 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 7 }).startOf('day'), today];
+      // Inclusive of today: 7 days end today and start 6 days earlier
+      return [today.minus({ days: 6 }).startOf('day'), today];
     },
   },
   {
     label: 'Last 30 days',
     getDateRange: () => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 30 }).startOf('day'), today];
+      // Inclusive of today: 30 days end today and start 29 days earlier
+      return [today.minus({ days: 29 }).startOf('day'), today];
     },
   },
 ];

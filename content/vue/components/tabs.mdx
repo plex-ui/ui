@@ -161,7 +161,7 @@ export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
 
 ### Segmented with badge
 
-<ComponentPreview language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, and <code>variant</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo stageClassName={STAGE} template={segmentedBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -191,7 +191,7 @@ export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
 
 ### Underline with badge
 
-<ComponentPreview language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, and <code>variant</code>.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo stageClassName={STAGE} template={underlineBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
@@ -245,10 +245,13 @@ Tabs shares the unified 9-step size scale with Button, Input, Select, and Select
 
 ```vue
 <script setup lang="ts">
+import { ref } from "vue"
 // Old (still works)
 import { SegmentedControl, SegmentedControlOption } from "@plexui/vue/components/SegmentedControl"
 // New (recommended)
 import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
+
+const mode = ref("a")
 </script>
 
 <template>
@@ -264,7 +267,7 @@ import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
 
 `TabsTab` and `TabsOption` are the same component, and so are `SegmentedControlOption` and `SegmentedControlTab`. The `SegmentedControl` alias defaults to `variant="segmented"`.
 
-## Reference
+## API
 
 **Tabs** (root)
 
@@ -291,7 +294,7 @@ import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
 **TabsTab**
 
 <PropsTable data={[
-  { prop: "value", type: "string", description: "Tab value" },
+  { prop: "value", type: "string", description: "Tab value (required)" },
   { prop: "disabled", type: "boolean", description: "Disable this tab" },
   { prop: "icon", type: "Component | VNode | string", description: "Icon before the label (sized automatically); the icon slot takes precedence" },
   { prop: "badge", type: "number | string | VNode | { content; color?; variant?; pill?; loading? }", description: "Badge/count or custom badge config" },
@@ -300,3 +303,52 @@ import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
   { prop: "icon slot", type: "VNode[]", description: "Icon before the label" },
   { prop: "badge slot", type: "VNode[]", description: "Badge content; styling still comes from the badge object" },
 ]} />
+
+## Styling
+
+Tabs reads these component tokens. Override them at any scope to restyle it:
+
+- `--badge-font-size-2xs`: font size 2xs (default `var(--font-text-xs-size)`)
+- `--badge-font-size-lg`: font size lg (default `var(--font-text-sm-size)`)
+- `--badge-font-size-md`: font size md (default `var(--font-text-sm-size)`)
+- `--badge-font-size-sm`: font size sm (default `var(--font-text-xs-size)`)
+- `--badge-font-size-xs`: font size xs (default `var(--font-text-xs-size)`)
+- `--badge-font-weight-2xs`: font weight 2xs (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-lg`: font weight lg (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-md`: font weight md (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-sm`: font weight sm (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-xs`: font weight xs (default `var(--font-weight-semibold)`)
+- `--badge-gutter-2xs`: gutter 2xs (default `0.1875rem`)
+- `--badge-gutter-lg`: gutter lg (default `var(--control-gutter-xs)`)
+- `--badge-gutter-md`: gutter md (default `var(--control-gutter-2xs)`)
+- `--badge-gutter-sm`: gutter sm (default `calc(var(--control-gutter-2xs) - 1px)`)
+- `--badge-gutter-xs`: gutter xs (default `0.25rem`)
+- `--badge-radius-2xs`: radius 2xs (default `var(--radius-2xs)`)
+- `--badge-radius-lg`: radius lg (default `var(--radius-sm)`)
+- `--badge-radius-md`: radius md (default `var(--radius-xs)`)
+- `--badge-radius-sm`: radius sm (default `var(--radius-xs)`)
+- `--badge-radius-xs`: radius xs (default `var(--radius-2xs)`)
+- `--badge-size-2xs`: size 2xs (default `1rem`)
+- `--badge-size-lg`: size lg (default `var(--control-size-2xs)`)
+- `--badge-size-md`: size md (default `var(--control-size-3xs)`)
+- `--badge-size-sm`: size sm (default `calc(var(--control-size-3xs) - 2px)`)
+- `--badge-size-xs`: size xs (default `1.125rem`)
+- `--badge-tracking-2xs`: tracking 2xs (default `var(--tracking-wide)`)
+- `--badge-tracking-lg`: tracking lg (default `var(--tracking-normal)`)
+- `--badge-tracking-md`: tracking md (default `var(--tracking-normal)`)
+- `--badge-tracking-sm`: tracking sm (default `var(--tracking-wide)`)
+- `--badge-tracking-xs`: tracking xs (default `var(--tracking-wide)`)
+- `--button-gap-lg`: gap lg (default `6px`)
+- `--button-gap-md`: gap md (default `4px`)
+- `--button-gap-sm`: gap sm (default `3px`)
+- `--segmented-control-background`: background (default `light-dark(var(--gray-100), var(--gray-0))`)
+- `--segmented-control-font-weight`: font weight (default `var(--font-weight-semibold)`)
+- `--segmented-control-gap`: gap (default `2px`)
+- `--segmented-control-gutter`: gutter (default `2px`)
+- `--segmented-control-option-highlight-background-color`: option highlight background color (default `light-dark( var(--gray-200), var(--gray-300) )`)
+- `--segmented-control-option-highlight-gutter`: option highlight gutter (default `1px`)
+- `--segmented-control-thumb-background`: thumb background (default `light-dark(var(--gray-0), var(--gray-300))`)
+- `--segmented-control-thumb-shadow`: thumb shadow (default `0 1px 4px -1px rgb(0 0 0 / 20%)`)
+- `--tabs-underline-border-color`: underline border color (default `var(--color-border)`)
+- `--tabs-underline-indicator-color`: underline indicator color (default `var(--color-background-primary-solid)`)
+- `--tabs-underline-indicator-height`: underline indicator height (default `2px`)

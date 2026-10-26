@@ -21,3 +21,31 @@ describe("Vue docs stay in sync with the React docs", () => {
     expect(pages("content/vue/components")).toEqual(pages("content/components"))
   })
 })
+
+describe("MDX frontmatter", () => {
+  // Every page under content/, recursively
+  const pages = (dir: string): string[] =>
+    readdirSync(fromRoot(dir), { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory()
+        ? pages(path.join(dir, entry.name))
+        : entry.name.endsWith(".mdx")
+          ? [path.join(dir, entry.name)]
+          : [],
+    )
+
+  // An unquoted YAML value may not contain ": " or " #" (a mapping or a
+  // comment); the page then fails to load (e.g. a dash replaced by a colon)
+  test("unquoted values are plain YAML scalars", () => {
+    const invalid = pages("content").flatMap((file) => {
+      const frontmatter = read(file).match(/^---\n([\s\S]*?)\n---/)?.[1] ?? ""
+      return frontmatter
+        .split("\n")
+        .filter((line) => {
+          const value = line.match(/^\w+: (.*)$/)?.[1]
+          return value !== undefined && !/^["'[{|>]/.test(value) && (value.includes(": ") || value.includes(" #"))
+        })
+        .map((line) => `${file}: ${line}`)
+    })
+    expect(invalid).toEqual([])
+  })
+})

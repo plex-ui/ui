@@ -1,6 +1,6 @@
 ---
 title: Typography
-description: Plex UI typography system — text scales, semantic color tokens, font weights, and line-height presets for consistent reading hierarchy
+description: Plex UI typography system. Text scales, semantic color tokens, font weights, and line-height presets for consistent reading hierarchy
 ---
 
 ## Scales
@@ -25,14 +25,14 @@ Scales include sizing for heading and text sizes, with combinations of `font-siz
 | <span style={{ fontSize: 'var(--font-text-2xs-size)', fontWeight: 'var(--font-text-2xs-weight)', letterSpacing: 'var(--font-text-2xs-tracking)', lineHeight: 'var(--font-text-2xs-line-height)' }}>text-2xs</span> | `10px` | `400` | `0em` | `14px` |
 | <span style={{ fontSize: 'var(--font-text-3xs-size)', fontWeight: 'var(--font-text-3xs-weight)', letterSpacing: 'var(--font-text-3xs-tracking)', lineHeight: 'var(--font-text-3xs-line-height)' }}>text-3xs</span> | `8px` | `400` | `0em` | `12px` |
 
-All text sizes are exposed to Tailwind, with custom utilities for `heading-*` and `text-*` classes.
+All text sizes are exposed to Tailwind, with custom utilities for `heading-*` and `text-*` classes. The `text-md` scale is the `text-base` utility (Tailwind has no `text-md` class).
 
 Example usage:
 
 ```tsx
 <h5 className="text-secondary mb-1">Get started</h5>
 <h2 className="heading-xl mb-3">Building your first app</h2>
-<p className="text-md">
+<p className="text-base">
   Inline cards in Plex UI keep copy short and actionable. Provide just enough
   context for the task, then pair it with a clear next step.
 </p>
@@ -47,18 +47,19 @@ The underlying CSS variables can be referenced directly in CSS, as needed.
 --font-heading-xl-weight: var(--font-weight-semibold);
 /* Text */
 --font-text-md-size: 1rem; /* 16px  */
---font-text-md-line-height: 1.5; /* 24px */
+--font-text-md-line-height: 1.5rem; /* 24px */
 --font-text-md-weight: var(--font-weight-normal);
 ```
 
 ## Colors
 
-Three semantic text colors are provided by default: default, secondary, and tertiary.
+Four semantic text colors are provided by default: default, secondary, tertiary, and inverse (for text on solid, inverted backgrounds).
 
 ```tsx
 <p className="text-default">text-default</p>
 <p className="text-secondary">text-secondary</p>
 <p className="text-tertiary">text-tertiary</p>
+<p className="text-inverse">text-inverse</p>
 ```
 
 For more details on using semantic color variables directly, [explore our design tokens](/docs/foundations/design-tokens).

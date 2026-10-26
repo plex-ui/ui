@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { Switch } from '@plexui/ui/components/Switch';
@@ -45,7 +45,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

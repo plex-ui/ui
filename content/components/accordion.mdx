@@ -68,7 +68,7 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 ### Disabled
 
-<ComponentPreview details={<>Pass <code>disabled</code> to an <code>Accordion.Item</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={`<Accordion type="single" collapsible>
+<ComponentPreview details={<>Pass <code>disabled</code> to an <code>Accordion.Item</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={`<Accordion type="single" collapsible defaultValue="history">
   <Accordion.Item value="history">
     <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>
     <Accordion.Content>…</Accordion.Content>
@@ -112,7 +112,7 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `"single" \| "multiple"` | — | Whether one item or many can be open at a time |
+| `type` | `"single" \| "multiple"` | — | Required. Whether one item or many can be open at a time |
 | `value` | `string \| string[]` | — | Controlled open item(s) |
 | `defaultValue` | `string \| string[]` | — | Uncontrolled initial open item(s) |
 | `onValueChange` | `(value) => void` | — | Fires when the open item(s) change |

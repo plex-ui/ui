@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { OTPInput } from '@plexui/ui/components/OTPInput';
 import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 import { Button } from '@plexui/ui/components/Button';
@@ -45,7 +45,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = 'demo-switch-' + name.toLowerCase().replace(/\s+/g, '-');
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>
@@ -79,7 +79,7 @@ export function OTPInputOverviewDemo() {
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput value={value} onChange={setValue} autoFocus />
+      <OTPInput value={value} onChange={setValue} />
     </div>
   );
 }

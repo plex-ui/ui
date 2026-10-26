@@ -1,13 +1,13 @@
 ---
 title: Installation
-description: Quick install guide for Plex UI — add the npm package, wire up the stylesheet, and configure your router in a Next.js, Vite, or Remix app
+description: Quick install guide for Plex UI. Add the npm package, wire up the stylesheet, and configure your router in a Next.js, Vite, or Remix app
 ---
 
 ## Prerequisites
 
 Plex UI is built on top of React and Tailwind 4. To use Plex UI, you'll need to have both installed in your project, and configured with your build system.
 
-- React 18 or 19 ([install guide](https://react.dev/learn/installation))
+- React 19 ([install guide](https://react.dev/learn/installation)). React 18 is not supported, because components use React 19 APIs such as `use()`.
 - Tailwind 4 ([install guide](https://tailwindcss.com/docs/installation))
 
 
@@ -26,7 +26,7 @@ Add the foundation styles and Tailwind layers to the top of your global styleshe
 ```css
 /* Pin the cascade-layer order so Plex UI's reset wins over Tailwind preflight
    for our form controls. Without this declaration the order depends on
-   first-occurrence — which in Tailwind v4 means preflight overrides Plex
+   first occurrence, which in Tailwind v4 means preflight overrides Plex
    UI's button/input/textarea normalisations. */
 @layer theme, base, components, utilities;
 
@@ -112,22 +112,32 @@ Plex UI ships its own opinionated reset in `@plexui/ui/css`, so Tailwind preflig
 
 This sidesteps every preflight-vs-Plex-UI ordering problem.
 
-#### Using the Plex radius/font scale in your Tailwind utilities (opt-in)
+#### What the default import changes in your Tailwind theme
 
-By default Plex UI declares its tokens in `:root`, so the components render correctly without touching your Tailwind theme. Your `rounded-md`, `rounded-full`, `text-sm` utilities keep using Tailwind's own defaults.
+`@plexui/ui/css` replaces five Tailwind theme scales with Plex's, so the utilities match the components:
 
-If you want `rounded-md` to render with the Plex radius (`0.5rem`), `rounded-full` to render `9999px`, and your text to default to the Plex font stack, opt in with one extra import:
+- **Text sizes**: `text-3xs` to `text-9xl` use the Plex type scale (`text-base` is Plex's 16px `text-md` size).
+- **Letter spacing**: only `tracking-tight`, `tracking-normal` and `tracking-wide`.
+- **Shadows**: only `shadow-sm`, `shadow-md`, `shadow-lg`, `shadow-xl` and `shadow-hairline` (plus `inset-shadow-hairline`). `shadow-2xl` and the `drop-shadow-*` utilities are not generated.
+- **Colors**: only the Plex palettes (`gray`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink`), `white`, `black` and `alpha` (used with an opacity, e.g. `bg-alpha/15`). Other Tailwind palettes such as `slate` or `emerald` are not generated.
+- **Easing**: only `ease-basic` and the `ease-cubic-*` curves. `ease-in`, `ease-out` and `ease-in-out` are not generated.
+
+Radius, font and font-weight tokens (`--radius-*`, `--font-sans`, `--font-mono`, `--font-weight-*`) are declared on `:root` outside any cascade layer. Tailwind's utilities read the same variables, so where a name exists in both, Plex's value wins: `rounded-sm` is 6px, `rounded-md` 8px, `rounded-lg` 10px, and `font-sans` uses the Plex font stack. Plex-only names such as `rounded-2xs` are not generated, and breakpoints keep Tailwind's defaults (`sm:` at 640px, no `xs:`).
+
+#### Using the full Plex scale in your Tailwind utilities (opt-in)
+
+To make Tailwind's radius, font and breakpoint scales exactly Plex's (adds `rounded-2xs`, makes `rounded-full` use `--radius-full`, and moves the breakpoints to Plex's `xs` 380px and `sm` 576px), opt in with one extra import:
 
 ```css
 @layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "@plexui/ui/css";
-/* Optional — overrides Tailwind's default theme tokens with Plex's scale */
+/* Optional: overrides Tailwind's default theme tokens with Plex's scale */
 @import "@plexui/ui/styles/variables-tailwind-theme.css";
 @source "../node_modules/@plexui/ui";
 ```
 
-This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-*`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. Use only if you actively want that. It's a project-wide decision, not a per-page one.
+This file uses `@theme static` and resets Tailwind's `--radius-*`, `--font-*`, `--font-weight-*`, and `--breakpoint-*` so they take Plex's values instead of Tailwind's defaults. It also defines the `--breakpoint-*` variables that `useBreakpoint` reads. Use only if you actively want that. It's a project-wide decision, not a per-page one.
 
 Then import your stylesheet *before* rendering any components:
 

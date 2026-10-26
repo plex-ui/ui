@@ -362,7 +362,7 @@ export const opticalAlign = `<div class="w-[400px]">
 
 ### Clear button
 
-<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.</>} code={clearButton} previewMinHeight={168}>
   <VueDemo
     template={clearButton}
     stageClassName="py-10"
@@ -457,7 +457,7 @@ Use `optically-align` with either `"start"` or `"end"` to offset the gutter, ali
 
 Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl: set the same `size` on adjacent controls and they'll align perfectly.
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "value / v-model:value", type: "string | number", description: "Controlled value; `update:value` fires on every input" },
@@ -466,12 +466,12 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the size of the input" },
   { prop: "gutter-size", type: "string", description: "Controls gutter on the edges; defaults to value from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables the input visually and from interactions" },
-  { prop: "read-only", type: "boolean", default: "false", description: "Makes the input read-only and hides the clear button" },
+  { prop: "read-only / readonly", type: "boolean", default: "false", description: "Makes the input read-only and hides the clear button" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark the input as invalid" },
   { prop: "allow-autofill-extensions", type: "boolean", default: "false (true with name or type=\"password\")", description: "Allow autofill extensions to appear in the input" },
   { prop: "auto-select", type: "boolean", default: "false", description: "Select all contents of the input when mounted" },
   { prop: "startAdornment / endAdornment", type: "slots", description: "Content rendered at the start or end of the input" },
-  { prop: "@clear", type: "() => void", description: "When set, displays a clear button that appears when the input has a value" },
+  { prop: "@clear", type: "(event: MouseEvent) => void", description: "When set, displays a clear button that appears when the input has a value" },
   { prop: "@autofill", type: "() => void", description: "Fires when the browser autofills the input" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded pill shape" },
   { prop: "optically-align", type: '"start" | "end"', description: "Applies a negative margin using the current gutter to optically align with surrounding content" },
@@ -485,3 +485,20 @@ Input shares the unified 9-step size scale with Button, Select, SelectControl, a
   { prop: "color", type: "SemanticColor", description: "Tint of the pressed (aria-pressed=\"true\") state; the neutral primary-soft tint when unset" },
   { prop: "type", type: "string", default: '"button"', description: "Button type" },
 ]} />
+
+## Styling
+
+Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-gap-lg`: gap lg (default `10px`)
+- `--input-gap-md`: gap md (default `8px`)
+- `--input-gap-sm`: gap sm (default `6px`)
+- `--input-gap-xs`: gap xs (default `4px`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--input-text-color`: text color (default `var(--color-text)`)

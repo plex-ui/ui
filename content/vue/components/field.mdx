@@ -136,8 +136,8 @@ export const checkboxGroup = `<div class="w-[320px]">
 </div>`
 
 export const radioGroup = `<div class="w-[320px]">
-  <Field label="Subscription plan" description="Select your preferred plan." v-slot="{ id }">
-    <RadioGroup aria-label="Subscription plan" v-model:value="plan" direction="col">
+  <Field label="Subscription plan" description="Select your preferred plan." v-slot="fieldProps">
+    <RadioGroup aria-label="Subscription plan" v-bind="fieldProps" v-model:value="plan" direction="col">
       <RadioGroupItem value="free">Free</RadioGroupItem>
       <RadioGroupItem value="pro">Pro, $9/mo</RadioGroupItem>
       <RadioGroupItem value="enterprise">Enterprise, $29/mo</RadioGroupItem>
@@ -608,9 +608,10 @@ export const birthdayValidation = `<div class="w-[320px]">
 </div>`
 
 export const birthdaySegmented = `<div class="w-[320px]">
-  <Field label="Birthday">
+  <Field label="Birthday" v-slot="fieldProps">
     <div class="flex items-center gap-2">
       <Input
+        :id="fieldProps.id"
         :value="month"
         @update:value="(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }"
         placeholder="MM"
@@ -627,6 +628,7 @@ export const birthdaySegmented = `<div class="w-[320px]">
         :value="day"
         @update:value="(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }"
         placeholder="DD"
+        aria-label="Day"
         inputmode="numeric"
         maxlength="2"
         size="md"
@@ -640,6 +642,7 @@ export const birthdaySegmented = `<div class="w-[320px]">
         :value="year"
         @update:value="(raw) => (year = digitsOnly(raw, 4))"
         placeholder="YYYY"
+        aria-label="Year"
         inputmode="numeric"
         maxlength="4"
         size="md"
@@ -766,7 +769,7 @@ export const birthdaySelect = `<div class="w-[320px]">
 
 ### Radio
 
-<ComponentPreview language="vue" details={<>Use Field with <code>RadioGroup</code> for labeled radio selections.</>} code={radioGroup} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use Field with <code>RadioGroup</code> for labeled radio selections. Bind the field props onto the group (<code>v-bind="fieldProps"</code>) so its <code>aria-describedby</code> points at the description.</>} code={radioGroup} previewMinHeight={168}>
   <VueDemo template={radioGroup} state={{ plan: "free" }} />
 </ComponentPreview>
 
@@ -842,17 +845,17 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
 
 ### Birthday segmented input
 
-<ComponentPreview language="vue" details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. <code>digitsOnly</code> is a plain helper function of the example.</>} code={birthdaySegmented} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. The field id goes to the month input, and the day and year inputs carry their own <code>aria-label</code>. <code>digitsOnly</code> is a plain helper function of the example.</>} code={birthdaySegmented} previewMinHeight={168}>
   <VueFieldDemo template={birthdaySegmented} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
 </ComponentPreview>
 
 ### Birthday with selects
 
-<ComponentPreview language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group.</>} code={birthdaySelect} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group. The field id goes to the month select, and the day and year selects carry their own <code>aria-label</code>.</>} code={birthdaySelect} previewMinHeight={168}>
   <VueFieldDemo template={birthdaySelect} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Label text for the field" },
@@ -868,3 +871,19 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
   { prop: "class", type: "string", description: "CSS classes applied to the root element" },
   { prop: "default slot", type: "(fieldProps) => VNode[]", description: "Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby" },
 ]} />
+
+## Styling
+
+Field reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-color`: error color (default `var(--color-text-danger-outline)`)
+- `--field-error-font-size`: error font size (default `0.75rem`)
+- `--field-error-gap`: error gap (default `spacing(2)`)
+- `--field-error-icon-size`: error icon size (default `1rem`)
+- `--field-error-line-height`: error line height (default `var(--font-text-xs-line-height)`)
+- `--field-error-margin-bottom`: error margin bottom (default `spacing(3)`)
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--field-error-padding-inline`: error padding inline (default `0`)
+- `--field-horizontal-control-width`: horizontal control width (default `240px`)
+- `--field-horizontal-label-width`: horizontal label width (default `120px`)
+- `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)

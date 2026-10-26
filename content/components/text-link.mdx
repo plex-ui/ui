@@ -34,8 +34,9 @@ import { ArrowUpRight } from '@plexui/ui/components/Icon'
 ### Inline usage
 
 <ComponentPreview code={`<p>
-  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text.
-  Or use one of the <TextLink href="#">official SDKs</TextLink> for your language.
+  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
+  either use the API directly from an HTTP client of your choice, or use one of the{" "}
+  <TextLink href="#">official SDKs</TextLink> for your preferred language.
 </p>`} previewMinHeight={168}>
   <TextLinkBaseDemo />
 </ComponentPreview>
@@ -43,20 +44,26 @@ import { ArrowUpRight } from '@plexui/ui/components/Icon'
 ### Default inheritance
 
 <ComponentPreview details={<>By default, <code>TextLink</code> uses <code>currentcolor</code> inheritance and <code>text-decoration: underline</code> to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the <code>currentcolor</code>, with some special cases for <code>text-secondary</code> and <code>text-tertiary</code> contexts.<br /><br />You can see this behavior by changing the text color context of the paragraph the links are in below:</>} code={`<p className="text-secondary">
-  <TextLink href="#">responses endpoint</TextLink> ... <TextLink href="#">official SDKs</TextLink>
+  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
+  either use the API directly from an HTTP client of your choice, or use one of the{" "}
+  <TextLink href="#">official SDKs</TextLink> for your preferred language.
 </p>`} previewMinHeight={168}>
   <TextLinkColorsDemo />
 </ComponentPreview>
 
 ### Primary color
 
-<ComponentPreview details={<>You can create a colorful link style with the <code>primary</code> prop, which uses color for visual differentiation.<br /><br />Primary links also remove the default <code>underline</code> treatment - pass <code>underline</code> re-apply that style.</>} code={`<TextLink href="#" primary>primary link</TextLink>`} previewMinHeight={168}>
+<ComponentPreview details={<>You can create a colorful link style with the <code>primary</code> prop, which uses color for visual differentiation.<br /><br />Primary links also remove the default <code>underline</code> treatment: pass <code>underline</code> to re-apply that style.</>} code={`<p>
+  Sample text with a <TextLink href="#" primary>primary link</TextLink>
+</p>`} previewMinHeight={168}>
   <TextLinkPrimaryDemo />
 </ComponentPreview>
 
 ### Underline
 
-<ComponentPreview details={<>Links have an underlined aesthetic by default.<br /><br />Pass <code>{'underline={false}'}</code> to remove the underline from the link.</>} code={`<TextLink href="#" underline={false}>subtle link</TextLink>`} previewMinHeight={168}>
+<ComponentPreview details={<>Links have an underlined aesthetic by default.<br /><br />Pass <code>{'underline={false}'}</code> to remove the underline from the link.</>} code={`<p className="text-secondary">
+  Sample text with a <TextLink href="#" underline={false}>subtle link</TextLink>
+</p>`} previewMinHeight={168}>
   <TextLinkUnderlineDemo />
 </ComponentPreview>
 
@@ -80,13 +87,17 @@ import { ArrowUpRight } from '@plexui/ui/components/Icon'
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Link content" },
-  { prop: "href", type: "string", description: "URL" },
-  { prop: "to", type: "object", description: "Router link destination (internal)" },
+  { prop: "href", type: "string", description: "URL. An http:// or https:// URL is external" },
+  { prop: "to", type: "string | object", description: "Router link destination (internal); its type comes from the link component" },
   { prop: "primary", type: "boolean", default: "false", description: "Primary color, no default underline" },
   { prop: "underline", type: "boolean", default: "true", description: "Underline (default true unless primary)" },
   { prop: "forceExternal", type: "boolean", description: "Force external link behavior" },
   { prop: "as", type: "Component", description: "Link component (e.g. Next Link)" },
+  { prop: "target", type: "string", description: "Where to open the link. External links default to _blank" },
+  { prop: "className", type: "string", description: "Extra classes on the link" },
 ]} />
+
+External links render an `<a>` with `target="_blank"` (unless you pass `target`) and `rel="noopener noreferrer"`. Without `href` or `to`, `TextLink` renders a `<span role="button">`; with an `onClick` it takes Tab and runs on Enter or Space. Other anchor attributes are forwarded.
 
 ### Configure your Router
 
@@ -108,7 +119,7 @@ export function App() {
 ```
 
 ```tsx
-import { Link } from "next/link"
+import Link from "next/link"
 
 <TextLink as={Link} href="/dashboard">View Dashboard</TextLink>
 ```

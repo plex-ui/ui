@@ -1,7 +1,7 @@
 'use client';
 
 import React, { type ComponentType, type SVGProps } from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Cabinet, CalendarAlt, User, Tools } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { SelectControl } from '@plexui/ui/components/SelectControl';
@@ -37,7 +37,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

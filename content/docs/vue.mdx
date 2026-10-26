@@ -107,6 +107,8 @@ import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider";
 </template>
 ```
 
+`Card`, `ButtonLink` and `TextLink` pass their `href` to a link component that declares a `to` prop (such as `RouterLink` or `NuxtLink`) as `to`, so `<TextLink href="/settings">` navigates through the router. Other link components receive `href`.
+
 ### Start building
 
 ```vue

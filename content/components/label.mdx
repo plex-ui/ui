@@ -18,10 +18,14 @@ For stacked form fields, prefer [`Field`](/components/field): it bundles label, 
 
 ### Overview
 
-<ComponentPreview code={`<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-  <Checkbox id="terms" />
-  <Label htmlFor="terms">Accept terms and conditions</Label>
-</div>`}>
+<ComponentPreview details={<>Clicking the label toggles the checkbox it points at. Here <code>accepted</code> starts as <code>true</code>.</>} code={`const [accepted, setAccepted] = useState(true);
+
+return (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <Checkbox id="terms" checked={accepted} onCheckedChange={setAccepted} />
+    <Label htmlFor="terms">Accept terms and conditions</Label>
+  </div>
+);`}>
   <LabelOverviewDemo />
 </ComponentPreview>
 

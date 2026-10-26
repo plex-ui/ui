@@ -192,15 +192,52 @@ const columns: ColumnDef<User>[] = [
     :page-size="4"
     @row-click="selectedUser = $event"
   />
-  <div
-    style="margin-top: 12px; padding: 10px 12px; border: 1px solid var(--color-fd-border); border-radius: 8px; background: var(--docs-surface-elevated); color: var(--color-text-secondary); font-size: 0.875rem"
-  >
+  <p class="mt-3 text-sm text-secondary">
     {{
       selectedUser
         ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
         : "Click a row to see selected user details."
     }}
-  </div>
+  </p>
+</template>`
+
+export const rowSelection = `<script setup lang="ts">
+import { h, ref } from "vue"
+import {
+  DataTable,
+  DataTableColumnHeader,
+  statusCell,
+  type ColumnDef,
+  type RowSelectionState,
+} from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const rowSelection = ref<RowSelectionState>({})
+const getRowId = (user: User) => user.id
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable
+    v-model:row-selection="rowSelection"
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    enable-row-selection
+    :get-row-id="getRowId"
+  />
+  <p class="mt-3 text-sm text-secondary">
+    {{ Object.keys(rowSelection).length }} of {{ users.length }} rows selected
+  </p>
 </template>`
 
 export const cellVariants = `<script setup lang="ts">
@@ -339,7 +376,7 @@ import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTab
 
 ## DataTable
 
-Column definitions live in `<script setup>`: header and cell renderers are functions that return VNodes (`h()`), rendered with TanStack Table's `FlexRender`.
+The examples import `users` (15 rows) and its `User` type from a local `./data` file. Column definitions live in `<script setup>`: header and cell renderers are functions that return VNodes (`h()`), rendered with TanStack Table's `FlexRender`.
 
 ### Variant
 
@@ -359,19 +396,25 @@ Column definitions live in `<script setup>`: header and cell renderers are funct
 
 ### Pagination
 
-<ComponentPreview language="vue" details={<>Automatic pagination with rows-per-page selector and navigation controls. Set <code>page-size</code> to control initial page size.</>} code={pagination} previewMinHeight={340}>
+<ComponentPreview language="vue" details={<>Automatic pagination with rows-per-page selector and navigation controls. Set <code>page-size</code> to control the initial page size; the select offers 10, 20, 50 and 100 plus that size. The controls hide when every row fits on one page.</>} code={pagination} previewMinHeight={340}>
   <VueDataTableDemo example="pagination" code={pagination} />
 </ComponentPreview>
 
 ### Row click
 
-<ComponentPreview language="vue" details={<>Listen to <code>@row-click</code> to make rows clickable and interactive.</>} code={rowClick} previewMinHeight={300}>
+<ComponentPreview language="vue" details={<>Listen to <code>@row-click</code> to make rows clickable. Clickable rows also take Tab and call it on Enter or Space.</>} code={rowClick} previewMinHeight={300}>
   <VueDataTableDemo example="rowClick" code={rowClick} state={{ selectedUser: null }} />
+</ComponentPreview>
+
+### Row selection
+
+<ComponentPreview language="vue" details={<>Set <code>enable-row-selection</code> to add a first column of checkboxes. The header checkbox selects every row on all pages and shows a mixed state when only some are selected. Bind <code>v-model:row-selection</code> to read the selection; <code>get-row-id</code> keys it by your own ids.</>} code={rowSelection} previewMinHeight={340}>
+  <VueDataTableDemo example="rowSelection" code={rowSelection} state={{ rowSelection: {} }} />
 </ComponentPreview>
 
 ### Cell variants
 
-<ComponentPreview language="vue" details={<>Use column helper utilities for rich cell types: monospace IDs with copy-on-click, status badges, formatted dates, and currency values.</>} code={cellVariants} previewMinHeight={300}>
+<ComponentPreview language="vue" details={<>Column helpers render common cells: <code>idCell</code> (monospace ID with copy-on-click), <code>statusCell</code> (status badge), <code>dateTimeCell</code> (formatted date) and <code>tooltipHeader</code> (header with an info tooltip). Other formats, like the salary below, are plain cell renderers; <code>meta.align</code> aligns a column.</>} code={cellVariants} previewMinHeight={300}>
   <VueDataTableDemo example="cellVariants" code={cellVariants} />
 </ComponentPreview>
 
@@ -393,7 +436,7 @@ Column definitions live in `<script setup>`: header and cell renderers are funct
   <VueDataTableDemo example="emptyState" code={emptyState} />
 </ComponentPreview>
 
-## Reference
+## API
 
 ### Table Primitives
 
@@ -413,33 +456,33 @@ Every part renders its native element with the default slot as content, merges `
 ### DataTable
 
 <PropsTable data={[
-  { prop: "columns", type: "ColumnDef<TData>[]", required: true, description: "Column definitions following TanStack Table v8 API; header and cell renderers return VNodes" },
-  { prop: "data", type: "TData[]", required: true, description: "Data array to display" },
+  { prop: "columns", type: "ColumnDef<TData>[]", description: "Column definitions following TanStack Table v8 API; header and cell renderers return VNodes (required)" },
+  { prop: "data", type: "TData[]", description: "Data array to display (required)" },
   { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant: bordered adds a rounded border and tinted header" },
-  { prop: "page-size", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination" },
+  { prop: "page-size", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination. The rows-per-page select offers 10, 20, 50, 100 and this size" },
   { prop: "initial-sorting", type: "SortingState", description: "Initial column sorting state" },
   { prop: "global-filter", type: "string", description: "Controlled search/filter string. Bind with v-model:global-filter" },
   { prop: "column-visibility", type: "VisibilityState", description: "Controlled column visibility state. Bind with v-model:column-visibility" },
-  { prop: "enable-row-selection", type: "boolean", default: "false", description: "Enable row selection; selection controls go in your own column" },
+  { prop: "enable-row-selection", type: "boolean", default: "false", description: "Adds a first column (id select) with a checkbox per row and a header checkbox that selects every row on all pages, mixed when some are selected. A click on a checkbox is not a row click" },
   { prop: "row-selection", type: "RowSelectionState", description: "Controlled row selection state. Bind with v-model:row-selection" },
-  { prop: "get-row-id", type: "(row: TData) => string", description: "Custom row ID accessor" },
-  { prop: "empty-message", type: "string | VNode", default: '"No results."', description: "Shown when no rows; the emptyMessage slot takes precedence" },
-  { prop: "show-pagination", type: "boolean", default: "true", description: "Whether to show pagination controls" },
+  { prop: "get-row-id", type: "(row: TData) => string", description: "Custom row ID accessor; selection keys use it" },
+  { prop: "empty-message", type: "string | number | VNode", default: '"No results."', description: "Shown when no rows; the emptyMessage slot takes precedence" },
+  { prop: "show-pagination", type: "boolean", default: "true", description: "Whether to show pagination controls. They hide on their own when every row fits on one page" },
   { prop: "class", type: "string", description: "Class applied to outermost wrapper" },
   { prop: "emptyMessage slot", type: "VNode[]", description: "Rich content shown when no rows" },
-  { prop: "@row-click", type: "(row: TData) => void", description: "Click handler for rows, makes rows interactive" },
+  { prop: "@row-click", type: "(row: TData) => void", description: "Click handler for rows. Makes rows interactive: they take Tab and call it on Enter or Space" },
   { prop: "@update:global-filter", type: "(value: string) => void", description: "Emitted with the next filter when the table changes it; powers v-model:global-filter" },
   { prop: "@update:column-visibility", type: "(visibility: VisibilityState) => void", description: "Emitted with the next visibility; powers v-model:column-visibility" },
   { prop: "@update:row-selection", type: "(selection: RowSelectionState) => void", description: "Emitted with the next selection; powers v-model:row-selection" },
 ]} />
 
-`@row-click` is a function prop rather than an event, because its presence makes the rows interactive; `:on-row-click` works the same.
+`@row-click` is a function prop rather than an event, because its presence makes the rows interactive; `:on-row-click` works the same. Column groups (a column definition with `columns`) render a header that spans its columns.
 
 ### DataTableColumnHeader
 
 <PropsTable data={[
-  { prop: "column", type: "Column<TData, TValue>", required: true, description: "TanStack Table column object" },
-  { prop: "title", type: "string", required: true, description: "Display text for the header" },
+  { prop: "column", type: "Column<TData, TValue>", description: "TanStack Table column object (required)" },
+  { prop: "title", type: "string", description: "Display text for the header (required)" },
   { prop: "class", type: "string", description: "Class applied to the header button (or text when the column cannot sort)" },
 ]} />
 
@@ -453,3 +496,21 @@ Every part renders its native element with the default slot as content, merges `
 ]} />
 
 Each helper returns a functional component for a column's `cell` or `header`; TanStack Table's `FlexRender` renders it with the cell or header context.
+
+## Styling
+
+Table reads these component tokens. Override them at any scope to restyle it:
+
+- `--table-border-color`: border color (default `var(--color-border)`)
+- `--table-caption-color`: caption color (default `var(--color-text-tertiary)`)
+- `--table-caption-font-size`: caption font size (default `var(--font-text-sm-size)`)
+- `--table-cell-color`: cell color (default `var(--color-text)`)
+- `--table-cell-font-size`: cell font size (default `var(--font-text-sm-size)`)
+- `--table-cell-line-height`: cell line height (default `var(--font-text-sm-line-height)`)
+- `--table-cell-padding`: cell padding (default `spacing(3) spacing(4)`)
+- `--table-footer-background`: footer background (default `transparent`)
+- `--table-footer-font-weight`: footer font weight (default `var(--font-weight-medium)`)
+- `--table-header-background`: header background (default `transparent`)
+- `--table-header-color`: header color (default `var(--color-text-secondary)`)
+- `--table-header-font-weight`: header font weight (default `var(--font-weight-medium)`)
+- `--table-row-hover-background`: row hover background (default `light-dark(var(--alpha-02), var(--alpha-04))`)

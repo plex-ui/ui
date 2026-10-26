@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -35,7 +35,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

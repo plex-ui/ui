@@ -1,7 +1,7 @@
 ---
 title: Tooltip
 description: Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
-metaDescription: React tooltip component for brief informative hover text — supports any trigger element, conditional enabling, and a compact variant
+metaDescription: React tooltip component for brief informative hover text, with any trigger element, conditional enabling, and a compact variant.
 ---
 
 import {
@@ -60,6 +60,7 @@ import {
 ## API
 
 <PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator" },
   { prop: "content", type: "ReactNode", description: "Tooltip content (null = no tooltip)" },
   { prop: "compact", type: "boolean", default: "false", description: "Short 1-3 word tooltips, inverse styling" },
   { prop: "interactive", type: "boolean", default: "false", description: "Content is interactive, stays open when hovered" },
@@ -72,7 +73,10 @@ import {
   { prop: "gutterSize", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding" },
   { prop: "contentClassName", type: "string", description: "Class for tooltip content" },
   { prop: "forceOpen", type: "boolean", description: "Force open or closed" },
+  { prop: "preventUnintentionalClickToClose", type: "true", description: "Keeps the tooltip open when the trigger is clicked right after it opened" },
 ]} />
+
+The tooltip content is the `role="tooltip"` element, and the trigger points at it with `aria-describedby`. Other props, such as `onClick` and `onPointerDown`, go to the trigger element. `Tooltip.TriggerDecorator` turns text into an accessible trigger with the decorator style and a tab stop (`focusable`, default `true`).
 
 ## Styling
 

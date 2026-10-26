@@ -31,10 +31,26 @@ export const math = `<Markdown include-math>{{ markdownWithLatex }}</Markdown>`
   </div>
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "string", description: "Markdown source (text only; interpolate a string to keep its newlines)" },
   { prop: "source", type: "string", description: "Markdown source, used when the default slot is empty" },
   { prop: "include-math", type: "boolean", default: "false", description: "Enable LaTeX math rendering" },
+  { prop: "break-new-lines", type: "boolean", default: "false", description: "Turn single newlines into line breaks" },
+  { prop: "copyable-code-blocks", type: "boolean", default: "true", description: "Show a copy button on code blocks" },
+  { prop: "collapsible-code-blocks", type: "boolean", default: "true", description: "Render code blocks in the collapsible view with a View Code button" },
+  { prop: "components", type: "Record<string, MarkdownComponent>", description: "Tag name to component overrides, applied over the built-in ones" },
+  { prop: "directives", type: "MarkdownDirective[]", description: "Custom directives, each rendered by its own component" },
+  { prop: "remark-plugins", type: "PluggableList", description: "Extra remark plugins, after the built-in ones" },
+  { prop: "rehype-plugins", type: "PluggableList", description: "Extra rehype plugins" },
+  { prop: "allowed-elements", type: "string[]", description: "Only render these elements" },
+  { prop: "disallowed-elements", type: "string[]", description: "Never render these elements" },
+  { prop: "skip-html", type: "boolean", default: "false", description: "Ignore raw HTML in the source" },
+  { prop: "url-transform", type: "(url: string) => string", description: "Rewrites URLs; the default drops unsafe protocols (javascript:) and keeps tel: and sms:" },
+  { prop: "class", type: "string", description: "Applied to the wrapping element" },
 ]} />
+
+## Styling
+
+Markdown has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

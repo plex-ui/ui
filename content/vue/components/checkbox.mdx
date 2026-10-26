@@ -355,7 +355,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### With Field
 
-<ComponentPreview language="vue" details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. The Field provides <code>aria-describedby</code> and <code>aria-invalid</code> linking automatically.</>} code={withField} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Wrap checkboxes in a <code>Field</code> component for form layout with label, description, and error message support. A single control passed as the child gets <code>aria-describedby</code> and <code>aria-invalid</code> automatically; with <code>v-slot</code> the slot props carry them, so bind them onto the control that should carry them.</>} code={withField} previewMinHeight={200}>
   <VueDemo
     template={withField}
     stageClassName={stage}
@@ -376,7 +376,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "Visual style: solid (filled background) or ghost (checkmark only)" },
@@ -399,3 +399,12 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 ]} />
 
 Other attributes and listeners land on the checkbox `<button>`. Built on [Reka UI Checkbox](https://reka-ui.com/docs/components/checkbox). Inside a `<form>`, a hidden native checkbox mirrors the state so the value is submitted and a form reset restores the initial state.
+
+## Styling
+
+Checkbox reads these component tokens. Override them at any scope to restyle it:
+
+- `--checkbox-indicator-size`: indicator size (default `var(--radio-group-indicator-size)`)
+- `--checkbox-label-gap`: label gap (default `var(--radio-group-item-gap)`)
+- `--checkbox-label-line-height`: label line height (default `var(--radio-group-item-line-height)`)
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)

@@ -137,7 +137,7 @@ export const go = `<CodeBlock language="go">{{ code }}</CodeBlock>`
   </div>
 </ComponentPreview>
 
-## Reference
+## API
 
 ### CodeBlock
 
@@ -155,10 +155,22 @@ export const go = `<CodeBlock language="go">{{ code }}</CodeBlock>`
   { prop: "language", type: "string", description: "Prism language name" },
   { prop: "default-expanded", type: "boolean", default: "false", description: "Start expanded" },
   { prop: "collapsed-height", type: "number", default: "140", description: "Height when collapsed (px)" },
-  { prop: "max-expanded-height", type: "number", description: "Max height when expanded (px)" },
+  { prop: "max-expanded-height", type: "number", description: "Max height when expanded (px); taller code scrolls" },
   { prop: "copyable", type: "boolean", default: "true", description: "Show copy button" },
+  { prop: "class", type: "string", description: "Additional wrapper class" },
 ]} />
 
 ### Composition
 
 `CodeBlockBase` (the container), `CodeBlockBaseCode` (the highlighted `<pre>`, with `code`, `language` and `code-tag-props` for the `<code>` element) and `CodeBlockBaseCopyButton` (`copy-value`, `loading`, `disabled`) build custom blocks. They are React's `CodeBlockBase`, `CodeBlockBase.Code` and `CodeBlockBase.CopyButton` as flat exports.
+
+## Styling
+
+Code Block reads these component tokens. Override them at any scope to restyle it:
+
+- `--codeblock-background-color`: background color (default `light-dark(#f9f9f9, #161616)`)
+- `--codeblock-syntax-1`: syntax 1 (default `light-dark(#c0660d, var(--yellow-100))`)
+- `--codeblock-syntax-2`: syntax 2 (default `light-dark(var(--blue-500), var(--blue-200))`)
+- `--codeblock-syntax-3`: syntax 3 (default `light-dark(var(--green-600), var(--green-300))`)
+- `--codeblock-syntax-4`: syntax 4 (default `var(--pink-500)`)
+- `--codeblock-syntax-5`: syntax 5 (default `light-dark(var(--purple-500), var(--purple-300))`)

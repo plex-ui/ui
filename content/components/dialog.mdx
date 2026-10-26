@@ -1,7 +1,7 @@
 ---
 title: Dialog
 description: Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
-metaDescription: Accessible React modal dialog component for confirmations, forms, and destructive alerts — focus trap, escape handling, and overlay scrim
+metaDescription: Accessible React modal dialog component for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 ---
 
 import {
@@ -17,7 +17,9 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<Dialog>
+<ComponentPreview code={`const [open, setOpen] = useState(false)
+
+<Dialog open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </Dialog.Trigger>
@@ -25,10 +27,12 @@ import {
     <Dialog.Header>
       <Dialog.Title>Unsaved changes</Dialog.Title>
     </Dialog.Header>
-    <p>You have unsaved changes that will be lost...</p>
+    <p className="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
     <Dialog.Footer>
-      <Dialog.Close><Button color="primary" variant="soft">Cancel</Button></Dialog.Close>
-      <Button color="primary">Save changes</Button>
+      <Dialog.Close>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </Dialog.Close>
+      <Button color="primary" onClick={() => setOpen(false)}>Save changes</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog>`} previewMinHeight={120}>
@@ -37,7 +41,9 @@ import {
 
 ### Destructive confirmation
 
-<ComponentPreview details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`<Dialog>
+<ComponentPreview details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`const [open, setOpen] = useState(false)
+
+<Dialog open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
     <Button color="danger" variant="outline">Delete</Button>
   </Dialog.Trigger>
@@ -45,10 +51,16 @@ import {
     <Dialog.Header>
       <Dialog.Title>Delete assistant?</Dialog.Title>
     </Dialog.Header>
-    <p>This change will affect all API integrations. It cannot be undone.</p>
+    <p className="text-sm text-secondary">
+      This change will affect all API integrations using{" "}
+      <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+      It cannot be undone.
+    </p>
     <Dialog.Footer>
-      <Dialog.Close><Button color="secondary" variant="soft">Cancel</Button></Dialog.Close>
-      <Button color="danger">Delete</Button>
+      <Dialog.Close>
+        <Button color="secondary" variant="soft">Cancel</Button>
+      </Dialog.Close>
+      <Button color="danger" onClick={() => setOpen(false)}>Delete</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog>`} previewMinHeight={120}>
@@ -93,7 +105,7 @@ import {
 **Dialog** (root)
 
 <PropsTable data={[
-  { prop: "open", type: "boolean", description: "Controlled open state" },
+  { prop: "open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
   { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when the dialog opens or closes" },
 ]} />
 
@@ -109,19 +121,19 @@ import {
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
-**Dialog.Trigger**: Element that opens the dialog (renders child with `asChild`).
+**Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: Wrapper for title and description.
+**Dialog.Header**: wrapper for title and description.
 
-**Dialog.Title**: Accessible heading for the dialog.
+**Dialog.Title**: accessible heading for the dialog.
 
-**Dialog.Description**: Supporting text under the title.
+**Dialog.Description**: supporting text under the title.
 
-**Dialog.Body**: The scrolling part between the header and the footer. With it, only the body scrolls. Accepts `className`.
+**Dialog.Body**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `className`.
 
-**Dialog.Footer**: Footer area for action buttons.
+**Dialog.Footer**: footer area for action buttons.
 
-**Dialog.Close**: Closes the dialog when its child is activated.
+**Dialog.Close**: closes the dialog when its child is activated.
 
 ## Styling
 

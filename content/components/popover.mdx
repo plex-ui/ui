@@ -1,7 +1,7 @@
 ---
 title: Popover
 description: A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
-metaDescription: React popover primitive for contextual floating UI — flexible sizing, hover triggers, controllable open state, and nested popover support
+metaDescription: React popover primitive for contextual floating UI, with flexible sizing, hover triggers, a controllable open state, and nested popover support.
 ---
 
 import {
@@ -26,7 +26,7 @@ import {
 
 ### Sizing the popover
 
-<ComponentPreview details={<>The popover can be sized with any combination of <code>width</code>, <code>minWidth</code>, or <code>maxWidth</code>. All popovers default to a <code>minWidth</code> of <code>300px</code>, and a <code>maxWidth</code> of Radix's viewport detection.</>} code={`<Popover>
+<ComponentPreview details={<>The popover can be sized with any combination of <code>width</code>, <code>minWidth</code>, or <code>maxWidth</code>. All popovers default to a <code>minWidth</code> of <code>300px</code>, and a <code>maxWidth</code> of <code>700px</code>, capped by the space available in the viewport.</>} code={`<Popover>
   <Popover.Trigger>...</Popover.Trigger>
   <Popover.Content minWidth="auto" side="top">...</Popover.Content>
 </Popover>`} previewMinHeight={168}>
@@ -60,7 +60,10 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 **Popover** (root)
 
 <PropsTable data={[
-  { prop: "showOnHover", type: "boolean", description: "Open on hover and focus instead of click" },
+  { prop: "open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
+  { prop: "onOpenChange", type: "(nextState: boolean) => void", description: "Called when the popover opens or closes" },
+  { prop: "showOnHover", type: "boolean", default: "false", description: "Open on hover and focus instead of click" },
+  { prop: "hoverOpenDelay", type: "number", default: "150", description: "Delay before a hover popover opens (ms)" },
 ]} />
 
 **Popover.Trigger**: Renders the element that toggles the popover. The trigger should be the user's point of interaction for revealing the popup. No specific props.
@@ -70,11 +73,15 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 <PropsTable data={[
   { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width in px" },
   { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width in px" },
-  { prop: "maxWidth", type: "number", description: "Maximum panel width in px" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', description: "Preferred placement" },
-  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
-  { prop: "sideOffset", type: "number", description: "Offset from trigger (px)" },
-  { prop: "alignOffset", type: "number", description: "Alignment offset (px)" },
+  { prop: "maxWidth", type: "number", default: "700", description: "Maximum panel width in px, capped by the space available in the viewport" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement; flips when it collides" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
+  { prop: "sideOffset", type: "number", default: "8", description: "Offset from trigger (px)" },
+  { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment (px)" },
+  { prop: "avoidCollisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
+  { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
+  { prop: "autoFocus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
+  { prop: "className", type: "string", description: "Applied to the panel" },
 ]} />
 
 **usePopoverController()**: Hook available inside `Popover.Content`. Returns `{ close: () => void, shake: () => void }`.

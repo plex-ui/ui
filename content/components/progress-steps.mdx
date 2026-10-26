@@ -1,7 +1,7 @@
 ---
 title: Progress Steps
 description: Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
-metaDescription: React stepper component for multi-step flows like checkouts and onboarding — horizontal or vertical layout, icons, navigation, and color tokens
+metaDescription: React stepper component for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens
 ---
 
 import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
@@ -74,9 +74,26 @@ import {
 
 ### With Navigation
 
-<ComponentPreview details={<>Example of integrating with navigation controls.</>} code={`<ProgressSteps variant="minimal" current={step} total={4} />
-<Button onClick={() => setStep(s => Math.max(1, s - 1))}>Previous</Button>
-<Button onClick={() => setStep(s => Math.min(4, s + 1))}>Next</Button>`} previewMinHeight={168}>
+<ComponentPreview details={<>Example of integrating with navigation controls.</>} code={`const steps = ["Your details", "Company details", "Invite your team", "Add your socials"]
+const [step, setStep] = useState(1)
+
+return (
+  <div className="flex flex-col items-center gap-6">
+    <ProgressSteps variant="minimal" current={step} total={4} />
+    <div className="text-center">
+      <h3 className="text-lg font-semibold">Step {step} of 4</h3>
+      <p className="text-secondary mt-1">{steps[step - 1]}</p>
+    </div>
+    <div className="flex gap-3">
+      <Button color="secondary" variant="outline" className="w-28" disabled={step === 1} onClick={() => setStep((s) => Math.max(1, s - 1))}>
+        Previous
+      </Button>
+      <Button color="primary" className="w-28" disabled={step === 4} onClick={() => setStep((s) => Math.min(4, s + 1))}>
+        Next
+      </Button>
+    </div>
+  </div>
+)`} previewMinHeight={168}>
   <ProgressStepsWithNavigationDemo />
 </ComponentPreview>
 
@@ -109,13 +126,14 @@ import {
 **ProgressSteps** (root)
 
 <PropsTable data={[
-  { prop: "current", type: "number", description: "Current active step (1-based)" },
+  { prop: "current", type: "number", description: "Required. Current active step (1-based)" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Step indicator size" },
   { prop: "color", type: '"default" | "success"', default: '"default"', description: "Color scheme for completed/active steps" },
   { prop: "connectorStyle", type: '"solid" | "dashed"', default: '"solid"', description: "Connector line style" },
   { prop: "variant", type: '"default" | "minimal"', default: '"default"', description: "\"minimal\" renders a compact bar (requires total)" },
   { prop: "total", type: "number", description: "Total steps for minimal variant" },
+  { prop: "className", type: "string", description: "Class applied to the container" },
 ]} />
 
 **ProgressSteps.Step**

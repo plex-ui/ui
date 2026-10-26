@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { Button } from '@plexui/ui/components/Button';
 import { Copy } from '@plexui/ui/components/Icon';
@@ -35,7 +35,7 @@ function DemoControlBoolean({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const controlId = "demo-switch-" + name.toLowerCase().replace(/\s+/g, "-");
+  const controlId = useId();
 
   return (
     <div style={controlRowStyle}>

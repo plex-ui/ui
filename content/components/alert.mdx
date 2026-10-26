@@ -71,13 +71,23 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Actions
 
-<ComponentPreview details={<>You can add actions to the alert with the <code>actions</code> prop, which accepts <code>ReactNode</code>. Combine with <code>onDismiss</code> to add a dismiss button.</>} code={`<Alert
-  variant="soft"
-  color="warning"
-  title="Password expires in 3 days"
-  description="Update it now to avoid losing access to your account."
-  actions={<Button color="primary" pill>Update password</Button>}
-/>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>You can add actions to the alert with the <code>actions</code> prop, which accepts <code>ReactNode</code>. Combine with <code>onDismiss</code> to add a dismiss button.</>} code={`<>
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Password expires in 3 days"
+    description="Update it now to avoid losing access to your account."
+    actions={<Button color="primary" pill>Update password</Button>}
+  />
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Your API key will be rotated soon"
+    description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
+    actions={<Button color="warning" variant="soft" pill>Remind me later</Button>}
+    onDismiss={() => {}}
+  />
+</>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AlertActionsDemo />
 </ComponentPreview>
 
@@ -113,30 +123,43 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Indicator
 
-<ComponentPreview details={<>Alert provides an indicator icon by default. You can override it by passing a custom icon to <code>indicator</code>, or pass <code>indicator={'{false}'}</code> to hide it entirely.</>} code={`<Alert
-  indicator={<Lightbulb />}
-  description={
-    <>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-    </>
-  }
-/>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>Alert provides an indicator icon by default. You can override it by passing a custom icon to <code>indicator</code>, or pass <code>indicator={'{false}'}</code> to hide it entirely.</>} code={`<>
+  <Alert
+    indicator={<Lightbulb />}
+    description={
+      <>
+        We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
+      </>
+    }
+  />
+  <Alert
+    indicator={false}
+    description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
+  />
+</>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AlertIndicatorDemo />
 </ComponentPreview>
 
 ### Dismissible
 
-<ComponentPreview details={<>The suggested approach for dismissible notices is to use labeled buttons via <code>actions</code>. You can also provide <code>onDismiss</code> to render a dismiss button in the alert chrome.</>} code={`<Alert
-  className="items-start"
-  title="Try our new dashboard layout"
-  description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
-  actions={(
-    <>
-      <Button color="primary" variant="soft" pill>Dismiss</Button>
-      <Button color="primary" variant="solid" pill>Try it</Button>
-    </>
-  )}
-/>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>The suggested approach for dismissible notices is to use labeled buttons via <code>actions</code>. You can also provide <code>onDismiss</code> to render a dismiss button in the alert chrome.</>} code={`<>
+  <Alert
+    className="items-start"
+    title="Try our new dashboard layout"
+    description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
+    actions={(
+      <>
+        <Button color="primary" variant="soft" pill>Dismiss</Button>
+        <Button color="primary" variant="solid" pill>Try it</Button>
+      </>
+    )}
+  />
+  <Alert
+    title="Thank you!"
+    description="Your application has been received. We will review your application and respond within the next 48 hours."
+    onDismiss={() => {}}
+  />
+</>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AlertDismissibleDemo />
 </ComponentPreview>
 
@@ -158,12 +181,14 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   { prop: "title", type: "ReactNode", description: "Title displayed in the alert" },
   { prop: "description", type: "ReactNode", description: "Description text" },
   { prop: "actions", type: "ReactNode", description: "Actions (for example buttons)" },
-  { prop: "actionsPlacement", type: '"end" | "bottom"', description: "Placement of actions" },
+  { prop: "actionsPlacement", type: '"end" | "bottom"', description: "Placement of actions; automatic from sizing when unset" },
+  { prop: "actionsClassName", type: "string", description: "Class applied to the actions container" },
   { prop: "color", type: "SemanticColors", default: '"primary"', description: "Color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant" },
   { prop: "indicator", type: "ReactNode | false", description: "Custom indicator or false to hide" },
-  { prop: "onDismiss", type: "() => void", description: "Shows dismiss button when provided" },
+  { prop: "onDismiss", type: "() => void", description: "Shows the dismiss button when set" },
   { prop: "banner", type: "boolean", default: "false", description: "Full-width strip: square corners, lines above and below only" },
+  { prop: "className", type: "string", description: "Class applied to the alert container" },
 ]} />
 
 ## Styling

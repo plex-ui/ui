@@ -1,7 +1,7 @@
 ---
 title: Indicators
 description: Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
-metaDescription: React loading and progress indicator components — circular spinners, determinate progress rings, and linear bars with configurable color and stroke
+metaDescription: React loading and progress indicator components with circular spinners, determinate progress rings, and loading dots with configurable color and stroke
 ---
 
 import { LoadingIndicator, LoadingDots, CircularProgress } from "@plexui/ui/components/Indicator"
@@ -21,7 +21,7 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<div className="flex items-center gap-6">
+<ComponentPreview details={<>The demos restart every few seconds through a <code>done</code> flag that fills the ring before the simulation starts over.</>} code={`<div className="flex items-center gap-6">
   <LoadingIndicator size={20} />
   <CircularProgress size={24} />
   <LoadingDots />
@@ -104,21 +104,35 @@ import {
 ### LoadingIndicator
 
 <PropsTable data={[
-  { prop: "size", type: "number | string", description: "Size in px or any CSS length (or use --indicator-size CSS variable)" },
-  { prop: "strokeWidth", type: "number", description: "Stroke width" },
+  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length (or use the --indicator-size CSS variable)" },
+  { prop: "strokeWidth", type: "number", default: "2", description: "Stroke width in px" },
 ]} />
 
 ### CircularProgress
 
 <PropsTable data={[
-  { prop: "progress", type: "number", description: "Static progress 0-100 (disables animation)" },
-  { prop: "size", type: "number | string", description: "Diameter in px or any CSS length" },
-  { prop: "strokeWidth", type: "number", description: "Stroke thickness" },
-  { prop: "done", type: "boolean", description: "Completion state for animation" },
+  { prop: "progress", type: "number", description: "Static progress 0-100 (disables the simulated animation)" },
+  { prop: "done", type: "boolean", default: "false", description: "Fills the ring and ends the simulated progress" },
+  { prop: "maxDuration", type: "number", default: "15000", description: "Duration of the simulated progress in ms" },
+  { prop: "size", type: "number | string", default: '"28px"', description: "Diameter in px or any CSS length" },
+  { prop: "strokeWidth", type: "number", default: "2", description: "Stroke thickness in px, capped at 4" },
   { prop: "trackColor", type: "string", description: "Track color (CSS variable or value)" },
   { prop: "trackActiveColor", type: "string", description: "Active segment color" },
 ]} />
 
+A `style` prop replaces the size, stroke and color variables these props set. All other `<span>` (LoadingIndicator) or `<div>` (CircularProgress, LoadingDots) attributes are forwarded.
+
 ## Styling
 
-Indicators has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+The indicators read these CSS custom properties, each with a fallback. Set them at any scope to restyle the indicators inside it:
+
+- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`)
+- `--indicator-stroke`: `LoadingIndicator` stroke width (defaults to `2px`)
+- `--indicator-color`: `LoadingIndicator` color (defaults to `currentcolor`)
+- `--indicator-rotate-duration`: time of one `LoadingIndicator` turn (defaults to `0.8s`)
+- `--circular-progress-size`: `CircularProgress` diameter (defaults to `28px`)
+- `--circular-progress-stroke`: `CircularProgress` stroke width (defaults to `2px`)
+- `--circular-progress-track-color`: `CircularProgress` base track (defaults to a light green)
+- `--circular-progress-track-active-color`: `CircularProgress` progress stroke (defaults to `--green-500`)
+
+`LoadingDots` takes the current text color.

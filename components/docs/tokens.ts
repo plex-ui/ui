@@ -188,8 +188,8 @@ export const SEMANTIC_COLORS_PRIMARY = [
     type: "color",
     name: "color-text-primary-solid",
     value: {
-      light: "var(--white)",
-      dark: "var(--white)",
+      light: "var(--color-text-inverse)",
+      dark: "var(--color-text-inverse)",
     },
   },
 
@@ -570,7 +570,7 @@ export const SEMANTIC_COLORS_INFO = [
     type: "color",
     name: "color-text-info",
     value: {
-      light: "var(--blue-700)",
+      light: "var(--blue-500)",
       dark: "var(--blue-200)",
     },
   },
@@ -1586,7 +1586,7 @@ export const SEMANTIC_COLORS_SUCCESS = [
     name: "color-text-success",
     value: {
       light: "var(--green-700)",
-      dark: "var(--red-400)",
+      dark: "var(--green-400)",
     },
   },
 
@@ -1679,24 +1679,24 @@ export const SEMANTIC_COLORS_SUCCESS = [
     type: "color",
     name: "color-background-success-solid",
     value: {
-      light: "var(--green-400)",
-      dark: "var(--green-400)",
+      light: "var(--green-500)",
+      dark: "var(--green-600)",
     },
   },
   {
     type: "color",
     name: "color-background-success-solid-hover",
     value: {
-      light: "var(--green-500)",
-      dark: "var(--green-500)",
+      light: "var(--green-600)",
+      dark: "var(--green-700)",
     },
   },
   {
     type: "color",
     name: "color-background-success-solid-active",
     value: {
-      light: "var(--green-500)",
-      dark: "var(--green-500)",
+      light: "var(--green-600)",
+      dark: "var(--green-700)",
     },
   },
   {
@@ -1730,7 +1730,7 @@ export const SEMANTIC_COLORS_SUCCESS = [
     name: "color-border-success-outline",
     value: {
       light: "var(--green-500)",
-      dark: "var(--green-500)",
+      dark: "var(--green-600)",
     },
   },
   {
@@ -1738,7 +1738,7 @@ export const SEMANTIC_COLORS_SUCCESS = [
     name: "color-border-success-outline-hover",
     value: {
       light: "var(--green-500)",
-      dark: "var(--green-500)",
+      dark: "var(--green-600)",
     },
   },
   {
@@ -1900,7 +1900,7 @@ export const SEMANTIC_COLORS_DISCOVERY = [
     name: "color-text-discovery-soft",
     value: {
       light: "var(--purple-600)",
-      dark: "var(--purple-300)",
+      dark: "var(--purple-200)",
     },
   },
 
@@ -2002,7 +2002,7 @@ export const SEMANTIC_COLORS_DISCOVERY = [
     name: "color-text-discovery-outline",
     value: {
       light: "var(--purple-500)",
-      dark: "var(--purple-500)",
+      dark: "var(--purple-400)",
     },
   },
   {
@@ -2010,7 +2010,7 @@ export const SEMANTIC_COLORS_DISCOVERY = [
     name: "color-text-discovery-outline-hover",
     value: {
       light: "var(--purple-500)",
-      dark: "var(--purple-500)",
+      dark: "var(--purple-400)",
     },
   },
 
@@ -2298,12 +2298,12 @@ export const FONTS = [
   {
     type: "font-tracking",
     name: "font-tracking-normal",
-    value: "-0.01em",
+    value: "0em",
   },
   {
     type: "font-tracking",
     name: "font-tracking-tight",
-    value: "-0.02em",
+    value: "0em",
   },
   // Headings
   { type: "font", name: "font-heading-5xl-size", value: "4.5rem" },

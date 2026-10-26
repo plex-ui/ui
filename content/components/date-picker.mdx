@@ -23,27 +23,54 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
-<DatePicker value={selectedDate} onChange={setSelectedDate} clearable pill />`} previewMinHeight={168}>
+<ComponentPreview details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
+
+<DatePicker
+  id="date-picker-base"
+  triggerDateFormat="MM/dd/yy"
+  size="lg"
+  pill
+  clearable
+  value={selectedDate}
+  onChange={setSelectedDate}
+/>`} previewMinHeight={168}>
   <DatePickerBaseDemo />
 </ComponentPreview>
 
 ### Limits
 
-<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe.</>} code={`const minDate = today.minus({ days: 30 }).startOf('day')
-const maxDate = today.plus({ days: 30 }).endOf('day')
-<DatePicker value={...} onChange={...} min={minDate} max={maxDate} />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day.</>} code={`const today = DateTime.local()
+const minDate = today.minus({ days: 30 }).startOf("day")
+const maxDate = today.plus({ days: 30 }).endOf("day")
+const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
+
+<DatePicker
+  id="date-picker-limits"
+  triggerDateFormat="MM/dd/yy"
+  size="lg"
+  pill
+  triggerShowIcon
+  value={selectedDate}
+  onChange={setSelectedDate}
+  min={minDate}
+  max={maxDate}
+/>`} previewMinHeight={168}>
   <DatePickerLimitsDemo />
 </ComponentPreview>
 
 ### Date of birth
 
 <ComponentPreview details={<>Set <code>captionLayout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={`<DatePicker
-  captionLayout="dropdown"
+  id="date-picker-dob"
   triggerDateFormat="MMMM d, yyyy"
-  max={DateTime.local()}
+  size="lg"
+  pill
+  clearable
   placeholder="Select your birthday"
-  clearable pill
+  captionLayout="dropdown"
+  value={selectedDate}
+  onChange={setSelectedDate}
+  max={DateTime.local()}
 />`} previewMinHeight={168}>
   <DatePickerDobDemo />
 </ComponentPreview>
@@ -51,10 +78,15 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 ### Time picker
 
 <ComponentPreview details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={`<DatePicker
-  showTime
+  id="date-picker-time"
   triggerDateFormat="MM/dd/yy HH:mm"
+  size="lg"
+  pill
+  clearable
   placeholder="Select date & time"
-  clearable pill
+  showTime
+  value={selectedDate}
+  onChange={setSelectedDate}
 />`} previewMinHeight={168}>
   <DatePickerTimeDemo />
 </ComponentPreview>
@@ -62,52 +94,130 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 ### Dropdown + time
 
 <ComponentPreview details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={`<DatePicker
+  id="date-picker-datetime-dropdown"
+  triggerDateFormat="MMM d, yyyy HH:mm"
+  size="lg"
+  pill
+  clearable
+  placeholder="Schedule event"
   captionLayout="dropdown"
   showTime
   yearRange={[2020, 2030]}
-  triggerDateFormat="MMM d, yyyy HH:mm"
-  placeholder="Schedule event"
-  clearable pill
+  value={selectedDate}
+  onChange={setSelectedDate}
 />`} previewMinHeight={168}>
   <DatePickerDateTimeDropdownDemo />
 </ComponentPreview>
 
 ### Two fields
 
-<ComponentPreview details={<>Compose <code>DatePicker</code> and <code>Input type="time"</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value.</>} code={`<div style={{ display: 'flex', gap: '12px' }}>
-  <div>
-    <label>Date</label>
-    <DatePicker value={...} onChange={...} />
-  </div>
-  <div>
-    <label>Time</label>
-    <Input type="time" value={...} onChange={...} />
-  </div>
+<ComponentPreview details={<>Compose <code>DatePicker</code> and <code>Input</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here <code>handleTimeInput</code> masks the typed time as HH:MM and moves the date to a complete typed time, and a newly picked date takes the typed time.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
+const [time, setTime] = useState("10:30")
+
+// Mask the typed time as HH:MM; a complete time moves the picked date's time
+const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const raw = event.target.value.replace(/[^\\d:]/g, "")
+  const digits = raw.replace(/:/g, "")
+  let formatted = digits
+  if (digits.length >= 3) {
+    formatted = digits.slice(0, 2) + ":" + digits.slice(2, 4)
+  } else if (digits.length === 2 && !raw.includes(":")) {
+    formatted = digits + ":"
+  }
+  setTime(formatted.slice(0, 5))
+
+  const parts = formatted.split(":")
+  if (parts.length === 2 && parts[1].length === 2 && selectedDate) {
+    const hour = Math.min(23, Number(parts[0]) || 0)
+    const minute = Math.min(59, Number(parts[1]) || 0)
+    setSelectedDate(selectedDate.set({ hour, minute }))
+  }
+}
+
+<div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+  <DatePicker
+    id="date-picker-two-field-date"
+    triggerDateFormat="MMM d, yyyy"
+    size="lg"
+    pill
+    captionLayout="dropdown"
+    triggerShowIcon={false}
+    dropdownIconType="none"
+    placeholder="Select date"
+    value={selectedDate}
+    onChange={(next) => {
+      // A picked date takes the typed time
+      if (next && time) {
+        const [hour, minute] = time.split(":").map(Number)
+        setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))
+      } else {
+        setSelectedDate(next)
+      }
+    }}
+  />
+  <Input
+    id="date-picker-two-field-time"
+    size="lg"
+    pill
+    value={time}
+    onChange={handleTimeInput}
+    placeholder="HH:MM"
+    maxLength={5}
+    style={{ width: "72px" }}
+  />
 </div>`} previewMinHeight={100}>
   <DatePickerTwoFieldDemo />
 </ComponentPreview>
 
 ### Date input
 
-<ComponentPreview details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`<DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />`} previewMinHeight={80}>
+<ComponentPreview details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`<div className="w-[200px]">
+  <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" aria-label="Date" />
+</div>`} previewMinHeight={80}>
   <DatePickerMaskedDateDemo />
 </ComponentPreview>
 
 ### DateTime input
 
-<ComponentPreview details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`<DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />`} previewMinHeight={80}>
+<ComponentPreview details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`<div className="w-[260px]">
+  <DateInput
+    value={dateTime}
+    onChange={setDateTime}
+    mode="mm/dd/yyyy"
+    separator="/"
+    timeMode="HH:MM"
+    aria-label="Date and time"
+  />
+</div>`} previewMinHeight={80}>
   <DatePickerMaskedDateTimeDemo />
 </ComponentPreview>
 
 ### Without Icon
 
-<ComponentPreview details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false.</>} code={`<DatePicker triggerShowIcon={false} placeholder="Choose a date" ... />`} previewMinHeight={168}>
+<ComponentPreview details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false.</>} code={`<DatePicker
+  id="date-picker-no-icon"
+  triggerDateFormat="MM/dd/yy"
+  size="lg"
+  triggerShowIcon={false}
+  placeholder="Choose a date"
+  value={selectedDate}
+  onChange={setSelectedDate}
+/>`} previewMinHeight={168}>
   <DatePickerWithoutIconDemo />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview details={<>Disable the picker to prevent user interaction.</>} code={`<DatePicker disabled value={...} onChange={...} />`} previewMinHeight={168}>
+<ComponentPreview details={<>Disable the picker to prevent user interaction.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(DateTime.local())
+
+<DatePicker
+  id="date-picker-disabled"
+  triggerDateFormat="MM/dd/yy"
+  size="lg"
+  disabled
+  value={selectedDate}
+  onChange={setSelectedDate}
+/>`} previewMinHeight={168}>
   <DatePickerDisabledDemo />
 </ComponentPreview>
 
@@ -116,20 +226,29 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
 
 <PropsTable data={[
-  { prop: "value", type: "DateTime | null", description: "Selected date (luxon)" },
-  { prop: "onChange", type: "(date: DateTime | null) => void", description: "Called when date changes" },
-  { prop: "min", type: "DateTime", description: "Minimum selectable date" },
-  { prop: "max", type: "DateTime", description: "Maximum selectable date" },
+  { prop: "value", type: "DateTime | null", description: "Required. Selected date (luxon)" },
+  { prop: "onChange", type: "(date: DateTime | null) => void", description: "Required. Called when the date changes" },
+  { prop: "id", type: "string", description: "Id of the trigger, for forms and labels" },
+  { prop: "min", type: "DateTime", description: "Earliest selectable date (inclusive)" },
+  { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "captionLayout", type: '"buttons" | "dropdown"', default: '"buttons"', description: "Calendar header mode. Use dropdown for date of birth" },
   { prop: "showTime", type: "boolean", default: "false", description: "Show time input below calendar" },
-  { prop: "yearRange", type: "[number, number]", description: "Min/max years for dropdown caption" },
-  { prop: "size", type: "ControlSize", description: "Trigger size (3xs to 3xl)" },
-  { prop: "pill", type: "boolean", description: "Rounded trigger" },
-  { prop: "clearable", type: "boolean", description: "Show clear button" },
+  { prop: "yearRange", type: "[number, number]", default: "last 120 years", description: "Min/max years for dropdown caption" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Trigger size (3xs to 3xl)" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Trigger style" },
+  { prop: "pill", type: "boolean", default: "true", description: "Rounded trigger" },
+  { prop: "block", type: "boolean", default: "false", description: "Full-width trigger" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
   { prop: "triggerShowIcon", type: "boolean", default: "true", description: "Show calendar icon" },
   { prop: "triggerDateFormat", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when showTime is enabled" },
-  { prop: "placeholder", type: "string", description: "Trigger placeholder" },
-  { prop: "disabled", type: "boolean", description: "Disable picker" },
+  { prop: "triggerClassName", type: "string", description: "Class applied to the trigger" },
+  { prop: "dropdownIconType", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
+  { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable picker" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover" },
+  { prop: "sideOffset", type: "number", default: "8", description: "Distance from the trigger in pixels" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment against the trigger" },
+  { prop: "alignOffset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },
 ]} />
 
 ## Styling

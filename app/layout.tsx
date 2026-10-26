@@ -1,9 +1,9 @@
-import { RootProvider } from 'fumadocs-ui/provider/next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { PlexThemeSync } from '@/components/PlexThemeSync';
+import { DocsRootProvider } from '@/components/layout/DocsRootProvider';
 import { COMPONENTS_COUNT } from '@/lib/counts';
 import packageJson from '../packages/ui/package.json';
 import './globals.css';
@@ -141,11 +141,11 @@ export default function Layout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="flex min-h-screen flex-col">
-        <RootProvider>
+        <DocsRootProvider>
           <PlexThemeSync>
             <div className="flex min-h-screen flex-1 flex-col">{children}</div>
           </PlexThemeSync>
-        </RootProvider>
+        </DocsRootProvider>
         <Analytics />
         <SpeedInsights />
       </body>

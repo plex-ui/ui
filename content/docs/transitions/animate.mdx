@@ -1,6 +1,6 @@
 ---
 title: Animate
-description: React Animate primitive for mount and unmount transitions — fade, grow, cross-fade, and continuous transitions with declarative state hooks
+description: React Animate primitive for mount and unmount transitions. Fade, grow, cross-fade, and continuous transitions with declarative state hooks
 ---
 
 import { Animate } from "@plexui/ui/components/Transition"
@@ -102,14 +102,14 @@ Props are the same as in React. Children come from the default slot and keep a s
 ## Reference
 
 <PropsTable data={[
+  { prop: "as", type: '"span" | "div"', default: '"span"', description: "Tag used for the wrapper and item elements" },
   { prop: "className", type: "string", description: "Class applied to the wrapper element" },
   { prop: "transitionClassName", type: "string", description: "Class applied to the inner TransitionGroup" },
   { prop: "enter", type: "TransitionDefinition", description: "Styles applied to the enter transition (opacity, x, y, scale, rotate, skewX, skewY, blur, duration, delay, timingFunction)" },
   { prop: "exit", type: "TransitionDefinition", description: "Styles applied to the exit transition" },
   { prop: "initial", type: "InitialTransitionDefinition", description: "Styles applied before the enter transition (no duration/delay/timingFunction)" },
-  { prop: "enterDuration", type: "number", description: "Override computed enter duration (ms)" },
-  { prop: "exitDuration", type: "number", description: "Override computed exit duration (ms)" },
   { prop: "preventInitialTransition", type: "boolean", default: "true", description: "When false, children run enter on the group's initial mount" },
+  { prop: "insertMethod", type: '"append" | "prepend"', default: '"append"', description: "Whether new children are added after (append) or before (prepend) the existing ones" },
   { prop: "transitionPosition", type: '"absolute" | "static"', default: '"absolute"', description: "Positioning of transition states" },
   { prop: "forceCompositeLayer", type: "boolean", default: "false", description: "Applies will-change for compositing; use with caution" },
 ]} />

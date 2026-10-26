@@ -1,6 +1,6 @@
 ---
 title: Animate Layout
-description: AnimateLayout React primitive for smoothly animating width and height changes — accordion expansion, growing buttons, and dynamic content panels
+description: AnimateLayout React primitive for smoothly animating width and height changes, such as accordion expansion, growing buttons, and dynamic content panels
 ---
 
 import { AnimateLayout } from "@plexui/ui/components/Transition"
@@ -41,7 +41,7 @@ Use when transitions should affect the layout of surrounding DOM nodes (e.g. exp
 
 <code>&lt;AnimateLayout&gt;</code> is an abstraction around <code>&lt;TransitionGroup&gt;</code> that also animates <code>height</code> and <code>width</code> of transitions.
 
-It supports the same props as <code>&lt;Animate&gt;</code> plus <code>layoutEnter</code>, <code>layoutExit</code>, and <code>layoutMove</code> for layout timing.
+It supports the same props as <code>&lt;Animate&gt;</code> except <code>transitionPosition</code>, plus <code>dimension</code>, <code>hideOverflow</code>, <code>itemAnchor</code>, and <code>layoutEnter</code>, <code>layoutExit</code> and <code>layoutMove</code> for layout timing.
 
 ### Height
 
@@ -117,6 +117,7 @@ Props are the same as in React, in kebab-case (<code>transition-class-name</code
 ## Reference
 
 <PropsTable data={[
+  { prop: "as", type: '"span" | "div"', default: '"span"', description: "Tag used for the wrapper and item elements" },
   { prop: "className", type: "string", description: "Class applied to the wrapper element" },
   { prop: "transitionClassName", type: "string", description: "Class applied to the inner TransitionGroup; use for padding on children" },
   { prop: "dimension", type: '"height" | "width"', default: '"height"', description: "Which property to animate during transitions" },
@@ -129,5 +130,6 @@ Props are the same as in React, in kebab-case (<code>transition-class-name</code
   { prop: "hideOverflow", type: "boolean", default: "false", description: "Apply overflow: hidden to the wrapper" },
   { prop: "itemAnchor", type: '"start" | "end"', default: '"start"', description: "Which side of the container items pin to during enter/exit" },
   { prop: "preventInitialTransition", type: "boolean", default: "true", description: "When false, children run enter on initial mount" },
+  { prop: "insertMethod", type: '"append" | "prepend"', default: '"append"', description: "Whether new children are added after (append) or before (prepend) the existing ones" },
   { prop: "forceCompositeLayer", type: "boolean", default: "false", description: "Applies will-change; use with caution" },
 ]} />

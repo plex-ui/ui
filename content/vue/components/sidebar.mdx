@@ -22,7 +22,7 @@ export const indent = (text, spaces) =>
 
 export const demoHeader = (title) => `<SidebarHeader>
   <span class="demo-sidebar-wordmark">${title}</span>
-  <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+  <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
     <SidebarTrigger>
       <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
       <SidebarCollapseLeft v-else />
@@ -30,7 +30,7 @@ export const demoHeader = (title) => `<SidebarHeader>
     <template #content>
       <span class="inline-flex items-center gap-1.5">
         {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
-        <kbd class="console-trigger-kbd">⌘.</kbd>
+        <kbd class="console-trigger-kbd">⌘B</kbd>
       </span>
     </template>
   </Tooltip>
@@ -608,7 +608,7 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 
 ### Collapsible Sections
 
-<ComponentPreview language="vue" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. Each level of the tree is one <code>v-for</code>; a parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level.</>} code={collapsibleSections} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
+<ComponentPreview language="vue" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Each level of the tree is one <code>v-for</code>.</>} code={collapsibleSections} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
   <VueSidebarDemo template={collapsibleSections} stageClassName={STAGE} state={{ expanded: { "getting-started": true, dashboard: true }, docsPage: { id: "introduction", label: "Introduction" }, appPage: { id: "overview", label: "Overview" } }} controls={[{ name: "icons", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -620,7 +620,7 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 
 ### Tree with Hover Actions
 
-<ComponentPreview language="vue" details={<>Tree navigation with chevrons on the left and action buttons on the right. Clicking a row selects the item. Chevrons toggle expand/collapse. Action buttons (<code>...</code> and <code>+</code>) appear on hover for parent items.</>} code={vueSidebarActionTreeCode} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+<ComponentPreview language="vue" details={<>Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a <code>+</code> menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.</>} code={vueSidebarActionTreeCode} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarActionTreeDemo />
 </ComponentPreview>
 
@@ -637,22 +637,22 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
   <VueSidebarDemo template={searchInput} stageClassName={STAGE} state={{ activeItem: "Get started-Overview", searchValue: "" }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 ### Structure
 
 A Sidebar is composed of the following parts:
 
-- `SidebarProvider` &ndash; Handles collapsible state and provides context to all child components.
-- `SidebarLayout` &ndash; Wrapper for sidebar and main content.
-- `Sidebar` &ndash; The sidebar container.
-- `SidebarHeader` / `SidebarFooter` &ndash; Sticky at the top and bottom of the sidebar.
-- `SidebarContent` &ndash; Scrollable content area.
-- `SidebarGroup` &ndash; Section within the content, with optional label.
-- `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton` &ndash; Navigation menu items.
-- `SidebarMenuSub` / `SidebarMenuSubButton` &ndash; Nested submenu items.
-- `SidebarInset` &ndash; Main content area next to the sidebar.
-- `SidebarTrigger` &ndash; Toggle button for collapsing the sidebar.
+- `SidebarProvider`: Handles collapsible state and provides context to all child components.
+- `SidebarLayout`: Wrapper for sidebar and main content.
+- `Sidebar`: The sidebar container.
+- `SidebarHeader` / `SidebarFooter`: Sticky at the top and bottom of the sidebar.
+- `SidebarContent`: Scrollable content area.
+- `SidebarGroup`: Section within the content, with optional label.
+- `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton`: Navigation menu items.
+- `SidebarMenuSub` / `SidebarMenuSubButton`: Nested submenu items.
+- `SidebarInset`: Main content area next to the sidebar.
+- `SidebarTrigger`: Toggle button for collapsing the sidebar.
 
 Use `Cmd+B` (Mac) or `Ctrl+B` (Windows/Linux) to toggle the sidebar with keyboard.
 
@@ -665,6 +665,8 @@ Handles sidebar state and provides context to all child components. Wrap your ap
   { prop: "default-open", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state. Bind with v-model:open" },
   { prop: "@update:open", type: "(open: boolean) => void", description: "Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits" },
+  { prop: "class", type: "string", description: "Class of the provider's wrapper" },
+  { prop: "style", type: "StyleValue", description: "Style of the provider's wrapper, e.g. --sidebar-width" },
   { prop: "default slot", type: "{ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }", description: "Receives the sidebar context, the object useSidebar() returns" },
 ]} />
 
@@ -677,13 +679,13 @@ The main sidebar container. Renders as an `<aside>` element.
   { prop: "side", type: '"left" | "right"', default: '"left"', description: "Which side the sidebar is on" },
 ]} />
 
-### SidebarMenuButton
+### SidebarGroup
 
-Renders a menu item button. Use `is-active` to highlight the current page.
+A section within `SidebarContent`.
 
 <PropsTable data={[
-  { prop: "is-active", type: "boolean", default: "false", description: "Highlight the current page" },
-  { prop: "tooltip", type: "string", description: "Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content" },
+  { prop: "default-open", type: "boolean", default: "true", description: "Initial data-state of the group" },
+  { prop: "open", type: "boolean", description: "Sets data-state (open or closed) for styling. The group has no built-in toggle, so it does not emit update:open" },
 ]} />
 
 ### SidebarGroupLabel
@@ -691,7 +693,24 @@ Renders a menu item button. Use `is-active` to highlight the current page.
 Renders a section label within a `SidebarGroup`. Supports two size variants.
 
 <PropsTable data={[
-  { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm: compact, tertiary; lg: larger, primary, more spacing" },
+  { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm: compact, tertiary. lg: larger, primary, more spacing" },
+  { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element as the label" },
+]} />
+
+### SidebarMenuItem
+
+<PropsTable data={[
+  { prop: "expanded", type: "boolean", description: "Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub" },
+]} />
+
+### SidebarMenuButton
+
+Renders a menu item button. Use `is-active` to highlight the current page.
+
+<PropsTable data={[
+  { prop: "is-active", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
+  { prop: "tooltip", type: "string", description: "Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content" },
+  { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element (e.g. a RouterLink) as the button. The button attributes go on the child and its content is wrapped like the button's" },
 ]} />
 
 ### SidebarMenuSub
@@ -699,16 +718,33 @@ Renders a section label within a `SidebarGroup`. Supports two size variants.
 Renders a collapsible submenu container for nested navigation.
 
 <PropsTable data={[
-  { prop: "open", type: "boolean", default: "true", description: "Whether submenu is expanded" },
+  { prop: "open", type: "boolean", default: "true", description: "Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree" },
   { prop: "has-icons", type: "boolean", default: "false", description: "Align child items with parent text that has icons" },
 ]} />
+
+### SidebarMenuSubButton
+
+<PropsTable data={[
+  { prop: "is-active", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
+  { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left margin" },
+  { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element (e.g. a RouterLink) as the button" },
+]} />
+
+### SidebarTrigger
+
+Collapse button. Renders nothing when `collapsible="none"`. The default slot replaces the default icon. A `@click` listener runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the animated hamburger for the mobile menu, handles `@click` the same way.
+
+### SidebarInput
+
+A search field: `Input` with a search icon as its start adornment. Every attribute, listener and slot goes to the `Input` (`v-model:value`, `@clear`, ...).
 
 ### SidebarCard
 
 Renders a promotional card in the sidebar footer for CTAs, upgrades, or announcements.
 
 <PropsTable data={[
-  { prop: "dismissible", type: "boolean", description: "Shows dismiss button" },
+  { prop: "variant", type: '"default" | "elevated"', default: '"default"', description: "Visual variant" },
+  { prop: "dismissible", type: "boolean", default: "false", description: "Shows dismiss button" },
   { prop: "@dismiss", type: "(event: MouseEvent) => void", description: "Emitted when the dismiss button is clicked" },
 ]} />
 
@@ -716,9 +752,58 @@ Renders a promotional card in the sidebar footer for CTAs, upgrades, or announce
 
 Composable to access sidebar state and controls from the `setup()` of any component within `SidebarProvider`. It returns a reactive object: read its fields (`sidebar.state`) rather than destructuring them outside a render.
 
-- `state` &ndash; Current state: `"expanded"` or `"collapsed"`
-- `open` / `setOpen` &ndash; Desktop sidebar open state
-- `openMobile` / `setOpenMobile` &ndash; Mobile menu open state
-- `isMobile` &ndash; Whether the viewport is mobile
-- `collapsible` &ndash; Current collapsible mode
-- `toggleSidebar` &ndash; Toggle function for both desktop and mobile
+- `state`: Current state: `"expanded"` or `"collapsed"`
+- `open` / `setOpen`: Desktop sidebar open state
+- `openMobile` / `setOpenMobile`: Mobile menu open state
+- `isMobile`: Whether the viewport is mobile
+- `collapsible`: Current collapsible mode
+- `toggleSidebar`: Toggle function for both desktop and mobile
+
+## Styling
+
+Sidebar reads these component tokens. Override them at any scope to restyle it. `SidebarProvider` sets the three width tokens on its own element, so change those through its `style` (or on an element inside it):
+
+- `--sidebar-accent`: accent (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--sidebar-background`: background (default `none`)
+- `--sidebar-border`: border (default `var(--color-border)`)
+- `--sidebar-collapse-duration`: collapse duration (default `0.3s`)
+- `--sidebar-footer-shadow`: footer shadow
+- `--sidebar-foreground`: foreground (default `var(--color-text)`)
+- `--sidebar-group-label-color`: group label color (default `var(--color-text-tertiary)`)
+- `--sidebar-gutter`: gutter (default `12px`)
+- `--sidebar-gutter-sm`: gutter sm (default `var(--control-gutter-2xs)`)
+- `--sidebar-header-height`: header height (default `var(--control-size-3xl)`)
+- `--sidebar-icon-margin`: icon margin (default `0 2px 0 4px`)
+- `--sidebar-icon-size`: icon size (default `20px`)
+- `--sidebar-icon-wrapper-size`: icon wrapper size (default `32px`)
+- `--sidebar-inset-shadow`: inset shadow (default `none`)
+- `--sidebar-menu-item-font-size`: menu item font size (default `14px`)
+- `--sidebar-menu-item-height`: menu item height (default `38px`)
+- `--sidebar-menu-item-height-desktop`: menu item height desktop (default `32px`)
+- `--sidebar-menu-item-line-height`: menu item line height (default `20px`)
+- `--sidebar-menu-item-margin`: menu item margin (default `0 0 2px`)
+- `--sidebar-menu-item-margin-desktop`: menu item margin desktop (default `0 0 2px`)
+- `--sidebar-menu-item-padding`: menu item padding (default `0`)
+- `--sidebar-menu-item-radius`: menu item radius (default `8px`)
+- `--sidebar-menu-text`: menu text (default `light-dark(var(--gray-750), var(--gray-850))`)
+- `--sidebar-menu-text-active`: menu text active (default `var(--gray-900)`)
+- `--sidebar-mobile-backdrop-color`: mobile backdrop color (default `light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 35%))`)
+- `--sidebar-mobile-button-radius`: mobile button radius (default `8px`)
+- `--sidebar-mobile-button-size`: mobile button size (default `32px`)
+- `--sidebar-mobile-enter-delay`: mobile enter delay (default `0.33s`)
+- `--sidebar-mobile-enter-opacity-duration`: mobile enter opacity duration (default `0.8s`)
+- `--sidebar-mobile-enter-transform-duration`: mobile enter transform duration (default `0.7s`)
+- `--sidebar-mobile-exit-duration`: mobile exit duration (default `0.3s`)
+- `--sidebar-mobile-gutter`: mobile gutter (default `12px`)
+- `--sidebar-mobile-header-height`: mobile header height (default `48px`)
+- `--sidebar-mobile-icon-size`: mobile icon size (default `18px`)
+- `--sidebar-mobile-line-color`: mobile line color (default `var(--gray-900)`)
+- `--sidebar-mobile-line-height`: mobile line height (default `2px`)
+- `--sidebar-mobile-line-transition-duration`: mobile line transition duration (default `0.2s`)
+- `--sidebar-mobile-z-index`: mobile z index (default `301`)
+- `--sidebar-transition-duration`: transition duration (default `0.3s`)
+- `--sidebar-width`: width (`SidebarProvider` sets `240px`)
+- `--sidebar-width-icon`: width icon (`SidebarProvider` sets `64px`)
+- `--sidebar-width-mobile`: width mobile (`SidebarProvider` sets `288px`)
+- `--skeleton-background`: background (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--skeleton-radius`: radius (default `var(--radius-md)`)

@@ -112,7 +112,7 @@ export const disabled = `<ButtonLink href="#" color="primary" :disabled="disable
   <VueDemo template={disabled} stageClassName="flex items-center justify-center py-12" controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "Content inside the link button" },
@@ -150,7 +150,7 @@ import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider"
 </template>
 ```
 
-Elsewhere, internal links go through the router:
+A link component that declares a `to` prop, such as `RouterLink` or `NuxtLink`, receives the `href` as `to`. Elsewhere, internal links go through the router:
 
 ```vue
 <ButtonLink to="/help">Get Help</ButtonLink>
@@ -163,3 +163,12 @@ You can also pass your link component to the `as` prop:
 ```vue
 <ButtonLink :as="NuxtLink" to="/dashboard">Open dashboard</ButtonLink>
 ```
+
+## Styling
+
+Button Link reads these component tokens. Override them at any scope to restyle it:
+
+- `--button-font-weight`: font weight (default `var(--font-weight-medium)`)
+- `--button-gap-lg`: gap lg (default `6px`)
+- `--button-gap-md`: gap md (default `4px`)
+- `--button-gap-sm`: gap sm (default `3px`)

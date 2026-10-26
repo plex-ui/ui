@@ -80,7 +80,7 @@ export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
   <VueDemo template={loading} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "Content inside the badge" },
@@ -88,4 +88,34 @@ export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"soft"', description: "Style variant" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "Badge size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "class", type: "string", description: "Class applied to the badge" },
 ]} />
+
+## Styling
+
+Badge reads these component tokens. Override them at any scope to restyle it:
+
+- `--badge-font-size-lg`: font size lg (default `var(--font-text-sm-size)`)
+- `--badge-font-size-md`: font size md (default `var(--font-text-sm-size)`)
+- `--badge-font-size-sm`: font size sm (default `var(--font-text-xs-size)`)
+- `--badge-font-weight-lg`: font weight lg (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-md`: font weight md (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-sm`: font weight sm (default `var(--font-weight-semibold)`)
+- `--badge-gutter-lg`: gutter lg (default `var(--control-gutter-xs)`)
+- `--badge-gutter-md`: gutter md (default `var(--control-gutter-2xs)`)
+- `--badge-gutter-sm`: gutter sm (default `calc(var(--control-gutter-2xs) - 1px)`)
+- `--badge-icon-font-size-lg`: icon font size lg (default `var(--font-text-md-size)`)
+- `--badge-icon-font-size-md`: icon font size md (default `var(--font-text-md-size)`)
+- `--badge-icon-font-size-sm`: icon font size sm (default `var(--font-text-xs-size)`)
+- `--badge-indicator-size-lg`: indicator size lg (default `var(--font-text-sm-size)`)
+- `--badge-indicator-size-md`: indicator size md (default `var(--font-text-xs-size)`)
+- `--badge-indicator-size-sm`: indicator size sm (default `var(--font-text-xs-size)`)
+- `--badge-radius-lg`: radius lg (default `var(--radius-sm)`)
+- `--badge-radius-md`: radius md (default `var(--radius-xs)`)
+- `--badge-radius-sm`: radius sm (default `var(--radius-xs)`)
+- `--badge-size-lg`: size lg (default `var(--control-size-2xs)`)
+- `--badge-size-md`: size md (default `var(--control-size-3xs)`)
+- `--badge-size-sm`: size sm (default `calc(var(--control-size-3xs) - 2px)`)
+- `--badge-tracking-lg`: tracking lg (default `var(--tracking-normal)`)
+- `--badge-tracking-md`: tracking md (default `var(--tracking-normal)`)
+- `--badge-tracking-sm`: tracking sm (default `var(--tracking-wide)`)

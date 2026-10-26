@@ -1,7 +1,7 @@
 ---
 title: Button Group
 description: Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
-metaDescription: Join buttons into a single visual unit — toolbars, steppers, split buttons, search affordances
+metaDescription: React button group component that joins buttons, inputs and other controls into one unit for toolbars, steppers, split buttons and search affordances.
 ---
 
 import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
@@ -28,14 +28,20 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 ### Overview
 
 <ComponentPreview code={`<ButtonGroup>
-  <ButtonGroup><Button uniform aria-label="Go back"><ArrowLeftSm /></Button></ButtonGroup>
   <ButtonGroup>
-    <Button>Pin</Button>
-    <Button>Tag</Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Go back">
+      <ArrowLeftSm />
+    </Button>
   </ButtonGroup>
   <ButtonGroup>
-    <Button>Bookmark</Button>
-    <Button uniform aria-label="More options"><DotsHorizontal /></Button>
+    <Button variant="outline" color="secondary" size="sm">Pin</Button>
+    <Button variant="outline" color="secondary" size="sm">Tag</Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="sm">Bookmark</Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="More options">
+      <DotsHorizontal />
+    </Button>
   </ButtonGroup>
 </ButtonGroup>`}>
   <ButtonGroupOverviewDemo />
@@ -43,37 +49,57 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Orientation
 
-<ComponentPreview details={<>Pass <code>orientation="vertical"</code> to stack the buttons, which is useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
-  <Button uniform aria-label="Zoom in"><PlusSm /></Button>
-  <Button uniform aria-label="Zoom out"><Minus /></Button>
+<ComponentPreview details={<>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
+  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom in">
+    <PlusSm />
+  </Button>
+  <Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom out">
+    <Minus />
+  </Button>
 </ButtonGroup>`}>
   <ButtonGroupOrientationDemo />
 </ComponentPreview>
 
 ### Size
 
-<ComponentPreview details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons. Each child keeps its own padding.</>} code={`<ButtonGroup>
-  <Button size="sm">Small</Button>
-  <Button size="sm">Button</Button>
-  <Button size="sm">Group</Button>
-  <Button size="sm" uniform aria-label="Add"><PlusSm /></Button>
-</ButtonGroup>`}>
+<ComponentPreview details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</>} code={`<div className="flex flex-col items-start gap-6">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="sm">Small</Button>
+    <Button variant="outline" color="secondary" size="sm">Button</Button>
+    <Button variant="outline" color="secondary" size="sm">Group</Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary">Default</Button>
+    <Button variant="outline" color="secondary">Button</Button>
+    <Button variant="outline" color="secondary">Group</Button>
+    <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="lg">Large</Button>
+    <Button variant="outline" color="secondary" size="lg">Button</Button>
+    <Button variant="outline" color="secondary" size="lg">Group</Button>
+    <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+</div>`}>
   <ButtonGroupSizeDemo />
 </ComponentPreview>
 
 ### Nested
 
-<ComponentPreview details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination + arrow nav is the canonical pattern.</>} code={`<ButtonGroup aria-label="Pager">
+<ComponentPreview details={<>Place <code>ButtonGroup</code> inside <code>ButtonGroup</code> to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.</>} code={`<ButtonGroup aria-label="Pager">
   <ButtonGroup>
-    <Button size="sm">1</Button>
-    <Button size="sm">2</Button>
-    <Button size="sm">3</Button>
-    <Button size="sm">4</Button>
-    <Button size="sm">5</Button>
+    {[1, 2, 3, 4, 5].map((page) => (
+      <Button key={page} variant="outline" color="secondary" size="sm">{page}</Button>
+    ))}
   </ButtonGroup>
   <ButtonGroup>
-    <Button size="sm" uniform aria-label="Previous page"><ArrowLeftSm /></Button>
-    <Button size="sm" uniform aria-label="Next page"><ArrowRightSm /></Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Previous page">
+      <ArrowLeftSm />
+    </Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Next page">
+      <ArrowRightSm />
+    </Button>
   </ButtonGroup>
 </ButtonGroup>`}>
   <ButtonGroupNestedDemo />
@@ -92,9 +118,9 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 ### Split
 
 <ComponentPreview details={<>The classic split button: an action joined to a secondary affordance via <code>ButtonGroup.Separator</code>. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.</>} code={`<ButtonGroup>
-  <Button variant="soft" color="secondary"><Filter /> Filter</Button>
+  <Button variant="soft" color="secondary" size="sm"><Filter /> Filter</Button>
   <ButtonGroup.Separator />
-  <Button variant="soft" color="secondary" uniform aria-label="Add filter">
+  <Button variant="soft" color="secondary" size="sm" uniform aria-label="Add filter">
     <Plus />
   </Button>
 </ButtonGroup>`}>
@@ -104,21 +130,26 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 ### Input
 
 <ComponentPreview details={<>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</>} code={`<ButtonGroup>
-  <Input placeholder="Search docs..." />
-  <Button aria-label="Search"><SearchSm /></Button>
+  <Input placeholder="Search docs..." size="sm" />
+  <Button variant="outline" color="secondary" size="sm" aria-label="Search">
+    <SearchSm />
+  </Button>
 </ButtonGroup>`}>
   <ButtonGroupInputDemo />
 </ComponentPreview>
 
 ### Input group
 
-<ComponentPreview details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={`<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
   <ButtonGroup>
-    <Button pill uniform aria-label="Add attachment"><Plus /></Button>
+    <Button variant="outline" color="secondary" pill size="sm" uniform aria-label="Add attachment">
+      <Plus />
+    </Button>
   </ButtonGroup>
   <ButtonGroup>
     <Input
       pill
+      size="sm"
       placeholder={voiceEnabled ? "Recording your idea…" : "Describe a component…"}
       disabled={voiceEnabled}
       endAdornment={
@@ -140,18 +171,20 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 ### Dropdown menu
 
 <ComponentPreview details={<>Compose a primary action with a <a href="/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={`<ButtonGroup>
-  <Button>Export</Button>
+  <Button variant="outline" color="secondary" pill={false} size="sm">Export</Button>
   <Menu>
     <Menu.Trigger>
-      <Button uniform aria-label="More export options"><ChevronDownMd /></Button>
+      <Button variant="outline" color="secondary" pill={false} size="sm" uniform aria-label="More export options">
+        <ChevronDownMd />
+      </Button>
     </Menu.Trigger>
-    <Menu.Content align="end">
-      <Menu.Item><FileImage /> PNG image</Menu.Item>
-      <Menu.Item><FileCode /> SVG vector</Menu.Item>
-      <Menu.Item><FileDocument /> PDF document</Menu.Item>
+    <Menu.Content align="end" minWidth={200}>
+      <Menu.Item onSelect={() => {}}><FileImage /> PNG image</Menu.Item>
+      <Menu.Item onSelect={() => {}}><FileCode /> SVG vector</Menu.Item>
+      <Menu.Item onSelect={() => {}}><FileDocument /> PDF document</Menu.Item>
       <Menu.Separator />
-      <Menu.Item><Copy /> Copy as code</Menu.Item>
-      <Menu.Item><Link /> Copy share link</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Copy /> Copy as code</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Link /> Copy share link</Menu.Item>
     </Menu.Content>
   </Menu>
 </ButtonGroup>`}>
@@ -162,11 +195,20 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 <ComponentPreview details={<>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</>} code={`<ButtonGroup>
   <ButtonGroup>
-    <Select options={units} value={unit} onChange={(o) => setUnit(o.value)} variant="outline" pill={false} block={false} />
-    <Input placeholder="2.50" inputMode="decimal" />
+    <Select
+      options={units}
+      value={unit}
+      onChange={(option) => setUnit(option.value)}
+      variant="outline"
+      size="sm"
+      block={false}
+    />
+    <Input placeholder="2.50" size="sm" inputMode="decimal" />
   </ButtonGroup>
   <ButtonGroup>
-    <Button uniform aria-label="Log weight"><ArrowRight /></Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Log weight">
+      <ArrowRight />
+    </Button>
   </ButtonGroup>
 </ButtonGroup>`}>
   <ButtonGroupSelectDemo />
@@ -175,12 +217,14 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 ### Popover
 
 <ComponentPreview details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`<ButtonGroup>
-  <Button><Sparkles /> Generate</Button>
+  <Button variant="outline" color="secondary" pill={false} size="sm"><Sparkles /> Generate</Button>
   <Popover>
     <Popover.Trigger>
-      <Button uniform aria-label="More generate options"><ChevronDownMd /></Button>
+      <Button variant="outline" color="secondary" pill={false} size="sm" uniform aria-label="More generate options">
+        <ChevronDownMd />
+      </Button>
     </Popover.Trigger>
-    <Popover.Content side="bottom" align="end" className="p-4">
+    <Popover.Content minWidth={320} side="bottom" align="end" className="p-4">
       <Card variant="ghost" size="sm">
         <Card.Header>
           <Card.Title>Generate a component</Card.Title>

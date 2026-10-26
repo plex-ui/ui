@@ -105,7 +105,7 @@ Semantic color props (`primary`, `secondary`, `danger`, etc.), variant props (`s
 
 ### Dark Mode
 
-How Plex UI uses CSS `light-dark()` for automatic dark mode, with no `dark:` prefixes needed. Theme toggling via `color-scheme`.
+How Plex UI switches themes: set `data-theme="dark"` on `<html>` (or call `applyDocumentTheme` from `@plexui/ui/theme`) and every token and component follows, with no `dark:` prefixes needed. Without the attribute the light theme applies; `color-scheme` alone does not switch Plex tokens.
 
 ### Icon Library
 
@@ -121,7 +121,7 @@ Subpath import convention (`@plexui/ui/components/Button`), `PlexUIProvider` set
 
 1. **Project detection**: The skill activates when your AI assistant encounters `@plexui/ui` imports or Plex UI components in the codebase.
 2. **Context injection**: The assistant receives Plex UI's component APIs, conventions, and patterns as project context.
-3. **Pattern enforcement**: The assistant follows Plex UI conventions: subpath imports, semantic color props, unified size scale, and automatic dark mode.
+3. **Pattern enforcement**: The assistant follows Plex UI conventions: subpath imports, semantic color props, unified size scale, and theme-aware tokens.
 4. **Correct on first try**: Instead of guessing API shapes, the assistant uses the exact props and patterns from the skill.
 
 ---

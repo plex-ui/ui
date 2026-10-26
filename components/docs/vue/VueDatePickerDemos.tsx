@@ -45,14 +45,16 @@ const dayShortcuts = [
     label: 'Last 7 days',
     getDateRange: (): DateRange => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 7 }).startOf('day'), today];
+      // Inclusive of today: 7 days end today and start 6 days earlier
+      return [today.minus({ days: 6 }).startOf('day'), today];
     },
   },
   {
     label: 'Last 30 days',
     getDateRange: (): DateRange => {
       const today = DateTime.local().endOf('day');
-      return [today.minus({ days: 30 }).startOf('day'), today];
+      // Inclusive of today: 30 days end today and start 29 days earlier
+      return [today.minus({ days: 29 }).startOf('day'), today];
     },
   },
 ];

@@ -12,34 +12,55 @@ import { TagInputBaseDemoWithControls, TagInputSuggestionsDemo, TagInputInlineFi
 
 ### Overview
 
-<ComponentPreview code={`<TagInput
-  placeholder="Add a tag..."
-  rows={3}
-/>`} previewMinHeight={168}>
+<ComponentPreview code={`<TagInput placeholder="Add a tag..." size="md" rows={1} pill={false} />`} previewMinHeight={168}>
   <TagInputBaseDemoWithControls />
 </ComponentPreview>
 
 ### Inline filter row
 
-<ComponentPreview details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={`<div className="flex items-start gap-2">
-  <Field label="Where" className="w-[160px] shrink-0">
-    <Menu>
-      <Menu.Trigger>
-        <SelectControl size="md" pill={pill} selected>{fieldLabel}</SelectControl>
-      </Menu.Trigger>
-      <Menu.Content minWidth={160}>
-        <Menu.RadioGroup value={field} onChange={setField}>
-          <Menu.RadioItem value="email">Email</Menu.RadioItem>
-          <Menu.RadioItem value="name">Name</Menu.RadioItem>
-          <Menu.RadioItem value="role">Role</Menu.RadioItem>
-        </Menu.RadioGroup>
-      </Menu.Content>
-    </Menu>
-  </Field>
-  <Field label="Is in" className="flex-1">
-    <TagInput size="md" pill={pill} value={tags} onChange={setTags} placeholder="Add value, press Enter…" />
-  </Field>
-</div>`} previewMinHeight={168}>
+<ComponentPreview details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={`const FIELD_OPTIONS = [
+  { value: "email", label: "Email" },
+  { value: "name", label: "Name" },
+  { value: "role", label: "Role" },
+  { value: "team", label: "Team" },
+  { value: "country", label: "Country" },
+]
+
+const [field, setField] = useState("email")
+const [tags, setTags] = useState<Tag[]>([
+  { value: "ada@plexui.com", valid: true },
+  { value: "grace@plexui.com", valid: true },
+])
+const fieldLabel = FIELD_OPTIONS.find((option) => option.value === field)?.label ?? ""
+
+return (
+  <div className="flex w-full max-w-2xl items-start gap-2">
+    <Field label="Where" className="w-[160px] shrink-0">
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl size="md" pill={false} selected={!!field} className="w-full">
+            {fieldLabel}
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={160} onCloseAutoFocus={(event) => event.preventDefault()}>
+          {FIELD_OPTIONS.map((option) => (
+            <Menu.CheckboxItem
+              key={option.value}
+              checked={field === option.value}
+              onCheckedChange={() => setField(option.value)}
+              indicatorVariant="ghost"
+            >
+              {option.label}
+            </Menu.CheckboxItem>
+          ))}
+        </Menu.Content>
+      </Menu>
+    </Field>
+    <Field label="Is in" className="flex-1">
+      <TagInput size="md" pill={false} value={tags} onChange={setTags} placeholder="Add value, press Enter…" />
+    </Field>
+  </div>
+)`} previewMinHeight={168}>
   <TagInputInlineFilterRowDemo />
 </ComponentPreview>
 
@@ -55,19 +76,21 @@ const [tags, setTags] = useState([
 const selectedValues = new Set(tags.map((t) => t.value));
 const available = SUGGESTIONS.filter((s) => !selectedValues.has(s));
 
-<div className="flex flex-col gap-3">
-  <TagInput value={tags} onChange={setTags} placeholder="Add a skill..." />
-  {available.length > 0 && (
-    <div className="flex flex-wrap gap-1.5">
-      {available.map((s) => (
-        <Button key={s} size="xs" color="secondary" variant="soft" pill={false}
-          onClick={() => setTags([...tags, { value: s, valid: true }])}>
-          {s}
-        </Button>
-      ))}
-    </div>
-  )}
-</div>`} previewMinHeight={168}>
+return (
+  <div className="flex flex-col gap-3">
+    <TagInput value={tags} onChange={setTags} placeholder="Add a skill..." size="md" />
+    {available.length > 0 && (
+      <div className="flex flex-wrap gap-1.5">
+        {available.map((s) => (
+          <Button key={s} size="xs" color="secondary" variant="soft" pill={false}
+            onClick={() => setTags([...tags, { value: s, valid: true }])}>
+            {s}
+          </Button>
+        ))}
+      </div>
+    )}
+  </div>
+);`} previewMinHeight={168}>
   <TagInputSuggestionsDemo />
 </ComponentPreview>
 
@@ -77,14 +100,19 @@ const available = SUGGESTIONS.filter((s) => !selectedValues.has(s));
   { prop: "value", type: "Tag[]", description: "Controlled value" },
   { prop: "defaultValue", type: "Tag[]", description: "Uncontrolled initial tags" },
   { prop: "onChange", type: "(tags: Tag[]) => void", description: "Change handler" },
+  { prop: "id", type: "string", description: "Id of the text input, so a label can target it with htmlFor" },
   { prop: "placeholder", type: "string", description: "Input placeholder" },
-  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag; invalid tags shown in red" },
-  { prop: "maxTags", type: "number", description: "Max tags before input is disabled" },
+  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag when it is created; invalid tags shown in red" },
+  { prop: "maxTags", type: "number", description: "Maximum number of tags. At the limit the text input hides and a count shows below; the container then takes the tab stop, so arrow keys and Backspace still select and remove tags" },
   { prop: "rows", type: "number", default: "1", description: "Min rows" },
   { prop: "size", type: "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'", default: "xl", description: "Control height when rows=1; matches Input height of the same size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully-rounded container and chips; matches Input/SelectControl pill" },
+  { prop: "delimiters", type: "string[]", default: '[",", " "]', description: "Characters that commit the current text as a tag" },
+  { prop: "disabled", type: "boolean", description: "Disables the input: tags cannot be added or removed, and pending text stays as typed" },
   { prop: "autoFocus", type: "boolean", default: "false", description: "Focus on mount" },
 ]} />
+
+`Tag` is `{ value: string; valid: boolean }`.
 
 ## Styling
 

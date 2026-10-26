@@ -237,13 +237,13 @@ export const pricing = `<div style="display: grid; gap: 16px; grid-template-colu
 
 ### Create project
 
-<ComponentPreview language="vue" details={<>Right-aligned footer with Cancel / Submit. Use <code>style="justify-content: flex-end"</code> on <code>CardFooter</code>.</>} code={createProject}>
+<ComponentPreview language="vue" details={<>Right-aligned footer with Cancel / Deploy. Use <code>style="justify-content: flex-end"</code> on <code>CardFooter</code>.</>} code={createProject}>
   <VueDemo template={createProject} />
 </ComponentPreview>
 
 ### Payment Method
 
-<ComponentPreview language="vue" details={<>Full-fidelity payment form. <strong>Card Number</strong> + <strong>CVV</strong> share a 2fr/1fr row with a helper line; <strong>Month</strong>/<strong>Year</strong> use <code>Select</code>. Sections are divided by subtle <code>hr</code>s for Billing Address and Comments.</>} code={paymentMethod}>
+<ComponentPreview language="vue" details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={paymentMethod}>
   <VueDemo template={paymentMethod} state={paymentMethodState} />
 </ComponentPreview>
 
@@ -295,14 +295,14 @@ export const pricing = `<div style="display: grid; gap: 16px; grid-template-colu
 | `variant` | `"outline" \| "solid" \| "ghost"` | `"outline"` | Visual variant |
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Padding scale |
 | `interactive` | `boolean` | `false` | Adds hover and focus affordances. Automatic when `href` is set. |
-| `href` | `string` | | Renders the Card as a link via the `linkComponent` of `PlexUIProvider`. |
+| `href` | `string` | | Renders the Card as a link via the `linkComponent` of `PlexUIProvider`. A link component that takes `to`, such as `RouterLink`, gets it as `to`. |
 | `external` | `boolean` | auto-detected | Forces `target="_blank"` and `rel="noopener noreferrer"` when `href` is set. |
 | `as` | `Component \| "a"` | | Overrides the link component. |
 | `class` | `string` | | Applied to the root element |
 
 All other attributes and listeners fall through to the root `<div>` or link.
 
-### Parts
+### Compound parts
 
 | Part | Element | Purpose |
 |------|---------|---------|
@@ -312,3 +312,20 @@ All other attributes and listeners fall through to the root `<div>` or link.
 | `CardContent` | `<div>` | Primary body region |
 | `CardFooter` | `<div>` | Trailing actions row |
 | `CardAction` | `<div>` | Absolute top-right slot inside `CardHeader` |
+
+## Styling
+
+Card reads these component tokens. Override them at any scope to restyle it:
+
+- `--card-background`: background (default `var(--color-surface)`)
+- `--card-background-hover`: background hover (default `var(--color-surface-secondary)`)
+- `--card-border-color`: border color (default `var(--color-border)`)
+- `--card-border-color-hover`: border color hover (default `var(--color-border-primary-outline-hover)`)
+- `--card-description-color`: description color (default `var(--color-text-tertiary)`)
+- `--card-description-font-size`: description font size (default `var(--font-text-sm-size)`)
+- `--card-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--card-radius`: radius (default `var(--radius-xl)`)
+- `--card-text-color`: text color (default `var(--color-text)`)
+- `--card-title-color`: title color (default `var(--color-text)`)
+- `--card-title-font-size`: title font size (default `var(--font-heading-xs-size)`)
+- `--card-title-font-weight`: title font weight (default `var(--font-weight-semibold)`)

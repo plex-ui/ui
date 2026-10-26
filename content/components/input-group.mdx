@@ -102,34 +102,36 @@ For a single icon or action button inside a plain field, [Input](/components/inp
 ]
 const [unit, setUnit] = useState("kg")
 
-<InputGroup>
-  <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
-  <InputGroup.Addon>
-    <InputGroup.Text>Weight</InputGroup.Text>
-  </InputGroup.Addon>
-  <InputGroup.Addon align="inline-end">
-    <Menu>
-      <Menu.Trigger>
-        <InputGroup.Button aria-label="Weight unit">
-          {unit}
-          <ChevronDownMd />
-        </InputGroup.Button>
-      </Menu.Trigger>
-      <Menu.Content align="end" minWidth={160}>
-        {UNITS.map((item) => (
-          <Menu.CheckboxItem
-            key={item.value}
-            checked={unit === item.value}
-            onCheckedChange={() => setUnit(item.value)}
-            indicatorVariant="ghost"
-          >
-            {item.label} ({item.value})
-          </Menu.CheckboxItem>
-        ))}
-      </Menu.Content>
-    </Menu>
-  </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={280}>
+return (
+  <InputGroup>
+    <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
+    <InputGroup.Addon>
+      <InputGroup.Text>Weight</InputGroup.Text>
+    </InputGroup.Addon>
+    <InputGroup.Addon align="inline-end">
+      <Menu>
+        <Menu.Trigger>
+          <InputGroup.Button aria-label="Weight unit">
+            {unit}
+            <ChevronDownMd />
+          </InputGroup.Button>
+        </Menu.Trigger>
+        <Menu.Content align="end" minWidth={160}>
+          {UNITS.map((item) => (
+            <Menu.CheckboxItem
+              key={item.value}
+              checked={unit === item.value}
+              onCheckedChange={() => setUnit(item.value)}
+              indicatorVariant="ghost"
+            >
+              {item.label} ({item.value})
+            </Menu.CheckboxItem>
+          ))}
+        </Menu.Content>
+      </Menu>
+    </InputGroup.Addon>
+  </InputGroup>
+)`} previewMinHeight={280}>
   <InputGroupDropdownDemo />
 </ComponentPreview>
 

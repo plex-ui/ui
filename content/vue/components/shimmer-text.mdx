@@ -45,7 +45,7 @@ export const controllable = `<ShimmerableText :shimmer="shimmer" class="text-lg 
   <VueDemo template={controllable} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "shimmer", type: "boolean", default: true }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 **ShimmerText**: always shimmering
 
@@ -63,3 +63,7 @@ export const controllable = `<ShimmerableText :shimmer="shimmer" class="text-lg 
   { prop: "default slot", type: "VNode[]", description: "Text content to shimmer" },
   { prop: "class", type: "string", description: "Additional CSS classes" },
 ]} />
+
+## Styling
+
+Shimmer Text has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

@@ -68,7 +68,7 @@ export const monthStepper = `<div style="width: fit-content">
 
 ### Shortcuts
 
-<ComponentPreview language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days.</>} code={shortcuts} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled.</>} code={shortcuts} previewMinHeight={168}>
   <VueDateRangePickerDemo template={shortcuts} />
 </ComponentPreview>
 
@@ -78,19 +78,19 @@ export const monthStepper = `<div style="width: fit-content">
   <VueDateRangePickerDemo template={monthStepper} initialRange="month" stageClassName="" controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "v-model:value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
-  { prop: "@change", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Called when range changes" },
-  { prop: "min", type: "DateTime", description: "Earliest selectable date" },
-  { prop: "max", type: "DateTime", description: "Latest selectable date" },
+  { prop: "value / v-model:value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
+  { prop: "@change", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Emitted when the range changes" },
+  { prop: "min", type: "DateTime", description: "Earliest selectable date (inclusive)" },
+  { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "max-range-days", type: "number", description: "Max length of range in days (inclusive)" },
-  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts" },
+  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
   { prop: "side-offset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },
-  { prop: "align-offset", type: "number", default: 'align === "center" ? 0 : -5', description: "Offset from start/end alignment in pixels" },
+  { prop: "align-offset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable picker interactions" },
   { prop: "placeholder", type: "string", default: '"Select date range..."', description: "Placeholder in trigger when value is empty" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger style variant" },
@@ -104,3 +104,14 @@ export const monthStepper = `<div style="width: fit-content">
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button in trigger" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch trigger to full available width" },
 ]} />
+
+## Styling
+
+Date Range Picker reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

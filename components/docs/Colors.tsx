@@ -39,7 +39,7 @@ function Grayscale() {
         <Color color="gray" weight="75" value="light-dark(#f3f3f3, #161616)" />
         <Color color="gray" weight="100" value="light-dark(#ededed, #181818)" />
         <Color color="gray" weight="150" value="light-dark(#dfdfdf, #1c1c1c)" />
-        <Color color="gray" weight="200" value="light-dark(#c4c4c4, #212121)" />
+        <Color color="gray" weight="200" value="light-dark(#cdcdcd, #212121)" />
         <Color color="gray" weight="250" value="light-dark(#b9b9b9, #282828)" />
         <Color color="gray" weight="300" value="light-dark(#afafaf, #303030)" />
         <Color color="gray" weight="350" value="light-dark(#9f9f9f, #393939)" />
@@ -91,7 +91,7 @@ function Grayscale() {
         <Color
           color="gray"
           weight="800"
-          value="light-dark(#212121, #c4c4c4)"
+          value="light-dark(#212121, #cdcdcd)"
           className={clsx(s.InvertLight, s.InvertDark)}
         />
         <Color
@@ -210,8 +210,8 @@ function Green() {
         <Color color="green" weight="600" value="#008635" className={s.InvertLight} />
         <Color color="green" weight="700" value="#00692a" className={s.InvertLight} />
         <Color color="green" weight="800" value="#004f1f" className={s.InvertLight} />
-        <Color color="green" weight="900" value="#011c0b" className={s.InvertLight} />
-        <Color color="green" weight="950" value="#003716" className={s.InvertLight} />
+        <Color color="green" weight="900" value="#003716" className={s.InvertLight} />
+        <Color color="green" weight="950" value="#011c0b" className={s.InvertLight} />
         <Color color="green" weight="1000" value="#001207" className={s.InvertLight} />
       </div>
       <div className="flex dark:flex-row-reverse dark:text-white">

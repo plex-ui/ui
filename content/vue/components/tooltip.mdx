@@ -26,7 +26,7 @@ export const conditional = `<Tooltip :content="disabled ? 'This action is disabl
 </Tooltip>`
 
 export const compact = `<Tooltip content="Copy to clipboard" compact>
-  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+  <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
 </Tooltip>`
 
 <UsageBlock>{`import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip";`}</UsageBlock>
@@ -57,19 +57,28 @@ export const compact = `<Tooltip content="Copy to clipboard" compact>
   <VueDemo template={compact} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "content", type: "string | VNode | null", description: "Tooltip content, or the #content slot (null = no tooltip)" },
-  { prop: "compact", type: "boolean", default: "false", description: "Short 1–3 word tooltips, inverse styling" },
+  { prop: "default slot", type: "VNode", description: "The trigger: a single element. Wrap plain text in TooltipTriggerDecorator" },
+  { prop: "content", type: "string | number | VNode | null", description: "Tooltip content, or the #content slot (null = no tooltip)" },
+  { prop: "compact", type: "boolean", default: "false", description: "Short 1-3 word tooltips, inverse styling" },
   { prop: "interactive", type: "boolean", default: "false", description: "Content is interactive, stays open when hovered" },
-  { prop: "maxWidth", type: "number | \"none\"", default: "300", description: "Max width of tooltip" },
-  { prop: "openDelay", type: "number", default: "150", description: "Delay before showing (ms)" },
-  { prop: "side", type: "string", default: '"top"', description: "Preferred side" },
-  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger" },
-  { prop: "align", type: "string", default: '"center"', description: "Alignment" },
-  { prop: "alignOffset", type: "number", default: "0", description: "Alignment offset" },
-  { prop: "gutterSize", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding" },
-  { prop: "contentClassName", type: "string", description: "Class for tooltip content" },
-  { prop: "forceOpen", type: "boolean", description: "Force open or closed" },
+  { prop: "max-width", type: "number | \"none\"", default: "300", description: "Max width of tooltip" },
+  { prop: "open-delay", type: "number", default: "150", description: "Delay before showing (ms)" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side" },
+  { prop: "side-offset", type: "number", default: "5", description: "Distance from trigger" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment" },
+  { prop: "align-offset", type: "number", default: "0", description: "Alignment offset" },
+  { prop: "gutter-size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding" },
+  { prop: "content-class-name", type: "string", description: "Class for tooltip content" },
+  { prop: "force-open", type: "boolean", description: "Force open or closed" },
+  { prop: "prevent-unintentional-click-to-close", type: "boolean", default: "false", description: "Keeps the tooltip open when the trigger is clicked right after it opened" },
+  { prop: "content slot", type: "VNode[]", description: "Rich tooltip content; takes precedence over content" },
 ]} />
+
+The tooltip content is the `role="tooltip"` element, and the trigger points at it with `aria-describedby`. Other attributes and listeners, such as `@click` and `@pointerdown`, go to the trigger element. `TooltipTriggerDecorator` turns text into an accessible trigger with the decorator style and a tab stop (`focusable`, default `true`).
+
+## Styling
+
+Tooltip has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

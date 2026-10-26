@@ -50,7 +50,7 @@ const singleItems = [
     value: 'trial',
     trigger: 'How long is the free trial?',
     content:
-      '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro — your projects stay in place either way.',
+      '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',
   },
   {
     value: 'plan',
@@ -141,7 +141,7 @@ export function AccordionDisabledDemo() {
       <Accordion.Item value="history">
         <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>
         <Accordion.Content>
-          Yes — the Activity tab logs every API call, deploy, and admin action
+          Yes, the Activity tab logs every API call, deploy, and admin action
           for the last 90 days. Longer retention requires the Enterprise plan.
         </Accordion.Content>
       </Accordion.Item>
@@ -184,7 +184,7 @@ const cardItems = [
     value: 'cancel',
     trigger: 'How do I cancel my subscription?',
     content:
-      'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards — nothing is deleted.',
+      'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',
   },
 ];
 

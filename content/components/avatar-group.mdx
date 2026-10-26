@@ -1,19 +1,19 @@
 ---
 title: Avatar Group
 description: Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
-metaDescription: React avatar group component that stacks user avatars into a single overlapping cluster with configurable direction and group sizing
+metaDescription: React avatar group component that stacks user avatars into a single overlapping cluster with configurable direction and group sizing.
 ---
 
 import { AvatarGroupBaseDemo, AvatarGroupDirectionDemo, AvatarGroupSizingDemo } from "@/components/docs/AvatarGroupDemos"
 
-<UsageBlock>{`import { AvatarGroup } from "@plexui/ui/components/Avatar";`}</UsageBlock>
+<UsageBlock>{`import { Avatar, AvatarGroup } from "@plexui/ui/components/Avatar";`}</UsageBlock>
 
 ## Examples
 
 ### Overview
 
 <ComponentPreview code={`<AvatarGroup size={42}>
-  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/xyz" />
+  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
   <Avatar name="Jane" color="primary" variant="solid" />
   <Avatar name="Tech support" Icon={Robot} variant="solid" />
   <Avatar overflowCount={5} />
@@ -23,7 +23,12 @@ import { AvatarGroupBaseDemo, AvatarGroupDirectionDemo, AvatarGroupSizingDemo } 
 
 ### Stacking direction
 
-<ComponentPreview details={<>You can control the stacking direction using the <code>stack</code> prop, as either <code>"start"</code> or <code>"end"</code>.</>} code={`<AvatarGroup stack="end" size={42}>...</AvatarGroup>`} previewMinHeight={168}>
+<ComponentPreview details={<>You can control the stacking direction using the <code>stack</code> prop, as either <code>"start"</code> or <code>"end"</code>.</>} code={`<AvatarGroup stack="end" size={42}>
+  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Will" />
+  <Avatar name="Tech support" Icon={Robot} variant="solid" />
+  <Avatar overflowCount={5} variant="soft" />
+</AvatarGroup>`} previewMinHeight={168}>
   <AvatarGroupDirectionDemo />
 </ComponentPreview>
 
@@ -41,8 +46,10 @@ import { AvatarGroupBaseDemo, AvatarGroupDirectionDemo, AvatarGroupSizingDemo } 
 ## API
 
 <PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The avatars of the group" },
   { prop: "size", type: "number", description: "Size of all avatars in the group" },
   { prop: "stack", type: '"start" | "end"', default: '"start"', description: "Stacking direction" },
+  { prop: "className", type: "string", description: "Applied to the group container; other props are not forwarded" },
 ]} />
 
 ## Styling

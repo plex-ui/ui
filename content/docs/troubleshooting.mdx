@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Symptom-driven guide for the most common Plex UI rendering issues — square pills, missing colors, broken layers, ordering bugs, and how to fix each in under a minute
+description: Symptom-driven guide for the most common Plex UI rendering issues, such as square pills, missing colors, broken layers and ordering bugs, and how to fix each in under a minute
 ---
 
 This page lists the rendering issues most often reported when first wiring Plex UI into a project, sorted by what you actually see on screen. Each entry has a one-line diagnosis and the minimal fix.
@@ -69,11 +69,11 @@ Tailwind preflight sets `color: inherit` on `<button>`, which can win over the c
 npm install @plexui/ui@latest
 ```
 
-In 0.15.3+ tokens live in `:root` and don't touch your Tailwind theme.
+In 0.15.3+ the radius, font and font-weight tokens live in `:root` and no longer reset Tailwind's theme. The default import still replaces Tailwind's text size, letter spacing, shadow, color and easing scales with Plex's; the [Installation guide](/docs/installation#what-the-default-import-changes-in-your-tailwind-theme) lists what each one keeps.
 
 ## Want the Plex radius / font scale in Tailwind utilities
 
-Opposite problem: you *want* `rounded-md` to render with the Plex radius (`0.5rem`) instead of Tailwind's default. Add the standalone import:
+Opposite problem: you *want* Tailwind's radius, font and breakpoint scales to be exactly Plex's (for example `rounded-2xs`, an `xs:` breakpoint, or `sm:` at 576px). Add the standalone import:
 
 ```css
 @layer theme, base, components, utilities;

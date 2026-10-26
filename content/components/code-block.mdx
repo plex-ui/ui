@@ -38,7 +38,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Custom collapsed height
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="tsx" collapsedHeight={60}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview code={`<CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
   </div>
@@ -46,7 +46,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Max expanded height
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="tsx" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview code={`<CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
   </div>
@@ -54,7 +54,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Without copy button
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="tsx" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview code={`<CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{CODE_BLOCK_SAMPLES.python}</CollapsibleCodeBlock>
   </div>
@@ -127,9 +127,14 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
   { prop: "language", type: "string", description: "Prism language name" },
   { prop: "defaultExpanded", type: "boolean", default: "false", description: "Start expanded" },
   { prop: "collapsedHeight", type: "number", default: "140", description: "Height when collapsed (px)" },
-  { prop: "maxExpandedHeight", type: "number", description: "Max height when expanded (px)" },
+  { prop: "maxExpandedHeight", type: "number", description: "Max height when expanded (px); taller code scrolls" },
   { prop: "copyable", type: "boolean", default: "true", description: "Show copy button" },
+  { prop: "className", type: "string", description: "Additional wrapper class" },
 ]} />
+
+### Composition
+
+`CodeBlockBase` (the container), `CodeBlockBase.Code` (the highlighted `<pre>`, with `language` and `codeTagProps` for the `<code>` element) and `CodeBlockBase.CopyButton` (`copyValue`, `loading`, `disabled`) build custom blocks.
 
 ## Styling
 

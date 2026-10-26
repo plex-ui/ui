@@ -11,6 +11,7 @@ import { VuePreview } from '../VuePreview';
 
 export const vueProgressOverviewCode = `<script setup>
 import { onMounted, onUnmounted, ref } from "vue"
+import { Progress } from "@plexui/vue/components/Progress"
 
 const value = ref(13)
 let timer
@@ -21,11 +22,11 @@ onUnmounted(() => clearTimeout(timer))
 </script>
 
 <template>
-  <Progress :value="value" />
+  <Progress :value="value" aria-label="Loading" />
 </template>`;
 
 const overviewTemplate = `<div style="width: 60%; min-width: 240px">
-  <Progress :value="value" />
+  <Progress :value="value" aria-label="Loading" />
 </div>`;
 
 export function VueProgressOverviewDemo() {

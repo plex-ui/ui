@@ -76,19 +76,20 @@ For a faster setup without downloading a file, copy this prompt into any AI edit
 ````markdown
 Install and configure @plexui/ui in this project.
 
-**Step 1 — Install:**
+**Step 1: Install**
 ```bash
 npm install @plexui/ui
 ```
 
-**Step 2 — Global stylesheet** (e.g. `main.css` or `globals.css`):
+**Step 2: Global stylesheet** (e.g. `main.css` or `globals.css`):
 ```css
+@layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "@plexui/ui/css";
 @source "../node_modules/@plexui/ui";
 ```
 
-**Step 3 — Import the stylesheet before rendering** (e.g. `main.tsx` or `layout.tsx`):
+**Step 3: Import the stylesheet before rendering** (e.g. `main.tsx` or `layout.tsx`):
 ```tsx
 import "./main.css";
 ```
@@ -105,19 +106,26 @@ import { Input } from "@plexui/ui/components/Input";
 **Component reference:**
 
 Available components (import from `@plexui/ui/components/[Name]`):
-Alert, Avatar, Badge, Button, ButtonLink, Checkbox, CodeBlock, DatePicker,
-DateRangePicker, EmptyMessage, FieldError, FloatingLabelInput, Icon, Image,
-Indicator, Input, Markdown, Menu, Popover, ProgressSteps, RadioGroup,
-SegmentedControl, Select, SelectControl, ShimmerText, Sidebar, Skeleton,
-Slider, Switch, Tabs, TagInput, TextLink, Textarea, Tooltip.
+Accordion, Alert, Avatar, Badge, Button, ButtonGroup, Card, Checkbox, CodeBlock,
+DataTable, DateInput, DatePicker, DateRangePicker, Dialog, EmptyMessage, Field,
+FieldError, FileUpload, FloatingLabelInput, FloatingLabelSelect, Icon, Image,
+Input, InputGroup, Label, Markdown, MarkdownEditor, Menu, OTPInput,
+PlexUIProvider, Popover, Progress, ProgressSteps, RadioGroup, SegmentedControl,
+Select, SelectControl, Separator, ShimmerText, Sidebar, Skeleton, Slider,
+StatCard, Switch, Table, Tabs, TagInput, TextLink, Textarea, Tooltip.
+Some modules export differently named components:
+- `ButtonLink` and `CopyButton` from `@plexui/ui/components/Button`
+- `CircularProgress`, `LoadingDots` and `LoadingIndicator` from `@plexui/ui/components/Indicator`
+- `Toaster` and `toast` from `@plexui/ui/components/Toast`
+- `Animate`, `AnimateLayout`, `AnimateLayoutGroup`, `TransitionGroup` and `SlotTransitionGroup` from `@plexui/ui/components/Transition`
 
 **Key conventions:**
 - `size` prop uses a 9-step scale: `3xs`, `2xs`, `xs`, `sm`, `md` (default), `lg`, `xl`, `2xl`, `3xl`
 - `color` prop: `primary`, `secondary`, `danger`, `success`, `warning`, `caution`, `discovery`, `info`
-- `variant` prop: `solid`, `soft`, `outline`, `ghost`, `surface`
+- `variant` prop: `solid`, `soft`, `outline`, `ghost` (each component accepts a subset; check its props)
 - Use Tailwind classes alongside components. Plex UI provides semantic color utilities like `text-primary`, `bg-surface`, `border-default`, `text-secondary`
-- Icons: `import { IconName } from "@plexui/ui/components/Icon"` — {ICONS_COUNT} icons available
-- Dark mode works automatically via CSS `light-dark()` — no extra config needed
+- Icons: `import { IconName } from "@plexui/ui/components/Icon"`, {ICONS_COUNT} icons available
+- Dark mode: set `data-theme="dark"` on `<html>` (or call `applyDocumentTheme("dark")` from `@plexui/ui/theme`). Without it the light theme applies; `color-scheme` and `prefers-color-scheme` alone do not switch Plex tokens. Components need no `dark:` classes
 
 Full docs: https://plexui.com/docs
 

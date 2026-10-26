@@ -427,11 +427,11 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
 
 ### Phone input
 
-<ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value.</>} code={phone} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.</>} code={phone} previewMinHeight={200}>
   <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Label text for the floating label" },
@@ -441,14 +441,38 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
   { prop: "invalid", type: "boolean", default: "false (true if error-message)", description: "Mark the input as invalid" },
   { prop: "description", type: "string | slot", description: "Helper text below the input" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables the input" },
-  { prop: "read-only", type: "boolean", default: "false", description: "Makes the input read-only" },
+  { prop: "read-only / readonly", type: "boolean", default: "false", description: "Makes the input read-only (both spellings work)" },
   { prop: "type", type: "string", default: '"text"', description: "Input type; password gets a reveal toggle" },
   { prop: "revealable", type: "boolean", default: "true for password without an end adornment", description: "Built-in reveal toggle" },
   { prop: "multiline", type: "boolean", default: "false", description: "Render an auto-growing textarea" },
   { prop: "rows", type: "number", default: "2", description: "Visible lines when multiline" },
   { prop: "allow-autofill-extensions", type: "boolean", default: "false", description: "Let password-manager extensions decorate the input" },
-  { prop: "start-adornment / end-adornment", type: "slots", description: "Content before or after the input" },
-  { prop: "@clear", type: "() => void", description: "Shows the clear button and fires when it is clicked" },
+  { prop: "#startAdornment / #endAdornment", type: "slots", description: "Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated" },
+  { prop: "@clear", type: "() => void", description: "Shows the clear button and fires when it is clicked; focus returns to the input" },
   { prop: "@revealed-change", type: "(revealed: boolean) => void", description: "Fires when the reveal toggle is clicked" },
   { prop: "@autofill", type: "() => void", description: "Fires when the browser autofills the input" },
 ]} />
+
+Other attributes and listeners are forwarded to the `<input>` (or to the `<textarea>` with `multiline`).
+
+## Styling
+
+Float Input reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-color`: error color (default `var(--color-text-danger-outline)`)
+- `--field-error-font-size`: error font size (default `0.75rem`)
+- `--field-error-line-height`: error line height (default `var(--font-text-xs-line-height)`)
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--floating-input-background`: background (default `var(--color-surface)`)
+- `--floating-input-border-color`: border color
+- `--floating-input-border-color-focus`: border color focus (default `var(--alpha-50)`)
+- `--floating-input-border-color-hover`: border color hover
+- `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--floating-input-border-radius`: border radius (default `var(--radius-full)`)
+- `--floating-input-gutter`: gutter (default `1.25rem`)
+- `--floating-input-height`: height (default `3.25rem`)
+- `--floating-input-label-color`: label color (default `var(--color-text-tertiary)`)
+- `--floating-input-label-color-focus`: label color focus (default `var(--color-text)`)
+- `--floating-input-label-color-invalid`: label color invalid (default `var(--color-text-danger-outline)`)
+- `--floating-input-label-scale`: label scale (default `0.88`)
+- `--floating-input-transition-duration`: transition duration (default `80ms`)

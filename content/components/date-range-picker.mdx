@@ -1,7 +1,7 @@
 ---
 title: Date Range Picker
 description: Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
-metaDescription: React date range picker with interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates
+metaDescription: React date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
 ---
 
 import {
@@ -17,51 +17,125 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`const [value, setValue] = useState<DateRange | null>(null)
-<DateRangePicker value={value} onChange={setValue} shortcuts={shortcuts} clearable pill />`} previewMinHeight={168}>
+<ComponentPreview details={<>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>. When a shortcut was picked, <code>onChange</code> receives that shortcut as its second argument.</>} code={`const [value, setValue] = useState<DateRange | null>(null)
+
+<div style={{ width: "fit-content" }}>
+  <DateRangePicker
+    size="lg"
+    pill
+    clearable
+    value={value}
+    onChange={setValue}
+    shortcuts={dayShortcuts}
+  />
+</div>`} previewMinHeight={168}>
   <DateRangePickerBaseDemo />
 </ComponentPreview>
 
 ### Limits
 
-<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>maxRangeDays</code> to limit the range length.</>} code={`<DateRangePicker value={...} onChange={...} min={minDate} max={maxDate} />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>maxRangeDays</code> to limit the range length. Here <code>minDate</code> is 30 days ago (start of day) and <code>maxDate</code> is the end of today.</>} code={`const today = DateTime.local()
+const minDate = today.minus({ days: 30 }).startOf("day")
+const maxDate = today.endOf("day")
+const [value, setValue] = useState<DateRange | null>([
+  DateTime.max(minDate, today.startOf("month")),
+  DateTime.min(maxDate, today.endOf("month")),
+])
+
+<div style={{ width: "fit-content" }}>
+  <DateRangePicker
+    size="lg"
+    pill
+    triggerShowIcon
+    value={value}
+    onChange={setValue}
+    min={minDate}
+    max={maxDate}
+  />
+</div>`} previewMinHeight={168}>
   <DateRangePickerLimitsDemo />
 </ComponentPreview>
 
-
 ### Shortcuts
 
-<ComponentPreview details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger.</>} code={`<DateRangePicker shortcuts={dayShortcuts} ... />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
+  {
+    label: "Today",
+    getDateRange: () => {
+      const today = DateTime.local()
+      return [today.startOf("day"), today.endOf("day")]
+    },
+  },
+  {
+    label: "Yesterday",
+    getDateRange: () => {
+      const yesterday = DateTime.local().minus({ days: 1 })
+      return [yesterday.startOf("day"), yesterday.endOf("day")]
+    },
+  },
+  {
+    label: "Last 7 days",
+    getDateRange: () => {
+      const today = DateTime.local().endOf("day")
+      return [today.minus({ days: 6 }).startOf("day"), today]
+    },
+  },
+  {
+    label: "Last 30 days",
+    getDateRange: () => {
+      const today = DateTime.local().endOf("day")
+      return [today.minus({ days: 29 }).startOf("day"), today]
+    },
+  },
+]
+const [value, setValue] = useState<DateRange | null>(null)
+
+<div style={{ width: "fit-content" }}>
+  <DateRangePicker
+    size="lg"
+    pill
+    clearable
+    value={value}
+    onChange={setValue}
+    shortcuts={dayShortcuts}
+  />
+</div>`} previewMinHeight={168}>
   <DateRangePickerShortcutsDemo />
 </ComponentPreview>
 
-
 ### Month stepper
 
-<ComponentPreview details={<>Enable a stepper in the trigger with <code>triggerStepperUnit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={`<DateRangePicker
-  triggerStepperUnit="month"
-  value={value}
-  onChange={setValue}
-  clearable
-  pill
-  max={maxDate}
-/>`} previewMinHeight={168}>
+<ComponentPreview details={<>Enable a stepper in the trigger with <code>triggerStepperUnit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={`const today = DateTime.local()
+const maxDate = today.endOf("day")
+const [value, setValue] = useState<DateRange | null>([today.startOf("month"), today])
+
+<div style={{ width: "fit-content" }}>
+  <DateRangePicker
+    size="lg"
+    clearable
+    pill
+    triggerStepperUnit="month"
+    value={value}
+    onChange={setValue}
+    max={maxDate}
+  />
+</div>`} previewMinHeight={168}>
   <DateRangePickerMonthStepperDemoWithControls />
 </ComponentPreview>
 
 ## API
 
 <PropsTable data={[
-  { prop: "value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
-  { prop: "onChange", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Called when range changes" },
-  { prop: "min", type: "DateTime", description: "Earliest selectable date" },
-  { prop: "max", type: "DateTime", description: "Latest selectable date" },
+  { prop: "value", type: "DateRange | null", description: "Required. Selected range ([start, end], inclusive)" },
+  { prop: "onChange", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Required. Called when the range changes" },
+  { prop: "min", type: "DateTime", description: "Earliest selectable date (inclusive)" },
+  { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "maxRangeDays", type: "number", description: "Max length of range in days (inclusive)" },
-  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts" },
+  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },
-  { prop: "alignOffset", type: "number", default: 'align === "center" ? 0 : -5', description: "Offset from start/end alignment in pixels" },
+  { prop: "alignOffset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable picker interactions" },
   { prop: "placeholder", type: "string", default: '"Select date range..."', description: "Placeholder in trigger when value is empty" },
   { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger style variant" },

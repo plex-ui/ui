@@ -1,7 +1,7 @@
 ---
 title: OTP Input
 description: Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
-metaDescription: React OTP input component for one-time password and verification code entry — split digit cells, grouped layouts, error states, and autofill
+metaDescription: React OTP input component for one-time password and verification code entry, with split digit cells, grouped layouts, error states, and autofill
 ---
 
 import { OTPInput } from "@plexui/ui/components/OTPInput"
@@ -19,13 +19,17 @@ import {
 
 ### Overview
 
-<ComponentPreview code={`<OTPInput />`} previewMinHeight={168}>
+<ComponentPreview code={`const [value, setValue] = useState("")
+
+<OTPInput value={value} onChange={setValue} />`} previewMinHeight={168}>
   <OTPInputOverviewDemo />
 </ComponentPreview>
 
 ### Filled state
 
-<ComponentPreview code={`<OTPInput value="488030" onChange={setValue} />`} previewMinHeight={168}>
+<ComponentPreview code={`const [value, setValue] = useState("488030")
+
+<OTPInput value={value} onChange={setValue} />`} previewMinHeight={168}>
   <OTPInputFilledDemo />
 </ComponentPreview>
 
@@ -37,7 +41,9 @@ import {
 
 ### With error
 
-<ComponentPreview code={`<OTPInput invalid errorMessage="Invalid verification code." />`} previewMinHeight={168}>
+<ComponentPreview code={`const [value, setValue] = useState("48803")
+
+<OTPInput value={value} onChange={setValue} invalid errorMessage="Invalid verification code." />`} previewMinHeight={168}>
   <OTPInputErrorDemo />
 </ComponentPreview>
 
@@ -59,7 +65,10 @@ import {
   { prop: "errorMessage", type: "string", description: "Error message below the input" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
   { prop: "autoFocus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
+  { prop: "className", type: "string", description: "Applied to the root element" },
 ]} />
+
+Each digit stays in its own cell: typing into a later empty cell keeps the digit there, and clearing a cell in the middle does not move the others. The value is the filled digits in order. Pasting or typing several digits writes them from the focused cell onward.
 
 ## Styling
 

@@ -36,30 +36,28 @@ import { BadgeColorsDemo, BadgeSizingDemo } from "@/components/docs/BadgeDemos"
 <ComponentPreview details={<>You can stylize the display of the badge using the <code>color</code> and <code>variant</code> props.</>} code={`const variants = ["soft", "solid", "outline"] as const
 const colors = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"] as const
 
-<div className="pt-1 pb-6 px-8 w-fit min-w-full">
-  <div
-    className="grid gap-6 items-center justify-center"
-    style={{ gridTemplateColumns: \`auto repeat(\${colors.length}, min-content)\` }}
-  >
-    <div />
-    {colors.map((color) => (
-      <div key={color} className="text-center mb-1 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-        {color}
-      </div>
-    ))}
-
-    {variants.map((variant) => (
-      <React.Fragment key={variant}>
-        <div className="text-right mr-3 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
-          {variant}
+<div className="w-full overflow-x-auto">
+  <div className="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(7, min-content)" }}>
+      <div />
+      {colors.map((color) => (
+        <div key={color} className="text-center mb-1 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
+          {color}
         </div>
-        {colors.map((color) => (
-          <div key={\`\${variant}-\${color}\`} className="text-center">
-            <Badge color={color} variant={variant}>Sample</Badge>
+      ))}
+      {variants.map((variant) => (
+        <Fragment key={variant}>
+          <div className="text-right mr-3 text-sm" style={{ color: "var(--color-text-tertiary)" }}>
+            {variant}
           </div>
-        ))}
-      </React.Fragment>
-    ))}
+          {colors.map((color) => (
+            <div key={color} className="text-center">
+              <Badge color={color} variant={variant}>Sample</Badge>
+            </div>
+          ))}
+        </Fragment>
+      ))}
+    </div>
   </div>
 </div>`} previewMinHeight={168}>
   <BadgeColorsDemo />
@@ -67,32 +65,7 @@ const colors = ["secondary", "success", "warning", "danger", "info", "discovery"
 
 ### Size & roundness
 
-<ComponentPreview details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={`const [size, setSize] = useState("md")
-const [pill, setPill] = useState(false)
-
-<>
-  <div style={{ background: "var(--color-surface-secondary)", width: "100%" }}>
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 16px 6px 8px", borderTop: "1px solid var(--color-fd-border)" }}>
-      <span style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)", fontSize: "0.8125rem", padding: "2px 8px", borderRadius: 6, background: "var(--color-surface-secondary)" }}>
-        size
-      </span>
-      <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
-        <SegmentedControl.Option value="sm">sm</SegmentedControl.Option>
-        <SegmentedControl.Option value="md">md</SegmentedControl.Option>
-        <SegmentedControl.Option value="lg">lg</SegmentedControl.Option>
-      </SegmentedControl>
-    </div>
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 16px 6px 8px", borderTop: "1px solid var(--color-fd-border)" }}>
-      <span style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)", fontSize: "0.8125rem", padding: "2px 8px", borderRadius: 6, background: "var(--color-surface-secondary)" }}>
-        pill
-      </span>
-      <Switch checked={pill} onCheckedChange={setPill} aria-label="pill" />
-    </div>
-  </div>
-  <div className="py-10 flex justify-center">
-    <Badge color="info" size={size} pill={pill}>New</Badge>
-  </div>
-</>`} previewMinHeight={120}>
+<ComponentPreview details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={`<Badge color="info" size="md">New</Badge>`} previewMinHeight={120}>
   <BadgeSizingDemo />
 </ComponentPreview>
 
@@ -118,6 +91,7 @@ const [pill, setPill] = useState(false)
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"soft"', description: "Style variant" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "Badge size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "className", type: "string", description: "Class applied to the badge" },
 ]} />
 
 ## Styling

@@ -189,7 +189,7 @@ export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stret
   <VueDemo template={banner} />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "title", type: "string | slot", description: "Title displayed in the alert" },
@@ -203,4 +203,16 @@ export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stret
   { prop: "@dismiss", type: "() => void", description: "Shows the dismiss button when set" },
   { prop: "banner", type: "boolean", default: "false", description: "Full-width strip: square corners, lines above and below only" },
 ]} />
+
+## Styling
+
+Alert reads these component tokens. Override them at any scope to restyle it:
+
+- `--alert-border-radius`: border radius (default `var(--radius-xl)`)
+- `--alert-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--alert-gap`: gap (default `spacing(3)`)
+- `--alert-gutter`: gutter (default `spacing(4)`)
+- `--alert-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--alert-title-font-weight`: title font weight (default `var(--font-weight-semibold)`)
+
 </div>

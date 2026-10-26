@@ -1,7 +1,7 @@
 ---
 title: Progress
 description: A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
-metaDescription: Accessible React progress bar component for showing task completion — labelled, controlled, and indeterminate modes with smooth value transitions
+metaDescription: "Accessible React progress bar component for showing task completion: labelled, controlled, and indeterminate modes with smooth value transitions"
 ---
 
 import { Progress } from "@plexui/ui/components/Progress"
@@ -60,6 +60,7 @@ return (
 |------|------|---------|-------------|
 | `value` | `number \| null` | `null` | Current progress between `0` and `max`. Pass `null` for indeterminate. |
 | `max` | `number` | `100` | Maximum progress value |
+| `getValueLabel` | `(value: number, max: number) => string` | — | Accessible value text (`aria-valuetext`). Defaults to the rounded percentage, e.g. `"67%"`. |
 | `className` | `string` | — | Applied to the root `<div>` |
 
 Built on [Radix Progress](https://www.radix-ui.com/primitives/components/progress). All `Progress.Root` props are forwarded.
