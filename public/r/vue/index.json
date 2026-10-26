@@ -111,6 +111,30 @@
       ]
     },
     {
+      "name": "date-input",
+      "type": "registry:ui",
+      "description": "Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:ui",
+      "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "date-range-picker",
+      "type": "registry:ui",
+      "description": "Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
@@ -122,6 +146,14 @@
       "name": "empty-message",
       "type": "registry:ui",
       "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
       "dependencies": [
         "@plexui/vue"
       ]

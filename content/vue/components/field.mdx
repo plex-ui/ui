@@ -1,0 +1,855 @@
+---
+title: Field
+description: Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
+metaDescription: Vue 3 form field component with a label, helper text, and an error message that wires id, aria-describedby, and aria-invalid onto its control.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueFieldDemo } from "@/components/docs/vue/VueFieldDemos"
+
+export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+
+export const overviewControls = [
+  { name: "size", type: "select", options: sizeOptions, default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "description", type: "boolean", default: true },
+  { name: "errorMessage", type: "boolean", default: true },
+  { name: "required", type: "boolean", default: true },
+  { name: "horizontal", type: "boolean", default: false },
+]
+
+export const pillControl = [{ name: "pill", type: "boolean", default: false }]
+
+export const overview = `<div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
+  <Field
+    label="Email"
+    :size="size"
+    :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
+    :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
+    :required="required"
+    :orientation="horizontal ? 'horizontal' : 'vertical'"
+  >
+    <Input placeholder="Enter email..." :size="size" :pill="pill" />
+  </Field>
+</div>`
+
+export const withDescription = `<div class="w-[320px]">
+  <Field label="Email" description="We'll never share your email with anyone else.">
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`
+
+export const withError = `<div class="w-[320px]">
+  <Field
+    label="Email"
+    :error-message="errorMessage ? 'Please enter a valid email address' : undefined"
+  >
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`
+
+export const required = `<div class="w-[320px]">
+  <Field label="Email" :required="required">
+    <Input placeholder="Enter email..." />
+  </Field>
+</div>`
+
+export const orientation = `<div class="w-full max-w-[480px] flex flex-col gap-4">
+  <Field label="First name" :orientation="orientation">
+    <Input placeholder="Jane" />
+  </Field>
+  <Field label="Last name" :orientation="orientation">
+    <Input placeholder="Doe" />
+  </Field>
+</div>`
+
+export const textarea = `<div class="w-[320px]">
+  <Field label="Bio" description="Write a short bio for your profile.">
+    <Textarea placeholder="Tell us about yourself..." :rows="3" />
+  </Field>
+</div>`
+
+export const select = `<div class="w-[320px]">
+  <Field label="Role" description="Select your primary role." v-slot="fieldProps">
+    <Select
+      :id="fieldProps.id"
+      placeholder="Select a role..."
+      v-model:value="role"
+      :options="[
+        { label: 'Admin', value: 'admin' },
+        { label: 'Editor', value: 'editor' },
+        { label: 'Viewer', value: 'viewer' },
+      ]"
+    />
+  </Field>
+</div>`
+
+export const slider = `<div class="w-[400px]">
+  <Field
+    label="Price Range"
+    :description="'Set your budget range ($' + price[0].toLocaleString() + ' – ' + price[1].toLocaleString() + ').'"
+  >
+    <Slider range v-model:value="price" :min="0" :max="1000" :step="10" prefix-unit="$" />
+  </Field>
+</div>`
+
+export const fieldset = `<div class="w-[400px]">
+  <div class="mb-3">
+    <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
+    <p class="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
+  </div>
+  <div class="flex flex-col gap-4">
+    <Field label="Street Address">
+      <Input placeholder="123 Main St" />
+    </Field>
+    <div class="flex gap-3">
+      <Field label="City" class="flex-1">
+        <Input placeholder="New York" />
+      </Field>
+      <Field label="Postal Code" class="flex-1">
+        <Input placeholder="90502" />
+      </Field>
+    </div>
+  </div>
+</div>`
+
+export const checkboxGroup = `<div class="w-[320px]">
+  <Field
+    label="Notifications"
+    description="Choose which notifications you'd like to receive."
+    v-slot="{ id }"
+  >
+    <div class="flex flex-col gap-3 mt-1">
+      <Checkbox label="Email notifications" />
+      <Checkbox label="Push notifications" />
+      <Checkbox label="SMS notifications" />
+    </div>
+  </Field>
+</div>`
+
+export const radioGroup = `<div class="w-[320px]">
+  <Field label="Subscription plan" description="Select your preferred plan." v-slot="{ id }">
+    <RadioGroup aria-label="Subscription plan" v-model:value="plan" direction="col">
+      <RadioGroupItem value="free">Free</RadioGroupItem>
+      <RadioGroupItem value="pro">Pro, $9/mo</RadioGroupItem>
+      <RadioGroupItem value="enterprise">Enterprise, $29/mo</RadioGroupItem>
+    </RadioGroup>
+  </Field>
+</div>`
+
+export const switchField = `<div class="self-stretch mx-auto !max-w-[480px]">
+  <Field
+    label="Marketing emails"
+    orientation="horizontal"
+    class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
+    v-slot="fieldProps"
+  >
+    <Switch :id="fieldProps.id" v-model:checked="enabled" />
+  </Field>
+</div>`
+
+export const fieldGroup = `<div class="w-[400px] divide-y divide-alpha/15">
+  <div class="pb-6">
+    <Field
+      label="Responses"
+      description="Get notified when the assistant responds to requests that take time, like research or image generation."
+      v-slot="{ id }"
+    >
+      <div class="flex flex-col gap-3 mt-1">
+        <Checkbox label="Push notifications" default-checked />
+      </div>
+    </Field>
+  </div>
+  <div class="py-6">
+    <Field
+      label="Tasks"
+      description="Get notified when tasks you've created have updates."
+      v-slot="{ id }"
+    >
+      <div class="flex flex-col gap-3 mt-1">
+        <Checkbox label="Push notifications" />
+        <Checkbox label="Email notifications" />
+      </div>
+    </Field>
+  </div>
+</div>`
+
+export const validation = `<div class="w-[320px] flex flex-col gap-4">
+  <Field label="Name" required :error-message="showErrors && !name ? 'Name is required' : undefined">
+    <Input placeholder="Enter your name" v-model:value="name" />
+  </Field>
+  <Field
+    label="Email"
+    required
+    :error-message="showErrors && !email.includes('@') ? 'Please enter a valid email address' : undefined"
+  >
+    <Input placeholder="Enter your email" v-model:value="email" />
+  </Field>
+</div>`
+
+export const opticalAlign = `<div class="w-[400px]">
+  <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
+    <div class="mb-5 text-secondary text-sm">
+      {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
+    </div>
+    <div class="flex flex-col gap-5">
+      <Field label="Full name" :optically-align="opticallyAlign ? 'start' : undefined">
+        <Input placeholder="Jane Doe" :pill="pill" />
+      </Field>
+      <Field
+        label="Email"
+        description="We'll never share your email."
+        error-message="Please enter a valid email address."
+        required
+        :optically-align="opticallyAlign ? 'start' : undefined"
+      >
+        <Input placeholder="jane@example.com" :pill="pill" />
+      </Field>
+    </div>
+    <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
+  </div>
+</div>`
+
+export const formExample = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
+      <p class="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
+    </div>
+
+    <Field label="Name on Card">
+      <Input placeholder="Evil Rabbit" :pill="pill" autocomplete="off" />
+    </Field>
+
+    <Field label="Card Number">
+      <Input placeholder="1234 5678 9012 3456" :pill="pill" autocomplete="off" />
+    </Field>
+
+    <div class="grid grid-cols-3 gap-3">
+      <Field label="Month" v-slot="fieldProps">
+        <Select :id="fieldProps.id" placeholder="MM" :pill="pill" v-model:value="month" :options="months" />
+      </Field>
+      <Field label="Year" v-slot="fieldProps">
+        <Select :id="fieldProps.id" placeholder="YYYY" :pill="pill" v-model:value="year" :options="years" />
+      </Field>
+      <Field label="CVV">
+        <Input placeholder="123" :pill="pill" />
+      </Field>
+    </div>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
+      <p class="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
+    </div>
+
+    <Checkbox label="Same as shipping address" default-checked />
+
+    <Field label="Comments">
+      <Textarea placeholder="Add any additional comments" />
+    </Field>
+  </fieldset>
+
+  <div class="flex gap-2">
+    <Button color="primary" :pill="pill">Submit</Button>
+    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
+  </div>
+</div>`
+
+export const switchRowClass = "justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
+
+export const profileSettings = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
+      <p class="text-xs text-tertiary mt-0.5">Your public profile details</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <Field label="First name">
+        <Input placeholder="Jane" default-value="Jane" :pill="pill" />
+      </Field>
+      <Field label="Last name">
+        <Input placeholder="Doe" default-value="Doe" :pill="pill" />
+      </Field>
+    </div>
+
+    <Field label="Email" description="This is the email associated with your account.">
+      <Input placeholder="jane@example.com" default-value="jane@example.com" :pill="pill" />
+    </Field>
+
+    <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
+      <Textarea placeholder="Tell us about yourself..." :rows="3" />
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
+      <p class="text-xs text-tertiary mt-0.5">Customize your experience</p>
+    </div>
+
+    <Field label="Language" v-slot="fieldProps">
+      <Select
+        :id="fieldProps.id"
+        :pill="pill"
+        v-model:value="language"
+        :options="[
+          { label: 'English', value: 'en' },
+          { label: 'Spanish', value: 'es' },
+          { label: 'French', value: 'fr' },
+          { label: 'German', value: 'de' },
+          { label: 'Japanese', value: 'ja' },
+        ]"
+      />
+    </Field>
+
+    <Field label="Theme" description="Select your preferred appearance." v-slot="{ id }">
+      <RadioGroup aria-label="Theme" v-model:value="theme" direction="col">
+        <RadioGroupItem value="system">System</RadioGroupItem>
+        <RadioGroupItem value="light">Light</RadioGroupItem>
+        <RadioGroupItem value="dark">Dark</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
+      <p class="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
+    </div>
+
+    <Field
+      label="Email notifications"
+      description="Receive weekly digests and important updates."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" default-checked />
+    </Field>
+
+    <Field
+      label="Push notifications"
+      description="Get real-time alerts in your browser."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" />
+    </Field>
+
+    <Field
+      label="Marketing emails"
+      description="Tips, product updates, and promotions."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" />
+    </Field>
+  </fieldset>
+
+  <div class="flex gap-2">
+    <Button color="primary" :pill="pill">Save changes</Button>
+    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
+  </div>
+</div>`
+
+export const createProject = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
+      <p class="text-xs text-tertiary mt-0.5">Basic information about your project</p>
+    </div>
+
+    <Field label="Project name" required>
+      <Input placeholder="my-project" :pill="pill" />
+    </Field>
+
+    <Field label="Description" description="A short summary shown in project listings.">
+      <Textarea placeholder="What does this project do?" :rows="3" />
+    </Field>
+
+    <Field label="Visibility" description="Controls who can see this project." v-slot="{ id }">
+      <RadioGroup aria-label="Visibility" v-model:value="visibility" direction="col">
+        <RadioGroupItem value="private">Private, only invited members</RadioGroupItem>
+        <RadioGroupItem value="internal">Internal, anyone in your organization</RadioGroupItem>
+        <RadioGroupItem value="public">Public, visible to everyone</RadioGroupItem>
+      </RadioGroup>
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
+      <p class="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
+    </div>
+
+    <Field label="Team members" description="Add people by email address." v-slot="fieldProps">
+      <TagInput
+        :id="fieldProps.id"
+        placeholder="Add email..."
+        :default-value="[
+          { value: 'alice@team.com', valid: true },
+          { value: 'bob@team.com', valid: true },
+        ]"
+        :validator="(value) => value.includes('@')"
+      />
+    </Field>
+
+    <Field label="Permissions" description="Default permissions for new members." v-slot="{ id }">
+      <div class="flex flex-col gap-3 mt-1">
+        <Checkbox label="Can view project" default-checked />
+        <Checkbox label="Can edit resources" default-checked />
+        <Checkbox label="Can manage members" />
+        <Checkbox label="Can delete project" />
+      </div>
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
+      <p class="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
+    </div>
+
+    <Field label="Region" v-slot="fieldProps">
+      <Select
+        :id="fieldProps.id"
+        :pill="pill"
+        placeholder="Select region..."
+        v-model:value="region"
+        :options="[
+          { label: 'US East (N. Virginia)', value: 'us-east-1' },
+          { label: 'US West (Oregon)', value: 'us-west-2' },
+          { label: 'Europe (Frankfurt)', value: 'eu-central-1' },
+          { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },
+        ]"
+      />
+    </Field>
+
+    <Field
+      label="Auto-deploy"
+      description="Automatically deploy on push to main branch."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" default-checked />
+    </Field>
+  </fieldset>
+
+  <div class="flex gap-2">
+    <Button color="primary" :pill="pill">Create project</Button>
+    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
+  </div>
+</div>`
+
+export const fieldConfiguration = `<div class="flex flex-col gap-8 w-full !max-w-[460px]">
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
+      <p class="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
+    </div>
+
+    <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
+      <Input placeholder="registration_method" default-value="registration_method" :pill="pill" />
+    </Field>
+
+    <Field label="Label" description="Human-readable name displayed in the UI.">
+      <Input placeholder="Registration method" default-value="Registration method" :pill="pill" />
+    </Field>
+
+    <Field label="Type" v-slot="fieldProps">
+      <Select
+        :id="fieldProps.id"
+        :pill="pill"
+        v-model:value="type"
+        :options="[
+          { label: 'String', value: 'string' },
+          { label: 'Number', value: 'number' },
+          { label: 'Boolean', value: 'boolean' },
+          { label: 'Date', value: 'date' },
+          { label: 'JSON', value: 'json' },
+          { label: 'Rich text', value: 'richtext' },
+        ]"
+      />
+    </Field>
+
+    <Field label="Default value" description="Value assigned when the field is empty.">
+      <Input placeholder="Set default value (optional)" :pill="pill" />
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
+      <p class="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
+    </div>
+
+    <Field label="Max length" description="Max length cannot exceed 4096.">
+      <Input placeholder="256" inputmode="numeric" :pill="pill" />
+    </Field>
+
+    <Field
+      label="HTML sanitization"
+      description="Strip potentially unsafe HTML tags from input."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" />
+    </Field>
+  </fieldset>
+
+  <hr class="border-default" />
+
+  <fieldset class="flex flex-col gap-5">
+    <div class="mb-1">
+      <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
+      <p class="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
+    </div>
+
+    <Field
+      label="Not redactable"
+      description="Prevent this field from being redacted."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" />
+    </Field>
+
+    <Field
+      label="Write once"
+      description="Value can only be set once and cannot be changed."
+      orientation="horizontal"
+      class="${switchRowClass}"
+      v-slot="fieldProps"
+    >
+      <Switch :id="fieldProps.id" />
+    </Field>
+
+    <Field
+      label="Expires in"
+      description="Automatically delete the field value after the specified period."
+      v-slot="fieldProps"
+    >
+      <Select
+        :id="fieldProps.id"
+        :pill="pill"
+        placeholder="Never"
+        v-model:value="expiresIn"
+        :options="[
+          { label: 'Never', value: 'never' },
+          { label: '30 days', value: '30d' },
+          { label: '90 days', value: '90d' },
+          { label: '1 year', value: '1y' },
+        ]"
+      />
+    </Field>
+  </fieldset>
+
+  <div class="flex gap-2">
+    <Button color="primary" :pill="pill">Save field</Button>
+    <Button color="secondary" variant="outline" :pill="pill">Cancel</Button>
+  </div>
+</div>`
+
+export const birthdayInput = `<div class="w-[320px]">
+  <Field label="Birthday">
+    <Input
+      placeholder="MM / DD / YYYY"
+      :value="birthday"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      inputmode="numeric"
+      maxlength="14"
+      autocomplete="off"
+    />
+  </Field>
+</div>`
+
+export const birthdayValidation = `<div class="w-[320px]">
+  <Field
+    label="Birthday"
+    :error-message="birthday && !isValidBirthday(birthday) ? 'Please enter a valid date.' : undefined"
+  >
+    <Input
+      placeholder="MM / DD / YYYY"
+      :value="birthday"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      inputmode="numeric"
+      maxlength="14"
+      autocomplete="off"
+    />
+  </Field>
+</div>`
+
+export const birthdaySegmented = `<div class="w-[320px]">
+  <Field label="Birthday">
+    <div class="flex items-center gap-2">
+      <Input
+        :value="month"
+        @update:value="(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }"
+        placeholder="MM"
+        inputmode="numeric"
+        maxlength="2"
+        size="md"
+        variant="outline"
+        autocomplete="off"
+        class="w-[56px]"
+      />
+      <span class="text-secondary">/</span>
+      <Input
+        ref="dayInput"
+        :value="day"
+        @update:value="(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }"
+        placeholder="DD"
+        inputmode="numeric"
+        maxlength="2"
+        size="md"
+        variant="outline"
+        autocomplete="off"
+        class="w-[56px]"
+      />
+      <span class="text-secondary">/</span>
+      <Input
+        ref="yearInput"
+        :value="year"
+        @update:value="(raw) => (year = digitsOnly(raw, 4))"
+        placeholder="YYYY"
+        inputmode="numeric"
+        maxlength="4"
+        size="md"
+        variant="outline"
+        autocomplete="off"
+        class="w-[80px]"
+      />
+    </div>
+  </Field>
+</div>`
+
+export const birthdaySelect = `<div class="w-[320px]">
+  <Field label="Birthday" v-slot="fieldProps">
+    <div class="flex gap-2">
+      <div class="w-[130px]">
+        <Select
+          :id="fieldProps.id"
+          v-model:value="month"
+          :options="birthdayMonthOptions"
+          placeholder="Month"
+          size="md"
+          variant="outline"
+        />
+      </div>
+      <div class="w-[84px]">
+        <Select
+          v-model:value="day"
+          :options="birthdayDayOptions"
+          placeholder="Day"
+          size="md"
+          variant="outline"
+          aria-label="Day"
+        />
+      </div>
+      <div class="w-[108px]">
+        <Select
+          v-model:value="year"
+          :options="birthdayYearOptions"
+          placeholder="Year"
+          size="md"
+          variant="outline"
+          aria-label="Year"
+        />
+      </div>
+    </div>
+  </Field>
+</div>`
+
+<UsageBlock>{`import { Field } from "@plexui/vue/components/Field";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Field wraps a form control with a label, optional description, and error message. It automatically generates the label's <code>for</code>, <code>aria-describedby</code>, and <code>aria-invalid</code> linking between the label, description, error, and child control.</>} code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
+</ComponentPreview>
+
+### With description
+
+<ComponentPreview language="vue" details={<>Use <code>description</code> to display helper text below the label. The description is automatically linked to the control via <code>aria-describedby</code>.</>} code={withDescription} previewMinHeight={168}>
+  <VueDemo template={withDescription} />
+</ComponentPreview>
+
+### With error message
+
+<ComponentPreview language="vue" details={<>Use <code>error-message</code> to display a validation error. When provided, the child control automatically receives <code>aria-invalid="true"</code>. The error is rendered using the <code>FieldError</code> component with <code>role="alert"</code> for accessibility.</>} code={withError} previewMinHeight={168}>
+  <VueDemo template={withError} stageClassName="py-10" controls={[{ name: "errorMessage", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Required
+
+<ComponentPreview language="vue" details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute: pass <code>required</code> directly to the child control for form validation.</>} code={required} previewMinHeight={168}>
+  <VueDemo template={required} stageClassName="py-10" controls={[{ name: "required", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Sizing
+
+<ComponentPreview language="vue" details={<>Field accepts a <code>size</code> prop that scales the label and description font size to match the child control. Pass the same <code>size</code> to both Field and the child control.</>} code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
+</ComponentPreview>
+
+### Horizontal layout
+
+<ComponentPreview language="vue" details={<>Use <code>orientation="horizontal"</code> to render the label beside the control instead of above it.</>} code={orientation} previewMinHeight={168}>
+  <VueDemo template={orientation} stageClassName="py-10" controls={[{ name: "orientation", type: "select", options: ["vertical", "horizontal"], default: "horizontal" }]} />
+</ComponentPreview>
+
+### Textarea
+
+<ComponentPreview language="vue" code={textarea} previewMinHeight={168}>
+  <VueDemo template={textarea} />
+</ComponentPreview>
+
+### Select
+
+<ComponentPreview language="vue" details={<>For components like <code>Select</code> that do not take every field prop on their root, read the field props from the default slot (<code>v-slot="fieldProps"</code>) and pass them yourself.</>} code={select} previewMinHeight={168}>
+  <VueDemo template={select} state={{ role: "" }} />
+</ComponentPreview>
+
+### Slider
+
+<ComponentPreview language="vue" details={<>Field works with any form control. Use the description to display the current slider value.</>} code={slider} previewMinHeight={168}>
+  <VueDemo template={slider} state={{ price: [200, 800] }} />
+</ComponentPreview>
+
+### Fieldset
+
+<ComponentPreview language="vue" details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={fieldset} previewMinHeight={168}>
+  <VueDemo template={fieldset} />
+</ComponentPreview>
+
+### Checkbox
+
+<ComponentPreview language="vue" details={<>Wrap a group of checkboxes in a Field for a shared label and description. The slot takes the field props (<code>v-slot="{'{ id }'}"</code>), so Field renders the group as it is instead of wiring the props onto it.</>} code={checkboxGroup} previewMinHeight={168}>
+  <VueDemo template={checkboxGroup} />
+</ComponentPreview>
+
+### Radio
+
+<ComponentPreview language="vue" details={<>Use Field with <code>RadioGroup</code> for labeled radio selections.</>} code={radioGroup} previewMinHeight={168}>
+  <VueDemo template={radioGroup} state={{ plan: "free" }} />
+</ComponentPreview>
+
+### Switch
+
+<ComponentPreview language="vue" details={<>Pair a Field with a <code>Switch</code> using <code>orientation="horizontal"</code> for inline toggle settings.</>} code={switchField} previewMinHeight={168}>
+  <VueDemo template={switchField} state={{ enabled: false }} />
+</ComponentPreview>
+
+### Field group
+
+<ComponentPreview language="vue" details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={fieldGroup} previewMinHeight={168}>
+  <VueDemo template={fieldGroup} />
+</ComponentPreview>
+
+### Validation and Errors
+
+<ComponentPreview language="vue" details={<>Combine <code>required</code> and <code>error-message</code> for client-side validation feedback. Toggle errors on and off to see the visual transition.</>} code={validation} previewMinHeight={168}>
+  <VueDemo template={validation} stageClassName="py-10" state={{ name: "", email: "bad-email" }} controls={[{ name: "showErrors", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Slot props pattern
+
+Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus `opticallyAlign` when set). A slot that reads these props renders its content as it is, so you bind them where they belong, like React's render prop. A slot that does not read them gets its single root element wired by Field.
+
+```vue
+<Field label="Email" error-message="Email is required" v-slot="fieldProps">
+  <Input v-bind="fieldProps" placeholder="Enter email..." />
+</Field>
+```
+
+### Optical alignment
+
+<ComponentPreview language="vue" details={<>Use <code>optically-align="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</>} code={opticalAlign} previewMinHeight={168}>
+  <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Form example
+
+<ComponentPreview language="vue" details={<>A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.</>} code={formExample} previewMinHeight={168}>
+  <VueFieldDemo template={formExample} stageClassName="" state={{ month: "", year: "" }} controls={pillControl} />
+</ComponentPreview>
+
+### Profile settings
+
+<ComponentPreview language="vue" details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields.</>} code={profileSettings} previewMinHeight={168}>
+  <VueDemo template={profileSettings} stageClassName="" state={{ language: "en", theme: "system" }} controls={pillControl} />
+</ComponentPreview>
+
+### Create project
+
+<ComponentPreview language="vue" details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={createProject} previewMinHeight={168}>
+  <VueDemo template={createProject} stageClassName="" state={{ visibility: "private", region: "" }} controls={pillControl} />
+</ComponentPreview>
+
+### Field configuration
+
+<ComponentPreview language="vue" details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={fieldConfiguration} previewMinHeight={168}>
+  <VueDemo template={fieldConfiguration} stageClassName="" state={{ type: "string", expiresIn: "" }} controls={pillControl} />
+</ComponentPreview>
+
+### Birthday input
+
+<ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts <code>MM / DD / YYYY</code> separators as you type, wrapped in a <code>Field</code> for label and accessibility. <code>nextBirthday</code> is a plain helper function of the example.</>} code={birthdayInput} previewMinHeight={168}>
+  <VueFieldDemo template={birthdayInput} stageClassName="py-10" state={{ birthday: "" }} />
+</ComponentPreview>
+
+### Birthday with validation
+
+<ComponentPreview language="vue" details={<>Birthday input with <code>error-message</code> on <code>Field</code>: Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>. <code>nextBirthday</code> and <code>isValidBirthday</code> are plain helper functions of the example.</>} code={birthdayValidation} previewMinHeight={168}>
+  <VueFieldDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
+</ComponentPreview>
+
+### Birthday segmented input
+
+<ComponentPreview language="vue" details={<>Three compact <code>Input</code> controls composed as month/day/year with auto-advance behavior, wrapped in a <code>Field</code> for shared label and accessibility. <code>digitsOnly</code> is a plain helper function of the example.</>} code={birthdaySegmented} previewMinHeight={168}>
+  <VueFieldDemo template={birthdaySegmented} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
+</ComponentPreview>
+
+### Birthday with selects
+
+<ComponentPreview language="vue" details={<>Dropdown birthday picker with Month/Day/Year selects inside a labeled <code>Field</code> group.</>} code={birthdaySelect} previewMinHeight={168}>
+  <VueFieldDemo template={birthdaySelect} stageClassName="py-10" state={{ month: "", day: "", year: "" }} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "Label text for the field" },
+  { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
+  { prop: "description", type: "string", description: "Helper text below the label; linked via aria-describedby (or the description slot)" },
+  { prop: "error-message", type: "string", description: "Error message below the control; sets aria-invalid on the child (or the errorMessage slot)" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Controls the label font size to match the child control" },
+  { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
+  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
+  { prop: "id", type: "string", description: "Override the generated id used for the label's for and aria linking" },
+  { prop: "class", type: "string", description: "CSS classes applied to the root element" },
+  { prop: "default slot", type: "(fieldProps) => VNode[]", description: "Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps" },
+]} />

@@ -83,7 +83,7 @@ export const walkPairWithState = async <T extends object>(
 ) => {
   let current = { ...initial }
   const listeners = new Set<() => void>()
-  const vueState = reactive({ ...initial }) as T
+  let vueState = reactive({ ...initial }) as T
 
   function ReactApp() {
     const state = useSyncExternalStore(
@@ -123,8 +123,10 @@ export const walkPairWithState = async <T extends object>(
     await steps({ ...tools, snapshot: () => react.push(serializeDom()) })
     cleanup()
 
+    // A fresh state: keys a step set during the React run but missing from
+    // `initial` would otherwise leak into the Vue run
     current = { ...initial }
-    Object.assign(vueState, initial)
+    vueState = reactive({ ...initial }) as T
     const vue: string[] = []
     mountVue(() => vueApp(vueState))
     await flushVue()

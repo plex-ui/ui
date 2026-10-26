@@ -239,7 +239,8 @@
         },
         {
           "name": "color",
-          "type": "string",
+          "type": "\"primary\" | \"secondary\" | \"success\" | \"info\" | \"discovery\" | \"danger\"",
+          "default": "\"secondary\"",
           "description": "Semantic color for text/icon avatar"
         },
         {
@@ -517,7 +518,7 @@
         {
           "name": "pill",
           "type": "boolean",
-          "default": "true",
+          "default": "false",
           "description": "Fully rounded"
         },
         {
@@ -610,7 +611,7 @@
         {
           "name": "pill",
           "type": "boolean",
-          "default": "true",
+          "default": "false",
           "description": "Fully rounded corners"
         },
         {
@@ -640,7 +641,7 @@
         {
           "name": "inert",
           "type": "boolean",
-          "default": "false",
+          "default": "loading",
           "description": "Accessibly disabled without visual change"
         },
         {
@@ -656,19 +657,19 @@
         },
         {
           "name": "gutterSize",
-          "type": "string",
-          "description": "Horizontal padding size"
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Horizontal padding size; defaults from size"
         },
         {
           "name": "iconSize",
-          "type": "string",
-          "description": "Size of icons in children"
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
+          "description": "Size of icons in children; defaults from size"
         }
       ],
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-3\">\n  <Button color=\"primary\">Submit</Button>\n  <Button variant=\"soft\"><CompareArrows /> Compare</Button>\n  <Button color=\"danger\" gutterSize=\"sm\" pill={false}><Delete /></Button>\n  <Button variant=\"outline\">Next <ArrowRight /></Button>\n  <Button variant=\"ghost\" color=\"secondary\" uniform><Clear /></Button>\n</div>",
+          "code": "<div className=\"flex gap-3\">\n  <Button color=\"primary\">Submit</Button>\n  <Button variant=\"soft\"><CompareArrows /> Compare</Button>\n  <Button color=\"danger\" gutterSize=\"sm\" pill={false} aria-label=\"Delete\"><Delete /></Button>\n  <Button variant=\"outline\">Next <ArrowRight /></Button>\n  <Button variant=\"ghost\" color=\"secondary\" uniform aria-label=\"Clear\"><Clear /></Button>\n</div>",
           "details": "A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only."
         },
         {
@@ -683,7 +684,7 @@
         },
         {
           "name": "Icons",
-          "code": "<Button color=\"secondary\" size=\"lg\" uniform variant=\"ghost\">\n  <PlusLg />\n</Button>",
+          "code": "<Button color=\"secondary\" size=\"lg\" uniform variant=\"ghost\" aria-label=\"Add\">\n  <PlusLg />\n</Button>",
           "details": "Add icons as children — sizing is automatic via iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square — create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters — applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons."
         },
         {
@@ -851,6 +852,10 @@
       ],
       "examples": [
         {
+          "name": "Overview",
+          "code": "<div className=\"flex flex-col gap-3\">\n  <Checkbox label=\"Same as billing address\" />\n  <Checkbox label=\"Subscribe to newsletter\" defaultChecked />\n</div>"
+        },
+        {
           "name": "With Radio Group",
           "code": "<div className=\"flex flex-col gap-6 w-full max-w-md\">\n  <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\">\n    {() => (\n      <RadioGroup direction=\"col\" defaultValue=\"email\" aria-label=\"Notification channel\">\n        <RadioGroup.Item value=\"email\">\n          <div className=\"flex flex-col\">\n            <span className=\"font-medium\">Email</span>\n            <span className=\"text-xs text-secondary mt-0.5\">Messages delivered to your inbox.</span>\n          </div>\n        </RadioGroup.Item>\n        ...\n      </RadioGroup>\n    )}\n  </Field>\n  <Field label=\"Topics\" description=\"Select the topics you want to follow.\">\n    {() => (\n      <div className=\"flex flex-col gap-2.5\">\n        <Checkbox defaultChecked label={...} />\n        ...\n      </div>\n    )}\n  </Field>\n</div>",
           "details": "Place Checkbox alongside RadioGroup controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts."
@@ -859,10 +864,6 @@
           "name": "Descriptions",
           "code": "<div className=\"flex flex-col divide-y divide-alpha/15\">\n  <div className=\"pb-5\">\n    <Field label=\"Email notifications\" description=\"Configure which emails you receive.\">\n      {() => (\n        <div className=\"flex flex-col gap-2.5\">\n          <Checkbox\n            label={\n              <div className=\"flex flex-col\">\n                <span className=\"font-medium\">Marketing</span>\n                <span className=\"text-xs text-secondary mt-0.5\">Receive emails about new products and features.</span>\n              </div>\n            }\n            defaultChecked\n          />\n          ...\n        </div>\n      )}\n    </Field>\n  </div>\n  <div className=\"pt-5\">\n    <Field label=\"Push notifications\">\n      {() => (\n        <div className=\"flex flex-col gap-3\">\n          <Checkbox label=\"Everything\" />\n          <Checkbox label=\"Direct messages and mentions\" defaultChecked />\n          <Checkbox label=\"Nothing\" />\n        </div>\n      )}\n    </Field>\n  </div>\n</div>",
           "details": "Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory."
-        },
-        {
-          "name": "Overview",
-          "code": "<div className=\"flex flex-col gap-3\">\n  <Checkbox label=\"Same as billing address\" />\n  <Checkbox label=\"Subscribe to newsletter\" defaultChecked />\n</div>"
         },
         {
           "name": "Variants",
@@ -901,8 +902,8 @@
         },
         {
           "name": "Without label",
-          "code": "<div className=\"flex gap-4\">\n  <Checkbox />\n  <Checkbox defaultChecked />\n  <Checkbox checked=\"indeterminate\" />\n</div>",
-          "details": "When no label is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate."
+          "code": "<div className=\"flex gap-4\">\n  <Checkbox aria-label=\"Accept terms\" />\n  <Checkbox aria-label=\"Subscribe\" defaultChecked />\n  <Checkbox aria-label=\"Select all\" checked=\"indeterminate\" />\n</div>",
+          "details": "When no label is provided, the checkbox renders as a standalone control, so pass aria-label to give it an accessible name. All three visual states are shown: unchecked, checked, and indeterminate."
         },
         {
           "name": "Group with select all",
@@ -1010,7 +1011,7 @@
             {
               "name": "collapsedHeight",
               "type": "number",
-              "default": "80",
+              "default": "140",
               "description": "Height when collapsed (px)"
             },
             {
@@ -1046,8 +1047,7 @@
         {
           "name": "copyValue",
           "type": "string",
-          "default": "\"Very cool content to copy\"",
-          "description": "Content to copy to clipboard"
+          "description": "Required. Content to copy to clipboard"
         },
         {
           "name": "openDelay",
@@ -1091,7 +1091,7 @@
     {
       "slug": "date-input",
       "name": "Date Input",
-      "description": "Masked text input for typing dates with automatic formatting and validation",
+      "description": "Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.",
       "importPath": "@plexui/ui/components/DateInput",
       "exports": [
         "DateInput"
@@ -1232,7 +1232,7 @@
     {
       "slug": "date-picker",
       "name": "Date Picker",
-      "description": "React date picker component with interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets",
+      "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
       "importPath": "@plexui/ui/components/DatePicker",
       "exports": [
         "DatePicker"
@@ -1277,8 +1277,8 @@
         },
         {
           "name": "size",
-          "type": "string",
-          "description": "Trigger size"
+          "type": "ControlSize",
+          "description": "Trigger size (3xs to 3xl)"
         },
         {
           "name": "pill",
@@ -1345,13 +1345,13 @@
         },
         {
           "name": "Date input",
-          "code": "<MaskedDateInput value={date} onChange={setDate} />",
-          "details": "A masked input for typing a date directly. Auto-formats as MM / DD / YYYY with segment highlighting and separator auto-advance."
+          "code": "<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" />",
+          "details": "For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type."
         },
         {
           "name": "DateTime input",
-          "code": "<MaskedDateTimeInput value={dateTime} onChange={setDateTime} />",
-          "details": "Extended masked input for date and time. Format: MM / DD / YYYY HH : MM. Same auto-formatting behavior with time segments appended."
+          "code": "<DateInput value={dateTime} onChange={setDateTime} mode=\"mm/dd/yyyy\" separator=\"/\" timeMode=\"HH:MM\" />",
+          "details": "Pass timeMode=\"HH:MM\" to DateInput to type the date and time in one field."
         },
         {
           "name": "Without Icon",
@@ -1369,7 +1369,7 @@
     {
       "slug": "date-range-picker",
       "name": "Date Range Picker",
-      "description": "React date range picker with interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates",
+      "description": "Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.",
       "importPath": "@plexui/ui/components/DateRangePicker",
       "exports": [
         "DateRangePicker"
@@ -1426,7 +1426,7 @@
         {
           "name": "alignOffset",
           "type": "number",
-          "default": "0",
+          "default": "align === \"center\" ? 0 : -5",
           "description": "Offset from start/end alignment in pixels"
         },
         {
@@ -1584,12 +1584,14 @@
       "props": [
         {
           "name": "color",
-          "type": "string",
-          "description": "Semantic color (e.g. danger, warning)"
+          "type": "\"secondary\" | \"danger\" | \"warning\"",
+          "default": "\"secondary\"",
+          "description": "Semantic color"
         },
         {
           "name": "size",
-          "type": "\"sm\" | \"md\" | \"lg\"",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\"",
           "description": "Icon size"
         },
         {
@@ -1623,7 +1625,7 @@
     {
       "slug": "field",
       "name": "Field",
-      "description": "Form field wrapper with label, description, error, and accessibility linking",
+      "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
       "importPath": "@plexui/ui/components/Field",
       "exports": [
         "Field"
@@ -2191,8 +2193,8 @@
           "props": [
             {
               "name": "size",
-              "type": "number",
-              "description": "Size in px (or use --indicator-size CSS variable)"
+              "type": "number | string",
+              "description": "Size in px or any CSS length (or use --indicator-size CSS variable)"
             },
             {
               "name": "strokeWidth",
@@ -2211,8 +2213,8 @@
             },
             {
               "name": "size",
-              "type": "number",
-              "description": "Diameter in px"
+              "type": "number | string",
+              "description": "Diameter in px or any CSS length"
             },
             {
               "name": "strokeWidth",
@@ -2262,7 +2264,7 @@
         },
         {
           "name": "gutterSize",
-          "type": "string",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
           "description": "Controls gutter on the edges; defaults to value from size"
         },
         {
@@ -2280,7 +2282,7 @@
         {
           "name": "allowAutofillExtensions",
           "type": "boolean",
-          "default": "false",
+          "default": "type === \"password\" || !!name",
           "description": "Allow autofill extensions to appear in the input"
         },
         {
@@ -2583,14 +2585,15 @@
         },
         {
           "name": "width",
-          "type": "number | string",
-          "description": "Panel width (px or CSS value)"
+          "type": "number | \"auto\"",
+          "default": "\"auto\"",
+          "description": "Panel width in px"
         },
         {
           "name": "minWidth",
-          "type": "number | string",
-          "default": "auto",
-          "description": "Minimum panel width"
+          "type": "number | \"auto\"",
+          "default": "300",
+          "description": "Minimum panel width in px (vertical layout)"
         },
         {
           "name": "side",
@@ -2631,7 +2634,7 @@
         },
         {
           "name": "checked",
-          "type": "boolean",
+          "type": "boolean | \"indeterminate\"",
           "description": "Checked state"
         },
         {
@@ -2642,12 +2645,14 @@
         {
           "name": "indicatorPosition",
           "type": "\"start\" | \"end\"",
+          "default": "\"end\"",
           "description": "Checkbox position"
         },
         {
           "name": "indicatorVariant",
-          "type": "string",
-          "description": "Badge/indicator style (e.g. solid)"
+          "type": "\"solid\" | \"ghost\"",
+          "default": "\"solid\"",
+          "description": "Checkbox indicator style"
         }
       ],
       "examples": [
@@ -2797,19 +2802,20 @@
         },
         {
           "name": "width",
-          "type": "number | string",
-          "description": "Panel width (px or CSS value)"
+          "type": "number | \"auto\"",
+          "default": "\"auto\"",
+          "description": "Panel width in px"
         },
         {
           "name": "minWidth",
-          "type": "number | string",
+          "type": "number | \"auto\"",
           "default": "300",
           "description": "Minimum panel width in px"
         },
         {
           "name": "maxWidth",
-          "type": "number | string",
-          "description": "Maximum panel width"
+          "type": "number",
+          "description": "Maximum panel width in px"
         },
         {
           "name": "side",
@@ -2894,11 +2900,6 @@
           "description": "Connector line style"
         },
         {
-          "name": "variant",
-          "type": "\"minimal\"",
-          "description": "Compact bar variant (requires total)"
-        },
-        {
           "name": "total",
           "type": "number",
           "description": "Total steps for minimal variant"
@@ -2963,16 +2964,16 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [value, setValue] = useState(13);\nuseEffect(() => {\n  const t = setTimeout(() => setValue(66), 500);\n  return () => clearTimeout(t);\n}, []);\n\nreturn <Progress value={value} />;"
+          "code": "const [value, setValue] = useState(13);\nuseEffect(() => {\n  const t = setTimeout(() => setValue(66), 500);\n  return () => clearTimeout(t);\n}, []);\n\nreturn <Progress value={value} aria-label=\"Loading\" />;"
         },
         {
           "name": "With label",
-          "code": "<div>\n  <div style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <Label htmlFor=\"progress-upload\">Uploading plex-ui.zip</Label>\n    <span>3.2 / 4.8 MB</span>\n  </div>\n  <Progress id=\"progress-upload\" value={67} />\n</div>",
+          "code": "<div>\n  <div style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <Label id=\"progress-upload-label\">Uploading plex-ui.zip</Label>\n    <span>3.2 / 4.8 MB</span>\n  </div>\n  <Progress aria-labelledby=\"progress-upload-label\" value={67} />\n</div>",
           "details": "Pair a Label with a value readout above the bar — typical upload / onboarding progress pattern."
         },
         {
           "name": "Controlled",
-          "code": "const [value, setValue] = useState(50);\n\nreturn (\n  <>\n    <Progress value={value} />\n    <Slider value={value} onChange={setValue} min={0} max={100} step={1} />\n  </>\n);",
+          "code": "const [value, setValue] = useState(50);\n\nreturn (\n  <>\n    <Progress value={value} aria-label=\"Progress\" />\n    <Slider value={value} onChange={setValue} min={0} max={100} step={1} />\n  </>\n);",
           "details": "Bind value to any source — here it follows a Slider."
         }
       ],
@@ -2981,7 +2982,7 @@
     {
       "slug": "radio-group",
       "name": "Radio Group",
-      "description": "React radio group component for single-choice selection with horizontal or vertical layout, per-item descriptions, and Field integration",
+      "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
       "importPath": "@plexui/ui/components/RadioGroup",
       "exports": [
         "RadioGroup"
@@ -3005,7 +3006,7 @@
         {
           "name": "direction",
           "type": "\"col\" | \"row\"",
-          "default": "\"col\"",
+          "default": "\"row\"",
           "description": "Item flow direction"
         },
         {
@@ -3034,6 +3035,10 @@
       ],
       "examples": [
         {
+          "name": "Overview",
+          "code": "const [frequency, setFrequency] = useState(\"daily\")\n<RadioGroup direction=\"col\" value={frequency} onChange={setFrequency} aria-label=\"Notification frequency\">\n  <RadioGroup.Item value=\"daily\">Daily</RadioGroup.Item>\n  <RadioGroup.Item value=\"weekly\">Weekly</RadioGroup.Item>\n  <RadioGroup.Item value=\"monthly\">Monthly</RadioGroup.Item>\n  <RadioGroup.Item value=\"never\">Never</RadioGroup.Item>\n</RadioGroup>"
+        },
+        {
           "name": "With Checkbox",
           "code": "<div className=\"flex flex-col gap-6 w-full max-w-md\">\n  <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\">\n    {() => (\n      <RadioGroup direction=\"col\" defaultValue=\"email\" aria-label=\"Notification channel\">\n        <RadioGroup.Item value=\"email\">\n          <div className=\"flex flex-col\">\n            <span className=\"font-medium\">Email</span>\n            <span className=\"text-xs text-secondary mt-0.5\">Messages delivered to your inbox.</span>\n          </div>\n        </RadioGroup.Item>\n        <RadioGroup.Item value=\"sms\">\n          <div className=\"flex flex-col\">\n            <span className=\"font-medium\">SMS</span>\n            <span className=\"text-xs text-secondary mt-0.5\">Text messages to your phone number.</span>\n          </div>\n        </RadioGroup.Item>\n        <RadioGroup.Item value=\"push\">\n          <div className=\"flex flex-col\">\n            <span className=\"font-medium\">Push</span>\n            <span className=\"text-xs text-secondary mt-0.5\">Real-time alerts on your device.</span>\n          </div>\n        </RadioGroup.Item>\n      </RadioGroup>\n    )}\n  </Field>\n  <Field label=\"Topics\" description=\"Select the topics you want to follow.\">\n    {() => (\n      <div className=\"flex flex-col gap-2.5\">\n        <Checkbox defaultChecked label={...} />\n        ...\n      </div>\n    )}\n  </Field>\n</div>",
           "details": "Place RadioGroup alongside Checkbox controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts."
@@ -3042,10 +3047,6 @@
           "name": "Descriptions",
           "code": "<div className=\"flex flex-col divide-y divide-alpha/15\">\n  <div className=\"pb-5\">\n    <Field label=\"Notification channel\" description=\"Choose how you'd like to be notified.\">\n      {() => (\n        <RadioGroup direction=\"col\" value={channel} onChange={setChannel} aria-label=\"Notification channel\">\n          <RadioGroup.Item value=\"email\">\n            <div className=\"flex flex-col\">\n              <span className=\"font-medium\">Email</span>\n              <span className=\"text-xs text-secondary mt-0.5\">Messages delivered to your inbox.</span>\n            </div>\n          </RadioGroup.Item>\n          ...\n        </RadioGroup>\n      )}\n    </Field>\n  </div>\n  <div className=\"pt-5\">\n    <Field label=\"Notification frequency\">\n      {() => (\n        <RadioGroup direction=\"col\" value={frequency} onChange={setFrequency} aria-label=\"Notification frequency\">\n          <RadioGroup.Item value=\"daily\">Daily</RadioGroup.Item>\n          <RadioGroup.Item value=\"weekly\">Weekly</RadioGroup.Item>\n          <RadioGroup.Item value=\"monthly\">Monthly</RadioGroup.Item>\n          <RadioGroup.Item value=\"never\">Never</RadioGroup.Item>\n        </RadioGroup>\n      )}\n    </Field>\n  </div>\n</div>",
           "details": "Combine Field-level label and description with item-level descriptions for options that need additional context. Use a plain label without descriptions when the options are self-explanatory."
-        },
-        {
-          "name": "Overview",
-          "code": "const [frequency, setFrequency] = useState(\"daily\")\n<RadioGroup direction=\"col\" value={frequency} onChange={setFrequency} aria-label=\"Notification frequency\">\n  <RadioGroup.Item value=\"daily\">Daily</RadioGroup.Item>\n  <RadioGroup.Item value=\"weekly\">Weekly</RadioGroup.Item>\n  <RadioGroup.Item value=\"monthly\">Monthly</RadioGroup.Item>\n  <RadioGroup.Item value=\"never\">Never</RadioGroup.Item>\n</RadioGroup>"
         },
         {
           "name": "Direction",
@@ -3103,7 +3104,7 @@
     {
       "slug": "select-control",
       "name": "Select Control",
-      "description": "Headless React select control primitive for building custom dropdowns — variants, sizing, start and dropdown icons, clearable, loading, and invalid states",
+      "description": "Select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.",
       "importPath": "@plexui/ui/components/SelectControl",
       "exports": [
         "SelectControl"
@@ -3122,8 +3123,8 @@
         },
         {
           "name": "size",
-          "type": "string",
-          "description": "Control size"
+          "type": "ControlSize",
+          "description": "Control size (3xs to 3xl)"
         },
         {
           "name": "pill",
@@ -3252,7 +3253,7 @@
     {
       "slug": "select",
       "name": "Select",
-      "description": "React select dropdown component with grouped options, per-item descriptions, multi-select, action items, and column-based layouts",
+      "description": "Select dropdown with grouped options, per-item descriptions, multiple selection, action items, and column-based layouts.",
       "importPath": "@plexui/ui/components/Select",
       "exports": [
         "Select"
@@ -3287,15 +3288,15 @@
         },
         {
           "name": "variant",
-          "type": "string",
+          "type": "\"soft\" | \"outline\" | \"ghost\"",
           "default": "\"outline\"",
           "description": "Trigger variant"
         },
         {
           "name": "size",
-          "type": "string",
+          "type": "ControlSize",
           "default": "\"md\"",
-          "description": "Trigger size"
+          "description": "Trigger size (3xs to 3xl)"
         },
         {
           "name": "pill",
@@ -3312,7 +3313,7 @@
         {
           "name": "block",
           "type": "boolean",
-          "default": "true",
+          "default": "variant !== \"ghost\"",
           "description": "Full width trigger"
         },
         {
@@ -3467,7 +3468,7 @@
     {
       "slug": "sidebar",
       "name": "Sidebar",
-      "description": "Composable React navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
+      "description": "Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
       "importPath": "@plexui/ui/components/Sidebar",
       "exports": [
         "SidebarProvider",
@@ -3718,7 +3719,7 @@
     {
       "slug": "slider",
       "name": "Slider",
-      "description": "React slider component for fine-tuning numeric values with single or range thumbs, marks, tooltip readouts, and vertical orientation",
+      "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
       "importPath": "@plexui/ui/components/Slider",
       "exports": [
         "Slider"
@@ -3762,6 +3763,12 @@
           "description": "Value for reset option (single mode only)"
         },
         {
+          "name": "resetTooltip",
+          "type": "string",
+          "default": "\"Reset to default\"",
+          "description": "Tooltip and accessible name of the reset button"
+        },
+        {
           "name": "unit",
           "type": "string",
           "description": "Unit displayed (e.g. ms, px)"
@@ -3774,7 +3781,7 @@
         {
           "name": "label",
           "type": "ReactNode",
-          "description": "Label (string or JSX)"
+          "description": "Label (string or JSX). Also names the slider thumbs for assistive technology"
         },
         {
           "name": "marks",
@@ -3796,6 +3803,21 @@
           "type": "boolean",
           "default": "false",
           "description": "Disable slider"
+        },
+        {
+          "name": "trackColor",
+          "type": "string",
+          "description": "Color of the slider track"
+        },
+        {
+          "name": "rangeColor",
+          "type": "string",
+          "description": "Color of the filled range"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "Applied to the root element"
         }
       ],
       "examples": [
@@ -3839,7 +3861,7 @@
     {
       "slug": "stat-card",
       "name": "Stat Card",
-      "description": "React stat card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent border styling",
+      "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
       "importPath": "@plexui/ui/components/StatCard",
       "exports": [
         "StatCard"
@@ -4040,8 +4062,8 @@
       ],
       "examples": [
         {
-          "name": "Base",
-          "code": "<Switch />"
+          "name": "Overview",
+          "code": "<Switch aria-label=\"Notifications\" />"
         },
         {
           "name": "With label",
@@ -4075,7 +4097,7 @@
         },
         {
           "name": "Disabled",
-          "code": "<div className=\"flex gap-6\">\n  <Switch disabled />\n  <Switch disabled checked />\n</div>",
+          "code": "<div className=\"flex gap-6\">\n  <Switch disabled aria-label=\"Notifications\" />\n  <Switch disabled checked aria-label=\"Dark mode\" />\n</div>",
           "details": "Use disabled to prevent the user from toggling the control."
         },
         {
@@ -4383,7 +4405,7 @@
         },
         {
           "name": "gutterSize",
-          "type": "string",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
           "description": "Horizontal padding of tabs"
         },
         {
@@ -4422,8 +4444,8 @@
         },
         {
           "name": "badge",
-          "type": "number | { content: ReactNode; color?: string; variant?: string }",
-          "description": "Badge/count or custom badge config"
+          "type": "ReactNode | { content: ReactNode; color?: \"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\" | \"caution\"; variant?: \"soft\" | \"solid\"; pill?: boolean; loading?: boolean }",
+          "description": "Badge content (for example a count) or a badge config"
         }
       ],
       "examples": [
@@ -4694,7 +4716,7 @@
         },
         {
           "name": "gutterSize",
-          "type": "string",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
           "description": "Horizontal padding; defaults from size"
         },
         {
@@ -4712,7 +4734,7 @@
         {
           "name": "allowAutofillExtensions",
           "type": "boolean",
-          "default": "false",
+          "default": "!!name",
           "description": "Allow autofill extensions"
         },
         {
@@ -4741,7 +4763,7 @@
       ],
       "examples": [
         {
-          "name": "Base",
+          "name": "Overview",
           "code": "<div className=\"w-[400px]\">\n  <Textarea placeholder=\"Enter text...\" autoResize rows={3} />\n</div>"
         },
         {
@@ -4761,7 +4783,7 @@
         },
         {
           "name": "Disabled",
-          "code": "<div className=\"w-[400px]\">\n  <Textarea disabled defaultValue=\"Jane Doe\" />\n</div>",
+          "code": "<div className=\"w-[400px]\">\n  <Textarea disabled defaultValue=\"Jane Doe\" aria-label=\"Name\" />\n</div>",
           "details": "Use the disabled prop to disable the textarea, greying it out and preventing user interactions."
         },
         {
@@ -4771,7 +4793,7 @@
         },
         {
           "name": "Auto select text",
-          "code": "<div className=\"w-[400px]\">\n  <Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} />\n</div>",
+          "code": "<div className=\"w-[400px]\">\n  <Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} aria-label=\"Notes\" />\n</div>",
           "details": "Pass autoSelect to select all text in the textarea &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
         },
         {
@@ -4831,7 +4853,7 @@
       ],
       "subComponents": [
         {
-          "name": "`<Toaster />`",
+          "name": "Toaster",
           "props": [
             {
               "name": "position",
@@ -4894,7 +4916,7 @@
         },
         {
           "name": "side",
-          "type": "string",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
           "default": "\"top\"",
           "description": "Preferred side"
         },
@@ -4906,7 +4928,7 @@
         },
         {
           "name": "align",
-          "type": "string",
+          "type": "\"start\" | \"center\" | \"end\"",
           "default": "\"center\"",
           "description": "Alignment"
         },
@@ -4935,7 +4957,7 @@
       ],
       "examples": [
         {
-          "name": "Base",
+          "name": "Overview",
           "code": "<Tooltip content=\"This is additional context that appears when the trigger is hovered or focused\">\n  <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>\n</Tooltip>"
         },
         {
@@ -4950,12 +4972,12 @@
         },
         {
           "name": "Compact tooltips",
-          "code": "<Tooltip content=\"Copy to clipboard\" compact>\n  <Button color=\"secondary\" variant=\"ghost\" size=\"md\"><Copy /></Button>\n</Tooltip>",
+          "code": "<Tooltip content=\"Copy to clipboard\" compact>\n  <Button color=\"secondary\" variant=\"ghost\" size=\"md\" aria-label=\"Copy to clipboard\"><Copy /></Button>\n</Tooltip>",
           "details": "Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use {'compact={true}'} for brief status messages."
         }
       ],
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T11:33:28.451Z"
+  "generatedAt": "2026-10-26T12:59:14.079Z"
 }

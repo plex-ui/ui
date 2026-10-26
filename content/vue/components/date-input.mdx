@@ -1,0 +1,147 @@
+---
+title: Date Input
+description: Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.
+metaDescription: Vue 3 date input component with a Maskito date mask, Luxon DateTime values, optional time, min and max limits, and v-model:value binding.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueDateInputDemo } from "@/components/docs/vue/VueDateInputDemos"
+
+export const overviewControls = [
+  { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" },
+  { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
+  { name: "pill", type: "boolean", default: false },
+  { name: "clearable", type: "boolean", default: true },
+]
+
+export const overview = `<div class="w-[200px]">
+  <DateInput
+    v-model:value="date"
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+    :clearable="clearable"
+  />
+</div>`
+
+export const withTime = `<div class="w-[260px]">
+  <DateInput v-model:value="date" time-mode="HH:MM" clearable />
+</div>`
+
+export const withSeconds = `<div class="w-[300px]">
+  <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
+</div>`
+
+export const limits = `<div class="w-[200px]">
+  <DateInput
+    v-model:value="date"
+    :min="today.minus({ days: 30 }).startOf('day')"
+    :max="today.plus({ days: 30 }).endOf('day')"
+    clearable
+  />
+</div>`
+
+export const usFormat = `<div class="w-[200px]">
+  <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
+</div>`
+
+export const isoFormat = `<div class="w-[200px]">
+  <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
+</div>`
+
+export const withField = `<div class="w-[200px]">
+  <Field label="Date of birth" description="Enter your date of birth">
+    <DateInput v-model:value="date" clearable />
+  </Field>
+</div>`
+
+export const validation = `<div class="w-[200px]">
+  <Field label="Date of birth" :error-message="!date ? 'Date is required' : undefined">
+    <DateInput v-model:value="date" clearable />
+  </Field>
+</div>`
+
+export const disabled = `<div class="w-[200px]">
+  <DateInput v-model:value="date" disabled />
+</div>`
+
+<UsageBlock>{`import { DateInput } from "@plexui/vue/components/DateInput";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value.</>} code={overview} previewMinHeight={168}>
+  <VueDateInputDemo template={overview} stageClassName="py-10" state={{ date: null }} controls={overviewControls} />
+</ComponentPreview>
+
+### With time
+
+<ComponentPreview language="vue" details={<>Pass <code>time-mode="HH:MM"</code> to enable date + time input in one field.</>} code={withTime} previewMinHeight={80}>
+  <VueDateInputDemo template={withTime} state={{ date: null }} />
+</ComponentPreview>
+
+### With seconds
+
+<ComponentPreview language="vue" details={<>Use <code>time-mode="HH:MM:SS"</code> for second-level precision.</>} code={withSeconds} previewMinHeight={80}>
+  <VueDateInputDemo template={withSeconds} state={{ date: null }} />
+</ComponentPreview>
+
+### Limits
+
+<ComponentPreview language="vue" details={<>Use <code>min</code> and <code>max</code> to restrict the date range. The mask prevents entering values outside the allowed range. <code>today</code> is <code>DateTime.local()</code>.</>} code={limits} previewMinHeight={80}>
+  <VueDateInputDemo template={limits} dates={{ date: "today" }} />
+</ComponentPreview>
+
+### US format
+
+<ComponentPreview language="vue" details={<>Set <code>mode="mm/dd/yyyy"</code> and <code>separator="/"</code> for US-style date formatting.</>} code={usFormat} previewMinHeight={80}>
+  <VueDateInputDemo template={usFormat} state={{ date: null }} />
+</ComponentPreview>
+
+### ISO format
+
+<ComponentPreview language="vue" details={<>Set <code>mode="yyyy/mm/dd"</code> and <code>separator="-"</code> for ISO 8601 formatting.</>} code={isoFormat} previewMinHeight={80}>
+  <VueDateInputDemo template={isoFormat} state={{ date: null }} />
+</ComponentPreview>
+
+### With Field
+
+<ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add a label, description, and automatic accessibility attributes.</>} code={withField} previewMinHeight={100}>
+  <VueDateInputDemo template={withField} state={{ date: null }} />
+</ComponentPreview>
+
+### Validation
+
+<ComponentPreview language="vue" details={<>Pass <code>error-message</code> to <code>Field</code> to display a validation error.</>} code={validation} previewMinHeight={100}>
+  <VueDateInputDemo template={validation} state={{ date: null }} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" code={disabled} previewMinHeight={80}>
+  <VueDateInputDemo template={disabled} dates={{ date: "2025-01-01" }} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "value / v-model:value", type: "DateTime | null", description: "Selected date (Luxon DateTime)" },
+  { prop: "@update:value", type: "(date: DateTime | null) => void", description: "Emitted when a complete valid date is entered or the field is cleared" },
+  { prop: "@change", type: "(date: DateTime | null) => void", description: "Same payload as update:value, named after React's onChange" },
+  { prop: "mode", type: "MaskitoDateMode", default: '"dd/mm/yyyy"', description: "Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc." },
+  { prop: "separator", type: "string", default: '"."', description: "Character between date parts" },
+  { prop: "time-mode", type: "MaskitoTimeMode", description: "Enable time input: HH:MM, HH:MM:SS, etc." },
+  { prop: "date-time-separator", type: "string", default: '", "', description: "Separator between date and time parts" },
+  { prop: "time-step", type: "number", default: "0", description: "Arrow-key increment step for time segments" },
+  { prop: "min", type: "DateTime", description: "Earliest allowed date" },
+  { prop: "max", type: "DateTime", description: "Latest allowed date" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button when input has a value" },
+  { prop: "size", type: "ControlSize", default: '"md"', description: "Input size (3xs to 3xl)" },
+  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable input" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
+  { prop: "placeholder", type: "string", description: "Generated from the format if not set" },
+]} />
+
+Other attributes, listeners and the `startAdornment` / `endAdornment` slots go to the underlying [Input](/vue/components/input). The mask is [Maskito](https://maskito.dev) (`@maskito/vue`), with the same options as the React component.

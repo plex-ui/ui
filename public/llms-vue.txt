@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 43
+Components: 47
 
 ## Setup
 
@@ -198,6 +198,79 @@ Props:
   - sideOffset (number) default: 5 — Distance from trigger in pixels
 Examples: Overview
 
+## Date Input
+Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.
+Import: import { DateInput } from "@plexui/vue/components/DateInput"
+Docs: https://plexui.com/vue/components/date-input
+Props:
+  - value / v-model:value (DateTime | null) — Selected date (Luxon DateTime)
+  - @update:value ((date: DateTime | null) => void) — Emitted when a complete valid date is entered or the field is cleared
+  - @change ((date: DateTime | null) => void) — Same payload as update:value, named after React's onChange
+  - mode (MaskitoDateMode) default: "dd/mm/yyyy" — Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc.
+  - separator (string) default: "." — Character between date parts
+  - time-mode (MaskitoTimeMode) — Enable time input: HH:MM, HH:MM:SS, etc.
+  - date-time-separator (string) default: ", " — Separator between date and time parts
+  - time-step (number) default: 0 — Arrow-key increment step for time segments
+  - min (DateTime) — Earliest allowed date
+  - max (DateTime) — Latest allowed date
+  - clearable (boolean) default: false — Show clear button when input has a value
+  - size (ControlSize) default: "md" — Input size (3xs to 3xl)
+  - variant ("outline" | "soft") default: "outline" — Visual style
+  - disabled (boolean) default: false — Disable input
+  - invalid (boolean) default: false — Mark as invalid
+  - placeholder (string) — Generated from the format if not set
+Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation, Disabled
+
+## Date Picker
+Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+Import: import { DatePicker } from "@plexui/vue/components/DatePicker"
+Docs: https://plexui.com/vue/components/date-picker
+Props:
+  - v-model:value (DateTime | null) — Selected date (luxon)
+  - @change ((date: DateTime | null) => void) — Called when date changes
+  - min (DateTime) — Minimum selectable date
+  - max (DateTime) — Maximum selectable date
+  - caption-layout ("buttons" | "dropdown") default: "buttons" — Calendar header mode. Use dropdown for date of birth
+  - show-time (boolean) default: false — Show time input below calendar
+  - year-range ([number, number]) — Min/max years for dropdown caption
+  - size (ControlSize) — Trigger size (3xs to 3xl)
+  - pill (boolean) — Rounded trigger
+  - clearable (boolean) — Show clear button
+  - trigger-show-icon (boolean) default: true — Show calendar icon
+  - trigger-date-format (string) default: "MM/dd/yy" — Date format in trigger. Auto-includes time when show-time is enabled
+  - placeholder (string) — Trigger placeholder
+  - disabled (boolean) — Disable picker
+Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Without Icon, Disabled
+
+## Date Range Picker
+Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+Import: import { DateRangePicker } from "@plexui/vue/components/DateRangePicker"
+Docs: https://plexui.com/vue/components/date-range-picker
+Props:
+  - v-model:value (DateRange | null) — Selected range ([start, end], inclusive)
+  - @change ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Called when range changes
+  - min (DateTime) — Earliest selectable date
+  - max (DateTime) — Latest selectable date
+  - max-range-days (number) — Max length of range in days (inclusive)
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
+  - side-offset (number) default: 8 — Distance from trigger in pixels
+  - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
+  - align-offset (number) default: align === "center" ? 0 : -5 — Offset from start/end alignment in pixels
+  - disabled (boolean) default: false — Disable picker interactions
+  - placeholder (string) default: "Select date range..." — Placeholder in trigger when value is empty
+  - variant ("soft" | "outline" | "ghost") default: "outline" — Trigger style variant
+  - pill (boolean) default: true — Rounded trigger shape
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Trigger size scale
+  - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Icon shown at trigger end
+  - trigger-class-name (string) — Custom class for trigger
+  - trigger-show-icon (boolean) default: true — Show calendar icon at trigger start
+  - trigger-stepper-unit ("month") — Enable month stepper mode in trigger
+  - trigger-date-format (string) default: "MM/dd/yy" — Date formatting in trigger text
+  - clearable (boolean) default: false — Show clear button in trigger
+  - block (boolean) default: false — Stretch trigger to full available width
+Examples: Overview, Limits, Shortcuts, Month stepper
+
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 Import: import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
@@ -219,6 +292,24 @@ Props:
   - size ("sm" | "md") default: "md" — Icon badge size
   - class (string) — Additional classes for the action row container
 Examples: Composition, Error message, Warning message, No results
+
+## Field
+Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
+Import: import { Field } from "@plexui/vue/components/Field"
+Docs: https://plexui.com/vue/components/field
+Props:
+  - label (string) — Label text for the field
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Helper text below the label; linked via aria-describedby (or the description slot)
+  - error-message (string) — Error message below the control; sets aria-invalid on the child (or the errorMessage slot)
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the label font size to match the child control
+  - required (boolean) default: false — Shows a required asterisk after the label (visual only)
+  - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
+  - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
+  - id (string) — Override the generated id used for the label's for and aria linking
+  - class (string) — CSS classes applied to the root element
+  - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps
+Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.

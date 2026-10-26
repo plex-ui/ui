@@ -1,0 +1,530 @@
+---
+title: Form Examples
+description: "Production-ready form examples: sign-up, log-in, password reset, email and phone verification, OAuth, and file upload built with Plex UI."
+metaDescription: "Vue 3 form examples: sign-up, log-in, password entry, email and phone verification, OAuth, and file upload built with Plex UI for Vue."
+---
+
+import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
+import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
+
+export const STAGE = "py-10 flex justify-center"
+export const dialogControl = { name: "dialog", type: "boolean", default: false }
+export const inputControl = { name: "input", type: "select", options: ["per-digit", "text-field"], default: "per-digit" }
+
+export const emailLogin = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Welcome back</h3>
+      <p class="text-secondary text-sm mt-1">Log in to your account.</p>
+    </div>
+    <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <FloatingLabelInput
+        label="Email address"
+        type="email"
+        :value="email"
+        @update:value="(value) => { email = value; submitted = false }"
+        :invalid="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)"
+        :error-message="submitted && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? 'Enter a valid email address.' : undefined"
+      />
+      <div>
+        <FloatingLabelInput
+          label="Password"
+          type="password"
+          :value="password"
+          @update:value="(value) => { password = value; submitted = false }"
+          :invalid="submitted && !password"
+          :error-message="submitted && !password ? 'Password is required.' : undefined"
+        />
+        <button
+          type="button"
+          class="text-sm mt-2 inline-block cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color); padding-left: var(--floating-input-gutter)"
+        >
+          Forgot password?
+        </button>
+      </div>
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-2">Log in</Button>
+      <p class="text-base text-center mt-4">
+        Don't have an account?
+        <button
+          type="button"
+          class="cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color)"
+        >
+          Sign up
+        </button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const oauthLogin = `<div class="w-[360px]">
+  <div class="mb-8 text-center">
+    <h3 class="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
+  </div>
+
+  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+    <FloatingLabelInput
+      label="Email address"
+      type="email"
+      :value="email"
+      @update:value="(value) => { email = value; submitted = false }"
+      :invalid="submitted && !/.+@.+\\..+/.test(email)"
+      :error-message="submitted && !/.+@.+\\..+/.test(email) ? 'Email is not valid.' : undefined"
+    />
+    <Button color="primary" size="3xl" type="submit" pill block class="h-[3.25rem]">
+      Continue
+    </Button>
+  </form>
+
+  <p class="text-base text-center mt-6">
+    Don't have an account?
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 font-medium"
+      style="color: var(--link-primary-text-color)"
+    >
+      Sign up
+    </button>
+  </p>
+
+  <div class="my-7 flex items-center gap-3" role="separator" aria-orientation="horizontal">
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+    <span class="text-xs font-semibold uppercase tracking-wider text-fd-foreground select-none">OR</span>
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="PhoneLogo" />Continue with phone</Button>
+  </div>
+
+  <p class="text-xs text-center mt-8">
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
+      style="color: var(--color-text-secondary)"
+    >
+      Terms of Use
+    </button>
+    <span class="mx-2 text-tertiary">|</span>
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
+      style="color: var(--color-text-secondary)"
+    >
+      Privacy Policy
+    </button>
+  </p>
+</div>`
+
+export const oauthSignup = `<div class="w-[360px]">
+  <div class="mb-8 text-center">
+    <h3 class="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
+  </div>
+
+  <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+    <FloatingLabelInput
+      label="Email address"
+      type="email"
+      :value="email"
+      @update:value="(value) => { email = value; submitted = false }"
+      :invalid="submitted && !/.+@.+\\..+/.test(email)"
+      :error-message="submitted && !/.+@.+\\..+/.test(email) ? 'Email is not valid.' : undefined"
+    />
+    <Button color="primary" size="3xl" type="submit" pill block class="h-[3.25rem]">
+      Continue
+    </Button>
+  </form>
+
+  <p class="text-base text-center mt-6">
+    Already have an account?
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 font-medium"
+      style="color: var(--link-primary-text-color)"
+    >
+      Log in
+    </button>
+  </p>
+
+  <div class="my-7 flex items-center gap-3" role="separator" aria-orientation="horizontal">
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+    <span class="text-xs font-semibold uppercase tracking-wider text-fd-foreground select-none">OR</span>
+    <span aria-hidden="true" class="h-px flex-1 bg-[var(--color-fd-border)]" />
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem] font-medium"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+  </div>
+
+  <p class="text-xs text-center mt-8">
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
+      style="color: var(--color-text-secondary)"
+    >
+      Terms of Use
+    </button>
+    <span class="mx-2 text-tertiary">|</span>
+    <button
+      type="button"
+      class="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
+      style="color: var(--color-text-secondary)"
+    >
+      Privacy Policy
+    </button>
+  </p>
+</div>`
+
+export const countrySelect = `<Select
+        v-model:value="country"
+        :options="phoneCountryOptions"
+        search-placeholder="Search countries..."
+        :search-predicate="phoneCountrySearchPredicate"
+        :list-min-width="360"
+        block
+        size="3xl"
+        check-position="end"
+        @change="() => { submitted = false; focusLater($refs.phoneInput) }"
+      >
+        <template #optionView="{ value, label }">
+          <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+        </template>
+        <template #trigger="{ open, onToggle }">
+          <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
+        </template>
+      </Select>
+      <FloatingLabelInput
+        ref="phoneInput"
+        label="Phone number"
+        :value="phone"
+        @update:value="(raw) => { phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country); submitted = false }"
+        type="tel"
+        inputmode="tel"
+        :invalid="submitted && !isPhoneValid(phone)"
+        :error-message="submitted && !isPhoneValid(phone) ? 'Phone number is not valid.' : undefined"
+      >
+        <template #startAdornment>
+          <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
+        </template>
+      </FloatingLabelInput>`
+
+export const phoneSignup = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Create your account</h3>
+      <p class="text-secondary text-sm mt-1">Enter your details to get started.</p>
+    </div>
+    <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <FloatingLabelInput label="Full name" v-model:value="fullName" />
+      <FloatingLabelInput label="Email address" type="email" v-model:value="email" />
+      ${countrySelect}
+      <p class="text-xs text-center text-tertiary mt-3">
+        By clicking “Continue”, you agree to our <span class="underline">Terms</span> and have read our
+        <span class="underline">Privacy Policy</span>.
+      </p>
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem]">Continue</Button>
+      <p class="text-base text-center mt-4">
+        Already have an account?
+        <button
+          type="button"
+          class="cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color)"
+        >
+          Log in
+        </button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const phoneLogin = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Welcome back</h3>
+      <p class="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
+    </div>
+    <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      ${countrySelect}
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
+      <p class="text-base text-center mt-4">
+        Don't have an account?
+        <button
+          type="button"
+          class="cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color)"
+        >
+          Sign up
+        </button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const password = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Enter your password</h3>
+    </div>
+    <form class="flex flex-col gap-3" novalidate @submit.prevent="submitted = true">
+      <FloatingLabelInput label="Phone number" read-only default-value="+1 555 123 4567">
+        <template #endAdornment>
+          <button
+            type="button"
+            class="text-sm font-medium cursor-pointer hover:underline"
+            style="color: var(--link-primary-text-color)"
+          >
+            Edit
+          </button>
+        </template>
+      </FloatingLabelInput>
+      <div>
+        <FloatingLabelInput
+          label="Password"
+          type="password"
+          :value="password"
+          @update:value="(value) => { password = value; submitted = false }"
+          :invalid="submitted && !password"
+          :error-message="submitted && !password ? 'Password is required.' : undefined"
+        />
+        <button
+          type="button"
+          class="text-sm mt-2 inline-block cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color); padding-left: var(--floating-input-gutter)"
+        >
+          Forgot password?
+        </button>
+      </div>
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-2">Continue</Button>
+      <p class="text-base text-center mt-4">
+        Don't have an account?
+        <button
+          type="button"
+          class="cursor-pointer hover:underline bg-transparent border-0 p-0"
+          style="color: var(--link-primary-text-color)"
+        >
+          Sign up
+        </button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const aboutYou = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Tell us about you</h3>
+      <p class="text-secondary text-sm mt-1">This helps us customize your experience.</p>
+    </div>
+    <form
+      class="flex flex-col gap-3"
+      @submit.prevent="() => {
+        birthdayError = !birthday ? 'Birthday is required.' : !isValidBirthday(birthday) ? 'Please enter a valid date.' : null
+        countryError = !country ? 'Please select a country.' : null
+      }"
+    >
+      <FloatingLabelInput label="Full name" v-model:value="fullName" />
+      <div class="flex flex-col gap-1.5">
+        <component
+          :is="BirthdayMaskedInput"
+          :value="birthday"
+          @update:value="(value) => { birthday = value; birthdayError = null }"
+          :invalid="!!birthdayError"
+          :aria-describedby="birthdayError ? 'about-you-birthday-error' : undefined"
+        />
+        <FieldError v-if="birthdayError" id="about-you-birthday-error">{{ birthdayError }}</FieldError>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <Select
+          v-model:value="country"
+          :options="countries"
+          search-placeholder="Search countries..."
+          :list-min-width="320"
+          block
+          check-position="end"
+          @change="countryError = null"
+        >
+          <template #optionView="{ value, label }">
+            <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+          </template>
+          <template #trigger="{ open }">
+            <FloatingLabelSelect
+              label="Country"
+              :selected="!!country"
+              :open="open"
+              :on-clear-click="country ? () => { country = ''; countryError = null } : undefined"
+              :invalid="!!countryError"
+              :aria-describedby="countryError ? 'about-you-country-error' : undefined"
+            >
+              <span
+                v-if="countryOf(country)"
+                style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"
+              ><component :is="FlagIcon" :code="country" />{{ countryOf(country).label }}</span>
+            </FloatingLabelSelect>
+          </template>
+        </Select>
+        <FieldError v-if="countryError" id="about-you-country-error">{{ countryError }}</FieldError>
+      </div>
+      <p class="text-xs text-center text-tertiary mt-3">
+        By clicking “Continue”, you agree to our
+        <span class="underline">Terms</span> and have read our
+        <span class="underline">Privacy Policy</span>.
+      </p>
+      <Button color="primary" size="3xl" type="submit" pill class="h-[3.25rem]">Continue</Button>
+    </form>
+  </div>
+</component>`
+
+export const verifyEmail = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Verify your email address</h3>
+      <p class="text-secondary text-sm mt-1">Enter the code sent to alex.johnson@example.com</p>
+    </div>
+    <div v-if="input === 'per-digit'" class="flex flex-col items-center gap-3">
+      <OTPInput v-model:value="otpValue" />
+      <button type="button" class="text-base hover:underline cursor-pointer mt-2 bg-transparent border-0 p-0">
+        Resend email
+      </button>
+    </div>
+    <form v-else class="flex flex-col gap-3" novalidate @submit.prevent>
+      <FloatingLabelInput label="Code" v-model:value="code" inputmode="numeric" />
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
+      <p class="text-base text-center mt-4">
+        <button type="button" class="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend email</button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const checkInboxError = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Check your inbox</h3>
+      <p class="text-secondary text-sm mt-1">
+        Enter the verification code we just sent to alex.johnson@example.com
+      </p>
+    </div>
+    <div class="flex flex-col gap-3">
+      <FloatingLabelInput
+        label="Code"
+        default-value="111111"
+        inputmode="numeric"
+        invalid
+        error-message="Incorrect code"
+      />
+      <Button color="primary" size="3xl" type="button" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
+      <p class="text-base text-center mt-4">
+        <button type="button" class="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend email</button>
+      </p>
+    </div>
+  </div>
+</component>`
+
+export const confirmPhone = `<component :is="DialogShell" :open="dialog">
+  <div class="w-[360px]">
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-semibold tracking-tight">Confirm phone</h3>
+      <p class="text-secondary text-sm mt-1">Enter the code sent to +1 555 123 4567</p>
+    </div>
+    <div v-if="input === 'per-digit'" class="flex flex-col items-center gap-3">
+      <OTPInput v-model:value="otpValue" />
+      <button type="button" class="text-base hover:underline cursor-pointer mt-2 bg-transparent border-0 p-0">
+        Resend code
+      </button>
+    </div>
+    <form v-else class="flex flex-col gap-3" novalidate @submit.prevent>
+      <FloatingLabelInput label="Code" v-model:value="code" inputmode="numeric" />
+      <Button color="primary" size="3xl" type="submit" pill class="w-full h-[3.25rem] mt-3">Continue</Button>
+      <p class="text-base text-center mt-4">
+        <button type="button" class="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend code</button>
+      </p>
+    </form>
+  </div>
+</component>`
+
+export const uploadFile = `<div class="w-[360px]">
+  <div class="mb-6 text-center">
+    <h3 class="text-2xl font-semibold tracking-tight">Upload documents</h3>
+    <p class="text-secondary text-sm mt-1">Please provide the required files to continue.</p>
+  </div>
+  <div class="flex flex-col gap-3">
+    <FileUpload accept=".pdf,.png" multiple :max-files="5" v-model:value="files" />
+    <Button color="primary" size="3xl" pill block class="h-[3.25rem] mt-3">
+      Continue
+    </Button>
+  </div>
+</div>`
+
+Real-world forms composed from [Float Input](/vue/components/floating-label-input), [File Upload](/vue/components/file-upload), [OTP Input](/vue/components/otp-input), [Select](/vue/components/select), and [Button](/vue/components/button). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>: <code>DialogShell</code> (the modal frame of the <code>dialog</code> control), the brand logos, <code>FlagIcon</code>, <code>PhoneCountryTrigger</code> and <code>BirthdayMaskedInput</code>.
+
+## Log in (email)
+
+<ComponentPreview language="vue" details={<>The classic email + password log-in: two <code>FloatingLabelInput</code> fields, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link.</>} code={emailLogin} previewMinHeight={480}>
+  <VueFormExampleDemo template={emailLogin} stageClassName={STAGE} state={{ email: "", password: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Log in (OAuth)
+
+<ComponentPreview language="vue" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={oauthLogin} previewMinHeight={760}>
+  <VueFormExampleDemo template={oauthLogin} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+</ComponentPreview>
+
+## Sign up (OAuth)
+
+<ComponentPreview language="vue" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={oauthSignup} previewMinHeight={680}>
+  <VueFormExampleDemo template={oauthSignup} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+</ComponentPreview>
+
+## Sign up (phone)
+
+<ComponentPreview language="vue" details={<>A complete signup form with floating-label text inputs, a country code selector, and a phone input, all at 52px height. Includes form validation and terms text.</>} code={phoneSignup} previewMinHeight={580}>
+  <VueFormExampleDemo template={phoneSignup} stageClassName={STAGE} state={{ fullName: "", email: "", country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Log in (phone)
+
+<ComponentPreview language="vue" details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern.</>} code={phoneLogin} previewMinHeight={420}>
+  <VueFormExampleDemo template={phoneLogin} stageClassName={STAGE} state={{ country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Enter password
+
+<ComponentPreview language="vue" details={<>A password entry step with a read-only phone field (with "Edit" button), a password input with a visibility toggle, and a "Forgot password?" link.</>} code={password} previewMinHeight={420}>
+  <VueFormExampleDemo template={password} stageClassName={STAGE} state={{ password: "", submitted: false }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## About You
+
+<ComponentPreview language="vue" details={<>A signup-style composition with <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>: name, birthday with inline validation, and country selector.</>} code={aboutYou} previewMinHeight={280}>
+  <VueFormExampleDemo template={aboutYou} stageClassName={STAGE} state={{ fullName: "", birthday: "", country: "", birthdayError: null, countryError: null }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Verify email
+
+<ComponentPreview language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> (for alphanumeric or variable-length codes).</>} code={verifyEmail} previewMinHeight={380}>
+  <VueFormExampleDemo template={verifyEmail} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
+</ComponentPreview>
+
+## Verify email (error)
+
+<ComponentPreview language="vue" details={<>Error state when an incorrect verification code is submitted.</>} code={checkInboxError} previewMinHeight={380}>
+  <VueFormExampleDemo template={checkInboxError} stageClassName={STAGE} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Confirm phone
+
+<ComponentPreview language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> for phone verification.</>} code={confirmPhone} previewMinHeight={380}>
+  <VueFormExampleDemo template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
+</ComponentPreview>
+
+## Upload file
+
+<ComponentPreview language="vue" details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={uploadFile}>
+  <VueFileUploadDemo template={uploadFile} files="all" />
+</ComponentPreview>

@@ -1,0 +1,178 @@
+---
+title: Date Picker
+description: Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+metaDescription: Vue 3 date picker component with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+---
+
+import { VueDatePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
+
+export const overview = `<DatePicker
+  id="date-picker-base"
+  trigger-date-format="MM/dd/yy"
+  size="lg"
+  pill
+  clearable
+  v-model:value="selectedDate"
+/>`
+
+export const limits = `<DatePicker
+  id="date-picker-limits"
+  trigger-date-format="MM/dd/yy"
+  size="lg"
+  pill
+  trigger-show-icon
+  v-model:value="selectedDate"
+  :min="minDate"
+  :max="maxDate"
+/>`
+
+export const dob = `<DatePicker
+  id="date-picker-dob"
+  trigger-date-format="MMMM d, yyyy"
+  size="lg"
+  pill
+  clearable
+  placeholder="Select your birthday"
+  caption-layout="dropdown"
+  v-model:value="selectedDate"
+  :max="DateTime.local()"
+/>`
+
+export const time = `<DatePicker
+  id="date-picker-time"
+  trigger-date-format="MM/dd/yy HH:mm"
+  size="lg"
+  pill
+  clearable
+  placeholder="Select date & time"
+  show-time
+  v-model:value="selectedDate"
+/>`
+
+export const dropdownTime = `<DatePicker
+  id="date-picker-datetime-dropdown"
+  trigger-date-format="MMM d, yyyy HH:mm"
+  size="lg"
+  pill
+  clearable
+  placeholder="Schedule event"
+  caption-layout="dropdown"
+  show-time
+  :year-range="[2020, 2030]"
+  v-model:value="selectedDate"
+/>`
+
+export const twoFields = `<div style="display: flex; gap: 8px; align-items: center">
+  <DatePicker
+    id="date-picker-two-field-date"
+    trigger-date-format="MMM d, yyyy"
+    size="lg"
+    pill
+    caption-layout="dropdown"
+    :trigger-show-icon="false"
+    dropdown-icon-type="none"
+    placeholder="Select date"
+    :value="selectedDate"
+    @update:value="selectedDate = withTime($event, time)"
+  />
+  <Input
+    id="date-picker-two-field-time"
+    size="lg"
+    pill
+    :value="time"
+    @update:value="time = formatTime($event); selectedDate = applyTime(selectedDate, time)"
+    placeholder="HH:MM"
+    maxlength="5"
+    style="width: 72px"
+  />
+</div>`
+
+export const withoutIcon = `<DatePicker
+  id="date-picker-no-icon"
+  trigger-date-format="MM/dd/yy"
+  size="lg"
+  :trigger-show-icon="false"
+  placeholder="Choose a date"
+  v-model:value="selectedDate"
+/>`
+
+export const disabled = `<DatePicker
+  id="date-picker-disabled"
+  trigger-date-format="MM/dd/yy"
+  size="lg"
+  disabled
+  v-model:value="selectedDate"
+/>`
+
+<UsageBlock>{`import { DatePicker } from "@plexui/vue/components/DatePicker";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Bind the date (a luxon <code>DateTime</code>, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same value, like React's <code>onChange</code>.</>} code={overview} previewMinHeight={168}>
+  <VueDatePickerDemo template={overview} />
+</ComponentPreview>
+
+### Limits
+
+<ComponentPreview language="vue" details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Here <code>minDate</code> is <code>{"today.minus({ days: 30 }).startOf('day')"}</code> and <code>maxDate</code> is <code>{"today.plus({ days: 30 }).endOf('day')"}</code>.</>} code={limits} previewMinHeight={168}>
+  <VueDatePickerDemo template={limits} startAtToday />
+</ComponentPreview>
+
+### Date of birth
+
+<ComponentPreview language="vue" details={<>Set <code>caption-layout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={dob} previewMinHeight={168}>
+  <VueDatePickerDemo template={dob} />
+</ComponentPreview>
+
+### Time picker
+
+<ComponentPreview language="vue" details={<>Enable <code>show-time</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={time} previewMinHeight={168}>
+  <VueDatePickerDemo template={time} />
+</ComponentPreview>
+
+### Dropdown + time
+
+<ComponentPreview language="vue" details={<>Combine <code>caption-layout="dropdown"</code> with <code>show-time</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={dropdownTime} previewMinHeight={168}>
+  <VueDatePickerDemo template={dropdownTime} />
+</ComponentPreview>
+
+### Two fields
+
+<ComponentPreview language="vue" details={<>Compose <code>DatePicker</code> and <code>Input</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here <code>formatTime</code> masks the typed time as HH:MM, <code>applyTime</code> moves the date to a complete typed time, and <code>withTime</code> gives a newly picked date the typed time.</>} code={twoFields} previewMinHeight={100}>
+  <VueDatePickerDemo template={twoFields} state={{ time: "10:30" }} />
+</ComponentPreview>
+
+### Without Icon
+
+<ComponentPreview language="vue" details={<>Remove the calendar icon from the trigger by setting <code>trigger-show-icon</code> to false.</>} code={withoutIcon} previewMinHeight={168}>
+  <VueDatePickerDemo template={withoutIcon} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Disable the picker to prevent user interaction.</>} code={disabled} previewMinHeight={168}>
+  <VueDatePickerDemo template={disabled} startAtToday />
+</ComponentPreview>
+
+## Reference
+
+Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
+
+<PropsTable data={[
+  { prop: "v-model:value", type: "DateTime | null", description: "Selected date (luxon)" },
+  { prop: "@change", type: "(date: DateTime | null) => void", description: "Called when date changes" },
+  { prop: "min", type: "DateTime", description: "Minimum selectable date" },
+  { prop: "max", type: "DateTime", description: "Maximum selectable date" },
+  { prop: "caption-layout", type: '"buttons" | "dropdown"', default: '"buttons"', description: "Calendar header mode. Use dropdown for date of birth" },
+  { prop: "show-time", type: "boolean", default: "false", description: "Show time input below calendar" },
+  { prop: "year-range", type: "[number, number]", description: "Min/max years for dropdown caption" },
+  { prop: "size", type: "ControlSize", description: "Trigger size (3xs to 3xl)" },
+  { prop: "pill", type: "boolean", description: "Rounded trigger" },
+  { prop: "clearable", type: "boolean", description: "Show clear button" },
+  { prop: "trigger-show-icon", type: "boolean", default: "true", description: "Show calendar icon" },
+  { prop: "trigger-date-format", type: "string", default: '"MM/dd/yy"', description: "Date format in trigger. Auto-includes time when show-time is enabled" },
+  { prop: "placeholder", type: "string", description: "Trigger placeholder" },
+  { prop: "disabled", type: "boolean", description: "Disable picker" },
+]} />

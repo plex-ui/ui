@@ -1,0 +1,106 @@
+---
+title: Date Range Picker
+description: Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+metaDescription: Vue 3 date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+---
+
+import { VueDateRangePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
+
+export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
+
+export const overview = `<div style="width: fit-content">
+  <DateRangePicker
+    size="lg"
+    pill
+    clearable
+    v-model:value="value"
+    :shortcuts="dayShortcuts"
+  />
+</div>`
+
+export const limits = `<div style="width: fit-content">
+  <DateRangePicker
+    size="lg"
+    pill
+    trigger-show-icon
+    v-model:value="value"
+    :min="minDate"
+    :max="maxDate"
+  />
+</div>`
+
+export const shortcuts = `<div style="width: fit-content">
+  <DateRangePicker
+    size="lg"
+    pill
+    clearable
+    v-model:value="value"
+    :shortcuts="dayShortcuts"
+  />
+</div>`
+
+export const monthStepper = `<div style="width: fit-content">
+  <DateRangePicker
+    :size="size"
+    clearable
+    :pill="pill"
+    trigger-stepper-unit="month"
+    v-model:value="value"
+    :max="maxDate"
+  />
+</div>`
+
+<UsageBlock>{`import { DateRangePicker } from "@plexui/vue/components/DateRangePicker";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range and, when a shortcut was picked, that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>.</>} code={overview} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={overview} />
+</ComponentPreview>
+
+### Limits
+
+<ComponentPreview language="vue" details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>max-range-days</code> to limit the range length. Here <code>minDate</code> is 30 days ago (start of day) and <code>maxDate</code> is the end of today.</>} code={limits} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={limits} initialRange="limits" />
+</ComponentPreview>
+
+### Shortcuts
+
+<ComponentPreview language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days.</>} code={shortcuts} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={shortcuts} />
+</ComponentPreview>
+
+### Month stepper
+
+<ComponentPreview language="vue" details={<>Enable a stepper in the trigger with <code>trigger-stepper-unit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={monthStepper} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={monthStepper} initialRange="month" stageClassName="" controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "v-model:value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
+  { prop: "@change", type: "(next: DateRange | null, shortcut?: DateRangeShortcut) => void", description: "Called when range changes" },
+  { prop: "min", type: "DateTime", description: "Earliest selectable date" },
+  { prop: "max", type: "DateTime", description: "Latest selectable date" },
+  { prop: "max-range-days", type: "number", description: "Max length of range in days (inclusive)" },
+  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
+  { prop: "side-offset", type: "number", default: "8", description: "Distance from trigger in pixels" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },
+  { prop: "align-offset", type: "number", default: 'align === "center" ? 0 : -5', description: "Offset from start/end alignment in pixels" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable picker interactions" },
+  { prop: "placeholder", type: "string", default: '"Select date range..."', description: "Placeholder in trigger when value is empty" },
+  { prop: "variant", type: '"soft" | "outline" | "ghost"', default: '"outline"', description: "Trigger style variant" },
+  { prop: "pill", type: "boolean", default: "true", description: "Rounded trigger shape" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Trigger size scale" },
+  { prop: "dropdown-icon-type", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Icon shown at trigger end" },
+  { prop: "trigger-class-name", type: "string", description: "Custom class for trigger" },
+  { prop: "trigger-show-icon", type: "boolean", default: "true", description: "Show calendar icon at trigger start" },
+  { prop: "trigger-stepper-unit", type: '"month"', description: "Enable month stepper mode in trigger" },
+  { prop: "trigger-date-format", type: "string", default: '"MM/dd/yy"', description: "Date formatting in trigger text" },
+  { prop: "clearable", type: "boolean", default: "false", description: "Show clear button in trigger" },
+  { prop: "block", type: "boolean", default: "false", description: "Stretch trigger to full available width" },
+]} />

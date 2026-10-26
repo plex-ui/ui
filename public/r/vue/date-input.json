@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "date-input",
+  "type": "registry:ui",
+  "title": "Date Input",
+  "description": "Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/date-input/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/DateInput\"\n"
+    }
+  ],
+  "docs": "Import as `import { DateInput } from '@/components/ui/date-input'`. See https://plexui.com/vue/components/date-input for props and examples."
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "date-range-picker",
+  "type": "registry:ui",
+  "title": "Date Range Picker",
+  "description": "Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/date-range-picker/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/DateRangePicker\"\n"
+    }
+  ],
+  "docs": "Import as `import { DateRangePicker } from '@/components/ui/date-range-picker'`. See https://plexui.com/vue/components/date-range-picker for props and examples."
+}

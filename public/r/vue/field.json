@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "field",
+  "type": "registry:ui",
+  "title": "Field",
+  "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/field/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Field\"\n"
+    }
+  ],
+  "docs": "Import as `import { Field } from '@/components/ui/field'`. See https://plexui.com/vue/components/field for props and examples."
+}

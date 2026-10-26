@@ -25,6 +25,9 @@ import {
   CollapsibleCodeBlock,
 } from '@plexui/vue/components/CodeBlock';
 import { DataTable, DataTableColumnHeader, DataTablePagination } from '@plexui/vue/components/DataTable';
+import { DateInput } from '@plexui/vue/components/DateInput';
+import { DatePicker } from '@plexui/vue/components/DatePicker';
+import { DateRangePicker } from '@plexui/vue/components/DateRangePicker';
 import {
   Dialog,
   DialogClose,
@@ -42,6 +45,7 @@ import {
   EmptyMessageIcon,
   EmptyMessageTitle,
 } from '@plexui/vue/components/EmptyMessage';
+import { Field } from '@plexui/vue/components/Field';
 import { FieldError } from '@plexui/vue/components/FieldError';
 import { FileCard, FileCardGroup, FileUpload } from '@plexui/vue/components/FileUpload';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
@@ -224,6 +228,9 @@ const components: Record<string, Component> = {
   DataTable,
   DataTableColumnHeader,
   DataTablePagination,
+  DateInput,
+  DatePicker,
+  DateRangePicker,
   Dialog,
   DialogClose,
   DialogContent,
@@ -237,6 +244,7 @@ const components: Record<string, Component> = {
   EmptyMessageDescription,
   EmptyMessageIcon,
   EmptyMessageTitle,
+  Field,
   FieldError,
   FileCard,
   FileCardGroup,

@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 43,
+  "componentCount": 47,
   "components": [
     {
       "slug": "accordion",
@@ -1106,6 +1106,439 @@
       "docsUrl": "https://plexui.com/vue/components/copy-tooltip"
     },
     {
+      "slug": "date-input",
+      "name": "Date Input",
+      "description": "Masked text input for typing dates and times, with automatic formatting, min and max limits, and validation.",
+      "importPath": "@plexui/vue/components/DateInput",
+      "exports": [
+        "DateInput"
+      ],
+      "props": [
+        {
+          "name": "value / v-model:value",
+          "type": "DateTime | null",
+          "description": "Selected date (Luxon DateTime)"
+        },
+        {
+          "name": "@update:value",
+          "type": "(date: DateTime | null) => void",
+          "description": "Emitted when a complete valid date is entered or the field is cleared"
+        },
+        {
+          "name": "@change",
+          "type": "(date: DateTime | null) => void",
+          "description": "Same payload as update:value, named after React's onChange"
+        },
+        {
+          "name": "mode",
+          "type": "MaskitoDateMode",
+          "default": "\"dd/mm/yyyy\"",
+          "description": "Date format mode: dd/mm/yyyy, mm/dd/yyyy, yyyy/mm/dd, etc."
+        },
+        {
+          "name": "separator",
+          "type": "string",
+          "default": "\".\"",
+          "description": "Character between date parts"
+        },
+        {
+          "name": "time-mode",
+          "type": "MaskitoTimeMode",
+          "description": "Enable time input: HH:MM, HH:MM:SS, etc."
+        },
+        {
+          "name": "date-time-separator",
+          "type": "string",
+          "default": "\", \"",
+          "description": "Separator between date and time parts"
+        },
+        {
+          "name": "time-step",
+          "type": "number",
+          "default": "0",
+          "description": "Arrow-key increment step for time segments"
+        },
+        {
+          "name": "min",
+          "type": "DateTime",
+          "description": "Earliest allowed date"
+        },
+        {
+          "name": "max",
+          "type": "DateTime",
+          "description": "Latest allowed date"
+        },
+        {
+          "name": "clearable",
+          "type": "boolean",
+          "default": "false",
+          "description": "Show clear button when input has a value"
+        },
+        {
+          "name": "size",
+          "type": "ControlSize",
+          "default": "\"md\"",
+          "description": "Input size (3xs to 3xl)"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable input"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Mark as invalid"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "description": "Generated from the format if not set"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput\n    v-model:value=\"date\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :pill=\"pill\"\n    :clearable=\"clearable\"\n  />\n</div>",
+          "details": "Bind a Luxon DateTime (or null) with v-model:value. It updates once a complete, valid date is typed, and becomes null when the field is emptied or cleared; @change carries the same value."
+        },
+        {
+          "name": "With time",
+          "code": "<div class=\"w-[260px]\">\n  <DateInput v-model:value=\"date\" time-mode=\"HH:MM\" clearable />\n</div>",
+          "details": "Pass time-mode=\"HH:MM\" to enable date + time input in one field."
+        },
+        {
+          "name": "With seconds",
+          "code": "<div class=\"w-[300px]\">\n  <DateInput v-model:value=\"date\" time-mode=\"HH:MM:SS\" clearable />\n</div>",
+          "details": "Use time-mode=\"HH:MM:SS\" for second-level precision."
+        },
+        {
+          "name": "Limits",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput\n    v-model:value=\"date\"\n    :min=\"today.minus({ days: 30 }).startOf('day')\"\n    :max=\"today.plus({ days: 30 }).endOf('day')\"\n    clearable\n  />\n</div>",
+          "details": "Use min and max to restrict the date range. The mask prevents entering values outside the allowed range. today is DateTime.local()."
+        },
+        {
+          "name": "US format",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput v-model:value=\"date\" mode=\"mm/dd/yyyy\" separator=\"/\" clearable />\n</div>",
+          "details": "Set mode=\"mm/dd/yyyy\" and separator=\"/\" for US-style date formatting."
+        },
+        {
+          "name": "ISO format",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput v-model:value=\"date\" mode=\"yyyy/mm/dd\" separator=\"-\" clearable />\n</div>",
+          "details": "Set mode=\"yyyy/mm/dd\" and separator=\"-\" for ISO 8601 formatting."
+        },
+        {
+          "name": "With Field",
+          "code": "<div class=\"w-[200px]\">\n  <Field label=\"Date of birth\" description=\"Enter your date of birth\">\n    <DateInput v-model:value=\"date\" clearable />\n  </Field>\n</div>",
+          "details": "Wrap with Field to add a label, description, and automatic accessibility attributes."
+        },
+        {
+          "name": "Validation",
+          "code": "<div class=\"w-[200px]\">\n  <Field label=\"Date of birth\" :error-message=\"!date ? 'Date is required' : undefined\">\n    <DateInput v-model:value=\"date\" clearable />\n  </Field>\n</div>",
+          "details": "Pass error-message to Field to display a validation error."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[200px]\">\n  <DateInput v-model:value=\"date\" disabled />\n</div>"
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/date-input"
+    },
+    {
+      "slug": "date-picker",
+      "name": "Date Picker",
+      "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
+      "importPath": "@plexui/vue/components/DatePicker",
+      "exports": [
+        "DatePicker"
+      ],
+      "props": [
+        {
+          "name": "v-model:value",
+          "type": "DateTime | null",
+          "description": "Selected date (luxon)"
+        },
+        {
+          "name": "@change",
+          "type": "(date: DateTime | null) => void",
+          "description": "Called when date changes"
+        },
+        {
+          "name": "min",
+          "type": "DateTime",
+          "description": "Minimum selectable date"
+        },
+        {
+          "name": "max",
+          "type": "DateTime",
+          "description": "Maximum selectable date"
+        },
+        {
+          "name": "caption-layout",
+          "type": "\"buttons\" | \"dropdown\"",
+          "default": "\"buttons\"",
+          "description": "Calendar header mode. Use dropdown for date of birth"
+        },
+        {
+          "name": "show-time",
+          "type": "boolean",
+          "default": "false",
+          "description": "Show time input below calendar"
+        },
+        {
+          "name": "year-range",
+          "type": "[number, number]",
+          "description": "Min/max years for dropdown caption"
+        },
+        {
+          "name": "size",
+          "type": "ControlSize",
+          "description": "Trigger size (3xs to 3xl)"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "description": "Rounded trigger"
+        },
+        {
+          "name": "clearable",
+          "type": "boolean",
+          "description": "Show clear button"
+        },
+        {
+          "name": "trigger-show-icon",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show calendar icon"
+        },
+        {
+          "name": "trigger-date-format",
+          "type": "string",
+          "default": "\"MM/dd/yy\"",
+          "description": "Date format in trigger. Auto-includes time when show-time is enabled"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "description": "Trigger placeholder"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "description": "Disable picker"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<DatePicker\n  id=\"date-picker-base\"\n  trigger-date-format=\"MM/dd/yy\"\n  size=\"lg\"\n  pill\n  clearable\n  v-model:value=\"selectedDate\"\n/>",
+          "details": "Bind the date (a luxon DateTime, or null) with v-model:value. The @change event carries the same value, like React's onChange."
+        },
+        {
+          "name": "Limits",
+          "code": "<DatePicker\n  id=\"date-picker-limits\"\n  trigger-date-format=\"MM/dd/yy\"\n  size=\"lg\"\n  pill\n  trigger-show-icon\n  v-model:value=\"selectedDate\"\n  :min=\"minDate\"\n  :max=\"maxDate\"\n/>",
+          "details": "Use min and max to limit selectable dates to a specific timeframe. Here minDate is {\"today.minus({ days: 30 }).startOf('day')\"} and maxDate is {\"today.plus({ days: 30 }).endOf('day')\"}."
+        },
+        {
+          "name": "Date of birth",
+          "code": "<DatePicker\n  id=\"date-picker-dob\"\n  trigger-date-format=\"MMMM d, yyyy\"\n  size=\"lg\"\n  pill\n  clearable\n  placeholder=\"Select your birthday\"\n  caption-layout=\"dropdown\"\n  v-model:value=\"selectedDate\"\n  :max=\"DateTime.local()\"\n/>",
+          "details": "Set caption-layout=\"dropdown\" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical."
+        },
+        {
+          "name": "Time picker",
+          "code": "<DatePicker\n  id=\"date-picker-time\"\n  trigger-date-format=\"MM/dd/yy HH:mm\"\n  size=\"lg\"\n  pill\n  clearable\n  placeholder=\"Select date & time\"\n  show-time\n  v-model:value=\"selectedDate\"\n/>",
+          "details": "Enable show-time to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values."
+        },
+        {
+          "name": "Dropdown + time",
+          "code": "<DatePicker\n  id=\"date-picker-datetime-dropdown\"\n  trigger-date-format=\"MMM d, yyyy HH:mm\"\n  size=\"lg\"\n  pill\n  clearable\n  placeholder=\"Schedule event\"\n  caption-layout=\"dropdown\"\n  show-time\n  :year-range=\"[2020, 2030]\"\n  v-model:value=\"selectedDate\"\n/>",
+          "details": "Combine caption-layout=\"dropdown\" with show-time for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time."
+        },
+        {
+          "name": "Two fields",
+          "code": "<div style=\"display: flex; gap: 8px; align-items: center\">\n  <DatePicker\n    id=\"date-picker-two-field-date\"\n    trigger-date-format=\"MMM d, yyyy\"\n    size=\"lg\"\n    pill\n    caption-layout=\"dropdown\"\n    :trigger-show-icon=\"false\"\n    dropdown-icon-type=\"none\"\n    placeholder=\"Select date\"\n    :value=\"selectedDate\"\n    @update:value=\"selectedDate = withTime($event, time)\"\n  />\n  <Input\n    id=\"date-picker-two-field-time\"\n    size=\"lg\"\n    pill\n    :value=\"time\"\n    @update:value=\"time = formatTime($event); selectedDate = applyTime(selectedDate, time)\"\n    placeholder=\"HH:MM\"\n    maxlength=\"5\"\n    style=\"width: 72px\"\n  />\n</div>",
+          "details": "Compose DatePicker and Input side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here formatTime masks the typed time as HH:MM, applyTime moves the date to a complete typed time, and withTime gives a newly picked date the typed time."
+        },
+        {
+          "name": "Without Icon",
+          "code": "<DatePicker\n  id=\"date-picker-no-icon\"\n  trigger-date-format=\"MM/dd/yy\"\n  size=\"lg\"\n  :trigger-show-icon=\"false\"\n  placeholder=\"Choose a date\"\n  v-model:value=\"selectedDate\"\n/>",
+          "details": "Remove the calendar icon from the trigger by setting trigger-show-icon to false."
+        },
+        {
+          "name": "Disabled",
+          "code": "<DatePicker\n  id=\"date-picker-disabled\"\n  trigger-date-format=\"MM/dd/yy\"\n  size=\"lg\"\n  disabled\n  v-model:value=\"selectedDate\"\n/>",
+          "details": "Disable the picker to prevent user interaction."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/date-picker"
+    },
+    {
+      "slug": "date-range-picker",
+      "name": "Date Range Picker",
+      "description": "Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.",
+      "importPath": "@plexui/vue/components/DateRangePicker",
+      "exports": [
+        "DateRangePicker"
+      ],
+      "props": [
+        {
+          "name": "v-model:value",
+          "type": "DateRange | null",
+          "description": "Selected range ([start, end], inclusive)"
+        },
+        {
+          "name": "@change",
+          "type": "(next: DateRange | null, shortcut?: DateRangeShortcut) => void",
+          "description": "Called when range changes"
+        },
+        {
+          "name": "min",
+          "type": "DateTime",
+          "description": "Earliest selectable date"
+        },
+        {
+          "name": "max",
+          "type": "DateTime",
+          "description": "Latest selectable date"
+        },
+        {
+          "name": "max-range-days",
+          "type": "number",
+          "description": "Max length of range in days (inclusive)"
+        },
+        {
+          "name": "shortcuts",
+          "type": "DateRangeShortcut[]",
+          "description": "Quick selection shortcuts"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+          "default": "\"bottom\"",
+          "description": "Preferred side for popover"
+        },
+        {
+          "name": "side-offset",
+          "type": "number",
+          "default": "8",
+          "description": "Distance from trigger in pixels"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "default": "\"center\"",
+          "description": "Preferred popover alignment"
+        },
+        {
+          "name": "align-offset",
+          "type": "number",
+          "default": "align === \"center\" ? 0 : -5",
+          "description": "Offset from start/end alignment in pixels"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable picker interactions"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "default": "\"Select date range...\"",
+          "description": "Placeholder in trigger when value is empty"
+        },
+        {
+          "name": "variant",
+          "type": "\"soft\" | \"outline\" | \"ghost\"",
+          "default": "\"outline\"",
+          "description": "Trigger style variant"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "true",
+          "description": "Rounded trigger shape"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Trigger size scale"
+        },
+        {
+          "name": "dropdown-icon-type",
+          "type": "\"chevronDown\" | \"dropdown\" | \"none\"",
+          "default": "\"dropdown\"",
+          "description": "Icon shown at trigger end"
+        },
+        {
+          "name": "trigger-class-name",
+          "type": "string",
+          "description": "Custom class for trigger"
+        },
+        {
+          "name": "trigger-show-icon",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show calendar icon at trigger start"
+        },
+        {
+          "name": "trigger-stepper-unit",
+          "type": "\"month\"",
+          "description": "Enable month stepper mode in trigger"
+        },
+        {
+          "name": "trigger-date-format",
+          "type": "string",
+          "default": "\"MM/dd/yy\"",
+          "description": "Date formatting in trigger text"
+        },
+        {
+          "name": "clearable",
+          "type": "boolean",
+          "default": "false",
+          "description": "Show clear button in trigger"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Stretch trigger to full available width"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    clearable\n    v-model:value=\"value\"\n    :shortcuts=\"dayShortcuts\"\n  />\n</div>",
+          "details": "Bind the range ([start, end] luxon DateTimes, or null) with v-model:value. The @change event carries the same range and, when a shortcut was picked, that shortcut as its second argument, like React's onChange(range, shortcut)."
+        },
+        {
+          "name": "Limits",
+          "code": "<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    trigger-show-icon\n    v-model:value=\"value\"\n    :min=\"minDate\"\n    :max=\"maxDate\"\n  />\n</div>",
+          "details": "Use min and max to limit the selectable range. Use max-range-days to limit the range length. Here minDate is 30 days ago (start of day) and maxDate is the end of today."
+        },
+        {
+          "name": "Shortcuts",
+          "code": "<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    clearable\n    v-model:value=\"value\"\n    :shortcuts=\"dayShortcuts\"\n  />\n</div>",
+          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days."
+        },
+        {
+          "name": "Month stepper",
+          "code": "<div style=\"width: fit-content\">\n  <DateRangePicker\n    :size=\"size\"\n    clearable\n    :pill=\"pill\"\n    trigger-stepper-unit=\"month\"\n    v-model:value=\"value\"\n    :max=\"maxDate\"\n  />\n</div>",
+          "details": "Enable a stepper in the trigger with trigger-stepper-unit=\"month\". When the selected range matches the unit, the trigger shows the stepper."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/date-range-picker"
+    },
+    {
       "slug": "dialog",
       "name": "Dialog",
       "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
@@ -1213,6 +1646,197 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/empty-message"
+    },
+    {
+      "slug": "field",
+      "name": "Field",
+      "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
+      "importPath": "@plexui/vue/components/Field",
+      "exports": [
+        "Field"
+      ],
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Label text for the field"
+        },
+        {
+          "name": "label slot",
+          "type": "VNode[]",
+          "description": "Rich label content; takes precedence over the label prop"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Helper text below the label; linked via aria-describedby (or the description slot)"
+        },
+        {
+          "name": "error-message",
+          "type": "string",
+          "description": "Error message below the control; sets aria-invalid on the child (or the errorMessage slot)"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Controls the label font size to match the child control"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "default": "false",
+          "description": "Shows a required asterisk after the label (visual only)"
+        },
+        {
+          "name": "orientation",
+          "type": "\"vertical\" | \"horizontal\"",
+          "default": "\"vertical\"",
+          "description": "Layout direction of label and control"
+        },
+        {
+          "name": "optically-align",
+          "type": "\"start\" | \"end\"",
+          "description": "Applies optical alignment to the child control via negative margin using its gutter"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Override the generated id used for the label's for and aria linking"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "CSS classes applied to the root element"
+        },
+        {
+          "name": "default slot",
+          "type": "(fieldProps) => VNode[]",
+          "description": "Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
+          "details": "Field wraps a form control with a label, optional description, and error message. It automatically generates the label's for, aria-describedby, and aria-invalid linking between the label, description, error, and child control."
+        },
+        {
+          "name": "With description",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Email\" description=\"We'll never share your email with anyone else.\">\n    <Input placeholder=\"Enter email...\" />\n  </Field>\n</div>",
+          "details": "Use description to display helper text below the label. The description is automatically linked to the control via aria-describedby."
+        },
+        {
+          "name": "With error message",
+          "code": "<div class=\"w-[320px]\">\n  <Field\n    label=\"Email\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address' : undefined\"\n  >\n    <Input placeholder=\"Enter email...\" />\n  </Field>\n</div>",
+          "details": "Use error-message to display a validation error. When provided, the child control automatically receives aria-invalid=\"true\". The error is rendered using the FieldError component with role=\"alert\" for accessibility."
+        },
+        {
+          "name": "Required",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Email\" :required=\"required\">\n    <Input placeholder=\"Enter email...\" />\n  </Field>\n</div>",
+          "details": "Use required to show a visual asterisk after the label. This is purely visual and does not add the required HTML attribute: pass required directly to the child control for form validation."
+        },
+        {
+          "name": "Sizing",
+          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
+          "details": "Field accepts a size prop that scales the label and description font size to match the child control. Pass the same size to both Field and the child control."
+        },
+        {
+          "name": "Horizontal layout",
+          "code": "<div class=\"w-full max-w-[480px] flex flex-col gap-4\">\n  <Field label=\"First name\" :orientation=\"orientation\">\n    <Input placeholder=\"Jane\" />\n  </Field>\n  <Field label=\"Last name\" :orientation=\"orientation\">\n    <Input placeholder=\"Doe\" />\n  </Field>\n</div>",
+          "details": "Use orientation=\"horizontal\" to render the label beside the control instead of above it."
+        },
+        {
+          "name": "Textarea",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Bio\" description=\"Write a short bio for your profile.\">\n    <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n  </Field>\n</div>"
+        },
+        {
+          "name": "Select",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Role\" description=\"Select your primary role.\" v-slot=\"fieldProps\">\n    <Select\n      :id=\"fieldProps.id\"\n      placeholder=\"Select a role...\"\n      v-model:value=\"role\"\n      :options=\"[\n        { label: 'Admin', value: 'admin' },\n        { label: 'Editor', value: 'editor' },\n        { label: 'Viewer', value: 'viewer' },\n      ]\"\n    />\n  </Field>\n</div>",
+          "details": "For components like Select that do not take every field prop on their root, read the field props from the default slot (v-slot=\"fieldProps\") and pass them yourself."
+        },
+        {
+          "name": "Slider",
+          "code": "<div class=\"w-[400px]\">\n  <Field\n    label=\"Price Range\"\n    :description=\"'Set your budget range ($' + price[0].toLocaleString() + ' – ' + price[1].toLocaleString() + ').'\"\n  >\n    <Slider range v-model:value=\"price\" :min=\"0\" :max=\"1000\" :step=\"10\" prefix-unit=\"$\" />\n  </Field>\n</div>",
+          "details": "Field works with any form control. Use the description to display the current slider value."
+        },
+        {
+          "name": "Fieldset",
+          "code": "<div class=\"w-[400px]\">\n  <div class=\"mb-3\">\n    <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Address Information</h3>\n    <p class=\"text-xs text-tertiary mt-0.5\">We need your address to deliver your order.</p>\n  </div>\n  <div class=\"flex flex-col gap-4\">\n    <Field label=\"Street Address\">\n      <Input placeholder=\"123 Main St\" />\n    </Field>\n    <div class=\"flex gap-3\">\n      <Field label=\"City\" class=\"flex-1\">\n        <Input placeholder=\"New York\" />\n      </Field>\n      <Field label=\"Postal Code\" class=\"flex-1\">\n        <Input placeholder=\"90502\" />\n      </Field>\n    </div>\n  </div>\n</div>",
+          "details": "Group related fields under a heading and description to create a logical fieldset."
+        },
+        {
+          "name": "Checkbox",
+          "code": "<div class=\"w-[320px]\">\n  <Field\n    label=\"Notifications\"\n    description=\"Choose which notifications you'd like to receive.\"\n    v-slot=\"{ id }\"\n  >\n    <div class=\"flex flex-col gap-3 mt-1\">\n      <Checkbox label=\"Email notifications\" />\n      <Checkbox label=\"Push notifications\" />\n      <Checkbox label=\"SMS notifications\" />\n    </div>\n  </Field>\n</div>",
+          "details": "Wrap a group of checkboxes in a Field for a shared label and description. The slot takes the field props (v-slot=\"{'{ id }'}\"), so Field renders the group as it is instead of wiring the props onto it."
+        },
+        {
+          "name": "Radio",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Subscription plan\" description=\"Select your preferred plan.\" v-slot=\"{ id }\">\n    <RadioGroup aria-label=\"Subscription plan\" v-model:value=\"plan\" direction=\"col\">\n      <RadioGroupItem value=\"free\">Free</RadioGroupItem>\n      <RadioGroupItem value=\"pro\">Pro, $9/mo</RadioGroupItem>\n      <RadioGroupItem value=\"enterprise\">Enterprise, $29/mo</RadioGroupItem>\n    </RadioGroup>\n  </Field>\n</div>",
+          "details": "Use Field with RadioGroup for labeled radio selections."
+        },
+        {
+          "name": "Switch",
+          "code": "<div class=\"self-stretch mx-auto !max-w-[480px]\">\n  <Field\n    label=\"Marketing emails\"\n    orientation=\"horizontal\"\n    class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n    v-slot=\"fieldProps\"\n  >\n    <Switch :id=\"fieldProps.id\" v-model:checked=\"enabled\" />\n  </Field>\n</div>",
+          "details": "Pair a Field with a Switch using orientation=\"horizontal\" for inline toggle settings."
+        },
+        {
+          "name": "Field group",
+          "code": "<div class=\"w-[400px] divide-y divide-alpha/15\">\n  <div class=\"pb-6\">\n    <Field\n      label=\"Responses\"\n      description=\"Get notified when the assistant responds to requests that take time, like research or image generation.\"\n      v-slot=\"{ id }\"\n    >\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" default-checked />\n      </div>\n    </Field>\n  </div>\n  <div class=\"py-6\">\n    <Field\n      label=\"Tasks\"\n      description=\"Get notified when tasks you've created have updates.\"\n      v-slot=\"{ id }\"\n    >\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" />\n        <Checkbox label=\"Email notifications\" />\n      </div>\n    </Field>\n  </div>\n</div>",
+          "details": "Stack Field components with a divider to group related notification settings."
+        },
+        {
+          "name": "Validation and Errors",
+          "code": "<div class=\"w-[320px] flex flex-col gap-4\">\n  <Field label=\"Name\" required :error-message=\"showErrors && !name ? 'Name is required' : undefined\">\n    <Input placeholder=\"Enter your name\" v-model:value=\"name\" />\n  </Field>\n  <Field\n    label=\"Email\"\n    required\n    :error-message=\"showErrors && !email.includes('@') ? 'Please enter a valid email address' : undefined\"\n  >\n    <Input placeholder=\"Enter your email\" v-model:value=\"email\" />\n  </Field>\n</div>",
+          "details": "Combine required and error-message for client-side validation feedback. Toggle errors on and off to see the visual transition."
+        },
+        {
+          "name": "Optical alignment",
+          "code": "<div class=\"w-[400px]\">\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-6 px-8\">\n    <div class=\"mb-5 text-secondary text-sm\">\n      {{ opticallyAlign ? 'optically-align=\"start\"' : 'Default' }}\n    </div>\n    <div class=\"flex flex-col gap-5\">\n      <Field label=\"Full name\" :optically-align=\"opticallyAlign ? 'start' : undefined\">\n        <Input placeholder=\"Jane Doe\" :pill=\"pill\" />\n      </Field>\n      <Field\n        label=\"Email\"\n        description=\"We'll never share your email.\"\n        error-message=\"Please enter a valid email address.\"\n        required\n        :optically-align=\"opticallyAlign ? 'start' : undefined\"\n      >\n        <Input placeholder=\"jane@example.com\" :pill=\"pill\" />\n      </Field>\n    </div>\n    <Button class=\"mt-6\" color=\"primary\" variant=\"soft\" :pill=\"pill\">Submit</Button>\n  </div>\n</div>",
+          "details": "Use optically-align=\"start\" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it."
+        },
+        {
+          "name": "Form example",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Payment Method</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">All transactions are secure and encrypted</p>\n    </div>\n\n    <Field label=\"Name on Card\">\n      <Input placeholder=\"Evil Rabbit\" :pill=\"pill\" autocomplete=\"off\" />\n    </Field>\n\n    <Field label=\"Card Number\">\n      <Input placeholder=\"1234 5678 9012 3456\" :pill=\"pill\" autocomplete=\"off\" />\n    </Field>\n\n    <div class=\"grid grid-cols-3 gap-3\">\n      <Field label=\"Month\" v-slot=\"fieldProps\">\n        <Select :id=\"fieldProps.id\" placeholder=\"MM\" :pill=\"pill\" v-model:value=\"month\" :options=\"months\" />\n      </Field>\n      <Field label=\"Year\" v-slot=\"fieldProps\">\n        <Select :id=\"fieldProps.id\" placeholder=\"YYYY\" :pill=\"pill\" v-model:value=\"year\" :options=\"years\" />\n      </Field>\n      <Field label=\"CVV\">\n        <Input placeholder=\"123\" :pill=\"pill\" />\n      </Field>\n    </div>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Billing Address</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">The billing address associated with your payment method</p>\n    </div>\n\n    <Checkbox label=\"Same as shipping address\" default-checked />\n\n    <Field label=\"Comments\">\n      <Textarea placeholder=\"Add any additional comments\" />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Submit</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "details": "A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV."
+        },
+        {
+          "name": "Profile settings",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Personal Information</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Your public profile details</p>\n    </div>\n\n    <div class=\"grid grid-cols-2 gap-3\">\n      <Field label=\"First name\">\n        <Input placeholder=\"Jane\" default-value=\"Jane\" :pill=\"pill\" />\n      </Field>\n      <Field label=\"Last name\">\n        <Input placeholder=\"Doe\" default-value=\"Doe\" :pill=\"pill\" />\n      </Field>\n    </div>\n\n    <Field label=\"Email\" description=\"This is the email associated with your account.\">\n      <Input placeholder=\"jane@example.com\" default-value=\"jane@example.com\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Bio\" description=\"Brief description for your profile. Max 160 characters.\">\n      <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Preferences</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Customize your experience</p>\n    </div>\n\n    <Field label=\"Language\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"language\"\n        :options=\"[\n          { label: 'English', value: 'en' },\n          { label: 'Spanish', value: 'es' },\n          { label: 'French', value: 'fr' },\n          { label: 'German', value: 'de' },\n          { label: 'Japanese', value: 'ja' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Theme\" description=\"Select your preferred appearance.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Theme\" v-model:value=\"theme\" direction=\"col\">\n        <RadioGroupItem value=\"system\">System</RadioGroupItem>\n        <RadioGroupItem value=\"light\">Light</RadioGroupItem>\n        <RadioGroupItem value=\"dark\">Dark</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Notifications</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Manage how you receive updates</p>\n    </div>\n\n    <Field\n      label=\"Email notifications\"\n      description=\"Receive weekly digests and important updates.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n\n    <Field\n      label=\"Push notifications\"\n      description=\"Get real-time alerts in your browser.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Marketing emails\"\n      description=\"Tips, product updates, and promotions.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save changes</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "details": "A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields."
+        },
+        {
+          "name": "Create project",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">General</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Basic information about your project</p>\n    </div>\n\n    <Field label=\"Project name\" required>\n      <Input placeholder=\"my-project\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Description\" description=\"A short summary shown in project listings.\">\n      <Textarea placeholder=\"What does this project do?\" :rows=\"3\" />\n    </Field>\n\n    <Field label=\"Visibility\" description=\"Controls who can see this project.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Visibility\" v-model:value=\"visibility\" direction=\"col\">\n        <RadioGroupItem value=\"private\">Private, only invited members</RadioGroupItem>\n        <RadioGroupItem value=\"internal\">Internal, anyone in your organization</RadioGroupItem>\n        <RadioGroupItem value=\"public\">Public, visible to everyone</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Team Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Invite collaborators and set permissions</p>\n    </div>\n\n    <Field label=\"Team members\" description=\"Add people by email address.\" v-slot=\"fieldProps\">\n      <TagInput\n        :id=\"fieldProps.id\"\n        placeholder=\"Add email...\"\n        :default-value=\"[\n          { value: 'alice@team.com', valid: true },\n          { value: 'bob@team.com', valid: true },\n        ]\"\n        :validator=\"(value) => value.includes('@')\"\n      />\n    </Field>\n\n    <Field label=\"Permissions\" description=\"Default permissions for new members.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Can view project\" default-checked />\n        <Checkbox label=\"Can edit resources\" default-checked />\n        <Checkbox label=\"Can manage members\" />\n        <Checkbox label=\"Can delete project\" />\n      </div>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Infrastructure</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Deployment and resource configuration</p>\n    </div>\n\n    <Field label=\"Region\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Select region...\"\n        v-model:value=\"region\"\n        :options=\"[\n          { label: 'US East (N. Virginia)', value: 'us-east-1' },\n          { label: 'US West (Oregon)', value: 'us-west-2' },\n          { label: 'Europe (Frankfurt)', value: 'eu-central-1' },\n          { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },\n        ]\"\n      />\n    </Field>\n\n    <Field\n      label=\"Auto-deploy\"\n      description=\"Automatically deploy on push to main branch.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Create project</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "details": "A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections."
+        },
+        {
+          "name": "Field configuration",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Setup</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Define the basic field properties</p>\n    </div>\n\n    <Field label=\"Key\" description=\"Unique identifier used in the API. Cannot be changed later.\">\n      <Input placeholder=\"registration_method\" default-value=\"registration_method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Label\" description=\"Human-readable name displayed in the UI.\">\n      <Input placeholder=\"Registration method\" default-value=\"Registration method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Type\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"type\"\n        :options=\"[\n          { label: 'String', value: 'string' },\n          { label: 'Number', value: 'number' },\n          { label: 'Boolean', value: 'boolean' },\n          { label: 'Date', value: 'date' },\n          { label: 'JSON', value: 'json' },\n          { label: 'Rich text', value: 'richtext' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Default value\" description=\"Value assigned when the field is empty.\">\n      <Input placeholder=\"Set default value (optional)\" :pill=\"pill\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Formatting</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Input constraints and sanitization rules</p>\n    </div>\n\n    <Field label=\"Max length\" description=\"Max length cannot exceed 4096.\">\n      <Input placeholder=\"256\" inputmode=\"numeric\" :pill=\"pill\" />\n    </Field>\n\n    <Field\n      label=\"HTML sanitization\"\n      description=\"Strip potentially unsafe HTML tags from input.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Privacy & Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Control field visibility and mutability</p>\n    </div>\n\n    <Field\n      label=\"Not redactable\"\n      description=\"Prevent this field from being redacted.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Write once\"\n      description=\"Value can only be set once and cannot be changed.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Expires in\"\n      description=\"Automatically delete the field value after the specified period.\"\n      v-slot=\"fieldProps\"\n    >\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Never\"\n        v-model:value=\"expiresIn\"\n        :options=\"[\n          { label: 'Never', value: 'never' },\n          { label: '30 days', value: '30d' },\n          { label: '90 days', value: '90d' },\n          { label: '1 year', value: '1y' },\n        ]\"\n      />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save field</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "details": "A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules."
+        },
+        {
+          "name": "Birthday input",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\">\n    <Input\n      placeholder=\"MM / DD / YYYY\"\n      :value=\"birthday\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      inputmode=\"numeric\"\n      maxlength=\"14\"\n      autocomplete=\"off\"\n    />\n  </Field>\n</div>",
+          "details": "A date-of-birth input with inline formatting that inserts MM / DD / YYYY separators as you type, wrapped in a Field for label and accessibility. nextBirthday is a plain helper function of the example."
+        },
+        {
+          "name": "Birthday with validation",
+          "code": "<div class=\"w-[320px]\">\n  <Field\n    label=\"Birthday\"\n    :error-message=\"birthday && !isValidBirthday(birthday) ? 'Please enter a valid date.' : undefined\"\n  >\n    <Input\n      placeholder=\"MM / DD / YYYY\"\n      :value=\"birthday\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      inputmode=\"numeric\"\n      maxlength=\"14\"\n      autocomplete=\"off\"\n    />\n  </Field>\n</div>",
+          "details": "Birthday input with error-message on Field: Field automatically passes aria-invalid down and renders FieldError. nextBirthday and isValidBirthday are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday segmented input",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\">\n    <div class=\"flex items-center gap-2\">\n      <Input\n        :value=\"month\"\n        @update:value=\"(raw) => { month = digitsOnly(raw, 2); if (month.length === 2) $refs.dayInput.focus() }\"\n        placeholder=\"MM\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"dayInput\"\n        :value=\"day\"\n        @update:value=\"(raw) => { day = digitsOnly(raw, 2); if (day.length === 2) $refs.yearInput.focus() }\"\n        placeholder=\"DD\"\n        inputmode=\"numeric\"\n        maxlength=\"2\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[56px]\"\n      />\n      <span class=\"text-secondary\">/</span>\n      <Input\n        ref=\"yearInput\"\n        :value=\"year\"\n        @update:value=\"(raw) => (year = digitsOnly(raw, 4))\"\n        placeholder=\"YYYY\"\n        inputmode=\"numeric\"\n        maxlength=\"4\"\n        size=\"md\"\n        variant=\"outline\"\n        autocomplete=\"off\"\n        class=\"w-[80px]\"\n      />\n    </div>\n  </Field>\n</div>",
+          "details": "Three compact Input controls composed as month/day/year with auto-advance behavior, wrapped in a Field for shared label and accessibility. digitsOnly is a plain helper function of the example."
+        },
+        {
+          "name": "Birthday with selects",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\" v-slot=\"fieldProps\">\n    <div class=\"flex gap-2\">\n      <div class=\"w-[130px]\">\n        <Select\n          :id=\"fieldProps.id\"\n          v-model:value=\"month\"\n          :options=\"birthdayMonthOptions\"\n          placeholder=\"Month\"\n          size=\"md\"\n          variant=\"outline\"\n        />\n      </div>\n      <div class=\"w-[84px]\">\n        <Select\n          v-model:value=\"day\"\n          :options=\"birthdayDayOptions\"\n          placeholder=\"Day\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Day\"\n        />\n      </div>\n      <div class=\"w-[108px]\">\n        <Select\n          v-model:value=\"year\"\n          :options=\"birthdayYearOptions\"\n          placeholder=\"Year\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Year\"\n        />\n      </div>\n    </div>\n  </Field>\n</div>",
+          "details": "Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/field"
     },
     {
       "slug": "file-upload",
@@ -4602,5 +5226,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T12:31:07.999Z"
+  "generatedAt": "2026-10-26T12:59:14.088Z"
 }

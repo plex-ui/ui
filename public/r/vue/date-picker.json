@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "date-picker",
+  "type": "registry:ui",
+  "title": "Date Picker",
+  "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/date-picker/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/DatePicker\"\n"
+    }
+  ],
+  "docs": "Import as `import { DatePicker } from '@/components/ui/date-picker'`. See https://plexui.com/vue/components/date-picker for props and examples."
+}
