@@ -176,6 +176,8 @@ function ToolbarButton({
         type="button"
         className={s.ToolbarButton}
         data-active={active || undefined}
+        // Formatting buttons are toggles: announce their on/off state
+        aria-pressed={active}
         onClick={onClick}
         disabled={disabled}
         aria-label={tooltip}
