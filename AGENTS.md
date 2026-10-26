@@ -997,37 +997,31 @@ Template component IDs:
 ---
 
 ## npm Publishing
-When user says "опубликуй" — run the full publish flow: bump version, commit, push, build, npm publish, create GitHub release.
+When user says "опубликуй" — bump versions, commit, push, create a GitHub Release. The release runs `.github/workflows/publish.yml`, which publishes the packages.
 ```bash
-# 1. Bump version in packages/ui/package.json (e.g. 0.7.36 → 0.7.37)
-#    If packages/styles changed (or its version is not on npm yet), bump it too
-#    and publish it FIRST: `npm run publish:styles`. ui depends on it, and
-#    scripts/check-styles-published.mjs blocks a ui release without it.
+# 1. Bump the version of every package that changed:
+#    packages/styles, packages/ui, packages/vue, packages/mcp (package.json "version").
+#    ui and vue depend on @plexui/styles: a CSS change needs a styles bump too.
 
 # 2. Commit & push all changes (not just package.json — include any code changes)
-git add .
+git add <paths>
 git commit -m "<descriptive message>"
 git push origin master
-# 3. Build & publish locally
-npm run build:styles
-node scripts/check-styles-published.mjs
-cd packages/ui
-npm run build
-npm publish --access public
 
-# 4. IMPORTANT: Rebuild dist after publish (npm publish triggers build:clean which deletes dist/)
-cd packages/ui
-npm run build
-
-# 5. Create GitHub Release
-GH=/tmp/gh/gh_2.67.0_macOS_arm64/bin/gh
-$GH release create v0.7.37 --repo plex-ui/docs --title "Release v0.7.37" --target master --generate-notes
+# 3. Create the GitHub Release (tag v{ui version}); it triggers publish.yml
+gh release create v0.20.0 --repo plex-ui/ui --title "Release v0.20.0" --target master --generate-notes
 ```
+`publish.yml` (also runnable by hand from the Actions tab) checks each package's version on npm and publishes only the ones that are missing, in order: `@plexui/styles` → `@plexui/ui` → `@plexui/vue` → `@plexui/mcp`. Before ui and vue it runs the same guards as the local scripts (`check-styles-published.mjs`, `check-published-types.mjs`) and waits until a just-published styles version is visible on npm.
+
+**Auth:**
+- npm Trusted Publishing (OIDC, with provenance): each package needs `plex-ui/ui` + `publish.yml` set as its trusted publisher on npmjs.com (package Settings → Trusted publishing). `@plexui/ui` has it.
+- A package that is not on npm yet cannot have a trusted publisher. For its first publish, either add a repository secret `NPM_TOKEN` (granular token with publish access to `@plexui`; the workflow falls back to it) or publish once locally (`npm login`, then `npm run publish:styles` / `publish:vue`). Then set its trusted publisher and delete the token.
+- `package.json` `repository.url` must point at `https://github.com/plex-ui/ui.git` (the repo was `plex-ui/docs`), or provenance verification rejects the publish.
+
+**Local fallback:** `npm run publish:styles`, `publish:ui`, `publish:vue`, `publish:mcp` (same guards; needs `npm login`). After a local ui publish, rebuild: `npm publish` triggers `build:clean`, which deletes `dist/`.
+
 **Key details:**
-- `gh` CLI location: `/tmp/gh/gh_2.67.0_macOS_arm64/bin/gh` (downloaded, not brew)
-- Auth: logged in as `stomashevsky` via keyring
-- Release tag format: `v{version}` (e.g. `v0.7.37`)
-- GitHub Actions workflow (`publish.yml`) exists as backup but local publish is preferred
+- Pushing needs the `stomashevsky` gh account (see memory); release tag format: `v{version}` (e.g. `v0.20.0`)
 
 ---
 

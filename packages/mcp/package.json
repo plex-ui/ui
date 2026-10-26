@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plex-ui/docs",
+    "url": "https://github.com/plex-ui/ui.git",
     "directory": "packages/mcp"
   },
   "homepage": "https://plexui.com/docs/mcp"
