@@ -759,22 +759,22 @@ const CustomSelect = () => {
 
     // When we're closing, manage focus back to trigger manually
     if (!nextState) {
+      // Read this now: with animations disabled the menu unmounts before the
+      // timeout below runs, so selectContentRef is already null by then
+      const focusWasInMenu = !!selectContentRef.current?.contains(document.activeElement)
+
       // Wait until the next tick to determine if another element has become focused
       setTimeout(() => {
-        // This should never happen because TransitionGroup should keep the select content in the DOM long
-        // enough for this callback to run. However, in the event that the ref is null, not focusing is safer.
-        if (!selectContentRef.current) {
-          return
-        }
-
         const activeElement = document.activeElement
+        const menu = selectContentRef.current
+        const focusInMenu = !!menu && !!activeElement && menu.contains(activeElement)
+        // Focus dropped with the closing menu lands on <body>: it was lost, not moved
+        const focusLost = !activeElement || activeElement === document.body
 
-        // Don't restore focus to the trigger if focus has moved outside of the select menu
-        if (activeElement && !selectContentRef.current.contains(activeElement)) {
-          return
+        // Focus that moved to another element outside the menu stays there
+        if (focusInMenu || (focusWasInMenu && focusLost)) {
+          document.getElementById(triggerId)?.focus()
         }
-
-        document.getElementById(triggerId)?.focus()
       })
     }
   }
