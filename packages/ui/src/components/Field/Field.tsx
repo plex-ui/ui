@@ -109,10 +109,15 @@ export function Field({
   if (typeof children === "function") {
     resolvedChildren = children(fieldChildProps)
   } else if (isValidElement(children)) {
-    resolvedChildren = cloneElement(
-      children as React.ReactElement<Record<string, unknown>>,
-      fieldChildProps,
-    )
+    const child = children as React.ReactElement<Record<string, unknown>>
+    // Merge with the child's own associations instead of overwriting them
+    const childDescribedBy = child.props["aria-describedby"] as string | undefined
+    resolvedChildren = cloneElement(child, {
+      ...fieldChildProps,
+      "aria-describedby":
+        [childDescribedBy, ariaDescribedBy].filter(Boolean).join(" ") || undefined,
+      "aria-invalid": child.props["aria-invalid"] ?? fieldChildProps["aria-invalid"],
+    })
   } else {
     resolvedChildren = children
   }
