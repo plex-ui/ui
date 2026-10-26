@@ -1,37 +1,54 @@
-name: Publish packages to npm
+name: Release packages
 
-# Publishes every package whose package.json version is not on npm yet, in
-# dependency order: @plexui/styles, then @plexui/ui and @plexui/vue (both
-# depend on it), then @plexui/mcp. A version that is already published is
-# skipped, so a release that only bumps one package publishes only that one.
+# Releases every package whose package.json version is not on npm yet, after
+# the parity tests pass, in dependency order: @plexui/styles, then @plexui/ui
+# and @plexui/vue (both depend on it), then @plexui/mcp. Then it tags what it
+# published and opens the GitHub Release v<ui version> with that version's
+# section of the docs changelog.
 #
-# Auth: npm Trusted Publishing (OIDC) for packages that have this workflow
-# set as their trusted publisher. A package that is not on npm yet cannot
-# have one, so its first publish falls back to the NPM_BOOTSTRAP_TOKEN
-# repository secret (a granular token with publish access to @plexui) when
-# it is set. Delete that secret once the package has a trusted publisher.
-# (NPM_TOKEN is the token this workflow used before OIDC; it is not read.)
+# Runs when a version bump reaches master (`npm run release:bump`, then merge),
+# or by hand from the Actions tab: a dry run by default, which builds, tests
+# and packs everything but uploads nothing. Only master can really publish.
+#
+# Auth: npm Trusted Publishing (OIDC, with provenance) for packages that have
+# this workflow file set as their trusted publisher. A package that is not on
+# npm yet cannot have one, so its first publish falls back to the
+# NPM_BOOTSTRAP_TOKEN repository secret (a granular token with publish access
+# to @plexui) when it is set. Delete that secret once every package has a
+# trusted publisher. (NPM_TOKEN is the token used before OIDC; it is not read.)
+# Keep this file's name: the trusted publisher settings on npm point at it.
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [master]
+    paths:
+      - packages/styles/package.json
+      - packages/ui/package.json
+      - packages/vue/package.json
+      - packages/mcp/package.json
 
-  # Allow manual trigger from the Actions tab
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: build, test and pack, but publish nothing"
+        type: boolean
+        default: true
 
 concurrency:
-  group: publish-npm
+  group: release-npm
   cancel-in-progress: false
 
 jobs:
-  publish:
+  release:
+    if: github.repository == 'plex-ui/ui'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      contents: write # tags and the GitHub Release
+      id-token: write # npm Trusted Publishing and provenance
     env:
       # Without the secret, setup-node's own placeholder, as before: OIDC only
       NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN || 'XXXXX-XXXXX-XXXXX-XXXXX' }}
+      DRY_RUN: ${{ github.ref != 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,6 +65,7 @@ jobs:
       - name: Check which versions are already published
         id: check
         run: |
+          any=skip
           for pkg in styles ui vue mcp; do
             version=$(node -p "require('./packages/$pkg/package.json').version")
             if [ "$(npm view "@plexui/$pkg@$version" version 2>/dev/null)" = "$version" ]; then
@@ -55,22 +73,31 @@ jobs:
               echo "@plexui/$pkg@$version is already on npm, skipping."
             else
               echo "$pkg=publish" >> "$GITHUB_OUTPUT"
+              any=publish
               echo "@plexui/$pkg@$version will be published."
             fi
           done
+          echo "any=$any" >> "$GITHUB_OUTPUT"
+          if [ "$DRY_RUN" = "true" ]; then echo "Dry run: nothing will be uploaded."; fi
 
-      # ui and vue build against the workspace styles, so build it whenever any of the three publishes
+      # The tests and the ui and vue builds read the workspace styles' dist
       - name: Build @plexui/styles
-        if: steps.check.outputs.styles == 'publish' || steps.check.outputs.ui == 'publish' || steps.check.outputs.vue == 'publish'
+        if: steps.check.outputs.any == 'publish'
         run: npm run build:styles
+
+      - name: Run the parity tests
+        if: steps.check.outputs.any == 'publish'
+        run: npm run test:parity
 
       - name: Publish @plexui/styles
         if: steps.check.outputs.styles == 'publish'
-        run: npm publish --access public --provenance
         working-directory: packages/styles
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
+          else npm publish --access public --provenance; fi
 
       - name: Wait for @plexui/styles to reach the registry
-        if: steps.check.outputs.styles == 'publish' && (steps.check.outputs.ui == 'publish' || steps.check.outputs.vue == 'publish')
+        if: steps.check.outputs.styles == 'publish' && env.DRY_RUN != 'true' && (steps.check.outputs.ui == 'publish' || steps.check.outputs.vue == 'publish')
         run: |
           version=$(node -p "require('./packages/styles/package.json').version")
           for attempt in $(seq 1 30); do
@@ -84,27 +111,43 @@ jobs:
 
       - name: Build and check @plexui/ui
         if: steps.check.outputs.ui == 'publish'
+        env:
+          STYLES: ${{ steps.check.outputs.styles }}
         run: |
           npm run build:ui
-          node scripts/check-styles-published.mjs ui
+          if [ "$DRY_RUN" = "true" ] && [ "$STYLES" = "publish" ]; then
+            echo "Dry run: the new @plexui/styles is not on npm, so check-styles-published is skipped."
+          else
+            node scripts/check-styles-published.mjs ui
+          fi
           node scripts/check-published-types.mjs ui
 
       - name: Publish @plexui/ui
         if: steps.check.outputs.ui == 'publish'
-        run: npm publish --access public --provenance
         working-directory: packages/ui
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
+          else npm publish --access public --provenance; fi
 
       - name: Build and check @plexui/vue
         if: steps.check.outputs.vue == 'publish'
+        env:
+          STYLES: ${{ steps.check.outputs.styles }}
         run: |
           npm run build:vue
-          node scripts/check-styles-published.mjs vue
+          if [ "$DRY_RUN" = "true" ] && [ "$STYLES" = "publish" ]; then
+            echo "Dry run: the new @plexui/styles is not on npm, so check-styles-published is skipped."
+          else
+            node scripts/check-styles-published.mjs vue
+          fi
           node scripts/check-published-types.mjs vue
 
       - name: Publish @plexui/vue
         if: steps.check.outputs.vue == 'publish'
-        run: npm publish --access public --provenance
         working-directory: packages/vue
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
+          else npm publish --access public --provenance; fi
 
       # prebuild regenerates the component manifests from the docs content
       - name: Build @plexui/mcp
@@ -113,5 +156,39 @@ jobs:
 
       - name: Publish @plexui/mcp
         if: steps.check.outputs.mcp == 'publish'
-        run: npm publish --access public --provenance
         working-directory: packages/mcp
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
+          else npm publish --access public --provenance; fi
+
+      # Also after a failed step: whatever did reach npm gets its tag, and a
+      # re-run (which skips published versions) finishes the rest
+      - name: Tag the published versions and create the GitHub Release
+        if: always() && env.DRY_RUN != 'true' && steps.check.outputs.any == 'publish'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          on_npm() {
+            [ "$(npm view "@plexui/$1@$2" version 2>/dev/null)" = "$2" ]
+          }
+          also=""
+          for pkg in styles vue mcp; do
+            version=$(node -p "require('./packages/$pkg/package.json').version")
+            tag="@plexui/$pkg@$version"
+            if on_npm "$pkg" "$version" && [ -z "$(git ls-remote --tags origin "refs/tags/$tag")" ]; then
+              git tag "$tag" "$GITHUB_SHA"
+              git push origin "refs/tags/$tag"
+              also="$also- \`$tag\`"$'\n'
+            fi
+          done
+
+          version=$(node -p "require('./packages/ui/package.json').version")
+          if on_npm ui "$version" && ! gh release view "v$version" > /dev/null 2>&1; then
+            if ! node scripts/release-notes.mjs "$version" > release-notes.md; then
+              echo "See https://plexui.com/docs/changelog" > release-notes.md
+            fi
+            if [ -n "$also" ]; then
+              printf '\n### Also published\n\n%s' "$also" >> release-notes.md
+            fi
+            gh release create "v$version" --title "v$version" --target "$GITHUB_SHA" --notes-file release-notes.md
+          fi

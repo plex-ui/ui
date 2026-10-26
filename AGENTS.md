@@ -997,21 +997,27 @@ Template component IDs:
 ---
 
 ## npm Publishing
-When user says "опубликуй" — bump versions, commit, push, create a GitHub Release. The release runs `.github/workflows/publish.yml`, which publishes the packages.
+When user says "опубликуй" — bump the versions and get them onto master. A version bump reaching master is the release: `.github/workflows/publish.yml` does the rest.
 ```bash
-# 1. Bump the version of every package that changed:
-#    packages/styles, packages/ui, packages/vue, packages/mcp (package.json "version").
+# 1. Bump every package that changed (several pairs at once). It also moves the
+#    @plexui/styles range in ui/vue when needed, syncs package-lock.json and turns
+#    the changelog's "## Unreleased" into "## <ui version> (<today>)".
 #    ui and vue depend on @plexui/styles: a CSS change needs a styles bump too.
+npm run release:bump -- --dry-run ui minor styles patch   # preview
+npm run release:bump -- ui minor styles patch
 
-# 2. Commit & push all changes (not just package.json — include any code changes)
+# 2. Commit (explicit paths) and merge/push to master
 git add <paths>
-git commit -m "<descriptive message>"
+git commit -m "release: ui 0.21.0, styles 0.1.1"
 git push origin master
-
-# 3. Create the GitHub Release (tag v{ui version}); it triggers publish.yml
-gh release create v0.20.0 --repo plex-ui/ui --title "Release v0.20.0" --target master --generate-notes
 ```
-`publish.yml` (also runnable by hand from the Actions tab) checks each package's version on npm and publishes only the ones that are missing, in order: `@plexui/styles` → `@plexui/ui` → `@plexui/vue` → `@plexui/mcp`. Before ui and vue it runs the same guards as the local scripts (`check-styles-published.mjs`, `check-published-types.mjs`) and waits until a just-published styles version is visible on npm.
+On that push `publish.yml`:
+1. checks each package's version on npm (`@plexui/styles`, `@plexui/ui`, `@plexui/vue`, `@plexui/mcp`) and skips the published ones;
+2. builds styles and runs `npm run test:parity`;
+3. publishes the missing versions in that order, with the local scripts' guards before ui and vue (`check-styles-published.mjs`, `check-published-types.mjs`), waiting until a just-published styles version is visible on npm;
+4. tags them (`@plexui/<pkg>@<version>` for styles, vue, mcp) and opens the GitHub Release `v<ui version>` with that version's changelog section (`npm run release:notes -- <version>` prints it).
+
+A failed run can simply be re-run: published versions are skipped, and the tag step tags whatever reached npm. The Actions tab runs it by hand too, as a dry run by default (build, tests, `npm publish --dry-run`); only master can really publish. Do not create GitHub Releases by hand any more.
 
 **Auth:**
 - npm Trusted Publishing (OIDC, with provenance): each package needs `plex-ui/ui` + `publish.yml` set as its trusted publisher on npmjs.com (package Settings → Trusted publishing). `@plexui/ui` has it (CI releases up to v0.19.1 used it). `@plexui/mcp` 0.1.0 was published by hand, so check its settings before a CI release.
