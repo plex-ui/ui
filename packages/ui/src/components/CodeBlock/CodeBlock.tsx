@@ -28,7 +28,7 @@ import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typesc
 import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml"
 
 import { CopyButton } from "../Button"
-import s from "./CodeBlock.module.css"
+import s from "@plexui/styles/components/CodeBlock/CodeBlock.module.css"
 
 SyntaxHighlighter.registerLanguage("javascript", javascript)
 SyntaxHighlighter.registerLanguage("jsx", jsx)

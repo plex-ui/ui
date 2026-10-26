@@ -6,7 +6,7 @@ import { cloneElement, isValidElement, useId } from "react"
 import type { ControlSize } from "../../types"
 import { FieldError } from "../FieldError"
 
-import s from "./Field.module.css"
+import s from "@plexui/styles/components/Field/Field.module.css"
 
 export type FieldChildProps = {
   id: string

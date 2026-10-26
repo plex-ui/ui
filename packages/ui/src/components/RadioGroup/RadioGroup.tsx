@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { RadioGroup as RadixRadioGroup } from "radix-ui"
 import React, { createContext, use, useId, useMemo } from "react"
-import s from "./RadioGroup.module.css"
+import s from "@plexui/styles/components/RadioGroup/RadioGroup.module.css"
 
 type Direction = "col" | "row"
 

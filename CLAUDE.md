@@ -16,10 +16,10 @@
 
 Read `AGENTS.md` before making any change. Read `.memory/` on session start for the private decision log.
 
-## After every change touching `packages/ui/` — non-negotiable
+## After every change touching `packages/styles/` or `packages/ui/` — non-negotiable
 
 ```bash
-cd packages/ui && npm run build && cd ../..
+npm run build:styles && npm run build:ui
 rm -rf .next
 ```
 

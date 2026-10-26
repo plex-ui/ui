@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from "../Icon"
 import { usePopoverClose } from "../Popover/usePopoverController"
 import { Select } from "../Select"
 import { TransitionGroup } from "../Transition"
-import s from "./Calendar.module.css"
+import s from "@plexui/styles/components/DatePicker/Calendar.module.css"
 import { useDateContext } from "./context"
 
 const CALENDAR_WIDTH_PX = 210

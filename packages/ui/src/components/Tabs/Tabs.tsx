@@ -7,7 +7,7 @@ import { useResizeObserver } from "usehooks-ts"
 import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers"
 import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
 import { LoadingIndicator } from "../Indicator"
-import s from "./Tabs.module.css"
+import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 export type SizeVariant = "2xs" | "xs" | "sm" | "md" | "lg" | "xl"
 

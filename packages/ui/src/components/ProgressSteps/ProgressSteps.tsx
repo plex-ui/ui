@@ -5,7 +5,7 @@ import React, { createContext, use, useMemo, useRef, type ReactNode } from "reac
 import { isDev } from "../../lib/environment"
 import type { Sizes } from "../../types"
 import { CheckMd } from "../Icon"
-import s from "./ProgressSteps.module.css"
+import s from "@plexui/styles/components/ProgressSteps/ProgressSteps.module.css"
 
 type Orientation = "horizontal" | "vertical"
 type StepState = "completed" | "active" | "inactive"

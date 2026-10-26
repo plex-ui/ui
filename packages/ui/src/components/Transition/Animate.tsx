@@ -11,7 +11,7 @@ import {
   toOpacityProperty,
   toTransformProperty,
 } from "../../lib/helpers"
-import s from "./Animate.module.css"
+import s from "@plexui/styles/components/Transition/Animate.module.css"
 import { type InitialTransitionDefinition, type TransitionDefinition } from "./shared"
 
 export type AnimateProps = Pick<

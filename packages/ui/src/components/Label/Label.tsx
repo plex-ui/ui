@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { type ComponentProps } from "react"
 import { Label as RadixLabel } from "radix-ui"
-import s from "./Label.module.css"
+import s from "@plexui/styles/components/Label/Label.module.css"
 
 export type LabelProps = ComponentProps<typeof RadixLabel.Root> & {
   className?: string

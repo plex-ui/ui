@@ -26,7 +26,7 @@ import clsx from "clsx"
 import { useState, type ReactNode } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../Table"
 import { DataTablePagination } from "./DataTablePagination"
-import s from "./DataTable.module.css"
+import s from "@plexui/styles/components/DataTable/DataTable.module.css"
 
 export type DataTableProps<TData> = {
   /** Column definitions following TanStack Table v8 ColumnDef API */

@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import type { ComponentProps } from "react"
-import s from "./LoadingDots.module.css"
+import s from "@plexui/styles/components/Indicator/LoadingDots.module.css"
 
 export type LoadingDotsProps = Omit<ComponentProps<"div">, "children">
 

@@ -8,7 +8,7 @@ import type { ControlSize, Variants } from "../../types"
 import { Button } from "../Button"
 import { ChevronDown, Dropdown, X } from "../Icon"
 import { LoadingIndicator } from "../Indicator"
-import s from "./SelectControl.module.css"
+import s from "@plexui/styles/components/SelectControl/SelectControl.module.css"
 
 export type DropdownIconType = "chevronDown" | "dropdown" | "none"
 

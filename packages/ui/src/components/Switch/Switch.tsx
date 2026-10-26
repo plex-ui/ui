@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { Switch as RadixSwitch } from "radix-ui"
 import { type FocusEventHandler, type ReactNode, useId } from "react"
-import s from "./Switch.module.css"
+import s from "@plexui/styles/components/Switch/Switch.module.css"
 
 export type SwitchProps = {
   /** The `id` of the switch. */

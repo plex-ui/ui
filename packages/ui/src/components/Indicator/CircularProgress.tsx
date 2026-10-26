@@ -5,7 +5,7 @@ import { useState, type ComponentProps } from "react"
 import { useSimulatedProgress } from "../../hooks/useSimulatedProgress"
 
 import { toCssVariables } from "../../lib/helpers"
-import s from "./CircularProgress.module.css"
+import s from "@plexui/styles/components/Indicator/CircularProgress.module.css"
 
 export type CircularProgressProps = Omit<ComponentProps<"div">, "children"> & {
   /**

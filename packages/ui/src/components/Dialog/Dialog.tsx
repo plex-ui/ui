@@ -13,7 +13,7 @@ import {
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
-import s from "./Dialog.module.css"
+import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 type DialogContextValue = {
   open: boolean

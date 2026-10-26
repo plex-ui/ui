@@ -1,107 +1,31 @@
-import { watch } from "node:fs"
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises"
+import { mkdir, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
-import postcss from "postcss"
+// Plex UI CSS lives in @plexui/styles. Each stylesheet gets a one-line
+// re-export here so `@plexui/ui/css` and `@plexui/ui/styles/*.css` keep
+// resolving for existing installs.
 
-import { platformUIRequiredPlugins } from "../postcss.config.mjs"
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-const PROJECT_ROOT = path.resolve(__dirname, "..")
-const SRC_DIR = path.join(PROJECT_ROOT, "src")
-const OUT_DIR = path.join(PROJECT_ROOT, "dist/es")
-
-/**
- * Recursively collect every `.css` file within the provided directory.
- * @param {string} dir
- * @returns {Promise<string[]>}
- */
-async function collectCssFiles(dir) {
-  const entries = await readdir(dir, { withFileTypes: true })
-  const files = []
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-
-    if (entry.isDirectory()) {
-      files.push(...(await collectCssFiles(fullPath)))
-      continue
-    }
-
-    if (entry.isFile() && entry.name.endsWith(".css")) {
-      files.push(fullPath)
-    }
-  }
-
-  return files
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const OUT_DIR = path.resolve(__dirname, "../dist/es/styles")
+const STYLES_DIR = path.dirname(fileURLToPath(import.meta.resolve("@plexui/styles/css")))
 
 async function buildCss() {
-  const cssFiles = (await collectCssFiles(SRC_DIR)).sort()
+  const files = (await readdir(STYLES_DIR)).filter((name) => name.endsWith(".css")).sort()
 
-  if (cssFiles.length === 0) {
-    console.warn("[build-css] No CSS files found – skipping PostCSS step.")
-    return
+  if (files.length === 0) {
+    throw new Error(`No CSS in ${STYLES_DIR}. Build @plexui/styles first.`)
   }
 
-  const passthroughCssFiles = new Set(["styles/index.css", "styles/variables-tailwind-theme.css"])
-
-  for (const file of cssFiles) {
-    const relativePath = path.relative(SRC_DIR, file)
-    const normalizedRelativePath = relativePath.split(path.sep).join("/")
-    const to = path.join(OUT_DIR, relativePath)
-    const source = await readFile(file, "utf8")
-
-    if (passthroughCssFiles.has(normalizedRelativePath)) {
-      await mkdir(path.dirname(to), { recursive: true })
-      await writeFile(to, source, "utf8")
-      continue
-    }
-
-    const processor = postcss(platformUIRequiredPlugins())
-    const result = await processor.process(source, {
-      from: file,
-      to,
-      map: false,
-    })
-
-    for (const warning of result.warnings()) {
-      console.warn(`[postcss] ${warning.toString()}`)
-    }
-
-    await mkdir(path.dirname(to), { recursive: true })
-    await writeFile(to, result.css, "utf8")
+  await mkdir(OUT_DIR, { recursive: true })
+  for (const name of files) {
+    await writeFile(path.join(OUT_DIR, name), `@import "@plexui/styles/styles/${name}";\n`, "utf8")
   }
 
-  console.log(
-    `[build-css] Processed ${cssFiles.length} CSS file${cssFiles.length === 1 ? "" : "s"}.`,
-  )
+  console.log(`[build-css] Wrote ${files.length} re-exports of @plexui/styles.`)
 }
 
-const isWatchMode = process.argv.includes("--watch") || process.argv.includes("-w")
-
-async function run() {
-  await buildCss()
-
-  if (!isWatchMode) return
-
-  console.log("[build-css] Watching src/ for CSS changes...")
-  let rebuildTimer = null
-  const scheduleRebuild = () => {
-    if (rebuildTimer) clearTimeout(rebuildTimer)
-    rebuildTimer = setTimeout(() => {
-      buildCss().catch((error) => console.error("[build-css]", error))
-    }, 100)
-  }
-  watch(SRC_DIR, { recursive: true }, (_event, filename) => {
-    if (filename && filename.endsWith(".css")) scheduleRebuild()
-  })
-}
-
-run().catch((error) => {
-  console.error("[build-css] Failed to process CSS", error)
+buildCss().catch((error) => {
+  console.error("[build-css] Failed to write CSS re-exports", error)
   process.exitCode = 1
 })

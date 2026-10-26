@@ -1,9 +1,9 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
-@import '../packages/ui/dist/es/styles/variables-primitive.css';
-@import '../packages/ui/dist/es/styles/variables-semantic.css';
-@import '../packages/ui/dist/es/styles/variables-components.css';
+@import '../packages/styles/dist/es/styles/variables-primitive.css';
+@import '../packages/styles/dist/es/styles/variables-semantic.css';
+@import '../packages/styles/dist/es/styles/variables-components.css';
 
 @theme static {
   --breakpoint-xs: 380px;

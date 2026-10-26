@@ -48,7 +48,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "./Sidebar"
-import styles from "./Sidebar.module.css"
+import styles from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 
 export default {
   title: "Components/Sidebar",

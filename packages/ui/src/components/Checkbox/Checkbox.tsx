@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { Checkbox as RadixCheckbox } from "radix-ui"
 import { type FocusEventHandler, type ReactNode, useId } from "react"
-import s from "./Checkbox.module.css"
+import s from "@plexui/styles/components/Checkbox/Checkbox.module.css"
 
 export type CheckboxProps = {
   /** The `id` of the checkbox. */

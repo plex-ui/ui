@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react"
 
 import clsx from "clsx"
-import s from "./ShimmerText.module.css"
+import s from "@plexui/styles/components/ShimmerText/ShimmerText.module.css"
 
 // If text will always shimmer, use the simpler interface
 export const ShimmerText = ({

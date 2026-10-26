@@ -3,7 +3,7 @@
 import { type Column } from "@tanstack/react-table"
 import clsx from "clsx"
 import { ArrowDownSm, ArrowUpSm, Sort } from "../Icon"
-import s from "./DataTable.module.css"
+import s from "@plexui/styles/components/DataTable/DataTable.module.css"
 
 export type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>

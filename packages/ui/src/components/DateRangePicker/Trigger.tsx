@@ -7,7 +7,7 @@ import { getMonthStartAndEnd, isBefore, isSameDay } from "../../lib/dateUtils"
 import { Button } from "../Button"
 import { Calendar, ChevronLeft, ChevronRight } from "../Icon"
 import { SelectControl } from "../SelectControl"
-import s from "./Trigger.module.css"
+import s from "@plexui/styles/components/DateRangePicker/Trigger.module.css"
 import { useDateRangeContext } from "./context"
 import { type DateRange, type DateRangeShortcut } from "./types"
 

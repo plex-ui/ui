@@ -1,6 +1,6 @@
 import clsx from "clsx"
 import { type ComponentProps } from "react"
-import s from "./Skeleton.module.css"
+import s from "@plexui/styles/components/Skeleton/Skeleton.module.css"
 
 export type SkeletonProps = ComponentProps<"div"> & {
   /**

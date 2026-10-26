@@ -27,7 +27,7 @@ import {
   type ReactElementWithKey,
   type TransitionGroupChildCallbacks,
 } from "./shared"
-import s from "./TransitionGroup.module.css"
+import s from "@plexui/styles/components/Transition/TransitionGroup.module.css"
 import { getInitialTransitionState, transitionReducer } from "./transitionReducer"
 
 type TransitionGroupChildProps = {

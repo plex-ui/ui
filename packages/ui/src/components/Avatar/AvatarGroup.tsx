@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import { Children, cloneElement, isValidElement, type ReactNode } from "react"
 import { toCssVariables } from "../../lib/helpers"
-import s from "./AvatarGroup.module.css"
+import s from "@plexui/styles/components/Avatar/AvatarGroup.module.css"
 
 export type AvatarGroupProps = {
   /** Class name passed to the group container */

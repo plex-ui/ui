@@ -5,7 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { toCssVariables } from "../../lib/helpers"
 import { type ControlSize, type Sizes, type Variants } from "../../types"
-import s from "./Textarea.module.css"
+import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 
 export type TextareaProps = {
   /**

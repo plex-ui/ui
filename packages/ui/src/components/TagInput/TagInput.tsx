@@ -6,7 +6,7 @@ import { useLatestValue } from "../../hooks/useLatestValue"
 import { toCssVariables } from "../../lib/helpers"
 import type { Sizes } from "../../types"
 import { X } from "../Icon"
-import s from "./TagInput.module.css"
+import s from "@plexui/styles/components/TagInput/TagInput.module.css"
 
 export type Tag = {
   value: string

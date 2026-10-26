@@ -4,7 +4,7 @@ import clsx from "clsx"
 import { useMemo, useState } from "react"
 import { toCssVariables } from "../../lib/helpers"
 import { type SemanticColors, type Variants } from "../../types"
-import s from "./Avatar.module.css"
+import s from "@plexui/styles/components/Avatar/Avatar.module.css"
 
 type ImageStatus = undefined | "error" | "loaded"
 

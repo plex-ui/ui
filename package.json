@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
+    "packages/styles",
     "packages/ui",
     "packages/mcp",
     "packages/icons-lucide-outlined",
@@ -11,7 +12,7 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "dev:all": "npm run dev --workspace=packages/ui & next dev & wait",
+    "dev:all": "npm run build:styles && (npm run dev:css --workspace=packages/styles & npm run dev:js --workspace=packages/styles & npm run dev --workspace=packages/ui & next dev & wait)",
     "dev:restart": "lsof -ti:3000 | xargs kill -9 2>/dev/null; next dev",
     "build": "npm run build:icon-catalogs && next build",
     "build:icon-catalogs": "node scripts/build-icon-catalogs.mjs",
@@ -19,7 +20,8 @@
     "generate:plex-tags": "node scripts/generate-plex-tags.mjs",
     "classify:plex-filled": "node scripts/classify-plex-filled.mjs",
     "predev": "node scripts/build-icon-catalogs.mjs",
-    "postinstall": "npm run build:ui",
+    "postinstall": "npm run build:styles && npm run build:ui",
+    "build:styles": "npm run build --workspace=packages/styles",
     "build:ui": "npm run build --workspace=packages/ui",
     "build:mcp": "npm run build --workspace=packages/mcp",
     "generate:manifest": "node scripts/generate-mcp-manifest.mjs",
@@ -27,7 +29,8 @@
     "start": "next start",
     "lint": "eslint",
     "lint:docs-code": "node scripts/check-doc-code-duplicates.mjs",
-    "publish:ui": "npm run build:ui && npm publish --access public --workspace=packages/ui",
+    "publish:styles": "npm run build:styles && npm publish --access public --workspace=packages/styles",
+    "publish:ui": "npm run build:styles && npm run build:ui && npm publish --access public --workspace=packages/ui",
     "publish:mcp": "npm run generate:manifest && npm run build:mcp && npm publish --access public --workspace=packages/mcp"
   },
   "dependencies": {

@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { type ComponentProps, type ComponentType, type ReactNode } from "react"
 import { useLinkComponent } from "../PlexUIProvider/internal"
-import s from "./TextLink.module.css"
+import s from "@plexui/styles/components/TextLink/TextLink.module.css"
 
 export type TextLinkProps = Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,

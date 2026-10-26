@@ -15,7 +15,7 @@ import { waitForAnimationFrame } from "../../lib/helpers"
 import { Button } from "../Button"
 import { Check, ChevronLeft, ChevronRight } from "../Icon"
 import { TransitionGroup } from "../Transition"
-import s from "./Calendar.module.css"
+import s from "@plexui/styles/components/DateRangePicker/Calendar.module.css"
 import { useDateRangeContext } from "./context"
 import { type DateRange, type DateRangeShortcut } from "./types"
 

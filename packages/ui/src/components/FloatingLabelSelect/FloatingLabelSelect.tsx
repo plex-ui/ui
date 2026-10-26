@@ -7,7 +7,7 @@ import { FieldError } from "../FieldError"
 import { Button } from "../Button"
 import { Dropdown, X } from "../Icon"
 
-import s from "./FloatingLabelSelect.module.css"
+import s from "@plexui/styles/components/FloatingLabelSelect/FloatingLabelSelect.module.css"
 
 export type FloatingLabelSelectProps = {
   label: string

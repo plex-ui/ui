@@ -76,8 +76,7 @@
     "build:js": "tsc -p tsconfig.build.json",
     "build:css": "node ./scripts/build-css.mjs",
     "dev:js": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
-    "dev:css": "node ./scripts/build-css.mjs --watch",
-    "dev": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && (npm run dev:js & npm run dev:css & wait)",
+    "dev": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && npm run dev:js",
     "build:assets": "node -e \"const fs=require('fs'),p=require('path');function c(s,d){fs.readdirSync(s,{withFileTypes:true}).forEach(e=>{const sp=p.join(s,e.name),dp=p.join(d,e.name);if(e.isDirectory()){c(sp,dp)}else if(e.name.endsWith('.d.ts')){fs.mkdirSync(d,{recursive:true});fs.copyFileSync(sp,dp)}})}c('src','dist/types')\"",
     "build": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets",
     "prepublishOnly": "npm run build",
@@ -98,6 +97,7 @@
     "@maskito/core": "^5.2.2",
     "@maskito/kit": "^5.2.2",
     "@maskito/react": "^5.2.2",
+    "@plexui/styles": "^0.1.0",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/core": "^3.21.0",
     "@tiptap/extension-bold": "^3.21.0",
@@ -132,21 +132,10 @@
     "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "4.0.17",
     "@types/lodash": "4.17.16",
     "@types/luxon": "^3.7.1",
     "@types/mdast": "^4.0.4",
-    "@types/postcss-functions": "4.0.4",
-    "@types/postcss-mixins": "9.0.6",
     "@types/react-syntax-highlighter": "^15.5.13",
-    "autoprefixer": "10.4.20",
-    "postcss": "^8",
-    "postcss-functions": "^4.0.2",
-    "postcss-mixins": "^11.0.3",
-    "postcss-nested": "^7.0.2",
-    "postcss-selector-parser": "7.1.0",
-    "postcss-value-parser": "4.2.0",
-    "tailwindcss": "4.0.10",
     "typescript": "5.7.3"
   }
 }

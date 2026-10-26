@@ -2,7 +2,7 @@
 
 import clsx from "clsx"
 import { type ComponentPropsWithRef } from "react"
-import s from "./Table.module.css"
+import s from "@plexui/styles/components/Table/Table.module.css"
 
 export type TableProps = ComponentPropsWithRef<"table">
 export const Table = ({ className, ...props }: TableProps) => (

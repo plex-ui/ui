@@ -22,7 +22,7 @@ import { Button } from "../Button"
 import { Check, ChevronRight } from "../Icon"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
-import s from "./Menu.module.css"
+import s from "@plexui/styles/components/Menu/Menu.module.css"
 
 type MenuContextValue = {
   open: boolean

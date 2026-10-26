@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd packages/ui && npm run build && cd ../.. && next build",
+  "buildCommand": "npm run build:styles && npm run build:ui && next build",
   "installCommand": "npm install",
   "redirects": [
     {

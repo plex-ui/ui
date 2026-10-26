@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import type { ComponentProps } from "react"
 import { toCssVariables } from "../../lib/helpers"
-import s from "./LoadingIndicator.module.css"
+import s from "@plexui/styles/components/Indicator/LoadingIndicator.module.css"
 
 export type LoadingIndicatorProps = {
   /** Classname applied to the indicator */

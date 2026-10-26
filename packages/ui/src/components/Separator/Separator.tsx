@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { type ComponentProps } from "react"
 import { Separator as RadixSeparator } from "radix-ui"
-import s from "./Separator.module.css"
+import s from "@plexui/styles/components/Separator/Separator.module.css"
 
 export type SeparatorProps = Omit<
   ComponentProps<typeof RadixSeparator.Root>,

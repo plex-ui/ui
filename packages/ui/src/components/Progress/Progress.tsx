@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { type ComponentProps } from "react"
 import { Progress as RadixProgress } from "radix-ui"
-import s from "./Progress.module.css"
+import s from "@plexui/styles/components/Progress/Progress.module.css"
 
 export type ProgressProps = Omit<
   ComponentProps<typeof RadixProgress.Root>,

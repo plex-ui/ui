@@ -3,7 +3,7 @@
 import { type Table } from "@tanstack/react-table"
 import { Button } from "../Button"
 import { ChevronLeftMd, ChevronRightMd } from "../Icon"
-import s from "./DataTable.module.css"
+import s from "@plexui/styles/components/DataTable/DataTable.module.css"
 
 export type DataTablePaginationProps<TData> = {
   table: Table<TData>

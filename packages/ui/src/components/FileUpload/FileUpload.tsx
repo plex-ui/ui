@@ -11,7 +11,7 @@ import {
 } from "../Icon"
 import { Button } from "../Button"
 import { FieldError } from "../FieldError"
-import s from "./FileUpload.module.css"
+import s from "@plexui/styles/components/FileUpload/FileUpload.module.css"
 
 export type FileUploadProps = {
   variant?: "compact" | "area"

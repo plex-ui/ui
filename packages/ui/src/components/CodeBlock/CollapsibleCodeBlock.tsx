@@ -5,7 +5,7 @@ import { useState, type ComponentProps } from "react"
 
 import { Button } from "../Button"
 import { CodeBlockBase } from "./CodeBlock"
-import s from "./CodeBlock.module.css"
+import s from "@plexui/styles/components/CodeBlock/CodeBlock.module.css"
 
 export type CollapsibleCodeBlockProps = {
   /** The code string to display */

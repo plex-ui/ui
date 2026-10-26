@@ -5,7 +5,7 @@ import { type ReactNode, type Ref } from "react"
 import { Badge } from "../Badge"
 import { InfoCircle } from "../Icon"
 import { Tooltip } from "../Tooltip"
-import s from "./StatCard.module.css"
+import s from "@plexui/styles/components/StatCard/StatCard.module.css"
 
 export type StatCardProps = {
   /** Label describing the metric */

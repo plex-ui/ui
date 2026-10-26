@@ -6,7 +6,7 @@ import { useState, type MouseEventHandler, type PointerEventHandler } from "reac
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { preventDefaultHandler } from "../../lib/helpers"
-import s from "./Tooltip.module.css"
+import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
 
 export type TooltipProps = {
   children: React.ReactNode

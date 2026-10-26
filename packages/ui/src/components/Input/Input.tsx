@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { type ControlSize, type SemanticColor, type Sizes, type Variants } from "../../types"
 import { X } from "../Icon"
-import s from "./Input.module.css"
+import s from "@plexui/styles/components/Input/Input.module.css"
 
 export type InputProps = {
   /**

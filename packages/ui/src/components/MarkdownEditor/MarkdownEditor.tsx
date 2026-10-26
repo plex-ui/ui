@@ -22,7 +22,7 @@ import Placeholder from "@tiptap/extension-placeholder"
 import HardBreak from "@tiptap/extension-hard-break"
 import { Markdown as MarkdownExtension } from "tiptap-markdown"
 
-import s from "./MarkdownEditor.module.css"
+import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.css"
 
 export const markdownEditorStyles = {
   toolbarButton: s.ToolbarButton,

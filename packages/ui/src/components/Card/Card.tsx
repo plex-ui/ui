@@ -10,7 +10,7 @@ import {
   type Ref,
 } from "react"
 import { useLinkComponent } from "../PlexUIProvider/internal"
-import s from "./Card.module.css"
+import s from "@plexui/styles/components/Card/Card.module.css"
 
 /* ------------------------------------------------------------------ */
 /*  Root                                                               */

@@ -6,7 +6,7 @@ import { mergeRefs } from "react-merge-refs"
 
 import { Eye, EyeOff, X } from "../Icon"
 
-import s from "./FloatingLabelInput.module.css"
+import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
 
 export type FloatingLabelInputProps = {
   /**

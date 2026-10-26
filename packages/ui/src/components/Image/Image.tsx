@@ -2,7 +2,7 @@
 
 import clsx from "clsx"
 import { type ComponentProps, useState } from "react"
-import s from "./Image.module.css"
+import s from "@plexui/styles/components/Image/Image.module.css"
 
 const loadedSrcs = new Set<string>()
 

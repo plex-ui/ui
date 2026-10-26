@@ -4,7 +4,7 @@ import clsx from "clsx"
 import { type ComponentProps, type Ref } from "react"
 import { Accordion as RadixAccordion } from "radix-ui"
 import { ChevronDownMd } from "../Icon"
-import s from "./Accordion.module.css"
+import s from "@plexui/styles/components/Accordion/Accordion.module.css"
 
 /* ------------------------------------------------------------------ */
 /*  Root                                                               */

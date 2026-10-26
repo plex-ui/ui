@@ -28,7 +28,7 @@ import { toCssVariables } from "../../lib/helpers"
 import { Button } from "../Button"
 import { Reload } from "../Icon"
 import { Tooltip } from "../Tooltip"
-import s from "./Slider.module.css"
+import s from "@plexui/styles/components/Slider/Slider.module.css"
 
 export type SliderMark = {
   value: number

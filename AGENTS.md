@@ -87,10 +87,10 @@ git submodule update --remote --merge
 
 **Same gate as for your own changes.** A `git pull` brings new `src/` for `packages/ui` but does NOT rebuild `dist/`, and Next.js consumes `dist/` — so the docs site keeps serving the OLD compiled component until you rebuild. Symptom: docs page shows a stale/broken version, the Vercel deploy works fine, and you scratch your head.
 
-**Trigger:** `git pull` diff includes any path under `packages/ui/`.
+**Trigger:** `git pull` diff includes any path under `packages/styles/` or `packages/ui/`.
 
 ```bash
-cd packages/ui && npm run build && cd ../..
+npm run build:styles && npm run build:ui
 rm -rf .next
 # preview_stop / preview_start via Claude Preview MCP
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/components/<affected-route>
@@ -250,12 +250,13 @@ Full record: [`.memory/decisions/0005-always-verify-vercel-deploy.md`](.memory/d
 
 # 🔴 Use `npm run dev:all` to avoid the Turbopack restart cycle
 
-**Default to `npm run dev:all` at the repo root**, not `npm run dev`. `dev:all` runs two processes in parallel:
+**Default to `npm run dev:all` at the repo root**, not `npm run dev`. `dev:all` builds `packages/styles` once, then runs in parallel:
 
-1. `packages/ui` in watch mode — `tsc -w` for TS + a chokidar-less fs.watch watcher that rebuilds `dist/es/**/*.module.css` on every edit under `packages/ui/src/`
-2. `next dev` — Turbopack serves the docs app
+1. `packages/styles` in watch mode — a chokidar-less fs.watch watcher that rebuilds `dist/es/**/*.css` on every CSS edit under `packages/styles/src/` (component CSS modules and token files live there), plus `tsc -w` for its `vite` and `types` entries
+2. `packages/ui` in watch mode — `tsc -w` for TS
+3. `next dev` — Turbopack serves the docs app
 
-With this setup, **CSS-only changes** in `packages/ui/src/` hot-reload end-to-end without any restart: watcher → rebuild dist → Next.js picks the new CSS up via HMR.
+With this setup, **CSS-only changes** in `packages/styles/src/` hot-reload end-to-end without any restart: watcher → rebuild dist → Next.js picks the new CSS up via HMR.
 
 **TSX-level changes** (new component directory, new export, new `data-slot`, new compound sub-component) still need one restart because Turbopack caches the `@plexui/ui` package.json exports graph at startup. Symptom: `Module not found: Can't resolve '@plexui/ui/components/Foo'` even though `dist/` is correct. When you see that:
 
@@ -1041,7 +1042,7 @@ When implementing CSS from Figma designs, you MUST run the verification script a
 3. Write CSS module
 4. Run verification:
 ```bash
-node scripts/verify-figma-css.mjs --figma /tmp/figma-spec.json --css packages/ui/src/components/MyComponent/MyComponent.module.css
+node scripts/verify-figma-css.mjs --figma /tmp/figma-spec.json --css packages/styles/src/components/MyComponent/MyComponent.module.css
 ```
 5. Fix ALL mismatches before considering the task done
 
@@ -1099,8 +1100,8 @@ Do NOT wait for the user to report the error — proactively nuke `.next` every 
 The Turbopack restart **alone** is not the rule. The rule is: **the task is not done until HTTP 200 is observed on the affected route**. After every `packages/ui` rebuild:
 
 ```bash
-# 1. Rebuild packages/ui FULLY (one-shot, sequential, completes before next step)
-cd packages/ui && npm run build && cd ../..
+# 1. Rebuild packages/styles, then packages/ui, FULLY (one-shot, sequential, completes before next step)
+npm run build:styles && npm run build:ui
 
 # 2. Nuke Turbopack cache
 rm -rf .next

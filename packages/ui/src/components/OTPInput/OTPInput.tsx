@@ -15,7 +15,7 @@ import {
 
 import { FieldError } from "../FieldError"
 
-import s from "./OTPInput.module.css"
+import s from "@plexui/styles/components/OTPInput/OTPInput.module.css"
 
 export type OTPInputProps = {
   length?: number

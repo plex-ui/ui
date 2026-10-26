@@ -7,7 +7,7 @@ import { useResizeObserver } from "usehooks-ts"
 import { type SemanticColors, type Variants } from "../../types"
 import { CheckCircle, Info, Warning } from "../Icon"
 import { Button } from "../Button"
-import s from "./Alert.module.css"
+import s from "@plexui/styles/components/Alert/Alert.module.css"
 
 export type AlertProps = {
   /**

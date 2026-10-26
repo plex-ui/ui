@@ -2,7 +2,7 @@ import clsx from "clsx"
 
 import { ExclamationMarkCircle } from "../Icon"
 
-import s from "./FieldError.module.css"
+import s from "@plexui/styles/components/FieldError/FieldError.module.css"
 
 export type FieldErrorProps = {
   children: React.ReactNode

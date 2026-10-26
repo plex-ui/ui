@@ -19,7 +19,7 @@ import { useLatestValue } from "../../hooks/useLatestValue"
 import { focusableElements, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent"
-import s from "./Popover.module.css"
+import s from "@plexui/styles/components/Popover/Popover.module.css"
 import { PopoverContext, usePopoverContext, type PopoverContextValue } from "./usePopoverContext"
 
 export type PopoverProps = {

@@ -3,7 +3,7 @@
 import { type CSSProperties, useEffect, useState } from "react"
 import { Toaster as SonnerToaster, type ToasterProps as SonnerToasterProps } from "sonner"
 import { CheckCircle, InfoCircle, Warning, XCircle } from "../Icon"
-import s from "./Toast.module.css"
+import s from "@plexui/styles/components/Toast/Toast.module.css"
 
 /**
  * Spread into any `toast(...)` options to get a shrink-to-fit, centered

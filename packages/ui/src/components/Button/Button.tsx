@@ -15,7 +15,7 @@ import { type ControlSize, type SemanticColors, type Sizes, type Variants } from
 import { LoadingIndicator } from "../Indicator"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition/TransitionGroup"
-import s from "./Button.module.css"
+import s from "@plexui/styles/components/Button/Button.module.css"
 
 type CommonProps = {
   /**

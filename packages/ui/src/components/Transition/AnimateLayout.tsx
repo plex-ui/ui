@@ -10,7 +10,7 @@ import {
   toTransformProperty,
   waitForAnimationFrame,
 } from "../../lib/helpers"
-import s from "./AnimateLayout.module.css"
+import s from "@plexui/styles/components/Transition/AnimateLayout.module.css"
 import { TransitionGroup, type TransitionGroupProps } from "./TransitionGroup"
 import {
   type InitialTransitionDefinition,

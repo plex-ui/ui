@@ -80,7 +80,7 @@ import { Button } from "../Button"
 import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
-import s from "./Sidebar.module.css"
+import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 import {
   SidebarProvider,
   useSidebar,

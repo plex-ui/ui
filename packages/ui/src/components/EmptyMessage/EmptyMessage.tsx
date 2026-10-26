@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import { type ReactNode } from "react"
 import { type SemanticColors, type Sizes } from "../../types"
-import s from "./EmptyMessage.module.css"
+import s from "@plexui/styles/components/EmptyMessage/EmptyMessage.module.css"
 
 export type EmptyMessageProps = {
   children: ReactNode

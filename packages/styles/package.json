@@ -1,0 +1,111 @@
+{
+  "name": "@plexui/styles",
+  "version": "0.1.0",
+  "description": "Framework-agnostic CSS for Plex UI: design tokens, globals and component styles",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "sideEffects": [
+    "*.css"
+  ],
+  "homepage": "https://plexui.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plex-ui/ui.git",
+    "directory": "packages/styles"
+  },
+  "keywords": [
+    "css",
+    "css-modules",
+    "design-system",
+    "design-tokens",
+    "tailwind",
+    "plexui",
+    "ui-kit"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist/es/**",
+    "dist/types/**",
+    "postcss/*.mjs",
+    "!postcss/*.test.mjs",
+    "postcss.config.mjs"
+  ],
+  "exports": {
+    "./css": "./dist/es/styles/index.css",
+    "./styles/*": "./dist/es/styles/*",
+    "./components/*": "./dist/es/components/*",
+    "./vite": {
+      "types": "./dist/types/vite/index.d.ts",
+      "default": "./dist/es/vite/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/types.d.ts",
+      "default": "./dist/es/types.js"
+    },
+    "./postcss": "./postcss.config.mjs"
+  },
+  "scripts": {
+    "build:clean": "rm -rf dist",
+    "build:js": "tsc -p tsconfig.build.json",
+    "build:css": "node ./scripts/build-css.mjs",
+    "dev:js": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "dev:css": "node ./scripts/build-css.mjs --watch",
+    "dev": "npm run build:clean && npm run build:js && npm run build:css && (npm run dev:js & npm run dev:css & wait)",
+    "build": "npm run build:clean && npm run build:js && npm run build:css",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@tailwindcss/postcss": "^4.0.10",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8",
+    "postcss-functions": "^4.0.2",
+    "postcss-mixins": "^11.0.3",
+    "postcss-nested": "^7.0.2",
+    "postcss-selector-parser": "^7.1.0",
+    "postcss-value-parser": "^4.2.0",
+    "tailwindcss": "^4.0.10"
+  },
+  "peerDependenciesMeta": {
+    "@tailwindcss/postcss": {
+      "optional": true
+    },
+    "autoprefixer": {
+      "optional": true
+    },
+    "postcss": {
+      "optional": true
+    },
+    "postcss-functions": {
+      "optional": true
+    },
+    "postcss-mixins": {
+      "optional": true
+    },
+    "postcss-nested": {
+      "optional": true
+    },
+    "postcss-selector-parser": {
+      "optional": true
+    },
+    "postcss-value-parser": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.0.17",
+    "@types/postcss-functions": "4.0.4",
+    "@types/postcss-mixins": "9.0.6",
+    "autoprefixer": "10.4.20",
+    "postcss": "^8",
+    "postcss-functions": "^4.0.2",
+    "postcss-mixins": "^11.0.3",
+    "postcss-nested": "^7.0.2",
+    "postcss-selector-parser": "7.1.0",
+    "postcss-value-parser": "4.2.0",
+    "tailwindcss": "4.0.10",
+    "typescript": "5.7.3"
+  }
+}

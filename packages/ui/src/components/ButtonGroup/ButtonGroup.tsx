@@ -4,7 +4,7 @@ import clsx from "clsx"
 import { Slot } from "radix-ui"
 import { type ComponentProps, type HTMLAttributes, type Ref } from "react"
 import { Separator } from "../Separator"
-import s from "./ButtonGroup.module.css"
+import s from "@plexui/styles/components/ButtonGroup/ButtonGroup.module.css"
 
 /* ------------------------------------------------------------------ */
 /*  Root                                                               */

@@ -22,7 +22,7 @@ import { Input } from "../Input"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { Tooltip } from "../Tooltip"
 import { TransitionGroup } from "../Transition"
-import s from "./Select.module.css"
+import s from "@plexui/styles/components/Select/Select.module.css"
 
 export type Option<T extends string = string> = {
   value: T
