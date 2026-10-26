@@ -116,9 +116,9 @@ export const SelectControl = ({
 
   // Act like a <button> and fire the click handler on keyboard actions
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLSpanElement>) => {
-    // Keys from nested controls (the clear button) are theirs to handle
-    if (evt.target !== evt.currentTarget) {
-      onKeyDown?.(evt)
+    // Enter and Space on a nested control (the clear button) activate that
+    // control: neither this handler nor a wrapping trigger's may take them
+    if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) {
       return
     }
     switch (evt.key) {

@@ -66,9 +66,11 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
 
     const handleKeyDown = useCallback(
       (evt: React.KeyboardEvent<HTMLDivElement>) => {
+        // Enter and Space on a nested control (the clear button) activate that
+        // control: neither this handler nor a wrapping trigger's may take them
+        if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) return
         onKeyDown?.(evt)
-        // Keys from nested controls (the clear button) are theirs to handle
-        if (disabled || evt.target !== evt.currentTarget) return
+        if (disabled) return
 
         switch (evt.key) {
           case "ArrowDown":
