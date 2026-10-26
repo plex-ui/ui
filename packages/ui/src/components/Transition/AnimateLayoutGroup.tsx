@@ -62,6 +62,8 @@ export const AnimateLayoutGroup = (props: AnimateLayoutGroupProps) => {
     className,
     transitionClassName,
     dimension = "height",
+    insertMethod,
+    preventInitialTransition,
   } = props
   const { enterTotalDuration, exitTotalDuration, variables } = getAnimationProperties(props)
 
@@ -114,6 +116,9 @@ export const AnimateLayoutGroup = (props: AnimateLayoutGroupProps) => {
       onEnterComplete={handleEnterComplete}
       onExit={handleExit}
       onExitActive={handleExitActive}
+      // Accepted in the props type; forward so they take effect
+      insertMethod={insertMethod}
+      preventInitialTransition={preventInitialTransition}
     >
       {NonNullChildren(children).map((child) => (
         // Ensure any falsy child.key value is sent specifically as `undefined`.
