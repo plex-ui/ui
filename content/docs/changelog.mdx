@@ -48,9 +48,9 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - A `TextLink` without `href` but with `onClick` is focusable and runs its action on Enter and Space.
 - `Button` `color` and `DatePicker` `triggerDateFormat` are optional in the types, matching their runtime defaults.
 - `Select` returns focus to its trigger after choosing an option or pressing Escape; it used to drop focus to the page.
-- With `showTime`, `DatePicker` keeps the chosen date and time within `min` and `max`.
+- With `showTime`, `DatePicker` keeps the chosen date and time within `min` and `max`, and the time fields show the adjusted time.
 - `ProgressSteps` with `variant="minimal"` renders a `div` with `role="progressbar"` instead of a `nav`, where that role is not allowed.
-- The sorted `DataTable` column header carries `aria-sort`.
+- The header of the primary sorted `DataTable` column carries `aria-sort`.
 - `StatCard`'s info tooltip can be reached with the keyboard and is announced as "More information".
 - `TagInput` keeps a tab stop when `maxTags` is reached, so tags can still be removed from the keyboard.
 - `MarkdownEditor` toolbar toggles expose their state through `aria-pressed`.
@@ -58,6 +58,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Menu.Trigger` forwards its props and `ref` to the trigger element.
 - `AnimateLayoutGroup` applies `insertMethod` and `preventInitialTransition`.
 - `ButtonLink`, `TextLink` and `Menu.Link` type their props from the link component set in `PlexUIConfig`, as the installation guide describes. The augmentation used to reach only `PlexUIProvider`, so `<ButtonLink to="/x">` with a router `Link` failed to type-check. `PlexUIOverrides` still works.
+- `SidebarMenuButton` with `asChild` renders the child element as the button. The button props used to land on an inner `span` wrapped around the child, so a link lost the button styles and `aria-current`.
+- `Sidebar` no longer imports the undeclared `@radix-ui/react-slot`, which strict installs (pnpm without hoisting, Yarn PnP) could not resolve.
 - `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 - An `Avatar` with `onClick` uses `name` as its accessible name instead of announcing only the initial, or nothing for icon avatars.
 
