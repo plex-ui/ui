@@ -79,7 +79,8 @@
     "dev:css": "node ./scripts/build-css.mjs --watch",
     "dev": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && (npm run dev:js & npm run dev:css & wait)",
     "build:assets": "node -e \"const fs=require('fs'),p=require('path');function c(s,d){fs.readdirSync(s,{withFileTypes:true}).forEach(e=>{const sp=p.join(s,e.name),dp=p.join(d,e.name);if(e.isDirectory()){c(sp,dp)}else if(e.name.endsWith('.d.ts')){fs.mkdirSync(d,{recursive:true});fs.copyFileSync(sp,dp)}})}c('src','dist/types')\"",
-    "build": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets",
+    "build": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && npm run build:finalize",
+    "build:finalize": "node ./scripts/finalize-dist.mjs",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run build"
   },
