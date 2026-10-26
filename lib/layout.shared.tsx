@@ -7,6 +7,6 @@ export function baseOptions(): BaseLayoutProps {
       transparentMode: 'top',
     },
     links: [{ text: 'Docs', url: '/docs', active: 'nested-url' }],
-    githubUrl: 'https://github.com/plex-ui/docs',
+    githubUrl: 'https://github.com/plex-ui/ui',
   };
 }

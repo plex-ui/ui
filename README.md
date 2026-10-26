@@ -6,12 +6,12 @@
 
 [![npm](https://img.shields.io/npm/v/@plexui/ui?color=black&label=%40plexui%2Fui)](https://www.npmjs.com/package/@plexui/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@plexui/ui?color=black)](https://www.npmjs.com/package/@plexui/ui)
-[![GitHub stars](https://img.shields.io/github/stars/plex-ui/docs?style=flat&color=black)](https://github.com/plex-ui/docs/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/plex-ui/ui?style=flat&color=black)](https://github.com/plex-ui/ui/stargazers)
 [![MIT License](https://img.shields.io/badge/license-MIT-black.svg)](./packages/ui/LICENSE)
-[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-black)](https://plexui.com/docs/overview/skills)
-[![MCP server](https://img.shields.io/badge/MCP-server-black)](https://plexui.com/docs/overview/mcp)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-black)](https://plexui.com/docs/skills)
+[![MCP server](https://img.shields.io/badge/MCP-server-black)](https://plexui.com/docs/mcp)
 
-[Docs](https://plexui.com) &nbsp;·&nbsp; [Components](https://plexui.com/components) &nbsp;·&nbsp; [AI Skill](https://plexui.com/docs/overview/skills) &nbsp;·&nbsp; [Threads](https://www.threads.com/@plex_uikit)
+[Docs](https://plexui.com) &nbsp;·&nbsp; [Components](https://plexui.com/components) &nbsp;·&nbsp; [AI Skill](https://plexui.com/docs/skills) &nbsp;·&nbsp; [Threads](https://www.threads.com/@plex_uikit)
 
 </div>
 
@@ -57,7 +57,7 @@ npx shadcn@latest add https://plexui.com/r/button.json
 # then: import { Button } from "@/components/ui/button"
 ```
 
-See [shadcn Registry docs](https://plexui.com/docs/overview/shadcn-registry) for the full list.
+See [shadcn Registry docs](https://plexui.com/docs/registry) for the full list.
 
 ### Vue
 
@@ -81,14 +81,14 @@ Setup (styles, Vite plugin, SSR) is in the [Vue guide](https://plexui.com/docs/v
 
 ```bash
 # Claude Code
-/plugin marketplace add plex-ui/docs
+/plugin marketplace add plex-ui/ui
 /plugin install plex-ui@plex-ui
 
 # Codex
-npx degit plex-ui/docs/skills/plexui/skills/plex-ui .agents/skills/plex-ui
+npx degit plex-ui/ui/skills/plexui/skills/plex-ui .agents/skills/plex-ui
 ```
 
-See [Skills](https://plexui.com/docs/overview/skills) for Cursor, Windsurf, Copilot, and any other Agent-Skills-compatible editor.
+See [Skills](https://plexui.com/docs/skills) for Cursor, Windsurf, Copilot, and any other Agent-Skills-compatible editor.
 
 ## What you get
 
@@ -111,9 +111,9 @@ Stars help other developers find Plex UI in GitHub search and signal that the pr
 
 ## Community & support
 
-- 🐛 [Report an issue](https://github.com/plex-ui/docs/issues/new/choose)
-- 💡 [Request a component](https://github.com/plex-ui/docs/issues/new?labels=component-request)
-- 📬 [Discussions](https://github.com/plex-ui/docs/discussions) — questions, ideas, show & tell
+- 🐛 [Report an issue](https://github.com/plex-ui/ui/issues/new/choose)
+- 💡 [Request a component](https://github.com/plex-ui/ui/issues/new?labels=component-request)
+- 📬 [Discussions](https://github.com/plex-ui/ui/discussions) — questions, ideas, show & tell
 - 🧵 [@plex_uikit on Threads](https://www.threads.com/@plex_uikit)
 - 📧 [plexuikit@gmail.com](mailto:plexuikit@gmail.com)
 - 🔐 [Security policy](./SECURITY.md)

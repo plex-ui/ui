@@ -15,7 +15,7 @@ For example, you can ask your AI assistant to:
 - *"Add a date range picker with size lg."*
 - *"Switch to dark mode."*
 
-The skill source lives at [`skills/plexui/skills/plex-ui`](https://github.com/plex-ui/docs/tree/master/skills/plexui/skills/plex-ui) and ships with UI metadata for both [Codex](https://github.com/plex-ui/docs/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) and [Claude Code](https://github.com/plex-ui/docs/blob/master/.claude-plugin/marketplace.json).
+The skill source lives at [`skills/plexui/skills/plex-ui`](https://github.com/plex-ui/ui/tree/master/skills/plexui/skills/plex-ui) and ships with UI metadata for both [Codex](https://github.com/plex-ui/ui/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) and [Claude Code](https://github.com/plex-ui/ui/blob/master/.claude-plugin/marketplace.json).
 
 ---
 
@@ -26,14 +26,14 @@ The skill source lives at [`skills/plexui/skills/plex-ui`](https://github.com/pl
 Plex UI is a Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces). Inside Claude Code:
 
 ```shell
-/plugin marketplace add plex-ui/docs
+/plugin marketplace add plex-ui/ui
 /plugin install plex-ui@plex-ui
 ```
 
 Or from the shell:
 
 ```bash
-claude plugin marketplace add plex-ui/docs
+claude plugin marketplace add plex-ui/ui
 claude plugin install plex-ui@plex-ui
 ```
 
@@ -42,7 +42,7 @@ Claude Code fetches the skill via sparse git-subdir clone, registers it under th
 If you prefer a plain skill directory without the plugin wrapper:
 
 ```bash
-npx degit plex-ui/docs/skills/plexui/skills/plex-ui .claude/skills/plex-ui
+npx degit plex-ui/ui/skills/plexui/skills/plex-ui .claude/skills/plex-ui
 ```
 
 For user-level (every project), use `~/.claude/skills/plex-ui` as the target.
@@ -50,7 +50,7 @@ For user-level (every project), use `~/.claude/skills/plex-ui` as the target.
 ### Codex
 
 ```bash
-npx degit plex-ui/docs/skills/plexui/skills/plex-ui .agents/skills/plex-ui
+npx degit plex-ui/ui/skills/plexui/skills/plex-ui .agents/skills/plex-ui
 ```
 
 Codex auto-detects skills under `.agents/skills/` and reads the `agents/openai.yaml` we ship for the display name, icon, brand color, and default prompt shown in the Codex UI. See the [Codex Agent Skills docs](https://developers.openai.com/codex/skills).
@@ -61,7 +61,7 @@ These agents use rule files rather than the `SKILL.md` format. Use the single-fi
 
 ### Manual install
 
-Clone or download the [`skills/plexui/skills/plex-ui`](https://github.com/plex-ui/docs/tree/master/skills/plexui/skills/plex-ui) folder and place it wherever your agent loads skills from.
+Clone or download the [`skills/plexui/skills/plex-ui`](https://github.com/plex-ui/ui/tree/master/skills/plexui/skills/plex-ui) folder and place it wherever your agent loads skills from.
 
 ---
 
@@ -71,19 +71,19 @@ The commands above work today via our GitHub repo. To make Plex UI discoverable 
 
 ### Anthropic official marketplace
 
-Submit the `plex-ui` plugin via the in-app form at **[claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit)** or **[platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)**. The form takes the marketplace URL (`github.com/plex-ui/docs`); our [marketplace.json](https://github.com/plex-ui/docs/blob/master/.claude-plugin/marketplace.json) supplies the rest (name, description, keywords, icon). Once accepted, users see Plex UI in the in-app plugin browser without needing to run `/plugin marketplace add`.
+Submit the `plex-ui` plugin via the in-app form at **[claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit)** or **[platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)**. The form takes the marketplace URL (`github.com/plex-ui/ui`); our [marketplace.json](https://github.com/plex-ui/ui/blob/master/.claude-plugin/marketplace.json) supplies the rest (name, description, keywords, icon). Once accepted, users see Plex UI in the in-app plugin browser without needing to run `/plugin marketplace add`.
 
 Docs: [Submit your plugin to the official marketplace](https://code.claude.com/docs/en/plugins#submit-your-plugin-to-the-official-marketplace).
 
 ### OpenAI Codex curated catalog
 
-The Codex catalog lives at **[github.com/openai/skills](https://github.com/openai/skills)**, split into `.system`, `.curated`, and `.experimental`. To get Plex UI into the `.curated` tier (installable by name with `$skill-installer plex-ui`), open a pull request against that repo adding the skill under `skills/.curated/plex-ui/`. Our [`agents/openai.yaml`](https://github.com/plex-ui/docs/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) supplies the UI metadata.
+The Codex catalog lives at **[github.com/openai/skills](https://github.com/openai/skills)**, split into `.system`, `.curated`, and `.experimental`. To get Plex UI into the `.curated` tier (installable by name with `$skill-installer plex-ui`), open a pull request against that repo adding the skill under `skills/.curated/plex-ui/`. Our [`agents/openai.yaml`](https://github.com/plex-ui/ui/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) supplies the UI metadata.
 
 Docs: [Codex Agent Skills](https://developers.openai.com/codex/skills). Follow the repo's `CONTRIBUTING.md` for the exact submission checklist.
 
 ### Aggregators
 
-Third-party aggregators like [agentskills.io](https://agentskills.io) index any skill that follows the open `SKILL.md` standard. If they add a submission flow, the skill at [`skills/plexui/skills/plex-ui/SKILL.md`](https://github.com/plex-ui/docs/blob/master/skills/plexui/skills/plex-ui/SKILL.md) is ready as-is.
+Third-party aggregators like [agentskills.io](https://agentskills.io) index any skill that follows the open `SKILL.md` standard. If they add a submission flow, the skill at [`skills/plexui/skills/plex-ui/SKILL.md`](https://github.com/plex-ui/ui/blob/master/skills/plexui/skills/plex-ui/SKILL.md) is ready as-is.
 
 ---
 

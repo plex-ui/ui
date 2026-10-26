@@ -89,7 +89,7 @@ export const SceneCTA: React.FC<{ vertical?: boolean; light?: boolean }> = ({ ve
           opacity: interpolate(frame, [60, 80], [0, 1], { extrapolateRight: 'clamp' }),
         }}
       >
-        plexui.com · github.com/plex-ui/docs · @plex_uikit
+        plexui.com · github.com/plex-ui/ui · @plex_uikit
       </div>
     </AbsoluteFill>
   );

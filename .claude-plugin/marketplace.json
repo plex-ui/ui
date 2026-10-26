@@ -13,7 +13,7 @@
       "name": "plex-ui",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/plex-ui/docs.git",
+        "url": "https://github.com/plex-ui/ui.git",
         "path": "skills/plexui"
       },
       "description": "Teach your AI agent the Plex UI component library: subpath imports, the 3xs to 3xl control size scale, semantic colors, dark mode via data-theme, and 652 icons.",

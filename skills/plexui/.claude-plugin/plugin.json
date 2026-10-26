@@ -7,7 +7,7 @@
     "email": "hello@plexui.com"
   },
   "homepage": "https://plexui.com/docs/overview/skills",
-  "repository": "https://github.com/plex-ui/docs",
+  "repository": "https://github.com/plex-ui/ui",
   "license": "MIT",
   "keywords": [
     "ui",

@@ -73,7 +73,7 @@ const footerColumns: FooterColumn[] = [
         { label: 'Icons', href: '/icons' },
         { label: 'Docs', href: '/docs' },
         { label: 'Blog', href: '/blog' },
-        { label: 'GitHub', href: 'https://github.com/plex-ui/docs', external: true },
+        { label: 'GitHub', href: 'https://github.com/plex-ui/ui', external: true },
       ],
     },
     {
@@ -219,7 +219,7 @@ export function Footer() {
             </a>
             . The source code is available on{' '}
             <a
-              href="https://github.com/plex-ui/docs"
+              href="https://github.com/plex-ui/ui"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-fd-foreground"

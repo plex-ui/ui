@@ -66,4 +66,4 @@ Be kind, be curious, be specific. See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 
 ## Questions?
 
-[Open a discussion](https://github.com/plex-ui/docs/discussions) — no question is too small.
+[Open a discussion](https://github.com/plex-ui/ui/discussions) — no question is too small.

@@ -8,7 +8,7 @@
   "homepage": "https://plexui.com/icons/tabler",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plex-ui/docs.git",
+    "url": "https://github.com/plex-ui/ui.git",
     "directory": "packages/icons-tabler-outlined"
   },
   "keywords": [

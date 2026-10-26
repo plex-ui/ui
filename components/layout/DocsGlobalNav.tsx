@@ -148,7 +148,7 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
           </button>
 
           <a
-            href="https://github.com/plex-ui/docs"
+            href="https://github.com/plex-ui/ui"
             target="_blank"
             rel="noopener noreferrer"
             className={s.GitHubLink}
