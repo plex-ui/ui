@@ -156,17 +156,23 @@ export const DataTable = <TData,>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    // TanStack keeps its pagination model once created and merges options
+    // across renders, so a disabled pageSize (0 or Infinity) switches
+    // pagination off explicitly, and back on, on every render
+    manualPagination: !shouldPaginate,
     ...(shouldPaginate ? { getPaginationRowModel: getPaginationRowModel() } : {}),
   })
 
   // pageSize only seeds initialState, so apply later prop changes to the table
   const appliedPageSize = useRef(pageSize)
   useEffect(() => {
-    if (!shouldPaginate || appliedPageSize.current === pageSize) {
+    if (appliedPageSize.current === pageSize) {
       return
     }
     appliedPageSize.current = pageSize
-    table.setPageSize(pageSize)
+    if (shouldPaginate) {
+      table.setPageSize(pageSize)
+    }
   }, [table, pageSize, shouldPaginate])
 
   const rows = table.getRowModel().rows
