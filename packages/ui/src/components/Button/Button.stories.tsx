@@ -100,7 +100,7 @@ export const OpticalAlignment = (args: ButtonProps) => (
       <Button {...{ ...args, opticallyAlign: undefined }}>{args.children}</Button>
     </div>
     <div className="border border-dashed border-alpha/20 rounded-md py-4 px-6">
-      <div className="mb-2 text-secondary text-sm">opticallyAlign="start"</div>
+      <div className="mb-2 text-secondary text-sm">opticallyAlign=&quot;start&quot;</div>
       <Button {...args} />
     </div>
   </div>

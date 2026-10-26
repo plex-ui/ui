@@ -32,8 +32,8 @@ const SIZES = ["sm", "md", "lg"] as const
 export const Sizing = (args: BadgeProps) => (
   <div className="flex">
     {SIZES.map((size) => (
-      <div className="flex flex-col w-[76px] justify-end items-center gap-3">
-        <Badge key={size} {...args} size={size} />
+      <div key={size} className="flex flex-col w-[76px] justify-end items-center gap-3">
+        <Badge {...args} size={size} />
         <span className="text-tertiary text-sm">{size}</span>
       </div>
     ))}

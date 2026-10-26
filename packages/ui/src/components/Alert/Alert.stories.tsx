@@ -50,7 +50,7 @@ export const DescriptionOnly = (args: AlertProps) => <Alert {...args} />
 DescriptionOnly.args = {
   description: (
     <>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within
+      We&apos;re working on centralizing SCIM and invite settings. For now, setup is handled within
       individual product settings. <TextLink href="#">Learn more</TextLink>
     </>
   ),
@@ -178,7 +178,7 @@ export const Indicator = (args: AlertProps) => <Alert {...args} />
 Indicator.args = {
   description: (
     <>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within
+      We&apos;re working on centralizing SCIM and invite settings. For now, setup is handled within
       individual product settings. <TextLink href="#">Learn more</TextLink>
     </>
   ),

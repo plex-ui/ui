@@ -190,7 +190,7 @@ export const OpticalAlignment = (args: SelectControlProps) => (
       <SelectControl {...{ ...args, opticallyAlign: undefined }}>Ghost control</SelectControl>
     </div>
     <div className="border border-dashed border-alpha/20 rounded-md py-4 px-6">
-      <div className="mb-2 text-secondary text-sm">opticallyAlign="start"</div>
+      <div className="mb-2 text-secondary text-sm">opticallyAlign=&quot;start&quot;</div>
       <SelectControl {...args}>Ghost control</SelectControl>
     </div>
   </div>

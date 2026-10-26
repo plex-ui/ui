@@ -23,7 +23,7 @@ export const Base = (args: CardProps) => (
     </Card.Content>
     <Card.Footer>
       <Button color="primary" size="sm">View report</Button>
-      <Button variant="outline" size="sm">Dismiss</Button>
+      <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
     </Card.Footer>
   </Card>
 )
@@ -39,7 +39,7 @@ export const AllVariants = () => (
       <Card key={v} variant={v} style={{ width: 240 }}>
         <Card.Header>
           <Card.Title style={{ textTransform: "capitalize" }}>{v}</Card.Title>
-          <Card.Description>variant="{v}"</Card.Description>
+          <Card.Description>variant=&quot;{v}&quot;</Card.Description>
         </Card.Header>
         <Card.Content>Body content.</Card.Content>
       </Card>
@@ -53,7 +53,7 @@ export const AllSizes = () => (
       <Card key={s} size={s}>
         <Card.Header>
           <Card.Title style={{ textTransform: "uppercase" }}>{s}</Card.Title>
-          <Card.Description>size="{s}"</Card.Description>
+          <Card.Description>size=&quot;{s}&quot;</Card.Description>
         </Card.Header>
       </Card>
     ))}
@@ -66,7 +66,7 @@ export const WithAction = () => (
       <Card.Title>Team members</Card.Title>
       <Card.Description>Invite your team to collaborate.</Card.Description>
       <Card.Action>
-        <Button variant="outline" size="sm">Invite</Button>
+        <Button color="secondary" variant="outline" size="sm">Invite</Button>
       </Card.Action>
     </Card.Header>
     <Card.Content>3 members</Card.Content>
