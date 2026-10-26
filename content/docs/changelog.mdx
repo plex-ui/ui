@@ -41,6 +41,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `CopyTooltip` copies with Enter or Space, not only with a pointer press.
 - `Input` and `Textarea` forward `autoComplete` and set `aria-invalid` when `invalid` is true. `FileUpload` puts `aria-invalid` and its error description on the visible trigger instead of the hidden file input.
 - `TextLink` keeps an explicit `target`, as `ButtonLink` already did.
+- A `TextLink` without `href` but with `onClick` is focusable and runs its action on Enter and Space.
 - `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 - An `Avatar` with `onClick` uses `name` as its accessible name instead of announcing only the initial, or nothing for icon avatars.
 
