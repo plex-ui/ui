@@ -6,7 +6,7 @@ import { Tabs } from '@plexui/ui/components/Tabs';
 
 const FRAMEWORKS = [
   { id: 'react', label: 'React', base: '/components' },
-  { id: 'vue', label: 'Vue (preview)', base: '/vue/components' },
+  { id: 'vue', label: 'Vue', base: '/vue/components' },
 ] as const;
 
 type Framework = (typeof FRAMEWORKS)[number]['id'];
