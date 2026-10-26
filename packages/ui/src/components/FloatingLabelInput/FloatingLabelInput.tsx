@@ -84,6 +84,21 @@ export type FloatingLabelInputProps = {
   rows?: number
 } & React.InputHTMLAttributes<HTMLInputElement>
 
+// Attributes that only mean something on <input>; everything else (required,
+// maxLength, placeholder, key and clipboard handlers, aria-*, data-*) also
+// applies to the multiline <textarea>
+const INPUT_ONLY_PROPS = [
+  "accept", "alt", "capture", "checked", "height", "list", "max", "min", "multiple",
+  "pattern", "size", "src", "step", "width", "formAction", "formEncType",
+  "formMethod", "formNoValidate", "formTarget",
+] as const
+
+const textareaProps = (props: Record<string, unknown>) => {
+  const rest = { ...props }
+  for (const key of INPUT_ONLY_PROPS) delete rest[key]
+  return rest
+}
+
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
   function FloatingLabelInput(props, ref) {
     const {
@@ -142,7 +157,10 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
       el.style.height = `${el.scrollHeight}px`
     }, [multiline])
 
-    useLayoutEffect(autoResize, [autoResize])
+    // Also resize when a controlled value or rows changes without a keystroke
+    useLayoutEffect(() => {
+      autoResize()
+    }, [autoResize, value, rows])
 
     const invalid = invalidProp ?? !!errorMessage
 
@@ -248,6 +266,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
           )}
           {multiline ? (
             <textarea
+              {...(textareaProps(restProps) as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
               ref={mergeRefs([ref, inputRef]) as React.Ref<HTMLTextAreaElement>}
               id={inputId}
               name={name}
