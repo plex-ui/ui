@@ -50,12 +50,10 @@ export default async function Page(props: {
     >
       <DocsViewportState showLeftSidebar={showLeftSidebar} showRightSidebar={showRightToc} />
       <div className="plex-docs-title-row">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
-          {params.slug && <FrameworkSwitch framework="vue" slug={params.slug.join('/')} />}
-        </div>
+        <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
       </div>
       <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
+      {params.slug && <FrameworkSwitch framework="vue" slug={params.slug.join('/')} />}
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
       </DocsBody>
@@ -79,7 +77,7 @@ export async function generateMetadata(props: {
 
   return {
     title: `${page.data.title} (Vue)`,
-    description: page.data.description,
+    description: page.data.metaDescription ?? page.data.description,
     alternates: { canonical: `https://plexui.com${canonicalPath}` },
     robots: { index: false, follow: true },
   };

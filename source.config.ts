@@ -11,12 +11,20 @@ export const docs = defineDocs({
   dir: 'content/docs',
 });
 
+/** Component pages may carry a separate SEO `metaDescription`: the visible
+ *  description stays framework-neutral above the React / Vue tabs, so both
+ *  pages of a component share it. */
+const componentPageSchema = frontmatterSchema.extend({
+  metaDescription: z.string().optional(),
+});
+
 /** Components live at top-level URLs (/components/*) instead of
  *  /components/* — peer of Bridge / Blog in the top nav. The
  *  separate fumadocs source means each MDX file's URL is derived
  *  from `content/components/<slug>.mdx` → `/components/<slug>`. */
 export const components = defineDocs({
   dir: 'content/components',
+  docs: { schema: componentPageSchema },
 });
 
 /** Same pattern for the Icons section. */
@@ -28,6 +36,7 @@ export const icons = defineDocs({
  *  out of the sitemap and the main nav until more components ship. */
 export const vueComponents = defineDocs({
   dir: 'content/vue/components',
+  docs: { schema: componentPageSchema },
 });
 
 export const blog = defineCollections({

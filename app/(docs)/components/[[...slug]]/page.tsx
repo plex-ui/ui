@@ -56,7 +56,7 @@ export default async function Page(props: {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
     headline: page.data.title,
-    description: page.data.description,
+    description: page.data.metaDescription ?? page.data.description,
     url: pageUrl,
     ...(dateModified && { dateModified }),
     publisher: { '@type': 'Organization', name: 'Plex UI', url: 'https://plexui.com' },
@@ -126,15 +126,13 @@ export default async function Page(props: {
         showRightSidebar={showRightToc}
       />
       <div className="plex-docs-title-row">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
-          {vueSlug && <FrameworkSwitch framework="react" slug={vueSlug} />}
-        </div>
+        <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
       <DocsDescription className="plex-docs-description">
         {page.data.description}
       </DocsDescription>
+      {vueSlug && <FrameworkSwitch framework="react" slug={vueSlug} />}
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
         {/* `Related components` card row at the bottom of every
@@ -166,6 +164,7 @@ export async function generateMetadata(props: {
   // OG titles bypass the layout's `%s — Plex UI` template, so brand
   // the title manually for shared links.
   const brandedTitle = `${page.data.title} — Plex UI`;
+  const description = page.data.metaDescription ?? page.data.description;
   // Per-page OG image rendered by /api/og — the route reads the same
   // page title + description we pass via `slug` and produces a branded
   // PNG instead of every shared link reusing the homepage card.
@@ -173,11 +172,11 @@ export async function generateMetadata(props: {
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    description,
     alternates: { canonical: fullUrl },
     openGraph: {
       title: brandedTitle,
-      description: page.data.description,
+      description,
       url: fullUrl,
       siteName: 'Plex UI',
       type: 'article',
@@ -187,7 +186,7 @@ export async function generateMetadata(props: {
       card: 'summary_large_image',
       site: '@ui_plex',
       title: brandedTitle,
-      description: page.data.description,
+      description,
       images: [ogImageUrl],
     },
   };
