@@ -221,8 +221,16 @@ export const DataTable = <TData,>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const align = header.column.columnDef.meta?.align
+                  const sorted = header.column.getIsSorted()
                   return (
-                    <TableHead key={header.id} style={align ? { textAlign: align } : undefined}>
+                    <TableHead
+                      key={header.id}
+                      style={align ? { textAlign: align } : undefined}
+                      // Expose the visual sort indicator; only the sorted column carries it
+                      aria-sort={
+                        sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
+                      }
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
