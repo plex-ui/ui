@@ -83,9 +83,10 @@ export const TextLink = ((
   }
 
   const linkProps = {
+    // An explicit target wins, as in ButtonLink; external links default to _blank
     ...(isExternal
-      ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to }
-      : { href, to }),
+      ? { target: target ?? "_blank", rel: "noopener noreferrer", href: href ?? to }
+      : { href, to, target }),
     ...sharedProps,
   }
 
