@@ -82,7 +82,11 @@ const TriggerStepperView = () => {
         size="3xs"
         uniform
         pill={pill}
-        onPointerDown={(evt) => {
+        aria-label="Previous month"
+        // Stop the trigger from opening; the step itself runs on click so
+        // Enter and Space work too
+        onPointerDown={(evt) => evt.stopPropagation()}
+        onClick={(evt) => {
           evt.stopPropagation()
           onChangeRef.current(getMonthStartAndEnd(startDate.minus({ months: 1 }), { min, max }))
         }}
@@ -100,7 +104,9 @@ const TriggerStepperView = () => {
         size="3xs"
         uniform
         pill={pill}
-        onPointerDown={(evt) => {
+        aria-label="Next month"
+        onPointerDown={(evt) => evt.stopPropagation()}
+        onClick={(evt) => {
           evt.stopPropagation()
           onChangeRef.current(getMonthStartAndEnd(startDate.plus({ months: 1 }), { min, max }))
         }}
