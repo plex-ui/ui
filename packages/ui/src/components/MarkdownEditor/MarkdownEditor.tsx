@@ -58,6 +58,10 @@ export type MarkdownEditorProps = {
   rows?: number
   className?: string
   id?: string
+  /** Accessible name for the editor; a `<label for>` cannot name a contenteditable region */
+  "aria-label"?: string
+  /** Id of the element that names the editor, such as a Field label */
+  "aria-labelledby"?: string
   "aria-describedby"?: string
   "aria-invalid"?: boolean
 }
@@ -200,6 +204,8 @@ export function MarkdownEditor({
   rows = 1,
   className,
   id,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
   "aria-describedby": ariaDescribedby,
   "aria-invalid": ariaInvalid,
 }: MarkdownEditorProps) {
@@ -256,6 +262,8 @@ export function MarkdownEditor({
         role: "textbox",
         "aria-multiline": "true",
         ...(id && { id }),
+        ...(ariaLabel && { "aria-label": ariaLabel }),
+        ...(ariaLabelledby && { "aria-labelledby": ariaLabelledby }),
         ...(ariaDescribedby && { "aria-describedby": ariaDescribedby }),
         ...(ariaInvalid && { "aria-invalid": "true" }),
       },
