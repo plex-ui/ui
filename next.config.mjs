@@ -47,6 +47,15 @@ const RETIRED_BRIDGE_POSTS = [
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  compiler: {
+    // Feature flags read by Vue's esm-bundler build (the /vue previews).
+    // Defining them drops devtools code and silences Vue's dev warning.
+    define: {
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+    },
+  },
   outputFileTracingRoot: projectRoot,
   turbopack: { root: projectRoot },
   async redirects() {

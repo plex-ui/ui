@@ -24,6 +24,12 @@ export const icons = defineDocs({
   dir: 'content/icons',
 });
 
+/** Vue component pages (/vue/components/*). Proof of concept: noindex,
+ *  out of the sitemap and the main nav until more components ship. */
+export const vueComponents = defineDocs({
+  dir: 'content/vue/components',
+});
+
 export const blog = defineCollections({
   type: 'doc',
   dir: 'content/blog',

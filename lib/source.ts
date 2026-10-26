@@ -2,6 +2,7 @@ import {
   docs,
   components,
   icons,
+  vueComponents,
   blog as blogPosts,
 } from 'fumadocs-mdx:collections/server';
 import { loader } from 'fumadocs-core/source';
@@ -24,6 +25,12 @@ export const componentsSource = loader({
 export const iconsSource = loader({
   baseUrl: '/icons',
   source: icons.toFumadocsSource(),
+});
+
+/** Vue pages at /vue/components/*: same slugs as the React pages. */
+export const vueComponentsSource = loader({
+  baseUrl: '/vue/components',
+  source: vueComponents.toFumadocsSource(),
 });
 
 export const blog = loader({

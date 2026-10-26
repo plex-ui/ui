@@ -37,6 +37,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     }));
 
+  // vueComponentsSource is left out on purpose: the Vue pages are a
+  // noindex proof of concept until more components ship.
   const docsPages = [
     ...fromSource(source),
     ...fromSource(componentsSource),

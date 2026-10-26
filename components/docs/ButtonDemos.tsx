@@ -7,7 +7,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Popover } from '@plexui/ui/components/Popover';
 import { Mail, PlusLg, ArrowRight } from '@plexui/ui/components/Icon';
 
-const controlsTableStyle: React.CSSProperties = {
+export const controlsTableStyle: React.CSSProperties = {
   background: 'var(--docs-surface-elevated)',
   width: '100%',
 };
@@ -26,7 +26,7 @@ const controlLabelStyle: React.CSSProperties = {
   padding: '2px 8px',
 };
 
-function DemoControlBoolean({
+export function DemoControlBoolean({
   name,
   value,
   onChange,
