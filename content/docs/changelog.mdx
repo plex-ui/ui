@@ -11,6 +11,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Added
 
+- `@plexui/vue`: Plex UI for Vue 3. Every component, icon and meaningful hook has a Vue counterpart with the same names, props, defaults and rendered markup, styled by the same `@plexui/styles` CSS modules and checked against the React components by parity tests. Each component page has a **Vue** tab, and the [Vue guide](/docs/vue) covers installation, the Vite plugin and SSR. The MCP server takes `framework: "vue"`, `llms-vue.txt` describes the Vue API, and `plexui.com/r/vue` is a registry for the shadcn-vue CLI.
+
 - `Menu.Item` takes a `description` — a second line under the label, with the label going semibold on its own. Same "item + subtitle" anatomy a Select option with a description already had, so a two-line menu item no longer needs hand-written typography.
 - Select accepts `checkPosition="none"`, which removes the indicator column from the list. A menu of one-shot actions, or a list whose option view states the selection itself, no longer reserves an empty 16px column in every row.
 

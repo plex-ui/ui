@@ -25,6 +25,7 @@ Plex UI is a production-grade React component library (Radix + CSS modules) with
 - 🤖 **Installable AI skill** — Claude Code plugin + Codex skill + MCP server, all official
 - 🎨 **Three-layer design tokens** — primitive → semantic → component, full dark mode
 - 🧩 **shadcn-compatible registry** — mix with existing shadcn projects in one command
+- 🟢 **Vue 3 too**: [`@plexui/vue`](./packages/vue) has every component with the same props, markup and styles
 - 🧵 **Figma kit with 22,000+ variants** — 1:1 parity with the React components
 - 📦 **~40K-token skill** fits the context window without blowing up your prompts
 
@@ -58,6 +59,24 @@ npx shadcn@latest add https://plexui.com/r/button.json
 ```
 
 See [shadcn Registry docs](https://plexui.com/docs/overview/shadcn-registry) for the full list.
+
+### Vue
+
+```bash
+npm install @plexui/vue
+```
+
+```vue
+<script setup lang="ts">
+import { Button } from "@plexui/vue/components/Button"
+</script>
+
+<template>
+  <Button color="primary">Ship it</Button>
+</template>
+```
+
+Setup (styles, Vite plugin, SSR) is in the [Vue guide](https://plexui.com/docs/vue).
 
 ### With AI coding agents
 

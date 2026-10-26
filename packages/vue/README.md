@@ -1,17 +1,38 @@
 # @plexui/vue
 
-Plex UI components for Vue 3. Behaviour comes from [Reka UI](https://reka-ui.com) (the Vue lineage of Radix, which `@plexui/ui` uses), and the styling comes from [`@plexui/styles`](../styles), the same CSS modules the React components use. Props, defaults and rendered markup mirror `@plexui/ui`, and automated tests compare the two DOMs.
+Plex UI components for Vue 3. Every component of [`@plexui/ui`](../ui) has a Vue counterpart with the same names, props, defaults and rendered markup, and the styling comes from [`@plexui/styles`](../styles), the same CSS modules the React components use. Behaviour comes from [Reka UI](https://reka-ui.com) (the Vue lineage of Radix, which `@plexui/ui` uses), corrected to Radix's behaviour where they differ. Automated tests render each component in both frameworks and compare the DOM and the interactions.
 
-**Status: proof of concept.** It ships `Button` and the `Dialog` family only.
+Docs: [plexui.com/docs/vue](https://plexui.com/docs/vue) and every component page's **Vue** tab ([plexui.com/vue/components](https://plexui.com/vue/components)).
+
+## Install
 
 ```bash
-npm install @plexui/vue @plexui/styles vue tailwindcss
+npm install @plexui/vue
 ```
 
+Requires Vue 3.5+ and Tailwind 4. `@plexui/styles` is installed with it.
+
 ```css
+/* main.css */
+@layer theme, base, components, utilities;
+
 @import "tailwindcss";
 @import "@plexui/styles/css";
+@source "../node_modules/@plexui/vue";
 ```
+
+```ts
+// vite.config.ts
+import vue from "@vitejs/plugin-vue"
+import plexui from "@plexui/styles/vite"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [vue(), plexui()] })
+```
+
+Components import their CSS modules by bare specifier, so build with a bundler that handles CSS modules (Vite, Nuxt, webpack). For SSR, bundle the package: `ssr.noExternal: ["@plexui/vue", "@plexui/styles"]` in Vite, `build.transpile: ["@plexui/vue"]` in Nuxt.
+
+## Use
 
 ```vue
 <script setup lang="ts">
@@ -44,7 +65,14 @@ const open = ref(false)
 </template>
 ```
 
-Exports are flat (`DialogTrigger`, not `Dialog.Trigger`), and React's `className` is Vue's `class`. Component CSS modules are imported by bare specifier, so build with a bundler that handles CSS modules (Vite, Nuxt, webpack).
+## From React to Vue
+
+- `className` is `class`, on the same element.
+- Controlled values use `v-model:value` (a `value` prop and an `update:value` event); other controlled props work the same way, e.g. `v-model:open`.
+- `onX` callbacks are `@x` listeners; ReactNode props are slots.
+- Compound parts are flat named exports: `DialogTrigger`, not `Dialog.Trigger`.
+- Icons have the same names (`@plexui/vue/components/Icon`); hooks are composables (`@plexui/vue/composables/<name>`).
+- In templates, use `PlexTransitionGroup` for Plex's `TransitionGroup` (Vue reserves `<TransitionGroup>`).
 
 ## License
 
