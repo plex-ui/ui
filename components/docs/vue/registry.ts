@@ -12,7 +12,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@plexui/vue/components/Dialog';
+import { CircularProgress, LoadingDots, LoadingIndicator } from '@plexui/vue/components/Indicator';
+import { Image } from '@plexui/vue/components/Image';
+import { Label } from '@plexui/vue/components/Label';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
+import { Separator } from '@plexui/vue/components/Separator';
+import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
+import { Skeleton } from '@plexui/vue/components/Skeleton';
 import { TextLink } from '@plexui/vue/components/TextLink';
 import {
   Animate,
@@ -55,6 +61,7 @@ const components: Record<string, Component> = {
   AnimateLayoutGroup,
   Button,
   ButtonLink,
+  CircularProgress,
   CopyButton,
   Dialog,
   DialogClose,
@@ -64,7 +71,15 @@ const components: Record<string, Component> = {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  Image,
+  Label,
+  LoadingDots,
+  LoadingIndicator,
   PlexUIProvider,
+  Separator,
+  ShimmerableText,
+  ShimmerText,
+  Skeleton,
   SlotTransitionGroup,
   TextLink,
   TransitionGroup,

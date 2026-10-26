@@ -1,0 +1,65 @@
+---
+title: Shimmer Text
+description: Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
+metaDescription: Vue 3 shimmer text component for loading states and AI-generated content indicators, with a controllable variant that stops gracefully.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<ShimmerText class="text-lg font-semibold">
+  Thinking...
+</ShimmerText>`
+
+export const semantic = `<div class="flex flex-col gap-4">
+  <ShimmerText as="h2" class="text-2xl font-bold">Heading shimmer</ShimmerText>
+  <ShimmerText as="p" class="text-base">Paragraph shimmer effect</ShimmerText>
+  <ShimmerText as="span" class="text-sm text-secondary">Inline shimmer</ShimmerText>
+</div>`
+
+export const controllable = `<ShimmerableText :shimmer="shimmer" class="text-lg font-semibold">
+  Generating response...
+</ShimmerableText>`
+
+<UsageBlock>{`import { ShimmerText, ShimmerableText } from "@plexui/vue/components/ShimmerText";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<><code>ShimmerText</code> applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.</>} code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Semantic elements
+
+<ComponentPreview language="vue" details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code>.</>} code={semantic} previewMinHeight={168}>
+  <VueDemo template={semantic} />
+</ComponentPreview>
+
+### Controllable shimmer
+
+<ComponentPreview language="vue" details={<>
+  <p><code>ShimmerableText</code> allows toggling the shimmer on and off. When <code>shimmer</code> is set to <code>false</code>, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut.</p>
+  <p>Use this variant when text transitions between a loading and idle state.</p>
+</>} code={controllable} previewMinHeight={168}>
+  <VueDemo template={controllable} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "shimmer", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Reference
+
+**ShimmerText**: always shimmering
+
+<PropsTable data={[
+  { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "HTML element to render" },
+  { prop: "default slot", type: "VNode[]", description: "Text content to shimmer" },
+  { prop: "class", type: "string", description: "Additional CSS classes" },
+]} />
+
+**ShimmerableText**: controllable shimmer
+
+<PropsTable data={[
+  { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "HTML element to render" },
+  { prop: "shimmer", type: "boolean", default: "false", description: "Whether the shimmer animation is active" },
+  { prop: "default slot", type: "VNode[]", description: "Text content to shimmer" },
+  { prop: "class", type: "string", description: "Additional CSS classes" },
+]} />

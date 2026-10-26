@@ -1,0 +1,109 @@
+---
+title: Separator
+description: A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+metaDescription: Vue 3 separator component built on Reka UI, horizontal or vertical, decorative by default or a semantic separator for assistive technology.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div style="display: flex; max-width: 384px; flex-direction: column; gap: 16px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
+  <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
+    <div style="font-weight: 500">Aisha Cooper</div>
+    <div style="color: var(--color-text-tertiary)">Engineering · Platform team</div>
+  </div>
+  <Separator />
+  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>
+</div>`
+
+export const vertical = `<div style="display: flex; height: 20px; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
+  <div>MIT license</div>
+  <Separator orientation="vertical" />
+  <div>12k weekly downloads</div>
+  <Separator orientation="vertical" />
+  <div>48 kB bundle</div>
+</div>`
+
+export const menu = `<div style="display: flex; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
+  <template v-for="(plan, i) in [
+    { name: 'Starter', meta: 'Free · 1 project' },
+    { name: 'Pro', meta: '$19/mo · Unlimited' },
+    { name: 'Enterprise', meta: 'Custom · Priority SLA' },
+  ]" :key="plan.name">
+    <Separator v-if="i > 0" orientation="vertical" />
+    <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2">
+      <span style="font-weight: 500">{{ plan.name }}</span>
+      <span style="font-size: var(--font-text-xs-size); color: var(--color-text-tertiary)">{{ plan.meta }}</span>
+    </div>
+  </template>
+</div>`
+
+export const list = `<div style="display: flex; width: 100%; max-width: 384px; flex-direction: column; gap: 8px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
+  <template v-for="(row, i) in [
+    ['Version', '0.9.0'],
+    ['Published', '2 days ago'],
+    ['Bundle', '48 kB'],
+    ['License', 'MIT'],
+  ]" :key="row[0]">
+    <Separator v-if="i > 0" />
+    <dl style="display: flex; align-items: center; justify-content: space-between; margin: 0">
+      <dt>{{ row[0] }}</dt>
+      <dd style="margin: 0; color: var(--color-text-tertiary)">{{ row[1] }}</dd>
+    </dl>
+  </template>
+</div>`
+
+<UsageBlock>{`import { Separator } from "@plexui/vue/components/Separator";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Vertical
+
+<ComponentPreview language="vue" details={<>Use <code>orientation="vertical"</code> between inline items. Works for meta-strips, breadcrumbs, and dot-less separators.</>} code={vertical}>
+  <VueDemo template={vertical} />
+</ComponentPreview>
+
+### Menu
+
+<ComponentPreview language="vue" details={<>Vertical separators between menu items with a short caption underneath each label.</>} code={menu}>
+  <VueDemo template={menu} />
+</ComponentPreview>
+
+### List
+
+<ComponentPreview language="vue" details={<>Horizontal separators between rows in a definition list.</>} code={list}>
+  <VueDemo template={list} />
+</ComponentPreview>
+
+## API
+
+### Separator
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Direction of the divider |
+| `decorative` | `boolean` | `true` | When `true`, the separator is ignored by assistive technologies. Set `false` when the divider carries semantic grouping (renders `role="separator"`). |
+| `class` | `string` | | Applied to the root `<div>` |
+
+All other `<div>` attributes are forwarded. Built on [Reka UI Separator](https://reka-ui.com/docs/components/separator).
+
+## Styling
+
+Colors and thickness are controlled by component tokens:
+
+- `--separator-color`: background color (defaults to `--color-border`)
+- `--separator-thickness`: line thickness (defaults to `1px`)
+
+Override them at any scope to change the divider's look:
+
+```css
+.my-section {
+  --separator-color: var(--color-border-strong);
+  --separator-thickness: 2px;
+}
+```

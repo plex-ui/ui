@@ -1,0 +1,93 @@
+---
+title: Skeleton
+description: Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
+metaDescription: Vue 3 skeleton loading placeholder component for avatars, text, cards, forms, and tables, with circle and custom dimensions.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div class="flex items-center gap-4">
+  <Skeleton circle class="size-12" />
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[200px]" />
+    <Skeleton class="h-4 w-[150px]" />
+  </div>
+</div>`
+
+export const card = `<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
+  <Skeleton class="h-[150px] w-full rounded-lg" />
+  <Skeleton class="h-4 w-3/4" />
+  <Skeleton class="h-4 w-1/2" />
+</div>`
+
+export const text = `<div class="flex flex-col gap-2 w-[300px]">
+  <Skeleton class="h-4 w-full" />
+  <Skeleton class="h-4 w-full" />
+  <Skeleton class="h-4 w-4/5" />
+</div>`
+
+export const form = `<div class="flex flex-col gap-4 w-[300px]">
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[80px]" />
+    <Skeleton class="h-10 w-full rounded-lg" />
+  </div>
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-10 w-full rounded-lg" />
+  </div>
+  <Skeleton class="h-10 w-[120px] rounded-lg" />
+</div>`
+
+export const table = `<div class="flex flex-col gap-2 w-[400px]">
+  <div class="flex gap-4 pb-2 border-b border-default">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-4 w-[150px]" />
+    <Skeleton class="h-4 w-[80px]" />
+  </div>
+  <div v-for="i in 4" :key="i" class="flex gap-4 py-2">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-4 w-[150px]" />
+    <Skeleton class="h-4 w-[80px]" />
+  </div>
+</div>`
+
+<UsageBlock>{`import { Skeleton } from "@plexui/vue/components/Skeleton";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Use a circular skeleton to represent loading avatars, combined with text placeholders.</>} code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Card
+
+<ComponentPreview language="vue" details={<>Compose multiple skeletons to represent loading cards with images and text content.</>} code={card} previewMinHeight={168}>
+  <VueDemo template={card} />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview language="vue" details={<>Multiple text lines with varying widths create natural-looking paragraph placeholders.</>} code={text} previewMinHeight={168}>
+  <VueDemo template={text} />
+</ComponentPreview>
+
+### Form
+
+<ComponentPreview language="vue" details={<>Form skeletons use Plex UI control sizing (32px height for inputs and buttons).</>} code={form} previewMinHeight={168}>
+  <VueDemo template={form} />
+</ComponentPreview>
+
+### Table
+
+<ComponentPreview language="vue" details={<>Table skeletons show header and row structure while data loads.</>} code={table} previewMinHeight={168}>
+  <VueDemo template={table} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "circle", type: "boolean", default: "false", description: "Render a circular skeleton" },
+  { prop: "class", type: "string", description: "Set dimensions and custom styling" },
+]} />

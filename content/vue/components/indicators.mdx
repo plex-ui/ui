@@ -1,0 +1,136 @@
+---
+title: Indicators
+description: Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
+metaDescription: Vue 3 loading and progress indicator components with circular spinners, determinate progress rings, and loading dots with configurable color and stroke.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const loop = { name: "done", every: 4000, holdFor: 500 }
+
+export const overview = `<div class="flex items-center gap-6">
+  <LoadingIndicator :size="20" />
+  <CircularProgress :size="24" :done="done" />
+  <LoadingDots />
+</div>`
+
+export const loadingIndicator = `<LoadingIndicator />`
+
+export const loadingSizing = `<LoadingIndicator :size="size" :stroke-width="strokeWidth" />`
+
+export const loadingColor = `<div class="flex items-center gap-2 text-danger">
+  <LoadingIndicator :size="16" /> <span>Destroying forever...</span>
+</div>`
+
+export const loadingDuration = `<div style="--indicator-rotate-duration: 3s">
+  <LoadingIndicator />
+</div>`
+
+export const circular = `<CircularProgress :done="done" />`
+
+export const circularProgress = `<CircularProgress :progress="25" />`
+
+export const circularSizing = `<CircularProgress :size="size" :stroke-width="strokeWidth" :done="done" />`
+
+export const circularColor = `<CircularProgress
+  track-color="var(--alpha-15)"
+  track-active-color="var(--gray-1000)"
+  :done="done"
+/>`
+
+export const dots = `<LoadingDots />`
+
+export const dotsColor = `<div class="text-danger">
+  <LoadingDots />
+</div>`
+
+<UsageBlock>{`import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>The demos restart every few seconds through a <code>done</code> flag that fills the ring before the simulation starts over.</>} code={overview}>
+  <VueDemo template={overview} loop={loop} />
+</ComponentPreview>
+
+### LoadingIndicator
+
+<ComponentPreview language="vue" details={<>Simple spinning indicator for general loading states.</>} code={loadingIndicator} previewMinHeight={168}>
+  <VueDemo template={loadingIndicator} />
+</ComponentPreview>
+
+### Sizing & stroke
+
+<ComponentPreview language="vue" details={<>By default, the indicator adapts to the surrounding <code>font-size</code> and <code>color</code> of text. You can control the size of the <code>LoadingIndicator</code> using the <code>--indicator-size</code> CSS custom property.</>} code={loadingSizing} previewMinHeight={168}>
+  <VueDemo template={loadingSizing} controls={[{ name: "size", type: "range", min: 10, max: 50, step: 2, default: 30 }, { name: "strokeWidth", type: "range", min: 1, max: 10, step: 1, default: 2 }]} />
+</ComponentPreview>
+
+### Color
+
+<ComponentPreview language="vue" details={<>The indicator defaults to <code>currentcolor</code>, inheriting the surrounding text color. This can also be customized by altering the <code>--indicator-color</code> variable around the DOM scope of the component.</>} code={loadingColor} previewMinHeight={168}>
+  <VueDemo template={loadingColor} />
+</ComponentPreview>
+
+### Duration
+
+<ComponentPreview language="vue" details={<>You can control the rotation speed of the spinner with <code>--indicator-rotate-duration</code>.</>} code={loadingDuration} previewMinHeight={168}>
+  <VueDemo template={loadingDuration} />
+</ComponentPreview>
+
+### CircularProgress
+
+<ComponentPreview language="vue" details={<>Circular progress ring with simulated progress animation.</>} code={circular} previewMinHeight={168}>
+  <VueDemo template={circular} loop={loop} />
+</ComponentPreview>
+
+### Progress
+
+<ComponentPreview language="vue" details={<>Use <code>progress</code> to show static progress and prevent the animation.</>} code={circularProgress} previewMinHeight={168}>
+  <VueDemo template={circularProgress} />
+</ComponentPreview>
+
+### Sizing & stroke
+
+<ComponentPreview language="vue" details={<>Use <code>size</code> and <code>stroke-width</code>. Or use <code>--circular-progress-size</code> and <code>--circular-progress-stroke</code> CSS variables.</>} code={circularSizing} previewMinHeight={168}>
+  <VueDemo template={circularSizing} loop={loop} controls={[{ name: "size", type: "range", min: 10, max: 50, step: 2, default: 30 }, { name: "strokeWidth", type: "range", min: 1, max: 4, step: 1, default: 2 }]} />
+</ComponentPreview>
+
+### Color
+
+<ComponentPreview language="vue" details={<>Customize the color of the indicator with the <code>--circular-progress-track-color</code> and <code>--circular-progress-track-active-color</code> variables.</>} code={circularColor} previewMinHeight={168}>
+  <VueDemo template={circularColor} loop={loop} />
+</ComponentPreview>
+
+### LoadingDots
+
+<ComponentPreview language="vue" details={<>Indicate typing progress with staggered pulsing dot animation.</>} code={dots} previewMinHeight={168}>
+  <VueDemo template={dots} />
+</ComponentPreview>
+
+### Color
+
+<ComponentPreview language="vue" details={<>The indicator defaults to <code>currentcolor</code>, inheriting the surrounding text color. You can customize the color by providing a different <code>color</code> value or context.</>} code={dotsColor} previewMinHeight={168}>
+  <VueDemo template={dotsColor} />
+</ComponentPreview>
+
+## Reference
+
+### LoadingIndicator
+
+<PropsTable data={[
+  { prop: "size", type: "number | string", description: "Size in px (or use --indicator-size CSS variable)" },
+  { prop: "stroke-width", type: "number", description: "Stroke width" },
+]} />
+
+### CircularProgress
+
+<PropsTable data={[
+  { prop: "progress", type: "number", description: "Static progress 0-100 (disables animation)" },
+  { prop: "size", type: "number | string", description: "Diameter in px" },
+  { prop: "stroke-width", type: "number", description: "Stroke thickness" },
+  { prop: "done", type: "boolean", description: "Completion state for animation" },
+  { prop: "max-duration", type: "number", default: "15000", description: "Duration of the simulated progress in ms" },
+  { prop: "track-color", type: "string", description: "Track color (CSS variable or value)" },
+  { prop: "track-active-color", type: "string", description: "Active segment color" },
+]} />

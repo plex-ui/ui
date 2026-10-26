@@ -1,13 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../ButtonDemos';
+import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
 
 export type VueDemoControl =
   | { name: string; type: 'boolean'; default: boolean }
-  | { name: string; type: 'select'; options: readonly string[]; default: string };
+  | { name: string; type: 'select'; options: readonly string[]; default: string }
+  | { name: string; type: 'range'; min: number; max: number; step: number; default: number };
+
+/**
+ * Restarts a demo on a timer, like the React demos that loop a simulation:
+ * every `every` ms the boolean `name` turns true for `holdFor` ms, then the
+ * preview remounts with it false.
+ */
+export type VueDemoLoop = { name: string; every: number; holdFor: number };
 
 /**
  * A Vue preview with optional demo controls. Each control's `name` is the
@@ -17,19 +26,40 @@ export type VueDemoControl =
 export function VueDemo({
   template,
   controls = [],
+  loop,
   stageClassName = 'flex-1 flex flex-col items-center justify-center py-12 w-full',
 }: {
   template: string;
   controls?: VueDemoControl[];
+  loop?: VueDemoLoop;
   stageClassName?: string;
 }) {
-  const [values, setValues] = useState<Record<string, unknown>>(() =>
-    Object.fromEntries(controls.map((control) => [control.name, control.default])),
-  );
+  const [values, setValues] = useState<Record<string, unknown>>(() => ({
+    ...Object.fromEntries(controls.map((control) => [control.name, control.default])),
+    ...(loop ? { [loop.name]: false } : {}),
+  }));
+  const [run, setRun] = useState(0);
   const props = useMemo(() => values, [values]);
   const set = (name: string) => (value: unknown) => setValues((current) => ({ ...current, [name]: value }));
 
-  if (controls.length === 0) return <VuePreview template={template} />;
+  const { name: loopName, every, holdFor } = loop ?? {};
+  useEffect(() => {
+    if (!loopName || !every) return;
+    let hold: ReturnType<typeof setTimeout> | undefined;
+    const id = setInterval(() => {
+      setValues((current) => ({ ...current, [loopName]: true }));
+      hold = setTimeout(() => {
+        setValues((current) => ({ ...current, [loopName]: false }));
+        setRun((n) => n + 1);
+      }, holdFor);
+    }, every);
+    return () => {
+      clearInterval(id);
+      clearTimeout(hold);
+    };
+  }, [loopName, every, holdFor]);
+
+  if (controls.length === 0) return <VuePreview key={run} template={template} props={props} />;
 
   return (
     <>
@@ -42,6 +72,18 @@ export function VueDemo({
               value={values[control.name] as boolean}
               onChange={set(control.name)}
             />
+          ) : control.type === 'range' ? (
+            <DemoControlRow key={control.name} name={control.name}>
+              <SliderValueControl
+                ariaLabel={control.name}
+                min={control.min}
+                max={control.max}
+                step={control.step}
+                value={values[control.name] as number}
+                onChange={set(control.name)}
+                width="min(42vw, 340px)"
+              />
+            </DemoControlRow>
           ) : (
             <DemoControlRow key={control.name} name={control.name}>
               <SegmentedControl<string>
@@ -61,7 +103,7 @@ export function VueDemo({
         )}
       </div>
       <div className={stageClassName} data-demo-stage>
-        <VuePreview template={template} props={props} />
+        <VuePreview key={run} template={template} props={props} />
       </div>
     </>
   );
