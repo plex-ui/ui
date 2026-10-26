@@ -42,6 +42,10 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check @plexui/styles is on npm
+        if: steps.check.outputs.skip != 'true'
+        run: node scripts/check-styles-published.mjs
+
       - name: Publish to npm (OIDC Trusted Publisher)
         if: steps.check.outputs.skip != 'true'
         run: npm publish --access public --provenance

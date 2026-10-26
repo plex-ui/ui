@@ -70,15 +70,15 @@ fi
 echo "→ Building plugin zip for current VERSION…"
 ( cd figma/plugin/figma-ai-bridge && ./build-zip.sh )
 
-echo "→ packages/ui rebuild gate…"
+echo "→ packages/styles + packages/ui rebuild gate…"
 if [[ "$prev_head" != "$new_head" ]] && \
-   git diff "$prev_head" "$new_head" --name-only -- packages/ui/ | grep -q .; then
-  echo "  packages/ui changed — rebuilding"
-  ( cd packages/ui && npm run build )
+   git diff "$prev_head" "$new_head" --name-only -- packages/styles/ packages/ui/ | grep -q .; then
+  echo "  packages/styles or packages/ui changed — rebuilding"
+  npm run build:styles && npm run build:ui
   rm -rf .next
   echo "  ⚠ Restart the dev server via Claude Preview MCP if it was running."
 else
-  echo "  no packages/ui changes; nothing to rebuild"
+  echo "  no packages/styles or packages/ui changes; nothing to rebuild"
 fi
 
 echo ""

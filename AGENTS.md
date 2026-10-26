@@ -416,7 +416,7 @@ The script ([scripts/sync-all.sh](scripts/sync-all.sh)) is idempotent and does:
 2. `git pull` inside `.memory` (tracks `master` directly — parent submodule pointer may lag)
 3. Cleans legacy artifacts in `figma/plugin/` (`figma-mcp-bridge`, `plex-ui`, stale `figma-ai-bridge-v*.zip`, `.DS_Store`) — these are NOT part of the product and not synced
 4. Pulls `figma/plugin/figma-ai-bridge/` if it's a valid clone, else wipes + clones fresh from `plex-ui/figma-ai-bridge` (private)
-5. If main pull touched `packages/ui/`, runs the rebuild gate (decision 0008): `npm run build` + `rm -rf .next`. Restart the dev server via Claude Preview MCP if it was running.
+5. If main pull touched `packages/styles/` or `packages/ui/`, runs the rebuild gate (decision 0008): `npm run build:styles` + `npm run build:ui` + `rm -rf .next`. Restart the dev server via Claude Preview MCP if it was running.
 
 Final line of the script prints the resolved short SHAs of all three repos for confirmation.
 
@@ -1005,12 +1005,17 @@ Template component IDs:
 When user says "опубликуй" — run the full publish flow: bump version, commit, push, build, npm publish, create GitHub release.
 ```bash
 # 1. Bump version in packages/ui/package.json (e.g. 0.7.36 → 0.7.37)
+#    If packages/styles changed (or its version is not on npm yet), bump it too
+#    and publish it FIRST: `npm run publish:styles`. ui depends on it, and
+#    scripts/check-styles-published.mjs blocks a ui release without it.
 
 # 2. Commit & push all changes (not just package.json — include any code changes)
 git add .
 git commit -m "<descriptive message>"
 git push origin master
 # 3. Build & publish locally
+npm run build:styles
+node scripts/check-styles-published.mjs
 cd packages/ui
 npm run build
 npm publish --access public

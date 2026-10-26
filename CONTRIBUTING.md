@@ -52,7 +52,7 @@ Before adding a new component, check that it passes these:
 1. **Accessible by default** — built on Radix Primitives where applicable.
 2. **Controllable** — every behavior must be controllable via props.
 3. **Composable** — small parts you can recombine, not monolithic props sprawl.
-4. **Token-driven** — all sizes, colors, spacings route through CSS variables defined in `packages/ui/src/styles/`. No hardcoded values.
+4. **Token-driven** — all sizes, colors, spacings route through CSS variables defined in `packages/styles/src/styles/`. No hardcoded values.
 5. **Dark mode ready** — no extra prop needed; use semantic tokens.
 6. **AI-friendly** — prop names must be self-explanatory. If an LLM can't guess it, rename.
 
