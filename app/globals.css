@@ -1121,8 +1121,9 @@ html.dark #nd-page.plex-docs-page .plex-docs-body.prose a.block.rounded-xl.borde
   margin-top: 0;
 }
 
-/* Balance spacing: more space above Examples/Reference h2s */
+/* Balance spacing: more space above Examples/API h2s (Reference on transitions pages) */
 #nd-page.plex-docs-page .plex-docs-body.prose #examples,
+#nd-page.plex-docs-page .plex-docs-body.prose #api,
 #nd-page.plex-docs-page .plex-docs-body.prose #reference,
 #nd-page.plex-docs-page .plex-docs-body .not-prose + h2 {
   margin-top: 2rem !important;
