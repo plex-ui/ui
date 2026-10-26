@@ -28,7 +28,7 @@ return <Progress value={value} aria-label="Loading" />;`}>
 
 ### With label
 
-<ComponentPreview details={<>Pair a <a href="/components/label"><code>Label</code></a> with a value readout above the bar — typical upload / onboarding progress pattern.</>} code={`<div>
+<ComponentPreview details={<>Pair a <a href="/components/label"><code>Label</code></a> with a value readout above the bar, the typical upload / onboarding progress pattern.</>} code={`<div>
   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
     <Label id="progress-upload-label">Uploading plex-ui.zip</Label>
     <span>3.2 / 4.8 MB</span>
@@ -40,7 +40,7 @@ return <Progress value={value} aria-label="Loading" />;`}>
 
 ### Controlled
 
-<ComponentPreview details={<>Bind <code>value</code> to any source — here it follows a <a href="/components/slider"><code>Slider</code></a>.</>} code={`const [value, setValue] = useState(50);
+<ComponentPreview details={<>Bind <code>value</code> to any source. Here it follows a <a href="/components/slider"><code>Slider</code></a>.</>} code={`const [value, setValue] = useState(50);
 
 return (
   <>
@@ -61,16 +61,16 @@ return (
 | `max` | `number` | `100` | Maximum progress value |
 | `className` | `string` | — | Applied to the root `<div>` |
 
-Built on [Radix Progress](https://www.radix-ui.com/primitives/components/progress) — all `Progress.Root` props are forwarded.
+Built on [Radix Progress](https://www.radix-ui.com/primitives/components/progress). All `Progress.Root` props are forwarded.
 
 ## Styling
 
 Component tokens:
 
-- `--progress-height` — track height (defaults to `4px`)
-- `--progress-track-color` — track background (defaults to `--color-background-secondary-soft`)
-- `--progress-indicator-color` — fill color (defaults to `--color-text`)
-- `--progress-radius` — corner radius (defaults to `--radius-full`)
-- `--progress-indeterminate-duration` — sweep duration (defaults to `1.5s`)
+- `--progress-height`: track height (defaults to `4px`)
+- `--progress-track-color`: track background (defaults to `--color-background-secondary-soft`)
+- `--progress-indicator-color`: fill color (defaults to `--color-text`)
+- `--progress-radius`: corner radius (defaults to `--radius-full`)
+- `--progress-indeterminate-duration`: sweep duration (defaults to `1.5s`)
 
 Override at any scope to change the bar's look without subclassing.

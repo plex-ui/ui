@@ -110,7 +110,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
 ## API
 
 <PropsTable data={[
-  { prop: "variant", type: '"compact" | "area"', default: '"compact"', description: "Visual variant — compact button or larger tappable area" },
+  { prop: "variant", type: '"compact" | "area"', default: '"compact"', description: "Visual variant: compact button or larger tappable area" },
   { prop: "label", type: "string", description: "Button label text" },
   { prop: "description", type: "string", description: "Helper text below the icon (area variant only)" },
   { prop: "accept", type: "string", description: 'Accepted file types (e.g. ".pdf,.png,image/*")' },
@@ -120,7 +120,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "value", type: "File[]", description: "Controlled file list" },
   { prop: "onValueChange", type: "(files: File[]) => void", description: "Callback when files are added or removed" },
   { prop: "onFileReject", type: "(file: File, reason: string) => void", description: "Callback when a file is rejected (wrong type, too large, over limit)" },
-  { prop: "errorMessage", type: "string", description: "Error message — sets invalid visual state" },
+  { prop: "errorMessage", type: "string", description: "Error message. Sets the invalid visual state" },
   { prop: "invalid", type: "boolean", default: "false", description: "Invalid state (auto-set when errorMessage is provided)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all interactions" },
 ]} />

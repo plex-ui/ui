@@ -330,7 +330,7 @@ const columns: ColumnDef<User>[] = [
 <PropsTable data={[
   { prop: "columns", type: "ColumnDef<TData>[]", required: true, description: "Column definitions following TanStack Table v8 API" },
   { prop: "data", type: "TData[]", required: true, description: "Data array to display" },
-  { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant — bordered adds a rounded border and tinted header" },
+  { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant: bordered adds a rounded border and tinted header" },
   { prop: "pageSize", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination" },
   { prop: "initialSorting", type: "SortingState", description: "Initial column sorting state" },
   { prop: "globalFilter", type: "string", description: "Controlled search/filter string" },

@@ -58,7 +58,7 @@ import {
 
 ### Start adornment
 
-<ComponentPreview details={<>You can add arbitrary content to the beginning of an input with <code>startAdornment</code> &ndash; like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: <code>gutterSize</code> determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by <code>gutterSize</code>, use negative left margin on your adornment directly, e.g. <code>-ml-2</code>). The spacing between the adornment and the input is controlled with <code>gap</code> on the container, which you can customize as needed with Tailwind classes.</>} code={`<Input
+<ComponentPreview details={<>You can add arbitrary content to the beginning of an input with <code>startAdornment</code>, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: <code>gutterSize</code> determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by <code>gutterSize</code>, use negative left margin on your adornment directly, e.g. <code>-ml-2</code>). The spacing between the adornment and the input is controlled with <code>gap</code> on the container, which you can customize as needed with Tailwind classes.</>} code={`<Input
   placeholder="Start adornment"
   startAdornment={<Search className="fill-tertiary" />}
 />`} previewMinHeight={168}>
@@ -84,7 +84,7 @@ import {
 
 ### End adornment
 
-<ComponentPreview details={<>You can add arbitrary content to the end of an input with <code>endAdornment</code> &ndash; like a character counter or custom icon. The same spacing guidance from <code>startAdornment</code> applies here.</>} code={`<Input
+<ComponentPreview details={<>You can add arbitrary content to the end of an input with <code>endAdornment</code>, like a character counter or custom icon. The same spacing guidance from <code>startAdornment</code> applies here.</>} code={`<Input
   placeholder="Username"
   value={username}
   onChange={(evt) => setUsername(evt.target.value)}
@@ -172,11 +172,11 @@ import {
   <InputInvalidDemo />
 </ComponentPreview>
 
-Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldError`) that pairs well with invalid inputs — it renders an error icon with a message styled for form validation.
+Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldError`) that pairs well with invalid inputs. It renders an error icon with a message styled for form validation.
 
 ### Auto select text
 
-<ComponentPreview details={<>Pass <code>autoSelect</code> to select all text in the input &ndash; useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />`} previewMinHeight={168}>
+<ComponentPreview details={<>Pass <code>autoSelect</code> to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />`} previewMinHeight={168}>
   <InputAutoSelectDemo />
 </ComponentPreview>
 
@@ -197,7 +197,7 @@ Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldErro
 
 ### Optical alignment
 
-Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, aligning the input text with surrounding content. Works with `Field` — pass `opticallyAlign` on the Field and it forwards to the child control automatically.
+Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, aligning the input text with surrounding content. Works with `Field`: pass `opticallyAlign` on the Field and it forwards to the child control automatically.
 
 <ComponentPreview code={`<Field label="Full name" opticallyAlign="start">
   <Input placeholder="Jane Doe" pill />
@@ -217,7 +217,7 @@ Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, alig
   <InputOpticalAlignDemo />
 </ComponentPreview>
 
-Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl — set the same `size` on adjacent controls and they'll align perfectly.
+Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl. Set the same `size` on adjacent controls and they'll align perfectly.
 
 
 ## API

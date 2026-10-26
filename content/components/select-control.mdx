@@ -70,7 +70,7 @@ return (
 
 ### Selected
 
-<ComponentPreview details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control &ndash; that's up to you.</>} code={`<SelectControl selected={false}>Select...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you.</>} code={`<SelectControl selected={false}>Select...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlSelectedDemo />
 </ComponentPreview>
 
@@ -122,7 +122,7 @@ return (
 
 ### Country selector
 
-<ComponentPreview details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names — no dial codes. Useful for profile forms, shipping addresses, and other country-only fields.</>} code={`const countries = [
+<ComponentPreview details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields.</>} code={`const countries = [
   { value: "us", label: "United States" },
   { value: "gb", label: "United Kingdom" },
   // ...60 countries
@@ -183,7 +183,7 @@ const CountryTriggerView = ({ value }) => {
 
 ### Phone form
 
-<ComponentPreview details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit &mdash; the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={`import { useState, useCallback, useRef } from 'react';
+<ComponentPreview details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={`import { useState, useCallback, useRef } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Button } from '@plexui/ui/components/Button';

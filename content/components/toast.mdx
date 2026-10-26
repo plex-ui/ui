@@ -20,7 +20,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import { Toaster, toast } from "@plexui/ui/components/Toast";`}</UsageBlock>
 
-Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. Toast is built on [sonner](https://sonner.emilkowal.ski/) — its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is.
+Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. Toast is built on [sonner](https://sonner.emilkowal.ski/), and its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is.
 
 ## Examples
 
@@ -33,7 +33,7 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
 
 ### Variants
 
-<ComponentPreview details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed — variants retheme automatically with <code>data-theme</code>.</>} code={`toast.success("Inquiry ID copied")
+<ComponentPreview details={<>Semantic variants map to PlexUI's success / danger / warning / info tokens. No <code>richColors</code> is passed. Variants retheme automatically with <code>data-theme</code>.</>} code={`toast.success("Inquiry ID copied")
 toast.error("Failed to assign owner")
 toast.warning("Session expires in 2 minutes")
 toast.info("New version available")`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
@@ -85,7 +85,7 @@ toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIG
 
 ### Persistent
 
-<ComponentPreview details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances — put a labelled action on the toast so dismissal is intentional and keyboard-accessible.</>} code={`const id = toast("Backup scheduled for 2:00 AM UTC", {
+<ComponentPreview details={<>Pass <code>duration: Infinity</code> for toasts that stay open until the user acts on them. There are no close (×) affordances, so put a labelled action on the toast so dismissal is intentional and keyboard-accessible.</>} code={`const id = toast("Backup scheduled for 2:00 AM UTC", {
   description: "This stays open until you dismiss it.",
   duration: Infinity,
   action: { label: "Dismiss", onClick: () => toast.dismiss(id) },
@@ -108,7 +108,7 @@ Remaining sonner `Toaster` props (`expand`, `visibleToasts`, `hotkey`, `dir`, `s
 
 ### toast
 
-Re-exported from sonner. The full surface — `toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom` — is available with full TypeScript inference.
+Re-exported from sonner. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference.
 
 ### Types
 
@@ -116,7 +116,7 @@ Re-exported from sonner. The full surface — `toast()`, `.success`, `.error`, `
 
 ### Theme sync
 
-`<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light ↔ dark rethemes toasts that are already on screen — no `next-themes` dependency.
+`<Toaster />` reads `data-theme` on `<html>` on mount and observes changes via `MutationObserver`. Toggling light ↔ dark rethemes toasts that are already on screen, with no `next-themes` dependency.
 
 ## Styling
 

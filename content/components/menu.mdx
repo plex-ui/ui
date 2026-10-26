@@ -40,7 +40,7 @@ import {
 
 ### Natural sizing
 
-<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong> &ndash; use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong> &ndash; use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong> &ndash; <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong> &ndash; apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul></>} code={`<Menu>
+<ComponentPreview details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>minWidth="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>minWidth</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>minWidth</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>Menu.Content</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for Radix variables used in collision detection.</li></ul></>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost" className="font-semibold gap-1.5"><Tools /> Tools</Button>
   </Menu.Trigger>
@@ -259,7 +259,7 @@ return (
   { prop: "modal", type: "boolean", description: "Whether menu is modal (focus trap)" },
 ]} />
 
-**Menu.Trigger** — The element that toggles the menu (e.g. a Button). No specific props.
+**Menu.Trigger**: The element that toggles the menu (e.g. a Button). No specific props.
 
 **Menu.Content**
 
@@ -272,7 +272,7 @@ return (
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
 ]} />
 
-**Menu.Item** — List item. Use `onSelect` for actions; omit for non-interactive content.
+**Menu.Item**: List item. Use `onSelect` for actions; omit for non-interactive content.
 
 <PropsTable data={[
   { prop: "description", type: "ReactNode", description: "Second line under the label. The label turns semibold on its own" },
@@ -280,15 +280,15 @@ return (
   { prop: "disabled", type: "boolean", description: "Disable the item" },
 ]} />
 
-**Menu.Link** — Item that navigates (uses your app link component). Pass `href` and link props.
+**Menu.Link**: Item that navigates (uses your app link component). Pass `href` and link props.
 
-**Menu.Separator** — Divider between items. No props.
+**Menu.Separator**: Divider between items. No props.
 
-**Menu.Group** — Groups related items. Wraps `Menu.Item`, `Menu.Link`, or `Menu.Label`. No specific props.
+**Menu.Group**: Groups related items. Wraps `Menu.Item`, `Menu.Link`, or `Menu.Label`. No specific props.
 
-**Menu.Label** — Non-interactive label for a group. Accepts `className`.
+**Menu.Label**: Non-interactive label for a group. Accepts `className`.
 
-**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent** — Submenu wrapper, trigger, and content panel.
+**Menu.Sub** / **Menu.SubTrigger** / **Menu.SubContent**: Submenu wrapper, trigger, and content panel.
 
 **Menu.CheckboxItem**
 
@@ -300,9 +300,9 @@ return (
   { prop: "indicatorVariant", type: '"solid" | "ghost"', default: '"solid"', description: "Checkbox indicator style" },
 ]} />
 
-**Menu.RadioGroup** / **Menu.RadioItem** — Radio group: `value`, `onChange`; RadioItem: `value`, `disabled`.
+**Menu.RadioGroup** / **Menu.RadioItem**: Radio group: `value`, `onChange`; RadioItem: `value`, `disabled`.
 
-**Menu.ItemActions** / **Menu.ItemAction** — ItemActions wraps hover actions; ItemAction accepts `onClick`.
+**Menu.ItemActions** / **Menu.ItemAction**: ItemActions wraps hover actions; ItemAction accepts `onClick`.
 
 ## Styling
 

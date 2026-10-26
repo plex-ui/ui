@@ -39,7 +39,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Segmented with icons
 
-<ComponentPreview details={<>Icons work with the segmented variant — use the <code>icon</code> prop on individual tabs. Icons are automatically sized to match the current <code>size</code>.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<ComponentPreview details={<>Icons work with the segmented variant. Use the <code>icon</code> prop on individual tabs. Icons are automatically sized to match the current <code>size</code>.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Navigation">
   <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
   <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
   <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
@@ -173,7 +173,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Scrollable
 
-<ComponentPreview details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed — just constrain the container width.</>} code={`<div className="max-w-[400px] flex">
+<ComponentPreview details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={`<div className="max-w-[400px] flex">
   <Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
     <Tabs.Tab value="1">Overview</Tabs.Tab>
     <Tabs.Tab value="2">Analytics</Tabs.Tab>
@@ -213,7 +213,7 @@ Both `Tabs.Tab` and `Tabs.Option` are available as sub-components. The `Segmente
 <PropsTable data={[
   { prop: "value", type: "string", description: "Selected tab value (controlled)" },
   { prop: "onChange", type: "(value: string) => void", description: "Called when selection changes" },
-  { prop: "variant", type: '"segmented" | "underline"', default: '"segmented"', description: "Visual style — segmented (background highlight) or underline (line indicator)" },
+  { prop: "variant", type: '"segmented" | "underline"', default: '"segmented"', description: "Visual style: segmented (background highlight) or underline (line indicator)" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction of the tab group" },
   { prop: "size", type: "ControlSize", default: '"md"', description: "Control height (3xs through 3xl)" },
   { prop: "gutterSize", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding of tabs" },
