@@ -154,6 +154,7 @@ export const Slider = memo((props: SliderProps) => {
   const isVertical = orientation === "vertical"
 
   const id = useId()
+  const labelId = `${id}-label`
   const precision = useMemo(() => String(step).split(".")[1]?.length ?? 0, [step])
 
   // Single-mode state for editable input
@@ -330,7 +331,8 @@ export const Slider = memo((props: SliderProps) => {
     >
       {label && (
         <div className={s.SliderLabel}>
-          <label htmlFor={id} className="flex-1">
+          {/* Range mode renders no value input, so the label only names the thumbs */}
+          <label htmlFor={isRange ? undefined : id} id={labelId} className="flex-1">
             {label}
           </label>
           {!isRange && resetValue !== undefined && (
@@ -340,6 +342,7 @@ export const Slider = memo((props: SliderProps) => {
                 variant="ghost"
                 color="secondary"
                 className={s.Reset}
+                aria-label={resetTooltip}
                 data-hide={disabled || (resetValue === singleValue && !pointerDown)}
                 onClick={() => singleOnChange!(resetValue)}
               >
@@ -401,10 +404,18 @@ export const Slider = memo((props: SliderProps) => {
           </RadixSlider.Track>
           {isRange ? (
             (value as number[]).map((_, i) => (
-              <RadixSlider.Thumb key={i} className={s.Thumb} />
+              <RadixSlider.Thumb
+                key={i}
+                className={s.Thumb}
+                aria-labelledby={label ? labelId : undefined}
+              />
             ))
           ) : (
-            <RadixSlider.Thumb className={s.Thumb} ref={thumbRef} />
+            <RadixSlider.Thumb
+              className={s.Thumb}
+              ref={thumbRef}
+              aria-labelledby={label ? labelId : undefined}
+            />
           )}
         </RadixSlider.Root>
         {showMarks && <SliderMarks marks={marks} thumbRef={thumbRef} min={min} max={max} />}
