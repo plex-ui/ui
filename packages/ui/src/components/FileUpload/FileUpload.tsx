@@ -150,6 +150,7 @@ export const FileUpload = (props: FileUploadProps) => {
     className,
     id: idProp,
     "aria-describedby": ariaDescribedByProp,
+    "aria-invalid": ariaInvalidProp,
   } = props
 
   const [internalFiles, setInternalFiles] = useState<File[]>([])
@@ -161,6 +162,7 @@ export const FileUpload = (props: FileUploadProps) => {
   const files = controlledValue ?? internalFiles
   const isControlled = controlledValue !== undefined
   const invalid = invalidProp ?? !!errorMessage
+  const ariaInvalid = ariaInvalidProp ?? (invalid || undefined)
 
   const ariaDescribedBy =
     [ariaDescribedByProp, errorMessage ? errorId : undefined].filter(Boolean).join(" ") ||
@@ -229,6 +231,9 @@ export const FileUpload = (props: FileUploadProps) => {
           data-invalid={invalid ? "" : undefined}
           onClick={openPicker}
           disabled={disabled || atLimit}
+          // The visible trigger is what keyboard and screen-reader users reach
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
         >
           <UploadDocuments className={s.AreaIcon} />
           <span className={s.AreaLabel}>{label || "Tap to upload files"}</span>
@@ -244,6 +249,8 @@ export const FileUpload = (props: FileUploadProps) => {
           disabled={disabled || atLimit}
           onClick={openPicker}
           className="h-[3.25rem]"
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
         >
           {label || "Upload file"}
         </Button>
