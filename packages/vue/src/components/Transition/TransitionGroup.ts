@@ -12,9 +12,9 @@ import {
   type StyleValue,
   type VNode,
 } from "vue"
-import { waitForAnimationFrame } from "../../lib/helpers"
-import getDisableAnimations from "./getDisableAnimations"
-import { getInitialTransitionState, transitionReducer, type TransitionStateAction } from "./transitionReducer"
+import { waitForAnimationFrame } from "../../lib/helpers.js"
+import getDisableAnimations from "./getDisableAnimations.js"
+import { getInitialTransitionState, transitionReducer, type TransitionStateAction } from "./transitionReducer.js"
 import s from "@plexui/styles/components/Transition/TransitionGroup.module.css"
 
 // Port of packages/ui/src/components/Transition/TransitionGroup.tsx. Same

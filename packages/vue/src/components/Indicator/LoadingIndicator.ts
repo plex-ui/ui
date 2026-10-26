@@ -1,5 +1,5 @@
 import { defineComponent, h, type PropType } from "vue"
-import { toCssVariables } from "../../lib/helpers"
+import { toCssVariables } from "../../lib/helpers.js"
 import s from "@plexui/styles/components/Indicator/LoadingIndicator.module.css"
 
 export const LoadingIndicator = defineComponent({

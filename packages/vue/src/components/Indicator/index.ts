@@ -1,1 +1,1 @@
-export { LoadingIndicator } from "./LoadingIndicator"
+export { LoadingIndicator } from "./LoadingIndicator.js"

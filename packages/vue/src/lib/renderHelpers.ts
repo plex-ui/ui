@@ -58,13 +58,15 @@ const flattenTextNodes = (children: VNodeArrayChildren): VNode[] => {
 const wrapChildrenOf = (node: VNode): VNode => {
   const { children } = node
 
-  // Element with child vnodes
-  if (typeof node.type === "string" && Array.isArray(children)) {
+  const isComponent = typeof node.type === "object" || typeof node.type === "function"
+
+  // Element, or component given an array, with child vnodes
+  if ((typeof node.type === "string" || isComponent) && Array.isArray(children)) {
     return withChildren(node, wrapTextNodeSiblings(children))
   }
 
-  // Component with a default slot
-  if (typeof node.type === "object" && children && typeof children === "object" && !Array.isArray(children)) {
+  // Component (stateful or functional) with a default slot
+  if (isComponent && children && typeof children === "object" && !Array.isArray(children)) {
     const { _: _compiled, ...slots } = children as Record<string, unknown>
     const defaultSlot = slots.default
     if (typeof defaultSlot === "function") {

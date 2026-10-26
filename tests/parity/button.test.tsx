@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import type { ReactNode } from "react"
 import { describe, expect, test, vi } from "vitest"
-import { h, reactive, type VNodeArrayChildren } from "vue"
+import { h, reactive, type FunctionalComponent, type VNodeArrayChildren } from "vue"
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
 import { animation, flushVue, mountVue } from "./harness"
@@ -22,8 +22,16 @@ const COLORS = ["primary", "secondary", "danger", "success", "info", "discovery"
 const VARIANTS = ["solid", "soft", "outline", "ghost"]
 const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
-// Children are described once and built for each framework
-type Child = string | number | { tag: string; props?: Props; children?: Child[] }
+// Children are described once and built for each framework. `forward`
+// renders its children through a component that adds no element.
+type Child =
+  | string
+  | number
+  | { tag: string; props?: Props; children?: Child[] }
+  | { forward: Child[] }
+
+const ReactForward = ({ children }: { children?: ReactNode }) => <>{children}</>
+const VueForward: FunctionalComponent = (_props, { slots }) => slots.default?.()
 
 const icon: Child = {
   tag: "svg",
@@ -34,6 +42,7 @@ const icon: Child = {
 const toReact = (children: Child[]): ReactNode[] =>
   children.map((child, index) => {
     if (typeof child !== "object") return child
+    if ("forward" in child) return <ReactForward key={index}>{toReact(child.forward)}</ReactForward>
     const { tag, props = {}, children: inner } = child
     const Tag = tag as "span"
     return (
@@ -46,6 +55,7 @@ const toReact = (children: Child[]): ReactNode[] =>
 const toVue = (children: Child[]): VNodeArrayChildren =>
   children.map((child) => {
     if (typeof child !== "object") return String(child)
+    if ("forward" in child) return h(VueForward, null, { default: () => toVue(child.forward) })
     const { tag, props = {}, children: inner } = child
     return h(tag, props, inner ? toVue(inner) : undefined)
   })
@@ -108,6 +118,7 @@ const cases: Array<[string, Props, Child[]?]> = [
   ["adjacent text merges", {}, ["Save", " ", "draft", 2]],
   ["whitespace sibling", {}, [icon, " "]],
   ["nested element", {}, [{ tag: "span", children: ["Count ", { tag: "b", children: ["3"] }] }, "Save"]],
+  ["component forwarding text and icon", {}, [{ forward: ["Save", icon] }]],
 ]
 
 describe.each([

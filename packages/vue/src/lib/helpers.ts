@@ -1,4 +1,4 @@
-import { canUseDOM, hasDocument } from "./environment"
+import { canUseDOM, hasDocument } from "./environment.js"
 
 // Ports of packages/ui/src/lib/helpers.ts. Keep the behaviour identical:
 // the parity tests compare the DOM these produce with the React output.

@@ -7,4 +7,4 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./Dialog"
+} from "./Dialog.js"

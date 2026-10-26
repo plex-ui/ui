@@ -1,27 +1,32 @@
 import {
+  Comment,
+  cloneVNode,
   computed,
   createCommentVNode,
   defineComponent,
   h,
   inject,
+  onMounted,
   provide,
   ref,
   type ComputedRef,
   type InjectionKey,
   type PropType,
+  type VNode,
 } from "vue"
 import {
-  DialogClose as RekaDialogClose,
   DialogContent as RekaDialogContent,
   DialogDescription as RekaDialogDescription,
   DialogOverlay as RekaDialogOverlay,
   DialogPortal as RekaDialogPortal,
   DialogRoot as RekaDialogRoot,
   DialogTitle as RekaDialogTitle,
-  DialogTrigger as RekaDialogTrigger,
+  injectDialogRootContext,
+  useForwardExpose,
+  useId,
 } from "reka-ui"
-import { toCssVariables } from "../../lib/helpers"
-import { TransitionGroup } from "../Transition"
+import { toCssVariables } from "../../lib/helpers.js"
+import { TransitionGroup } from "../Transition/index.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 // Vue port of packages/ui/src/components/Dialog/Dialog.tsx on Reka UI
@@ -71,10 +76,55 @@ export const Dialog = defineComponent({
   },
 })
 
+// Trigger and Close render their child with the dialog wiring merged in,
+// like Reka's `asChild` parts, but run the dialog action after the child's
+// own click handlers and skip it when one called preventDefault() (Radix's
+// composeEventHandlers). Reka's parts run first and cannot be cancelled.
+// Attributes the child sets itself win, as with Radix and Reka slots.
+const withDialogProps = (
+  child: VNode | undefined,
+  props: Record<string, unknown>,
+  onClick: (event: Event) => void,
+  ref?: (el: unknown) => void,
+) => {
+  if (!child) return null
+  const own = child.props ?? {}
+  const extra = Object.fromEntries(Object.entries(props).filter(([key]) => !(key in own)))
+  return cloneVNode(child, { ...extra, onClick, ...(ref ? { ref } : {}) }, true)
+}
+
+const firstChild = (nodes: VNode[] | undefined) => nodes?.find((node) => node.type !== Comment)
+
 export const DialogTrigger = defineComponent({
   name: "DialogTrigger",
   setup(_props, { slots }) {
-    return () => h(RekaDialogTrigger, { asChild: true }, { default: () => slots.default?.() })
+    const rootContext = injectDialogRootContext()
+    const { forwardRef, currentElement } = useForwardExpose()
+    rootContext.contentId ||= useId(undefined, "reka-dialog-content")
+    // Focus returns here when the dialog closes
+    onMounted(() => {
+      rootContext.triggerElement.value = currentElement.value
+    })
+
+    const onClick = (event: Event) => {
+      if (!event.defaultPrevented) rootContext.onOpenToggle()
+    }
+
+    return () => {
+      const open = rootContext.open.value
+      return withDialogProps(
+        firstChild(slots.default?.()),
+        {
+          "type": "button",
+          "aria-haspopup": "dialog",
+          "aria-expanded": open || false,
+          "aria-controls": open ? rootContext.contentId : undefined,
+          "data-state": open ? "open" : "closed",
+        },
+        onClick,
+        forwardRef as (el: unknown) => void,
+      )
+    }
   },
 })
 
@@ -115,7 +165,7 @@ export const DialogContent = defineComponent({
             default: () => [
               h("div", { class: [s.Panel, attrs.class] }, [
                 props.showClose
-                  ? h(RekaDialogClose, { asChild: true }, {
+                  ? h(DialogClose, null, {
                       default: () => [
                         h("button", { "type": "button", "class": s.CloseButton, "aria-label": "Close dialog" }, [
                           h(CloseIcon),
@@ -175,6 +225,10 @@ export const DialogDescription = defineComponent({
 export const DialogClose = defineComponent({
   name: "DialogClose",
   setup(_props, { slots }) {
-    return () => h(RekaDialogClose, { asChild: true }, { default: () => slots.default?.() })
+    const rootContext = injectDialogRootContext()
+    const onClick = (event: Event) => {
+      if (!event.defaultPrevented) rootContext.onOpenChange(false)
+    }
+    return () => withDialogProps(firstChild(slots.default?.()), { type: "button" }, onClick)
   },
 })

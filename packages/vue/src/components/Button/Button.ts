@@ -1,9 +1,9 @@
-import { createCommentVNode, defineComponent, h, type PropType } from "vue"
+import { createCommentVNode, defineComponent, h, type ButtonHTMLAttributes, type PropType } from "vue"
 import type { ControlSize, SemanticColors, Sizes, Variants } from "@plexui/styles/types"
-import { handlePressableMouseEnter } from "../../lib/helpers"
-import { wrapTextNodeSiblings } from "../../lib/renderHelpers"
-import { LoadingIndicator } from "../Indicator"
-import { TransitionGroup } from "../Transition"
+import { handlePressableMouseEnter } from "../../lib/helpers.js"
+import { wrapTextNodeSiblings } from "../../lib/renderHelpers.js"
+import { LoadingIndicator } from "../Indicator/index.js"
+import { TransitionGroup } from "../Transition/index.js"
 import s from "@plexui/styles/components/Button/Button.module.css"
 
 // Vue port of packages/ui/src/components/Button/Button.tsx. Props, defaults
@@ -15,7 +15,7 @@ export type ButtonColor = SemanticColors<
   "primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"
 >
 
-export const Button = defineComponent({
+const ButtonComponent = defineComponent({
   name: "Button",
   props: {
     /** @default "button" */
@@ -112,3 +112,10 @@ export const Button = defineComponent({
     }
   },
 })
+
+type ButtonOwnProps = InstanceType<typeof ButtonComponent>["$props"]
+
+/** Button props plus the native <button> attributes that fall through to it, as in React. */
+export type ButtonProps = ButtonOwnProps & Omit<ButtonHTMLAttributes, keyof ButtonOwnProps>
+
+export const Button = ButtonComponent as typeof ButtonComponent & { new (): { $props: ButtonProps } }

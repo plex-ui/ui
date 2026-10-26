@@ -1,1 +1,1 @@
-export { TransitionGroup } from "./TransitionGroup"
+export { TransitionGroup } from "./TransitionGroup.js"
