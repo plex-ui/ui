@@ -484,7 +484,31 @@ Docs: https://plexui.com/vue/components/table
     - TableHead (th) — Table header cell
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
-Examples: Overview, With footer, Minimal
+  DataTable:
+    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
+    - initial-sorting (SortingState) — Initial column sorting state
+    - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
+    - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
+    - enable-row-selection (boolean) default: false — Enable row selection; selection controls go in your own column
+    - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
+    - get-row-id ((row: TData) => string) — Custom row ID accessor
+    - empty-message (string | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
+    - show-pagination (boolean) default: true — Whether to show pagination controls
+    - class (string) — Class applied to outermost wrapper
+    - emptyMessage slot (VNode[]) — Rich content shown when no rows
+    - @row-click ((row: TData) => void) — Click handler for rows, makes rows interactive
+    - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
+    - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
+    - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
+  DataTableColumnHeader:
+    - class (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
+Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Cell variants, Filtering, Column visibility, Empty state
 
 ## Tabs
 Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.

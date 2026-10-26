@@ -3228,6 +3228,30 @@ Docs: https://plexui.com/vue/components/table
     - TableHead (th) — Table header cell
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
+  DataTable:
+    - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
+    - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
+    - initial-sorting (SortingState) — Initial column sorting state
+    - global-filter (string) — Controlled search/filter string. Bind with v-model:global-filter
+    - column-visibility (VisibilityState) — Controlled column visibility state. Bind with v-model:column-visibility
+    - enable-row-selection (boolean) default: false — Enable row selection; selection controls go in your own column
+    - row-selection (RowSelectionState) — Controlled row selection state. Bind with v-model:row-selection
+    - get-row-id ((row: TData) => string) — Custom row ID accessor
+    - empty-message (string | VNode) default: "No results." — Shown when no rows; the emptyMessage slot takes precedence
+    - show-pagination (boolean) default: true — Whether to show pagination controls
+    - class (string) — Class applied to outermost wrapper
+    - emptyMessage slot (VNode[]) — Rich content shown when no rows
+    - @row-click ((row: TData) => void) — Click handler for rows, makes rows interactive
+    - @update:global-filter ((value: string) => void) — Emitted with the next filter when the table changes it; powers v-model:global-filter
+    - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
+    - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
+  DataTableColumnHeader:
+    - class (string) — Class applied to the header button (or text when the column cannot sort)
+  Column helpers:
+    - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
+    - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
+    - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
+    - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 
 ### Overview
 A complete table with header, body, footer, and caption showing invoice data.
@@ -3329,6 +3353,255 @@ A simple table without caption or footer, showing a list of people.
     </TableRow>
   </TableBody>
 </Table>
+```
+
+### Variant
+Use variant="bordered" for a card-like table with a rounded border and tinted header background.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const variant = ref<"default" | "bordered">("bordered")
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="users.slice(0, 6)" :variant="variant" :page-size="Infinity" />
+</template>
+```
+
+### Sorting
+Click column headers to toggle sort direction. Columns use DataTableColumnHeader for sort controls.
+```vue
+<script setup lang="ts">
+import { h } from "vue"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  {
+    accessorKey: "role",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Role" }),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Status" }),
+  },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    :initial-sorting="[{ id: 'name', desc: false }]"
+  />
+</template>
+```
+
+### Pagination
+Automatic pagination with rows-per-page selector and navigation controls. Set page-size to control initial page size.
+```vue
+<script setup lang="ts">
+import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status" },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="users" :page-size="5" />
+</template>
+```
+
+### Row click
+Listen to @row-click to make rows clickable and interactive.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const selectedUser = ref<User | null>(null)
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "Role" },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users.slice(0, 8)"
+    :page-size="4"
+    @row-click="selectedUser = $event"
+  />
+  <div
+    style="margin-top: 12px; padding: 10px 12px; border: 1px solid var(--color-fd-border); border-radius: 8px; background: var(--docs-surface-elevated); color: var(--color-text-secondary); font-size: 0.875rem"
+  >
+    {{
+      selectedUser
+        ? "Clicked: " + selectedUser.name + " (" + selectedUser.id + ") - " + selectedUser.department
+        : "Click a row to see selected user details."
+    }}
+  </div>
+</template>
+```
+
+### Cell variants
+Use column helper utilities for rich cell types: monospace IDs with copy-on-click, status badges, formatted dates, and currency values.
+```vue
+<script setup lang="ts">
+import { h } from "vue"
+import { DataTable, dateTimeCell, idCell, statusCell, tooltipHeader, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID", cell: idCell<User>((row) => row.id) },
+  { accessorKey: "name", header: "Name", cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name) },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+  { accessorKey: "joined", header: "Joined", cell: dateTimeCell<User>((row) => row.joined) },
+  {
+    accessorKey: "salary",
+    header: tooltipHeader("Salary", "Annual base salary in USD."),
+    meta: { align: "right" },
+    cell: ({ row }) => h("span", { class: "font-medium" }, money.format(row.original.salary)),
+  },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="users" :page-size="6" />
+</template>
+```
+
+### Filtering
+Control search with v-model:global-filter. The filter searches across all columns.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+// Bind the same ref to a search field: <Input v-model:value="globalFilter" />
+const globalFilter = ref("")
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    v-model:global-filter="globalFilter"
+    :page-size="5"
+  />
+</template>
+```
+
+### Column visibility
+Toggle column visibility with v-model:column-visibility.
+```vue
+<script setup lang="ts">
+import { h, ref } from "vue"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef, type VisibilityState } from "@plexui/vue/components/DataTable"
+import { users, type User } from "./data"
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+const columnVisibility = ref<VisibilityState>({
+  role: true,
+  department: true,
+  status: true,
+  salary: true,
+})
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Name" }),
+    cell: ({ row }) => h("span", { class: "font-medium" }, row.original.name),
+  },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "department", header: "Department" },
+  { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
+  {
+    accessorKey: "salary",
+    header: "Salary",
+    meta: { align: "right" },
+    cell: ({ row }) => h("span", money.format(row.original.salary)),
+  },
+]
+</script>
+
+<template>
+  <DataTable
+    :columns="columns"
+    :data="users"
+    :page-size="5"
+    v-model:column-visibility="columnVisibility"
+  />
+</template>
+```
+
+### Empty state
+Customize the empty state message with the empty-message prop, or the emptyMessage slot for rich content.
+```vue
+<script setup lang="ts">
+import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
+import type { User } from "./data"
+
+const columns: ColumnDef<User>[] = [
+  { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "status", header: "Status" },
+]
+</script>
+
+<template>
+  <DataTable :columns="columns" :data="[]" empty-message="No users found." />
+</template>
 ```
 
 ## Tabs

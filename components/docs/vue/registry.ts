@@ -24,6 +24,7 @@ import {
   CodeBlockBaseCopyButton,
   CollapsibleCodeBlock,
 } from '@plexui/vue/components/CodeBlock';
+import { DataTable, DataTableColumnHeader, DataTablePagination } from '@plexui/vue/components/DataTable';
 import {
   Dialog,
   DialogClose,
@@ -175,6 +176,9 @@ const components: Record<string, Component> = {
   CollapsibleCodeBlock,
   CopyButton,
   CopyTooltip,
+  DataTable,
+  DataTableColumnHeader,
+  DataTablePagination,
   Dialog,
   DialogClose,
   DialogContent,
