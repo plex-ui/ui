@@ -17,7 +17,7 @@ export function FrameworkSwitch({
   slug: string;
 }) {
   return (
-    <nav aria-label="Framework" className="not-prose flex gap-1 mb-4">
+    <nav aria-label="Framework" className="flex gap-1">
       {FRAMEWORKS.map(({ id, label, base }) => (
         <ButtonLink
           key={id}

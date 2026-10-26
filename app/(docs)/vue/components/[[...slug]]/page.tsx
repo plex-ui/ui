@@ -2,6 +2,7 @@ import { vueComponentsSource } from '@/lib/source';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
+import { FrameworkSwitch } from '@/components/docs/FrameworkSwitch';
 import { DocsViewportState } from '@/components/layout/DocsViewportState';
 import {
   DocsPageWithMobileTOC,
@@ -49,7 +50,10 @@ export default async function Page(props: {
     >
       <DocsViewportState showLeftSidebar={showLeftSidebar} showRightSidebar={showRightToc} />
       <div className="plex-docs-title-row">
-        <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
+          {params.slug && <FrameworkSwitch framework="vue" slug={params.slug.join('/')} />}
+        </div>
       </div>
       <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
       <DocsBody className="plex-docs-body">

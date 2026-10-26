@@ -1,7 +1,8 @@
-import { componentsSource } from '@/lib/source';
+import { componentsSource, vueComponentsSource } from '@/lib/source';
 import type { TOCItemType } from 'fumadocs-core/toc';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
+import { FrameworkSwitch } from '@/components/docs/FrameworkSwitch';
 import { PageNav } from '@/components/docs/PageNav';
 import { RelatedComponents } from '@/components/docs/RelatedComponents';
 import { DocsViewportState } from '@/components/layout/DocsViewportState';
@@ -43,6 +44,9 @@ export default async function Page(props: {
     .join(' ');
 
   const MDX = page.data.body;
+  // React / Vue switch, only for components that have a Vue page
+  const vueSlug =
+    params.slug && vueComponentsSource.getPage(params.slug) ? params.slug.join('/') : null;
   const pageUrl = `https://plexui.com${page.url}`;
   const dateModified = (page.data as { lastModified?: Date }).lastModified?.toISOString();
 
@@ -122,7 +126,10 @@ export default async function Page(props: {
         showRightSidebar={showRightToc}
       />
       <div className="plex-docs-title-row">
-        <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
+          {vueSlug && <FrameworkSwitch framework="react" slug={vueSlug} />}
+        </div>
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
       <DocsDescription className="plex-docs-description">
