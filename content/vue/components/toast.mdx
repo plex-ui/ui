@@ -150,7 +150,7 @@ Remaining vue-sonner `Toaster` props (`expand`, `visible-toasts`, `hotkey`, `dir
 
 ### toast
 
-Re-exported from vue-sonner. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference. vue-sonner spells a few options the Vue way: `class` (sonner's `className`), `classes` (`classNames`) and `descriptionClass` (`descriptionClassName`), and `toast.custom` takes a component.
+vue-sonner's `toast`, wrapped so a per-toast `descriptionClass` reaches the description as in React. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference. vue-sonner spells a few options the Vue way: `class` (sonner's `className`), `classes` (`classNames`) and `descriptionClass` (`descriptionClassName`), and `toast.custom` takes a component.
 
 ### Types
 
@@ -172,4 +172,7 @@ The Vue Toaster wraps [vue-sonner](https://vue-sonner.vercel.app/) 2.0.9, the Vu
 - Action and cancel buttons print `data-button`, `data-action` and `data-cancel` as empty strings rather than `"true"`.
 - A per-toast `closeButton` adds `data-close-button-position`, which vue-sonner's stylesheet uses to place it.
 - Attributes passed to `<Toaster>` that are not props land on the `<ol>`; React drops them.
+- Updating a toast with a new `duration`, such as turning a `toast.loading()` with `duration: Infinity` into a success with `duration: 3000`, keeps its old timer, where React starts over with the new duration.
+- An `action` or `cancel` label given as a component prints as text, so pass a string label; React renders the element.
+- A per-toast `descriptionClass` comes after the Plex description class in the class list; React puts it first.
 </div>

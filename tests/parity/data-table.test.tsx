@@ -201,6 +201,49 @@ const apiColumns = (fw: FW, { selected = true }: { selected?: boolean } = {}) =>
   { accessorKey: "department", header: "Department" },
 ]
 
+/**
+ * Columns whose header runs two row selection updates from one click, in
+ * one tick or across an await, and whose cells print each row's selection.
+ */
+const batchColumns = (fw: FW) => [
+  {
+    id: "batch",
+    header: ({ table }: { table: any }) =>
+      el(
+        fw,
+        "span",
+        {},
+        el(
+          fw,
+          "button",
+          {
+            className: "pick-two",
+            onClick: () => {
+              table.setRowSelection((old: object) => ({ ...old, 1: true }))
+              table.setRowSelection((old: object) => ({ ...old, 2: true }))
+            },
+          },
+          "two",
+        ),
+        el(
+          fw,
+          "button",
+          {
+            className: "pick-two-later",
+            onClick: async () => {
+              table.setRowSelection((old: object) => ({ ...old, 1: true }))
+              await Promise.resolve()
+              table.setRowSelection((old: object) => ({ ...old, 2: true }))
+            },
+          },
+          "two later",
+        ),
+      ),
+    cell: ({ row }: { row: any }) => el(fw, "span", { className: "selected" }, `${row.id}:${row.getIsSelected()}`),
+  },
+  { accessorKey: "name", header: "Name" },
+]
+
 /** React DataTable props → Vue props: `className` → `class`, `onXChange` → `onUpdate:x`. */
 const vueProps = ({ className, onGlobalFilterChange, onColumnVisibilityChange, onRowSelectionChange, ...props }: Props) => ({
   ...props,
@@ -548,12 +591,12 @@ describe("DataTable markup parity", () => {
   })
 
   const probe = once((fw) => apiColumns(fw, { selected: false }))
-  test("getState(): uncontrolled keys are undefined, as React's state spread leaves them", async () => {
+  test("getState(): without the props, the table holds its own initial state", async () => {
     const result = await tablePair((fw) => ({ columns: probe(fw), data: users.slice(0, 2) }))
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toContain('\\"columnVisibility\\":\\"undefined\\"')
-    expect(result.react[0]).toContain('\\"rowSelection\\":\\"undefined\\"')
-    expect(result.react[0]).toContain('\\"globalFilter\\":\\"undefined\\"')
+    expect(result.react[0]).toContain('\\"columnVisibility\\":{}')
+    expect(result.react[0]).toContain('\\"rowSelection\\":{}')
+    expect(result.react[0]).toContain('\\"globalFilter\\":\\"\\"')
   })
 })
 
@@ -710,27 +753,35 @@ describe("DataTable pagination parity", () => {
     expect(result.react[1]).toContain('select value="100" index=3')
   })
 
-  test("pageSize prop changes after mount keep the internal page size (React quirk)", async () => {
+  test("pageSize prop changes after mount are applied; turning pagination off shows every row", async () => {
+    const rowCount = (snapshot: string) => snapshot.match(/<tr/g)!.length - 1
     const result = await tablePair<{ pageSize: number }>(
       (fw, state) => ({ columns: basic(fw), data: users, pageSize: state.pageSize }),
       {
         initial: { pageSize: 5 },
-        steps: async ({ set, snapshot }) => {
+        steps: async ({ click, set, snapshot }) => {
+          await click(NEXT)
+          await click(NEXT)
+          snapshot() // page 3 of 5 per page
           await set({ pageSize: 10 })
-          snapshot() // still 5 rows per page, "1–5 of 15"
+          snapshot() // the top row stays in view: page 2 of 10 per page
           await set({ pageSize: Infinity })
-          snapshot() // controls hidden, rows still paginated by 5
+          snapshot() // controls hidden, every row shown
           await set({ pageSize: 3 })
-          snapshot()
+          snapshot() // pagination back on: first page
         },
       },
     )
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toContain('"1–5 of 15"')
-    expect(result.react[1]).not.toContain("Pagination")
+    expect(result.react[0]).toContain('"11–15 of 15"')
+    expect(result.react[1]).toContain('"11–15 of 15"')
+    expect(result.react[1]).toContain('select value="10" index=0')
+    expect(result.react[2]).not.toContain("Pagination")
+    expect(rowCount(result.react[2]!)).toBe(15)
+    expect(result.react[3]).toContain('"1–3 of 15"')
   })
 
-  test("pagination turned on after mount uses the default page size", async () => {
+  test("pagination turned on after mount uses the new page size", async () => {
     const result = await tablePair<{ pageSize: number }>(
       (fw, state) => ({ columns: basic(fw), data: users, pageSize: state.pageSize }),
       {
@@ -743,7 +794,7 @@ describe("DataTable pagination parity", () => {
       },
     )
     expect(result.vue).toEqual(result.react)
-    expect(result.react[1]).toContain('"1–10 of 15"')
+    expect(result.react[1]).toContain('"1–4 of 15"')
   })
 
   test("new data resets the page; data shrinking to nothing shows the empty row", async () => {
@@ -845,7 +896,7 @@ describe("DataTable controlled state parity", () => {
     expect(result.react[3]).toContain('"No results."')
   })
 
-  test("table.setGlobalFilter: no-op without a callback, emits with one, filters when bound", async () => {
+  test("table.setGlobalFilter: filters on its own without the prop, notifies the callback, follows the prop when bound", async () => {
     const calls: Record<FW, string[]> = { react: [], vue: [] }
     type S = { mode: "none" | "callback" | "bound"; globalFilter?: string }
     const make = (fw: FW, state: S, set: Setter<S>) => ({
@@ -864,23 +915,30 @@ describe("DataTable controlled state parity", () => {
     const result = await tablePair<S>(make, {
       initial: { mode: "none" },
       steps: async ({ click, set, snapshot }) => {
+        snapshot() // all rows
         await click(".filter-design")
-        snapshot() // nothing happens
+        snapshot() // filtered by the table's own state, no callback
         await set({ mode: "callback" })
-        await click(".filter-design")
-        snapshot() // callback called, table unchanged (globalFilter stays undefined)
         await click(".reset-filter")
+        snapshot() // reset to the initial state: undefined, all rows; callback called
+        await click(".filter-design")
+        snapshot() // filtered again, callback called
         await set({ mode: "bound", globalFilter: "" })
+        snapshot() // the prop wins: all rows
         await click(".filter-design")
-        snapshot() // filtered
+        snapshot() // filtered through the prop
         await click(".reset-filter")
-        snapshot() // reset to the initial state: undefined, all rows
+        snapshot() // reset: undefined from the parent, the table's own state shows
       },
     })
     expect(result.vue).toEqual(result.react)
-    expect(result.react[0]).toEqual(result.react[1])
+    expect(result.react[1]).not.toEqual(result.react[0])
+    expect(result.react[1]).toContain('\\"globalFilter\\":\\"design\\"')
+    expect(result.react[2]).toContain('\\"globalFilter\\":\\"undefined\\"')
+    expect(result.react[4]).toEqual(result.react[2].replace('\\"globalFilter\\":\\"undefined\\"', '\\"globalFilter\\":\\"\\"'))
+    expect(result.react[5]).toEqual(result.react[1])
     expect(calls.vue).toEqual(calls.react)
-    expect(calls.react).toEqual(['"design"', "undefined", '"design"', "undefined"])
+    expect(calls.react).toEqual(["undefined", '"design"', '"design"', "undefined"])
   })
 
   test("column visibility: controlled from the outside and through the table", async () => {
@@ -903,7 +961,7 @@ describe("DataTable controlled state parity", () => {
       initial: { columnVisibility: undefined, listen: false },
       steps: async ({ click, set, snapshot }) => {
         await click(".hide-role")
-        snapshot() // no callback: nothing
+        snapshot() // no prop, no callback: the table hides it itself
         await set({ columnVisibility: { department: false } })
         snapshot()
         await set({ listen: true })
@@ -916,6 +974,7 @@ describe("DataTable controlled state parity", () => {
       },
     })
     expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('\\"columnVisibility\\":{\\"role\\":false}')
     expect(calls.vue).toEqual(calls.react)
     expect(calls.react).toEqual(['{"department":false,"role":false}', "{}"])
   })
@@ -956,33 +1015,87 @@ describe("DataTable controlled state parity", () => {
     expect(calls.react.at(-1)).toBe('{"USR-002":true,"USR-004":true}')
   })
 
-  // Without the rowSelection prop, getState().rowSelection is undefined in
-  // React, so row.getIsSelected() / toggleSelected() / toggleAllRowsSelected()
-  // throw (table-core reads `selection[row.id]`). Setters that do not read the
-  // state still reach the callback.
-  test("row selection without the rowSelection prop: setRowSelection still reaches the callback", async () => {
+  test("row selection without the rowSelection prop: the table keeps its own selection and notifies", async () => {
     const calls: Record<FW, string[]> = { react: [], vue: [] }
     const result = await tablePair(
       (fw) => ({
-        columns: probe(fw),
+        columns: api(fw),
         data: users.slice(0, 3),
         enableRowSelection: true,
         onRowSelectionChange: (selection: Record<string, boolean>) => calls[fw].push(JSON.stringify(selection)),
       }),
       {
         steps: async ({ click, snapshot }) => {
+          snapshot()
+          await click('[data-row="1"]')
+          snapshot()
           await click(".set-selection")
+          snapshot()
+          await click(".toggle-all")
+          snapshot()
+          await click(".toggle-all")
           snapshot()
         },
       },
     )
     expect(result.vue).toEqual(result.react)
     expect(calls.vue).toEqual(calls.react)
-    expect(calls.react).toEqual(['{"2":true}'])
-    expect(result.react[0]).toContain('\\"rowSelection\\":\\"undefined\\"')
+    expect(calls.react).toEqual(['{"1":true}', '{"1":true,"2":true}', '{"0":true,"1":true,"2":true}', "{}"])
+    expect(result.react[0]).toContain('"1:false:true"')
+    expect(result.react[1]).toContain('"1:true:true"')
+    expect(result.react[3]).toContain('"0:true:true"')
   })
 
-  test("row selection without a callback does nothing", async () => {
+  const batch = once(batchColumns)
+  const selected = (snapshot: string) => (snapshot.match(/"\d:true"/g) ?? []).join(",")
+
+  test("updaters build on each other: uncontrolled across an await, controlled within one tick", async () => {
+    const calls: Record<FW, string[]> = { react: [], vue: [] }
+    type S = { mode: "uncontrolled" | "rejecting" | "accepting"; rowSelection?: Record<string, boolean> }
+    const make = (fw: FW, state: S, set: Setter<S>) => ({
+      columns: batch(fw),
+      data: users.slice(0, 4),
+      enableRowSelection: true,
+      ...(state.mode === "uncontrolled" ? {} : { rowSelection: state.rowSelection }),
+      onRowSelectionChange: (selection: Record<string, boolean>) => {
+        calls[fw].push(`${state.mode} ${JSON.stringify(selection)}`)
+        if (state.mode === "accepting") set({ rowSelection: selection })
+      },
+    })
+    const result = await tablePair<S>(make, {
+      initial: { mode: "uncontrolled" },
+      steps: async ({ click, set, snapshot }) => {
+        await click(".pick-two-later")
+        snapshot() // the second update keeps the first
+        await set({ mode: "rejecting", rowSelection: {} })
+        await click(".pick-two")
+        await click(".pick-two")
+        await click(".pick-two-later")
+        snapshot() // the prop never changes: nothing selected
+        await set({ mode: "accepting", rowSelection: {} })
+        await click(".pick-two")
+        snapshot()
+      },
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(calls.vue).toEqual(calls.react)
+    expect(calls.react).toEqual([
+      'uncontrolled {"1":true}',
+      'uncontrolled {"1":true,"2":true}',
+      // One batch accumulates; every new batch starts from the prop
+      'rejecting {"1":true}',
+      'rejecting {"1":true,"2":true}',
+      'rejecting {"1":true}',
+      'rejecting {"1":true,"2":true}',
+      'rejecting {"1":true}',
+      'rejecting {"2":true}',
+      'accepting {"1":true}',
+      'accepting {"1":true,"2":true}',
+    ])
+    expect(result.react.map(selected)).toEqual(['"1:true","2:true"', "", '"1:true","2:true"'])
+  })
+
+  test("controlled row selection without a callback does nothing", async () => {
     const result = await tablePair((fw) => ({ columns: api(fw), data: users.slice(0, 3), enableRowSelection: true, rowSelection: {} }), {
       steps: async ({ click, snapshot }) => {
         snapshot()

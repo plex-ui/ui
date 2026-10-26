@@ -17,6 +17,7 @@ import {
 } from "vue"
 import type { Sizes } from "@plexui/styles/types"
 import { isDev } from "../../lib/environment.js"
+import { isTransparentFragment } from "../../lib/renderHelpers.js"
 import { CheckMd } from "../Icon/index.js"
 import s from "@plexui/styles/components/ProgressSteps/ProgressSteps.module.css"
 
@@ -26,9 +27,11 @@ import s from "@plexui/styles/components/ProgressSteps/ProgressSteps.module.css"
 //
 // React counts children with `Children.count` and hands each element its
 // position as `_index` via `cloneElement`. The same is done with the slot
-// vnodes, following React's rules: lists (arrays, and the fragment a v-for
-// renders) are flattened, an empty `v-if` placeholder counts like React's
-// `{cond && <Step />}` (which is `false`, still a child), and text counts.
+// vnodes, following React's rules: lists (arrays, the fragment a v-for
+// renders, and the one a forwarded `<slot />` renders, see
+// `isTransparentFragment`) are flattened, an empty `v-if` placeholder counts
+// like React's `{cond && <Step />}` (which is `false`, still a child), and
+// text counts.
 // Template comments are dropped, like JSX comments.
 
 type Orientation = "horizontal" | "vertical"
@@ -52,9 +55,6 @@ const useProgressStepsContext = () => {
   return context
 }
 
-// PatchFlags.KEYED_FRAGMENT | PatchFlags.UNKEYED_FRAGMENT: the fragment of a v-for
-const LIST_FRAGMENT = 128 | 256
-
 // React's `Children.map` slots: `null` stands for an empty child
 // (React's `false` / `null`), which is counted and indexed but not rendered.
 const toChildSlots = (children: VNodeArrayChildren | undefined): Array<VNode | null> => {
@@ -75,8 +75,8 @@ const toChildSlots = (children: VNodeArrayChildren | undefined): Array<VNode | n
       if (vnode.children === "v-if" || vnode.children === "") result.push(null)
       continue
     }
-    if (vnode.type === Fragment && vnode.patchFlag & LIST_FRAGMENT && Array.isArray(vnode.children)) {
-      result.push(...toChildSlots(vnode.children))
+    if (isTransparentFragment(vnode)) {
+      result.push(...toChildSlots(vnode.children as VNodeArrayChildren))
       continue
     }
     result.push(vnode)

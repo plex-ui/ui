@@ -21,14 +21,17 @@ export const Image = defineComponent({
     error: (_event: Event) => true,
   },
   setup(props, { attrs, emit }) {
-    const loaded = ref(!!props.src && loadedSrcs.has(props.src))
-    const failed = ref(false)
+    // Track load/fail per src so a new src starts fresh after an error
+    const loadedSrc = ref<string>()
+    const failedSrc = ref<string>()
 
     return () => {
       const { src } = props
-      const considerLoaded = loaded.value || (failed.value && props.forceRenderAfterLoadFail)
+      const loaded = !!src && (loadedSrc.value === src || loadedSrcs.has(src))
+      const failed = !!src && failedSrc.value === src
+      const considerLoaded = loaded || (failed && props.forceRenderAfterLoadFail)
 
-      if (!src || (!props.forceRenderAfterLoadFail && failed.value)) {
+      if (!src || (!props.forceRenderAfterLoadFail && failed)) {
         return null
       }
 
@@ -37,12 +40,12 @@ export const Image = defineComponent({
         "src": src,
         "class": [s.Image, attrs.class],
         "onLoad": (event: Event) => {
-          loaded.value = true
+          loadedSrc.value = src
           loadedSrcs.add(src)
           emit("load", event)
         },
         "onError": (event: Event) => {
-          failed.value = true
+          failedSrc.value = src
           emit("error", event)
         },
         "data-loaded": considerLoaded ? "" : undefined,

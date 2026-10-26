@@ -1,14 +1,15 @@
 import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
-import { Slot } from "reka-ui"
 import { Separator } from "../Separator/index.js"
+import { firstElementChild, mergeSlotProps } from "../Tooltip/slot.js"
 import s from "@plexui/styles/components/ButtonGroup/ButtonGroup.module.css"
 
 // Vue port of packages/ui/src/components/ButtonGroup/ButtonGroup.tsx.
 // Exports are flat (`ButtonGroupSeparator` for `ButtonGroup.Separator`, ...).
 // React spreads the remaining props after its own attributes, so caller
 // attributes win; Vue's attribute fallthrough merges them the same way.
-// `asChild` uses Reka UI's Slot where React uses Radix's (same merge:
-// the slot's class comes first, the child's own props win).
+// `asChild` merges the way Radix's Slot does (the slot's class comes first,
+// the child's own props win, the child's handlers run first), which Reka's
+// Slot does not, hence the Tooltip's slot helpers.
 
 export type ButtonGroupOrientation = "horizontal" | "vertical"
 
@@ -83,9 +84,9 @@ export const ButtonGroupText = defineComponent({
     return () => {
       const { class: className, ...restAttrs } = attrs
       const ownProps = { "data-slot": "button-group-text", "class": [s.Text, className], ...restAttrs }
-      return props.asChild
-        ? h(Slot, ownProps, { default: () => slots.default?.() })
-        : h("div", ownProps, slots.default?.())
+      if (!props.asChild) return h("div", ownProps, slots.default?.())
+      const child = firstElementChild(slots.default?.())
+      return child ? mergeSlotProps(child, ownProps) : null
     }
   },
 })

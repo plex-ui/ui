@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createApp, reactive } from 'vue';
 import { vueComponents } from './vue/registry';
 
@@ -13,6 +13,10 @@ export type VuePreviewProps = {
 
 export default function VuePreviewRuntime({ template, props }: VuePreviewProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  // Every preview is its own Vue app, so ids from Vue's useId() would repeat
+  // across the demos of a page (v-0, v-1, ...) and ARIA references could
+  // point into another demo. A per-preview prefix keeps them unique.
+  const idPrefix = `v${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const stateRef = useRef(reactive<Record<string, unknown>>({ ...props }));
 
   // Only push keys whose value changed: the template may own others
@@ -31,9 +35,10 @@ export default function VuePreviewRuntime({ template, props }: VuePreviewProps) 
     if (!host) return;
     const state = stateRef.current;
     const app = createApp({ components: vueComponents, setup: () => state, template });
+    app.config.idPrefix = idPrefix;
     app.mount(host);
     return () => app.unmount();
-  }, [template]);
+  }, [template, idPrefix]);
 
   // `contents` keeps the mount node out of the preview stage's layout.
   // Placeholder `href="#"` links in examples must not jump the page.

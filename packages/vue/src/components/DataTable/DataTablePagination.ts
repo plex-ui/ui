@@ -56,9 +56,10 @@ const DataTablePaginationComponent = defineComponent({
           h(
             "select",
             {
-              ref: selectRef,
-              class: s.PaginationSelect,
-              onChange: (event: Event) => {
+              "ref": selectRef,
+              "aria-label": "Rows per page",
+              "class": s.PaginationSelect,
+              "onChange": (event: Event) => {
                 table.setPageSize(Number((event.target as HTMLSelectElement).value))
                 // React puts the controlled value back after the event
                 sync()
@@ -73,26 +74,28 @@ const DataTablePaginationComponent = defineComponent({
             h(
               Button,
               {
-                color: "secondary",
-                variant: "outline",
-                size: "sm",
-                pill: false,
-                uniform: true,
-                disabled: !table.getCanPreviousPage(),
-                onClick: () => table.previousPage(),
+                "color": "secondary",
+                "variant": "outline",
+                "size": "sm",
+                "pill": false,
+                "uniform": true,
+                "disabled": !table.getCanPreviousPage(),
+                "onClick": () => table.previousPage(),
+                "aria-label": "Previous page",
               },
               { default: () => h(ChevronLeftMd) },
             ),
             h(
               Button,
               {
-                color: "secondary",
-                variant: "outline",
-                size: "sm",
-                pill: false,
-                uniform: true,
-                disabled: !table.getCanNextPage(),
-                onClick: () => table.nextPage(),
+                "color": "secondary",
+                "variant": "outline",
+                "size": "sm",
+                "pill": false,
+                "uniform": true,
+                "disabled": !table.getCanNextPage(),
+                "onClick": () => table.nextPage(),
+                "aria-label": "Next page",
               },
               { default: () => h(ChevronRightMd) },
             ),

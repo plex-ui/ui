@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, type ComponentType, type ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { createCommentVNode, defineComponent, h, type VNode } from "vue"
+import { createCommentVNode, createTextVNode, defineComponent, Fragment, h, type VNode } from "vue"
 import { Alert as RAlert } from "../../packages/ui/src/components/Alert"
 import { Button as RButton } from "../../packages/ui/src/components/Button"
 import { ButtonGroup as RButtonGroup } from "../../packages/ui/src/components/ButtonGroup"
@@ -206,6 +206,27 @@ describe("ButtonGroup parity", () => {
     expect([react.button.mock.calls.length, react.text.mock.calls.length]).toEqual([1, 1])
     expect([vue.button.mock.calls.length, vue.text.mock.calls.length]).toEqual([1, 1])
   })
+
+  // Radix's Slot runs the child's handler first, then the slot's
+  test("text asChild runs the child's handler before the group text's", async () => {
+    const calls: Record<"react" | "vue", string[]> = { react: [], vue: [] }
+    render(
+      <RText asChild onClick={() => calls.react.push("text")}>
+        <span onClick={() => calls.react.push("child")}>@</span>
+      </RText>,
+    )
+    await interact(() => fireEvent.click(document.querySelector("span")!))
+    cleanup()
+    mountVue(() =>
+      h(ButtonGroupText, { asChild: true, onClick: () => calls.vue.push("text") }, () => [
+        h("span", { onClick: () => calls.vue.push("child") }, "@"),
+      ]),
+    )
+    await flushVue()
+    await interact(() => fireEvent.click(document.querySelector("span")!))
+    expect(calls.vue).toEqual(calls.react)
+    expect(calls.react).toEqual(["child", "text"])
+  })
 })
 
 /* ------------------------------------------------------------------ */
@@ -291,6 +312,19 @@ describe("Alert parity", () => {
   test.each(alertCases)("%s", async (_name, props) => {
     const { react, vue } = await renderPair(reactAlert(props), () => vueAlert(props))
     expect(vue).toBe(react)
+  })
+
+  // Vue turns a slot's "" into an empty Text vnode; React's "" is falsy
+  test.each([
+    ["an empty string", () => ""],
+    ["an empty text vnode in a fragment", () => [h(Fragment, null, [createTextVNode("")])]],
+  ])("title, description and actions slots rendering %s render nothing, like React's \"\"", async (_name, slot) => {
+    const { react, vue } = await renderPair(<RAlert title="" description="" actions="" />, () =>
+      h(Alert, {}, { title: slot, description: slot, actions: slot }),
+    )
+    expect(vue).toBe(react)
+    expect(react).not.toContain("Title")
+    expect(react).not.toContain("Actions")
   })
 
   test("v-if'd actions slot renders no actions container", async () => {

@@ -658,7 +658,7 @@ Handles sidebar state and provides context to all child components. Wrap your ap
   { prop: "collapsible", type: '"offcanvas" | "icon" | "none"', default: '"offcanvas"', description: "Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none" },
   { prop: "default-open", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state. Bind with v-model:open" },
-  { prop: "@update:open", type: "(open: boolean) => void", description: "Emitted when the open state changes; powers v-model:open. As in React, a listener without open leaves the change to the parent" },
+  { prop: "@update:open", type: "(open: boolean) => void", description: "Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits" },
   { prop: "default slot", type: "{ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }", description: "Receives the sidebar context, the object useSidebar() returns" },
 ]} />
 

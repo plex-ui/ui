@@ -1,12 +1,15 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, type ReactNode } from "react"
+import { createElement, type ReactElement, type ReactNode } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
-import { h } from "vue"
+import { createSSRApp, h, type VNode } from "vue"
+import { renderToString as vueRenderToString } from "vue/server-renderer"
 import { FloatingLabelInput as RFloatingLabelInput } from "../../packages/ui/src/components/FloatingLabelInput"
 import { FloatingLabelInput } from "../../packages/vue/src/components/FloatingLabelInput"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
-import { interact, renderPair } from "./pair"
+import { interact, renderPair, walkPairWithState } from "./pair"
 
 type Props = Record<string, unknown>
 
@@ -214,5 +217,74 @@ describe("FloatingLabelInput behaviour parity", () => {
     await flushVue()
     await interact(() => fireEvent.input(document.querySelector("input")!, { target: { value: "Ada" } }))
     expect(values).toEqual(["Ada"])
+  })
+})
+
+// Server-renders both, then hydrates each markup in the document. Returns the
+// serialized server markup, the field's displayed value after hydration and
+// the hydrated DOM. `beforeHydrate` can play the user typing early.
+const ssrPair = async (
+  element: ReactElement,
+  renderVue: () => VNode,
+  beforeHydrate: (field: HTMLInputElement) => void = () => {},
+) => {
+  const container = document.createElement("div")
+  document.body.appendChild(container)
+  const field = () => container.querySelector("input, textarea") as HTMLInputElement
+
+  container.innerHTML = reactRenderToString(element)
+  const reactHtml = serializeDom(container)
+  beforeHydrate(field())
+  let root: ReturnType<typeof hydrateRoot> | undefined
+  await act(async () => {
+    root = hydrateRoot(container, element)
+  })
+  const react = { html: reactHtml, value: field().value, hydrated: serializeDom(container) }
+  await act(async () => root!.unmount())
+
+  const app = createSSRApp({ render: renderVue })
+  container.innerHTML = await vueRenderToString(createSSRApp({ render: renderVue }))
+  const vueHtml = serializeDom(container)
+  beforeHydrate(field())
+  app.mount(container)
+  await flushVue()
+  const vue = { html: vueHtml, value: field().value, hydrated: serializeDom(container) }
+  app.unmount()
+  container.remove()
+  return { react, vue }
+}
+
+describe("FloatingLabelInput SSR and default-value parity", () => {
+  test.each([[false], [true]])("server markup carries defaultValue and hydration shows it (multiline %s)", async (multiline) => {
+    const props = { label: "Email", defaultValue: "original", multiline }
+    const { react, vue } = await ssrPair(createElement(RFloatingLabelInput, props as never), () => h(FloatingLabelInput, props))
+    expect(vue).toEqual(react)
+    expect(react.html).toContain(multiline ? '"original"' : 'value="original"')
+    expect(react.value).toBe("original")
+  })
+
+  test("hydration keeps what the user typed before it", async () => {
+    const props = { label: "Email", defaultValue: "original" }
+    const { react, vue } = await ssrPair(createElement(RFloatingLabelInput, props as never), () => h(FloatingLabelInput, props), (field) => {
+      field.value = "typed early"
+    })
+    expect(vue).toEqual(react)
+    expect(react.value).toBe("typed early")
+  })
+
+  test.each([[false], [true]])("a defaultValue change keeps the displayed value (multiline %s)", async (multiline) => {
+    const shown: string[] = []
+    const { react, vue } = await walkPairWithState(
+      { defaultValue: "original" },
+      (state) => createElement(RFloatingLabelInput, { label: "Email", id: "e", multiline, ...state } as never),
+      (state) => h(FloatingLabelInput, { label: "Email", id: "e", multiline, defaultValue: state.defaultValue }),
+      async ({ set, snapshot }) => {
+        await set({ defaultValue: "changed" })
+        snapshot()
+        shown.push((document.querySelector("input, textarea") as HTMLInputElement).value)
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(shown).toEqual(["original", "original"])
   })
 })

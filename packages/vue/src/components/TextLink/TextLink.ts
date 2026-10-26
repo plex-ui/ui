@@ -9,6 +9,12 @@ type RouteTarget = string | Record<string, unknown>
 const defined = (props: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined))
 
+const callHandlers = (handlers: unknown, event: Event) => {
+  for (const handler of Array.isArray(handlers) ? handlers : [handlers]) {
+    if (typeof handler === "function") handler(event)
+  }
+}
+
 /** Vue port of packages/ui/src/components/TextLink/TextLink.tsx. */
 export const TextLink = defineComponent({
   name: "TextLink",
@@ -26,7 +32,7 @@ export const TextLink = defineComponent({
     forceExternal: { type: Boolean, default: undefined },
     /** Override the default component used for the link (e.g. a router link). */
     as: [String, Object, Function] as PropType<LinkComponent>,
-    // Accepted and ignored, as in React: external links always open in a new tab
+    /** Where to open the link. External links default to `_blank`. */
     target: String,
   },
   setup(props, { slots, attrs }) {
@@ -49,11 +55,33 @@ export const TextLink = defineComponent({
       // Visible link, but non-anchor element. Useful if you want a visual link
       // that cannot be naturally meta-clicked (e.g., inadvertently open a new tab)
       if (!href && !to) {
-        return h("span", { ...sharedProps, role: "button" }, slots.default?.())
+        // With a click listener the span acts as a button, so it must be
+        // focusable and respond to Enter and Space like one
+        const actionable = !!attrs.onClick
+        const onKeydown = attrs.onKeydown
+        return h(
+          "span",
+          {
+            ...sharedProps,
+            role: "button",
+            tabindex: attrs.tabindex ?? (actionable ? 0 : undefined),
+            onKeydown: (evt: KeyboardEvent) => {
+              callHandlers(onKeydown, evt)
+              if (actionable && !evt.defaultPrevented && (evt.key === "Enter" || evt.key === " ")) {
+                evt.preventDefault()
+                ;(evt.currentTarget as HTMLElement).click()
+              }
+            },
+          },
+          slots.default?.(),
+        )
       }
 
       const linkProps = defined({
-        ...(isExternal ? { target: "_blank", rel: "noopener noreferrer", href: href ?? to } : { href, to }),
+        // An explicit target wins, as in ButtonLink; external links default to _blank
+        ...(isExternal
+          ? { target: props.target ?? "_blank", rel: "noopener noreferrer", href: href ?? to }
+          : { href, to, target: props.target }),
         ...sharedProps,
       })
 

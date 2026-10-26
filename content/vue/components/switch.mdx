@@ -6,7 +6,7 @@ metaDescription: Vue 3 switch component built on Reka UI for toggling settings, 
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const base = `<Switch />`
+export const base = `<Switch aria-label="Notifications" />`
 
 export const withLabel = `<Switch label="Notifications" />`
 
@@ -28,8 +28,8 @@ export const defaultChecked = `<Switch label="Enable notifications" name="notifi
 export const controlled = `<Switch label="Airplane mode" v-model:checked="checked" />`
 
 export const disabled = `<div class="flex gap-6">
-  <Switch disabled />
-  <Switch disabled checked />
+  <Switch disabled aria-label="Notifications" />
+  <Switch disabled checked aria-label="Dark mode" />
 </div>`
 
 export const disabledWithLabel = `<div class="flex flex-col gap-4">
@@ -71,7 +71,7 @@ export const settingsPanel = `<div class="flex w-full max-w-lg flex-col gap-8">
 
 ## Examples
 
-### Base
+### Overview
 
 <ComponentPreview language="vue" code={base} previewMinHeight={168}>
   <VueDemo template={base} />

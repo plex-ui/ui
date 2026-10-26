@@ -58,6 +58,9 @@ export const FloatingLabelSelect = defineComponent({
     }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
+      // Enter and Space on a nested control (the clear button) activate that
+      // control: neither this handler nor a wrapping trigger's may take them
+      if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) return
       callListeners(attrs.onKeydown, evt)
       if (props.disabled) return
 

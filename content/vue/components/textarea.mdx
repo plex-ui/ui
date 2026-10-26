@@ -36,7 +36,7 @@ export const sizing = `<div class="w-[400px]">
 </div>`
 
 export const disabled = `<div class="w-[400px]">
-  <Textarea :disabled="disabled" default-value="Jane Doe" />
+  <Textarea :disabled="disabled" default-value="Jane Doe" aria-label="Name" />
 </div>`
 
 export const invalid = `<div class="w-[400px]">
@@ -44,7 +44,7 @@ export const invalid = `<div class="w-[400px]">
 </div>`
 
 export const autoSelect = `<div class="w-[400px]">
-  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" />
+  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" aria-label="Notes" />
 </div>`
 
 export const autofillExtensions = `<div class="w-[400px]">
@@ -60,7 +60,7 @@ export const autofillExtensions = `<div class="w-[400px]">
 
 ## Examples
 
-### Base
+### Overview
 
 <ComponentPreview language="vue" code={base} previewMinHeight={168}>
   <VueDemo template={base} />
@@ -119,7 +119,7 @@ export const autofillExtensions = `<div class="w-[400px]">
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the textarea" },
   { prop: "read-only", type: "boolean", default: "false", description: "Make the textarea read-only (the native readonly attribute works too)" },
   { prop: "invalid", type: "boolean", default: "false", description: "Mark as invalid" },
-  { prop: "allow-autofill-extensions", type: "boolean", default: "false", description: "Allow autofill extensions; true by default when name is set" },
+  { prop: "allow-autofill-extensions", type: "boolean", default: "!!name", description: "Allow autofill extensions" },
   { prop: "auto-select", type: "boolean", default: "false", description: "Select all contents when mounted" },
   { prop: "rows", type: "number", default: "3", description: "Initial row count" },
   { prop: "auto-resize", type: "boolean", default: "false", description: "Grow/shrink with content" },

@@ -1160,4 +1160,56 @@ describe("Popover behaviour parity", () => {
     expect(result.react[0]).toContain('role="dialog"')
     expect(result.react[1]).not.toContain('role="dialog"')
   })
+
+  // The trigger child is swapped for a new element (another key, another tag)
+  // before the popover opens: focus must return to the new one
+  test.each([["key"], ["element type"]])("a replaced trigger child (%s) gets focus back after Escape", async (change) => {
+    const reactChild = (swapped: boolean) =>
+      change === "key" ? (
+        <button key={swapped ? "b" : "a"} data-testid="trigger">
+          {swapped ? "New" : "Old"}
+        </button>
+      ) : swapped ? (
+        <a href="#popover" data-testid="trigger">
+          New
+        </a>
+      ) : (
+        <button data-testid="trigger">Old</button>
+      )
+    const vueChild = (swapped: boolean) =>
+      change === "key"
+        ? h("button", { "key": swapped ? "b" : "a", "data-testid": "trigger" }, swapped ? "New" : "Old")
+        : swapped
+          ? h("a", { "href": "#popover", "data-testid": "trigger" }, "New")
+          : h("button", { "data-testid": "trigger" }, "Old")
+    const result = await walk(
+      { swapped: false },
+      ({ swapped }) => (
+        <ReactPopover>
+          <ReactPopover.Trigger>{reactChild(swapped)}</ReactPopover.Trigger>
+          <ReactPopover.Content>
+            <div className="p-4">Popover content</div>
+          </ReactPopover.Content>
+        </ReactPopover>
+      ),
+      ({ swapped }) =>
+        h(Popover, null, {
+          default: () => [
+            h(PopoverTrigger, null, { default: () => vueChild(swapped) }),
+            h(PopoverContent, null, { default: () => h("div", { class: "p-4" }, "Popover content") }),
+          ],
+        }),
+      async ({ fire, advance, set, snapshot }) => {
+        await set({ swapped: true })
+        await fire(TRIGGER, "click")
+        await advance(1)
+        await fire(() => document.activeElement, "keyDown", { key: "Escape", code: "Escape" })
+        await advance(1)
+        snapshot()
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).not.toContain('role="dialog"')
+    expect(result.react[0]).toMatch(/focus: <(button|a) class=""> "New"/)
+  })
 })

@@ -1,7 +1,7 @@
 import { act, fireEvent } from "@testing-library/react"
 import { createElement, type ComponentType } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
-import { h, type Component } from "vue"
+import { defineComponent, h, type Component } from "vue"
 import * as RToast from "../../packages/ui/src/components/Toast"
 import * as VToast from "../../packages/vue/src/components/Toast"
 import { walkPairWithState } from "./pair"
@@ -354,7 +354,78 @@ describe("Toast parity", () => {
   })
 })
 
+describe("Toast wrapper fixes", () => {
+  test("a caller's icons.loading replaces the spinner", async () => {
+    const VueSpinner = defineComponent({ render: () => h("span", { class: "spinner" }) })
+    const result = await walkPairWithState(
+      {},
+      () => createElement(RToast.Toaster as ComponentType<Props>, { icons: { loading: <span className="spinner" /> } }),
+      () => h(VToast.Toaster as Component, { icons: { loading: VueSpinner } }),
+      async ({ advance, snapshot }) => {
+        const toast = (isVue() ? VToast.toast : RToast.toast) as unknown as ToastApi
+        toast.loading("Uploading")
+        await settle(advance)
+        snapshot()
+        toast.dismiss()
+        await advance(1000)
+      },
+    )
+    expectParity(result)
+    expect(result.react[0]).toContain('<div class="sonner-loader" data-visible="true">')
+    expect(result.react[0]).toContain('<span class="spinner">')
+    expect(result.react[0]).not.toContain("sonner-spinner")
+  })
+
+  // vue-sonner reads only the Toaster's `descriptionClass`. The wrapper adds a
+  // toast's own to its `classes.description`, which vue-sonner applies after
+  // the Toaster's description class (sonner: before), so only the order of
+  // the two classes differs.
+  test("a per-toast descriptionClass (React descriptionClassName) reaches the description", async () => {
+    const result = await walkToasts({}, async ({ toast, advance, snapshot }) => {
+      toast("Title", { description: "Details", ...(isVue() ? { descriptionClass: "custom" } : { descriptionClassName: "custom" }) })
+      await settle(advance)
+      snapshot()
+    })
+    expect(result.react[0]).toContain('class="custom Description" data-description=""')
+    expect(result.vue[0]).toContain('class="Description custom" data-description=""')
+    const sameOrder = (dom: string) => dom.replace('class="Description custom"', 'class="custom Description"')
+    expect(result.vue.map(sameOrder).map(normalizeGaps)).toEqual(result.react.map(normalizeGaps))
+  })
+})
+
 describe("known vue-sonner gaps (each one shows up, and nothing else differs)", () => {
+  test("updating a toast's duration does not restart its timer", async () => {
+    const result = await walkToasts({}, async ({ toast, advance, snapshot }) => {
+      const id = toast.loading("Uploading", { duration: Infinity })
+      await settle(advance)
+      toast.success("Uploaded", { id, duration: 50 })
+      await settle(advance)
+      await advance(60)
+      snapshot()
+      await advance(500)
+      snapshot()
+    })
+    // sonner restarts the timer with the new duration; vue-sonner keeps the old one (Infinity)
+    expect(result.react[0]).toContain('data-removed="true"')
+    expect(result.react[1]).not.toContain('"Uploaded"')
+    expect(result.vue[0]).toContain('data-removed="false"')
+    expect(result.vue[1]).toContain('"Uploaded"')
+  })
+
+  test("a component as an action or cancel label prints as text", async () => {
+    const VueLabel = defineComponent({ render: () => h("b", "Undo") })
+    const result = await walkToasts({}, async ({ toast, advance, snapshot }) => {
+      const label = isVue() ? VueLabel : <b>Undo</b>
+      toast("Archived", { action: { label, onClick: () => {} }, cancel: { label, onClick: () => {} } } as never)
+      await settle(advance)
+      snapshot()
+    })
+    // React renders the element in each button; vue-sonner interpolates the label as text
+    expect(result.react[0].match(/<b>/g)).toHaveLength(2)
+    expect(result.vue[0]).not.toContain("<b>")
+    expect(result.vue[0]).toMatch(/data-action=""[^\n]*>\n\s*"\{/)
+  })
+
   test("raw attribute differences", async () => {
     const result = await walkToasts({}, async ({ toast, advance, snapshot }) => {
       snapshot()

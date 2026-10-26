@@ -5,6 +5,7 @@ import { Fragment, defineComponent, h, reactive, type PropType, type VNode } fro
 import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Menu as ReactMenu } from "../../packages/ui/src/components/Menu"
 import { PlexUIProvider as ReactPlexUIProvider } from "../../packages/ui/src/components/PlexUIProvider"
+import { Tooltip as ReactTooltip } from "../../packages/ui/src/components/Tooltip"
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
 import { Trash as ReactTrash } from "../../packages/ui/src/components/Icon"
 import { Trash as VueTrash } from "../../packages/vue/src/components/Icon"
@@ -27,6 +28,7 @@ import {
   MenuTrigger,
 } from "../../packages/vue/src/components/Menu"
 import { PlexUIProvider as VuePlexUIProvider } from "../../packages/vue/src/components/PlexUIProvider"
+import { Tooltip as VueTooltip } from "../../packages/vue/src/components/Tooltip"
 import { animation, flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 import { interact } from "./pair"
@@ -1240,4 +1242,147 @@ describe("Menu trigger element resolution", () => {
     await flushVue()
     expect(document.activeElement).toBe(button)
   })
+
+  // The Tooltip's own portal (Reka's `dir`, teleport order) is covered by the
+  // Tooltip tests, so after Escape only focus and the trigger state are compared
+  test("a Tooltip-wrapped trigger child positions the menu and gets focus back after Escape", async () => {
+    animation.disabled = true
+    const script = async () => {
+      const button = document.querySelector<HTMLButtonElement>("button")!
+      button.focus()
+      await press("Enter", button)
+      const opened = { dom: snapshotDom(), active: describeElement(document.activeElement) }
+      await press("Escape")
+      await settle(20)
+      return [opened, { active: describeElement(document.activeElement), expanded: button.getAttribute("aria-expanded") }]
+    }
+
+    await act(async () => {
+      render(
+        <ReactMenu>
+          <ReactMenu.Trigger>
+            <ReactTooltip content="Actions">
+              <button type="button">Menu</button>
+            </ReactTooltip>
+          </ReactMenu.Trigger>
+          <ReactMenu.Content>
+            <ReactMenu.Item onSelect={() => {}}>Edit</ReactMenu.Item>
+          </ReactMenu.Content>
+        </ReactMenu>,
+      )
+    })
+    await settle()
+    const react = await script()
+    cleanup()
+    await settle()
+    document.body.innerHTML = ""
+
+    mountVue(() =>
+      h(Menu, null, () => [
+        h(MenuTrigger, null, () => h(VueTooltip, { content: "Actions" }, () => h("button", { type: "button" }, "Menu"))),
+        h(MenuContent, null, () => h(MenuItem, { onSelect: () => {} }, () => "Edit")),
+      ]),
+    )
+    await settle()
+    const vue = await script()
+
+    expect(vue).toEqual(react)
+    expect(react[0]!.dom).toContain("--radix-popper-anchor-width")
+    expect(react[1]!.active).toBe('button "Menu"')
+  })
 })
+
+describe("Menu selection after a canceled click", () => {
+  // React's router links run the listeners given to them, then their own
+  // navigation handler (which prevents the default); vue-router's RouterLink
+  // runs its own handler first. Both still select.
+  const ReactNavigatingLink = ({ onClick, ...rest }: { onClick?: (event: React.MouseEvent) => void; children?: ReactNode }) => (
+    <a
+      data-router=""
+      {...rest}
+      onClick={(event) => {
+        onClick?.(event)
+        event.preventDefault()
+      }}
+    />
+  )
+  const VueNavigatingLink = defineComponent({
+    props: { to: String, href: String },
+    setup(props, { slots }) {
+      return () =>
+        h("a", { "data-router": "", "href": props.to ?? props.href, "onClick": (event: Event) => event.preventDefault() }, slots.default?.())
+    },
+  })
+
+  const prevent = (event: Event) => event.preventDefault()
+
+  // A click canceled before the item's own listener (a capture-phase
+  // preventDefault on the link or on an element around the item) is not
+  // selected, as Radix checks `event.defaultPrevented`
+  test.each([
+    ["link", "own"],
+    ["router link", "own"],
+    ["item", "wrapper"],
+    ["router link", "wrapper"],
+    ["link", "none"],
+    ["router link", "none"],
+  ] as const)("%s, capture-phase preventDefault: %s", async (kind, canceledBy) => {
+    animation.disabled = true
+    const run = async (mount: (log: Log) => Promise<void>) => {
+      const log: string[] = []
+      await mount((entry) => log.push(entry))
+      await settle()
+      await pointerDown(trigger())
+      await click(document.querySelector('[role="menuitem"]')!)
+      return { log, open: !!document.querySelector('[role="menu"]') }
+    }
+    const capture = canceledBy === "own" ? { onClickCapture: prevent } : {}
+    const wrapper = canceledBy === "wrapper" ? { onClickCapture: prevent } : {}
+
+    const react = await run(async (log) => {
+      await act(async () => {
+        render(
+          <ReactMenu onOpen={() => log("open")} onClose={() => log("close")}>
+            <ReactMenu.Trigger>
+              <button type="button">Options</button>
+            </ReactMenu.Trigger>
+            <ReactMenu.Content>
+              <div {...wrapper}>
+                {kind === "item" ? (
+                  <ReactMenu.Item onSelect={() => log("select")}>Edit</ReactMenu.Item>
+                ) : (
+                  <ReactMenu.Link href="/docs" {...(kind === "router link" ? { as: ReactNavigatingLink } : {})} {...capture}>
+                    Docs
+                  </ReactMenu.Link>
+                )}
+              </div>
+            </ReactMenu.Content>
+          </ReactMenu>,
+        )
+      })
+    })
+    cleanup()
+    await settle()
+    document.body.innerHTML = ""
+
+    const vue = await run(async (log) => {
+      mountVue(() =>
+        h(Menu, { onOpen: () => log("open"), onClose: () => log("close") }, () => [
+          h(MenuTrigger, null, () => h("button", { type: "button" }, "Options")),
+          h(MenuContent, null, () =>
+            h("div", wrapper, [
+              kind === "item"
+                ? h(MenuItem, { onSelect: () => log("select") }, () => "Edit")
+                : h(MenuLink, { href: "/docs", ...(kind === "router link" ? { as: VueNavigatingLink } : {}), ...capture }, () => "Docs"),
+            ]),
+          ),
+        ]),
+      )
+      await flushVue()
+    })
+
+    expect(vue).toEqual(react)
+    expect(react.open).toBe(canceledBy !== "none")
+  })
+})
+

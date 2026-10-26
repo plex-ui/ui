@@ -92,7 +92,9 @@ const fileUploadCases: Array<[string, Props]> = [
   ["maxFiles 0 means no limit", { maxFiles: 0, value: [PDF] }],
   ["disabled with files disables remove buttons", { disabled: true, value: [PDF, PNG] }],
   ["value null falls back to the internal list", { value: null }],
-  ["other attributes are dropped", { "data-testid": "upload", "style": { color: "red" }, "aria-invalid": true, "title": "t" }],
+  ["explicit aria-invalid reaches the compact trigger", { "aria-invalid": true }],
+  ["explicit aria-invalid false wins over the error", { "variant": "area", "id": "docs", "aria-invalid": false, "errorMessage": "Required" }],
+  ["other attributes are dropped", { "data-testid": "upload", "style": { color: "red" }, "title": "t" }],
 ]
 
 describe("FileUpload parity", () => {
@@ -101,6 +103,18 @@ describe("FileUpload parity", () => {
       h(FileUpload, toVueFileUpload(props) as never),
     )
     expect(vue).toBe(react)
+  })
+
+  test("the visible trigger carries aria-describedby and aria-invalid, in both variants", async () => {
+    for (const variant of ["compact", "area"]) {
+      const props = { variant, "id": "docs", "aria-describedby": "hint", "errorMessage": "Required" }
+      const { react, vue } = await renderPair(createElement(RFileUpload, props as never), () =>
+        h(FileUpload, toVueFileUpload(props) as never),
+      )
+      expect(vue).toBe(react)
+      // "hint" is not in the document, so the serializer prints it as [missing]
+      expect(react).toMatch(/<button aria-describedby="\[missing\] docs-error" aria-invalid="true" /)
+    }
   })
 
   test("browser animation mode", async () => {
@@ -674,6 +688,42 @@ describe("FloatingLabelSelect behaviour parity", () => {
     expect(react[2]).not.toContain('role="listbox"')
     expect(vueLog).toEqual(reactLog)
     expect(reactLog).toEqual(["interact", "interact"])
+  })
+
+  test("Enter and Space from the clear button are left to it: no consumer call, no interact", async () => {
+    type Run = { log: string[]; reachedDocument: number }
+    const runs: Record<string, Run> = {}
+    for (const framework of ["react", "vue"] as const) {
+      const log: string[] = []
+      const consumer = (evt: { key: string }) => log.push(`consumer ${evt.key}`)
+      const props = { label: "Role", selected: true, onInteract: () => log.push("interact"), onClearClick: () => log.push("clear") }
+      if (framework === "react") render(<RFloatingLabelSelect {...props} onKeyDown={consumer}>Designer</RFloatingLabelSelect>)
+      else mountVue(() => h(FloatingLabelSelect, { ...props, onKeydown: consumer }, { default: () => ["Designer"] }))
+      await interact(() => {})
+      let reachedDocument = 0
+      const onDocument = () => reachedDocument++
+      document.addEventListener("keydown", onDocument)
+      const clear = document.querySelector('button[aria-label="Clear selection"]') as HTMLButtonElement
+      for (const key of [" ", "Enter", "ArrowDown", "Escape"]) {
+        await interact(() => {
+          // fireEvent returns false when the default was prevented
+          log.push(`${key}: ${fireEvent.keyDown(clear, { key })}`)
+        })
+      }
+      document.removeEventListener("keydown", onDocument)
+      runs[framework] = { log, reachedDocument }
+      cleanup()
+      document.body.innerHTML = ""
+    }
+    expect(runs.vue).toEqual(runs.react)
+    // Other keys from the clear button still reach the field's handling
+    expect(runs.react!.log).toEqual([
+      " : true",
+      "Enter: true",
+      "consumer ArrowDown", "interact", "ArrowDown: false",
+      "consumer Escape", "Escape: true",
+    ])
+    expect(runs.react!.reachedDocument).toBe(3)
   })
 
   test("a consumer pointerdown replaces the built-in handler (React spread order)", async () => {

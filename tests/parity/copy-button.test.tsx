@@ -88,4 +88,24 @@ describe.each([
     expect(vue).toEqual(react)
     expect(react.join("\n")).toContain('"Copied"')
   })
+
+  test("icon-only is named Copy, then Copied while the check shows", async () => {
+    animation.disabled = disabled
+    const react = await walk(() => render(<ReactCopyButton copyValue="value" variant="ghost" uniform />), async () => {})
+    cleanup()
+    const vue = await walk(() => mountVue(() => h(VueCopyButton, { copyValue: "value", variant: "ghost", uniform: true })), flushVue)
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('aria-label="Copy"')
+    expect(react[1]).toContain('aria-label="Copied"')
+    expect(react[react.length - 1]).toContain('aria-label="Copy"')
+  })
+
+  test("an explicit aria-label wins on an icon-only button", async () => {
+    animation.disabled = disabled
+    const react = await walk(() => render(<ReactCopyButton copyValue="value" aria-label="Copy token" />), async () => {})
+    cleanup()
+    const vue = await walk(() => mountVue(() => h(VueCopyButton, { "copyValue": "value", "aria-label": "Copy token" })), flushVue)
+    expect(vue).toEqual(react)
+    expect(react.every((snapshot) => snapshot.includes('aria-label="Copy token"'))).toBe(true)
+  })
 })

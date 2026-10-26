@@ -1,7 +1,9 @@
 import clsx, { type ClassValue } from "clsx"
-import { Comment, defineComponent, Fragment, h, mergeProps, nextTick, onMounted, ref, useId, watch, type ButtonHTMLAttributes, type InputHTMLAttributes, type PropType, type VNode, type VNodeArrayChildren } from "vue"
+import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type ButtonHTMLAttributes, type InputHTMLAttributes, type PropType } from "vue"
 import type { ControlSize, SemanticColor, Sizes, Variants } from "@plexui/styles/types"
 import { X } from "../Icon/index.js"
+import { vDefaultValue } from "../../lib/defaultValue.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Input/Input.module.css"
 
 // Vue port of packages/ui/src/components/Input/Input.tsx.
@@ -9,26 +11,13 @@ import s from "@plexui/styles/components/Input/Input.module.css"
 //   (`@input`, `@change`, `@focus`, `style`, `placeholder`, ...) goes to the
 //   <input>, as React spreads its rest props there.
 // - `value` + `update:value` support `v-model:value`; `default-value` sets the
-//   initial value of an uncontrolled input through the `defaultValue` DOM
-//   property, so re-renders never reset what the user typed.
+//   initial value of an uncontrolled input through `vDefaultValue` (server
+//   markup, hydration and later changes as in React), so re-renders never
+//   reset what the user typed.
 // - `startAdornment` / `endAdornment` are slots. `onClear` stays a function
 //   prop (`@clear` in templates) because its presence adds the clear button.
-// - React destructures `autoComplete` and never passes it on, so the
-//   `autoComplete` prop is swallowed here too (the native lowercase
-//   `autocomplete` attribute still reaches the <input>).
-
-// A slot counts as content when it renders something other than comments
-// (v-if placeholders), like a truthy ReactNode in React
-const hasContent = (nodes: VNodeArrayChildren | undefined): boolean =>
-  !!nodes?.some((node) => {
-    if (node == null || typeof node === "boolean") return false
-    if (Array.isArray(node)) return hasContent(node)
-    if (typeof node !== "object") return node !== ""
-    const vnode = node as VNode
-    if (vnode.type === Comment) return false
-    if (vnode.type === Fragment) return hasContent(vnode.children as VNodeArrayChildren)
-    return true
-  })
+// - `autoComplete` reaches the <input> as `autocomplete`, and `invalid` also
+//   sets `aria-invalid` there unless the caller passes its own, as in React.
 
 const InputComponent = defineComponent({
   name: "Input",
@@ -67,7 +56,7 @@ const InputComponent = defineComponent({
     value: { type: [String, Number] as PropType<string | number>, default: undefined },
     /** Initial value when uncontrolled. */
     defaultValue: { type: [String, Number] as PropType<string | number>, default: undefined },
-    /** Swallowed, as in React (see the note at the top of the file). */
+    /** Native `autocomplete` of the <input>. */
     autoComplete: String,
   },
   emits: {
@@ -195,32 +184,38 @@ const InputComponent = defineComponent({
         },
         [
           hasStartAdornment ? startAdornment : null,
-          h(
-            "input",
-            mergeProps(restAttrs, {
-              "ref": inputRef,
-              "id": props.id || (allowAutofillExtensions ? undefined : onePasswordPreventionId),
-              "class": s.Input,
-              "type": props.type,
-              "name": props.name,
-              // Controlled: the `value` property follows the prop. Uncontrolled:
-              // `defaultValue` sets the initial value once, as in React.
-              ...(value !== undefined ? { value } : {}),
-              ...(value === undefined && defaultValue !== undefined ? { defaultValue } : {}),
-              "readonly": readOnly,
-              "disabled": disabled,
-              "onInput": handleInput,
-              "onFocus": () => {
-                focused.value = true
-              },
-              "onBlur": () => {
-                focused.value = false
-              },
-              "onAnimationstart": handleAnimationStart,
-              // Prevent LastPass and 1Password from appearing
-              "data-lpignore": allowAutofillExtensions ? undefined : true,
-              "data-1p-ignore": allowAutofillExtensions ? undefined : true,
-            }),
+          withDirectives(
+            h(
+              "input",
+              mergeProps(restAttrs, {
+                "ref": inputRef,
+                "id": props.id || (allowAutofillExtensions ? undefined : onePasswordPreventionId),
+                "class": s.Input,
+                "type": props.type,
+                // Only when set, so a native `autocomplete` attribute still applies
+                ...(props.autoComplete !== undefined ? { autocomplete: props.autoComplete } : {}),
+                // Expose the visual invalid state to assistive tech; an explicit aria-invalid wins
+                "aria-invalid": restAttrs["aria-invalid"] ?? (props.invalid || undefined),
+                "name": props.name,
+                // Controlled: the `value` property follows the prop. Uncontrolled:
+                // `vDefaultValue` below sets the initial value, as in React.
+                ...(value !== undefined ? { value } : {}),
+                "readonly": readOnly,
+                "disabled": disabled,
+                "onInput": handleInput,
+                "onFocus": () => {
+                  focused.value = true
+                },
+                "onBlur": () => {
+                  focused.value = false
+                },
+                "onAnimationstart": handleAnimationStart,
+                // Prevent LastPass and 1Password from appearing
+                "data-lpignore": allowAutofillExtensions ? undefined : true,
+                "data-1p-ignore": allowAutofillExtensions ? undefined : true,
+              }),
+            ),
+            [[vDefaultValue, value === undefined ? defaultValue : undefined]],
           ),
           showClearButton
             ? h("button", { "type": "button", "aria-label": "Clear input", "class": s.Clear, "onClick": props.onClear }, [

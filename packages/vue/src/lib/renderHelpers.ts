@@ -11,7 +11,7 @@ const STABLE_FRAGMENT = 64
 // `.map()`), the fragment <slot /> forwards content through (keyed
 // `_<slot name>`), and nested arrays in render functions (Vue turns those
 // into unflagged fragments, so `h(Fragment)` flattens too).
-const isTransparentFragment = (node: VNode) =>
+export const isTransparentFragment = (node: VNode) =>
   node.type === Fragment &&
   Array.isArray(node.children) &&
   !(node.patchFlag > 0 && node.patchFlag & STABLE_FRAGMENT && !(typeof node.key === "string" && node.key.startsWith("_")))

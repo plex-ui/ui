@@ -1,7 +1,6 @@
 import {
   computed,
   defineComponent,
-  getCurrentInstance,
   h,
   inject,
   onBeforeUnmount,
@@ -22,9 +21,8 @@ import {
 //   Templates get the same object as the default slot props of
 //   SidebarProvider (`v-slot="{ state, toggleSidebar }"`), the way Popover's
 //   content slot exposes its controller.
-// - `open` + `update:open` support `v-model:open`. As in React, a provider
-//   with an `update:open` listener leaves the change to its parent: with a
-//   listener and no `open` prop the sidebar stays at `defaultOpen`.
+// - `open` + `update:open` support `v-model:open`. As in React, the provider
+//   is controlled only when `open` is passed; `update:open` is emitted either way.
 // - Mobile detection, the Cmd/Ctrl+B shortcut and the Escape listener start
 //   on mount, as React's effects do (SSR-safe).
 
@@ -114,11 +112,6 @@ const SidebarProviderComponent = defineComponent({
   },
   slots: Object as SlotsType<{ default?: (context: SidebarContextValue) => unknown }>,
   setup(props, { attrs, slots, emit }) {
-    const instance = getCurrentInstance()
-    // React hands the change to `onOpenChange` when there is one, and keeps
-    // its own state otherwise
-    const hasOpenListener = () => !!instance?.vnode.props?.["onUpdate:open"]
-
     const isMobile = useIsMobile()
     const openMobile = ref(false)
 
@@ -129,11 +122,11 @@ const SidebarProviderComponent = defineComponent({
     const setOpen: SetBoolean = (value) => {
       const openState = typeof value === "function" ? value(open.value) : value
 
-      if (hasOpenListener()) {
-        emit("update:open", openState)
-      } else {
+      // Controlled only when `open` is passed; update:open alone is a notification
+      if (props.open === undefined) {
         internalOpen.value = openState
       }
+      emit("update:open", openState)
 
       // Persist state in cookie for SSR
       if (typeof document !== "undefined") {

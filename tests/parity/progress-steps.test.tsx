@@ -202,6 +202,48 @@ describe("ProgressSteps template children", () => {
     // 5 children: the hidden step still counts, so "Last" (index 4) is last and shows "5"
     expect(pair.react).toContain('"5"')
   })
+
+  // A wrapper component passes its children on (React) or forwards its slot
+  // (Vue): the steps it forwards are counted and indexed one by one
+  test.each([["template <slot />"], ["render function renderSlot()"]])("a wrapper forwarding its slot: %s", async (kind) => {
+    const compileRender = (template: string) => {
+      const { code } = compile(template, { hoistStatic: true })
+      const renderFn = new Function("Vue", code)(Vue) as Vue.RenderFunction & { _rc?: boolean }
+      renderFn._rc = true
+      return renderFn
+    }
+    const Wrapper =
+      kind === "template <slot />"
+        ? defineComponent({ components: { ProgressSteps }, render: compileRender(`<ProgressSteps :current="2"><slot /></ProgressSteps>`) })
+        : defineComponent({
+            setup: (_, { slots }) => () => h(ProgressSteps, { current: 2 }, { default: () => [Vue.renderSlot(slots, "default")] }),
+          })
+    const App = defineComponent({
+      components: { Wrapper, ProgressStepsStep, ProgressStepsTitle },
+      render: compileRender(`<Wrapper>
+  <ProgressStepsStep><ProgressStepsTitle>One</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Two</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Three</ProgressStepsTitle></ProgressStepsStep>
+</Wrapper>`),
+    })
+    const RWrapper = ({ children }: { children?: ReactNode }) => <RProgressSteps current={2}>{children}</RProgressSteps>
+    const react = (
+      <RWrapper>
+        <RProgressSteps.Step>
+          <RProgressSteps.Title>One</RProgressSteps.Title>
+        </RProgressSteps.Step>
+        <RProgressSteps.Step>
+          <RProgressSteps.Title>Two</RProgressSteps.Title>
+        </RProgressSteps.Step>
+        <RProgressSteps.Step>
+          <RProgressSteps.Title>Three</RProgressSteps.Title>
+        </RProgressSteps.Step>
+      </RWrapper>
+    )
+    const pair = await renderPair(react, () => h(App))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain('"3"')
+  })
 })
 
 describe("ProgressSteps state walk", () => {

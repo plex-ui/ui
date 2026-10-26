@@ -10,6 +10,7 @@ import {
   ref,
   shallowRef,
   watch,
+  watchPostEffect,
   type ExtractPropTypes,
   type PropType,
 } from "vue"
@@ -179,9 +180,10 @@ export const PopoverTrigger = defineComponent({
     const { forwardRef, currentElement } = useForwardExpose()
     let hasPointerMoveOpened = false
 
-    onMounted(() => {
+    // Focus returns here on close, and pointer-downs on it are not "outside".
+    // Follows a replaced child element, as Radix's composed ref does
+    watchPostEffect(() => {
       triggerRef.value = currentElement.value ?? null
-      // Focus returns here on close, and pointer-downs on it are not "outside"
       rootContext.triggerElement.value = currentElement.value
     })
 

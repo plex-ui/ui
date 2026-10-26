@@ -669,38 +669,40 @@ describe("Sidebar collapse state", () => {
     expect(react[1]).toBe("false,false")
   })
 
-  test("open prop without a listener: internal state changes, the prop still wins", async () => {
+  test("open prop without a listener: controlled, the toggle leaves the internal state alone", async () => {
     const { react, vue } = await walkSpec(
       { open: true as boolean | undefined },
       (state) => probeSpec({ open: state.open }),
       async ({ snapshot, fire, set }) => {
         await fire(TRIGGER, "click")
         snapshot()
-        // Releasing control shows the internal state the toggle set
+        // Releasing control shows the internal state, still at defaultOpen
         await set({ open: undefined })
         snapshot()
       },
     )
     expect(vue).toEqual(react)
     expect(react[0]).toContain('data-sidebar="expanded"')
-    expect(react[1]).toContain('data-sidebar="collapsed"')
+    expect(react[1]).toContain('data-sidebar="expanded"')
   })
 
-  test("a listener without `open` keeps the sidebar at defaultOpen (React hands the change to it)", async () => {
+  test("a listener without `open` is only notified: the provider keeps its own state", async () => {
     const calls: string[] = []
     const { react, vue } = await walkSpec(
       {},
       () => probeSpec({ defaultOpen: true, onOpenChange: (open: boolean) => calls.push(String(open)) }),
       async ({ snapshot, fire, note }) => {
         await fire(TRIGGER, "click")
+        snapshot()
         await fire(TRIGGER, "click")
         snapshot()
         note(calls.splice(0).join(","))
       },
     )
     expect(vue).toEqual(react)
-    expect(react[0]).toContain('data-sidebar="expanded"')
-    expect(react[1]).toBe("false,false")
+    expect(react[0]).toContain('data-sidebar="collapsed"')
+    expect(react[1]).toContain('data-sidebar="expanded"')
+    expect(react[2]).toBe("false,true")
   })
 
   test("a caller click listener on SidebarTrigger replaces the toggle", async () => {

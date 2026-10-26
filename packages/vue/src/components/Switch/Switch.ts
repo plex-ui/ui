@@ -93,7 +93,8 @@ const SwitchComponent = defineComponent({
       const id = props.id ?? generatedId
       const hasLabel = Boolean(slots.label || props.label)
       const hasDescription = Boolean(slots.description || props.description)
-      const descriptionId = hasDescription ? `${id}-description` : undefined
+      // The description only renders next to a label
+      const descriptionId = hasLabel && hasDescription ? `${id}-description` : undefined
 
       // The consumer's listeners compose with Reka's; other attributes land
       // on the button after the component's own, as `{...restProps}` does

@@ -93,7 +93,7 @@ export const TagInput = defineComponent({
           defaultFocusEl.focus()
         } else {
           const selectedTagElement = containerRef.value.querySelector(
-            `[data-tag="${selectedTag.value}"]`,
+            `[data-tag="${CSS.escape(selectedTag.value)}"]`,
           ) as HTMLElement | null
           if (selectedTagElement) {
             selectedTagElement.focus()
@@ -156,29 +156,39 @@ export const TagInput = defineComponent({
       }
     }
 
-    // `base` is the tag list the change starts from. React's handlers read
-    // the list from their render, so several adds in one event (a paste)
-    // each start from the same list and the last one wins; paste passes one
-    // snapshot to mirror that (see Open in the plan: likely a React bug).
-    const addTag = (tagValue: string, base = tags.value) => {
-      const trimmed = tagValue.trim()
-      if (!trimmed) {
+    // Adds every value in one update: a paste of "a,b" must not compute
+    // each addition from the same stale `tags` snapshot.
+    const addTags = (tagValues: string[]) => {
+      const next = new Map(tags.value)
+      let changed = false
+      for (const tagValue of tagValues) {
+        if (props.maxTags && next.size >= props.maxTags) {
+          break
+        }
+        const trimmed = tagValue.trim()
+        if (!trimmed) {
+          continue
+        }
+        if (next.has(trimmed)) {
+          duplicateTags.value = new Set(duplicateTags.value).add(trimmed)
+          setTimeout(() => {
+            const remaining = new Set(duplicateTags.value)
+            remaining.delete(trimmed)
+            duplicateTags.value = remaining
+          }, SHAKE_ANIMATION_DURATION_MS)
+          continue
+        }
+        const validTag = props.validator?.(trimmed) ?? true
+        next.set(trimmed, { value: trimmed, valid: validTag })
+        changed = true
+      }
+      if (!changed) {
         return
       }
-      if (base.has(trimmed)) {
-        duplicateTags.value = new Set(duplicateTags.value).add(trimmed)
-        setTimeout(() => {
-          const next = new Set(duplicateTags.value)
-          next.delete(trimmed)
-          duplicateTags.value = next
-        }, SHAKE_ANIMATION_DURATION_MS)
-        return
-      }
-      const validTag = props.validator?.(trimmed) ?? true
-      const next = new Map(base)
-      next.set(trimmed, { value: trimmed, valid: validTag })
       setTags(Array.from(next.values()))
     }
+
+    const addTag = (tagValue: string) => addTags([tagValue])
 
     const removeTag = (tag: string) => {
       const next = new Map(tags.value)
@@ -282,8 +292,7 @@ export const TagInput = defineComponent({
 
       if (parts.length > 1) {
         e.preventDefault()
-        const base = tags.value
-        parts.forEach((part) => addTag(part, base))
+        addTags(parts)
       }
     }
 

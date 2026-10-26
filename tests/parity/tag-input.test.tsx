@@ -122,8 +122,61 @@ describe("TagInput behaviour parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(result.vueChanges).toEqual(result.reactChanges)
-    // React adds each pasted tag to the same stale list, so only the last
-    // one survives (uncontrolled); Vue mirrors it. Recorded in the plan's Open.
-    expect(result.reactChanges).toEqual([tags("a"), tags("b"), tags("c"), tags("c", "pending"), tags("pending")])
+    // Every pasted part lands in one change
+    expect(result.reactChanges).toEqual([tags("a", "b", "c"), tags("a", "b", "c", "pending"), tags("b", "c", "pending")])
+  })
+
+  const paste = (input: HTMLInputElement, text: string) =>
+    interact(() => {
+      const event = new Event("paste", { bubbles: true, cancelable: true })
+      Object.assign(event, { clipboardData: { getData: () => text } })
+      input.dispatchEvent(event)
+    })
+
+  test("paste dedupes against existing and pasted tags, shaking the duplicates", async () => {
+    const result = await walk({ defaultValue: tags("b"), validator: (v: string) => v !== "bad" }, async (snap, input) => {
+      await paste(input(), "a, b a,bad")
+      snap() // a and bad added; b and the second a shake
+      await interact(() => vi.advanceTimersByTime(500))
+      snap()
+      await paste(input(), "a,b")
+      snap() // all duplicates: no change, both shake
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueChanges).toEqual(result.reactChanges)
+    expect(result.reactChanges).toEqual([[...tags("b", "a"), { value: "bad", valid: false }]])
+    expect(result.react[0]).toContain('data-duplicate="" data-tag="a"')
+    expect(result.react[0]).toContain('data-duplicate="" data-tag="b"')
+    expect(result.react[1]).not.toContain("data-duplicate")
+    expect(result.react[2]).toContain('data-duplicate="" data-tag="a"')
+  })
+
+  test("paste stops at maxTags", async () => {
+    const result = await walk({ maxTags: 3, defaultValue: tags("x") }, async (snap, input) => {
+      await paste(input(), "a,b,c,d")
+      snap() // a and b added, the input hidden
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueChanges).toEqual(result.reactChanges)
+    expect(result.reactChanges).toEqual([tags("x", "a", "b")])
+    expect(result.react[0]).not.toContain("<input")
+  })
+
+  test("selecting a tag whose value needs CSS escaping focuses it", async () => {
+    const focused: string[] = []
+    const record = () => focused.push(document.activeElement?.getAttribute("data-tag") ?? document.activeElement!.tagName)
+    const result = await walk({ defaultValue: tags('say "hi"', "a]b", "c\\d") }, async (snap, input) => {
+      const container = () => document.querySelector("[data-size]")!
+      await interact(() => input().focus())
+      await key(container(), "Backspace") // selects c\d
+      snap()
+      record()
+      await key(container(), "ArrowLeft") // selects a]b
+      record()
+      await key(container(), "ArrowLeft") // selects say "hi"
+      record()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(focused).toEqual(['c\\d', "a]b", 'say "hi"', 'c\\d', "a]b", 'say "hi"'])
   })
 })

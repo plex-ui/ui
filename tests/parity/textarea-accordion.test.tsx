@@ -66,7 +66,8 @@ const textareaCases: Array<[string, Props]> = [
   ["autoResize rows above maxRows", { autoResize: true, rows: 12, maxRows: 4 }],
   ["class on the container", { className: "w-full custom" }],
   ["attributes on the textarea", { placeholder: "Write…", "aria-label": "Notes", maxLength: 20, style: { color: "red" }, "data-test": "x" }],
-  ["autoComplete is dropped", { autoComplete: "off" }],
+  ["autoComplete reaches the textarea", { autoComplete: "off" }],
+  ["explicit aria-invalid wins over invalid", { invalid: true, "aria-invalid": false }],
   ["own attributes win over passed ones", { "data-lpignore": "no", "data-1p-ignore": "no", rows: 4 }],
   ["defaultValue", { defaultValue: "Jane Doe" }],
   ["multi-line defaultValue", { defaultValue: "Line 1\nLine 2" }],
@@ -84,6 +85,16 @@ describe("Textarea parity", () => {
   test.each(textareaCases)("%s", async (_name, props) => {
     const { react, vue } = await textareaPair(props)
     expect(vue).toBe(react)
+  })
+
+  test("autoComplete and the invalid state reach the native textarea; an explicit aria-invalid wins", async () => {
+    const { react, vue } = await textareaPair({ autoComplete: "off", invalid: true })
+    expect(vue).toBe(react)
+    expect(react).toMatch(/<textarea [^>]*autocomplete="off"/)
+    expect(react).toMatch(/<textarea [^>]*aria-invalid="true"/)
+    const explicit = await textareaPair({ invalid: true, "aria-invalid": false })
+    expect(explicit.vue).toBe(explicit.react)
+    expect(explicit.react).toMatch(/<textarea [^>]*aria-invalid="false"/)
   })
 
   test("generated id only without explicit id or extensions", async () => {

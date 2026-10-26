@@ -307,6 +307,7 @@ const SliderComponent = defineComponent({
   },
   setup(props, { attrs, slots, emit, expose }) {
     const id = useId()
+    const labelId = `${id}-label`
     const isRange = () => props.range === true
     const precision = computed(() => String(props.step).split(".")[1]?.length ?? 0)
 
@@ -535,7 +536,8 @@ const SliderComponent = defineComponent({
       return h("div", { "class": [s.SliderWrap, attrs.class], "data-orientation": orientation }, [
         labelContent
           ? h("div", { class: s.SliderLabel }, [
-              h("label", { for: id, class: "flex-1" }, labelContent),
+              // Range mode renders no value input, so the label only names the thumbs
+              h("label", { for: range ? undefined : id, id: labelId, class: "flex-1" }, labelContent),
               !range && resetValue !== undefined
                 ? h(
                     Tooltip,
@@ -549,6 +551,7 @@ const SliderComponent = defineComponent({
                             "variant": "ghost",
                             "color": "secondary",
                             "class": s.Reset,
+                            "aria-label": resetTooltip,
                             "data-hide": disabled || (resetValue === singleValue && !isPointerDown),
                             "onClick": () => reportChange(resetValue),
                           },
@@ -614,8 +617,23 @@ const SliderComponent = defineComponent({
               default: () => [
                 h(SliderTrack, { class: s.Track }, { default: () => h(SliderRange, { class: s.Range }) }),
                 ...(range
-                  ? (value as number[]).map((_, i) => h(SliderThumb, { key: i, class: s.Thumb }))
-                  : [h(SliderThumb, { class: s.Thumb, elementRef: setThumb })]),
+                  ? (value as number[]).map((_, i) =>
+                      h(SliderThumb, {
+                        "key": i,
+                        "id": `${id}-thumb-${i}`,
+                        "class": s.Thumb,
+                        // Label plus the thumb's own Radix name ("Minimum" / "Maximum"),
+                        // so the endpoints stay distinguishable
+                        "aria-labelledby": labelContent ? `${labelId} ${id}-thumb-${i}` : undefined,
+                      }),
+                    )
+                  : [
+                      h(SliderThumb, {
+                        "class": s.Thumb,
+                        "elementRef": setThumb,
+                        "aria-labelledby": labelContent ? labelId : undefined,
+                      }),
+                    ]),
               ],
             },
           ),

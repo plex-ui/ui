@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, type PropType, type VNode, type VNodeChild } from "vue"
+import { defineComponent, h, ref, shallowRef, watch, type PropType, type VNode, type VNodeChild } from "vue"
 import {
   FlexRender,
   getCoreRowModel,
@@ -29,26 +29,61 @@ declare module "@tanstack/vue-table" {
 // same table options and FlexRender for headers and cells.
 //
 // - `globalFilter`, `columnVisibility` and `rowSelection` are controlled
-//   only (`v-model:global-filter`, ...), as in React: the table never changes
-//   them itself, it emits `update:*` with the next value.
+//   when the prop is passed (`v-model:global-filter`, ...) and held by the
+//   table otherwise, as in React; `update:*` is emitted with the next value
+//   either way.
 // - `onRowClick` is a function prop (`@row-click` in templates) because its
 //   presence makes the rows interactive (`data-clickable`).
 // - `emptyMessage` is a prop with the `emptyMessage` slot taking precedence.
 // - React passes only its own props: the root takes the caller's `class`.
 //
-// useReactTable and useVueTable merge options differently, so the options
-// below make the effective table state equal React's:
-// - React spreads `state: { ...internal, ...options.state }`, so a key the
-//   caller leaves undefined is undefined in `getState()`. vue-table falls
-//   back to its internal state for undefined keys, so that internal state
-//   starts undefined for the three controlled keys (`initialState`) and no
-//   updater ever writes them (each has its own change handler).
-// - React leaves `onXChange` undefined without a callback, which makes the
-//   table's setter a no-op; here the handler emits, and an emit without a
-//   listener does nothing either.
+// useReactTable and useVueTable merge options differently: React spreads
+// `state: { ...internal, ...options.state }`, so a key whose value is
+// undefined (a reset global filter) is undefined in `getState()`. vue-table
+// falls back to its internal state for undefined keys, so that internal
+// state starts undefined for those three keys (`initialState`) and no
+// updater ever writes them (each has its own change handler).
 
 const resolveUpdater = <T>(updater: Updater<T>, value: T): T => {
   return typeof updater === "function" ? (updater as (old: T) => T)(value) : updater
+}
+
+// One piece of table state: controlled when `controlled()` is defined,
+// otherwise held here, with `onChange` as a notification either way.
+// Successive updaters build on each other instead of on the value read at
+// render.
+const useTableState = <T>(
+  controlled: () => T | undefined,
+  initial: T,
+  onChange: (next: T) => void,
+): [() => T, (updater: Updater<T>) => void] => {
+  // Uncontrolled: only the handler writes the state, and it is current at once
+  const internal = shallowRef<T>(initial)
+  // Controlled: the parent may reject or rewrite a change, so accumulate only
+  // within one batch and start every new batch from the current prop
+  let batch: { base: T; next: T } | null = null
+
+  const handleChange = (updater: Updater<T>) => {
+    const value = controlled()
+    let next: T
+    if (value === undefined) {
+      next = resolveUpdater(updater, internal.value)
+      internal.value = next
+    } else {
+      const pending = batch
+      const previous = pending && pending.base === value ? pending.next : value
+      next = resolveUpdater(updater, previous)
+      if (!pending) {
+        queueMicrotask(() => {
+          batch = null
+        })
+      }
+      batch = { base: value, next }
+    }
+    onChange(next)
+  }
+
+  return [() => controlled() ?? internal.value, handleChange]
 }
 
 const DataTableComponent = defineComponent({
@@ -101,6 +136,22 @@ const DataTableComponent = defineComponent({
     const shouldPaginate = () => Number.isFinite(props.pageSize) && props.pageSize > 0
     const paginationRowModel = getPaginationRowModel<any>()
 
+    const [globalFilter, handleGlobalFilterChange] = useTableState<string>(
+      () => props.globalFilter,
+      "",
+      (next) => emit("update:globalFilter", next),
+    )
+    const [columnVisibility, handleColumnVisibilityChange] = useTableState<VisibilityState>(
+      () => props.columnVisibility,
+      {},
+      (next) => emit("update:columnVisibility", next),
+    )
+    const [rowSelection, handleRowSelectionChange] = useTableState<RowSelectionState>(
+      () => props.rowSelection,
+      {},
+      (next) => emit("update:rowSelection", next),
+    )
+
     const table = useVueTable<any>({
       get data() {
         return props.data
@@ -113,13 +164,13 @@ const DataTableComponent = defineComponent({
           return sorting.value
         },
         get globalFilter() {
-          return props.globalFilter
+          return globalFilter()
         },
         get columnVisibility() {
-          return props.columnVisibility
+          return columnVisibility()
         },
         get rowSelection() {
-          return props.rowSelection
+          return rowSelection()
         },
       },
       initialState: {
@@ -131,15 +182,9 @@ const DataTableComponent = defineComponent({
       onSortingChange: (updater) => {
         sorting.value = resolveUpdater(updater, sorting.value)
       },
-      onGlobalFilterChange: (updater: Updater<string>) => {
-        emit("update:globalFilter", resolveUpdater(updater, props.globalFilter ?? ""))
-      },
-      onColumnVisibilityChange: (updater) => {
-        emit("update:columnVisibility", resolveUpdater(updater, props.columnVisibility ?? {}))
-      },
-      onRowSelectionChange: (updater) => {
-        emit("update:rowSelection", resolveUpdater(updater, props.rowSelection ?? {}))
-      },
+      onGlobalFilterChange: handleGlobalFilterChange,
+      onColumnVisibilityChange: handleColumnVisibilityChange,
+      onRowSelectionChange: handleRowSelectionChange,
       get getRowId() {
         const { getRowId } = props
         return getRowId ? (originalRow: any) => getRowId(originalRow) : undefined
@@ -150,10 +195,30 @@ const DataTableComponent = defineComponent({
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
+      // TanStack keeps its pagination model once created, so a disabled
+      // pageSize (0 or Infinity) switches pagination off explicitly, and back on
+      get manualPagination() {
+        return !shouldPaginate()
+      },
       get getPaginationRowModel() {
         return shouldPaginate() ? paginationRowModel : undefined
       },
     })
+
+    // pageSize only seeds initialState, so apply later prop changes to the table
+    watch(
+      () => props.pageSize,
+      (pageSize, previous) => {
+        if (!shouldPaginate()) return
+        if (Number.isFinite(previous) && previous > 0) {
+          table.setPageSize(pageSize)
+        } else {
+          // Page index is not auto-reset while pagination is off (filters may
+          // have changed since), so start over from the first page
+          table.setPagination({ pageIndex: 0, pageSize })
+        }
+      },
+    )
 
     return () => {
       const headerGroups = table.getHeaderGroups()

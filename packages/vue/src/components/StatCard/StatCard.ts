@@ -1,16 +1,8 @@
-import {
-  Comment,
-  Fragment,
-  defineComponent,
-  h,
-  type HTMLAttributes,
-  type PropType,
-  type VNode,
-  type VNodeArrayChildren,
-} from "vue"
+import { defineComponent, h, type HTMLAttributes, type PropType } from "vue"
 import { Badge } from "../Badge/index.js"
 import { InfoCircle } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/StatCard/StatCard.module.css"
 
 // Vue port of packages/ui/src/components/StatCard/StatCard.tsx. Props,
@@ -35,19 +27,6 @@ export type StatCardAccentColor =
   | "danger"
   | "discovery"
   | "caution"
-
-// A slot counts as content when it renders something other than comments
-// (v-if placeholders), like a truthy ReactNode in React
-const hasContent = (nodes: VNodeArrayChildren | undefined): boolean =>
-  !!nodes?.some((node) => {
-    if (node == null || typeof node === "boolean") return false
-    if (Array.isArray(node)) return hasContent(node)
-    if (typeof node !== "object") return node !== ""
-    const vnode = node as VNode
-    if (vnode.type === Comment) return false
-    if (vnode.type === Fragment) return hasContent(vnode.children as VNodeArrayChildren)
-    return true
-  })
 
 const StatCardComponent = defineComponent({
   name: "StatCard",

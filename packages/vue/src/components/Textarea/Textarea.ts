@@ -69,7 +69,7 @@ const TextareaComponent = defineComponent({
     value: { type: [String, Number] as PropType<string | number>, default: undefined },
     /** Initial value when uncontrolled */
     defaultValue: { type: [String, Number] as PropType<string | number>, default: undefined },
-    // Accepted and dropped, as in React (which destructures and never renders it)
+    /** The textarea's `autocomplete` attribute */
     autoComplete: String,
   },
   emits: {
@@ -161,8 +161,6 @@ const TextareaComponent = defineComponent({
     return () => {
       const {
         class: className,
-        // React drops `autoComplete`; drop the native spelling too
-        autocomplete: _autocomplete,
         onInput,
         onFocus,
         onBlur,
@@ -208,6 +206,9 @@ const TextareaComponent = defineComponent({
               "id": props.id || (allowAutofillExtensions ? undefined : onePasswordPreventionId),
               "class": s.Textarea,
               "name": props.name,
+              "autocomplete": props.autoComplete ?? restAttrs.autocomplete,
+              // Expose the visual invalid state to assistive tech; an explicit aria-invalid wins
+              "aria-invalid": restAttrs["aria-invalid"] ?? (invalid || undefined),
               "readonly": readOnly,
               "disabled": disabled,
               "rows": rows,

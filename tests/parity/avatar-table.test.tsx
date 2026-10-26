@@ -66,6 +66,7 @@ const avatarCases: [string, Props][] = [
   ["pointerdown handler renders a button", { name: "Will", onPointerDown: noop }],
   ["interactive with image and icon", { Icon: true, imageUrl: IMAGE, color: "info", onClick: noop }],
   ["caller type wins on a button", { name: "Will", onClick: noop, type: "submit" }],
+  ["caller aria-label wins on a button", { name: "Will", onClick: noop, "aria-label": "Open profile" }],
 ]
 
 describe("Avatar parity", () => {

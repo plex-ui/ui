@@ -1,6 +1,7 @@
 import clsx from "clsx"
-import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, type PropType, type VNodeChild } from "vue"
+import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type PropType, type VNodeChild } from "vue"
 import { Eye, EyeOff, X } from "../Icon/index.js"
+import { vDefaultValue } from "../../lib/defaultValue.js"
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
 
 // A fallthrough listener is a function or, when merged, an array of them
@@ -175,7 +176,8 @@ export const FloatingLabelInput = defineComponent({
           callListeners(onBlurAttr, evt)
         },
       }
-      // Uncontrolled: `defaultValue` sets the initial value once, as in React
+      // Uncontrolled: `vDefaultValue` sets the initial value (server markup,
+      // hydration and later changes as in React)
       const initialValue = props.value === undefined ? props.defaultValue : undefined
 
       return h("div", { class: clsx(s.Root, className as string | undefined) }, [
@@ -197,23 +199,20 @@ export const FloatingLabelInput = defineComponent({
             ]),
             startAdornment ? h("div", { class: s.StartAdornment }, startAdornment) : null,
             props.multiline
-              ? h("textarea", {
-                  ...controlProps,
-                  rows: props.rows,
-                  class: s.Textarea,
-                  ...(initialValue !== undefined ? { defaultValue: initialValue } : {}),
-                })
-              : h(
-                  "input",
-                  mergeProps(restAttrs, {
-                    ...controlProps,
-                    "type": effectiveType,
-                    "class": s.Input,
-                    ...(initialValue !== undefined ? { defaultValue: initialValue } : {}),
-                    "onAnimationstart": handleAnimationStart,
-                    "data-lpignore": props.allowAutofillExtensions ? undefined : true,
-                    "data-1p-ignore": props.allowAutofillExtensions ? undefined : true,
-                  }),
+              ? withDirectives(h("textarea", { ...controlProps, rows: props.rows, class: s.Textarea }), [[vDefaultValue, initialValue]])
+              : withDirectives(
+                  h(
+                    "input",
+                    mergeProps(restAttrs, {
+                      ...controlProps,
+                      "type": effectiveType,
+                      "class": s.Input,
+                      "onAnimationstart": handleAnimationStart,
+                      "data-lpignore": props.allowAutofillExtensions ? undefined : true,
+                      "data-1p-ignore": props.allowAutofillExtensions ? undefined : true,
+                    }),
+                  ),
+                  [[vDefaultValue, initialValue]],
                 ),
             endAdornment ? h("div", { class: s.EndAdornment }, endAdornment) : null,
             showClearButton

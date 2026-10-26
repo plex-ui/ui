@@ -77,6 +77,14 @@ export const CopyTooltip = defineComponent({
                   evt.preventDefault()
                   evt.stopPropagation()
                 },
+                // Keyboard users copy with Enter or Space, like a click
+                onKeydown: (evt: KeyboardEvent) => {
+                  if (evt.key === "Enter" || evt.key === " ") {
+                    evt.preventDefault()
+                    open.value = true
+                    copy()
+                  }
+                },
               },
               { default: () => slots.default?.() },
             ),

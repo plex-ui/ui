@@ -707,6 +707,7 @@ export const MenuLink = defineComponent({
           select,
           listeners,
           isExternal ? {} : { onPointermove: handlePreventAfterClose, onPointerleave: handlePreventAfterClose },
+          typeof Component !== "string",
         ),
       })
       const inner = () => [h("span", { class: s.PressableInner }, slots.default?.())]

@@ -10,7 +10,7 @@ import s from "@plexui/styles/components/Toast/Toast.module.css"
 // `class` (sonner `className`), `classes` (`classNames`), `descriptionClass`
 // (`descriptionClassName`), and `toast.custom` takes a component. The type
 // icons are slots in vue-sonner (`icons` only feeds the close icon), so the
-// Plex icons go in as slots.
+// Plex icons and a caller's `icons` go in as slots.
 
 /**
  * Spread into any `toast(...)` options to get a shrink-to-fit, centered
@@ -135,7 +135,13 @@ export const Toaster = defineComponent({
         const slot = iconSlot(type)
         if (slot) iconSlots[`${type}-icon`] = slot
       }
+      // sonner wraps a custom `icons.loading` in its loader box (vue-sonner
+      // ignores it); the slot renders only while the toast is loading
+      const loadingIcon = (attrs.icons as ToastIcons | undefined)?.loading
       if (slots["loading-icon"]) iconSlots["loading-icon"] = slots["loading-icon"]
+      else if (loadingIcon) {
+        iconSlots["loading-icon"] = () => h("div", { "class": "sonner-loader", "data-visible": "true" }, [h(loadingIcon)])
+      }
       // vue-sonner prefers `icons.close` over this slot, as sonner does over its own icon
       iconSlots["close-icon"] = slots["close-icon"] ?? CloseIcon
 

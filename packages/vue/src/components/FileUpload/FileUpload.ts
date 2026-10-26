@@ -6,9 +6,9 @@ import { FieldError } from "../FieldError/index.js"
 import s from "@plexui/styles/components/FileUpload/FileUpload.module.css"
 
 // Vue port of packages/ui/src/components/FileUpload/FileUpload.tsx. Like
-// React, the components spread no attributes: FileUpload reads `class` and
-// `aria-describedby`, FileCard and FileCardGroup read `class`; anything else
-// is dropped.
+// React, the components spread no attributes: FileUpload reads `class`,
+// `aria-describedby` and `aria-invalid`, FileCard and FileCardGroup read
+// `class`; anything else is dropped.
 
 function getFileIcon(file: File) {
   const type = file.type
@@ -230,6 +230,7 @@ export const FileUpload = defineComponent({
       const inputId = props.id || `file-upload-${generatedId}`
       const errorId = `${inputId}-error`
       const invalid = props.invalid ?? !!errorMessage
+      const ariaInvalid = (attrs["aria-invalid"] as boolean | "true" | "false" | undefined) ?? (invalid || undefined)
       const ariaDescribedBy =
         [attrs["aria-describedby"] as string | undefined, errorMessage ? errorId : undefined]
           .filter(Boolean)
@@ -249,6 +250,9 @@ export const FileUpload = defineComponent({
                   if (!(disabled || atLimit)) openPicker()
                 },
                 "disabled": disabled || atLimit,
+                // The visible trigger is what keyboard and screen-reader users reach
+                "aria-describedby": ariaDescribedBy,
+                "aria-invalid": ariaInvalid,
               },
               [
                 h(UploadDocuments, { class: s.AreaIcon }),
@@ -259,14 +263,16 @@ export const FileUpload = defineComponent({
           : h(
               Button,
               {
-                color: "secondary",
-                variant: "soft",
-                size: "3xl",
-                pill: true,
-                block: true,
-                disabled: disabled || atLimit,
-                onClick: openPicker,
-                class: "h-[3.25rem]",
+                "color": "secondary",
+                "variant": "soft",
+                "size": "3xl",
+                "pill": true,
+                "block": true,
+                "disabled": disabled || atLimit,
+                "onClick": openPicker,
+                "class": "h-[3.25rem]",
+                "aria-describedby": ariaDescribedBy,
+                "aria-invalid": ariaInvalid,
               },
               { default: () => [label || "Upload file"] },
             ),

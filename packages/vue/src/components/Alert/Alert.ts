@@ -1,7 +1,5 @@
 import clsx from "clsx"
 import {
-  Comment,
-  Fragment,
   defineComponent,
   h,
   onBeforeUnmount,
@@ -10,13 +8,13 @@ import {
   watch,
   type HTMLAttributes,
   type PropType,
-  type VNode,
   type VNodeArrayChildren,
   type VNodeChild,
 } from "vue"
 import type { SemanticColors, Variants } from "@plexui/styles/types"
 import { CheckCircle, Info, Warning } from "../Icon/index.js"
 import { Button } from "../Button/index.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Alert/Alert.module.css"
 
 // Vue port of packages/ui/src/components/Alert/Alert.tsx. ReactNode props
@@ -30,19 +28,6 @@ import s from "@plexui/styles/components/Alert/Alert.module.css"
 export type AlertColor = SemanticColors<
   "primary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"
 >
-
-// A slot counts as content when it renders something other than comments
-// (v-if placeholders), like a truthy ReactNode in React
-const hasContent = (nodes: VNodeArrayChildren | undefined): boolean =>
-  !!nodes?.some((node) => {
-    if (node == null || typeof node === "boolean") return false
-    if (Array.isArray(node)) return hasContent(node)
-    if (typeof node !== "object") return node !== ""
-    const vnode = node as VNode
-    if (vnode.type === Comment) return false
-    if (vnode.type === Fragment) return hasContent(vnode.children as VNodeArrayChildren)
-    return true
-  })
 
 /** Default indicator icon, chosen from the color (which signals intention). */
 const Indicator = (color: AlertColor) => {

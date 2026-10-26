@@ -58,7 +58,11 @@ const textLinkCases: Case[] = [
   ["external href", { href: "https://plexui.com" }],
   ["forceExternal on a relative href", { href: "/docs", forceExternal: true }],
   ["forceExternal off on an absolute href", { href: "https://plexui.com", forceExternal: false }],
-  ["target is ignored", { href: "/docs", target: "_self" }],
+  ["explicit target is kept on an internal link", { href: "/docs", target: "_self" }],
+  ["explicit target wins on an external link", { href: "https://plexui.com", target: "_self" }],
+  ["explicit target reaches the provider link component", { to: "/docs", target: "_blank" }, { provider: true }],
+  ["no href drops the target", { target: "_blank" }],
+  ["no href with a click handler is focusable", { onClick: () => {} }],
   ["to without a provider", { to: "/docs" }],
   ["className and attributes", { href: "#", className: "font-semibold", "aria-label": "Docs", id: "docs-link" }],
   ["icon child", { href: "#" }, { icon: true }],
@@ -89,6 +93,69 @@ describe("TextLink parity", () => {
   test.each(textLinkCases)("%s", async (...testCase) => {
     const { react, vue } = await pair(ReactTextLink as never, VueTextLink, testCase)
     expect(vue).toBe(react)
+  })
+})
+
+describe("TextLink keyboard parity", () => {
+  // Both spans side by side: [React, Vue]
+  const spans = () => Array.from(document.querySelectorAll('[role="button"]')) as HTMLElement[]
+
+  test("no href with a click handler: Enter and Space click it, other keys do not", async () => {
+    const reactClick = vi.fn()
+    const vueClick = vi.fn()
+    const { render } = await import("@testing-library/react")
+    render(<ReactTextLink onClick={reactClick}>Docs</ReactTextLink>)
+    mountVue(() => h(VueTextLink, { onClick: vueClick }, { default: () => "Docs" }))
+    const results: Array<[boolean, boolean]> = []
+    await interact(() => {
+      for (const key of ["Enter", " ", "a"]) {
+        const [reactSpan, vueSpan] = spans()
+        results.push([fireEvent.keyDown(reactSpan!, { key }), fireEvent.keyDown(vueSpan!, { key })])
+      }
+    })
+    expect(spans().map((span) => span.getAttribute("tabindex"))).toEqual(["0", "0"])
+    expect(reactClick).toHaveBeenCalledTimes(2)
+    expect(vueClick).toHaveBeenCalledTimes(2)
+    // fireEvent returns false when the default was prevented
+    expect(results).toEqual([[false, false], [false, false], [true, true]])
+  })
+
+  test("the caller's keydown runs first and can prevent the click; tabindex wins", async () => {
+    const reactClick = vi.fn()
+    const vueClick = vi.fn()
+    const keys: string[] = []
+    const { render } = await import("@testing-library/react")
+    render(
+      <ReactTextLink tabIndex={-1} onClick={reactClick} onKeyDown={(evt) => (keys.push(`react ${evt.key}`), evt.key === "Enter" && evt.preventDefault())}>
+        Docs
+      </ReactTextLink>,
+    )
+    mountVue(() =>
+      h(
+        VueTextLink,
+        { tabindex: -1, onClick: vueClick, onKeydown: (evt: KeyboardEvent) => (keys.push(`vue ${evt.key}`), evt.key === "Enter" && evt.preventDefault()) },
+        { default: () => "Docs" },
+      ),
+    )
+    await interact(() => {
+      for (const key of ["Enter", " "]) for (const span of spans()) fireEvent.keyDown(span, { key })
+    })
+    expect(spans().map((span) => span.getAttribute("tabindex"))).toEqual(["-1", "-1"])
+    expect(keys).toEqual(["react Enter", "vue Enter", "react  ", "vue  "])
+    expect(reactClick).toHaveBeenCalledTimes(1)
+    expect(vueClick).toHaveBeenCalledTimes(1)
+  })
+
+  test("no href without a click handler is not focusable and ignores Enter", async () => {
+    const { render } = await import("@testing-library/react")
+    render(<ReactTextLink>Docs</ReactTextLink>)
+    mountVue(() => h(VueTextLink, null, { default: () => "Docs" }))
+    const results: boolean[] = []
+    await interact(() => {
+      for (const span of spans()) results.push(fireEvent.keyDown(span, { key: "Enter" }))
+    })
+    expect(spans().map((span) => span.getAttribute("tabindex"))).toEqual([null, null])
+    expect(results).toEqual([true, true])
   })
 })
 

@@ -404,6 +404,7 @@ export const compose =
 
 export type ItemImplHandlers = {
   onClick?: Handler<MouseEvent>
+  onClickCapture?: Handler<MouseEvent>
   onPointerdown?: Handler<PointerEvent>
   onPointerup?: Handler<PointerEvent>
   onPointermove?: Handler<PointerEvent>
@@ -539,15 +540,27 @@ export const useMenuItemSelect = (
     }
   }
 
-  /** Handlers of the item itself; `consumer` holds the item's own listeners */
-  const handlers = (consumer: Record<string, unknown>): ItemImplHandlers => ({
-    // Only the consumer's preventDefault() skips the selection: a router link
-    // component runs its own click handler (which prevents the navigation)
-    // before the listeners passed to it, where React's runs after
+  // Whether the click was canceled before it reached the item (capture phase)
+  let canceledBeforeItem = false
+
+  /**
+   * Handlers of the item itself; `consumer` holds the item's own listeners.
+   * `linkComponent`: the item renders a link component (a router link).
+   */
+  const handlers = (consumer: Record<string, unknown>, linkComponent = false): ItemImplHandlers => ({
+    onClickCapture: (event) => {
+      callListener(consumer.onClickCapture, event)
+      canceledBeforeItem = event.defaultPrevented
+    },
+    // A canceled click is not selected, as in Radix. A router link component
+    // runs its own click handler (which prevents the navigation) before the
+    // listeners passed to it, where React's runs after, so a link
+    // component's cancel from after the capture phase is its own and is
+    // ignored; only the consumer's preventDefault() then skips the selection.
     onClick: (event) => {
-      const wasPrevented = event.defaultPrevented
+      const canceledByLink = linkComponent && event.defaultPrevented && !canceledBeforeItem
       callListener(consumer.onClick, event)
-      if (event.defaultPrevented && !wasPrevented) return
+      if (event.defaultPrevented && !canceledByLink) return
       handleSelect()
     },
     onPointerdown: (event) => {
@@ -581,6 +594,7 @@ export const useMenuItemSelect = (
 
 const ITEM_LISTENERS = [
   "onClick",
+  "onClickCapture",
   "onPointerdown",
   "onPointerup",
   "onKeydown",
@@ -601,6 +615,7 @@ export const selectableItemListeners = (
   select: ReturnType<typeof useMenuItemSelect>,
   listeners: Record<string, unknown>,
   after: { onPointermove?: Handler<PointerEvent>; onPointerleave?: Handler<PointerEvent> } = {},
+  linkComponent = false,
 ) => {
   const own = (key: string) => (event: Event) => callListener(listeners[key], event)
   const chain = (key: "onPointermove" | "onPointerleave") => (event: PointerEvent) => {
@@ -611,7 +626,7 @@ export const selectableItemListeners = (
   return {
     ...rest,
     ...impl.handlers({
-      ...select.handlers(listeners),
+      ...select.handlers(listeners, linkComponent),
       onPointermove: chain("onPointermove"),
       onPointerleave: chain("onPointerleave"),
       onFocusin: own("onFocusin"),

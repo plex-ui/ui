@@ -116,6 +116,8 @@ const AvatarInner = defineComponent({
           "class": [s.Avatar, className],
           "style": toCssVariables({ "avatar-size": props.size }),
           "role": isInteractive ? undefined : "presentation",
+          // An interactive avatar is a button; name it by the full name, not the initial
+          "aria-label": isInteractive ? props.name : undefined,
           "data-color": props.color,
           "data-variant": props.variant,
           "type": isInteractive ? "button" : undefined,

@@ -1,7 +1,10 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useState, type ComponentType, type ReactNode } from "react"
+import { createElement, useState, type ComponentType, type ReactElement, type ReactNode } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
-import { createCommentVNode, defineComponent, h, ref, type VNode } from "vue"
+import { createCommentVNode, createSSRApp, createTextVNode, defineComponent, Fragment, h, ref, type VNode } from "vue"
+import { renderToString as vueRenderToString } from "vue/server-renderer"
 import { Input as RInput } from "../../packages/ui/src/components/Input"
 import RSearch from "../../packages/ui/src/components/Icon/svg/Search"
 import { Input, InputAdornmentButton } from "../../packages/vue/src/components/Input"
@@ -80,7 +83,7 @@ const cases: Array<[string, Props]> = [
   ["controlled numeric value", { value: 42, onChange: noop }],
   ["controlled empty value", { value: "", onChange: noop }],
   ["defaultValue", { defaultValue: "plex" }],
-  ["autoComplete is swallowed, as in React", { autoComplete: "email" }],
+  ["autoComplete reaches the input", { autoComplete: "email" }],
   ["start adornment", { startAdornment: "search", placeholder: "Search..." }],
   ["end adornment", { endAdornment: "count" }],
   ["both adornments", { startAdornment: "search", endAdornment: "count", size: "lg" }],
@@ -479,11 +482,96 @@ describe("Input behaviour parity", () => {
     expect(react[1]).toContain('aria-pressed="true"')
   })
 
+  // Vue turns a slot's "" into an empty Text vnode; React's "" is falsy
+  test.each([
+    ["an empty string", () => ""],
+    ["an empty text vnode in a fragment", () => [h(Fragment, null, [createTextVNode("")])]],
+  ])("adornment slots rendering %s count as empty, like React's \"\"", async (_name, slot) => {
+    const { react, vue } = await renderPair(<RInput startAdornment="" endAdornment="" />, () =>
+      h(Input, {}, { startAdornment: slot, endAdornment: slot }),
+    )
+    expect(vue).toBe(react)
+    expect(react).not.toContain("data-has-start-adornment")
+    expect(react).not.toContain("data-has-end-adornment")
+  })
+
   test("v-if'd adornment slots count as empty", async () => {
     mountVue(() => h(Input, {}, { startAdornment: () => [createCommentVNode("v-if", true)], endAdornment: () => [] }))
     await flushVue()
     const container = document.querySelector("[data-slot='input']")!
     expect(container.hasAttribute("data-has-start-adornment")).toBe(false)
     expect(container.hasAttribute("data-has-end-adornment")).toBe(false)
+  })
+})
+
+// Server-renders both, then hydrates each markup in the document. Returns the
+// serialized server markup, the field's displayed value after hydration and
+// the hydrated DOM. `beforeHydrate` can play the user typing early.
+const ssrPair = async (
+  element: ReactElement,
+  renderVue: () => VNode,
+  beforeHydrate: (field: HTMLInputElement) => void = () => {},
+) => {
+  const container = document.createElement("div")
+  document.body.appendChild(container)
+  const field = () => container.querySelector("input, textarea") as HTMLInputElement
+
+  container.innerHTML = reactRenderToString(element)
+  const reactHtml = serializeDom(container)
+  beforeHydrate(field())
+  let root: ReturnType<typeof hydrateRoot> | undefined
+  await act(async () => {
+    root = hydrateRoot(container, element)
+  })
+  const react = { html: reactHtml, value: field().value, hydrated: serializeDom(container) }
+  await act(async () => root!.unmount())
+
+  const app = createSSRApp({ render: renderVue })
+  container.innerHTML = await vueRenderToString(createSSRApp({ render: renderVue }))
+  const vueHtml = serializeDom(container)
+  beforeHydrate(field())
+  app.mount(container)
+  await flushVue()
+  const vue = { html: vueHtml, value: field().value, hydrated: serializeDom(container) }
+  app.unmount()
+  container.remove()
+  return { react, vue }
+}
+
+describe("Input SSR and default-value parity", () => {
+  test("server markup carries defaultValue as the value attribute, and hydration shows it", async () => {
+    const { react, vue } = await ssrPair(reactInput({ defaultValue: "original" }), () => vueInput({ defaultValue: "original" }))
+    expect(vue).toEqual(react)
+    expect(react.html).toContain('value="original"')
+    expect(react.value).toBe("original")
+  })
+
+  test("hydration keeps what the user typed before it", async () => {
+    const { react, vue } = await ssrPair(
+      reactInput({ defaultValue: "original" }),
+      () => vueInput({ defaultValue: "original" }),
+      (field) => {
+        field.value = "typed early"
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react.value).toBe("typed early")
+  })
+
+  test("a defaultValue change moves the attribute but keeps the displayed value", async () => {
+    const shown: string[] = []
+    const { react, vue } = await walkPairWithState(
+      { defaultValue: "original" },
+      (state) => reactInput(state),
+      (state) => vueInput({ defaultValue: state.defaultValue }),
+      async ({ set, snapshot }) => {
+        await set({ defaultValue: "changed" })
+        snapshot()
+        shown.push((document.querySelector("input") as HTMLInputElement).value)
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('value="changed"')
+    expect(shown).toEqual(["original", "original"])
   })
 })

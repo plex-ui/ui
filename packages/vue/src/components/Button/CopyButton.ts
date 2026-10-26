@@ -23,7 +23,7 @@ export const CopyButton = defineComponent({
   emits: {
     click: (_event: MouseEvent) => true,
   },
-  setup(props, { slots, emit }) {
+  setup(props, { slots, emit, attrs }) {
     const copied = ref(false)
     let copiedTimeout: number | null = null
 
@@ -49,8 +49,12 @@ export const CopyButton = defineComponent({
       if (copiedTimeout) clearTimeout(copiedTimeout)
     })
 
-    return () =>
-      h(Button, { onClick: handleClick }, {
+    return () => {
+      // Icon-only copy buttons have no text content, so they need a name of their own
+      const ariaLabel =
+        (attrs["aria-label"] as string | undefined) ?? (slots.default ? undefined : copied.value ? "Copied" : "Copy")
+
+      return h(Button, { "aria-label": ariaLabel, "onClick": handleClick }, {
         default: () => [
           h(
             Animate,
@@ -66,5 +70,6 @@ export const CopyButton = defineComponent({
           slots.default?.({ copied: copied.value }),
         ],
       })
+    }
   },
 })

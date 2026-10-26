@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, type ReactElement } from "react"
 import { describe, expect, test, vi } from "vitest"
-import { h, type VNode } from "vue"
+import { createTextVNode, Fragment, h, type VNode } from "vue"
 import { DollarCircle as RDollarCircle } from "../../packages/ui/src/components/Icon"
 import { StatCard as RStatCard } from "../../packages/ui/src/components/StatCard"
 import { DollarCircle } from "../../packages/vue/src/components/Icon"
@@ -97,6 +97,19 @@ describe("StatCard markup parity", () => {
     )
     expect(vue).toBe(react)
     expect(react).toContain('class="Sparkline"')
+  })
+
+  // Vue turns a slot's "" into an empty Text vnode; React's "" is falsy
+  test.each([
+    ["an empty string", () => ""],
+    ["an empty text vnode in a fragment", () => [h(Fragment, null, [createTextVNode("")])]],
+  ])("icon and sparkline slots rendering %s render like React's \"\"", async (_name, slot) => {
+    const { react, vue } = await renderPair(<RStatCard {...BASE} icon="" sparkline="" />, () =>
+      h(StatCard, BASE, { icon: slot, sparkline: slot }),
+    )
+    expect(vue).toBe(react)
+    expect(react).not.toContain("IconWrapper")
+    expect(react).not.toContain("Sparkline")
   })
 
   test("empty slots render like absent ReactNodes", async () => {
