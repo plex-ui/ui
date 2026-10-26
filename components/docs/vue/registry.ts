@@ -51,6 +51,24 @@ import { Input, InputAdornmentButton } from '@plexui/vue/components/Input';
 import { Label } from '@plexui/vue/components/Label';
 import { Markdown } from '@plexui/vue/components/Markdown';
 import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
+import {
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuItemAction,
+  MenuItemActions,
+  MenuLabel,
+  MenuLink,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
+} from '@plexui/vue/components/Menu';
 import { OTPInput } from '@plexui/vue/components/OTPInput';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
 import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
@@ -184,6 +202,22 @@ const components: Record<string, Component> = {
   LoadingIndicator,
   Markdown,
   MarkdownEditor,
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuItemAction,
+  MenuItemActions,
+  MenuLabel,
+  MenuLink,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
   OTPInput,
   // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
   PlexTransitionGroup,

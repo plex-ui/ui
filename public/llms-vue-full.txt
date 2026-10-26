@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 36
+Components: 37
 
 ## Setup
 
@@ -808,6 +808,58 @@ Richer composition for message composers: wrap each slot (leading action, flexib
       </template>
     </Input>
   </ButtonGroup>
+</ButtonGroup>
+```
+
+### Dropdown menu
+Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….
+```vue
+<ButtonGroup>
+  <Button variant="outline" color="secondary" :pill="false" :size="size">Export</Button>
+  <Menu>
+    <MenuTrigger>
+      <Button variant="outline" color="secondary" :pill="false" :size="size" uniform aria-label="More export options">
+        <ChevronDownMd />
+      </Button>
+    </MenuTrigger>
+    <MenuContent align="end" :min-width="200">
+      <MenuItem @select="() => {}"><FileImage /> PNG image</MenuItem>
+      <MenuItem @select="() => {}"><FileCode /> SVG vector</MenuItem>
+      <MenuItem @select="() => {}"><FileDocument /> PDF document</MenuItem>
+      <MenuSeparator />
+      <MenuItem @select="() => {}"><Copy /> Copy as code</MenuItem>
+      <MenuItem @select="() => {}"><Link /> Copy share link</MenuItem>
+    </MenuContent>
+  </Menu>
+</ButtonGroup>
+```
+
+### Popover
+Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).
+```vue
+<ButtonGroup>
+  <Button variant="outline" color="secondary" :pill="false" :size="size"><Sparkles /> Generate</Button>
+  <Popover>
+    <PopoverTrigger>
+      <Button variant="outline" color="secondary" :pill="false" :size="size" uniform aria-label="More generate options">
+        <ChevronDownMd />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent :min-width="320" side="bottom" align="end" class="p-4">
+      <Card variant="ghost" size="sm">
+        <CardHeader>
+          <CardTitle>Generate a component</CardTitle>
+          <CardDescription>Describe what to build in plain English.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Textarea placeholder="A login form with email and password…" :rows="3" />
+        </CardContent>
+        <CardFooter>
+          <CardDescription>Plex will draft the code and preview it live.</CardDescription>
+        </CardFooter>
+      </Card>
+    </PopoverContent>
+  </Popover>
 </ButtonGroup>
 ```
 
@@ -2270,6 +2322,239 @@ Use invalid to show an error state.
 <div class="w-[500px]">
   <MarkdownEditor placeholder="Tell us about yourself..." invalid />
 </div>
+```
+
+## Menu
+Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+Import: import { Menu, MenuContent, MenuItem, MenuLink, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
+Docs: https://plexui.com/vue/components/menu
+Props:
+  - force-open (boolean) — Keep menu open (controlled)
+  - modal (boolean) default: false — Whether menu is modal (focus trap)
+  - @open (() => void) — Emitted when menu opens
+  - @close (() => void) — Emitted when menu closes
+  - disabled (boolean) default: false — Prevent the menu from opening
+  - width (number | "auto") — Panel width (numbers are pixels)
+  - min-width (number | "auto") default: 300 — Minimum panel width
+  - max-height (number) — Maximum panel height, in pixels
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
+  - side-offset (number) default: 5 — Distance from the trigger, in pixels
+  - align ("start" | "center" | "end") — Alignment relative to trigger
+  - align-offset (number) — Offset from the start or end alignment, in pixels
+  - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+  - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+  - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+  - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
+  - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
+  - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
+  - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
+  - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
+  - indicator-position ("start" | "end") default: "end" — Checkbox position
+  - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+
+### Overview
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :width="210" :min-width="210">
+    <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+    <MenuSeparator />
+    <MenuLink href="/settings">Your profile</MenuLink>
+    <MenuLink href="#">Terms & policies</MenuLink>
+    <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Logout</MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Natural sizing
+Menu supports several sizing strategies:Natural sizing: use min-width="auto" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
+  </MenuTrigger>
+  <MenuContent min-width="auto">
+    <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
+    <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
+    <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
+    <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
+    <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Horizontal (icons only)
+Set layout="horizontal" on MenuContent for an iOS-style icon toolbar.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent layout="horizontal" :size="size" min-width="auto">
+    <MenuItem @select="() => {}"><EditPencil /></MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /></MenuItem>
+    <MenuItem @select="() => {}"><Play /></MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /></MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Horizontal (icons with labels)
+Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent layout="horizontal" :size="size" min-width="auto">
+    <MenuItem @select="() => {}"><EditPencil /> Edit</MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /> Settings</MenuItem>
+    <MenuItem @select="() => {}"><Play /> Play</MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /> Expand</MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Grouped items
+Use MenuGroup and MenuLabel to organize related items into labeled sections.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="220">
+    <MenuGroup>
+      <MenuLabel>Active</MenuLabel>
+      <MenuLink href="#">Welcome email</MenuLink>
+      <MenuLink href="#">Order confirmation</MenuLink>
+      <MenuLink href="#">Password reset</MenuLink>
+    </MenuGroup>
+    <MenuSeparator />
+    <MenuGroup>
+      <MenuLabel>Draft</MenuLabel>
+      <MenuLink href="#">New promo campaign</MenuLink>
+      <MenuLink href="#">Account deactivation</MenuLink>
+    </MenuGroup>
+  </MenuContent>
+</Menu>
+```
+
+### Submenus
+Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="180">
+    <MenuItem @select="() => {}">Edit</MenuItem>
+    <MenuItem @select="() => {}">Duplicate</MenuItem>
+    <MenuSeparator />
+    <MenuSub>
+      <MenuSubTrigger>More</MenuSubTrigger>
+      <MenuSubContent>
+        <MenuItem @select="() => {}">Move to project…</MenuItem>
+        <MenuItem @select="() => {}">Move to folder…</MenuItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Advanced options…</MenuItem>
+      </MenuSubContent>
+    </MenuSub>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Share</MenuItem>
+    <MenuItem @select="() => {}">Add to favorites</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Delete</MenuItem>
+  </MenuContent>
+</Menu>
+```
+
+### Checkbox items
+Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button variant="ghost" color="primary">Checkbox menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="200">
+    <MenuCheckboxItem
+      v-model:checked="settings.showGrid"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Show grid lines
+    </MenuCheckboxItem>
+    <MenuCheckboxItem
+      v-model:checked="settings.showLabels"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Display labels
+    </MenuCheckboxItem>
+    <MenuCheckboxItem
+      v-model:checked="settings.enableShadows"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Enable shadows
+    </MenuCheckboxItem>
+  </MenuContent>
+</Menu>
+```
+
+### Radio items
+Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the selection with v-model:value.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" variant="ghost">Radio menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent align="start" min-width="auto" width="auto">
+    <MenuRadioGroup v-model:value="value" :indicator-position="indicatorPosition">
+      <MenuRadioItem value="any">Any time</MenuRadioItem>
+      <MenuRadioItem value="today" disabled>Today</MenuRadioItem>
+      <MenuRadioItem value="last7d">Last 7 days</MenuRadioItem>
+      <MenuRadioItem value="last30d">Last 30 days</MenuRadioItem>
+      <MenuRadioItem value="last3m">Last 3 months</MenuRadioItem>
+    </MenuRadioGroup>
+  </MenuContent>
+</Menu>
+```
+
+### Item actions
+Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.
+```vue
+<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><History /> Conversations</Button>
+  </MenuTrigger>
+  <MenuContent :width="270">
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Another sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Long thread title that is going to be clipped off</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+  </MenuContent>
+</Menu>
 ```
 
 ## OTP Input

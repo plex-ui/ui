@@ -118,6 +118,50 @@ export const inputGroup = `<ButtonGroup style="width: 100%; max-width: 280px">
   </ButtonGroup>
 </ButtonGroup>`
 
+export const dropdownMenu = `<ButtonGroup>
+  <Button variant="outline" color="secondary" :pill="false" :size="size">Export</Button>
+  <Menu>
+    <MenuTrigger>
+      <Button variant="outline" color="secondary" :pill="false" :size="size" uniform aria-label="More export options">
+        <ChevronDownMd />
+      </Button>
+    </MenuTrigger>
+    <MenuContent align="end" :min-width="200">
+      <MenuItem @select="() => {}"><FileImage /> PNG image</MenuItem>
+      <MenuItem @select="() => {}"><FileCode /> SVG vector</MenuItem>
+      <MenuItem @select="() => {}"><FileDocument /> PDF document</MenuItem>
+      <MenuSeparator />
+      <MenuItem @select="() => {}"><Copy /> Copy as code</MenuItem>
+      <MenuItem @select="() => {}"><Link /> Copy share link</MenuItem>
+    </MenuContent>
+  </Menu>
+</ButtonGroup>`
+
+export const popover = `<ButtonGroup>
+  <Button variant="outline" color="secondary" :pill="false" :size="size"><Sparkles /> Generate</Button>
+  <Popover>
+    <PopoverTrigger>
+      <Button variant="outline" color="secondary" :pill="false" :size="size" uniform aria-label="More generate options">
+        <ChevronDownMd />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent :min-width="320" side="bottom" align="end" class="p-4">
+      <Card variant="ghost" size="sm">
+        <CardHeader>
+          <CardTitle>Generate a component</CardTitle>
+          <CardDescription>Describe what to build in plain English.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Textarea placeholder="A login form with email and password…" :rows="3" />
+        </CardContent>
+        <CardFooter>
+          <CardDescription>Plex will draft the code and preview it live.</CardDescription>
+        </CardFooter>
+      </Card>
+    </PopoverContent>
+  </Popover>
+</ButtonGroup>`
+
 <UsageBlock>{`import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup";`}</UsageBlock>
 
 Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
@@ -170,6 +214,18 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 <ComponentPreview language="vue" details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={inputGroup}>
   <VueDemo template={inputGroup} controls={sizeControl} state={{ voiceEnabled: false }} />
+</ComponentPreview>
+
+### Dropdown menu
+
+<ComponentPreview language="vue" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
+  <VueDemo template={dropdownMenu} controls={sizeControl} />
+</ComponentPreview>
+
+### Popover
+
+<ComponentPreview language="vue" details={<>Same split-button shape, but the trailing trigger opens a <a href="/vue/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={popover}>
+  <VueDemo template={popover} controls={sizeControl} />
 </ComponentPreview>
 
 ## API

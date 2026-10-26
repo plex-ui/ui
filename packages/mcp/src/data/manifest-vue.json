@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 36,
+  "componentCount": 37,
   "components": [
     {
       "slug": "accordion",
@@ -600,6 +600,16 @@
           "name": "Input group",
           "code": "<ButtonGroup style=\"width: 100%; max-width: 280px\">\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" pill :size=\"size\" uniform aria-label=\"Add attachment\">\n      <Plus />\n    </Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Input\n      pill\n      :size=\"size\"\n      :placeholder=\"voiceEnabled ? 'Recording your idea…' : 'Describe a component…'\"\n      :disabled=\"voiceEnabled\"\n    >\n      <template #endAdornment>\n        <InputAdornmentButton\n          :color=\"voiceEnabled ? 'caution' : undefined\"\n          aria-label=\"Toggle voice mode\"\n          :aria-pressed=\"voiceEnabled\"\n          @click=\"voiceEnabled = !voiceEnabled\"\n        >\n          <Mic />\n        </InputAdornmentButton>\n      </template>\n    </Input>\n  </ButtonGroup>\n</ButtonGroup>",
           "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size."
+        },
+        {
+          "name": "Dropdown menu",
+          "code": "<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\">Export</Button>\n  <Menu>\n    <MenuTrigger>\n      <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\" uniform aria-label=\"More export options\">\n        <ChevronDownMd />\n      </Button>\n    </MenuTrigger>\n    <MenuContent align=\"end\" :min-width=\"200\">\n      <MenuItem @select=\"() => {}\"><FileImage /> PNG image</MenuItem>\n      <MenuItem @select=\"() => {}\"><FileCode /> SVG vector</MenuItem>\n      <MenuItem @select=\"() => {}\"><FileDocument /> PDF document</MenuItem>\n      <MenuSeparator />\n      <MenuItem @select=\"() => {}\"><Copy /> Copy as code</MenuItem>\n      <MenuItem @select=\"() => {}\"><Link /> Copy share link</MenuItem>\n    </MenuContent>\n  </Menu>\n</ButtonGroup>",
+          "details": "Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …."
+        },
+        {
+          "name": "Popover",
+          "code": "<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\"><Sparkles /> Generate</Button>\n  <Popover>\n    <PopoverTrigger>\n      <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\" uniform aria-label=\"More generate options\">\n        <ChevronDownMd />\n      </Button>\n    </PopoverTrigger>\n    <PopoverContent :min-width=\"320\" side=\"bottom\" align=\"end\" class=\"p-4\">\n      <Card variant=\"ghost\" size=\"sm\">\n        <CardHeader>\n          <CardTitle>Generate a component</CardTitle>\n          <CardDescription>Describe what to build in plain English.</CardDescription>\n        </CardHeader>\n        <CardContent>\n          <Textarea placeholder=\"A login form with email and password…\" :rows=\"3\" />\n        </CardContent>\n        <CardFooter>\n          <CardDescription>Plex will draft the code and preview it live.</CardDescription>\n        </CardFooter>\n      </Card>\n    </PopoverContent>\n  </Popover>\n</ButtonGroup>",
+          "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews)."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/button-group"
@@ -1971,6 +1981,189 @@
       "docsUrl": "https://plexui.com/vue/components/markdown-editor"
     },
     {
+      "slug": "menu",
+      "name": "Menu",
+      "description": "Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.",
+      "importPath": "@plexui/vue/components/Menu",
+      "exports": [
+        "Menu",
+        "MenuContent",
+        "MenuItem",
+        "MenuLink",
+        "MenuSeparator",
+        "MenuTrigger"
+      ],
+      "props": [
+        {
+          "name": "force-open",
+          "type": "boolean",
+          "description": "Keep menu open (controlled)"
+        },
+        {
+          "name": "modal",
+          "type": "boolean",
+          "default": "false",
+          "description": "Whether menu is modal (focus trap)"
+        },
+        {
+          "name": "@open",
+          "type": "() => void",
+          "description": "Emitted when menu opens"
+        },
+        {
+          "name": "@close",
+          "type": "() => void",
+          "description": "Emitted when menu closes"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Prevent the menu from opening"
+        },
+        {
+          "name": "width",
+          "type": "number | \"auto\"",
+          "description": "Panel width (numbers are pixels)"
+        },
+        {
+          "name": "min-width",
+          "type": "number | \"auto\"",
+          "default": "300",
+          "description": "Minimum panel width"
+        },
+        {
+          "name": "max-height",
+          "type": "number",
+          "description": "Maximum panel height, in pixels"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+          "default": "\"bottom\"",
+          "description": "Preferred placement"
+        },
+        {
+          "name": "side-offset",
+          "type": "number",
+          "default": "5",
+          "description": "Distance from the trigger, in pixels"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "description": "Alignment relative to trigger"
+        },
+        {
+          "name": "align-offset",
+          "type": "number",
+          "description": "Offset from the start or end alignment, in pixels"
+        },
+        {
+          "name": "layout",
+          "type": "\"vertical\" | \"horizontal\"",
+          "default": "\"vertical\"",
+          "description": "Layout direction. Use horizontal for icon toolbars"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "default": "\"md\"",
+          "description": "Size of horizontal menu items (icon size + padding)"
+        },
+        {
+          "name": "@close-auto-focus",
+          "type": "(event: Event) => void",
+          "description": "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Second line under the label (or the description slot). The label turns semibold on its own"
+        },
+        {
+          "name": "@select",
+          "type": "(event: Event) => void",
+          "description": "Called when the item is selected; call event.preventDefault() to keep the menu open"
+        },
+        {
+          "name": "@click",
+          "type": "(event: MouseEvent) => void",
+          "description": "Emitted when the item is clicked"
+        },
+        {
+          "name": "checked / v-model:checked",
+          "type": "boolean | \"indeterminate\"",
+          "default": "false",
+          "description": "Checked state"
+        },
+        {
+          "name": "@checked-change",
+          "type": "(checked: boolean) => void",
+          "description": "Emitted with update:checked when the checkbox toggles"
+        },
+        {
+          "name": "indicator-position",
+          "type": "\"start\" | \"end\"",
+          "default": "\"end\"",
+          "description": "Checkbox position"
+        },
+        {
+          "name": "indicator-variant",
+          "type": "\"solid\" | \"ghost\"",
+          "default": "\"solid\"",
+          "description": "Indicator style"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Sample menu <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :width=\"210\" :min-width=\"210\">\n    <MenuItem description=\"sam.smith@gmail.com\">Sam Smith</MenuItem>\n    <MenuSeparator />\n    <MenuLink href=\"/settings\">Your profile</MenuLink>\n    <MenuLink href=\"#\">Terms & policies</MenuLink>\n    <MenuItem disabled @select=\"() => {}\">Feature flags</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\">Logout</MenuItem>\n  </MenuContent>\n</Menu>"
+        },
+        {
+          "name": "Natural sizing",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\" class=\"font-semibold gap-1.5\"><Tools /> Tools</Button>\n  </MenuTrigger>\n  <MenuContent min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><Functions :height=\"18\" :width=\"18\" /> Function</MenuItem>\n    <MenuItem @select=\"() => {}\"><Search :height=\"18\" :width=\"18\" /> File Search</MenuItem>\n    <MenuItem @select=\"() => {}\"><Globe :height=\"18\" :width=\"18\" /> Web Search</MenuItem>\n    <MenuItem @select=\"() => {}\"><Code :height=\"18\" :width=\"18\" /> Code Interpreter</MenuItem>\n    <MenuItem @select=\"() => {}\"><ImageSquare :height=\"18\" :width=\"18\" /> Image Generation</MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Menu supports several sizing strategies:Natural sizing: use min-width=\"auto\" to have the menu fit naturally to the size of the content.Fixed size: use width and min-width to set the menu to a fixed size, regardless of content size.Flexible sizing: min-width can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.Max sizing: apply max-width to the children of MenuContent. maxWidth isn't exposed as a prop because it's reserved for the custom properties used in collision detection."
+        },
+        {
+          "name": "Horizontal (icons only)",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /></MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /></MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /></MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /></MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Set layout=\"horizontal\" on MenuContent for an iOS-style icon toolbar."
+        },
+        {
+          "name": "Horizontal (icons with labels)",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent layout=\"horizontal\" :size=\"size\" min-width=\"auto\">\n    <MenuItem @select=\"() => {}\"><EditPencil /> Edit</MenuItem>\n    <MenuItem @select=\"() => {}\"><SettingsCog /> Settings</MenuItem>\n    <MenuItem @select=\"() => {}\"><Play /> Play</MenuItem>\n    <MenuItem @select=\"() => {}\"><UnfoldHorizontal /> Expand</MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item."
+        },
+        {
+          "name": "Grouped items",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\" class=\"font-semibold gap-1.5\"><FileDocument /> Templates <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :min-width=\"220\">\n    <MenuGroup>\n      <MenuLabel>Active</MenuLabel>\n      <MenuLink href=\"#\">Welcome email</MenuLink>\n      <MenuLink href=\"#\">Order confirmation</MenuLink>\n      <MenuLink href=\"#\">Password reset</MenuLink>\n    </MenuGroup>\n    <MenuSeparator />\n    <MenuGroup>\n      <MenuLabel>Draft</MenuLabel>\n      <MenuLink href=\"#\">New promo campaign</MenuLink>\n      <MenuLink href=\"#\">Account deactivation</MenuLink>\n    </MenuGroup>\n  </MenuContent>\n</Menu>",
+          "details": "Use MenuGroup and MenuLabel to organize related items into labeled sections."
+        },
+        {
+          "name": "Submenus",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Options <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :min-width=\"180\">\n    <MenuItem @select=\"() => {}\">Edit</MenuItem>\n    <MenuItem @select=\"() => {}\">Duplicate</MenuItem>\n    <MenuSeparator />\n    <MenuSub>\n      <MenuSubTrigger>More</MenuSubTrigger>\n      <MenuSubContent>\n        <MenuItem @select=\"() => {}\">Move to project…</MenuItem>\n        <MenuItem @select=\"() => {}\">Move to folder…</MenuItem>\n        <MenuSeparator />\n        <MenuItem @select=\"() => {}\">Advanced options…</MenuItem>\n      </MenuSubContent>\n    </MenuSub>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\">Share</MenuItem>\n    <MenuItem @select=\"() => {}\">Add to favorites</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\">Delete</MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus."
+        },
+        {
+          "name": "Checkbox items",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button variant=\"ghost\" color=\"primary\">Checkbox menu <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent :min-width=\"200\">\n    <MenuCheckboxItem\n      v-model:checked=\"settings.showGrid\"\n      :indicator-position=\"indicatorPosition\"\n      :indicator-variant=\"indicatorVariant\"\n      @select=\"(evt) => evt.preventDefault()\"\n    >\n      Show grid lines\n    </MenuCheckboxItem>\n    <MenuCheckboxItem\n      v-model:checked=\"settings.showLabels\"\n      :indicator-position=\"indicatorPosition\"\n      :indicator-variant=\"indicatorVariant\"\n      @select=\"(evt) => evt.preventDefault()\"\n    >\n      Display labels\n    </MenuCheckboxItem>\n    <MenuCheckboxItem\n      v-model:checked=\"settings.enableShadows\"\n      :indicator-position=\"indicatorPosition\"\n      :indicator-variant=\"indicatorVariant\"\n      @select=\"(evt) => evt.preventDefault()\"\n    >\n      Enable shadows\n    </MenuCheckboxItem>\n  </MenuContent>\n</Menu>",
+          "details": "Use MenuCheckboxItem with v-model:checked and {'@select=\"(evt) => evt.preventDefault()\"'} to keep the menu open."
+        },
+        {
+          "name": "Radio items",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" variant=\"ghost\">Radio menu <ChevronDownMd /></Button>\n  </MenuTrigger>\n  <MenuContent align=\"start\" min-width=\"auto\" width=\"auto\">\n    <MenuRadioGroup v-model:value=\"value\" :indicator-position=\"indicatorPosition\">\n      <MenuRadioItem value=\"any\">Any time</MenuRadioItem>\n      <MenuRadioItem value=\"today\" disabled>Today</MenuRadioItem>\n      <MenuRadioItem value=\"last7d\">Last 7 days</MenuRadioItem>\n      <MenuRadioItem value=\"last30d\">Last 30 days</MenuRadioItem>\n      <MenuRadioItem value=\"last3m\">Last 3 months</MenuRadioItem>\n    </MenuRadioGroup>\n  </MenuContent>\n</Menu>",
+          "details": "Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the selection with v-model:value."
+        },
+        {
+          "name": "Item actions",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\" class=\"font-semibold gap-1.5\"><History /> Conversations</Button>\n  </MenuTrigger>\n  <MenuContent :width=\"270\">\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Another sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Long thread title that is going to be clipped off</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/menu"
+    },
+    {
       "slug": "otp-input",
       "name": "OTP Input",
       "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
@@ -3291,5 +3484,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T11:30:49.439Z"
+  "generatedAt": "2026-10-26T11:33:28.458Z"
 }

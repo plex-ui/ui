@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue
 Docs: https://plexui.com
-Components: 36
+Components: 37
 
 ## Setup
 
@@ -112,7 +112,7 @@ Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disable
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
 Docs: https://plexui.com/vue/components/button-group
-Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group
+Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Popover
 
 ## Button Link
 A semantic anchor with full button styling, for internal and external links with icons and block layout.
@@ -339,6 +339,35 @@ Props:
   - #toolbarEnd (slot) — Content rendered at the end of the toolbar
   - rows (number) default: 1 — Minimum visible rows
 Examples: Placeholder, All formatting, Toolbar end slot, Variants, Disabled, Invalid
+
+## Menu
+Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+Import: import { Menu, MenuContent, MenuItem, MenuLink, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
+Docs: https://plexui.com/vue/components/menu
+Props:
+  - force-open (boolean) — Keep menu open (controlled)
+  - modal (boolean) default: false — Whether menu is modal (focus trap)
+  - @open (() => void) — Emitted when menu opens
+  - @close (() => void) — Emitted when menu closes
+  - disabled (boolean) default: false — Prevent the menu from opening
+  - width (number | "auto") — Panel width (numbers are pixels)
+  - min-width (number | "auto") default: 300 — Minimum panel width
+  - max-height (number) — Maximum panel height, in pixels
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
+  - side-offset (number) default: 5 — Distance from the trigger, in pixels
+  - align ("start" | "center" | "end") — Alignment relative to trigger
+  - align-offset (number) — Offset from the start or end alignment, in pixels
+  - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+  - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+  - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+  - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
+  - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
+  - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
+  - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
+  - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
+  - indicator-position ("start" | "end") default: "end" — Checkbox position
+  - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
 
 ## OTP Input
 Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.

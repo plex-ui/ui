@@ -1,0 +1,314 @@
+---
+title: Menu
+description: Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+metaDescription: Vue 3 dropdown menu component for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const INDICATOR_POSITIONS = ["start", "end"]
+export const INDICATOR_VARIANTS = ["solid", "ghost"]
+export const SIZES = ["sm", "md", "lg"]
+
+export const overview = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Sample menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :width="210" :min-width="210">
+    <MenuItem description="sam.smith@gmail.com">Sam Smith</MenuItem>
+    <MenuSeparator />
+    <MenuLink href="/settings">Your profile</MenuLink>
+    <MenuLink href="#">Terms & policies</MenuLink>
+    <MenuItem disabled @select="() => {}">Feature flags</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Logout</MenuItem>
+  </MenuContent>
+</Menu>`
+
+export const naturalSizing = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><Tools /> Tools</Button>
+  </MenuTrigger>
+  <MenuContent min-width="auto">
+    <MenuItem @select="() => {}"><Functions :height="18" :width="18" /> Function</MenuItem>
+    <MenuItem @select="() => {}"><Search :height="18" :width="18" /> File Search</MenuItem>
+    <MenuItem @select="() => {}"><Globe :height="18" :width="18" /> Web Search</MenuItem>
+    <MenuItem @select="() => {}"><Code :height="18" :width="18" /> Code Interpreter</MenuItem>
+    <MenuItem @select="() => {}"><ImageSquare :height="18" :width="18" /> Image Generation</MenuItem>
+  </MenuContent>
+</Menu>`
+
+export const horizontalIcons = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent layout="horizontal" :size="size" min-width="auto">
+    <MenuItem @select="() => {}"><EditPencil /></MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /></MenuItem>
+    <MenuItem @select="() => {}"><Play /></MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /></MenuItem>
+  </MenuContent>
+</Menu>`
+
+export const horizontalLabels = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent layout="horizontal" :size="size" min-width="auto">
+    <MenuItem @select="() => {}"><EditPencil /> Edit</MenuItem>
+    <MenuItem @select="() => {}"><SettingsCog /> Settings</MenuItem>
+    <MenuItem @select="() => {}"><Play /> Play</MenuItem>
+    <MenuItem @select="() => {}"><UnfoldHorizontal /> Expand</MenuItem>
+  </MenuContent>
+</Menu>`
+
+export const grouped = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><FileDocument /> Templates <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="220">
+    <MenuGroup>
+      <MenuLabel>Active</MenuLabel>
+      <MenuLink href="#">Welcome email</MenuLink>
+      <MenuLink href="#">Order confirmation</MenuLink>
+      <MenuLink href="#">Password reset</MenuLink>
+    </MenuGroup>
+    <MenuSeparator />
+    <MenuGroup>
+      <MenuLabel>Draft</MenuLabel>
+      <MenuLink href="#">New promo campaign</MenuLink>
+      <MenuLink href="#">Account deactivation</MenuLink>
+    </MenuGroup>
+  </MenuContent>
+</Menu>`
+
+export const submenus = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost">Options <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="180">
+    <MenuItem @select="() => {}">Edit</MenuItem>
+    <MenuItem @select="() => {}">Duplicate</MenuItem>
+    <MenuSeparator />
+    <MenuSub>
+      <MenuSubTrigger>More</MenuSubTrigger>
+      <MenuSubContent>
+        <MenuItem @select="() => {}">Move to project…</MenuItem>
+        <MenuItem @select="() => {}">Move to folder…</MenuItem>
+        <MenuSeparator />
+        <MenuItem @select="() => {}">Advanced options…</MenuItem>
+      </MenuSubContent>
+    </MenuSub>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Share</MenuItem>
+    <MenuItem @select="() => {}">Add to favorites</MenuItem>
+    <MenuSeparator />
+    <MenuItem @select="() => {}">Delete</MenuItem>
+  </MenuContent>
+</Menu>`
+
+export const checkboxItems = `<Menu>
+  <MenuTrigger>
+    <Button variant="ghost" color="primary">Checkbox menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent :min-width="200">
+    <MenuCheckboxItem
+      v-model:checked="settings.showGrid"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Show grid lines
+    </MenuCheckboxItem>
+    <MenuCheckboxItem
+      v-model:checked="settings.showLabels"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Display labels
+    </MenuCheckboxItem>
+    <MenuCheckboxItem
+      v-model:checked="settings.enableShadows"
+      :indicator-position="indicatorPosition"
+      :indicator-variant="indicatorVariant"
+      @select="(evt) => evt.preventDefault()"
+    >
+      Enable shadows
+    </MenuCheckboxItem>
+  </MenuContent>
+</Menu>`
+
+export const radioItems = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" variant="ghost">Radio menu <ChevronDownMd /></Button>
+  </MenuTrigger>
+  <MenuContent align="start" min-width="auto" width="auto">
+    <MenuRadioGroup v-model:value="value" :indicator-position="indicatorPosition">
+      <MenuRadioItem value="any">Any time</MenuRadioItem>
+      <MenuRadioItem value="today" disabled>Today</MenuRadioItem>
+      <MenuRadioItem value="last7d">Last 7 days</MenuRadioItem>
+      <MenuRadioItem value="last30d">Last 30 days</MenuRadioItem>
+      <MenuRadioItem value="last3m">Last 3 months</MenuRadioItem>
+    </MenuRadioGroup>
+  </MenuContent>
+</Menu>`
+
+export const itemActions = `<Menu>
+  <MenuTrigger>
+    <Button color="primary" size="lg" variant="ghost" class="font-semibold gap-1.5"><History /> Conversations</Button>
+  </MenuTrigger>
+  <MenuContent :width="270">
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Another sample thread title</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1 truncate">Long thread title that is going to be clipped off</span>
+      <MenuItemActions>
+        <MenuItemAction @click="() => {}"><Trash /></MenuItemAction>
+      </MenuItemActions>
+    </MenuItem>
+  </MenuContent>
+</Menu>`
+
+<UsageBlock>{`import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuLink,
+  MenuSeparator,
+  MenuTrigger,
+} from "@plexui/vue/components/Menu";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Natural sizing
+
+<ComponentPreview language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul></>} code={naturalSizing} previewMinHeight={168}>
+  <VueDemo template={naturalSizing} />
+</ComponentPreview>
+
+### Horizontal (icons only)
+
+<ComponentPreview language="vue" details={<>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar.</>} code={horizontalIcons} previewMinHeight={168}>
+  <VueDemo template={horizontalIcons} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Horizontal (icons with labels)
+
+<ComponentPreview language="vue" details={<>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</>} code={horizontalLabels} previewMinHeight={168}>
+  <VueDemo template={horizontalLabels} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+</ComponentPreview>
+
+### Grouped items
+
+<ComponentPreview language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={grouped} previewMinHeight={168}>
+  <VueDemo template={grouped} />
+</ComponentPreview>
+
+### Submenus
+
+<ComponentPreview language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus.</>} code={submenus} previewMinHeight={168}>
+  <VueDemo template={submenus} />
+</ComponentPreview>
+
+### Checkbox items
+
+<ComponentPreview language="vue" details={<>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</>} code={checkboxItems} previewMinHeight={168}>
+  <VueDemo template={checkboxItems} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
+</ComponentPreview>
+
+### Radio items
+
+<ComponentPreview language="vue" details={<>Use <code>MenuRadioGroup</code> and <code>MenuRadioItem</code> for single-selection options. Bind the selection with <code>v-model:value</code>.</>} code={radioItems} previewMinHeight={168}>
+  <VueDemo template={radioItems} state={{ value: "any" }} controls={[{ name: "indicatorPosition", type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
+</ComponentPreview>
+
+### Item actions
+
+<ComponentPreview language="vue" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.</>} code={itemActions} previewMinHeight={168}>
+  <VueDemo template={itemActions} />
+</ComponentPreview>
+
+## Reference
+
+**Note:** Menu prevents `Tab` from advancing focus. For generic popover content use [Popover](/vue/components/popover) instead.
+
+**Menu** (root)
+
+<PropsTable data={[
+  { prop: "force-open", type: "boolean", description: "Keep menu open (controlled)" },
+  { prop: "modal", type: "boolean", default: "false", description: "Whether menu is modal (focus trap)" },
+  { prop: "@open", type: "() => void", description: "Emitted when menu opens" },
+  { prop: "@close", type: "() => void", description: "Emitted when menu closes" },
+]} />
+
+**MenuTrigger**: renders its child (e.g. a Button) as the element that toggles the menu.
+
+<PropsTable data={[
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevent the menu from opening" },
+]} />
+
+**MenuContent**
+
+<PropsTable data={[
+  { prop: "width", type: 'number | "auto"', description: "Panel width (numbers are pixels)" },
+  { prop: "min-width", type: 'number | "auto"', default: "300", description: "Minimum panel width" },
+  { prop: "max-height", type: "number", description: "Maximum panel height, in pixels" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement" },
+  { prop: "side-offset", type: "number", default: "5", description: "Distance from the trigger, in pixels" },
+  { prop: "align", type: '"start" | "center" | "end"', description: "Alignment relative to trigger" },
+  { prop: "align-offset", type: "number", description: "Offset from the start or end alignment, in pixels" },
+  { prop: "layout", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction. Use horizontal for icon toolbars" },
+  { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Size of horizontal menu items (icon size + padding)" },
+  { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there" },
+]} />
+
+**MenuItem**: list item. Listen to `@select` for actions; without it the item is non-interactive content.
+
+<PropsTable data={[
+  { prop: "description", type: "string", description: "Second line under the label (or the description slot). The label turns semibold on its own" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
+  { prop: "@select", type: "(event: Event) => void", description: "Called when the item is selected; call event.preventDefault() to keep the menu open" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted when the item is clicked" },
+]} />
+
+**MenuLink**: item that navigates. Internal paths render the link component from `PlexUIProvider` (for example vue-router's `RouterLink`); absolute URLs open in a new tab. Pass `href` or `to`, `disabled`, `as` and link attributes.
+
+**MenuSeparator**: divider between items. No props.
+
+**MenuGroup**: groups related items. Wraps `MenuItem`, `MenuLink`, or `MenuLabel`. No specific props.
+
+**MenuLabel**: non-interactive label for a group. Accepts `class`.
+
+**MenuSub** / **MenuSubTrigger** / **MenuSubContent**: submenu wrapper (with `force-open`, `@open` and `@close`), trigger (with `disabled`), and content panel (with `width`, `min-width`, `max-height`, `side-offset` and `align-offset`).
+
+**MenuCheckboxItem**
+
+<PropsTable data={[
+  { prop: "checked / v-model:checked", type: 'boolean | "indeterminate"', default: "false", description: "Checked state" },
+  { prop: "@checked-change", type: "(checked: boolean) => void", description: "Emitted with update:checked when the checkbox toggles" },
+  { prop: "@select", type: "(event: Event) => void", description: "Call event.preventDefault() to keep the menu open" },
+  { prop: "indicator-position", type: '"start" | "end"', default: '"end"', description: "Checkbox position" },
+  { prop: "indicator-variant", type: '"solid" | "ghost"', default: '"solid"', description: "Indicator style" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
+]} />
+
+**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`) and `indicator-position`; MenuRadioItem takes `value`, `disabled` and `@select`.
+
+**MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
