@@ -23,6 +23,18 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ## Examples
 
+### Overview
+
+<ComponentPreview code={`const [frequency, setFrequency] = useState("daily")
+<RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
+  <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
+  <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
+  <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
+  <RadioGroup.Item value="never">Never</RadioGroup.Item>
+</RadioGroup>`} previewMinHeight={168}>
+  <RadioGroupBaseDemo />
+</ComponentPreview>
+
 ### With Checkbox
 
 <ComponentPreview details={<>Place <code>RadioGroup</code> alongside <code>Checkbox</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={`<div className="flex flex-col gap-6 w-full max-w-md">
@@ -94,18 +106,6 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   </div>
 </div>`} previewMinHeight={380}>
   <RadioGroupDescriptionsDemo />
-</ComponentPreview>
-
-### Overview
-
-<ComponentPreview code={`const [frequency, setFrequency] = useState("daily")
-<RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Notification frequency">
-  <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-  <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-  <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-  <RadioGroup.Item value="never">Never</RadioGroup.Item>
-</RadioGroup>`} previewMinHeight={168}>
-  <RadioGroupBaseDemo />
 </ComponentPreview>
 
 ### Direction

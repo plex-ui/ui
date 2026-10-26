@@ -26,6 +26,15 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ## Examples
 
+### Overview
+
+<ComponentPreview code={`<div className="flex flex-col gap-3">
+  <Checkbox label="Same as billing address" />
+  <Checkbox label="Subscribe to newsletter" defaultChecked />
+</div>`} previewMinHeight={168}>
+  <CheckboxOverviewDemo />
+</ComponentPreview>
+
 ### With Radio Group
 
 <ComponentPreview details={<>Place <code>Checkbox</code> alongside <code>RadioGroup</code> controls to verify that indicator sizes, label baselines, and spacing align consistently in both horizontal and vertical layouts.</>} code={`<div className="flex flex-col gap-6 w-full max-w-md">
@@ -88,15 +97,6 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   </div>
 </div>`} previewMinHeight={380}>
   <CheckboxDescriptionsDemo />
-</ComponentPreview>
-
-### Overview
-
-<ComponentPreview code={`<div className="flex flex-col gap-3">
-  <Checkbox label="Same as billing address" />
-  <Checkbox label="Subscribe to newsletter" defaultChecked />
-</div>`} previewMinHeight={168}>
-  <CheckboxOverviewDemo />
 </ComponentPreview>
 
 ### Variants
