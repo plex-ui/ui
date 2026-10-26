@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "checkbox",
+  "type": "registry:ui",
+  "title": "Checkbox",
+  "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/checkbox/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Checkbox\"\n"
+    }
+  ],
+  "docs": "Import as `import { Checkbox } from '@/components/ui/checkbox'`. See https://plexui.com/vue/components/checkbox for props and examples."
+}

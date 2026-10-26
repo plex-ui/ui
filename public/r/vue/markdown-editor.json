@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "markdown-editor",
+  "type": "registry:ui",
+  "title": "Markdown Editor",
+  "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/markdown-editor/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/MarkdownEditor\"\n"
+    }
+  ],
+  "docs": "Import as `import { MarkdownEditor } from '@/components/ui/markdown-editor'`. See https://plexui.com/vue/components/markdown-editor for props and examples."
+}

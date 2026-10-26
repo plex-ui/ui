@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "tooltip",
+  "type": "registry:ui",
+  "title": "Tooltip",
+  "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/tooltip/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Tooltip\"\n"
+    }
+  ],
+  "docs": "Import as `import { Tooltip, TooltipTriggerDecorator } from '@/components/ui/tooltip'`. See https://plexui.com/vue/components/tooltip for props and examples."
+}

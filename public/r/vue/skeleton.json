@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "skeleton",
+  "type": "registry:ui",
+  "title": "Skeleton",
+  "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/skeleton/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Skeleton\"\n"
+    }
+  ],
+  "docs": "Import as `import { Skeleton } from '@/components/ui/skeleton'`. See https://plexui.com/vue/components/skeleton for props and examples."
+}

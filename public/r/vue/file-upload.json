@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "file-upload",
+  "type": "registry:ui",
+  "title": "File Upload",
+  "description": "Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/file-upload/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/FileUpload\"\n"
+    }
+  ],
+  "docs": "Import as `import { FileUpload, FileCard, FileCardGroup } from '@/components/ui/file-upload'`. See https://plexui.com/vue/components/file-upload for props and examples."
+}

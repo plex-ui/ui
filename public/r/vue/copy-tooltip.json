@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "copy-tooltip",
+  "type": "registry:ui",
+  "title": "Copy Tooltip",
+  "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/copy-tooltip/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Tooltip\"\n"
+    }
+  ],
+  "docs": "Import as `import { CopyTooltip, TooltipTriggerDecorator } from '@/components/ui/copy-tooltip'`. See https://plexui.com/vue/components/copy-tooltip for props and examples."
+}

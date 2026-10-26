@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "progress-steps",
+  "type": "registry:ui",
+  "title": "Progress Steps",
+  "description": "Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/progress-steps/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ProgressSteps\"\n"
+    }
+  ],
+  "docs": "Import as `import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from '@/components/ui/progress-steps'`. See https://plexui.com/vue/components/progress-steps for props and examples."
+}

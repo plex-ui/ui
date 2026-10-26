@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "menu",
+  "type": "registry:ui",
+  "title": "Menu",
+  "description": "Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/menu/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Menu\"\n"
+    }
+  ],
+  "docs": "Import as `import { Menu, MenuContent, MenuItem, MenuLink, MenuSeparator, MenuTrigger } from '@/components/ui/menu'`. See https://plexui.com/vue/components/menu for props and examples."
+}

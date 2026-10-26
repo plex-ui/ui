@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "badge",
+  "type": "registry:ui",
+  "title": "Badge",
+  "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/badge/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Badge\"\n"
+    }
+  ],
+  "docs": "Import as `import { Badge } from '@/components/ui/badge'`. See https://plexui.com/vue/components/badge for props and examples."
+}

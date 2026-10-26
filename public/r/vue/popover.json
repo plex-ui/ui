@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "popover",
+  "type": "registry:ui",
+  "title": "Popover",
+  "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/popover/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Popover\"\n"
+    }
+  ],
+  "docs": "Import as `import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'`. See https://plexui.com/vue/components/popover for props and examples."
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "dialog",
+  "type": "registry:ui",
+  "title": "Dialog",
+  "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/dialog/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Dialog\"\n"
+    }
+  ],
+  "docs": "Import as `import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'`. See https://plexui.com/vue/components/dialog for props and examples."
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "floating-label-input",
+  "type": "registry:ui",
+  "title": "Float Input",
+  "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/floating-label-input/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/FloatingLabelInput\"\n"
+    }
+  ],
+  "docs": "Import as `import { FloatingLabelInput } from '@/components/ui/floating-label-input'`. See https://plexui.com/vue/components/floating-label-input for props and examples."
+}

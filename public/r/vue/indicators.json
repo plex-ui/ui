@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "indicators",
+  "type": "registry:ui",
+  "title": "Indicators",
+  "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/indicators/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Indicator\"\n"
+    }
+  ],
+  "docs": "Import as `import { LoadingIndicator, CircularProgress, LoadingDots } from '@/components/ui/indicators'`. See https://plexui.com/vue/components/indicators for props and examples."
+}

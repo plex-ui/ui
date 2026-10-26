@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "button-group",
+  "type": "registry:ui",
+  "title": "Button Group",
+  "description": "Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/button-group/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ButtonGroup\"\n"
+    }
+  ],
+  "docs": "Import as `import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '@/components/ui/button-group'`. See https://plexui.com/vue/components/button-group for props and examples."
+}

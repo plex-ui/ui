@@ -1,0 +1,314 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry.json",
+  "name": "plex-ui-vue",
+  "homepage": "https://plexui.com/docs/vue",
+  "items": [
+    {
+      "name": "styles",
+      "type": "registry:style",
+      "description": "Plex UI design tokens and component styles (import once before mounting the app).",
+      "files": [
+        {
+          "path": "styles.json",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "description": "An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "avatar-group",
+      "type": "registry:ui",
+      "description": "Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "description": "Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "button-link",
+      "type": "registry:ui",
+      "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "code-block",
+      "type": "registry:ui",
+      "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "copy-tooltip",
+      "type": "registry:ui",
+      "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "empty-message",
+      "type": "registry:ui",
+      "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "file-upload",
+      "type": "registry:ui",
+      "description": "Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "floating-label-input",
+      "type": "registry:ui",
+      "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "indicators",
+      "type": "registry:ui",
+      "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "description": "Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "description": "Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "markdown",
+      "type": "registry:ui",
+      "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "markdown-editor",
+      "type": "registry:ui",
+      "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "description": "Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "otp-input",
+      "type": "registry:ui",
+      "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "progress-steps",
+      "type": "registry:ui",
+      "description": "Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "shimmer-text",
+      "type": "registry:ui",
+      "description": "Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "description": "Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "tag-input",
+      "type": "registry:ui",
+      "description": "Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "text-link",
+      "type": "registry:ui",
+      "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    }
+  ]
+}

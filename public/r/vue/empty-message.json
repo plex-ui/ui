@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "empty-message",
+  "type": "registry:ui",
+  "title": "Empty Message",
+  "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/empty-message/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/EmptyMessage\"\n"
+    }
+  ],
+  "docs": "Import as `import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from '@/components/ui/empty-message'`. See https://plexui.com/vue/components/empty-message for props and examples."
+}

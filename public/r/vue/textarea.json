@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "textarea",
+  "type": "registry:ui",
+  "title": "Textarea",
+  "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/textarea/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Textarea\"\n"
+    }
+  ],
+  "docs": "Import as `import { Textarea } from '@/components/ui/textarea'`. See https://plexui.com/vue/components/textarea for props and examples."
+}

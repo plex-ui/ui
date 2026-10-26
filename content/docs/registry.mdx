@@ -72,3 +72,24 @@ Unlike classic Shadcn components â€” which copy the full source into your repo â
 ## Index
 
 The full list of available components lives at [`plexui.com/r`](https://plexui.com/r/index.json). See each component's docs page for props and examples.
+
+## Vue
+
+For Vue projects initialised with [shadcn-vue](https://www.shadcn-vue.com/docs/cli) (`npx shadcn-vue@latest init`), the same registry exists for `@plexui/vue` under `plexui.com/r/vue`. Every component with a Vue page has an entry, and each one writes a re-export at `components/ui/<name>/index.ts`:
+
+```bash
+npx shadcn-vue@latest add https://plexui.com/r/vue/styles.json
+npx shadcn-vue@latest add https://plexui.com/r/vue/button.json
+npx shadcn-vue@latest add https://plexui.com/r/vue/dialog.json
+```
+
+Import the generated `assets/plexui.css` once before mounting the app, then use the components from `@/components/ui/*`:
+
+```vue
+<script setup lang="ts">
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+</script>
+```
+
+The [Vue guide](/docs/vue) covers the Vite plugin and SSR setup, and the full list lives at [`plexui.com/r/vue`](https://plexui.com/r/vue/index.json).

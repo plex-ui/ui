@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "avatar",
+  "type": "registry:ui",
+  "title": "Avatar",
+  "description": "An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/avatar/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Avatar\"\n"
+    }
+  ],
+  "docs": "Import as `import { Avatar } from '@/components/ui/avatar'`. See https://plexui.com/vue/components/avatar for props and examples."
+}

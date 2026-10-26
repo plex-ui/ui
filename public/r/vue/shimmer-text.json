@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "shimmer-text",
+  "type": "registry:ui",
+  "title": "Shimmer Text",
+  "description": "Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/shimmer-text/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ShimmerText\"\n"
+    }
+  ],
+  "docs": "Import as `import { ShimmerText, ShimmerableText } from '@/components/ui/shimmer-text'`. See https://plexui.com/vue/components/shimmer-text for props and examples."
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "switch",
+  "type": "registry:ui",
+  "title": "Switch",
+  "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/switch/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Switch\"\n"
+    }
+  ],
+  "docs": "Import as `import { Switch } from '@/components/ui/switch'`. See https://plexui.com/vue/components/switch for props and examples."
+}

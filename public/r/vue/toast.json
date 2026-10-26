@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "toast",
+  "type": "registry:ui",
+  "title": "Toast",
+  "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/toast/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Toast\"\n"
+    }
+  ],
+  "docs": "Import as `import { Toaster, toast } from '@/components/ui/toast'`. See https://plexui.com/vue/components/toast for props and examples."
+}

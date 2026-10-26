@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "button",
+  "type": "registry:ui",
+  "title": "Button",
+  "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/button/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Button\"\n"
+    }
+  ],
+  "docs": "Import as `import { Button } from '@/components/ui/button'`. See https://plexui.com/vue/components/button for props and examples."
+}

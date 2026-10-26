@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "markdown",
+  "type": "registry:ui",
+  "title": "Markdown",
+  "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/markdown/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Markdown\"\n"
+    }
+  ],
+  "docs": "Import as `import { Markdown } from '@/components/ui/markdown'`. See https://plexui.com/vue/components/markdown for props and examples."
+}

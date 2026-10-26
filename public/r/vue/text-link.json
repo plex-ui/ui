@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "text-link",
+  "type": "registry:ui",
+  "title": "Text Link",
+  "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/text-link/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/TextLink\"\n"
+    }
+  ],
+  "docs": "Import as `import { TextLink } from '@/components/ui/text-link'`. See https://plexui.com/vue/components/text-link for props and examples."
+}

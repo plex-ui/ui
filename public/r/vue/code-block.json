@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "code-block",
+  "type": "registry:ui",
+  "title": "Code Block",
+  "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/code-block/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/CodeBlock\"\n"
+    }
+  ],
+  "docs": "Import as `import { CodeBlock } from '@/components/ui/code-block'`. See https://plexui.com/vue/components/code-block for props and examples."
+}

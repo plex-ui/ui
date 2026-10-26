@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "separator",
+  "type": "registry:ui",
+  "title": "Separator",
+  "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/separator/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Separator\"\n"
+    }
+  ],
+  "docs": "Import as `import { Separator } from '@/components/ui/separator'`. See https://plexui.com/vue/components/separator for props and examples."
+}

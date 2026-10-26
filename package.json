@@ -29,6 +29,7 @@
     "build:mcp": "npm run build --workspace=packages/mcp",
     "generate:manifest": "node scripts/generate-mcp-manifest.mjs",
     "generate:llms": "node scripts/generate-llms-txt.mjs",
+    "generate:registry-vue": "node scripts/generate-vue-registry.mjs",
     "start": "next start",
     "lint": "eslint",
     "test:parity": "vitest run",

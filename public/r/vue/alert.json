@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "alert",
+  "type": "registry:ui",
+  "title": "Alert",
+  "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/alert/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Alert\"\n"
+    }
+  ],
+  "docs": "Import as `import { Alert } from '@/components/ui/alert'`. See https://plexui.com/vue/components/alert for props and examples."
+}

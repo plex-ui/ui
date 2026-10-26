@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "progress",
+  "type": "registry:ui",
+  "title": "Progress",
+  "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/progress/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Progress\"\n"
+    }
+  ],
+  "docs": "Import as `import { Progress } from '@/components/ui/progress'`. See https://plexui.com/vue/components/progress for props and examples."
+}

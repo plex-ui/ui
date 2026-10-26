@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "otp-input",
+  "type": "registry:ui",
+  "title": "OTP Input",
+  "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/otp-input/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/OTPInput\"\n"
+    }
+  ],
+  "docs": "Import as `import { OTPInput } from '@/components/ui/otp-input'`. See https://plexui.com/vue/components/otp-input for props and examples."
+}

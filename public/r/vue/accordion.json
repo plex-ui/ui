@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "accordion",
+  "type": "registry:ui",
+  "title": "Accordion",
+  "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/accordion/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Accordion\"\n"
+    }
+  ],
+  "docs": "Import as `import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'`. See https://plexui.com/vue/components/accordion for props and examples."
+}

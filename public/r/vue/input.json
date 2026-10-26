@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "input",
+  "type": "registry:ui",
+  "title": "Input",
+  "description": "Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/input/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Input\"\n"
+    }
+  ],
+  "docs": "Import as `import { Input, InputAdornmentButton } from '@/components/ui/input'`. See https://plexui.com/vue/components/input for props and examples."
+}

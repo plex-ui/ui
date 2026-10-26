@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "button-link",
+  "type": "registry:ui",
+  "title": "Button Link",
+  "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/button-link/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Button\"\n"
+    }
+  ],
+  "docs": "Import as `import { ButtonLink } from '@/components/ui/button-link'`. See https://plexui.com/vue/components/button-link for props and examples."
+}
