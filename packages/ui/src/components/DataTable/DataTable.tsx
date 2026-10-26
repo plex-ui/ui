@@ -23,7 +23,7 @@ declare module "@tanstack/react-table" {
   }
 }
 import clsx from "clsx"
-import { useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../Table"
 import { DataTablePagination } from "./DataTablePagination"
 import s from "./DataTable.module.css"
@@ -149,6 +149,16 @@ export const DataTable = <TData,>({
     getFilteredRowModel: getFilteredRowModel(),
     ...(shouldPaginate ? { getPaginationRowModel: getPaginationRowModel() } : {}),
   })
+
+  // pageSize only seeds initialState, so apply later prop changes to the table
+  const appliedPageSize = useRef(pageSize)
+  useEffect(() => {
+    if (!shouldPaginate || appliedPageSize.current === pageSize) {
+      return
+    }
+    appliedPageSize.current = pageSize
+    table.setPageSize(pageSize)
+  }, [table, pageSize, shouldPaginate])
 
   const rows = table.getRowModel().rows
   const totalRows = table.getFilteredRowModel().rows.length
