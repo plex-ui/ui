@@ -23,7 +23,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
 
 ### Semantic elements
 
-<ComponentPreview details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code>–<code>h6</code>, or <code>div</code>.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code>.</>} code={`<div className="flex flex-col gap-4">
   <ShimmerText as="h2" className="text-2xl font-bold">Heading shimmer</ShimmerText>
   <ShimmerText as="p" className="text-base">Paragraph shimmer effect</ShimmerText>
   <ShimmerText as="span" className="text-sm text-secondary">Inline shimmer</ShimmerText>
@@ -38,7 +38,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
 ### Controllable shimmer
 
 <ComponentPreview details={<>
-  <p><code>ShimmerableText</code> allows toggling the shimmer on and off. When <code>shimmer</code> is set to <code>false</code>, the animation finishes its current iteration and then pauses gracefully — no abrupt cut.</p>
+  <p><code>ShimmerableText</code> allows toggling the shimmer on and off. When <code>shimmer</code> is set to <code>false</code>, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut.</p>
   <p>Use this variant when text transitions between a loading and idle state.</p>
 </>} code={`const [shimmer, setShimmer] = useState(true)
 
@@ -48,9 +48,9 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
   <ShimmerableTextDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
-**ShimmerText** — always shimmering
+**ShimmerText**: always shimmering
 
 <PropsTable data={[
   { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "HTML element to render" },
@@ -58,7 +58,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
   { prop: "className", type: "string", description: "Additional CSS classes" },
 ]} />
 
-**ShimmerableText** — controllable shimmer
+**ShimmerableText**: controllable shimmer
 
 <PropsTable data={[
   { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "HTML element to render" },
@@ -66,3 +66,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
   { prop: "children", type: "ReactNode", description: "Text content to shimmer" },
   { prop: "className", type: "string", description: "Additional CSS classes" },
 ]} />
+
+## Styling
+
+Shimmer Text has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

@@ -28,7 +28,7 @@ If you're still on 0.16+ and `pill` is set explicitly but corners stay square, s
 
 ## Pill controls show square corners on `@plexui/ui` < 0.15.3
 
-`--radius-full` is undefined because `variables-tailwind-theme.css` wasn't bundled into `@plexui/ui/css` in 0.14.x and 0.15.0–0.15.1. Pill controls then fall through to `border-radius: 0`.
+`--radius-full` is undefined because `variables-tailwind-theme.css` wasn't bundled into `@plexui/ui/css` in 0.14.x, 0.15.0 and 0.15.1. Pill controls then fall through to `border-radius: 0`.
 
 **Fix:** upgrade.
 
@@ -36,9 +36,9 @@ If you're still on 0.16+ and `pill` is set explicitly but corners stay square, s
 npm install @plexui/ui@latest
 ```
 
-In 0.15.3+ the radii / fonts / weights live in `:root` inside `@plexui/ui/css` itself — no extra import needed.
+In 0.15.3+ the radii / fonts / weights live in `:root` inside `@plexui/ui/css` itself, so no extra import is needed.
 
-## Controls look unstyled — buttons lose cursor pointer, inputs revert to UA defaults
+## Controls look unstyled: buttons lose cursor pointer, inputs revert to UA defaults
 
 Cascade-layer order is reversed. Tailwind preflight (in `@layer base`) lands after Plex UI's own normalisations, so preflight wins.
 
@@ -51,7 +51,7 @@ Cascade-layer order is reversed. Tailwind preflight (in `@layer base`) lands aft
 @source "../node_modules/@plexui/ui";
 ```
 
-If you're on **Vite 8** this declaration alone isn't enough — Lightning CSS strips it during minification. Add the [Vite-8 specific config](/docs/installation#vite--lightning-css-gotcha) to `vite.config.ts` plus the HTML-injected `<style>@layer …</style>` failsafe.
+If you're on **Vite 8** this declaration alone isn't enough: Lightning CSS strips it during minification. Add the [Vite-8 specific config](/docs/installation#vite--lightning-css-gotcha) to `vite.config.ts` plus the HTML-injected `<style>@layer …</style>` failsafe.
 
 ## Solid button text is invisible
 
@@ -61,7 +61,7 @@ Tailwind preflight sets `color: inherit` on `<button>`, which can win over the c
 
 ## Tailwind utilities (`rounded-md`, `text-sm`) stop working after upgrading Plex UI
 
-`@plexui/ui@0.15.2` (and **only** 0.15.2 — it's marked RETIRED in the [changelog](/docs/changelog)) accidentally imported `variables-tailwind-theme.css` inside `@plexui/ui/css`. That file uses `@theme static { --radius-*: initial; … }`, which resets Tailwind's own theme tokens project-wide and breaks every `rounded-*`, `text-*`, and `font-*` utility.
+`@plexui/ui@0.15.2` (and **only** 0.15.2, which is marked RETIRED in the [changelog](/docs/changelog)) accidentally imported `variables-tailwind-theme.css` inside `@plexui/ui/css`. That file uses `@theme static { --radius-*: initial; … }`, which resets Tailwind's own theme tokens project-wide and breaks every `rounded-*`, `text-*`, and `font-*` utility.
 
 **Fix:** upgrade past 0.15.2.
 

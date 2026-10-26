@@ -110,7 +110,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
   </div>
 </ComponentPreview>
 
-## Reference
+## API
 
 ### CodeBlock
 
@@ -130,3 +130,14 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
   { prop: "maxExpandedHeight", type: "number", description: "Max height when expanded (px)" },
   { prop: "copyable", type: "boolean", default: "true", description: "Show copy button" },
 ]} />
+
+## Styling
+
+Code Block reads these component tokens. Override them at any scope to restyle it:
+
+- `--codeblock-background-color`: background color (default `light-dark(#f9f9f9, #161616)`)
+- `--codeblock-syntax-1`: syntax 1 (default `light-dark(#c0660d, var(--yellow-100))`)
+- `--codeblock-syntax-2`: syntax 2 (default `light-dark(var(--blue-500), var(--blue-200))`)
+- `--codeblock-syntax-3`: syntax 3 (default `light-dark(var(--green-600), var(--green-300))`)
+- `--codeblock-syntax-4`: syntax 4 (default `var(--pink-500)`)
+- `--codeblock-syntax-5`: syntax 5 (default `light-dark(var(--purple-500), var(--purple-300))`)

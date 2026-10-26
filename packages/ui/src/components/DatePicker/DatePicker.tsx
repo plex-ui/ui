@@ -97,8 +97,9 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   triggerShowIcon?: boolean
   /**
    * Format of dates displayed in the trigger
+   * @default "MM/dd/yy", or "MM/dd/yy HH:mm" with showTime
    */
-  triggerDateFormat: string
+  triggerDateFormat?: string
   /**
    * Display a clear action that allows the select to be unset.
    * @default false

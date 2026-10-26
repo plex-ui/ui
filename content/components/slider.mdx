@@ -130,7 +130,7 @@ import {
   <SliderDisabledDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "value", type: "number | number[]", description: "Current value; array when range is true" },
@@ -152,3 +152,10 @@ import {
   { prop: "rangeColor", type: "string", description: "Color of the filled range" },
   { prop: "className", type: "string", description: "Applied to the root element" },
 ]} />
+
+## Styling
+
+Slider reads these component tokens. Override them at any scope to restyle it:
+
+- `--slider-range-color`: range color (default `light-dark(var(--gray-450), var(--gray-600))`)
+- `--slider-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`)

@@ -32,7 +32,7 @@ import {
 
 ### With descriptions
 
-<ComponentPreview details={<>Options carrying a <code>description</code> field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected) — the component handles that automatically, no <code>optionClassName</code> needed. Use <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger.</>} code={`const RoleOptionDescription = ({ children }: { children: ReactNode }) => (
+<ComponentPreview details={<>Options carrying a <code>description</code> field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no <code>optionClassName</code> needed. Use <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger.</>} code={`const RoleOptionDescription = ({ children }: { children: ReactNode }) => (
   <div className="font-normal text-secondary text-[0.935em] leading-[1.45]">
     {children}
   </div>
@@ -153,7 +153,7 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
   <SelectColumnConfigDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 Use `aria-labelledby` with the ID of a visible field label. The default trigger includes that label and its current value or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the default trigger. Custom triggers manage their own accessibility attributes.
 
@@ -180,3 +180,17 @@ Searchable menus name their input `Search options` by default. Set `searchAriaLa
 ]} />
 
 Select shares the unified 9-step size scale with Button, Input, SelectControl, and SegmentedControl.
+
+## Styling
+
+Select reads these component tokens. Override them at any scope to restyle it:
+
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)
+- `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
+- `--menu-gutter`: gutter (default `spacing(1.5)`)
+- `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-item-gap`: item gap (default `spacing(1.5)`)
+- `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)
+- `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)
+- `--menu-radius`: radius (default `var(--radius-xl)`)
+- `--menu-separator-background-color`: separator background color (default `var(--color-border)`)

@@ -21,7 +21,7 @@ import {
 
 <UsageBlock>{`import { ButtonGroup } from "@plexui/ui/components/ButtonGroup";`}</UsageBlock>
 
-Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
+Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
 
 ## Examples
 
@@ -43,7 +43,7 @@ Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and
 
 ### Orientation
 
-<ComponentPreview details={<>Pass <code>orientation="vertical"</code> to stack the buttons — useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
+<ComponentPreview details={<>Pass <code>orientation="vertical"</code> to stack the buttons, which is useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
   <Button uniform aria-label="Zoom in"><PlusSm /></Button>
   <Button uniform aria-label="Zoom out"><Minus /></Button>
 </ButtonGroup>`}>
@@ -52,7 +52,7 @@ Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and
 
 ### Size
 
-<ComponentPreview details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons — each child keeps its own padding.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons. Each child keeps its own padding.</>} code={`<ButtonGroup>
   <Button size="sm">Small</Button>
   <Button size="sm">Button</Button>
   <Button size="sm">Group</Button>
@@ -81,7 +81,7 @@ Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and
 
 ### Separator
 
-<ComponentPreview details={<>Drop a <code>ButtonGroup.Separator</code> between items to add a visible divider — commonly used for Undo / Redo pairs or any "two related actions" toolbar.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Drop a <code>ButtonGroup.Separator</code> between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar.</>} code={`<ButtonGroup>
   <Button variant="soft" color="secondary" size="sm"><Undo /> Undo</Button>
   <ButtonGroup.Separator />
   <Button variant="soft" color="secondary" size="sm">Redo <Redo /></Button>
@@ -112,7 +112,7 @@ Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and
 
 ### Input group
 
-<ComponentPreview details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code> — it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={`<ButtonGroup>
   <ButtonGroup>
     <Button pill uniform aria-label="Add attachment"><Plus /></Button>
   </ButtonGroup>
@@ -174,7 +174,7 @@ Wraps any row of controls — `Button`, `Input`, `Popover.Trigger`, etc. — and
 
 ### Popover
 
-<ComponentPreview details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu — useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`<ButtonGroup>
+<ComponentPreview details={<>Same split-button shape, but the trailing trigger opens a <a href="/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={`<ButtonGroup>
   <Button><Sparkles /> Generate</Button>
   <Popover>
     <Popover.Trigger>
@@ -227,9 +227,9 @@ Renders a muted label pill that slots into the group alongside buttons. Use it f
 
 Nesting `ButtonGroup` inside a parent `ButtonGroup` automatically introduces a gap between the sub-groups. The group-specific tokens:
 
-- `--button-group-nested-gap` — space between sibling sub-groups (defaults to `spacing(2)` = 8px)
-- `--button-group-separator-color` — color of the `ButtonGroup.Separator` line
-- `--button-group-text-background` / `--button-group-text-color` / `--button-group-text-border-color` — surface, text, and 1px inset border of `ButtonGroup.Text`
-- `--button-group-text-font-size` / `--button-group-text-font-weight` — typography of `ButtonGroup.Text`
+- `--button-group-nested-gap`: space between sibling sub-groups (defaults to `spacing(2)` = 8px)
+- `--button-group-separator-color`: color of the `ButtonGroup.Separator` line
+- `--button-group-text-background` / `--button-group-text-color` / `--button-group-text-border-color`: surface, text, and 1px inset border of `ButtonGroup.Text`
+- `--button-group-text-font-size` / `--button-group-text-font-weight`: typography of `ButtonGroup.Text`
 
-Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.) — the group only strips the shared edge radii so joined items align.
+Radius, border, and focus styles of joined buttons come from each child control's own tokens (`--button-radius`, `--input-radius`, etc.). The group only strips the shared edge radii so joined items align.

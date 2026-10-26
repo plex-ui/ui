@@ -5,7 +5,7 @@ description: Install the Plex UI skill in Claude Code, Codex, and other AI codin
 
 import { COMPONENTS_COUNT, ICONS_COUNT } from '@/lib/counts';
 
-Skills give AI assistants project-aware context about Plex UI — component APIs, the 9-step size scale, color system, variants, icons, and import conventions. Once installed, your agent generates correct Plex UI code on the first try.
+Skills give AI assistants project-aware context about Plex UI: component APIs, the 9-step size scale, color system, variants, icons, and import conventions. Once installed, your agent generates correct Plex UI code on the first try.
 
 For example, you can ask your AI assistant to:
 
@@ -57,7 +57,7 @@ Codex auto-detects skills under `.agents/skills/` and reads the `agents/openai.y
 
 ### Cursor, Windsurf, Copilot, and others
 
-These agents use rule files rather than the `SKILL.md` format. Use the single-file [AGENT.md setup](/docs/ai-setup) instead — same knowledge delivered as `.cursor/rules/plexui.mdc`, `AGENTS.md`, or `CLAUDE.md` depending on the agent.
+These agents use rule files rather than the `SKILL.md` format. Use the single-file [AGENT.md setup](/docs/ai-setup) instead. It delivers the same knowledge as `.cursor/rules/plexui.mdc`, `AGENTS.md`, or `CLAUDE.md` depending on the agent.
 
 ### Manual install
 
@@ -67,7 +67,7 @@ Clone or download the [`skills/plexui/skills/plex-ui`](https://github.com/plex-u
 
 ## Official catalogs
 
-The commands above work today via our GitHub repo. To make Plex UI discoverable from inside the agent itself — browsing the official skill/plugin catalogs — the skill needs to be submitted to each vendor's registry. These submissions are manual and go through forms or pull requests, so they're not auto-updated from this repo.
+The commands above work today via our GitHub repo. To make Plex UI discoverable from inside the agent itself (browsing the official skill/plugin catalogs), the skill needs to be submitted to each vendor's registry. These submissions are manual and go through forms or pull requests, so they're not auto-updated from this repo.
 
 ### Anthropic official marketplace
 
@@ -77,7 +77,7 @@ Docs: [Submit your plugin to the official marketplace](https://code.claude.com/d
 
 ### OpenAI Codex curated catalog
 
-The Codex catalog lives at **[github.com/openai/skills](https://github.com/openai/skills)**, split into `.system`, `.curated`, and `.experimental`. To get Plex UI into the `.curated` tier (installable by name with `$skill-installer plex-ui`), open a pull request against that repo adding the skill under `skills/.curated/plex-ui/` — our [`agents/openai.yaml`](https://github.com/plex-ui/docs/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) supplies the UI metadata.
+The Codex catalog lives at **[github.com/openai/skills](https://github.com/openai/skills)**, split into `.system`, `.curated`, and `.experimental`. To get Plex UI into the `.curated` tier (installable by name with `$skill-installer plex-ui`), open a pull request against that repo adding the skill under `skills/.curated/plex-ui/`. Our [`agents/openai.yaml`](https://github.com/plex-ui/docs/blob/master/skills/plexui/skills/plex-ui/agents/openai.yaml) supplies the UI metadata.
 
 Docs: [Codex Agent Skills](https://developers.openai.com/codex/skills). Follow the repo's `CONTRIBUTING.md` for the exact submission checklist.
 
@@ -105,7 +105,7 @@ Semantic color props (`primary`, `secondary`, `danger`, etc.), variant props (`s
 
 ### Dark Mode
 
-How Plex UI uses CSS `light-dark()` for automatic dark mode — no `dark:` prefixes needed. Theme toggling via `color-scheme`.
+How Plex UI uses CSS `light-dark()` for automatic dark mode, with no `dark:` prefixes needed. Theme toggling via `color-scheme`.
 
 ### Icon Library
 
@@ -119,17 +119,17 @@ Subpath import convention (`@plexui/ui/components/Button`), `PlexUIProvider` set
 
 ## How It Works
 
-1. **Project detection** — The skill activates when your AI assistant encounters `@plexui/ui` imports or Plex UI components in the codebase.
-2. **Context injection** — The assistant receives Plex UI's component APIs, conventions, and patterns as project context.
-3. **Pattern enforcement** — The assistant follows Plex UI conventions: subpath imports, semantic color props, unified size scale, and automatic dark mode.
-4. **Correct on first try** — Instead of guessing API shapes, the assistant uses the exact props and patterns from the skill.
+1. **Project detection**: The skill activates when your AI assistant encounters `@plexui/ui` imports or Plex UI components in the codebase.
+2. **Context injection**: The assistant receives Plex UI's component APIs, conventions, and patterns as project context.
+3. **Pattern enforcement**: The assistant follows Plex UI conventions: subpath imports, semantic color props, unified size scale, and automatic dark mode.
+4. **Correct on first try**: Instead of guessing API shapes, the assistant uses the exact props and patterns from the skill.
 
 ---
 
 ## Learn More
 
-- [AI Setup](/docs/ai-setup) — single-file `AGENT.md` for agents without `SKILL.md` support
-- [MCP Server](/docs/mcp) — interactive component discovery over MCP
-- [Installation](/docs/installation) — manual package setup
-- [Components](/components) — full component documentation
-- [Design Tokens](/docs/foundations/design-tokens) — token architecture
+- [AI Setup](/docs/ai-setup): single-file `AGENT.md` for agents without `SKILL.md` support
+- [MCP Server](/docs/mcp): interactive component discovery over MCP
+- [Installation](/docs/installation): manual package setup
+- [Components](/components): full component documentation
+- [Design Tokens](/docs/foundations/design-tokens): token architecture

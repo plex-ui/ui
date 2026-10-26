@@ -283,22 +283,22 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   <SidebarSearchDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 ### Structure
 
 A Sidebar is composed of the following parts:
 
-- `SidebarProvider` &ndash; Handles collapsible state and provides context to all child components.
-- `SidebarLayout` &ndash; Wrapper for sidebar and main content.
-- `Sidebar` &ndash; The sidebar container.
-- `SidebarHeader` / `SidebarFooter` &ndash; Sticky at the top and bottom of the sidebar.
-- `SidebarContent` &ndash; Scrollable content area.
-- `SidebarGroup` &ndash; Section within the content, with optional label.
-- `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton` &ndash; Navigation menu items.
-- `SidebarMenuSub` / `SidebarMenuSubButton` &ndash; Nested submenu items.
-- `SidebarInset` &ndash; Main content area next to the sidebar.
-- `SidebarTrigger` &ndash; Toggle button for collapsing the sidebar.
+- `SidebarProvider`: Handles collapsible state and provides context to all child components.
+- `SidebarLayout`: Wrapper for sidebar and main content.
+- `Sidebar`: The sidebar container.
+- `SidebarHeader` / `SidebarFooter`: Sticky at the top and bottom of the sidebar.
+- `SidebarContent`: Scrollable content area.
+- `SidebarGroup`: Section within the content, with optional label.
+- `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton`: Navigation menu items.
+- `SidebarMenuSub` / `SidebarMenuSubButton`: Nested submenu items.
+- `SidebarInset`: Main content area next to the sidebar.
+- `SidebarTrigger`: Toggle button for collapsing the sidebar.
 
 Use `Cmd+B` (Mac) or `Ctrl+B` (Windows/Linux) to toggle the sidebar with keyboard.
 
@@ -336,7 +336,7 @@ Renders a menu item button. Use `isActive` to highlight the current page.
 Renders a section label within a `SidebarGroup`. Supports two size variants.
 
 <PropsTable data={[
-  { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm — compact, tertiary; lg — larger, primary, more spacing" },
+  { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm: compact, tertiary. lg: larger, primary, more spacing" },
 ]} />
 
 ### SidebarMenuSub
@@ -361,9 +361,58 @@ Renders a promotional card in the sidebar footer for CTAs, upgrades, or announce
 
 Hook to access sidebar state and controls from any component within `SidebarProvider`.
 
-- `state` &ndash; Current state: `"expanded"` or `"collapsed"`
-- `open` / `setOpen` &ndash; Desktop sidebar open state
-- `openMobile` / `setOpenMobile` &ndash; Mobile menu open state
-- `isMobile` &ndash; Whether the viewport is mobile
-- `collapsible` &ndash; Current collapsible mode
-- `toggleSidebar` &ndash; Toggle function for both desktop and mobile
+- `state`: Current state: `"expanded"` or `"collapsed"`
+- `open` / `setOpen`: Desktop sidebar open state
+- `openMobile` / `setOpenMobile`: Mobile menu open state
+- `isMobile`: Whether the viewport is mobile
+- `collapsible`: Current collapsible mode
+- `toggleSidebar`: Toggle function for both desktop and mobile
+
+## Styling
+
+Sidebar reads these component tokens. Override them at any scope to restyle it:
+
+- `--sidebar-accent`: accent (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--sidebar-background`: background (default `none`)
+- `--sidebar-border`: border (default `var(--color-border)`)
+- `--sidebar-collapse-duration`: collapse duration (default `0.3s`)
+- `--sidebar-footer-shadow`: footer shadow
+- `--sidebar-foreground`: foreground (default `var(--color-text)`)
+- `--sidebar-group-label-color`: group label color (default `var(--color-text-tertiary)`)
+- `--sidebar-gutter`: gutter (default `12px`)
+- `--sidebar-gutter-sm`: gutter sm (default `var(--control-gutter-2xs)`)
+- `--sidebar-header-height`: header height (default `var(--control-size-3xl)`)
+- `--sidebar-icon-margin`: icon margin (default `0 2px 0 4px`)
+- `--sidebar-icon-size`: icon size (default `20px`)
+- `--sidebar-icon-wrapper-size`: icon wrapper size (default `32px`)
+- `--sidebar-inset-shadow`: inset shadow (default `none`)
+- `--sidebar-menu-item-font-size`: menu item font size (default `14px`)
+- `--sidebar-menu-item-height`: menu item height (default `38px`)
+- `--sidebar-menu-item-height-desktop`: menu item height desktop (default `32px`)
+- `--sidebar-menu-item-line-height`: menu item line height (default `20px`)
+- `--sidebar-menu-item-margin`: menu item margin (default `0 0 2px`)
+- `--sidebar-menu-item-margin-desktop`: menu item margin desktop (default `0 0 2px`)
+- `--sidebar-menu-item-padding`: menu item padding (default `0`)
+- `--sidebar-menu-item-radius`: menu item radius (default `8px`)
+- `--sidebar-menu-text`: menu text (default `light-dark(var(--gray-750), var(--gray-850))`)
+- `--sidebar-menu-text-active`: menu text active (default `var(--gray-900)`)
+- `--sidebar-mobile-backdrop-color`: mobile backdrop color (default `light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 35%))`)
+- `--sidebar-mobile-button-radius`: mobile button radius (default `8px`)
+- `--sidebar-mobile-button-size`: mobile button size (default `32px`)
+- `--sidebar-mobile-enter-delay`: mobile enter delay (default `0.33s`)
+- `--sidebar-mobile-enter-opacity-duration`: mobile enter opacity duration (default `0.8s`)
+- `--sidebar-mobile-enter-transform-duration`: mobile enter transform duration (default `0.7s`)
+- `--sidebar-mobile-exit-duration`: mobile exit duration (default `0.3s`)
+- `--sidebar-mobile-gutter`: mobile gutter (default `12px`)
+- `--sidebar-mobile-header-height`: mobile header height (default `48px`)
+- `--sidebar-mobile-icon-size`: mobile icon size (default `18px`)
+- `--sidebar-mobile-line-color`: mobile line color (default `var(--gray-900)`)
+- `--sidebar-mobile-line-height`: mobile line height (default `2px`)
+- `--sidebar-mobile-line-transition-duration`: mobile line transition duration (default `0.2s`)
+- `--sidebar-mobile-z-index`: mobile z index (default `301`)
+- `--sidebar-transition-duration`: transition duration (default `0.3s`)
+- `--sidebar-width`: width (default `210px`)
+- `--sidebar-width-icon`: width icon (default `64px`)
+- `--sidebar-width-mobile`: width mobile (default `288px`)
+- `--skeleton-background`: background (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--skeleton-radius`: radius (default `var(--radius-md)`)

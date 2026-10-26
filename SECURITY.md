@@ -34,4 +34,4 @@ We currently provide security fixes for the latest minor version of `@plexui/ui`
 
 ## Credit
 
-We maintain a short list of security researchers who've helped harden Plex UI at the bottom of the [changelog](https://plexui.com/docs/overview/changelog). If you'd rather stay anonymous, let us know in your report.
+We maintain a short list of security researchers who've helped harden Plex UI at the bottom of the [changelog](https://plexui.com/docs/changelog). If you'd rather stay anonymous, let us know in your report.

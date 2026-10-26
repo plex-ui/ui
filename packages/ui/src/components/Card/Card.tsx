@@ -73,6 +73,8 @@ const CardRoot = (props: CardProps): ReactNode => {
     interactive,
     className,
   } = props as CardCommonProps
+  // Called unconditionally: hooks may not sit inside the href branch below
+  const DefaultLink = useLinkComponent()
 
   const sharedProps = {
     "className": clsx(s.Card, className),
@@ -95,7 +97,6 @@ const CardRoot = (props: CardProps): ReactNode => {
       ...restProps
     } = props
     const isExternal = external ?? /^https?:\/\//.test(href)
-    const DefaultLink = useLinkComponent()
     const LinkComponent = OverrideComponent || (isExternal ? "a" : DefaultLink)
     const linkAttrs = isExternal
       ? { target: "_blank", rel: "noopener noreferrer", href }

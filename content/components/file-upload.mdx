@@ -108,10 +108,10 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   <FileCardReadOnlyListDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "variant", type: '"compact" | "area"', default: '"compact"', description: "Visual variant — compact button or larger tappable area" },
+  { prop: "variant", type: '"compact" | "area"', default: '"compact"', description: "Visual variant: compact button or larger tappable area" },
   { prop: "label", type: "string", description: "Button label text" },
   { prop: "description", type: "string", description: "Helper text below the icon (area variant only)" },
   { prop: "accept", type: "string", description: 'Accepted file types (e.g. ".pdf,.png,image/*")' },
@@ -121,7 +121,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "value", type: "File[]", description: "Controlled file list" },
   { prop: "onValueChange", type: "(files: File[]) => void", description: "Callback when files are added or removed" },
   { prop: "onFileReject", type: "(file: File, reason: string) => void", description: "Callback when a file is rejected (wrong type, too large, over limit)" },
-  { prop: "errorMessage", type: "string", description: "Error message — sets invalid visual state" },
+  { prop: "errorMessage", type: "string", description: "Error message. Sets the invalid visual state" },
   { prop: "invalid", type: "boolean", default: "false", description: "Invalid state (auto-set when errorMessage is provided)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all interactions" },
 ]} />
@@ -141,3 +141,19 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "children", type: "ReactNode", description: "FileCard elements" },
   { prop: "className", type: "string", description: "Additional CSS class" },
 ]} />
+
+## Styling
+
+File Upload reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--file-upload-area-border-radius`: area border radius (default `var(--radius-xl)`)
+- `--file-upload-area-min-height`: area min height (default `10rem`)
+- `--file-upload-gutter`: gutter (default `var(--floating-input-gutter)`)
+- `--file-upload-list-gap`: list gap (default `0.5rem`)
+- `--floating-input-background`: background (default `var(--color-surface)`)
+- `--floating-input-border-color`: border color
+- `--floating-input-border-color-hover`: border color hover
+- `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--floating-input-transition-duration`: transition duration (default `80ms`)
+- `--input-text-color`: text color (default `var(--color-text)`)

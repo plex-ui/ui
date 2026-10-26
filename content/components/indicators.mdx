@@ -99,7 +99,7 @@ import {
   </div>
 </ComponentPreview>
 
-## Reference
+## API
 
 ### LoadingIndicator
 
@@ -111,10 +111,14 @@ import {
 ### CircularProgress
 
 <PropsTable data={[
-  { prop: "progress", type: "number", description: "Static progress 0–100 (disables animation)" },
+  { prop: "progress", type: "number", description: "Static progress 0-100 (disables animation)" },
   { prop: "size", type: "number | string", description: "Diameter in px or any CSS length" },
   { prop: "strokeWidth", type: "number", description: "Stroke thickness" },
   { prop: "done", type: "boolean", description: "Completion state for animation" },
   { prop: "trackColor", type: "string", description: "Track color (CSS variable or value)" },
   { prop: "trackActiveColor", type: "string", description: "Active segment color" },
 ]} />
+
+## Styling
+
+Indicators has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

@@ -65,10 +65,12 @@
  *   - shortcut?: string (keyboard shortcut display)
  */
 
-import { Slot } from "@radix-ui/react-slot"
 import clsx from "clsx"
+import { Slot } from "radix-ui"
 import {
+  cloneElement,
   forwardRef,
+  isValidElement,
   useCallback,
   useLayoutEffect,
   useState,
@@ -90,8 +92,8 @@ import {
 } from "./useSidebarContext"
 
 // Helper to filter out props that shouldn't be spread to the DOM (e.g. injected by MDX)
-const cleanProps = (props: any) => {
-  const { "data-toggle": _, ...rest } = props
+const cleanProps = <P extends object>(props: P): Omit<P, "data-toggle"> => {
+  const { "data-toggle": _, ...rest } = props as P & { "data-toggle"?: unknown }
   return rest
 }
 
@@ -267,7 +269,7 @@ export type SidebarGroupLabelProps = ComponentProps<"span"> & {
 
 export const SidebarGroupLabel = forwardRef<HTMLSpanElement, SidebarGroupLabelProps>(
   ({ asChild = false, size = "lg", className, ...props }, ref) => {
-    const Comp = asChild ? Slot : "span"
+    const Comp = asChild ? Slot.Root : "span"
     return (
       <Comp
         ref={ref}
@@ -351,7 +353,20 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({ isActive = false, tooltip, asChild = false, className, children, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot.Root : "button"
+    // With asChild the child element is the button, so the inner wrapper
+    // goes inside it. Wrapping the child instead would make Slot merge the
+    // button props onto the wrapper span.
+    const content =
+      asChild && isValidElement<{ children?: ReactNode }>(children) ? (
+        cloneElement(
+          children,
+          undefined,
+          <span className={s.MenuButtonInner}>{children.props.children}</span>,
+        )
+      ) : (
+        <span className={s.MenuButtonInner}>{children}</span>
+      )
 
     const button = (
       <Comp
@@ -361,7 +376,7 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
         className={clsx(s.MenuButton, className)}
         {...cleanProps(props)}
       >
-        <span className={s.MenuButtonInner}>{children}</span>
+        {content}
       </Comp>
     )
 
@@ -527,7 +542,7 @@ export type SidebarMenuSubButtonProps = ComponentProps<"button"> & {
 
 export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
   ({ isActive = false, asChild = false, indent = 0, className, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot.Root : "button"
     return (
       <Comp
         ref={ref}

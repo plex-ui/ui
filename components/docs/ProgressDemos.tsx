@@ -84,7 +84,7 @@ export function ProgressControlledDemo() {
       }}
     >
       <Progress value={value} aria-label="Progress" />
-      <Slider value={value} onChange={setValue} min={0} max={100} step={1} />
+      <Slider value={value} onChange={setValue} min={0} max={100} step={1} aria-label="Progress value" />
     </div>
   );
 }

@@ -18,7 +18,7 @@ import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
   <CopyTooltipBaseDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Trigger element (for example Tooltip.TriggerDecorator)" },
@@ -29,3 +29,7 @@ import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
   { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger in pixels" },
 ]} />
+
+## Styling
+
+Copy Tooltip has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

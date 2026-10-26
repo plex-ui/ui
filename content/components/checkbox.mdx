@@ -171,7 +171,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Disabled
 
-<ComponentPreview details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. Works consistently across all variants — solid, pill, and ghost.</>} code={`{/* solid */}
+<ComponentPreview details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. Works consistently across all variants: solid, pill, and ghost.</>} code={`{/* solid */}
 <Checkbox label="Unchecked" disabled />
 <Checkbox label="Checked" disabled defaultChecked />
 <Checkbox label="Indeterminate" disabled checked="indeterminate" />
@@ -322,15 +322,15 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
 </ComponentPreview>
 
 
-## Reference
+## API
 
 <PropsTable data={[
-  { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "Visual style — solid (filled background) or ghost (checkmark only)" },
+  { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "Visual style: solid (filled background) or ghost (checkmark only)" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded indicator corners" },
   { prop: "checked", type: 'boolean | "indeterminate"', description: "Controlled state" },
   { prop: "defaultChecked", type: 'boolean | "indeterminate"', description: "Initial state (uncontrolled)" },
   { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called when state changes" },
-  { prop: "label", type: "ReactNode", description: "Accessible label — accepts ReactNode for rich content" },
+  { prop: "label", type: "ReactNode", description: "Accessible label. Accepts ReactNode for rich content" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
   { prop: "required", type: "boolean", description: "Required for form submission" },
   { prop: "name", type: "string", description: "Form field name" },
@@ -339,3 +339,12 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
   { prop: "className", type: "string", description: "CSS classes applied to wrapper node" },
   { prop: "id", type: "string", description: "The id of the checkbox element" },
 ]} />
+
+## Styling
+
+Checkbox reads these component tokens. Override them at any scope to restyle it:
+
+- `--checkbox-indicator-size`: indicator size (default `var(--radio-group-indicator-size)`)
+- `--checkbox-label-gap`: label gap (default `var(--radio-group-item-gap)`)
+- `--checkbox-label-line-height`: label line height (default `var(--radio-group-item-line-height)`)
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)

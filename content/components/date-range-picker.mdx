@@ -49,7 +49,7 @@ import {
   <DateRangePickerMonthStepperDemoWithControls />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "value", type: "DateRange | null", description: "Selected range ([start, end], inclusive)" },
@@ -75,3 +75,14 @@ import {
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button in trigger" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch trigger to full available width" },
 ]} />
+
+## Styling
+
+Date Range Picker reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

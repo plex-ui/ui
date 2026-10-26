@@ -57,11 +57,11 @@ import {
   <TooltipCompactDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "content", type: "ReactNode", description: "Tooltip content (null = no tooltip)" },
-  { prop: "compact", type: "boolean", default: "false", description: "Short 1–3 word tooltips, inverse styling" },
+  { prop: "compact", type: "boolean", default: "false", description: "Short 1-3 word tooltips, inverse styling" },
   { prop: "interactive", type: "boolean", default: "false", description: "Content is interactive, stays open when hovered" },
   { prop: "maxWidth", type: "number | \"none\"", default: "300", description: "Max width of tooltip" },
   { prop: "openDelay", type: "number", default: "150", description: "Delay before showing (ms)" },
@@ -73,3 +73,7 @@ import {
   { prop: "contentClassName", type: "string", description: "Class for tooltip content" },
   { prop: "forceOpen", type: "boolean", description: "Force open or closed" },
 ]} />
+
+## Styling
+
+Tooltip has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

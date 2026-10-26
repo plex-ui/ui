@@ -55,7 +55,7 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 ### Multiple
 
-<ComponentPreview details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once — settings pages, long FAQs, step-by-step references.</>} code={`<Accordion type="multiple" defaultValue={["notifications"]}>
+<ComponentPreview details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={`<Accordion type="multiple" defaultValue={["notifications"]}>
   {items.map((item) => (
     <Accordion.Item key={item.value} value={item.value}>
       <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
@@ -87,7 +87,7 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 ### Card
 
-<ComponentPreview details={<>Composed inside <code>Card</code> — the most common landing-page FAQ pattern.</>} code={`<Card>
+<ComponentPreview details={<>Composed inside <code>Card</code>, the most common landing-page FAQ pattern.</>} code={`<Card>
   <Card.Header>
     <Card.Title>Subscription & billing</Card.Title>
     <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>
@@ -142,18 +142,18 @@ Renders the collapsible panel. Radix sets `--radix-accordion-content-height` so 
 
 Colors, spacing, and transitions are controlled by component tokens:
 
-- `--accordion-item-divider-color` — border between items (defaults to `--color-border`)
-- `--accordion-item-divider-width` — divider thickness (defaults to `1px`)
-- `--accordion-item-disabled-opacity` — disabled item opacity (defaults to `0.5`)
-- `--accordion-trigger-color` — trigger text color
-- `--accordion-trigger-font-size` / `--accordion-trigger-font-weight` / `--accordion-trigger-line-height` — trigger typography
-- `--accordion-trigger-padding-block` — trigger vertical padding
-- `--accordion-trigger-gap` — space between label and chevron
-- `--accordion-trigger-focus-ring-color` — focus ring color
-- `--accordion-icon-color` / `--accordion-icon-size` — chevron color and size
-- `--accordion-content-color` / `--accordion-content-font-size` / `--accordion-content-line-height` — content typography
-- `--accordion-content-padding-bottom` — space between content text and the next divider
-- `--accordion-transition-duration` / `--accordion-transition-ease` — open/close animation
+- `--accordion-item-divider-color`: border between items (defaults to `--color-border`)
+- `--accordion-item-divider-width`: divider thickness (defaults to `1px`)
+- `--accordion-item-disabled-opacity`: disabled item opacity (defaults to `0.5`)
+- `--accordion-trigger-color`: trigger text color
+- `--accordion-trigger-font-size` / `--accordion-trigger-font-weight` / `--accordion-trigger-line-height`: trigger typography
+- `--accordion-trigger-padding-block`: trigger vertical padding
+- `--accordion-trigger-gap`: space between label and chevron
+- `--accordion-trigger-focus-ring-color`: focus ring color
+- `--accordion-icon-color` / `--accordion-icon-size`: chevron color and size
+- `--accordion-content-color` / `--accordion-content-font-size` / `--accordion-content-line-height`: content typography
+- `--accordion-content-padding-bottom`: space between content text and the next divider
+- `--accordion-transition-duration` / `--accordion-transition-ease`: open/close animation
 
 Override at any scope to tune the look:
 

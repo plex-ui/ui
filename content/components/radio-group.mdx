@@ -153,7 +153,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With description
 
-<ComponentPreview details={<>Radio items accept <code>ReactNode</code> children, so you can compose a label with secondary description text — useful for options that need additional context.</>} code={`<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
+<ComponentPreview details={<>Radio items accept <code>ReactNode</code> children, so you can compose a label with secondary description text, useful for options that need additional context.</>} code={`<RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
   <RadioGroup.Item value="default">
     <div className="flex flex-col">
       <span>Default</span>
@@ -277,7 +277,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 </ComponentPreview>
 
 
-## Reference
+## API
 
 **RadioGroup** (root)
 
@@ -298,3 +298,19 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
 ]} />
+
+## Styling
+
+Radio Group reads these component tokens. Override them at any scope to restyle it:
+
+- `--radio-group-col-gap`: col gap (default `spacing(2.5)`)
+- `--radio-group-indicator-background-color`: indicator background color (default `var(--color-background-primary-solid)`)
+- `--radio-group-indicator-border-color`: indicator border color (default `var(--color-border-primary-outline)`)
+- `--radio-group-indicator-border-color-hover`: indicator border color hover (default `var(--alpha-25)`)
+- `--radio-group-indicator-hole-background-color`: indicator hole background color (default `var(--color-text-primary-solid)`)
+- `--radio-group-indicator-hole-size`: indicator hole size (default `0.375rem`)
+- `--radio-group-indicator-size`: indicator size (default `var(--font-text-lg-size)`)
+- `--radio-group-item-font-size`: item font size (default `var(--font-text-sm-size)`)
+- `--radio-group-item-gap`: item gap (default `spacing(1.5)`)
+- `--radio-group-item-line-height`: item line height (default `var(--font-text-sm-line-height)`)
+- `--radio-group-row-gap`: row gap (default `spacing(5)`)

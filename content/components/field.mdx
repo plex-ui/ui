@@ -65,7 +65,7 @@ import {
 
 ### Required
 
-<ComponentPreview details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute — pass <code>required</code> directly to the child control for form validation.</>} code={`<Field label="Email" required>
+<ComponentPreview details={<>Use <code>required</code> to show a visual asterisk after the label. This is purely visual and does not add the <code>required</code> HTML attribute. Pass <code>required</code> directly to the child control for form validation.</>} code={`<Field label="Email" required>
   <Input placeholder="Enter email..." />
 </Field>`} previewMinHeight={168}>
   <FieldRequiredDemo />
@@ -292,7 +292,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Profile settings
 
-<ComponentPreview details={<>A profile settings form with three fieldset sections — personal info, preferences, and notifications — combining text inputs, select, radio group, and horizontal switch fields.</>} code={`<fieldset className="flex flex-col gap-5">
+<ComponentPreview details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications), combining text inputs, select, radio group, and horizontal switch fields.</>} code={`<fieldset className="flex flex-col gap-5">
   <div className="mb-1">
     <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
     <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
@@ -336,7 +336,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Create project
 
-<ComponentPreview details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config — demonstrating diverse field types organized in sections.</>} code={`<fieldset className="flex flex-col gap-5">
+<ComponentPreview details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={`<fieldset className="flex flex-col gap-5">
   <div className="mb-1">
     <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
     <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
@@ -373,7 +373,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Field configuration
 
-<ComponentPreview details={<>A CMS-style field configuration form with setup, formatting, and privacy sections — matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={`<fieldset className="flex flex-col gap-5">
+<ComponentPreview details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={`<fieldset className="flex flex-col gap-5">
   <div className="mb-1">
     <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
     <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
@@ -433,7 +433,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Birthday with validation
 
-<ComponentPreview details={<>Birthday input with <code>errorMessage</code> on <code>Field</code> — Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>.</>} code={`<Field label="Birthday" errorMessage={errorMessage}>
+<ComponentPreview details={<>Birthday input with <code>errorMessage</code> on <code>Field</code>. Field automatically passes <code>aria-invalid</code> down and renders <code>FieldError</code>.</>} code={`<Field label="Birthday" errorMessage={errorMessage}>
   <Input
     placeholder="MM / DD / YYYY"
     value={birthday}
@@ -471,7 +471,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
   <FieldBirthdaySelectDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "label", type: "ReactNode", description: "Label text for the field" },
@@ -484,3 +484,19 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby, and aria-invalid" },
 ]} />
+
+## Styling
+
+Field reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-error-color`: error color (default `var(--color-text-danger-outline)`)
+- `--field-error-font-size`: error font size (default `0.75rem`)
+- `--field-error-gap`: error gap (default `spacing(2)`)
+- `--field-error-icon-size`: error icon size (default `1rem`)
+- `--field-error-line-height`: error line height (default `var(--font-text-xs-line-height)`)
+- `--field-error-margin-bottom`: error margin bottom (default `spacing(3)`)
+- `--field-error-margin-top`: error margin top (default `0.5rem`)
+- `--field-error-padding-inline`: error padding inline (default `0`)
+- `--field-horizontal-control-width`: horizontal control width (default `240px`)
+- `--field-horizontal-label-width`: horizontal label width (default `120px`)
+- `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)

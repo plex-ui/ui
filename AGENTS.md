@@ -208,7 +208,7 @@ Full doc: [`.memory/domains/full-sync.md`](.memory/domains/full-sync.md).
 
 ## Every change (add OR modify)
 
-1. `content/docs/overview/changelog.mdx` — entry under `## Unreleased → ### Added` (or `### Changed` / `### Fixed`)
+1. `content/docs/changelog.mdx` — entry under `## Unreleased → ### Added` (or `### Changed` / `### Fixed`)
 2. `packages/ui/package.json` — bump `version` (minor for new component / feature, patch for fix)
 
 ## New component (in addition to the above)
@@ -364,12 +364,7 @@ Full record: [`.memory/decisions/0006-no-code-in-mdx-headings.md`](.memory/decis
 
 **Inside a `Card` (or any form surface), every interactive control must share one pill style. Standard for Plex UI forms is `pill={false}` (rectangular, token-driven radius).**
 
-Components that need the explicit prop (defaults are pill):
-
-- `Button` — default `pill = true` → set `pill={false}`
-- `Select` — default `pill = true` → set `pill={false}`
-
-`Input` and `Textarea` default to rectangular and don't need the prop.
+`Button`, `Select` and `Input` are rectangular by default (`pill` is false or unset since ui 0.16.0) and `Textarea` has no pill option, so a form needs no prop. `DatePicker` and `DateRangePicker` still default to `pill = true`: set `pill={false}` on them inside a form. Passing `pill={false}` explicitly is harmless and many demos still do; the violation is mixing in a single `pill` control.
 
 Spot-check before committing a new demo:
 

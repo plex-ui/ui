@@ -22,7 +22,7 @@ type CommonProps = {
    * Color for the button
    * @default primary
    */
-  color: SemanticColors<
+  color?: SemanticColors<
     "primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"
   >
   /**

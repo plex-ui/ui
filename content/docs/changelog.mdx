@@ -12,15 +12,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Added
 
 - `@plexui/vue`: Plex UI for Vue 3. Every component, icon and meaningful hook has a Vue counterpart with the same names, props, defaults and rendered markup, styled by the same `@plexui/styles` CSS modules and checked against the React components by parity tests. Each component page has a **Vue** tab, and the [Vue guide](/docs/vue) covers installation, the Vite plugin and SSR. The MCP server takes `framework: "vue"`, `llms-vue.txt` describes the Vue API, and `plexui.com/r/vue` is a registry for the shadcn-vue CLI.
-
 - `InputGroup`: an input or textarea with icons, text, buttons and menus attached inside one frame. `InputGroup.Addon` sits before or after the control (`align="inline-start"` / `"inline-end"`) or as a header or footer row (`"block-start"` / `"block-end"`); `InputGroup.Button` is a ghost `Button` sized from the group; `InputGroup.Text` holds prefixes, units and counters. Every `Input` size from `3xs` to `3xl`, both variants, `pill`, `disabled` and `invalid`. Also in `@plexui/vue` as `InputGroup`, `InputGroupInput`, `InputGroupTextarea`, `InputGroupAddon`, `InputGroupButton` and `InputGroupText`.
-- `Menu.Item` takes a `description` — a second line under the label, with the label going semibold on its own. Same "item + subtitle" anatomy a Select option with a description already had, so a two-line menu item no longer needs hand-written typography.
+- `Menu.Item` takes a `description`: a second line under the label, with the label going semibold on its own. Same "item + subtitle" anatomy a Select option with a description already had, so a two-line menu item no longer needs hand-written typography.
 - Select accepts `checkPosition="none"`, which removes the indicator column from the list. A menu of one-shot actions, or a list whose option view states the selection itself, no longer reserves an empty 16px column in every row.
+- `Slider` accepts `aria-label` and `aria-labelledby`, so a slider without a visible `label` can be named. Range thumbs keep their `Minimum` and `Maximum` names.
+- `MarkdownEditor` accepts `aria-label` and `aria-labelledby` for its editable region, which a `<label for>` cannot name.
 
 ### Changed
 
 - The CSS now ships in its own package, `@plexui/styles`: design tokens, globals and the CSS module of every component. `@plexui/ui` depends on it and re-exports it, so `@import "@plexui/ui/css"`, the `@plexui/ui/styles/*.css` files, `@plexui/ui/vite` and `@plexui/ui/types` keep working unchanged. Rendered markup and compiled CSS are identical to 0.19. Install `@plexui/styles` on its own to use the same styles from another framework.
 - Grouped Select menus separate their sections. A group heading is now smaller and semibold in the secondary color instead of an option-sized muted row, a rule runs between sections, and the heading starts at the row's content edge instead of being indented to the option labels.
+- `@plexui/ui` requires React 19 in `peerDependencies`. The components already used React 19 APIs (`use(Context)`, `<Context value>`, `ref` as a prop) and could not run on React 18.
+- Published modules use fully specified imports (`./Button.js`, `lodash/clamp.js`), so the package resolves under webpack 5's strict ESM rules, Node ESM and TypeScript `NodeNext`. The `PlexUI` global types now ship with the declarations instead of being dropped from them.
 
 ### Fixed
 
@@ -46,10 +49,24 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Input` and `Textarea` forward `autoComplete` and set `aria-invalid` when `invalid` is true. `FileUpload` puts `aria-invalid` and its error description on the visible trigger instead of the hidden file input.
 - `TextLink` keeps an explicit `target`, as `ButtonLink` already did.
 - A `TextLink` without `href` but with `onClick` is focusable and runs its action on Enter and Space.
+- `Button` `color` and `DatePicker` `triggerDateFormat` are optional in the types, matching their runtime defaults.
+- `Select` returns focus to its trigger after choosing an option or pressing Escape; it used to drop focus to the page.
+- With `showTime`, `DatePicker` keeps the chosen date and time within `min` and `max`, and the time fields show the adjusted time.
+- `ProgressSteps` with `variant="minimal"` renders a `div` with `role="progressbar"` instead of a `nav`, where that role is not allowed.
+- The header of the primary sorted `DataTable` column carries `aria-sort`.
+- `StatCard`'s info tooltip can be reached with the keyboard and is announced as "More information".
+- `TagInput` keeps a tab stop when `maxTags` is reached, so tags can still be removed from the keyboard.
+- `MarkdownEditor` toolbar toggles expose their state through `aria-pressed`.
+- `FloatingLabelInput` with `multiline` forwards props such as `required`, `maxLength` and key handlers to its textarea, and resizes when a controlled `value` or `rows` changes.
+- `Menu.Trigger` forwards its props and `ref` to the trigger element.
+- `AnimateLayoutGroup` applies `insertMethod` and `preventInitialTransition`.
+- `ButtonLink`, `TextLink` and `Menu.Link` type their props from the link component set in `PlexUIConfig`, as the installation guide describes. The augmentation used to reach only `PlexUIProvider`, so `<ButtonLink to="/x">` with a router `Link` failed to type-check. `PlexUIOverrides` still works.
+- `SidebarMenuButton` with `asChild` renders the child element as the button. The button props used to land on an inner `span` wrapped around the child, so a link lost the button styles and `aria-current`.
+- `Sidebar` no longer imports the undeclared `@radix-ui/react-slot`, which strict installs (pnpm without hoisting, Yarn PnP) could not resolve.
 - `Field` merges its `aria-describedby` with the child's own and keeps the child's explicit `aria-invalid`.
 - An `Avatar` with `onClick` uses `name` as its accessible name instead of announcing only the initial, or nothing for icon avatars.
 
-## 0.18.1 — 2026-06-20
+## 0.18.1 (2026-06-20)
 
 ### Fixed
 
@@ -61,19 +78,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## 0.18.0 — 2026-05-20
+## 0.18.0 (2026-05-20)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
-    <strong>Built-in password reveal toggle</strong> on <code>FloatingLabelInput</code>. A <code>type="password"</code> field now renders the eye show/hide toggle on its own — no more wiring up an <code>endAdornment</code> button and swapping <code>type</code> by hand. The new <code>revealable</code> prop controls it: it defaults to <code>true</code> for password inputs that don't pass their own <code>endAdornment</code>, and you can set <code>revealable</code> to <code>false</code> to opt out. A companion <code>onRevealedChange</code> callback reports the toggle state, so custom-masked fields (e.g. an SSN input) can drive their own reveal with the same built-in button. If you already render your own visibility toggle in <code>endAdornment</code>, remove it — or set <code>revealable</code> to <code>false</code> — to avoid a duplicate.
+    <strong>Built-in password reveal toggle</strong> on <code>FloatingLabelInput</code>. A <code>type="password"</code> field now renders the eye show/hide toggle on its own, so no more wiring up an <code>endAdornment</code> button and swapping <code>type</code> by hand. The new <code>revealable</code> prop controls it: it defaults to <code>true</code> for password inputs that don't pass their own <code>endAdornment</code>, and you can set <code>revealable</code> to <code>false</code> to opt out. A companion <code>onRevealedChange</code> callback reports the toggle state, so custom-masked fields (e.g. an SSN input) can drive their own reveal with the same built-in button. If you already render your own visibility toggle in <code>endAdornment</code>, remove it (or set <code>revealable</code> to <code>false</code>) to avoid a duplicate.
   </li>
 </ul>
 
 ---
 
-## 0.17.1 — 2026-05-04
+## 0.17.1 (2026-05-04)
 
 ### Fixed
 
@@ -85,13 +102,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## 0.17.0 — 2026-05-02
+## 0.17.0 (2026-05-02)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
-    <strong>Vite plugin</strong> — new sub-export <code>@plexui/ui/vite</code>. One line in <code>vite.config.ts</code> replaces every install-time gotcha: pins <code>css.transformer = 'postcss'</code>, pins <code>build.cssMinify = 'esbuild'</code> (so Vite 8's Lightning CSS minifier doesn't strip <code>@layer</code> declarations), and injects <code>&lt;style&gt;@layer theme, base, components, utilities;&lt;/style&gt;</code> into <code>&lt;head&gt;</code> as a runtime failsafe. Setup becomes:
+    <strong>Vite plugin</strong>: new sub-export <code>@plexui/ui/vite</code>. One line in <code>vite.config.ts</code> replaces every install-time gotcha: pins <code>css.transformer = 'postcss'</code>, pins <code>build.cssMinify = 'esbuild'</code> (so Vite 8's Lightning CSS minifier doesn't strip <code>@layer</code> declarations), and injects <code>&lt;style&gt;@layer theme, base, components, utilities;&lt;/style&gt;</code> into <code>&lt;head&gt;</code> as a runtime failsafe. Setup becomes:
 
     ```ts
     import { defineConfig } from "vite";
@@ -100,13 +117,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
     export default defineConfig({ plugins: [plexui()] });
     ```
 
-    Your <code>main.css</code> then only needs the Tailwind, Plex UI, and source imports — no manual <code>@layer</code> line. <code>vite</code> is an optional peer dependency (range: 4.x–8.x); if you don't use Vite, you can ignore this export. Layer-order injection can be disabled with the <code>injectLayerOrder: false</code> option. See <a href="/docs/installation">/docs/installation → On Vite</a>.
+    Your <code>main.css</code> then only needs the Tailwind, Plex UI, and source imports, with no manual <code>@layer</code> line. <code>vite</code> is an optional peer dependency (range: 4.x to 8.x); if you don't use Vite, you can ignore this export. Layer-order injection can be disabled with the <code>injectLayerOrder: false</code> option. See <a href="/docs/installation">/docs/installation → On Vite</a>.
   </li>
 </ul>
 
 ---
 
-## 0.16.0 — 2026-05-02
+## 0.16.0 (2026-05-02)
 
 ### Changed
 
@@ -118,13 +135,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## 0.15.3 — 2026-05-02
+## 0.15.3 (2026-05-02)
 
 ### Fixed
 
 <ul className="changelog-list">
   <li>
-    <strong>@plexui/ui/css distribution</strong> — radius, font, and font-weight tokens are now declared in <code>:root</code> via the new internal <code>variables-tokens-root.css</code>, instead of being pulled in through the <code>@theme static</code> block (which is what 0.15.2 attempted). The <code>@theme static</code> approach worked for component <code>var(--radius-md)</code> lookups but reset Tailwind's own theme via <code>--radius-*: initial</code>, breaking consumer-side utilities like <code>rounded-md</code>, <code>rounded-full</code>, and <code>text-sm</code>. The new file declares the same tokens in <code>:root</code> so components see them but Tailwind's theme stays untouched. The standalone <code>@plexui/ui/styles/variables-tailwind-theme.css</code> sub-export is unchanged and remains opt-in for consumers who explicitly want the Plex scale to drive their Tailwind utilities.
+    <strong>@plexui/ui/css distribution</strong>: radius, font, and font-weight tokens are now declared in <code>:root</code> via the new internal <code>variables-tokens-root.css</code>, instead of being pulled in through the <code>@theme static</code> block (which is what 0.15.2 attempted). The <code>@theme static</code> approach worked for component <code>var(--radius-md)</code> lookups but reset Tailwind's own theme via <code>--radius-*: initial</code>, breaking consumer-side utilities like <code>rounded-md</code>, <code>rounded-full</code>, and <code>text-sm</code>. The new file declares the same tokens in <code>:root</code> so components see them but Tailwind's theme stays untouched. The standalone <code>@plexui/ui/styles/variables-tailwind-theme.css</code> sub-export is unchanged and remains opt-in for consumers who explicitly want the Plex scale to drive their Tailwind utilities.
   </li>
 </ul>
 
@@ -132,43 +149,43 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 <ul className="changelog-list">
   <li>
-    <strong>Installation guide</strong> (<a href="/docs/installation">/docs/installation</a>) — added an explicit <code>@layer theme, base, components, utilities;</code> declaration to the recommended snippet so cascade layer order is pinned regardless of CSS transformer. New sub-sections cover the Vite + Lightning CSS layer-reorder gotcha (with a one-line workaround to switch the transformer back to PostCSS), an optional <strong>skip-Tailwind-preflight</strong> recipe (Plex UI ships its own reset), and an <strong>opt-in Plex Tailwind theme</strong> recipe for consumers who want their <code>rounded-md</code> utilities to use the Plex radius scale.
+    <strong>Installation guide</strong> (<a href="/docs/installation">/docs/installation</a>): added an explicit <code>@layer theme, base, components, utilities;</code> declaration to the recommended snippet so cascade layer order is pinned regardless of CSS transformer. New sub-sections cover the Vite + Lightning CSS layer-reorder gotcha (with a one-line workaround to switch the transformer back to PostCSS), an optional <strong>skip-Tailwind-preflight</strong> recipe (Plex UI ships its own reset), and an <strong>opt-in Plex Tailwind theme</strong> recipe for consumers who want their <code>rounded-md</code> utilities to use the Plex radius scale.
   </li>
 </ul>
 
 ---
 
-## 0.15.2 — 2026-05-02 — RETIRED
+## 0.15.2 (2026-05-02) RETIRED
 
 This release is on npm but **should not be used**. Its <code>@theme static</code> import inside <code>@plexui/ui/css</code> resets Tailwind's radius, font, and font-weight defaults to <code>initial</code>, which breaks Tailwind utilities like <code>rounded-md</code>, <code>rounded-full</code>, and <code>text-sm</code> in consumer projects. Upgrade to <strong>0.15.3</strong> immediately.
 
 ---
 
-## 0.15.1 — 2026-05-01
+## 0.15.1 (2026-05-01)
 
 ### Changed
 
 <ul className="changelog-list">
   <li>
-    <strong>SelectControl</strong> — trigger value text now uses <code>--font-weight-normal</code> (400) by default instead of <code>--font-weight-medium</code> (500), matching <code>Input</code> so mixed form rows (e.g. Card Number / Month / Year / CVV) read as one cohesive set of value fields. Toolbar-style usage that wants the heavier "button" feel can opt back in via the existing <code>--select-control-font-weight</code> token.
+    <strong>SelectControl</strong>: trigger value text now uses <code>--font-weight-normal</code> (400) by default instead of <code>--font-weight-medium</code> (500), matching <code>Input</code> so mixed form rows (e.g. Card Number / Month / Year / CVV) read as one cohesive set of value fields. Toolbar-style usage that wants the heavier "button" feel can opt back in via the existing <code>--select-control-font-weight</code> token.
   </li>
 </ul>
 
 ---
 
-## 0.15.0 — 2026-04-28
+## 0.15.0 (2026-04-28)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
-    <strong>TagInput</strong> — new <code>sm</code> size (28&nbsp;px) matching <code>Input</code> and <code>SelectControl</code> sm. Sits flush in horizontal filter rows alongside the matching Select.
+    <strong>TagInput</strong>: new <code>sm</code> size (28&nbsp;px) matching <code>Input</code> and <code>SelectControl</code> sm. Sits flush in horizontal filter rows alongside the matching Select.
   </li>
   <li>
-    <strong>TagInput</strong> — new <code>pill</code> prop. Both the container and inner chips become fully-rounded so the control reads as a single rounded surface, matching <code>Input pill</code> and <code>SelectControl pill</code>.
+    <strong>TagInput</strong>: new <code>pill</code> prop. Both the container and inner chips become fully-rounded so the control reads as a single rounded surface, matching <code>Input pill</code> and <code>SelectControl pill</code>.
   </li>
   <li>
-    <strong>Menu.Content</strong> — exposes <code>onCloseAutoFocus</code>. Call <code>event.preventDefault()</code> to keep the trigger from regaining focus (and its focus-visible ring) after a mouse pick — useful when the menu is paired with a <code>SelectControl</code> in filter rows.
+    <strong>Menu.Content</strong>: exposes <code>onCloseAutoFocus</code>. Call <code>event.preventDefault()</code> to keep the trigger from regaining focus (and its focus-visible ring) after a mouse pick, useful when the menu is paired with a <code>SelectControl</code> in filter rows.
   </li>
 </ul>
 
@@ -176,16 +193,16 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>TagInput</strong> — chip height, font-size, and gutter now scale per-size via <code>--tag-input-tag-&#123;height,gutter,font-size&#125;</code> (defaulting to <code>--tag-input-height</code> / <code>--tag-input-font-size</code>), so a chip-filled container is exactly the same height as an empty one. Previously chip was fixed at <code>--control-size-xs</code> (26&nbsp;px), which made md/lg/xl containers grow when chips were added.
+    <strong>TagInput</strong>: chip height, font-size, and gutter now scale per-size via <code>--tag-input-tag-&#123;height,gutter,font-size&#125;</code> (defaulting to <code>--tag-input-height</code> / <code>--tag-input-font-size</code>), so a chip-filled container is exactly the same height as an empty one. Previously chip was fixed at <code>--control-size-xs</code> (26&nbsp;px), which made md/lg/xl containers grow when chips were added.
   </li>
   <li>
-    <strong>TagInput</strong> — container border-radius now scales per-size (<code>sm=6, md=8, lg=10, xl/2xl/3xl=12</code>), matching <code>SelectControl</code>'s scale. Chip border-radius is concentric with the container (<code>container_radius − inner_padding</code>) at every size.
+    <strong>TagInput</strong>: container border-radius now scales per-size (<code>sm=6, md=8, lg=10, xl/2xl/3xl=12</code>), matching <code>SelectControl</code>'s scale. Chip border-radius is concentric with the container (<code>container_radius − inner_padding</code>) at every size.
   </li>
   <li>
-    <strong>TagInput</strong> — pill-mode radius is now <code>single_row_height / 2</code> instead of <code>--radius-full</code>. Visually identical when there's one row, but no longer flares into a giant ellipse when chips wrap to a second/third row.
+    <strong>TagInput</strong>: pill-mode radius is now <code>single_row_height / 2</code> instead of <code>--radius-full</code>. Visually identical when there's one row, but no longer flares into a giant ellipse when chips wrap to a second/third row.
   </li>
   <li>
-    <strong>TagInput</strong> — the X close-button inside a chip now has symmetric whitespace on top, right, and bottom (driven by chip's vertical padding), instead of being pulled to the chip edge with <code>margin-right: -1px</code>.
+    <strong>TagInput</strong>: the X close-button inside a chip now has symmetric whitespace on top, right, and bottom (driven by chip's vertical padding), instead of being pulled to the chip edge with <code>margin-right: -1px</code>.
   </li>
 </ul>
 
@@ -193,46 +210,46 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>TagInput</strong> — added a <code>ResizeObserver</code> on the container and every chip so the internal <code>inputWidth</code> recomputes on any layout change (size/pill toggle, window resize, font load). Without it, a CSS-var-driven reflow didn't trigger React re-renders, which left a stale <code>inputWidth</code> and caused the input or last chip to wrap onto a phantom extra row right after toggling <code>size</code>.
-  </li>
-</ul>
-
----
-
-## 0.14.3 — 2026-04-27
-
-### Fixed
-
-<ul className="changelog-list">
-  <li>
-    <strong>CodeBlock</strong> — mask the 8&thinsp;px gap between the in-block <code>CopyButton</code>'s right edge and the codeblock's right edge so horizontally-scrolling code text can no longer peek past the button. <code>.CopyButtonContainer</code> now casts an 8&thinsp;px <code>box-shadow</code> in the codeblock's surface colour, which renders behind the button and on top of the scrolling <code>&lt;pre&gt;</code> — invisible against the rest of the chrome but enough to hide overflowing characters (e.g. the tail of a long <code>raw.githubusercontent.com/&hellip;/AGENT.md</code> URL).
+    <strong>TagInput</strong>: added a <code>ResizeObserver</code> on the container and every chip so the internal <code>inputWidth</code> recomputes on any layout change (size/pill toggle, window resize, font load). Without it, a CSS-var-driven reflow didn't trigger React re-renders, which left a stale <code>inputWidth</code> and caused the input or last chip to wrap onto a phantom extra row right after toggling <code>size</code>.
   </li>
 </ul>
 
 ---
 
-## 0.14.2 — 2026-04-26
+## 0.14.3 (2026-04-27)
 
 ### Fixed
 
 <ul className="changelog-list">
   <li>
-    <strong>EmptyMessage</strong> — relax the container <code>min-width</code> from a hard <code>20rem</code> to <code>min(20rem, 100%)</code> so the component shrinks gracefully inside narrow grid columns instead of overflowing its parent. A 320px-wide <code>EmptyMessage</code> placed in a 304px column was pushing 16px of horizontal overflow; now it caps at the column width and re-flows the title and description text below it.
+    <strong>CodeBlock</strong>: mask the 8&thinsp;px gap between the in-block <code>CopyButton</code>'s right edge and the codeblock's right edge so horizontally-scrolling code text can no longer peek past the button. <code>.CopyButtonContainer</code> now casts an 8&thinsp;px <code>box-shadow</code> in the codeblock's surface colour, which renders behind the button and on top of the scrolling <code>&lt;pre&gt;</code>, invisible against the rest of the chrome but enough to hide overflowing characters (e.g. the tail of a long <code>raw.githubusercontent.com/&hellip;/AGENT.md</code> URL).
   </li>
 </ul>
 
 ---
 
-## 0.14.1 — 2026-04-26
+## 0.14.2 (2026-04-26)
 
 ### Fixed
 
 <ul className="changelog-list">
   <li>
-    <strong>CodeBlock</strong> — restore the ghost-secondary hover background on the in-block <code>CopyButton</code>. A long-standing override in <code>CodeBlock.module.css</code> forced the Button's <code>::before</code> pseudo-element to <code>opacity: 0 !important</code>, suppressing the standard Plex ghost-button hover affordance. Removed; copy buttons now light up on hover with the same subtle gray as every other ghost-secondary <code>Button</code> on the system.
+    <strong>EmptyMessage</strong>: relax the container <code>min-width</code> from a hard <code>20rem</code> to <code>min(20rem, 100%)</code> so the component shrinks gracefully inside narrow grid columns instead of overflowing its parent. A 320px-wide <code>EmptyMessage</code> placed in a 304px column was pushing 16px of horizontal overflow; now it caps at the column width and re-flows the title and description text below it.
+  </li>
+</ul>
+
+---
+
+## 0.14.1 (2026-04-26)
+
+### Fixed
+
+<ul className="changelog-list">
+  <li>
+    <strong>CodeBlock</strong>: restore the ghost-secondary hover background on the in-block <code>CopyButton</code>. A long-standing override in <code>CodeBlock.module.css</code> forced the Button's <code>::before</code> pseudo-element to <code>opacity: 0 !important</code>, suppressing the standard Plex ghost-button hover affordance. Removed; copy buttons now light up on hover with the same subtle gray as every other ghost-secondary <code>Button</code> on the system.
   </li>
   <li>
-    <strong>Icons</strong> — fixed three previously-unrendered icons (<code>Education</code>, <code>HapticFeedback</code>, <code>ThumbMixed</code>) that wrapped their paths in a <code>&lt;g clipPath&gt;</code> referencing a <code>&lt;rect width="1em" height="1em"&gt;</code>. Inside the <code>viewBox="0 0 24 24"</code> coordinate system, "1em" collapsed to ~1 user-unit and clipped the icon out of view. Removed the broken clip wrapper.
+    <strong>Icons</strong>: fixed three previously-unrendered icons (<code>Education</code>, <code>HapticFeedback</code>, <code>ThumbMixed</code>) that wrapped their paths in a <code>&lt;g clipPath&gt;</code> referencing a <code>&lt;rect width="1em" height="1em"&gt;</code>. Inside the <code>viewBox="0 0 24 24"</code> coordinate system, "1em" collapsed to ~1 user-unit and clipped the icon out of view. Removed the broken clip wrapper.
   </li>
 </ul>
 
@@ -240,32 +257,32 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>AppStoreSquare icon</strong> — cleaner double-rounded-rect outline geometry; matches the rest of the AppStore family in stroke weight and proportions.
+    <strong>AppStoreSquare icon</strong>: cleaner double-rounded-rect outline geometry; matches the rest of the AppStore family in stroke weight and proportions.
   </li>
 </ul>
 
 ---
 
-## 0.14.0 — 2026-04-25
+## 0.14.0 (2026-04-25)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>Input.AdornmentButton</strong> (<a href="/components/input">Input</a>)<br/>
-    New compound sub-component for in-input action buttons (voice toggle, copy, send, visibility). Picks up the same <code>--input-clear-size</code> / <code>--input-clear-pill-offset</code> / <code>--input-clear-icon-size</code> tokens as the built-in clear button, so it stays perfectly aligned inside any <code>Input</code> regardless of size or pill shape. Supports <code>aria-pressed</code> for toggle state and inherits all native <code>&lt;button&gt;</code> props. A new <code>color</code> prop (<code>caution</code> / <code>danger</code> / <code>success</code> / <code>info</code> / <code>discovery</code>) tints the pressed state with Plex's semantic palette — same tokens <code>Button</code> uses — so a recording-mode mic reads as amber, a destructive retry as red, etc.
+    New compound sub-component for in-input action buttons (voice toggle, copy, send, visibility). Picks up the same <code>--input-clear-size</code> / <code>--input-clear-pill-offset</code> / <code>--input-clear-icon-size</code> tokens as the built-in clear button, so it stays perfectly aligned inside any <code>Input</code> regardless of size or pill shape. Supports <code>aria-pressed</code> for toggle state and inherits all native <code>&lt;button&gt;</code> props. A new <code>color</code> prop (<code>caution</code> / <code>danger</code> / <code>success</code> / <code>info</code> / <code>discovery</code>) tints the pressed state with Plex's semantic palette (same tokens <code>Button</code> uses), so a recording-mode mic reads as amber, a destructive retry as red, etc.
   </li>
   <li>
     <strong>ButtonGroup component</strong> (<a href="/components/button-group">ButtonGroup</a>)<br/>
-    Wraps any row of controls — <code>Button</code>, <code>Input</code>, trigger buttons — and strips the shared border so they read as one unit. Compound API with <code>ButtonGroup.Separator</code> and <code>ButtonGroup.Text</code> (muted label pill; <code>asChild</code> supported). Nest <code>ButtonGroup</code> inside itself for visually separated sub-groups (gap driven by <code>--button-group-nested-gap</code>). Supports <code>orientation="horizontal" | "vertical"</code> for toolbars, steppers, split buttons, pager + arrow nav, rich message composers, and search affordances.
+    Wraps any row of controls (<code>Button</code>, <code>Input</code>, trigger buttons) and strips the shared border so they read as one unit. Compound API with <code>ButtonGroup.Separator</code> and <code>ButtonGroup.Text</code> (muted label pill; <code>asChild</code> supported). Nest <code>ButtonGroup</code> inside itself for visually separated sub-groups (gap driven by <code>--button-group-nested-gap</code>). Supports <code>orientation="horizontal" | "vertical"</code> for toolbars, steppers, split buttons, pager + arrow nav, rich message composers, and search affordances.
   </li>
   <li>
     <strong>Accordion component</strong> (<a href="/components/accordion">Accordion</a>)<br/>
-    Compound primitive built on Radix <code>Accordion.Root</code> — compose <code>Accordion.Item</code>, <code>Accordion.Trigger</code>, <code>Accordion.Content</code>. Supports <code>type="single" | "multiple"</code>, <code>collapsible</code>, per-item <code>disabled</code>, and controlled <code>value</code>/<code>onValueChange</code>. Styled through <code>--accordion-item-divider-color</code>, <code>--accordion-trigger-padding-block</code>, <code>--accordion-icon-size</code>, and a full set of typography / transition tokens. Use it for FAQ sections, settings panels, and collapsible reference lists.
+    Compound primitive built on Radix <code>Accordion.Root</code>: compose <code>Accordion.Item</code>, <code>Accordion.Trigger</code>, <code>Accordion.Content</code>. Supports <code>type="single" | "multiple"</code>, <code>collapsible</code>, per-item <code>disabled</code>, and controlled <code>value</code>/<code>onValueChange</code>. Styled through <code>--accordion-item-divider-color</code>, <code>--accordion-trigger-padding-block</code>, <code>--accordion-icon-size</code>, and a full set of typography / transition tokens. Use it for FAQ sections, settings panels, and collapsible reference lists.
   </li>
   <li>
     <strong>Progress component</strong> (<a href="/components/progress">Progress</a>)<br/>
-    Linear progress bar built on Radix <code>Progress.Root</code>. Accepts <code>value</code> (0–<code>max</code>) or <code>null</code> for an indeterminate sweep. Styled through <code>--progress-height</code>, <code>--progress-track-color</code>, <code>--progress-indicator-color</code>, <code>--progress-radius</code>, <code>--progress-indeterminate-duration</code>. Use it for uploads, onboarding completion, and any determinate "X of Y" feedback; <a href="/components/indicators">CircularProgress / LoadingIndicator</a> stay for loading-spinner cases.
+    Linear progress bar built on Radix <code>Progress.Root</code>. Accepts <code>value</code> (0 to <code>max</code>) or <code>null</code> for an indeterminate sweep. Styled through <code>--progress-height</code>, <code>--progress-track-color</code>, <code>--progress-indicator-color</code>, <code>--progress-radius</code>, <code>--progress-indeterminate-duration</code>. Use it for uploads, onboarding completion, and any determinate "X of Y" feedback; <a href="/components/indicators">CircularProgress / LoadingIndicator</a> stay for loading-spinner cases.
   </li>
 </ul>
 
@@ -273,26 +290,26 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 <ul className="changelog-list">
   <li>
-    <strong>Input</strong> — the <code>disabled</code> state no longer fades the entire Container. The opacity now applies to the input text and the built-in Clear button only, so any <code>Input.AdornmentButton</code> nested via <code>endAdornment</code> stays at full opacity and remains interactive (e.g. a voice-mode toggle that puts the input into a read-only recording state while itself staying clickable).
+    <strong>Input</strong>: the <code>disabled</code> state no longer fades the entire Container. The opacity now applies to the input text and the built-in Clear button only, so any <code>Input.AdornmentButton</code> nested via <code>endAdornment</code> stays at full opacity and remains interactive (e.g. a voice-mode toggle that puts the input into a read-only recording state while itself staying clickable).
   </li>
 </ul>
 
 ---
 
-## 0.10.0 — 2026-04-23
+## 0.10.0 (2026-04-23)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>Label component</strong> (<a href="/components/label">Label</a>)<br/>
-    Standalone accessible label built on Radix's <code>Label.Root</code> — pairs with any form control via <code>htmlFor</code>, prevents double-click text selection, and forwards clicks to the associated control. Props: <code>htmlFor</code>. Styled through <code>--label-color</code>, <code>--label-font-size</code>, <code>--label-font-weight</code>, <code>--label-line-height</code>. Use <code>Field</code> for stacked form rows; use <code>Label</code> when pairing with a standalone Checkbox, Switch, or custom layout.
+    Standalone accessible label built on Radix's <code>Label.Root</code>. Pairs with any form control via <code>htmlFor</code>, prevents double-click text selection, and forwards clicks to the associated control. Props: <code>htmlFor</code>. Styled through <code>--label-color</code>, <code>--label-font-size</code>, <code>--label-font-weight</code>, <code>--label-line-height</code>. Use <code>Field</code> for stacked form rows; use <code>Label</code> when pairing with a standalone Checkbox, Switch, or custom layout.
   </li>
 </ul>
 
 ---
 
-## 0.9.0 — 2026-04-23
+## 0.9.0 (2026-04-23)
 
 ### Added
 
@@ -305,7 +322,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.8.0 — 2026-04-23
+## 0.8.0 (2026-04-23)
 
 ### Added
 
@@ -318,18 +335,18 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.98 — 2026-04-23
+## 0.7.98 (2026-04-23)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>Toast component</strong> (<a href="/components/toast">Toast</a>)<br/>
-    New themed notification surface built on <code>sonner</code>. <code>&lt;Toaster /&gt;</code> + <code>toast()</code> re-exported from <code>@plexui/ui/components/Toast</code>. Light/dark sync via <code>data-theme</code> and <code>MutationObserver</code> (no <code>next-themes</code> dependency). Semantic <code>success</code>/<code>error</code>/<code>warning</code>/<code>info</code> variants drive icon color from <code>--color-text-&#123;intent&#125;-outline</code> tokens — no <code>richColors</code>. Defaults: <code>top-center</code> position, <code>3000ms</code> duration, shrink-to-fit width centered within a 400px max, no close button (persistent toasts use an inline action). <code>compact</code> helper export for centered-text layouts. Re-exports <code>Action</code>, <code>ExternalToast</code>, <code>ToastT</code> types.
+    New themed notification surface built on <code>sonner</code>. <code>&lt;Toaster /&gt;</code> + <code>toast()</code> re-exported from <code>@plexui/ui/components/Toast</code>. Light/dark sync via <code>data-theme</code> and <code>MutationObserver</code> (no <code>next-themes</code> dependency). Semantic <code>success</code>/<code>error</code>/<code>warning</code>/<code>info</code> variants drive icon color from <code>--color-text-&#123;intent&#125;-outline</code> tokens, no <code>richColors</code>. Defaults: <code>top-center</code> position, <code>3000ms</code> duration, shrink-to-fit width centered within a 400px max, no close button (persistent toasts use an inline action). <code>compact</code> helper export for centered-text layouts. Re-exports <code>Action</code>, <code>ExternalToast</code>, <code>ToastT</code> types.
   </li>
   <li>
     <strong>Avatar initial renders behind image while loading</strong> (<a href="/components/avatar">Avatar</a>)<br/>
-    Initial letter (or icon / overflow count) now renders as a placeholder layer underneath the image. On slow networks the avatar is never visually empty while the image is fetching, and if the image fails the placeholder remains — <code>onError</code> just hides the image layer.
+    Initial letter (or icon / overflow count) now renders as a placeholder layer underneath the image. On slow networks the avatar is never visually empty while the image is fetching, and if the image fails the placeholder remains, and <code>onError</code> just hides the image layer.
   </li>
 </ul>
 
@@ -346,7 +363,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>Avatar demos migrated to shared <code>data-demo-controls</code> pattern</strong> (<a href="/components/avatar">Avatar</a>)<br/>
-    Sizing, Overflow count, Roundness, and Colors &amp; variants now use the same <code>data-demo-controls</code> / <code>data-demo-stage</code> layout as every other component page — no more <code>margin: 24px -24px ...</code> + <code>width: calc(100% + 48px)</code> hack. Overflow count demo grew an <code>overflowCount</code> slider, Colors &amp; variants and Roundness gained <code>size</code> sliders. Colors is now a vertical 2-column grid (<code>soft</code> / <code>solid</code> × 6 colors) so it never clips at narrow widths.
+    Sizing, Overflow count, Roundness, and Colors &amp; variants now use the same <code>data-demo-controls</code> / <code>data-demo-stage</code> layout as every other component page, with no more <code>margin: 24px -24px ...</code> + <code>width: calc(100% + 48px)</code> hack. Overflow count demo grew an <code>overflowCount</code> slider, Colors &amp; variants and Roundness gained <code>size</code> sliders. Colors is now a vertical 2-column grid (<code>soft</code> / <code>solid</code> × 6 colors) so it never clips at narrow widths.
   </li>
 </ul>
 
@@ -361,14 +378,14 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.97 — 2026-04-17
+## 0.7.97 (2026-04-17)
 
 ### Changed
 
 <ul className="changelog-list">
   <li>
     <strong>Sidebar docs rewritten</strong> (<a href="/components/sidebar">Sidebar</a>)<br/>
-    Consolidated 14 examples into 7 — the new <strong>App Shell</strong> demo (workspace selector, expandable sections with hover flyouts when collapsed, footer with docs link + user menu) replaces the standalone <em>Console</em> example, and a beefed-up <strong>Basic</strong> demo absorbs <em>Scrollable Content</em>, <em>Without Icons</em>, <em>Collapse Modes</em>, <em>Footer Cards</em>, <em>Group Label Sizes</em>, <em>Badges</em>, and <em>Loading State</em> via toggles (<code>collapsible</code>, <code>icons</code>, <code>badges</code>, <code>footerCard</code>, <code>labelSize</code>, <code>bordered</code>). All demos now share a 260px width, the same <code>DemoSidebarHeader</code> (wordmark + tooltip-wrapped trigger with ⌘. shortcut), context-aware <code>SidebarCollapseLeft</code>/<code>SidebarCollapseRight</code> trigger icons, and consistent group/header spacing.
+    Consolidated 14 examples into 7. The new <strong>App Shell</strong> demo (workspace selector, expandable sections with hover flyouts when collapsed, footer with docs link + user menu) replaces the standalone <em>Console</em> example, and a beefed-up <strong>Basic</strong> demo absorbs <em>Scrollable Content</em>, <em>Without Icons</em>, <em>Collapse Modes</em>, <em>Footer Cards</em>, <em>Group Label Sizes</em>, <em>Badges</em>, and <em>Loading State</em> via toggles (<code>collapsible</code>, <code>icons</code>, <code>badges</code>, <code>footerCard</code>, <code>labelSize</code>, <code>bordered</code>). All demos now share a 260px width, the same <code>DemoSidebarHeader</code> (wordmark + tooltip-wrapped trigger with ⌘. shortcut), context-aware <code>SidebarCollapseLeft</code>/<code>SidebarCollapseRight</code> trigger icons, and consistent group/header spacing.
   </li>
 </ul>
 
@@ -377,7 +394,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 <ul className="changelog-list">
   <li>
     <strong>Sidebar trigger hidden when icons are disabled</strong> (<a href="/components/sidebar">Sidebar</a>)<br/>
-    The <code>collapsible="icon"</code> rail no longer appears when a sidebar has no icons to collapse to — there&apos;s nothing to click on. The Mobile Menu and App Shell demos now force <code>collapsible="none"</code> when the icons toggle is off.
+    The <code>collapsible="icon"</code> rail no longer appears when a sidebar has no icons to collapse to, since there&apos;s nothing to click on. The Mobile Menu and App Shell demos now force <code>collapsible="none"</code> when the icons toggle is off.
   </li>
 </ul>
 
@@ -411,7 +428,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>Hero and /bridge pills removed, BridgePromo width balanced</strong><br/>
-    Dropped the &ldquo;New · Plex UI ships as…&rdquo; pill above the Hero icon tiles and the &ldquo;Design tokens, not just pixels&rdquo; eyebrow pill on <code>/bridge</code> — both were visual clutter. BridgePromo <code>LandingSection</code> now uses <code>maxWidth=&quot;2xl&quot;</code> so the card width matches its paragraph instead of stretching to a 4xl container.
+    Dropped the &ldquo;New · Plex UI ships as…&rdquo; pill above the Hero icon tiles and the &ldquo;Design tokens, not just pixels&rdquo; eyebrow pill on <code>/bridge</code>. Both were visual clutter. BridgePromo <code>LandingSection</code> now uses <code>maxWidth=&quot;2xl&quot;</code> so the card width matches its paragraph instead of stretching to a 4xl container.
   </li>
   <li>
     <strong>Luxon type conflicts</strong> (<a href="/components/date-input">DateInput</a>)<br/>
@@ -421,7 +438,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.96 — 2026-04-08
+## 0.7.96 (2026-04-08)
 
 ### Changed
 
@@ -434,7 +451,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.95 — 2026-04-07
+## 0.7.95 (2026-04-07)
 
 ### Changed
 
@@ -447,27 +464,27 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.94 — 2026-04-06
+## 0.7.94 (2026-04-06)
 
 ### Fixed
 
 <ul className="changelog-list">
   <li>
     <strong>Switch label font-weight</strong> (<a href="/components/switch">Switch</a>)<br/>
-    Switch label font-weight now matches <code>Field</code> label (medium) — previously rendered lighter than surrounding form labels.
+    Switch label font-weight now matches <code>Field</code> label (medium). It previously rendered lighter than surrounding form labels.
   </li>
 </ul>
 
 ---
 
-## 0.7.93 — 2026-04-05
+## 0.7.93 (2026-04-05)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>Plain text FloatingLabelSelect example</strong> (<a href="/components/floating-label-input#select">Floating Label Input</a>)<br/>
-    New example without icons — a cleaner reference for simple role / category selects.
+    New example without icons: a cleaner reference for simple role / category selects.
   </li>
   <li>
     <strong>SEO blog posts (10 new)</strong> (<a href="/blog">Blog</a>)<br/>
@@ -502,27 +519,27 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.92 — 2026-04-05
+## 0.7.92 (2026-04-05)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>FloatingLabelInput description</strong> (<a href="/components/floating-label-input#with-description">FloatingLabelInput</a>)<br/>
-    New <code>description</code> prop for helper text below the input. When both <code>errorMessage</code> and <code>description</code> are present, error appears first (closest to input), description below — rendered as a single tight block with <code>margin-bottom</code> only under the last element. Text is left-aligned with input content via <code>padding-inline-start</code>. Error uses plain text (no icon) with <code>role="alert"</code> for accessibility.
+    New <code>description</code> prop for helper text below the input. When both <code>errorMessage</code> and <code>description</code> are present, error appears first (closest to input), description below, rendered as a single tight block with <code>margin-bottom</code> only under the last element. Text is left-aligned with input content via <code>padding-inline-start</code>. Error uses plain text (no icon) with <code>role="alert"</code> for accessibility.
   </li>
 </ul>
 
 ---
 
-## 0.7.87 — 2026-04-03
+## 0.7.87 (2026-04-03)
 
 ### Added
 
 <ul className="changelog-list">
   <li>
     <strong>Form examples</strong> (<a href="/components/form-examples">Form Examples</a>)<br/>
-    New docs page with real-world form patterns: Field label vs section header hierarchy following Apple Settings strategy — <code>SidebarGroupLabel</code> for section headers, <code>Field</code> labels for individual controls.
+    New docs page with real-world form patterns: Field label vs section header hierarchy following Apple Settings strategy: <code>SidebarGroupLabel</code> for section headers, <code>Field</code> labels for individual controls.
   </li>
 </ul>
 
@@ -545,7 +562,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.82 — 2026-04-02
+## 0.7.82 (2026-04-02)
 
 ### Added
 
@@ -567,7 +584,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.76 — 2026-04-01
+## 0.7.76 (2026-04-01)
 
 ### Added
 
@@ -601,7 +618,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.68 — 2026-03-30
+## 0.7.68 (2026-03-30)
 
 ### Added
 
@@ -621,7 +638,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.64 — 2026-03-28
+## 0.7.64 (2026-03-28)
 
 ### Fixed
 
@@ -642,7 +659,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.61 — 2026-03-28
+## 0.7.61 (2026-03-28)
 
 ### Added
 
@@ -658,7 +675,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.51 — 2026-03-25
+## 0.7.51 (2026-03-25)
 
 ### Added
 
@@ -706,7 +723,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.45 — 2026-03-18
+## 0.7.45 (2026-03-18)
 
 ### Added
 
@@ -719,7 +736,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.44 — 2026-03-16
+## 0.7.44 (2026-03-16)
 
 ### Added
 
@@ -762,7 +779,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.40 — 2026-03-13
+## 0.7.40 (2026-03-13)
 
 ### Added
 
@@ -808,7 +825,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
 
 ---
 
-## 0.7.36 — 2026-03-05
+## 0.7.36 (2026-03-05)
 
 ### Added
 
@@ -827,7 +844,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>FloatingLabelInput placeholder support</strong> (<a href="/components/floating-label-input">Floating Label Input</a>)<br/>
-    Added <code>placeholder</code> prop with focus-only visibility — placeholder text appears when the input is focused and the label has floated above.
+    Added <code>placeholder</code> prop with focus-only visibility: placeholder text appears when the input is focused and the label has floated above.
   </li>
   <li>
     <strong>Birthday masked input</strong> (<a href="/components/field#birthday-input">Field</a>)<br/>
@@ -847,7 +864,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>Tabs scrollable demo</strong> (<a href="/components/tabs#scrollable">Tabs</a>)<br/>
-    Added Scrollable example to Tabs documentation showing horizontal overflow behavior with auto-scroll to active tab. No extra prop needed — just constrain the container width.
+    Added Scrollable example to Tabs documentation showing horizontal overflow behavior with auto-scroll to active tab. No extra prop needed: just constrain the container width.
   </li>
 </ul>
 
@@ -876,7 +893,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>Removed "New" badges from component index and sidebar</strong><br/>
-    Cleared all <code>isNew</code> badges from the components index page and sidebar — too many components were flagged, reducing the signal value.
+    Cleared all <code>isNew</code> badges from the components index page and sidebar. Too many components were flagged, reducing the signal value.
   </li>
 </ul>
 
@@ -909,13 +926,13 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>FileDocument icon export</strong> (<a href="/components/menu">Menu</a>)<br/>
-    Fixed import using non-existent <code>File</code> icon export — replaced with <code>FileDocument</code>.
+    Fixed import using non-existent <code>File</code> icon export. Replaced with <code>FileDocument</code>.
   </li>
 </ul>
 
 ---
 
-## 0.6.0 — 2026-02-01
+## 0.6.0 (2026-02-01)
 
 ### Added
 
@@ -999,7 +1016,7 @@ This release is on npm but **should not be used**. Its <code>@theme static</code
   </li>
   <li>
     <strong>Checkbox indicator aligned to Figma</strong> (<a href="/components/checkbox">Checkbox</a>)<br/>
-    Indicator size changed from hardcoded 20×20px to 18×18px using the <code>--menu-checkbox-indicator-size</code> token — matching the Menu CheckboxItem and Figma specification. Border colors changed from solid grays (<code>var(--gray-200)</code>) to alpha-based tokens (<code>var(--alpha-16)</code> default, <code>var(--alpha-20)</code> hover) for consistent rendering on any background.
+    Indicator size changed from hardcoded 20×20px to 18×18px using the <code>--menu-checkbox-indicator-size</code> token, matching the Menu CheckboxItem and Figma specification. Border colors changed from solid grays (<code>var(--gray-200)</code>) to alpha-based tokens (<code>var(--alpha-16)</code> default, <code>var(--alpha-20)</code> hover) for consistent rendering on any background.
   </li>
   <li>
     <strong>Checkbox label layout</strong> (<a href="/components/checkbox">Checkbox</a>)<br/>

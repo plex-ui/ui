@@ -61,6 +61,14 @@ type SliderBaseProps = {
    */
   label?: ReactNode
   /**
+   * Accessible name for the slider when there is no visible `label`
+   */
+  "aria-label"?: string
+  /**
+   * Id of an element that names the slider; takes precedence over `label`
+   */
+  "aria-labelledby"?: string
+  /**
    * List of marks to display below the slider track
    */
   marks?: SliderMark[]
@@ -143,6 +151,8 @@ export const Slider = memo((props: SliderProps) => {
     unit,
     prefixUnit,
     label,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
     marks: propMarks = [],
     trackColor,
     rangeColor,
@@ -155,6 +165,8 @@ export const Slider = memo((props: SliderProps) => {
 
   const id = useId()
   const labelId = `${id}-label`
+  // What names the thumbs: an explicit labelledby, else the visible label
+  const nameId = ariaLabelledBy ?? (label ? labelId : undefined)
   const precision = useMemo(() => String(step).split(".")[1]?.length ?? 0, [step])
 
   // Single-mode state for editable input
@@ -408,16 +420,25 @@ export const Slider = memo((props: SliderProps) => {
                 key={i}
                 id={`${id}-thumb-${i}`}
                 className={s.Thumb}
-                // Label plus the thumb's own Radix name ("Minimum" / "Maximum"),
+                // Name plus the thumb's own Radix name ("Minimum" / "Maximum"),
                 // so the endpoints stay distinguishable
-                aria-labelledby={label ? `${labelId} ${id}-thumb-${i}` : undefined}
+                aria-labelledby={nameId ? `${nameId} ${id}-thumb-${i}` : undefined}
+                // Only pass aria-label when set: an explicit undefined would
+                // replace the name Radix gives the thumb
+                {...(!nameId && ariaLabel
+                  ? {
+                      "aria-label":
+                        `${ariaLabel} ${rangeThumbName(i, (value as number[]).length)}`.trim(),
+                    }
+                  : {})}
               />
             ))
           ) : (
             <RadixSlider.Thumb
               className={s.Thumb}
               ref={thumbRef}
-              aria-labelledby={label ? labelId : undefined}
+              aria-labelledby={nameId}
+              {...(!nameId && ariaLabel ? { "aria-label": ariaLabel } : {})}
             />
           )}
         </RadixSlider.Root>
@@ -427,6 +448,10 @@ export const Slider = memo((props: SliderProps) => {
   )
 })
 Slider.displayName = "Slider"
+
+// Matches the names Radix gives range thumbs on its own
+const rangeThumbName = (index: number, count: number) =>
+  count === 2 ? (index === 0 ? "Minimum" : "Maximum") : count > 2 ? `Value ${index + 1} of ${count}` : ""
 
 type MarksProps = {
   marks: SliderMark[]

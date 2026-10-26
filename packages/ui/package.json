@@ -78,13 +78,14 @@
     "dev:js": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "dev": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && npm run dev:js",
     "build:assets": "node -e \"const fs=require('fs'),p=require('path');function c(s,d){fs.readdirSync(s,{withFileTypes:true}).forEach(e=>{const sp=p.join(s,e.name),dp=p.join(d,e.name);if(e.isDirectory()){c(sp,dp)}else if(e.name.endsWith('.d.ts')){fs.mkdirSync(d,{recursive:true});fs.copyFileSync(sp,dp)}})}c('src','dist/types')\"",
-    "build": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets",
+    "build": "npm run build:clean && npm run build:js && npm run build:css && npm run build:assets && npm run build:finalize",
+    "build:finalize": "node ./scripts/finalize-dist.mjs",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run build"
   },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.10",
     "vite": "^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },

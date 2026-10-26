@@ -51,7 +51,7 @@ import {
 
 ### Label position with description
 
-<ComponentPreview details={<>The <code>description</code> follows the label position — both move together when <code>{'labelPosition="start"'}</code> is set.</>} code={`<Switch
+<ComponentPreview details={<>The <code>description</code> follows the label position: both move together when <code>{'labelPosition="start"'}</code> is set.</>} code={`<Switch
   label="Dark mode"
   description="Use dark theme across the entire application."
   labelPosition="start"
@@ -86,7 +86,7 @@ import {
 
 ### Disabled with label
 
-<ComponentPreview details={<>Disabled state works with labels — both the toggle and the label show a <code>not-allowed</code> cursor.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>Disabled state works with labels: both the toggle and the label show a <code>not-allowed</code> cursor.</>} code={`<div className="flex flex-col gap-4">
   <Switch label="Notifications" disabled />
   <Switch label="Notifications" disabled defaultChecked />
 </div>`} previewMinHeight={168}>
@@ -200,7 +200,7 @@ import {
   <SwitchNotificationSettingsDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "checked", type: "boolean", description: "Controlled state" },
@@ -216,3 +216,22 @@ import {
   { prop: "className", type: "string", description: "CSS classes applied to wrapper node" },
   { prop: "id", type: "string", description: "The id of the switch element" },
 ]} />
+
+## Styling
+
+Switch reads these component tokens. Override them at any scope to restyle it:
+
+- `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)
+- `--switch-label-gap`: label gap (default `spacing(2)`)
+- `--switch-thumb-color`: thumb color (default `light-dark(var(--gray-0), var(--gray-1000))`)
+- `--switch-thumb-color-disabled`: thumb color disabled (default `light-dark(var(--gray-0), var(--gray-800))`)
+- `--switch-thumb-offset`: thumb offset (default `3px`)
+- `--switch-thumb-shadow`: thumb shadow (default `0 1px 2px rgb(0 0 0 / 20%)`)
+- `--switch-thumb-size`: thumb size
+- `--switch-track-color`: track color (default `light-dark(var(--gray-150), var(--gray-400))`)
+- `--switch-track-color-checked`: track color checked (default `light-dark(var(--gray-900), var(--blue-400))`)
+- `--switch-track-color-checked-disabled`: track color checked disabled (default `light-dark(var(--gray-300), var(--blue-700))`)
+- `--switch-track-color-disabled`: track color disabled (default `light-dark(var(--gray-100), var(--gray-300))`)
+- `--switch-track-color-hover`: track color hover (default `light-dark(var(--gray-200), var(--gray-450))`)
+- `--switch-track-height`: track height (default `19px`)
+- `--switch-track-width`: track width (default `32px`)

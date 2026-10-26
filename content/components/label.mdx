@@ -12,7 +12,7 @@ import {
 
 <UsageBlock>{`import { Label } from "@plexui/ui/components/Label";`}</UsageBlock>
 
-For stacked form fields, prefer [`Field`](/components/field) — it bundles label, description, and error handling. Reach for a standalone `Label` when you pair it directly with a checkbox, switch, or any control where Field's layout is overkill.
+For stacked form fields, prefer [`Field`](/components/field): it bundles label, description, and error handling. Reach for a standalone `Label` when you pair it directly with a checkbox, switch, or any control where Field's layout is overkill.
 
 ## Examples
 
@@ -27,7 +27,7 @@ For stacked form fields, prefer [`Field`](/components/field) — it bundles labe
 
 ### Label in Field
 
-<ComponentPreview details={<>For stacked form rows with descriptions, errors, and horizontal layouts, use the <a href="/components/field"><code>Field</code></a> component — it renders the label internally, hooks up <code>htmlFor</code> automatically, and handles the surrounding spacing.</>} code={`<Field label="Name on Card">
+<ComponentPreview details={<>For stacked form rows with descriptions, errors, and horizontal layouts, use the <a href="/components/field"><code>Field</code></a> component. It renders the label internally, hooks up <code>htmlFor</code> automatically, and handles the surrounding spacing.</>} code={`<Field label="Name on Card">
   <Input placeholder="Aisha Cooper" />
 </Field>
 
@@ -50,13 +50,13 @@ For stacked form fields, prefer [`Field`](/components/field) — it bundles labe
 | `htmlFor` | `string` | — | `id` of the associated control. Clicks on the label focus or activate the control. |
 | `className` | `string` | — | Applied to the root `<label>` element |
 
-Built on [Radix Label](https://www.radix-ui.com/primitives/components/label) — prevents double-click text selection and forwards clicks to the associated control. All other `<label>` attributes are forwarded.
+Built on [Radix Label](https://www.radix-ui.com/primitives/components/label), which prevents double-click text selection and forwards clicks to the associated control. All other `<label>` attributes are forwarded.
 
 ## Styling
 
 Component tokens:
 
-- `--label-color` — text color (defaults to `--color-text`)
-- `--label-font-size` — text size (defaults to `--font-text-sm-size`)
-- `--label-font-weight` — weight (defaults to `--font-weight-medium`)
-- `--label-line-height` — line height (defaults to `1`)
+- `--label-color`: text color (defaults to `--color-text`)
+- `--label-font-size`: text size (defaults to `--font-text-sm-size`)
+- `--label-font-weight`: weight (defaults to `--font-weight-medium`)
+- `--label-line-height`: line height (defaults to `1`)

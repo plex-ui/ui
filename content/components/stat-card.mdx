@@ -138,7 +138,7 @@ const [invertTrend, setInvertTrend] = useState(false)
   <StatCardInvertedTrendDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "label", type: "string", required: true, description: "Label describing the metric" },
@@ -148,7 +148,7 @@ const [invertTrend, setInvertTrend] = useState(false)
   { prop: "invertTrend", type: "boolean", default: "false", description: "Invert trend colors (positive = bad)" },
   { prop: "trendPosition", type: '"value" | "header"', default: '"value"', description: "Where the trend indicator is rendered" },
   { prop: "trendVariant", type: '"text" | "badge"', default: '"text"', description: "Render trend as text or badge" },
-  { prop: "size", type: '"default" | "sm"', default: '"default"', description: "Card size — sm for compact analytics layouts" },
+  { prop: "size", type: '"default" | "sm"', default: '"default"', description: "Card size. Use sm for compact analytics layouts" },
   { prop: "icon", type: "ReactNode", description: "Icon displayed on the left with a soft background" },
   { prop: "sparkline", type: "ReactNode", description: "Chart rendered at the bottom" },
   { prop: "progress", type: "number", description: "Progress bar value (0-100)" },
@@ -157,3 +157,43 @@ const [invertTrend, setInvertTrend] = useState(false)
   { prop: "variant", type: '"default" | "accent"', default: '"default"', description: "Visual variant" },
   { prop: "accentColor", type: '"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning"', default: '"primary"', description: "Left border color (accent variant)" },
 ]} />
+
+## Styling
+
+Stat Card reads these component tokens. Override them at any scope to restyle it:
+
+- `--stat-card-accent-width`: accent width (default `3px`)
+- `--stat-card-background`: background (default `var(--color-surface)`)
+- `--stat-card-border-color`: border color (default `var(--color-border)`)
+- `--stat-card-description-color`: description color (default `var(--color-text-tertiary)`)
+- `--stat-card-description-font-size`: description font size (default `var(--font-text-sm-size)`)
+- `--stat-card-icon-color`: icon color (default `var(--color-text-primary)`)
+- `--stat-card-icon-size`: icon size (default `24px`)
+- `--stat-card-icon-wrapper-background`: icon wrapper background (default `var(--color-background-primary-soft-alpha)`)
+- `--stat-card-icon-wrapper-radius`: icon wrapper radius (default `var(--radius-md)`)
+- `--stat-card-info-icon-size`: info icon size (default `16px`)
+- `--stat-card-label-color`: label color (default `var(--color-text-secondary)`)
+- `--stat-card-label-font-size`: label font size (default `var(--font-text-sm-size)`)
+- `--stat-card-padding`: padding (default `spacing(5)`)
+- `--stat-card-progress-background`: progress background (default `light-dark(var(--alpha-08), var(--alpha-12))`)
+- `--stat-card-progress-fill`: progress fill (default `var(--color-background-primary-solid)`)
+- `--stat-card-progress-height`: progress height (default `4px`)
+- `--stat-card-progress-radius`: progress radius (default `var(--radius-full)`)
+- `--stat-card-radius`: radius (default `var(--radius-xl)`)
+- `--stat-card-sm-description-font-size`: sm description font size (default `var(--font-text-xs-size)`)
+- `--stat-card-sm-icon-size`: sm icon size (default `20px`)
+- `--stat-card-sm-icon-wrapper-radius`: sm icon wrapper radius (default `var(--radius-sm)`)
+- `--stat-card-sm-info-icon-size`: sm info icon size (default `14px`)
+- `--stat-card-sm-label-font-size`: sm label font size (default `var(--font-text-xs-size)`)
+- `--stat-card-sm-padding-block`: sm padding block (default `spacing(3)`)
+- `--stat-card-sm-padding-inline`: sm padding inline (default `spacing(4)`)
+- `--stat-card-sm-trend-font-size`: sm trend font size (default `var(--font-text-xs-size)`)
+- `--stat-card-sm-value-font-size`: sm value font size (default `var(--font-heading-md-size)`)
+- `--stat-card-trend-font-size`: trend font size (default `var(--font-text-sm-size)`)
+- `--stat-card-trend-font-weight`: trend font weight (default `var(--font-weight-semibold)`)
+- `--stat-card-trend-negative-color`: trend negative color (default `var(--color-text-danger-soft)`)
+- `--stat-card-trend-neutral-color`: trend neutral color (default `var(--color-text-tertiary)`)
+- `--stat-card-trend-positive-color`: trend positive color (default `var(--color-text-success-soft)`)
+- `--stat-card-value-color`: value color (default `var(--color-text)`)
+- `--stat-card-value-font-size`: value font size (default `var(--font-heading-xl-size)`)
+- `--stat-card-value-font-weight`: value font weight (default `var(--font-weight-semibold)`)

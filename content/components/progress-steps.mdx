@@ -104,7 +104,7 @@ import {
   <ProgressStepsSuccessColorDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 **ProgressSteps** (root)
 
@@ -124,6 +124,57 @@ import {
   { prop: "icon", type: "ReactNode", description: "Custom icon instead of step number" },
 ]} />
 
-**ProgressSteps.Title** — Wrapper for step title text. Applies appropriate styling based on step state.
+**ProgressSteps.Title**: Wrapper for step title text. Applies appropriate styling based on step state.
 
-**ProgressSteps.Description** — Wrapper for step description text. Applies appropriate styling based on step state.
+**ProgressSteps.Description**: Wrapper for step description text. Applies appropriate styling based on step state.
+
+## Styling
+
+Progress Steps reads these component tokens. Override them at any scope to restyle it:
+
+- `--progress-steps-connector-color`: connector color (default `var(--gray-100)`)
+- `--progress-steps-connector-color-completed`: connector color completed (default `var(--gray-900)`)
+- `--progress-steps-connector-dash-gap`: connector dash gap (default `4px`)
+- `--progress-steps-connector-dash-length`: connector dash length (default `4px`)
+- `--progress-steps-connector-width`: connector width (default `2px`)
+- `--progress-steps-content-gap-lg`: content gap lg (default `spacing(4)`)
+- `--progress-steps-content-gap-md`: content gap md (default `spacing(3)`)
+- `--progress-steps-content-gap-sm`: content gap sm (default `spacing(2.5)`)
+- `--progress-steps-description-color`: description color (default `var(--color-text-secondary)`)
+- `--progress-steps-description-color-inactive`: description color inactive (default `var(--color-text-tertiary)`)
+- `--progress-steps-font-size-lg`: font size lg (default `var(--font-text-md-size)`)
+- `--progress-steps-font-size-md`: font size md (default `var(--font-text-sm-size)`)
+- `--progress-steps-font-size-sm`: font size sm (default `var(--font-text-xs-size)`)
+- `--progress-steps-icon-size-lg`: icon size lg (default `var(--control-icon-size-md)`)
+- `--progress-steps-icon-size-md`: icon size md (default `var(--control-icon-size-sm)`)
+- `--progress-steps-icon-size-sm`: icon size sm (default `var(--control-icon-size-xs)`)
+- `--progress-steps-indicator-background`: indicator background (default `var(--gray-100)`)
+- `--progress-steps-indicator-background-active`: indicator background active (default `var(--gray-900)`)
+- `--progress-steps-indicator-background-completed`: indicator background completed (default `var(--gray-900)`)
+- `--progress-steps-indicator-size-lg`: indicator size lg (default `40px`)
+- `--progress-steps-indicator-size-md`: indicator size md (default `32px`)
+- `--progress-steps-indicator-size-sm`: indicator size sm (default `24px`)
+- `--progress-steps-indicator-text`: indicator text (default `var(--color-text-secondary)`)
+- `--progress-steps-indicator-text-active`: indicator text active (default `var(--gray-0)`)
+- `--progress-steps-indicator-text-completed`: indicator text completed (default `var(--gray-0)`)
+- `--progress-steps-minimal-color-completed`: minimal color completed (default `var(--gray-900)`)
+- `--progress-steps-minimal-color-upcoming`: minimal color upcoming (default `var(--gray-100)`)
+- `--progress-steps-minimal-gap-lg`: minimal gap lg (default `spacing(1.5)`)
+- `--progress-steps-minimal-gap-md`: minimal gap md (default `spacing(1)`)
+- `--progress-steps-minimal-gap-sm`: minimal gap sm (default `spacing(1)`)
+- `--progress-steps-minimal-height-lg`: minimal height lg (default `4px`)
+- `--progress-steps-minimal-height-md`: minimal height md (default `3px`)
+- `--progress-steps-minimal-height-sm`: minimal height sm (default `3px`)
+- `--progress-steps-minimal-radius`: minimal radius (default `var(--radius-full)`)
+- `--progress-steps-minimal-width-lg`: minimal width lg (default `32px`)
+- `--progress-steps-minimal-width-md`: minimal width md (default `24px`)
+- `--progress-steps-minimal-width-sm`: minimal width sm (default `24px`)
+- `--progress-steps-row-gap-lg`: row gap lg (default `spacing(8)`)
+- `--progress-steps-row-gap-md`: row gap md (default `spacing(6)`)
+- `--progress-steps-row-gap-sm`: row gap sm (default `spacing(4)`)
+- `--progress-steps-step-padding-lg`: step padding lg (default `spacing(3)`)
+- `--progress-steps-step-padding-md`: step padding md (default `spacing(2)`)
+- `--progress-steps-step-padding-sm`: step padding sm (default `spacing(1.5)`)
+- `--progress-steps-title-color`: title color (default `var(--color-text)`)
+- `--progress-steps-title-color-inactive`: title color inactive (default `var(--color-text-tertiary)`)
+- `--progress-steps-title-font-weight`: title font weight (default `var(--font-weight-medium)`)

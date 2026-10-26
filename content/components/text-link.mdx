@@ -76,7 +76,7 @@ import { ArrowUpRight } from '@plexui/ui/components/Icon'
   <TextLinkWeightDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Link content" },
@@ -112,3 +112,14 @@ import { Link } from "next/link"
 
 <TextLink as={Link} href="/dashboard">View Dashboard</TextLink>
 ```
+
+## Styling
+
+Text Link reads these component tokens. Override them at any scope to restyle it:
+
+- `--link-font-weight`: font weight (default `inherit`)
+- `--link-gap`: gap (default `spacing(0.5)`)
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)
+- `--link-primary-text-color-hover`: primary text color hover (default `light-dark(var(--blue-600), var(--blue-400))`)
+- `--link-radius`: radius (default `var(--radius-sm)`)
+- `--link-underline-decoration-offset`: underline decoration offset (default `0.1em`)

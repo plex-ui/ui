@@ -311,7 +311,7 @@ const columns: ColumnDef<User>[] = [
   <TableEmptyStateDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 ### Table Primitives
 
@@ -331,7 +331,7 @@ const columns: ColumnDef<User>[] = [
 <PropsTable data={[
   { prop: "columns", type: "ColumnDef<TData>[]", required: true, description: "Column definitions following TanStack Table v8 API" },
   { prop: "data", type: "TData[]", required: true, description: "Data array to display" },
-  { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant — bordered adds a rounded border and tinted header" },
+  { prop: "variant", type: '"default" | "bordered"', default: '"default"', description: "Visual variant: bordered adds a rounded border and tinted header" },
   { prop: "pageSize", type: "number", default: "10", description: "Rows per page. Set 0 or Infinity to disable pagination" },
   { prop: "initialSorting", type: "SortingState", description: "Initial column sorting state" },
   { prop: "globalFilter", type: "string", description: "Controlled search/filter string" },
@@ -363,3 +363,21 @@ const columns: ColumnDef<User>[] = [
   { prop: "statusCell(accessor, colorMap?)", type: "CellComponent", description: "Badge cell with automatic status-to-color mapping" },
   { prop: "tooltipHeader(label, description)", type: "HeaderComponent", description: "Header with dashed underline and info tooltip" },
 ]} />
+
+## Styling
+
+Table reads these component tokens. Override them at any scope to restyle it:
+
+- `--table-border-color`: border color (default `var(--color-border)`)
+- `--table-caption-color`: caption color (default `var(--color-text-tertiary)`)
+- `--table-caption-font-size`: caption font size (default `var(--font-text-sm-size)`)
+- `--table-cell-color`: cell color (default `var(--color-text)`)
+- `--table-cell-font-size`: cell font size (default `var(--font-text-sm-size)`)
+- `--table-cell-line-height`: cell line height (default `var(--font-text-sm-line-height)`)
+- `--table-cell-padding`: cell padding (default `spacing(3) spacing(4)`)
+- `--table-footer-background`: footer background (default `transparent`)
+- `--table-footer-font-weight`: footer font weight (default `var(--font-weight-medium)`)
+- `--table-header-background`: header background (default `transparent`)
+- `--table-header-color`: header color (default `var(--color-text-secondary)`)
+- `--table-header-font-weight`: header font weight (default `var(--font-weight-medium)`)
+- `--table-row-hover-background`: row hover background (default `light-dark(var(--alpha-02), var(--alpha-04))`)

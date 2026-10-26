@@ -79,11 +79,11 @@ import {
 ### Icons
 
 <ComponentPreview details={<>
-  <p>Add icons as children — sizing is automatic via <code>iconSize</code> prop.</p>
+  <p>Add icons as children. Sizing is automatic via the <code>iconSize</code> prop.</p>
   <p>Default values for <code>iconSize</code> are provided through the <code>size</code> prop, but you can pass the prop directly to change the defaults.</p>
   <p>For icon-only buttons, there are two common approaches:</p>
-  <p><strong>Square</strong> — create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutterSize</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
-  <p><strong>Tighter gutters</strong> — applying a smaller <code>gutterSize</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
+  <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutterSize</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
+  <p><strong>Tighter gutters</strong>: applying a smaller <code>gutterSize</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
 </>} code={`<Button color="secondary" size="lg" uniform variant="ghost" aria-label="Add">
   <PlusLg />
 </Button>`} previewMinHeight={216}>
@@ -164,7 +164,7 @@ import {
 
 Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color scheme" },
@@ -181,3 +181,12 @@ Button shares the unified 9-step size scale with Input, Select, SelectControl, a
   { prop: "gutterSize", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding size; defaults from size" },
   { prop: "iconSize", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Size of icons in children; defaults from size" },
 ]} />
+
+## Styling
+
+Button reads these component tokens. Override them at any scope to restyle it:
+
+- `--button-font-weight`: font weight (default `var(--font-weight-medium)`)
+- `--button-gap-lg`: gap lg (default `6px`)
+- `--button-gap-md`: gap md (default `4px`)
+- `--button-gap-sm`: gap sm (default `3px`)

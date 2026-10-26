@@ -61,7 +61,7 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
 
 ### Dropdown + time
 
-<ComponentPreview details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker — useful for scheduling events at a specific date and time.</>} code={`<DatePicker
+<ComponentPreview details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={`<DatePicker
   captionLayout="dropdown"
   showTime
   yearRange={[2020, 2030]}
@@ -111,7 +111,7 @@ const maxDate = today.plus({ days: 30 }).endOf('day')
   <DatePickerDisabledDemo />
 </ComponentPreview>
 
-## Reference
+## API
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
 
@@ -131,3 +131,14 @@ Use `aria-labelledby` with the ID of a visible field label. The trigger includes
   { prop: "placeholder", type: "string", description: "Trigger placeholder" },
   { prop: "disabled", type: "boolean", description: "Disable picker" },
 ]} />
+
+## Styling
+
+Date Picker reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-text-color`: text color (default `var(--color-text)`)
+- `--select-control-font-weight`: font weight (default `var(--font-weight-normal)`)

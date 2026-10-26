@@ -40,7 +40,7 @@ import {
 
 ### Toolbar end slot
 
-<ComponentPreview details={<>Use <code>toolbarEnd</code> to render custom content at the end of the toolbar &mdash; for example, an &ldquo;Edit translations&rdquo; button.</>} code={`<MarkdownEditor
+<ComponentPreview details={<>Use <code>toolbarEnd</code> to render custom content at the end of the toolbar, for example, an &ldquo;Edit translations&rdquo; button.</>} code={`<MarkdownEditor
   placeholder="Enter text..."
   toolbarEnd={
     <button aria-label="Edit translations">
@@ -73,7 +73,7 @@ import {
 </ComponentPreview>
 
 
-## Reference
+## API
 
 <PropsTable data={[
   { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the editor" },
@@ -86,3 +86,16 @@ import {
   { prop: "toolbarEnd", type: "ReactNode", description: "Content rendered at the end of the toolbar" },
   { prop: "rows", type: "number", default: "1", description: "Minimum visible rows" },
 ]} />
+
+## Styling
+
+Markdown Editor reads these component tokens. Override them at any scope to restyle it:
+
+- `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
+- `--input-outline-border-color`: outline border color (default `var(--color-border-primary-outline)`)
+- `--input-outline-border-color-focus`: outline border color focus (default `var(--alpha-50)`)
+- `--input-outline-border-color-hover`: outline border color hover (default `light-dark(var(--alpha-25), var(--alpha-30))`)
+- `--input-placeholder-text-color`: placeholder text color (default `var(--color-text-tertiary)`)
+- `--input-soft-background-color`: soft background color (default `var(--color-background-primary-soft-alpha)`)
+- `--input-soft-border-color-focus`: soft border color focus (default `var(--alpha-20)`)
+- `--link-primary-text-color`: primary text color (default `light-dark(var(--blue-500), var(--blue-300))`)
