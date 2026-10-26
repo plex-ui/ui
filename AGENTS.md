@@ -363,12 +363,7 @@ Full record: [`.memory/decisions/0006-no-code-in-mdx-headings.md`](.memory/decis
 
 **Inside a `Card` (or any form surface), every interactive control must share one pill style. Standard for Plex UI forms is `pill={false}` (rectangular, token-driven radius).**
 
-Components that need the explicit prop (defaults are pill):
-
-- `Button` — default `pill = true` → set `pill={false}`
-- `Select` — default `pill = true` → set `pill={false}`
-
-`Input` and `Textarea` default to rectangular and don't need the prop.
+`Button`, `Select` and `Input` are rectangular by default (`pill` is false or unset since ui 0.16.0) and `Textarea` has no pill option, so a form needs no prop. Passing `pill={false}` explicitly is harmless and many demos still do; the violation is mixing in a single `pill` control.
 
 Spot-check before committing a new demo:
 
