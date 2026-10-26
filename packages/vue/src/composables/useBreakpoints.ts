@@ -46,10 +46,14 @@ const resolveBreakpoint = (bp: Breakpoint): number => {
   return cache.get(bp)!
 }
 
-/** True while the viewport is at least as wide as `bp` (from `--breakpoint-*`). */
+/**
+ * True while the viewport is at least as wide as `bp` (from `--breakpoint-*`).
+ * On the server it is `false` (the breakpoint is read from the document's CSS
+ * variables, so nothing is resolved until the browser runs).
+ */
 export const useBreakpoint = (bp: Breakpoint): Ref<boolean> => {
-  const query = `(min-width: ${resolveBreakpoint(bp)}px)`
-  const matches = ref(typeof window !== "undefined" && window.matchMedia(query).matches)
+  const query = () => `(min-width: ${resolveBreakpoint(bp)}px)`
+  const matches = ref(typeof window !== "undefined" && window.matchMedia(query()).matches)
   let mediaQueryList: MediaQueryList | undefined
 
   const update = () => {
@@ -57,7 +61,7 @@ export const useBreakpoint = (bp: Breakpoint): Ref<boolean> => {
   }
 
   onMounted(() => {
-    mediaQueryList = window.matchMedia(query)
+    mediaQueryList = window.matchMedia(query())
     update()
     mediaQueryList.addEventListener("change", update)
   })

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef } from 'react';
-import { createApp, reactive } from 'vue';
+import { createApp, reactive, watch } from 'vue';
 import { vueComponents } from './vue/registry';
 
 export type VuePreviewProps = {
@@ -9,9 +9,11 @@ export type VuePreviewProps = {
   template: string;
   /** Values the template can read, e.g. driven by demo controls. */
   props?: Record<string, unknown>;
+  /** Called when the template changes one of `props` (a trigger toggles `open`), so controls can follow. */
+  onPropChange?: (name: string, value: unknown) => void;
 };
 
-export default function VuePreviewRuntime({ template, props }: VuePreviewProps) {
+export default function VuePreviewRuntime({ template, props, onPropChange }: VuePreviewProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   // Every preview is its own Vue app, so ids from Vue's useId() would repeat
   // across the demos of a page (v-0, v-1, ...) and ARIA references could
@@ -29,6 +31,23 @@ export default function VuePreviewRuntime({ template, props }: VuePreviewProps) 
     }
     previousRef.current = props;
   }, [props]);
+
+  const onPropChangeRef = useRef(onPropChange);
+  useEffect(() => {
+    onPropChangeRef.current = onPropChange;
+  }, [onPropChange]);
+  useEffect(() => {
+    const state = stateRef.current;
+    const stops = Object.keys(state).map((key) =>
+      watch(
+        () => state[key],
+        (value) => {
+          if (value !== previousRef.current?.[key]) onPropChangeRef.current?.(key, value);
+        },
+      ),
+    );
+    return () => stops.forEach((stop) => stop());
+  }, []);
 
   useEffect(() => {
     const host = hostRef.current;

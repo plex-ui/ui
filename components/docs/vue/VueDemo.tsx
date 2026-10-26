@@ -66,7 +66,17 @@ export function VueDemo({
     };
   }, [loopName, every, holdFor]);
 
-  const preview = <VuePreview key={run} template={template} props={props} />;
+  // A control follows the demo when the template changes its value
+  const preview = (
+    <VuePreview
+      key={run}
+      template={template}
+      props={props}
+      onPropChange={(name, value) => {
+        if (controls.some((control) => control.name === name)) set(name)(value);
+      }}
+    />
+  );
   if (controls.length === 0) {
     return stageClassName ? (
       <div className={stageClassName} data-demo-stage>

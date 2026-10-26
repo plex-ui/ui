@@ -5,7 +5,7 @@ import { usePathname } from 'fumadocs-core/framework';
 import { useSidebar } from 'fumadocs-ui/components/sidebar/base';
 import { useEffect, useMemo } from 'react';
 import type { DocsSectionNavItem } from '@/lib/docs-navigation';
-import { reactPath } from '@/lib/framework-urls';
+import { frameworkUrl, reactPath } from '@/lib/framework-urls';
 
 function normalizePath(pathname: string) {
   if (!pathname) return '/';
@@ -78,7 +78,7 @@ export function SidebarNav({ sections }: { sections: DocsSectionNavItem[] }) {
         {navLinks.map((item) => (
           <Link
             key={item.href}
-            href={item.href}
+            href={frameworkUrl(pathname, item.href)}
             className={`sidebar-nav-link${item.active ? ' sidebar-nav-link-active' : ''}`}
             onClick={item.href.startsWith('/docs') ? keepSidebarOpen : closeSidebar}
           >

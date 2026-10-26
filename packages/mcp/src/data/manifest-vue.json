@@ -6,7 +6,7 @@
   "docsUrl": "https://plexui.com/vue/components",
   "install": "npm install @plexui/vue",
   "setup": {
-    "css": "@import \"tailwindcss\";\n@import \"@plexui/styles/css\";",
+    "css": "@layer theme, base, components, utilities;\n@import \"tailwindcss\";\n@import \"@plexui/styles/css\";\n@source \"../node_modules/@plexui/vue\";",
     "provider": "Wrap your app with <PlexUIProvider :link-component=\"RouterLink\"> from \"@plexui/vue/components/PlexUIProvider\""
   },
   "sizeScale": [
@@ -49,6 +49,57 @@
         "AccordionItem",
         "AccordionTrigger"
       ],
+      "props": [
+        {
+          "name": "type",
+          "type": "\"single\" | \"multiple\"",
+          "description": "Required. Whether one item or many can be open at a time"
+        },
+        {
+          "name": "v-model:value / value",
+          "type": "string | string[]",
+          "description": "Controlled open item(s), named like the React prop"
+        },
+        {
+          "name": "default-value",
+          "type": "string | string[]",
+          "description": "Uncontrolled initial open item(s)"
+        },
+        {
+          "name": "collapsible",
+          "type": "boolean",
+          "default": "false",
+          "description": "When type=\"single\", allow closing the open item"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable every item"
+        },
+        {
+          "name": "dir",
+          "type": "\"ltr\" | \"rtl\"",
+          "default": "\"ltr\"",
+          "description": "Reading direction"
+        },
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"vertical\"",
+          "description": "Layout axis"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        },
+        {
+          "name": "@update:value",
+          "type": "(value: string | string[]) => void",
+          "description": "Fires when the open item(s) change; closing the open item of a single accordion reports \"\""
+        }
+      ],
       "examples": [
         {
           "name": "Overview",
@@ -73,6 +124,29 @@
           "name": "Card",
           "code": "<Card style=\"width: 100%; max-width: 384px\">\n  <CardHeader>\n    <CardTitle>Subscription & billing</CardTitle>\n    <CardDescription>Common questions about plans, invoices, and cancellations.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <Accordion type=\"single\" collapsible default-value=\"plans\">\n      <AccordionItem\n        v-for=\"item in [\n          {\n            value: 'plans',\n            trigger: 'What subscription plans do you offer?',\n            content: 'Starter ($9/mo), Pro ($29/mo), and Enterprise (from $99/mo). Each tier raises seat, project, and API call limits; Enterprise adds SSO, audit log export, and a dedicated success manager.',\n          },\n          {\n            value: 'billing',\n            trigger: 'How does billing work?',\n            content: 'Billed at the start of each cycle. We accept all major cards, and ACH or invoice for annual Enterprise contracts. Every invoice is emailed and archived in Billing → Invoices.',\n          },\n          {\n            value: 'cancel',\n            trigger: 'How do I cancel my subscription?',\n            content: 'Cancel anytime from Billing → Plan. No cancellation fee. Access continues through the end of the current billing period, and projects stay read-only afterwards. Nothing is deleted.',\n          },\n        ]\"\n        :key=\"item.value\"\n        :value=\"item.value\"\n      >\n        <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n        <AccordionContent>{{ item.content }}</AccordionContent>\n      </AccordionItem>\n    </Accordion>\n  </CardContent>\n</Card>",
           "details": "Composed inside Card, the most common landing-page FAQ pattern."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "AccordionItem",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Required. Unique identifier used by value / default-value"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable this item"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Applied to the item wrapper"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/accordion"
@@ -122,6 +196,11 @@
           "type": "\"solid\" | \"soft\" | \"outline\"",
           "default": "\"outline\"",
           "description": "Style variant"
+        },
+        {
+          "name": "indicator",
+          "type": "slot | false",
+          "description": "Custom indicator (slot), or :indicator=\"false\" to hide it"
         },
         {
           "name": "@dismiss",
@@ -566,6 +645,19 @@
         "ButtonGroupSeparator",
         "ButtonGroupText"
       ],
+      "props": [
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Direction of the joined items"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        }
+      ],
       "examples": [
         {
           "name": "Overview",
@@ -620,6 +712,25 @@
           "name": "Popover",
           "code": "<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\"><Sparkles /> Generate</Button>\n  <Popover>\n    <PopoverTrigger>\n      <Button variant=\"outline\" color=\"secondary\" :pill=\"false\" :size=\"size\" uniform aria-label=\"More generate options\">\n        <ChevronDownMd />\n      </Button>\n    </PopoverTrigger>\n    <PopoverContent :min-width=\"320\" side=\"bottom\" align=\"end\" class=\"p-4\">\n      <Card variant=\"ghost\" size=\"sm\">\n        <CardHeader>\n          <CardTitle>Generate a component</CardTitle>\n          <CardDescription>Describe what to build in plain English.</CardDescription>\n        </CardHeader>\n        <CardContent>\n          <Textarea placeholder=\"A login form with email and password…\" :rows=\"3\" />\n        </CardContent>\n        <CardFooter>\n          <CardDescription>Plex will draft the code and preview it live.</CardDescription>\n        </CardFooter>\n      </Card>\n    </PopoverContent>\n  </Popover>\n</ButtonGroup>",
           "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews)."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ButtonGroupText",
+          "description": "Renders a muted label pill that slots into the group alongside buttons. Use it for prefixes (\"@\", \"https://\"), currency hints, or any non-interactive label that should share the joined shape.",
+          "props": [
+            {
+              "name": "as-child",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render the slotted child (e.g. a <label> tied to an input) instead of a <div>"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Applied to the wrapper"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/button-group"
@@ -776,6 +887,47 @@
         "CardFooter",
         "CardHeader",
         "CardTitle"
+      ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"solid\" | \"ghost\"",
+          "default": "\"outline\"",
+          "description": "Visual variant"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "default": "\"md\"",
+          "description": "Padding scale"
+        },
+        {
+          "name": "interactive",
+          "type": "boolean",
+          "default": "false",
+          "description": "Adds hover and focus affordances. Automatic when href is set."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "description": "Renders the Card as a link via the linkComponent of PlexUIProvider."
+        },
+        {
+          "name": "external",
+          "type": "boolean",
+          "default": "auto-detected",
+          "description": "Forces target=\"_blank\" and rel=\"noopener noreferrer\" when href is set."
+        },
+        {
+          "name": "as",
+          "type": "Component | \"a\"",
+          "description": "Overrides the link component."
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root element"
+        }
       ],
       "examples": [
         {
@@ -1001,6 +1153,28 @@
       "exports": [
         "CodeBlock"
       ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "string",
+          "description": "Code content (text only; interpolate a string to keep its whitespace)"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "description": "Code content, used when the default slot is empty"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "description": "Prism language name"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Additional wrapper class"
+        }
+      ],
       "examples": [
         {
           "name": "Overview",
@@ -1035,31 +1209,6 @@
         }
       ],
       "subComponents": [
-        {
-          "name": "CodeBlock",
-          "props": [
-            {
-              "name": "default slot",
-              "type": "string",
-              "description": "Code content (text only; interpolate a string to keep its whitespace)"
-            },
-            {
-              "name": "code",
-              "type": "string",
-              "description": "Code content, used when the default slot is empty"
-            },
-            {
-              "name": "language",
-              "type": "string",
-              "description": "Prism language name"
-            },
-            {
-              "name": "class",
-              "type": "string",
-              "description": "Additional wrapper class"
-            }
-          ]
-        },
         {
           "name": "CollapsibleCodeBlock",
           "props": [
@@ -1627,23 +1776,6 @@
           "name": "@update:open",
           "type": "(open: boolean) => void",
           "description": "Fires when the dialog opens or closes"
-        },
-        {
-          "name": "width",
-          "type": "number | string",
-          "default": "480",
-          "description": "Panel width"
-        },
-        {
-          "name": "show-close",
-          "type": "boolean",
-          "default": "true",
-          "description": "Show close button in top-right corner"
-        },
-        {
-          "name": "class",
-          "type": "string",
-          "description": "Additional CSS class on the panel"
         }
       ],
       "examples": [
@@ -1655,6 +1787,30 @@
           "name": "Destructive confirmation",
           "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"danger\" variant=\"outline\">Delete</Button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Delete assistant?</DialogTitle>\n    </DialogHeader>\n    <p class=\"text-sm text-secondary\">\n      This change will affect all API integrations using\n      <span class=\"font-medium text-[var(--color-text)]\">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.\n      It cannot be undone.\n    </p>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"secondary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"danger\" @click=\"open = false\">Delete</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
           "details": "Use color=\"danger\" on the action button for destructive operations."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "DialogContent",
+          "props": [
+            {
+              "name": "width",
+              "type": "number | string",
+              "default": "480",
+              "description": "Panel width"
+            },
+            {
+              "name": "show-close",
+              "type": "boolean",
+              "default": "true",
+              "description": "Show close button in top-right corner"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional CSS class on the panel"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/dialog"
@@ -1673,21 +1829,10 @@
       ],
       "props": [
         {
-          "name": "color",
-          "type": "\"secondary\" | \"danger\" | \"warning\"",
-          "default": "\"secondary\"",
-          "description": "Semantic color"
-        },
-        {
-          "name": "size",
-          "type": "\"sm\" | \"md\"",
-          "default": "\"md\"",
-          "description": "Icon badge size"
-        },
-        {
-          "name": "class",
-          "type": "string",
-          "description": "Additional classes for the action row container"
+          "name": "fill",
+          "type": "\"static\" | \"absolute\" | \"none\"",
+          "default": "\"static\"",
+          "description": "How the container fills available space; use \"none\" for transparent (e.g. in search results)"
         }
       ],
       "examples": [
@@ -1708,6 +1853,46 @@
           "name": "No results",
           "code": "<div class=\"w-full\">\n  <EmptyMessage fill=\"none\">\n    <EmptyMessageIcon size=\"sm\">\n      <Search />\n    </EmptyMessageIcon>\n    <EmptyMessageDescription>\n      No icons found matching <span class=\"font-semibold\">\"pizza\"</span>\n    </EmptyMessageDescription>\n  </EmptyMessage>\n</div>",
           "details": "The parts of EmptyMessage are both composable and optional. This example omits EmptyMessageTitle, using only an icon and description for a simpler message style."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "EmptyMessageIcon",
+          "props": [
+            {
+              "name": "color",
+              "type": "\"secondary\" | \"danger\" | \"warning\"",
+              "default": "\"secondary\"",
+              "description": "Semantic color"
+            },
+            {
+              "name": "size",
+              "type": "\"sm\" | \"md\"",
+              "default": "\"md\"",
+              "description": "Icon badge size"
+            }
+          ]
+        },
+        {
+          "name": "EmptyMessageTitle",
+          "props": [
+            {
+              "name": "color",
+              "type": "\"secondary\" | \"danger\" | \"warning\"",
+              "default": "\"secondary\"",
+              "description": "Semantic color"
+            }
+          ]
+        },
+        {
+          "name": "EmptyMessageActionRow",
+          "props": [
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional classes for the action row container"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/empty-message"
@@ -1783,7 +1968,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
+          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
           "details": "Field wraps a form control with a label, optional description, and error message. It automatically generates the label's for, aria-describedby, and aria-invalid linking between the label, description, error, and child control."
         },
         {
@@ -1803,7 +1988,7 @@
         },
         {
           "name": "Sizing",
-          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
+          "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
           "details": "Field accepts a size prop that scales the label and description font size to match the child control. Pass the same size to both Field and the child control."
         },
         {
@@ -1867,17 +2052,17 @@
         },
         {
           "name": "Profile settings",
-          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Personal Information</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Your public profile details</p>\n    </div>\n\n    <div class=\"grid grid-cols-2 gap-3\">\n      <Field label=\"First name\">\n        <Input placeholder=\"Jane\" default-value=\"Jane\" :pill=\"pill\" />\n      </Field>\n      <Field label=\"Last name\">\n        <Input placeholder=\"Doe\" default-value=\"Doe\" :pill=\"pill\" />\n      </Field>\n    </div>\n\n    <Field label=\"Email\" description=\"This is the email associated with your account.\">\n      <Input placeholder=\"jane@example.com\" default-value=\"jane@example.com\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Bio\" description=\"Brief description for your profile. Max 160 characters.\">\n      <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Preferences</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Customize your experience</p>\n    </div>\n\n    <Field label=\"Language\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"language\"\n        :options=\"[\n          { label: 'English', value: 'en' },\n          { label: 'Spanish', value: 'es' },\n          { label: 'French', value: 'fr' },\n          { label: 'German', value: 'de' },\n          { label: 'Japanese', value: 'ja' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Theme\" description=\"Select your preferred appearance.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Theme\" v-model:value=\"theme\" direction=\"col\">\n        <RadioGroupItem value=\"system\">System</RadioGroupItem>\n        <RadioGroupItem value=\"light\">Light</RadioGroupItem>\n        <RadioGroupItem value=\"dark\">Dark</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Notifications</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Manage how you receive updates</p>\n    </div>\n\n    <Field\n      label=\"Email notifications\"\n      description=\"Receive weekly digests and important updates.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n\n    <Field\n      label=\"Push notifications\"\n      description=\"Get real-time alerts in your browser.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Marketing emails\"\n      description=\"Tips, product updates, and promotions.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save changes</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Personal Information</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Your public profile details</p>\n    </div>\n\n    <div class=\"grid grid-cols-2 gap-3\">\n      <Field label=\"First name\">\n        <Input placeholder=\"Jane\" default-value=\"Jane\" :pill=\"pill\" />\n      </Field>\n      <Field label=\"Last name\">\n        <Input placeholder=\"Doe\" default-value=\"Doe\" :pill=\"pill\" />\n      </Field>\n    </div>\n\n    <Field label=\"Email\" description=\"This is the email associated with your account.\">\n      <Input placeholder=\"jane@example.com\" default-value=\"jane@example.com\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Bio\" description=\"Brief description for your profile. Max 160 characters.\">\n      <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Preferences</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Customize your experience</p>\n    </div>\n\n    <Field label=\"Language\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"language\"\n        :options=\"[\n          { label: 'English', value: 'en' },\n          { label: 'Spanish', value: 'es' },\n          { label: 'French', value: 'fr' },\n          { label: 'German', value: 'de' },\n          { label: 'Japanese', value: 'ja' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Theme\" description=\"Select your preferred appearance.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Theme\" v-model:value=\"theme\" direction=\"col\">\n        <RadioGroupItem value=\"system\">System</RadioGroupItem>\n        <RadioGroupItem value=\"light\">Light</RadioGroupItem>\n        <RadioGroupItem value=\"dark\">Dark</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Notifications</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Manage how you receive updates</p>\n    </div>\n\n    <Field\n      label=\"Email notifications\"\n      description=\"Receive weekly digests and important updates.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n\n    <Field\n      label=\"Push notifications\"\n      description=\"Get real-time alerts in your browser.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Marketing emails\"\n      description=\"Tips, product updates, and promotions.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save changes</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
           "details": "A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields."
         },
         {
           "name": "Create project",
-          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">General</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Basic information about your project</p>\n    </div>\n\n    <Field label=\"Project name\" required>\n      <Input placeholder=\"my-project\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Description\" description=\"A short summary shown in project listings.\">\n      <Textarea placeholder=\"What does this project do?\" :rows=\"3\" />\n    </Field>\n\n    <Field label=\"Visibility\" description=\"Controls who can see this project.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Visibility\" v-model:value=\"visibility\" direction=\"col\">\n        <RadioGroupItem value=\"private\">Private, only invited members</RadioGroupItem>\n        <RadioGroupItem value=\"internal\">Internal, anyone in your organization</RadioGroupItem>\n        <RadioGroupItem value=\"public\">Public, visible to everyone</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Team Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Invite collaborators and set permissions</p>\n    </div>\n\n    <Field label=\"Team members\" description=\"Add people by email address.\" v-slot=\"fieldProps\">\n      <TagInput\n        :id=\"fieldProps.id\"\n        placeholder=\"Add email...\"\n        :default-value=\"[\n          { value: 'alice@team.com', valid: true },\n          { value: 'bob@team.com', valid: true },\n        ]\"\n        :validator=\"(value) => value.includes('@')\"\n      />\n    </Field>\n\n    <Field label=\"Permissions\" description=\"Default permissions for new members.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Can view project\" default-checked />\n        <Checkbox label=\"Can edit resources\" default-checked />\n        <Checkbox label=\"Can manage members\" />\n        <Checkbox label=\"Can delete project\" />\n      </div>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Infrastructure</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Deployment and resource configuration</p>\n    </div>\n\n    <Field label=\"Region\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Select region...\"\n        v-model:value=\"region\"\n        :options=\"[\n          { label: 'US East (N. Virginia)', value: 'us-east-1' },\n          { label: 'US West (Oregon)', value: 'us-west-2' },\n          { label: 'Europe (Frankfurt)', value: 'eu-central-1' },\n          { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },\n        ]\"\n      />\n    </Field>\n\n    <Field\n      label=\"Auto-deploy\"\n      description=\"Automatically deploy on push to main branch.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Create project</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">General</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Basic information about your project</p>\n    </div>\n\n    <Field label=\"Project name\" required>\n      <Input placeholder=\"my-project\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Description\" description=\"A short summary shown in project listings.\">\n      <Textarea placeholder=\"What does this project do?\" :rows=\"3\" />\n    </Field>\n\n    <Field label=\"Visibility\" description=\"Controls who can see this project.\" v-slot=\"{ id }\">\n      <RadioGroup aria-label=\"Visibility\" v-model:value=\"visibility\" direction=\"col\">\n        <RadioGroupItem value=\"private\">Private, only invited members</RadioGroupItem>\n        <RadioGroupItem value=\"internal\">Internal, anyone in your organization</RadioGroupItem>\n        <RadioGroupItem value=\"public\">Public, visible to everyone</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Team Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Invite collaborators and set permissions</p>\n    </div>\n\n    <Field label=\"Team members\" description=\"Add people by email address.\" v-slot=\"fieldProps\">\n      <TagInput\n        :id=\"fieldProps.id\"\n        placeholder=\"Add email...\"\n        :default-value=\"[\n          { value: 'alice@team.com', valid: true },\n          { value: 'bob@team.com', valid: true },\n        ]\"\n        :validator=\"(value) => value.includes('@')\"\n      />\n    </Field>\n\n    <Field label=\"Permissions\" description=\"Default permissions for new members.\" v-slot=\"{ id }\">\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Can view project\" default-checked />\n        <Checkbox label=\"Can edit resources\" default-checked />\n        <Checkbox label=\"Can manage members\" />\n        <Checkbox label=\"Can delete project\" />\n      </div>\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Infrastructure</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Deployment and resource configuration</p>\n    </div>\n\n    <Field label=\"Region\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Select region...\"\n        v-model:value=\"region\"\n        :options=\"[\n          { label: 'US East (N. Virginia)', value: 'us-east-1' },\n          { label: 'US West (Oregon)', value: 'us-west-2' },\n          { label: 'Europe (Frankfurt)', value: 'eu-central-1' },\n          { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' },\n        ]\"\n      />\n    </Field>\n\n    <Field\n      label=\"Auto-deploy\"\n      description=\"Automatically deploy on push to main branch.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" default-checked />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Create project</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
           "details": "A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections."
         },
         {
           "name": "Field configuration",
-          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Setup</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Define the basic field properties</p>\n    </div>\n\n    <Field label=\"Key\" description=\"Unique identifier used in the API. Cannot be changed later.\">\n      <Input placeholder=\"registration_method\" default-value=\"registration_method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Label\" description=\"Human-readable name displayed in the UI.\">\n      <Input placeholder=\"Registration method\" default-value=\"Registration method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Type\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"type\"\n        :options=\"[\n          { label: 'String', value: 'string' },\n          { label: 'Number', value: 'number' },\n          { label: 'Boolean', value: 'boolean' },\n          { label: 'Date', value: 'date' },\n          { label: 'JSON', value: 'json' },\n          { label: 'Rich text', value: 'richtext' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Default value\" description=\"Value assigned when the field is empty.\">\n      <Input placeholder=\"Set default value (optional)\" :pill=\"pill\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Formatting</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Input constraints and sanitization rules</p>\n    </div>\n\n    <Field label=\"Max length\" description=\"Max length cannot exceed 4096.\">\n      <Input placeholder=\"256\" inputmode=\"numeric\" :pill=\"pill\" />\n    </Field>\n\n    <Field\n      label=\"HTML sanitization\"\n      description=\"Strip potentially unsafe HTML tags from input.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Privacy & Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Control field visibility and mutability</p>\n    </div>\n\n    <Field\n      label=\"Not redactable\"\n      description=\"Prevent this field from being redacted.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Write once\"\n      description=\"Value can only be set once and cannot be changed.\"\n      orientation=\"horizontal\"\n      class=\"${switchRowClass}\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Expires in\"\n      description=\"Automatically delete the field value after the specified period.\"\n      v-slot=\"fieldProps\"\n    >\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Never\"\n        v-model:value=\"expiresIn\"\n        :options=\"[\n          { label: 'Never', value: 'never' },\n          { label: '30 days', value: '30d' },\n          { label: '90 days', value: '90d' },\n          { label: '1 year', value: '1y' },\n        ]\"\n      />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save field</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
+          "code": "<div class=\"flex flex-col gap-8 w-full !max-w-[460px]\">\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Setup</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Define the basic field properties</p>\n    </div>\n\n    <Field label=\"Key\" description=\"Unique identifier used in the API. Cannot be changed later.\">\n      <Input placeholder=\"registration_method\" default-value=\"registration_method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Label\" description=\"Human-readable name displayed in the UI.\">\n      <Input placeholder=\"Registration method\" default-value=\"Registration method\" :pill=\"pill\" />\n    </Field>\n\n    <Field label=\"Type\" v-slot=\"fieldProps\">\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        v-model:value=\"type\"\n        :options=\"[\n          { label: 'String', value: 'string' },\n          { label: 'Number', value: 'number' },\n          { label: 'Boolean', value: 'boolean' },\n          { label: 'Date', value: 'date' },\n          { label: 'JSON', value: 'json' },\n          { label: 'Rich text', value: 'richtext' },\n        ]\"\n      />\n    </Field>\n\n    <Field label=\"Default value\" description=\"Value assigned when the field is empty.\">\n      <Input placeholder=\"Set default value (optional)\" :pill=\"pill\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Formatting</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Input constraints and sanitization rules</p>\n    </div>\n\n    <Field label=\"Max length\" description=\"Max length cannot exceed 4096.\">\n      <Input placeholder=\"256\" inputmode=\"numeric\" :pill=\"pill\" />\n    </Field>\n\n    <Field\n      label=\"HTML sanitization\"\n      description=\"Strip potentially unsafe HTML tags from input.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n  </fieldset>\n\n  <hr class=\"border-default\" />\n\n  <fieldset class=\"flex flex-col gap-5\">\n    <div class=\"mb-1\">\n      <h3 class=\"text-xs font-medium text-secondary uppercase tracking-wider\">Privacy & Access</h3>\n      <p class=\"text-xs text-tertiary mt-0.5\">Control field visibility and mutability</p>\n    </div>\n\n    <Field\n      label=\"Not redactable\"\n      description=\"Prevent this field from being redacted.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Write once\"\n      description=\"Value can only be set once and cannot be changed.\"\n      orientation=\"horizontal\"\n      class=\"justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]\"\n      v-slot=\"fieldProps\"\n    >\n      <Switch :id=\"fieldProps.id\" />\n    </Field>\n\n    <Field\n      label=\"Expires in\"\n      description=\"Automatically delete the field value after the specified period.\"\n      v-slot=\"fieldProps\"\n    >\n      <Select\n        :id=\"fieldProps.id\"\n        :pill=\"pill\"\n        placeholder=\"Never\"\n        v-model:value=\"expiresIn\"\n        :options=\"[\n          { label: 'Never', value: 'never' },\n          { label: '30 days', value: '30d' },\n          { label: '90 days', value: '90d' },\n          { label: '1 year', value: '1y' },\n        ]\"\n      />\n    </Field>\n  </fieldset>\n\n  <div class=\"flex gap-2\">\n    <Button color=\"primary\" :pill=\"pill\">Save field</Button>\n    <Button color=\"secondary\" variant=\"outline\" :pill=\"pill\">Cancel</Button>\n  </div>\n</div>",
           "details": "A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules."
         },
         {
@@ -1931,6 +2116,11 @@
           "description": "Helper text below the icon (area variant only)"
         },
         {
+          "name": "accept",
+          "type": "string",
+          "description": "Accepted file types (e.g. \".pdf,.png,image/*\")"
+        },
+        {
           "name": "multiple",
           "type": "boolean",
           "default": "false",
@@ -1966,6 +2156,12 @@
           "type": "boolean",
           "default": "false",
           "description": "Invalid state (auto-set when error-message is provided)"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable all interactions"
         }
       ],
       "examples": [
@@ -2243,7 +2439,7 @@
         },
         {
           "name": "Phone input",
-          "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
+          "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
           "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix appears when the field is focused or has a value."
         }
       ],
@@ -2432,6 +2628,12 @@
           "description": "Mark the input as invalid"
         },
         {
+          "name": "allow-autofill-extensions",
+          "type": "boolean",
+          "default": "false (true with name or type=\"password\")",
+          "description": "Allow autofill extensions to appear in the input"
+        },
+        {
           "name": "auto-select",
           "type": "boolean",
           "default": "false",
@@ -2462,12 +2664,6 @@
           "name": "optically-align",
           "type": "\"start\" | \"end\"",
           "description": "Applies a negative margin using the current gutter to optically align with surrounding content"
-        },
-        {
-          "name": "type",
-          "type": "string",
-          "default": "\"button\"",
-          "description": "Button type"
         }
       ],
       "examples": [
@@ -2550,6 +2746,24 @@
           "code": "<div class=\"w-[400px]\">\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-6 px-8\">\n    <div class=\"mb-5 text-secondary text-sm\">\n      {{ opticallyAlign ? 'optically-align=\"start\"' : 'Default' }}\n    </div>\n    <div class=\"flex flex-col gap-5\">\n      <Field label=\"Full name\" :optically-align=\"opticallyAlign ? 'start' : undefined\">\n        <Input placeholder=\"Jane Doe\" :pill=\"pill\" />\n      </Field>\n      <Field\n        label=\"Email\"\n        description=\"We'll never share your email.\"\n        error-message=\"Please enter a valid email address.\"\n        required\n        :optically-align=\"opticallyAlign ? 'start' : undefined\"\n      >\n        <Input placeholder=\"jane@example.com\" :pill=\"pill\" />\n      </Field>\n    </div>\n    <Button class=\"mt-6\" color=\"primary\" variant=\"soft\" :pill=\"pill\">Submit</Button>\n  </div>\n</div>"
         }
       ],
+      "subComponents": [
+        {
+          "name": "InputAdornmentButton",
+          "props": [
+            {
+              "name": "color",
+              "type": "SemanticColor",
+              "description": "Tint of the pressed (aria-pressed=\"true\") state; the neutral primary-soft tint when unset"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "default": "\"button\"",
+              "description": "Button type"
+            }
+          ]
+        }
+      ],
       "docsUrl": "https://plexui.com/vue/components/input"
     },
     {
@@ -2559,6 +2773,23 @@
       "importPath": "@plexui/vue/components/Label",
       "exports": [
         "Label"
+      ],
+      "props": [
+        {
+          "name": "for",
+          "type": "string",
+          "description": "id of the associated control. Clicks on the label focus or activate the control."
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <label> element"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "Label content"
+        }
       ],
       "examples": [
         {
@@ -2746,105 +2977,6 @@
           "name": "@close",
           "type": "() => void",
           "description": "Emitted when menu closes"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Prevent the menu from opening"
-        },
-        {
-          "name": "width",
-          "type": "number | \"auto\"",
-          "description": "Panel width (numbers are pixels)"
-        },
-        {
-          "name": "min-width",
-          "type": "number | \"auto\"",
-          "default": "300",
-          "description": "Minimum panel width"
-        },
-        {
-          "name": "max-height",
-          "type": "number",
-          "description": "Maximum panel height, in pixels"
-        },
-        {
-          "name": "side",
-          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-          "default": "\"bottom\"",
-          "description": "Preferred placement"
-        },
-        {
-          "name": "side-offset",
-          "type": "number",
-          "default": "5",
-          "description": "Distance from the trigger, in pixels"
-        },
-        {
-          "name": "align",
-          "type": "\"start\" | \"center\" | \"end\"",
-          "description": "Alignment relative to trigger"
-        },
-        {
-          "name": "align-offset",
-          "type": "number",
-          "description": "Offset from the start or end alignment, in pixels"
-        },
-        {
-          "name": "layout",
-          "type": "\"vertical\" | \"horizontal\"",
-          "default": "\"vertical\"",
-          "description": "Layout direction. Use horizontal for icon toolbars"
-        },
-        {
-          "name": "size",
-          "type": "\"sm\" | \"md\" | \"lg\"",
-          "default": "\"md\"",
-          "description": "Size of horizontal menu items (icon size + padding)"
-        },
-        {
-          "name": "@close-auto-focus",
-          "type": "(event: Event) => void",
-          "description": "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there"
-        },
-        {
-          "name": "description",
-          "type": "string",
-          "description": "Second line under the label (or the description slot). The label turns semibold on its own"
-        },
-        {
-          "name": "@select",
-          "type": "(event: Event) => void",
-          "description": "Called when the item is selected; call event.preventDefault() to keep the menu open"
-        },
-        {
-          "name": "@click",
-          "type": "(event: MouseEvent) => void",
-          "description": "Emitted when the item is clicked"
-        },
-        {
-          "name": "checked / v-model:checked",
-          "type": "boolean | \"indeterminate\"",
-          "default": "false",
-          "description": "Checked state"
-        },
-        {
-          "name": "@checked-change",
-          "type": "(checked: boolean) => void",
-          "description": "Emitted with update:checked when the checkbox toggles"
-        },
-        {
-          "name": "indicator-position",
-          "type": "\"start\" | \"end\"",
-          "default": "\"end\"",
-          "description": "Checkbox position"
-        },
-        {
-          "name": "indicator-variant",
-          "type": "\"solid\" | \"ghost\"",
-          "default": "\"solid\"",
-          "description": "Indicator style"
         }
       ],
       "examples": [
@@ -2891,6 +3023,146 @@
           "name": "Item actions",
           "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\" class=\"font-semibold gap-1.5\"><History /> Conversations</Button>\n  </MenuTrigger>\n  <MenuContent :width=\"270\">\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Another sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Long thread title that is going to be clipped off</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n  </MenuContent>\n</Menu>",
           "details": "Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "MenuTrigger",
+          "description": "renders its child (e.g. a Button) as the element that toggles the menu.",
+          "props": [
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Prevent the menu from opening"
+            }
+          ]
+        },
+        {
+          "name": "MenuContent",
+          "props": [
+            {
+              "name": "width",
+              "type": "number | \"auto\"",
+              "description": "Panel width (numbers are pixels)"
+            },
+            {
+              "name": "min-width",
+              "type": "number | \"auto\"",
+              "default": "300",
+              "description": "Minimum panel width"
+            },
+            {
+              "name": "max-height",
+              "type": "number",
+              "description": "Maximum panel height, in pixels"
+            },
+            {
+              "name": "side",
+              "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+              "default": "\"bottom\"",
+              "description": "Preferred placement"
+            },
+            {
+              "name": "side-offset",
+              "type": "number",
+              "default": "5",
+              "description": "Distance from the trigger, in pixels"
+            },
+            {
+              "name": "align",
+              "type": "\"start\" | \"center\" | \"end\"",
+              "description": "Alignment relative to trigger"
+            },
+            {
+              "name": "align-offset",
+              "type": "number",
+              "description": "Offset from the start or end alignment, in pixels"
+            },
+            {
+              "name": "layout",
+              "type": "\"vertical\" | \"horizontal\"",
+              "default": "\"vertical\"",
+              "description": "Layout direction. Use horizontal for icon toolbars"
+            },
+            {
+              "name": "size",
+              "type": "\"sm\" | \"md\" | \"lg\"",
+              "default": "\"md\"",
+              "description": "Size of horizontal menu items (icon size + padding)"
+            },
+            {
+              "name": "@close-auto-focus",
+              "type": "(event: Event) => void",
+              "description": "Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there"
+            }
+          ]
+        },
+        {
+          "name": "MenuItem",
+          "description": "list item. Listen to @select for actions; without it the item is non-interactive content.",
+          "props": [
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Second line under the label (or the description slot). The label turns semibold on its own"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the item"
+            },
+            {
+              "name": "@select",
+              "type": "(event: Event) => void",
+              "description": "Called when the item is selected; call event.preventDefault() to keep the menu open"
+            },
+            {
+              "name": "@click",
+              "type": "(event: MouseEvent) => void",
+              "description": "Emitted when the item is clicked"
+            }
+          ]
+        },
+        {
+          "name": "MenuCheckboxItem",
+          "props": [
+            {
+              "name": "checked / v-model:checked",
+              "type": "boolean | \"indeterminate\"",
+              "default": "false",
+              "description": "Checked state"
+            },
+            {
+              "name": "@checked-change",
+              "type": "(checked: boolean) => void",
+              "description": "Emitted with update:checked when the checkbox toggles"
+            },
+            {
+              "name": "@select",
+              "type": "(event: Event) => void",
+              "description": "Call event.preventDefault() to keep the menu open"
+            },
+            {
+              "name": "indicator-position",
+              "type": "\"start\" | \"end\"",
+              "default": "\"end\"",
+              "description": "Checkbox position"
+            },
+            {
+              "name": "indicator-variant",
+              "type": "\"solid\" | \"ghost\"",
+              "default": "\"solid\"",
+              "description": "Indicator style"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the item"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/menu"
@@ -2998,42 +3270,6 @@
           "name": "open / v-model:open",
           "type": "boolean",
           "description": "Controlled open state; uncontrolled when omitted"
-        },
-        {
-          "name": "width",
-          "type": "number | string",
-          "description": "Panel width (px or CSS value)"
-        },
-        {
-          "name": "minWidth",
-          "type": "number | string",
-          "default": "300",
-          "description": "Minimum panel width in px"
-        },
-        {
-          "name": "maxWidth",
-          "type": "number | string",
-          "description": "Maximum panel width"
-        },
-        {
-          "name": "side",
-          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-          "description": "Preferred placement"
-        },
-        {
-          "name": "align",
-          "type": "\"start\" | \"center\" | \"end\"",
-          "description": "Alignment relative to trigger"
-        },
-        {
-          "name": "sideOffset",
-          "type": "number",
-          "description": "Offset from trigger (px)"
-        },
-        {
-          "name": "alignOffset",
-          "type": "number",
-          "description": "Alignment offset (px)"
         }
       ],
       "examples": [
@@ -3057,6 +3293,49 @@
           "details": "The default slot of PopoverContent receives {\"{ close, shake }\"}. Components rendered inside it can get the same two methods from usePopoverController() in their setup(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter async submission occurs (submitPrompt() fakes a two-second request), the close() method is called to close the popup imperatively."
         }
       ],
+      "subComponents": [
+        {
+          "name": "PopoverContent",
+          "props": [
+            {
+              "name": "width",
+              "type": "number | string",
+              "description": "Panel width (px or CSS value)"
+            },
+            {
+              "name": "minWidth",
+              "type": "number | string",
+              "default": "300",
+              "description": "Minimum panel width in px"
+            },
+            {
+              "name": "maxWidth",
+              "type": "number | string",
+              "description": "Maximum panel width"
+            },
+            {
+              "name": "side",
+              "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+              "description": "Preferred placement"
+            },
+            {
+              "name": "align",
+              "type": "\"start\" | \"center\" | \"end\"",
+              "description": "Alignment relative to trigger"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "description": "Offset from trigger (px)"
+            },
+            {
+              "name": "alignOffset",
+              "type": "number",
+              "description": "Alignment offset (px)"
+            }
+          ]
+        }
+      ],
       "docsUrl": "https://plexui.com/vue/components/popover"
     },
     {
@@ -3066,6 +3345,30 @@
       "importPath": "@plexui/vue/components/Progress",
       "exports": [
         "Progress"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "number | null",
+          "default": "null",
+          "description": "Current progress between 0 and max. Pass null for indeterminate."
+        },
+        {
+          "name": "max",
+          "type": "number",
+          "default": "100",
+          "description": "Maximum progress value"
+        },
+        {
+          "name": "get-value-label",
+          "type": "(value: number, max: number) => string",
+          "description": "Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. \"67%\"."
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        }
       ],
       "examples": [
         {
@@ -3131,11 +3434,6 @@
           "name": "total",
           "type": "number",
           "description": "Total steps for minimal variant"
-        },
-        {
-          "name": "icon",
-          "type": "Component | VNode | string",
-          "description": "Custom icon instead of step number; the icon slot takes precedence"
         }
       ],
       "examples": [
@@ -3177,6 +3475,18 @@
           "name": "Colors",
           "code": "<div class=\"flex flex-col gap-12 w-full\">\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Default</div>\n    <ProgressSteps :current=\"3\" class=\"w-full\">\n      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Success</div>\n    <ProgressSteps :current=\"3\" color=\"success\" class=\"w-full\">\n      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n</div>",
           "details": "Use color to change the color scheme of completed and active steps."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ProgressStepsStep",
+          "props": [
+            {
+              "name": "icon",
+              "type": "Component | VNode | string",
+              "description": "Custom icon instead of step number; the icon slot takes precedence"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/progress-steps"
@@ -3248,18 +3558,6 @@
           "name": "@change",
           "type": "(value: string) => void",
           "description": "Emitted with update:value, named after the React onChange prop"
-        },
-        {
-          "name": "block",
-          "type": "boolean",
-          "default": "false",
-          "description": "Stretch item to fill available width"
-        },
-        {
-          "name": "orientation",
-          "type": "\"left\" | \"right\"",
-          "default": "\"left\"",
-          "description": "Position of the radio indicator relative to the label"
         }
       ],
       "examples": [
@@ -3326,6 +3624,51 @@
           "name": "Grouped sections",
           "code": "<div class=\"flex flex-col max-w-sm w-full divide-y divide-alpha/15\">\n  <div class=\"pb-5\">\n    <Field label=\"Visibility\" description=\"Control who can see project resources.\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"visibility\" aria-label=\"Visibility\">\n        <RadioGroupItem value=\"hidden\">Hidden</RadioGroupItem>\n        <RadioGroupItem value=\"owners\">Visible to organization owners</RadioGroupItem>\n        <RadioGroupItem value=\"everyone\">Visible to everyone</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n  <div class=\"pt-5\">\n    <Field label=\"Digest frequency\" description=\"How often you receive summary emails.\" v-slot=\"{ id }\">\n      <RadioGroup direction=\"col\" v-model:value=\"frequency\" aria-label=\"Digest frequency\">\n        <RadioGroupItem value=\"daily\">Daily</RadioGroupItem>\n        <RadioGroupItem value=\"weekly\">Weekly</RadioGroupItem>\n        <RadioGroupItem value=\"monthly\">Monthly</RadioGroupItem>\n        <RadioGroupItem value=\"never\">Never</RadioGroupItem>\n      </RadioGroup>\n    </Field>\n  </div>\n</div>",
           "details": "Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "RadioGroupItem",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Item value"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable this item only"
+            },
+            {
+              "name": "required",
+              "type": "boolean",
+              "description": "Marks this item's hidden form input as required"
+            },
+            {
+              "name": "block",
+              "type": "boolean",
+              "default": "false",
+              "description": "Stretch item to fill available width"
+            },
+            {
+              "name": "orientation",
+              "type": "\"left\" | \"right\"",
+              "default": "\"left\"",
+              "description": "Position of the radio indicator relative to the label"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Extra classes on the label element"
+            },
+            {
+              "name": "default slot",
+              "type": "VNode[]",
+              "description": "Label content (text or rich content)"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/radio-group"
@@ -3412,6 +3755,12 @@
           "name": "actions",
           "type": "array",
           "description": "Actions below options list"
+        },
+        {
+          "name": "check-position",
+          "type": "\"start\" | \"end\" | \"none\"",
+          "default": "\"start\"",
+          "description": "Where the check indicator sits in the list. \"none\" removes the indicator column for lists that never carry a selection"
         },
         {
           "name": "#optionView / OptionView",
@@ -3655,6 +4004,25 @@
       "exports": [
         "Separator"
       ],
+      "props": [
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Direction of the divider"
+        },
+        {
+          "name": "decorative",
+          "type": "boolean",
+          "default": "true",
+          "description": "When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role=\"separator\")."
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the root <div>"
+        }
+      ],
       "examples": [
         {
           "name": "Overview",
@@ -3703,12 +4071,6 @@
           "name": "class",
           "type": "string",
           "description": "Additional CSS classes"
-        },
-        {
-          "name": "shimmer",
-          "type": "boolean",
-          "default": "false",
-          "description": "Whether the shimmer animation is active"
         }
       ],
       "examples": [
@@ -3726,6 +4088,36 @@
           "name": "Controllable shimmer",
           "code": "<ShimmerableText :shimmer=\"shimmer\" class=\"text-lg font-semibold\">\n  Generating response...\n</ShimmerableText>",
           "details": "ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut. Use this variant when text transitions between a loading and idle state."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ShimmerableText",
+          "description": "controllable shimmer",
+          "props": [
+            {
+              "name": "as",
+              "type": "\"p\" | \"span\" | \"h1\" | \"h2\" | \"h3\" | \"h4\" | \"h5\" | \"h6\" | \"div\"",
+              "default": "\"div\"",
+              "description": "HTML element to render"
+            },
+            {
+              "name": "shimmer",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether the shimmer animation is active"
+            },
+            {
+              "name": "default slot",
+              "type": "VNode[]",
+              "description": "Text content to shimmer"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional CSS classes"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/shimmer-text"
@@ -3750,19 +4142,33 @@
         "SidebarInset",
         "SidebarTrigger"
       ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"sidebar\" | \"docs\"",
+          "default": "\"sidebar\"",
+          "description": "Visual variant"
+        },
+        {
+          "name": "side",
+          "type": "\"left\" | \"right\"",
+          "default": "\"left\"",
+          "description": "Which side the sidebar is on"
+        }
+      ],
       "examples": [
         {
           "name": "App Shell",
-          "code": "<SidebarProvider\n  v-model:open=\"open\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full console-demo', { 'demo-sidebar-flat': !bordered }]\"\n  collapsible=\"icon\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n${indent(demoHeader(\"Console\"), 6)}\n\n      <SidebarContent class=\"console-content\">\n        <!-- Workspace selector -->\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem>\n                <Menu>\n                  <MenuTrigger>\n                    <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Default\">\n                      <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>\n                      <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>\n                      <ChevronUpDown class=\"ml-auto console-workspace-chevron\" style=\"width: 14px; height: 14px\" />\n                    </SidebarMenuButton>\n                  </MenuTrigger>\n                  <MenuContent :min-width=\"200\" align=\"start\">\n                    <MenuItem @select=\"() => {}\">Default</MenuItem>\n                    <MenuItem @select=\"() => {}\">Production</MenuItem>\n                    <MenuItem @select=\"() => {}\">Staging</MenuItem>\n                    <MenuSeparator />\n                    <MenuItem @select=\"() => {}\"><Plus /> New workspace</MenuItem>\n                  </MenuContent>\n                </Menu>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"section in consoleSections\" :key=\"section.id\">\n                <!-- Collapsed rail: hovering a parent opens a flyout with its items -->\n                <SidebarMenuItem v-if=\"sidebar.state === 'collapsed' && !sidebar.isMobile\">\n                  <Popover show-on-hover :hover-open-delay=\"80\">\n                    <PopoverTrigger>\n                      <SidebarMenuButton class=\"console-menu-button\">\n                        <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                        <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                        <SidebarMenuBadge v-if=\"section.badge\">\n                          <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                        </SidebarMenuBadge>\n                        <SidebarMenuChevron class=\"ml-auto transition-transform\" />\n                      </SidebarMenuButton>\n                    </PopoverTrigger>\n                    <PopoverContent side=\"right\" :side-offset=\"8\" :min-width=\"220\" align=\"start\" :auto-focus=\"false\">\n                      <div class=\"p-1\">\n                        <div class=\"px-3 py-2 text-xs font-medium text-tertiary\">{{ section.label }}</div>\n                        <button\n                          v-for=\"item in section.items\"\n                          :key=\"item.id\"\n                          type=\"button\"\n                          :data-active=\"active === item.id ? 'true' : undefined\"\n                          class=\"flex items-center w-full text-left rounded-md px-3 py-1.5 text-sm text-primary cursor-pointer bg-transparent border-0 appearance-none select-none transition-colors hover:bg-[var(--sidebar-accent)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:text-[var(--sidebar-menu-text-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]\"\n                          @click=\"active = item.id\"\n                        >{{ item.label }}</button>\n                      </div>\n                    </PopoverContent>\n                  </Popover>\n                </SidebarMenuItem>\n\n                <!-- Expanded: the parent toggles its sub items -->\n                <SidebarMenuItem v-else :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton class=\"console-menu-button\" @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuBadge v-if=\"section.badge\">\n                      <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                    </SidebarMenuBadge>\n                    <SidebarMenuChevron\n                      class=\"ml-auto transition-transform\"\n                      :style=\"{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }\"\n                    />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"item in section.items\" :key=\"item.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active === item.id\" @click=\"active = item.id\">{{ item.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n\n      <SidebarFooter class=\"console-footer\">\n        <SidebarMenu>\n          <SidebarMenuItem>\n            <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Documentation\">\n              <SidebarMenuButtonIcon><Book /></SidebarMenuButtonIcon>\n              <SidebarMenuButtonLabel>Documentation</SidebarMenuButtonLabel>\n            </SidebarMenuButton>\n          </SidebarMenuItem>\n          <SidebarSeparator class=\"console-footer-separator\" />\n          <SidebarMenuItem>\n            <Menu>\n              <MenuTrigger>\n                <SidebarMenuButton class=\"console-menu-button console-account-button\" tooltip=\"Alex · Acme Inc\">\n                  <SidebarMenuButtonIcon>\n                    <Avatar name=\"Alex\" :size=\"24\" color=\"secondary\" variant=\"solid\" />\n                  </SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>\n                    <span class=\"flex flex-col leading-tight\">\n                      <span class=\"font-medium text-primary text-sm\">Alex</span>\n                      <span class=\"text-tertiary text-xs\">Admin</span>\n                    </span>\n                  </SidebarMenuButtonLabel>\n                  <ChevronDownMd class=\"ml-auto\" style=\"width: 14px; height: 14px\" />\n                </SidebarMenuButton>\n              </MenuTrigger>\n              <MenuContent :min-width=\"260\" align=\"start\" side=\"top\">\n                <MenuItem disabled>\n                  <span class=\"text-tertiary text-sm\">alex@example.com</span>\n                </MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <BuildingWorkspace /> Acme Inc\n                  <span class=\"ml-auto text-xs text-tertiary\">API plan</span>\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><SettingsCog /> Organization settings</MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Chat /> Feedback</MenuItem>\n                <MenuItem @select=\"() => {}\"><Help /> Get help</MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <InfoCircle /> Legal center\n                  <ChevronRightMd class=\"ml-auto\" />\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Logout /> Log out</MenuItem>\n              </MenuContent>\n            </Menu>\n          </SidebarMenuItem>\n        </SidebarMenu>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-2\">\n          {{ consoleSections.flatMap((s) => [s, ...s.items]).find((i) => i.id === active)?.label ?? 'Workbench' }}\n        </h1>\n        <p class=\"text-secondary\">\n          Hover the icons when collapsed to reveal a flyout with the section's items.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
+          "code": "<SidebarProvider\n  v-model:open=\"open\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full console-demo', { 'demo-sidebar-flat': !bordered }]\"\n  collapsible=\"icon\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">Console</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n\n      <SidebarContent class=\"console-content\">\n        <!-- Workspace selector -->\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem>\n                <Menu>\n                  <MenuTrigger>\n                    <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Default\">\n                      <SidebarMenuButtonIcon><Cube /></SidebarMenuButtonIcon>\n                      <SidebarMenuButtonLabel>Default</SidebarMenuButtonLabel>\n                      <ChevronUpDown class=\"ml-auto console-workspace-chevron\" style=\"width: 14px; height: 14px\" />\n                    </SidebarMenuButton>\n                  </MenuTrigger>\n                  <MenuContent :min-width=\"200\" align=\"start\">\n                    <MenuItem @select=\"() => {}\">Default</MenuItem>\n                    <MenuItem @select=\"() => {}\">Production</MenuItem>\n                    <MenuItem @select=\"() => {}\">Staging</MenuItem>\n                    <MenuSeparator />\n                    <MenuItem @select=\"() => {}\"><Plus /> New workspace</MenuItem>\n                  </MenuContent>\n                </Menu>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n\n        <SidebarGroup class=\"console-group\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"section in consoleSections\" :key=\"section.id\">\n                <!-- Collapsed rail: hovering a parent opens a flyout with its items -->\n                <SidebarMenuItem v-if=\"sidebar.state === 'collapsed' && !sidebar.isMobile\">\n                  <Popover show-on-hover :hover-open-delay=\"80\">\n                    <PopoverTrigger>\n                      <SidebarMenuButton class=\"console-menu-button\">\n                        <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                        <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                        <SidebarMenuBadge v-if=\"section.badge\">\n                          <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                        </SidebarMenuBadge>\n                        <SidebarMenuChevron class=\"ml-auto transition-transform\" />\n                      </SidebarMenuButton>\n                    </PopoverTrigger>\n                    <PopoverContent side=\"right\" :side-offset=\"8\" :min-width=\"220\" align=\"start\" :auto-focus=\"false\">\n                      <div class=\"p-1\">\n                        <div class=\"px-3 py-2 text-xs font-medium text-tertiary\">{{ section.label }}</div>\n                        <button\n                          v-for=\"item in section.items\"\n                          :key=\"item.id\"\n                          type=\"button\"\n                          :data-active=\"active === item.id ? 'true' : undefined\"\n                          class=\"flex items-center w-full text-left rounded-md px-3 py-1.5 text-sm text-primary cursor-pointer bg-transparent border-0 appearance-none select-none transition-colors hover:bg-[var(--sidebar-accent)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:text-[var(--sidebar-menu-text-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]\"\n                          @click=\"active = item.id\"\n                        >{{ item.label }}</button>\n                      </div>\n                    </PopoverContent>\n                  </Popover>\n                </SidebarMenuItem>\n\n                <!-- Expanded: the parent toggles its sub items -->\n                <SidebarMenuItem v-else :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton class=\"console-menu-button\" @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuBadge v-if=\"section.badge\">\n                      <Badge size=\"sm\" color=\"info\">{{ section.badge }}</Badge>\n                    </SidebarMenuBadge>\n                    <SidebarMenuChevron\n                      class=\"ml-auto transition-transform\"\n                      :style=\"{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }\"\n                    />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"item in section.items\" :key=\"item.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active === item.id\" @click=\"active = item.id\">{{ item.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n\n      <SidebarFooter class=\"console-footer\">\n        <SidebarMenu>\n          <SidebarMenuItem>\n            <SidebarMenuButton class=\"console-menu-button\" tooltip=\"Documentation\">\n              <SidebarMenuButtonIcon><Book /></SidebarMenuButtonIcon>\n              <SidebarMenuButtonLabel>Documentation</SidebarMenuButtonLabel>\n            </SidebarMenuButton>\n          </SidebarMenuItem>\n          <SidebarSeparator class=\"console-footer-separator\" />\n          <SidebarMenuItem>\n            <Menu>\n              <MenuTrigger>\n                <SidebarMenuButton class=\"console-menu-button console-account-button\" tooltip=\"Alex · Acme Inc\">\n                  <SidebarMenuButtonIcon>\n                    <Avatar name=\"Alex\" :size=\"24\" color=\"secondary\" variant=\"solid\" />\n                  </SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>\n                    <span class=\"flex flex-col leading-tight\">\n                      <span class=\"font-medium text-primary text-sm\">Alex</span>\n                      <span class=\"text-tertiary text-xs\">Admin</span>\n                    </span>\n                  </SidebarMenuButtonLabel>\n                  <ChevronDownMd class=\"ml-auto\" style=\"width: 14px; height: 14px\" />\n                </SidebarMenuButton>\n              </MenuTrigger>\n              <MenuContent :min-width=\"260\" align=\"start\" side=\"top\">\n                <MenuItem disabled>\n                  <span class=\"text-tertiary text-sm\">alex@example.com</span>\n                </MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <BuildingWorkspace /> Acme Inc\n                  <span class=\"ml-auto text-xs text-tertiary\">API plan</span>\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><SettingsCog /> Organization settings</MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Chat /> Feedback</MenuItem>\n                <MenuItem @select=\"() => {}\"><Help /> Get help</MenuItem>\n                <MenuItem @select=\"() => {}\">\n                  <InfoCircle /> Legal center\n                  <ChevronRightMd class=\"ml-auto\" />\n                </MenuItem>\n                <MenuSeparator />\n                <MenuItem @select=\"() => {}\"><Logout /> Log out</MenuItem>\n              </MenuContent>\n            </Menu>\n          </SidebarMenuItem>\n        </SidebarMenu>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-2\">\n          {{ consoleSections.flatMap((s) => [s, ...s.items]).find((i) => i.id === active)?.label ?? 'Workbench' }}\n        </h1>\n        <p class=\"text-secondary\">\n          Hover the icons when collapsed to reveal a flyout with the section's items.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
           "details": "A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail."
         },
         {
           "name": "Basic",
-          "code": "<SidebarProvider\n  :key=\"collapsible + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"icons ? collapsible : 'none'\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n${indent(demoHeader(\"App\"), 6)}\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel :size=\"labelSize\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"activeItem === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"activeItem = item.label\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuBadge v-if=\"badges && item.badge\">\n                    <Badge size=\"sm\" color=\"info\">{{ item.badge }}</Badge>\n                  </SidebarMenuBadge>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n      <SidebarFooter v-if=\"footerCard\">\n${indent(upgradeCard, 8)}\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ activeItem }}</h1>\n        <p class=\"text-secondary\">Main content area.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>"
+          "code": "<SidebarProvider\n  :key=\"collapsible + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"icons ? collapsible : 'none'\"\n>\n  <SidebarLayout class=\"h-full\">\n    <Sidebar>\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel :size=\"labelSize\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"activeItem === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"activeItem = item.label\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuBadge v-if=\"badges && item.badge\">\n                    <Badge size=\"sm\" color=\"info\">{{ item.badge }}</Badge>\n                  </SidebarMenuBadge>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n      <SidebarFooter v-if=\"footerCard\">\n        <SidebarCard dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </SidebarFooter>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ activeItem }}</h1>\n        <p class=\"text-secondary\">Main content area.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>"
         },
         {
           "name": "Collapsible Sections",
-          "code": "<SidebarProvider :key=\"icons ? 'icons' : 'no-icons'\" class=\"h-full\" collapsible=\"none\">\n  <SidebarLayout class=\"h-full\">\n    <Sidebar :variant=\"icons ? undefined : 'docs'\">\n      <SidebarContent>\n${indent(iconsNav(\"appPage\").replace(\"<SidebarGroup>\", '<SidebarGroup v-if=\"icons\">'), 8)}\n        <template v-else>\n${indent(docsNav(\"docsPage\"), 10)}\n        </template>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ (icons ? appPage : docsPage).label }}</h1>\n        <p class=\"text-secondary\">\n          Documentation page for {{ (icons ? appPage : docsPage).label }}. This is where the content would be displayed.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
+          "code": "<SidebarProvider :key=\"icons ? 'icons' : 'no-icons'\" class=\"h-full\" collapsible=\"none\">\n  <SidebarLayout class=\"h-full\">\n    <Sidebar :variant=\"icons ? undefined : 'docs'\">\n      <SidebarContent>\n        <SidebarGroup v-if=\"icons\">\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                  <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuChevron />\n                </SidebarMenuButton>\n                <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                  <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                    <SidebarMenuSubButton :indent=\"1\" :is-active=\"appPage.id === child.id\" @click=\"appPage = child\">{{ child.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </SidebarMenuSub>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n        <template v-else>\n          <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <template v-for=\"a in section.items\" :key=\"a.id\">\n                  <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                    <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                      {{ a.label }}<SidebarMenuChevron />\n                    </SidebarMenuSubButton>\n                    <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                      <template v-for=\"b in a.items\" :key=\"b.id\">\n                        <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                          <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                            {{ b.label }}<SidebarMenuChevron />\n                          </SidebarMenuSubButton>\n                          <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                            <template v-for=\"c in b.items\" :key=\"c.id\">\n                              <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                                <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                  {{ c.label }}<SidebarMenuChevron />\n                                </SidebarMenuSubButton>\n                                <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                  <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                    <SidebarMenuSubButton :indent=\"3\" :is-active=\"docsPage.id === d.id\" @click=\"docsPage = d\">{{ d.label }}</SidebarMenuSubButton>\n                                  </SidebarMenuSubItem>\n                                </SidebarMenuSub>\n                              </SidebarMenuItem>\n                              <SidebarMenuSubItem v-else>\n                                <SidebarMenuSubButton :indent=\"2\" :is-active=\"docsPage.id === c.id\" @click=\"docsPage = c\">{{ c.label }}</SidebarMenuSubButton>\n                              </SidebarMenuSubItem>\n                            </template>\n                          </SidebarMenuSub>\n                        </SidebarMenuItem>\n                        <SidebarMenuSubItem v-else>\n                          <SidebarMenuSubButton :indent=\"1\" :is-active=\"docsPage.id === b.id\" @click=\"docsPage = b\">{{ b.label }}</SidebarMenuSubButton>\n                        </SidebarMenuSubItem>\n                      </template>\n                    </SidebarMenuSub>\n                  </SidebarMenuItem>\n                  <SidebarMenuSubItem v-else>\n                    <SidebarMenuSubButton :indent=\"0\" :is-active=\"docsPage.id === a.id\" @click=\"docsPage = a\">{{ a.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </template>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </template>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ (icons ? appPage : docsPage).label }}</h1>\n        <p class=\"text-secondary\">\n          Documentation page for {{ (icons ? appPage : docsPage).label }}. This is where the content would be displayed.\n        </p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n</SidebarProvider>",
           "details": "Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. Each level of the tree is one v-for; a parent is a SidebarMenuItem whose SidebarMenuSub holds the next level."
         },
         {
@@ -3772,7 +4178,7 @@
         },
         {
           "name": "Mobile Menu",
-          "code": "<SidebarProvider\n  :key=\"mobile + '-' + nested + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"mobile ? 'offcanvas' : icons ? 'icon' : 'none'\"\n>\n  <!-- Desktop: the sidebar next to the page -->\n  <SidebarLayout v-if=\"!mobile\" class=\"h-full\">\n    <Sidebar v-if=\"!nested\">\n${indent(demoHeader(\"App\"), 6)}\n      <SidebarContent>\n${indent(flatNav(), 8)}\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else-if=\"icons\" style=\"width: 280px\">\n      <SidebarContent>\n${indent(iconsNav(\"active\"), 8)}\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else variant=\"docs\" style=\"width: 280px\">\n      <SidebarContent>\n${indent(docsNav(\"active\"), 8)}\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Toggle mobile to see the mobile sidebar.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n\n  <!-- Mobile: phone-sized container with a hamburger menu -->\n  <div\n    v-else\n    :data-mobile-menu=\"sidebar.openMobile ? 'visible' : 'hidden'\"\n    style=\"width: 375px; height: 667px; background: var(--gray-75, #f3f3f3); overflow: hidden; position: relative; margin: 0 auto\"\n  >\n    <header class=\"flex items-center\" style=\"justify-content: flex-end; height: 54px; padding: 0 8px\">\n      <SidebarMobileMenuButton />\n    </header>\n    <div\n      style=\"margin: 8px; margin-top: 0; background: var(--color-surface, #ffffff); box-shadow: var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08)); border-radius: 8px; height: calc(100% - 54px - 8px); overflow: auto\"\n    >\n      <!-- Selecting an item closes the menu -->\n      <div v-if=\"sidebar.openMobile\" style=\"padding: 12px\">\n        <SidebarContent v-if=\"!nested\">\n${indent(flatNav(\"; sidebar.setOpenMobile(false)\"), 10)}\n        </SidebarContent>\n        <SidebarContent v-else-if=\"icons\">\n${indent(iconsNav(\"active\", \"; sidebar.setOpenMobile(false)\"), 10)}\n        </SidebarContent>\n        <SidebarContent v-else>\n${indent(docsNav(\"active\", \"; sidebar.setOpenMobile(false)\"), 10)}\n        </SidebarContent>\n${indent(upgradeCard.replace(\"<SidebarCard dismissible>\", '<SidebarCard v-if=\"!nested\" dismissible>'), 8)}\n      </div>\n      <div v-else style=\"padding: 24px\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Click the menu button to open the sidebar and select a different item.</p>\n      </div>\n    </div>\n  </div>\n</SidebarProvider>",
+          "code": "<SidebarProvider\n  :key=\"mobile + '-' + nested + '-' + icons\"\n  v-slot=\"sidebar\"\n  :class=\"['h-full', { 'demo-sidebar-flat': !bordered }]\"\n  :collapsible=\"mobile ? 'offcanvas' : icons ? 'icon' : 'none'\"\n>\n  <!-- Desktop: the sidebar next to the page -->\n  <SidebarLayout v-if=\"!mobile\" class=\"h-full\">\n    <Sidebar v-if=\"!nested\">\n      <SidebarHeader>\n        <span class=\"demo-sidebar-wordmark\">App</span>\n        <Tooltip v-if=\"sidebar.collapsible !== 'none'\" compact @click=\"sidebar.toggleSidebar()\">\n          <SidebarTrigger>\n            <SidebarCollapseRight v-if=\"sidebar.state === 'collapsed'\" />\n            <SidebarCollapseLeft v-else />\n          </SidebarTrigger>\n          <template #content>\n            <span class=\"inline-flex items-center gap-1.5\">\n              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}\n              <kbd class=\"console-trigger-kbd\">⌘.</kbd>\n            </span>\n          </template>\n        </Tooltip>\n      </SidebarHeader>\n      <SidebarContent>\n        <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n          <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                <SidebarMenuButton\n                  :is-active=\"active.label === item.label\"\n                  :tooltip=\"item.label\"\n                  @click=\"active = { id: item.label.toLowerCase(), label: item.label }\"\n                >\n                  <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                </SidebarMenuButton>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else-if=\"icons\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                  <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                  <SidebarMenuChevron />\n                </SidebarMenuButton>\n                <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                  <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                    <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child\">{{ child.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </SidebarMenuSub>\n              </SidebarMenuItem>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n    <Sidebar v-else variant=\"docs\" style=\"width: 280px\">\n      <SidebarContent>\n        <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n          <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n          <SidebarGroupContent>\n            <SidebarMenu>\n              <template v-for=\"a in section.items\" :key=\"a.id\">\n                <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                  <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                    {{ a.label }}<SidebarMenuChevron />\n                  </SidebarMenuSubButton>\n                  <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                    <template v-for=\"b in a.items\" :key=\"b.id\">\n                      <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                        <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                          {{ b.label }}<SidebarMenuChevron />\n                        </SidebarMenuSubButton>\n                        <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                          <template v-for=\"c in b.items\" :key=\"c.id\">\n                            <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                              <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                {{ c.label }}<SidebarMenuChevron />\n                              </SidebarMenuSubButton>\n                              <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                  <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d\">{{ d.label }}</SidebarMenuSubButton>\n                                </SidebarMenuSubItem>\n                              </SidebarMenuSub>\n                            </SidebarMenuItem>\n                            <SidebarMenuSubItem v-else>\n                              <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c\">{{ c.label }}</SidebarMenuSubButton>\n                            </SidebarMenuSubItem>\n                          </template>\n                        </SidebarMenuSub>\n                      </SidebarMenuItem>\n                      <SidebarMenuSubItem v-else>\n                        <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b\">{{ b.label }}</SidebarMenuSubButton>\n                      </SidebarMenuSubItem>\n                    </template>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n                <SidebarMenuSubItem v-else>\n                  <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a\">{{ a.label }}</SidebarMenuSubButton>\n                </SidebarMenuSubItem>\n              </template>\n            </SidebarMenu>\n          </SidebarGroupContent>\n        </SidebarGroup>\n      </SidebarContent>\n    </Sidebar>\n\n    <SidebarInset>\n      <div class=\"p-6\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Toggle mobile to see the mobile sidebar.</p>\n      </div>\n    </SidebarInset>\n  </SidebarLayout>\n\n  <!-- Mobile: phone-sized container with a hamburger menu -->\n  <div\n    v-else\n    :data-mobile-menu=\"sidebar.openMobile ? 'visible' : 'hidden'\"\n    style=\"width: 375px; height: 667px; background: var(--gray-75, #f3f3f3); overflow: hidden; position: relative; margin: 0 auto\"\n  >\n    <header class=\"flex items-center\" style=\"justify-content: flex-end; height: 54px; padding: 0 8px\">\n      <SidebarMobileMenuButton />\n    </header>\n    <div\n      style=\"margin: 8px; margin-top: 0; background: var(--color-surface, #ffffff); box-shadow: var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08)); border-radius: 8px; height: calc(100% - 54px - 8px); overflow: auto\"\n    >\n      <!-- Selecting an item closes the menu -->\n      <div v-if=\"sidebar.openMobile\" style=\"padding: 12px\">\n        <SidebarContent v-if=\"!nested\">\n          <SidebarGroup v-for=\"group in navGroups\" :key=\"group.label\">\n            <SidebarGroupLabel size=\"sm\">{{ group.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"item in group.items\" :key=\"item.label\">\n                  <SidebarMenuButton\n                    :is-active=\"active.label === item.label\"\n                    :tooltip=\"item.label\"\n                    @click=\"active = { id: item.label.toLowerCase(), label: item.label }; sidebar.setOpenMobile(false)\"\n                  >\n                    <SidebarMenuButtonIcon v-if=\"icons\"><component :is=\"item.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>\n                  </SidebarMenuButton>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else-if=\"icons\">\n          <SidebarGroup>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <SidebarMenuItem v-for=\"section in iconSections\" :key=\"section.id\" :expanded=\"!!expanded[section.id]\">\n                  <SidebarMenuButton @click=\"expanded[section.id] = !expanded[section.id]\">\n                    <SidebarMenuButtonIcon><component :is=\"section.icon\" /></SidebarMenuButtonIcon>\n                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>\n                    <SidebarMenuChevron />\n                  </SidebarMenuButton>\n                  <SidebarMenuSub :open=\"!!expanded[section.id]\" has-icons>\n                    <SidebarMenuSubItem v-for=\"child in section.items\" :key=\"child.id\">\n                      <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === child.id\" @click=\"active = child; sidebar.setOpenMobile(false)\">{{ child.label }}</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </SidebarMenuItem>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarContent v-else>\n          <SidebarGroup v-for=\"section in docsSections\" :key=\"section.id\">\n            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>\n            <SidebarGroupContent>\n              <SidebarMenu>\n                <template v-for=\"a in section.items\" :key=\"a.id\">\n                  <SidebarMenuItem v-if=\"a.items\" :expanded=\"!!expanded[a.id]\">\n                    <SidebarMenuSubButton :indent=\"0\" @click=\"expanded[a.id] = !expanded[a.id]\">\n                      {{ a.label }}<SidebarMenuChevron />\n                    </SidebarMenuSubButton>\n                    <SidebarMenuSub :open=\"!!expanded[a.id]\">\n                      <template v-for=\"b in a.items\" :key=\"b.id\">\n                        <SidebarMenuItem v-if=\"b.items\" :expanded=\"!!expanded[b.id]\">\n                          <SidebarMenuSubButton :indent=\"1\" @click=\"expanded[b.id] = !expanded[b.id]\">\n                            {{ b.label }}<SidebarMenuChevron />\n                          </SidebarMenuSubButton>\n                          <SidebarMenuSub :open=\"!!expanded[b.id]\">\n                            <template v-for=\"c in b.items\" :key=\"c.id\">\n                              <SidebarMenuItem v-if=\"c.items\" :expanded=\"!!expanded[c.id]\">\n                                <SidebarMenuSubButton :indent=\"2\" @click=\"expanded[c.id] = !expanded[c.id]\">\n                                  {{ c.label }}<SidebarMenuChevron />\n                                </SidebarMenuSubButton>\n                                <SidebarMenuSub :open=\"!!expanded[c.id]\">\n                                  <SidebarMenuSubItem v-for=\"d in c.items\" :key=\"d.id\">\n                                    <SidebarMenuSubButton :indent=\"3\" :is-active=\"active.id === d.id\" @click=\"active = d; sidebar.setOpenMobile(false)\">{{ d.label }}</SidebarMenuSubButton>\n                                  </SidebarMenuSubItem>\n                                </SidebarMenuSub>\n                              </SidebarMenuItem>\n                              <SidebarMenuSubItem v-else>\n                                <SidebarMenuSubButton :indent=\"2\" :is-active=\"active.id === c.id\" @click=\"active = c; sidebar.setOpenMobile(false)\">{{ c.label }}</SidebarMenuSubButton>\n                              </SidebarMenuSubItem>\n                            </template>\n                          </SidebarMenuSub>\n                        </SidebarMenuItem>\n                        <SidebarMenuSubItem v-else>\n                          <SidebarMenuSubButton :indent=\"1\" :is-active=\"active.id === b.id\" @click=\"active = b; sidebar.setOpenMobile(false)\">{{ b.label }}</SidebarMenuSubButton>\n                        </SidebarMenuSubItem>\n                      </template>\n                    </SidebarMenuSub>\n                  </SidebarMenuItem>\n                  <SidebarMenuSubItem v-else>\n                    <SidebarMenuSubButton :indent=\"0\" :is-active=\"active.id === a.id\" @click=\"active = a; sidebar.setOpenMobile(false)\">{{ a.label }}</SidebarMenuSubButton>\n                  </SidebarMenuSubItem>\n                </template>\n              </SidebarMenu>\n            </SidebarGroupContent>\n          </SidebarGroup>\n        </SidebarContent>\n        <SidebarCard v-if=\"!nested\" dismissible>\n          <SidebarCardTitleLink href=\"#\" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>\n          <SidebarCardContent>\n            Unlock higher rate limits, priority support, and advanced features.\n          </SidebarCardContent>\n          <SidebarCardFooter>\n            <Button size=\"sm\" pill color=\"primary\">View Plans</Button>\n          </SidebarCardFooter>\n        </SidebarCard>\n      </div>\n      <div v-else style=\"padding: 24px\">\n        <h1 class=\"text-2xl font-semibold mb-4\">{{ active.label }}</h1>\n        <p class=\"text-secondary\">Click the menu button to open the sidebar and select a different item.</p>\n      </div>\n    </div>\n  </div>\n</SidebarProvider>",
           "details": "Mobile behavior is handled automatically when using SidebarProvider. The SidebarMobileMenuButton provides a standard animated hamburger trigger."
         },
         {
@@ -3816,26 +4222,8 @@
           ]
         },
         {
-          "name": "Sidebar",
-          "description": "The main sidebar container. Renders as an `` element.",
-          "props": [
-            {
-              "name": "variant",
-              "type": "\"sidebar\" | \"docs\"",
-              "default": "\"sidebar\"",
-              "description": "Visual variant"
-            },
-            {
-              "name": "side",
-              "type": "\"left\" | \"right\"",
-              "default": "\"left\"",
-              "description": "Which side the sidebar is on"
-            }
-          ]
-        },
-        {
           "name": "SidebarMenuButton",
-          "description": "Renders a menu item button. Use `is-active` to highlight the current page.",
+          "description": "Renders a menu item button. Use is-active to highlight the current page.",
           "props": [
             {
               "name": "is-active",
@@ -3852,7 +4240,7 @@
         },
         {
           "name": "SidebarGroupLabel",
-          "description": "Renders a section label within a `SidebarGroup`. Supports two size variants.",
+          "description": "Renders a section label within a SidebarGroup. Supports two size variants.",
           "props": [
             {
               "name": "size",
@@ -4152,6 +4540,11 @@
         "StatCard"
       ],
       "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Label describing the metric"
+        },
         {
           "name": "value",
           "type": "string | number",
@@ -4574,6 +4967,16 @@
           "name": "DataTable",
           "props": [
             {
+              "name": "columns",
+              "type": "ColumnDef<TData>[]",
+              "description": "Column definitions following TanStack Table v8 API; header and cell renderers return VNodes"
+            },
+            {
+              "name": "data",
+              "type": "TData[]",
+              "description": "Data array to display"
+            },
+            {
               "name": "variant",
               "type": "\"default\" | \"bordered\"",
               "default": "\"default\"",
@@ -4663,6 +5066,16 @@
         {
           "name": "DataTableColumnHeader",
           "props": [
+            {
+              "name": "column",
+              "type": "Column<TData, TValue>",
+              "description": "TanStack Table column object"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Display text for the header"
+            },
             {
               "name": "class",
               "type": "string",
@@ -4789,26 +5202,6 @@
           "name": "@click",
           "type": "(event: MouseEvent) => void",
           "description": "Emitted on any click in the group, even when the selection does not change"
-        },
-        {
-          "name": "icon",
-          "type": "Component | VNode | string",
-          "description": "Icon before the label (sized automatically); the icon slot takes precedence"
-        },
-        {
-          "name": "badge",
-          "type": "number | string | VNode | { content; color?; variant?; pill?; loading? }",
-          "description": "Badge/count or custom badge config"
-        },
-        {
-          "name": "icon slot",
-          "type": "VNode[]",
-          "description": "Icon before the label"
-        },
-        {
-          "name": "badge slot",
-          "type": "VNode[]",
-          "description": "Badge content; styling still comes from the badge object"
         }
       ],
       "examples": [
@@ -4886,6 +5279,53 @@
           "name": "Scrollable",
           "code": "<div class=\"max-w-[400px] flex\">\n  <Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Scrollable tabs\">\n    <TabsTab value=\"1\">Overview</TabsTab>\n    <TabsTab value=\"2\">Analytics</TabsTab>\n    <TabsTab value=\"3\">Reports</TabsTab>\n    <TabsTab value=\"4\">Settings</TabsTab>\n    <TabsTab value=\"5\">Members</TabsTab>\n    <TabsTab value=\"6\">Billing</TabsTab>\n    <TabsTab value=\"7\">Security</TabsTab>\n    <TabsTab value=\"8\">Integrations</TabsTab>\n  </Tabs>\n</div>",
           "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "TabsTab",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Tab value"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "description": "Disable this tab"
+            },
+            {
+              "name": "icon",
+              "type": "Component | VNode | string",
+              "description": "Icon before the label (sized automatically); the icon slot takes precedence"
+            },
+            {
+              "name": "badge",
+              "type": "number | string | VNode | { content; color?; variant?; pill?; loading? }",
+              "description": "Badge/count or custom badge config"
+            },
+            {
+              "name": "aria-label",
+              "type": "string",
+              "description": "Accessible name (required for icon-only tabs)"
+            },
+            {
+              "name": "default slot",
+              "type": "VNode[]",
+              "description": "Tab label"
+            },
+            {
+              "name": "icon slot",
+              "type": "VNode[]",
+              "description": "Icon before the label"
+            },
+            {
+              "name": "badge slot",
+              "type": "VNode[]",
+              "description": "Badge content; styling still comes from the badge object"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/tabs"
@@ -5233,7 +5673,7 @@
         },
         {
           "name": "Promise",
-          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast.promise(saveProfile(), {\n    loading: 'Saving…',\n    success: (data) => \\",
+          "code": "<Button\n  color=\"secondary\"\n  variant=\"outline\"\n  @click=\"toast.promise(saveProfile(), {\n    loading: 'Saving…',\n    success: (data) => `${data.name} saved`,\n    error: 'Save failed',\n  })\"\n>\n  Run promise\n</Button>",
           "details": "Use toast.promise to tie a single toast to an async operation. The toast shows a loading state, then swaps to success or error. Here saveProfile() resolves with {\"{ name: \\\"Profile\\\" }\"} after 1.5 seconds."
         },
         {
@@ -5310,6 +5750,12 @@
           "description": "Content is interactive, stays open when hovered"
         },
         {
+          "name": "maxWidth",
+          "type": "number | \"none\"",
+          "default": "300",
+          "description": "Max width of tooltip"
+        },
+        {
           "name": "openDelay",
           "type": "number",
           "default": "150",
@@ -5380,5 +5826,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T13:44:07.922Z"
+  "generatedAt": "2026-10-26T14:08:39.424Z"
 }

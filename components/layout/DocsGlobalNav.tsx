@@ -10,7 +10,7 @@ import { useEffect, useMemo } from 'react';
 import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import type { DocsSectionNavItem } from '@/lib/docs-navigation';
 import s from './DocsGlobalNav.module.css';
-import { reactPath } from '@/lib/framework-urls';
+import { frameworkUrl, reactPath } from '@/lib/framework-urls';
 
 function normalizePath(pathname: string) {
   if (!pathname) return '/';
@@ -101,7 +101,7 @@ export function DocsGlobalNav({ sections }: { sections: DocsSectionNavItem[] }) 
                 {componentsLink && (
                   <Link
                     key={componentsLink.href}
-                    href={componentsLink.href}
+                    href={frameworkUrl(pathname, componentsLink.href)}
                     className={`${s.NavLink} ${componentsActive ? s.NavLinkActive : ''}`.trim()}
                   >
                     {componentsLink.label}

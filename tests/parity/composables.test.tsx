@@ -361,3 +361,30 @@ describe("Composables match the React hooks", () => {
     expect(new Set(react.map((r) => r.split("|")[1])).size).toBeGreaterThan(3)
   })
 })
+
+describe("useBreakpoint on the server", () => {
+  // No window or document while rendering, as in SSR: the composable reads the
+  // breakpoint from the document's CSS variables only in the browser
+  test("renders false without touching the document, also inside Slider", async () => {
+    // Fresh modules: the breakpoint module caches the resolved values
+    vi.resetModules()
+    const { renderToString } = await import("vue/server-renderer")
+    const { createSSRApp, defineComponent, h } = await import("vue")
+    const { useBreakpoint: useFreshBreakpoint } = await import("../../packages/vue/src/composables/useBreakpoints")
+    const { Slider } = await import("../../packages/vue/src/components/Slider")
+    const Probe = defineComponent({
+      setup() {
+        const md = useFreshBreakpoint("md")
+        return () => h("span", String(md.value))
+      },
+    })
+    vi.stubGlobal("window", undefined)
+    vi.stubGlobal("document", undefined)
+    try {
+      expect(await renderToString(createSSRApp(Probe))).toBe("<span>false</span>")
+      expect(await renderToString(createSSRApp(() => h(Slider, { value: 30, min: 0, max: 100, step: 1, label: "Volume" })))).toContain("Volume")
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+})

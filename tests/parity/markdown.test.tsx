@@ -186,7 +186,7 @@ describe("Markdown parity: GFM", () => {
   test("task list checkboxes keep their checked attribute", async () => {
     const pair = await pairOf("- [x] done\n- [ ] todo")
     expect(pair.vue).toBe(pair.react)
-    expect(pair.react).toContain('<input checked="" disabled="" type="checkbox">')
+    expect(pair.react).toContain('<input checked="" disabled="" type="checkbox" .checked=true>')
   })
 })
 

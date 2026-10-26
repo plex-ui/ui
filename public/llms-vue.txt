@@ -12,8 +12,10 @@ Components: 47
 ## Setup
 
 ```css
+@layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "@plexui/styles/css";
+@source "../node_modules/@plexui/vue";
 ```
 
 Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"
@@ -28,6 +30,20 @@ Variants: solid, soft, outline, ghost
 Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
 Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
 Docs: https://plexui.com/vue/components/accordion
+Props:
+  - type ("single" | "multiple") — Required. Whether one item or many can be open at a time
+  - v-model:value / value (string | string[]) — Controlled open item(s), named like the React prop
+  - default-value (string | string[]) — Uncontrolled initial open item(s)
+  - collapsible (boolean) default: false — When type="single", allow closing the open item
+  - disabled (boolean) default: false — Disable every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction
+  - orientation ("horizontal" | "vertical") default: "vertical" — Layout axis
+  - class (string) — Applied to the root <div>
+  - @update:value ((value: string | string[]) => void) — Fires when the open item(s) change; closing the open item of a single accordion reports ""
+  AccordionItem:
+    - value (string) — Required. Unique identifier used by value / default-value
+    - disabled (boolean) default: false — Disable this item
+    - class (string) — Applied to the item wrapper
 Examples: Overview, Single, Multiple, Disabled, Card
 
 ## Alert
@@ -42,6 +58,7 @@ Props:
   - actions-class-name (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
+  - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
   - @dismiss (() => void) — Shows the dismiss button when set
 Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible
 
@@ -112,6 +129,12 @@ Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disable
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
 Docs: https://plexui.com/vue/components/button-group
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - class (string) — Applied to the root <div>
+  ButtonGroupText:
+    - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
+    - class (string) — Applied to the wrapper
 Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
 
 ## Button Link
@@ -141,6 +164,14 @@ Examples: Overview, Internal link, External link, Colors & variants, Sizing & ro
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
 Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
 Docs: https://plexui.com/vue/components/card
+Props:
+  - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
+  - size ("sm" | "md" | "lg") default: "md" — Padding scale
+  - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
+  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider.
+  - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
+  - as (Component | "a") — Overrides the link component.
+  - class (string) — Applied to the root element
 Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
 
 ## Checkbox
@@ -170,11 +201,11 @@ Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With 
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
 Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
 Docs: https://plexui.com/vue/components/code-block
-  CodeBlock:
-    - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
-    - code (string) — Code content, used when the default slot is empty
-    - language (string) — Prism language name
-    - class (string) — Additional wrapper class
+Props:
+  - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
+  - code (string) — Code content, used when the default slot is empty
+  - language (string) — Prism language name
+  - class (string) — Additional wrapper class
   CollapsibleCodeBlock:
     - default slot / code (string) — Code content
     - language (string) — Prism language name
@@ -278,9 +309,10 @@ Docs: https://plexui.com/vue/components/dialog
 Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
   - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
-  - width (number | string) default: 480 — Panel width
-  - show-close (boolean) default: true — Show close button in top-right corner
-  - class (string) — Additional CSS class on the panel
+  DialogContent:
+    - width (number | string) default: 480 — Panel width
+    - show-close (boolean) default: true — Show close button in top-right corner
+    - class (string) — Additional CSS class on the panel
 Examples: Overview, Destructive confirmation
 
 ## Empty Message
@@ -288,9 +320,14 @@ Empty state for telling users there's nothing to show, with error, warning, no-r
 Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
 Docs: https://plexui.com/vue/components/empty-message
 Props:
-  - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-  - size ("sm" | "md") default: "md" — Icon badge size
-  - class (string) — Additional classes for the action row container
+  - fill ("static" | "absolute" | "none") default: "static" — How the container fills available space; use "none" for transparent (e.g. in search results)
+  EmptyMessageIcon:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+    - size ("sm" | "md") default: "md" — Icon badge size
+  EmptyMessageTitle:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  EmptyMessageActionRow:
+    - class (string) — Additional classes for the action row container
 Examples: Composition, Error message, Warning message, No results
 
 ## Field
@@ -319,6 +356,7 @@ Props:
   - variant ("compact" | "area") default: "compact" — Visual variant: compact button or larger tappable area
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
+  - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
   - multiple (boolean) default: false — Allow selecting multiple files
   - max-files (number) — Maximum number of files. Button disables at limit.
   - max-size (number) — Maximum file size in bytes
@@ -326,6 +364,7 @@ Props:
   - @file-reject ((file: File, reason: string) => void) — Fires when a file is rejected (wrong type, too large, over limit)
   - error-message (string) — Error message; sets the invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when error-message is provided)
+  - disabled (boolean) default: false — Disable all interactions
   FileCard:
     - file (File) — The file to display
     - @remove (() => void) — Remove callback. When omitted, the delete button is hidden.
@@ -390,19 +429,26 @@ Props:
   - disabled (boolean) default: false — Disables the input visually and from interactions
   - read-only (boolean) default: false — Makes the input read-only and hides the clear button
   - invalid (boolean) default: false — Mark the input as invalid
+  - allow-autofill-extensions (boolean) default: false (true with name or type="password") — Allow autofill extensions to appear in the input
   - auto-select (boolean) default: false — Select all contents of the input when mounted
   - startAdornment / endAdornment (slots) — Content rendered at the start or end of the input
   - @clear (() => void) — When set, displays a clear button that appears when the input has a value
   - @autofill (() => void) — Fires when the browser autofills the input
   - pill (boolean) default: false — Fully rounded pill shape
   - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
-  - type (string) default: "button" — Button type
+  InputAdornmentButton:
+    - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
+    - type (string) default: "button" — Button type
 Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
 
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/vue/components/Label"
 Docs: https://plexui.com/vue/components/label
+Props:
+  - for (string) — id of the associated control. Clicks on the label focus or activate the control.
+  - class (string) — Applied to the root <label> element
+  - default slot (VNode[]) — Label content
 Examples: Overview, Label in Field
 
 ## Markdown
@@ -440,24 +486,31 @@ Props:
   - modal (boolean) default: false — Whether menu is modal (focus trap)
   - @open (() => void) — Emitted when menu opens
   - @close (() => void) — Emitted when menu closes
-  - disabled (boolean) default: false — Prevent the menu from opening
-  - width (number | "auto") — Panel width (numbers are pixels)
-  - min-width (number | "auto") default: 300 — Minimum panel width
-  - max-height (number) — Maximum panel height, in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
-  - side-offset (number) default: 5 — Distance from the trigger, in pixels
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - align-offset (number) — Offset from the start or end alignment, in pixels
-  - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
-  - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
-  - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
-  - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
-  - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
-  - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
-  - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
-  - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
-  - indicator-position ("start" | "end") default: "end" — Checkbox position
-  - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+  MenuTrigger:
+    - disabled (boolean) default: false — Prevent the menu from opening
+  MenuContent:
+    - width (number | "auto") — Panel width (numbers are pixels)
+    - min-width (number | "auto") default: 300 — Minimum panel width
+    - max-height (number) — Maximum panel height, in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
+    - side-offset (number) default: 5 — Distance from the trigger, in pixels
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - align-offset (number) — Offset from the start or end alignment, in pixels
+    - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+    - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+    - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+  MenuItem:
+    - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
+    - disabled (boolean) default: false — Disable the item
+    - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
+    - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
+  MenuCheckboxItem:
+    - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
+    - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
+    - @select ((event: Event) => void) — Call event.preventDefault() to keep the menu open
+    - indicator-position ("start" | "end") default: "end" — Checkbox position
+    - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+    - disabled (boolean) default: false — Disable the item
 Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
 
 ## OTP Input
@@ -483,19 +536,25 @@ Docs: https://plexui.com/vue/components/popover
 Props:
   - showOnHover (boolean) — Open on hover and focus instead of click
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
-  - width (number | string) — Panel width (px or CSS value)
-  - minWidth (number | string) default: 300 — Minimum panel width in px
-  - maxWidth (number | string) — Maximum panel width
-  - side ("top" | "right" | "bottom" | "left") — Preferred placement
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - sideOffset (number) — Offset from trigger (px)
-  - alignOffset (number) — Alignment offset (px)
+  PopoverContent:
+    - width (number | string) — Panel width (px or CSS value)
+    - minWidth (number | string) default: 300 — Minimum panel width in px
+    - maxWidth (number | string) — Maximum panel width
+    - side ("top" | "right" | "bottom" | "left") — Preferred placement
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - sideOffset (number) — Offset from trigger (px)
+    - alignOffset (number) — Alignment offset (px)
 Examples: Overview, Sizing the popover, Open on hover, Using the controller
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
 Import: import { Progress } from "@plexui/vue/components/Progress"
 Docs: https://plexui.com/vue/components/progress
+Props:
+  - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
+  - max (number) default: 100 — Maximum progress value
+  - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
+  - class (string) — Applied to the root <div>
 Examples: With label, Controlled
 
 ## Progress Steps
@@ -510,7 +569,8 @@ Props:
   - connector-style ("solid" | "dashed") default: "solid" — Connector line style
   - variant ("minimal") — Compact bar variant (requires total)
   - total (number) — Total steps for minimal variant
-  - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
+  ProgressStepsStep:
+    - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
 Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
 
 ## Radio Group
@@ -529,8 +589,14 @@ Props:
   - default slot (VNode[]) — RadioGroupItem children
   - @update:value ((value: string) => void) — Emitted when the selected option changes; powers v-model:value
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
-  - block (boolean) default: false — Stretch item to fill available width
-  - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+  RadioGroupItem:
+    - value (string) — Item value
+    - disabled (boolean) default: false — Disable this item only
+    - required (boolean) — Marks this item's hidden form input as required
+    - block (boolean) default: false — Stretch item to fill available width
+    - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+    - class (string) — Extra classes on the label element
+    - default slot (VNode[]) — Label content (text or rich content)
 Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Select
@@ -551,6 +617,7 @@ Props:
   - disabled (boolean) default: false — Disable select
   - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
   - actions (array) — Actions below options list
+  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
   - #optionView / OptionView (slot (option) | Component) — Custom option render
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
@@ -584,6 +651,10 @@ Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
 Import: import { Separator } from "@plexui/vue/components/Separator"
 Docs: https://plexui.com/vue/components/separator
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
+  - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
+  - class (string) — Applied to the root <div>
 Examples: Overview, Vertical, Menu, List
 
 ## Shimmer Text
@@ -594,22 +665,26 @@ Props:
   - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
   - default slot (VNode[]) — Text content to shimmer
   - class (string) — Additional CSS classes
-  - shimmer (boolean) default: false — Whether the shimmer animation is active
+  ShimmerableText:
+    - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+    - shimmer (boolean) default: false — Whether the shimmer animation is active
+    - default slot (VNode[]) — Text content to shimmer
+    - class (string) — Additional CSS classes
 Examples: Overview, Semantic elements, Controllable shimmer
 
 ## Sidebar
 Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/vue/components/Sidebar"
 Docs: https://plexui.com/vue/components/sidebar
+Props:
+  - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
+  - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
-  Sidebar:
-    - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
-    - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarMenuButton:
     - is-active (boolean) default: false — Highlight the current page
     - tooltip (string) — Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content
@@ -666,6 +741,7 @@ Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an 
 Import: import { StatCard } from "@plexui/vue/components/StatCard"
 Docs: https://plexui.com/vue/components/stat-card
 Props:
+  - label (string) — Label describing the metric
   - value (string | number) — The primary metric value
   - value slot (VNode[]) — Rich value content; takes precedence over the value prop
   - description (string) — Subtitle below the value
@@ -721,6 +797,8 @@ Docs: https://plexui.com/vue/components/table
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
   DataTable:
+    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes
+    - data (TData[]) — Data array to display
     - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
     - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
     - initial-sorting (SortingState) — Initial column sorting state
@@ -738,6 +816,8 @@ Docs: https://plexui.com/vue/components/table
     - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
     - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
   DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object
+    - title (string) — Display text for the header
     - class (string) — Class applied to the header button (or text when the column cannot sort)
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
@@ -766,10 +846,15 @@ Props:
   - @update:value ((value: string) => void) — Emitted when a tab is selected; powers v-model:value
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
   - @click ((event: MouseEvent) => void) — Emitted on any click in the group, even when the selection does not change
-  - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
-  - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
-  - icon slot (VNode[]) — Icon before the label
-  - badge slot (VNode[]) — Badge content; styling still comes from the badge object
+  TabsTab:
+    - value (string) — Tab value
+    - disabled (boolean) — Disable this tab
+    - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
+    - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
+    - aria-label (string) — Accessible name (required for icon-only tabs)
+    - default slot (VNode[]) — Tab label
+    - icon slot (VNode[]) — Icon before the label
+    - badge slot (VNode[]) — Badge content; styling still comes from the badge object
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
 
 ## Tag Input
@@ -846,6 +931,7 @@ Props:
   - content (string | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
   - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - maxWidth (number | "none") default: 300 — Max width of tooltip
   - openDelay (number) default: 150 — Delay before showing (ms)
   - side (string) default: "top" — Preferred side
   - sideOffset (number) default: 5 — Distance from trigger

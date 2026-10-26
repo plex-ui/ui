@@ -36,7 +36,8 @@ const styles = {
       path: "assets/plexui.css",
       type: "registry:file",
       target: "assets/plexui.css",
-      content: '@import "@plexui/styles/css";\n',
+      // Paths in @source are relative to this file, which sits in assets/
+      content: '@import "@plexui/styles/css";\n@source "../node_modules/@plexui/vue";\n',
     },
   ],
   docs: "Import `./assets/plexui.css` once before mounting the app (e.g. in main.ts), after `@import \"tailwindcss\";` in your main stylesheet. See https://plexui.com/docs/vue for the Vite plugin and SSR setup.",

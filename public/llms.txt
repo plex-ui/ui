@@ -26,6 +26,20 @@ Variants: solid, soft, outline, ghost
 Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
 Import: import { Accordion } from "@plexui/ui/components/Accordion"
 Docs: https://plexui.com/components/accordion
+Props:
+  - type ("single" | "multiple") default: — — Whether one item or many can be open at a time
+  - value (string | string[]) default: — — Controlled open item(s)
+  - defaultValue (string | string[]) default: — — Uncontrolled initial open item(s)
+  - onValueChange ((value) => void) default: — — Fires when the open item(s) change
+  - collapsible (boolean) default: false — When type="single", allow closing the open item
+  - disabled (boolean) default: false — Disable every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction
+  - orientation ("horizontal" | "vertical") default: "vertical" — Layout axis
+  - className (string) default: — — Applied to the root <div>
+  Accordion.Item:
+    - value (string) default: — — Required. Unique identifier used by value / defaultValue
+    - disabled (boolean) default: false — Disable this item
+    - className (string) default: — — Applied to the item wrapper
 Examples: Overview, Single, Multiple, Disabled, Card
 
 ## Alert
@@ -83,6 +97,12 @@ Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 Import: import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
 Docs: https://plexui.com/components/button-group
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - className (string) default: — — Applied to the root <div>
+  ButtonGroup.Text:
+    - asChild (boolean) default: false — Render as the passed child (e.g. a <label> tied to an input)
+    - className (string) default: — — Applied to the wrapper
 Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
 
 ## Button Link
@@ -132,6 +152,14 @@ Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disable
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
 Import: import { Card } from "@plexui/ui/components/Card"
 Docs: https://plexui.com/components/card
+Props:
+  - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
+  - size ("sm" | "md" | "lg") default: "md" — Padding scale
+  - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
+  - href (string) default: — — Renders the Card as a link via the configured LinkComponent.
+  - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
+  - as (ComponentType | "a") default: — — Overrides the link component (e.g. next/link).
+  - className (string) default: — — Applied to the root element
 Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
 
 ## Checkbox
@@ -158,10 +186,10 @@ Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With 
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
 Import: import { CodeBlock } from "@plexui/ui/components/CodeBlock"
 Docs: https://plexui.com/components/code-block
-  CodeBlock:
-    - children (string) — Code content
-    - language (string) — Prism language name
-    - className (string) — Additional wrapper class
+Props:
+  - children (string) — Code content
+  - language (string) — Prism language name
+  - className (string) — Additional wrapper class
   CollapsibleCodeBlock:
     - children (string) — Code content
     - language (string) — Prism language name
@@ -264,9 +292,10 @@ Docs: https://plexui.com/components/dialog
 Props:
   - open (boolean) — Controlled open state
   - onOpenChange ((open: boolean) => void) — Called when the dialog opens or closes
-  - width (number | string) default: 480 — Panel width
-  - showClose (boolean) default: true — Show close button in top-right corner
-  - className (string) — Additional CSS class on the panel
+  Dialog.Content:
+    - width (number | string) default: 480 — Panel width
+    - showClose (boolean) default: true — Show close button in top-right corner
+    - className (string) — Additional CSS class on the panel
 Examples: Overview, Destructive confirmation
 
 ## Empty Message
@@ -274,9 +303,14 @@ Empty state for telling users there's nothing to show, with error, warning, no-r
 Import: import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
 Docs: https://plexui.com/components/empty-message
 Props:
-  - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-  - size ("sm" | "md") default: "md" — Icon size
-  - className (string) — Additional classes for the action row container
+  - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
+  EmptyMessage.Icon:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+    - size ("sm" | "md") default: "md" — Icon size
+  EmptyMessage.Title:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  EmptyMessage.ActionRow:
+    - className (string) — Additional classes for the action row container
 Examples: Composition, Error message, Warning message, No results
 
 ## Field
@@ -303,6 +337,7 @@ Props:
   - variant ("compact" | "area") default: "compact" — Visual variant — compact button or larger tappable area
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
+  - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
   - multiple (boolean) default: false — Allow selecting multiple files
   - maxFiles (number) — Maximum number of files. Button disables at limit.
   - maxSize (number) — Maximum file size in bytes
@@ -311,6 +346,7 @@ Props:
   - onFileReject ((file: File, reason: string) => void) — Callback when a file is rejected (wrong type, too large, over limit)
   - errorMessage (string) — Error message — sets invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when errorMessage is provided)
+  - disabled (boolean) default: false — Disable all interactions
   FileCard:
     - file (File) — The file to display
     - onRemove (() => void) — Remove callback. When omitted, the delete button is hidden.
@@ -378,6 +414,9 @@ Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button,
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/ui/components/Label"
 Docs: https://plexui.com/components/label
+Props:
+  - htmlFor (string) default: — — id of the associated control. Clicks on the label focus or activate the control.
+  - className (string) default: — — Applied to the root <label> element
 Examples: Overview, Label in Field
 
 ## Markdown Editor
@@ -414,19 +453,23 @@ Props:
   - onOpen (() => void) — Called when menu opens
   - onClose (() => void) — Called when menu closes
   - modal (boolean) — Whether menu is modal (focus trap)
-  - width (number | "auto") default: "auto" — Panel width in px
-  - minWidth (number | "auto") default: 300 — Minimum panel width in px (vertical layout)
-  - side ("top" | "right" | "bottom" | "left") — Preferred placement
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
-  - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
-  - description (ReactNode) — Second line under the label. The label turns semibold on its own
-  - onSelect ((event: Event) => void) — Called when item is selected
-  - disabled (boolean) — Disable the item
-  - checked (boolean | "indeterminate") — Checked state
-  - onCheckedChange ((checked: boolean) => void) — When checkbox toggles
-  - indicatorPosition ("start" | "end") default: "end" — Checkbox position
-  - indicatorVariant ("solid" | "ghost") default: "solid" — Checkbox indicator style
+  Menu.Content:
+    - width (number | "auto") default: "auto" — Panel width in px
+    - minWidth (number | "auto") default: 300 — Minimum panel width in px (vertical layout)
+    - side ("top" | "right" | "bottom" | "left") — Preferred placement
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+    - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+  Menu.Item:
+    - description (ReactNode) — Second line under the label. The label turns semibold on its own
+    - onSelect ((event: Event) => void) — Called when item is selected
+    - disabled (boolean) — Disable the item
+  Menu.CheckboxItem:
+    - checked (boolean | "indeterminate") — Checked state
+    - onCheckedChange ((checked: boolean) => void) — When checkbox toggles
+    - onSelect ((event: Event) => void) — Use with preventDefault() to keep menu open
+    - indicatorPosition ("start" | "end") default: "end" — Checkbox position
+    - indicatorVariant ("solid" | "ghost") default: "solid" — Checkbox indicator style
 Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
 
 ## OTP Input
@@ -451,13 +494,14 @@ Import: import { Popover } from "@plexui/ui/components/Popover"
 Docs: https://plexui.com/components/popover
 Props:
   - showOnHover (boolean) — Open on hover and focus instead of click
-  - width (number | "auto") default: "auto" — Panel width in px
-  - minWidth (number | "auto") default: 300 — Minimum panel width in px
-  - maxWidth (number) — Maximum panel width in px
-  - side ("top" | "right" | "bottom" | "left") — Preferred placement
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - sideOffset (number) — Offset from trigger (px)
-  - alignOffset (number) — Alignment offset (px)
+  Popover.Content:
+    - width (number | "auto") default: "auto" — Panel width in px
+    - minWidth (number | "auto") default: 300 — Minimum panel width in px
+    - maxWidth (number) — Maximum panel width in px
+    - side ("top" | "right" | "bottom" | "left") — Preferred placement
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - sideOffset (number) — Offset from trigger (px)
+    - alignOffset (number) — Alignment offset (px)
 Examples: Overview, Sizing the popover, Open on hover, Using the controller
 
 ## Progress Steps
@@ -470,14 +514,20 @@ Props:
   - size ("sm" | "md" | "lg") default: "md" — Step indicator size
   - color ("default" | "success") default: "default" — Color scheme for completed/active steps
   - connectorStyle ("solid" | "dashed") default: "solid" — Connector line style
+  - variant ("default" | "minimal") default: "default" — "minimal" renders a compact bar (requires total)
   - total (number) — Total steps for minimal variant
-  - icon (ReactNode) — Custom icon instead of step number
+  ProgressSteps.Step:
+    - icon (ReactNode) — Custom icon instead of step number
 Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
 Import: import { Progress } from "@plexui/ui/components/Progress"
 Docs: https://plexui.com/components/progress
+Props:
+  - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
+  - max (number) default: 100 — Maximum progress value
+  - className (string) default: — — Applied to the root <div>
 Examples: Overview, With label, Controlled
 
 ## Radio Group
@@ -491,8 +541,11 @@ Props:
   - direction ("col" | "row") default: "row" — Item flow direction
   - disabled (boolean) default: false — Disable the whole group
   - aria-label (string) — Accessible group label
-  - block (boolean) default: false — Stretch item to fill available width
-  - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+  RadioGroup.Item:
+    - value (string) — Item value
+    - disabled (boolean) default: false — Disable this item only
+    - block (boolean) default: false — Stretch item to fill available width
+    - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
 Examples: Overview, With Checkbox, Descriptions, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Select Control
@@ -531,6 +584,7 @@ Props:
   - block (boolean) default: variant !== "ghost" — Full width trigger
   - disabled (boolean) default: false — Disable select
   - actions (array) — Actions below options list
+  - checkPosition ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
   - OptionView (React.FC) — Custom option render
   - TriggerView (React.FC) — Custom trigger render (multi)
   - searchPlaceholder (string) — Search input placeholder
@@ -541,6 +595,10 @@ Examples: Overview, With descriptions, Actions, Grouped options, Multiple select
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
 Import: import { Separator } from "@plexui/ui/components/Separator"
 Docs: https://plexui.com/components/separator
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
+  - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
+  - className (string) default: — — Applied to the root <div>
 Examples: Overview, Vertical, Menu, List
 
 ## Shimmer Text
@@ -551,21 +609,25 @@ Props:
   - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
   - children (ReactNode) — Text content to shimmer
   - className (string) — Additional CSS classes
-  - shimmer (boolean) default: false — Whether the shimmer animation is active
+  ShimmerableText:
+    - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+    - shimmer (boolean) default: false — Whether the shimmer animation is active
+    - children (ReactNode) — Text content to shimmer
+    - className (string) — Additional CSS classes
 Examples: Overview, Semantic elements, Controllable shimmer
 
 ## Sidebar
 Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/ui/components/Sidebar"
 Docs: https://plexui.com/components/sidebar
+Props:
+  - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
+  - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - defaultOpen (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state
     - onOpenChange ((open: boolean) => void) — Called when open state changes
-  Sidebar:
-    - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
-    - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarMenuButton:
     - isActive (boolean) default: false — Highlight the current page
     - tooltip (string | ReactNode) — Label shown on hover when collapsed (icon mode). Hidden on mobile.
@@ -618,6 +680,8 @@ Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an 
 Import: import { StatCard } from "@plexui/ui/components/StatCard"
 Docs: https://plexui.com/components/stat-card
 Props:
+  - label (string) — Label describing the metric
+  - value (ReactNode) — The primary metric value
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage
   - invertTrend (boolean) default: false — Invert trend colors (positive = bad)
@@ -666,6 +730,8 @@ Docs: https://plexui.com/components/table
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
   DataTable:
+    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API
+    - data (TData[]) — Data array to display
     - variant ("default" | "bordered") default: "default" — Visual variant — bordered adds a rounded border and tinted header
     - pageSize (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
     - initialSorting (SortingState) — Initial column sorting state
@@ -682,6 +748,8 @@ Docs: https://plexui.com/components/table
     - showPagination (boolean) default: true — Whether to show pagination controls
     - className (string) — Class applied to outermost wrapper
   DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object
+    - title (string) — Display text for the header
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
     - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
@@ -705,8 +773,12 @@ Props:
   - block (boolean) default: false — Full-width control with equal-width tabs
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
-  - icon (ReactNode) — Icon element (sized automatically)
-  - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
+  Tabs.Tab:
+    - value (string) — Tab value
+    - disabled (boolean) — Disable this tab
+    - icon (ReactNode) — Icon element (sized automatically)
+    - badge (ReactNode | { content: ReactNode; color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"; variant?: "soft" | "solid"; pill?: boolean; loading?: boolean }) — Badge content (for example a count) or a badge config
+    - aria-label (string) — Accessible name (required for icon-only tabs)
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
 
 ## Tag Input
@@ -776,6 +848,7 @@ Props:
   - content (ReactNode) — Tooltip content (null = no tooltip)
   - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - maxWidth (number | "none") default: 300 — Max width of tooltip
   - openDelay (number) default: 150 — Delay before showing (ms)
   - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side
   - sideOffset (number) default: 5 — Distance from trigger

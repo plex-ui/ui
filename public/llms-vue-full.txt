@@ -10,8 +10,10 @@ Components: 47
 ## Setup
 
 ```css
+@layer theme, base, components, utilities;
 @import "tailwindcss";
 @import "@plexui/styles/css";
+@source "../node_modules/@plexui/vue";
 ```
 
 Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"
@@ -26,6 +28,20 @@ Variants: solid, soft, outline, ghost
 Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
 Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
 Docs: https://plexui.com/vue/components/accordion
+Props:
+  - type ("single" | "multiple") — Required. Whether one item or many can be open at a time
+  - v-model:value / value (string | string[]) — Controlled open item(s), named like the React prop
+  - default-value (string | string[]) — Uncontrolled initial open item(s)
+  - collapsible (boolean) default: false — When type="single", allow closing the open item
+  - disabled (boolean) default: false — Disable every item
+  - dir ("ltr" | "rtl") default: "ltr" — Reading direction
+  - orientation ("horizontal" | "vertical") default: "vertical" — Layout axis
+  - class (string) — Applied to the root <div>
+  - @update:value ((value: string | string[]) => void) — Fires when the open item(s) change; closing the open item of a single accordion reports ""
+  AccordionItem:
+    - value (string) — Required. Unique identifier used by value / default-value
+    - disabled (boolean) default: false — Disable this item
+    - class (string) — Applied to the item wrapper
 
 ### Overview
 ```vue
@@ -196,6 +212,7 @@ Props:
   - actions-class-name (string) — Class applied to the actions container
   - color (SemanticColors) default: "primary" — Color scheme
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
+  - indicator (slot | false) — Custom indicator (slot), or :indicator="false" to hide it
   - @dismiss (() => void) — Shows the dismiss button when set
 
 ### Overview
@@ -708,6 +725,12 @@ Use optically-align with either "start" or "end" to offset the gutter of the but
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
 Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
 Docs: https://plexui.com/vue/components/button-group
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the joined items
+  - class (string) — Applied to the root <div>
+  ButtonGroupText:
+    - as-child (boolean) default: false — Render the slotted child (e.g. a <label> tied to an input) instead of a <div>
+    - class (string) — Applied to the wrapper
 
 ### Overview
 ```vue
@@ -1035,6 +1058,14 @@ Use disabled to both visually and accessibly disable a link. The component rende
 Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
 Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
 Docs: https://plexui.com/vue/components/card
+Props:
+  - variant ("outline" | "solid" | "ghost") default: "outline" — Visual variant
+  - size ("sm" | "md" | "lg") default: "md" — Padding scale
+  - interactive (boolean) default: false — Adds hover and focus affordances. Automatic when href is set.
+  - href (string) — Renders the Card as a link via the linkComponent of PlexUIProvider.
+  - external (boolean) default: auto-detected — Forces target="_blank" and rel="noopener noreferrer" when href is set.
+  - as (Component | "a") — Overrides the link component.
+  - class (string) — Applied to the root element
 
 ### Overview
 ```vue
@@ -1585,11 +1616,11 @@ Use dividers to separate checkbox groups into logical sections. Each section can
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
 Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
 Docs: https://plexui.com/vue/components/code-block
-  CodeBlock:
-    - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
-    - code (string) — Code content, used when the default slot is empty
-    - language (string) — Prism language name
-    - class (string) — Additional wrapper class
+Props:
+  - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
+  - code (string) — Code content, used when the default slot is empty
+  - language (string) — Prism language name
+  - class (string) — Additional wrapper class
   CollapsibleCodeBlock:
     - default slot / code (string) — Code content
     - language (string) — Prism language name
@@ -2036,9 +2067,10 @@ Docs: https://plexui.com/vue/components/dialog
 Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
   - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
-  - width (number | string) default: 480 — Panel width
-  - show-close (boolean) default: true — Show close button in top-right corner
-  - class (string) — Additional CSS class on the panel
+  DialogContent:
+    - width (number | string) default: 480 — Panel width
+    - show-close (boolean) default: true — Show close button in top-right corner
+    - class (string) — Additional CSS class on the panel
 
 ### Overview
 ```vue
@@ -2092,9 +2124,14 @@ Empty state for telling users there's nothing to show, with error, warning, no-r
 Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
 Docs: https://plexui.com/vue/components/empty-message
 Props:
-  - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
-  - size ("sm" | "md") default: "md" — Icon badge size
-  - class (string) — Additional classes for the action row container
+  - fill ("static" | "absolute" | "none") default: "static" — How the container fills available space; use "none" for transparent (e.g. in search results)
+  EmptyMessageIcon:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+    - size ("sm" | "md") default: "md" — Icon badge size
+  EmptyMessageTitle:
+    - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  EmptyMessageActionRow:
+    - class (string) — Additional classes for the action row container
 
 ### Composition
 ```vue
@@ -2192,7 +2229,7 @@ Field wraps a form control with a label, optional description, and error message
   <Field
     label="Email"
     :size="size"
-    :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
+    :description="description ? 'We\'ll never share your email with anyone else.' : undefined"
     :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
     :required="required"
     :orientation="horizontal ? 'horizontal' : 'vertical'"
@@ -2242,7 +2279,7 @@ Field accepts a size prop that scales the label and description font size to mat
   <Field
     label="Email"
     :size="size"
-    :description="description ? 'We\\'ll never share your email with anyone else.' : undefined"
+    :description="description ? 'We\'ll never share your email with anyone else.' : undefined"
     :error-message="errorMessage ? 'Please enter a valid email address.' : undefined"
     :required="required"
     :orientation="horizontal ? 'horizontal' : 'vertical'"
@@ -2576,7 +2613,7 @@ A profile settings form with three fieldset sections (personal info, preferences
       label="Email notifications"
       description="Receive weekly digests and important updates."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" default-checked />
@@ -2586,7 +2623,7 @@ A profile settings form with three fieldset sections (personal info, preferences
       label="Push notifications"
       description="Get real-time alerts in your browser."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" />
@@ -2596,7 +2633,7 @@ A profile settings form with three fieldset sections (personal info, preferences
       label="Marketing emails"
       description="Tips, product updates, and promotions."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" />
@@ -2694,7 +2731,7 @@ A project creation form with general settings, team access with tag input and ch
       label="Auto-deploy"
       description="Automatically deploy on push to main branch."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" default-checked />
@@ -2763,7 +2800,7 @@ A CMS-style field configuration form with setup, formatting, and privacy section
       label="HTML sanitization"
       description="Strip potentially unsafe HTML tags from input."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" />
@@ -2782,7 +2819,7 @@ A CMS-style field configuration form with setup, formatting, and privacy section
       label="Not redactable"
       description="Prevent this field from being redacted."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" />
@@ -2792,7 +2829,7 @@ A CMS-style field configuration form with setup, formatting, and privacy section
       label="Write once"
       description="Value can only be set once and cannot be changed."
       orientation="horizontal"
-      class="${switchRowClass}"
+      class="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]"
       v-slot="fieldProps"
     >
       <Switch :id="fieldProps.id" />
@@ -2959,6 +2996,7 @@ Props:
   - variant ("compact" | "area") default: "compact" — Visual variant: compact button or larger tappable area
   - label (string) — Button label text
   - description (string) — Helper text below the icon (area variant only)
+  - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
   - multiple (boolean) default: false — Allow selecting multiple files
   - max-files (number) — Maximum number of files. Button disables at limit.
   - max-size (number) — Maximum file size in bytes
@@ -2966,6 +3004,7 @@ Props:
   - @file-reject ((file: File, reason: string) => void) — Fires when a file is rejected (wrong type, too large, over limit)
   - error-message (string) — Error message; sets the invalid visual state
   - invalid (boolean) default: false — Invalid state (auto-set when error-message is provided)
+  - disabled (boolean) default: false — Disable all interactions
   FileCard:
     - file (File) — The file to display
     - @remove (() => void) — Remove callback. When omitted, the delete button is hidden.
@@ -3452,7 +3491,7 @@ A country code selector paired with a FloatingLabelInput that uses the startAdor
     ref="phoneInput"
     label="Phone number"
     :value="phone"
-    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))"
+    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\D/g, ''), country))"
     type="tel"
     inputmode="tel"
   >
@@ -3572,13 +3611,16 @@ Props:
   - disabled (boolean) default: false — Disables the input visually and from interactions
   - read-only (boolean) default: false — Makes the input read-only and hides the clear button
   - invalid (boolean) default: false — Mark the input as invalid
+  - allow-autofill-extensions (boolean) default: false (true with name or type="password") — Allow autofill extensions to appear in the input
   - auto-select (boolean) default: false — Select all contents of the input when mounted
   - startAdornment / endAdornment (slots) — Content rendered at the start or end of the input
   - @clear (() => void) — When set, displays a clear button that appears when the input has a value
   - @autofill (() => void) — Fires when the browser autofills the input
   - pill (boolean) default: false — Fully rounded pill shape
   - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
-  - type (string) default: "button" — Button type
+  InputAdornmentButton:
+    - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
+    - type (string) default: "button" — Button type
 
 ### Overview
 ```vue
@@ -3951,6 +3993,10 @@ You can pair Input and Button components together by using the same size value.
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/vue/components/Label"
 Docs: https://plexui.com/vue/components/label
+Props:
+  - for (string) — id of the associated control. Clicks on the label focus or activate the control.
+  - class (string) — Applied to the root <label> element
+  - default slot (VNode[]) — Label content
 
 ### Overview
 Clicking the label toggles the checkbox it points at. Here accepted starts as true.
@@ -4137,24 +4183,31 @@ Props:
   - modal (boolean) default: false — Whether menu is modal (focus trap)
   - @open (() => void) — Emitted when menu opens
   - @close (() => void) — Emitted when menu closes
-  - disabled (boolean) default: false — Prevent the menu from opening
-  - width (number | "auto") — Panel width (numbers are pixels)
-  - min-width (number | "auto") default: 300 — Minimum panel width
-  - max-height (number) — Maximum panel height, in pixels
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
-  - side-offset (number) default: 5 — Distance from the trigger, in pixels
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - align-offset (number) — Offset from the start or end alignment, in pixels
-  - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
-  - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
-  - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
-  - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
-  - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
-  - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
-  - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
-  - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
-  - indicator-position ("start" | "end") default: "end" — Checkbox position
-  - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+  MenuTrigger:
+    - disabled (boolean) default: false — Prevent the menu from opening
+  MenuContent:
+    - width (number | "auto") — Panel width (numbers are pixels)
+    - min-width (number | "auto") default: 300 — Minimum panel width
+    - max-height (number) — Maximum panel height, in pixels
+    - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
+    - side-offset (number) default: 5 — Distance from the trigger, in pixels
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - align-offset (number) — Offset from the start or end alignment, in pixels
+    - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
+    - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+    - @close-auto-focus ((event: Event) => void) — Emitted before focus returns to the trigger; call event.preventDefault() to keep it from moving there
+  MenuItem:
+    - description (string) — Second line under the label (or the description slot). The label turns semibold on its own
+    - disabled (boolean) default: false — Disable the item
+    - @select ((event: Event) => void) — Called when the item is selected; call event.preventDefault() to keep the menu open
+    - @click ((event: MouseEvent) => void) — Emitted when the item is clicked
+  MenuCheckboxItem:
+    - checked / v-model:checked (boolean | "indeterminate") default: false — Checked state
+    - @checked-change ((checked: boolean) => void) — Emitted with update:checked when the checkbox toggles
+    - @select ((event: Event) => void) — Call event.preventDefault() to keep the menu open
+    - indicator-position ("start" | "end") default: "end" — Checkbox position
+    - indicator-variant ("solid" | "ghost") default: "solid" — Indicator style
+    - disabled (boolean) default: false — Disable the item
 
 ### Overview
 ```vue
@@ -4408,13 +4461,14 @@ Docs: https://plexui.com/vue/components/popover
 Props:
   - showOnHover (boolean) — Open on hover and focus instead of click
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
-  - width (number | string) — Panel width (px or CSS value)
-  - minWidth (number | string) default: 300 — Minimum panel width in px
-  - maxWidth (number | string) — Maximum panel width
-  - side ("top" | "right" | "bottom" | "left") — Preferred placement
-  - align ("start" | "center" | "end") — Alignment relative to trigger
-  - sideOffset (number) — Offset from trigger (px)
-  - alignOffset (number) — Alignment offset (px)
+  PopoverContent:
+    - width (number | string) — Panel width (px or CSS value)
+    - minWidth (number | string) default: 300 — Minimum panel width in px
+    - maxWidth (number | string) — Maximum panel width
+    - side ("top" | "right" | "bottom" | "left") — Preferred placement
+    - align ("start" | "center" | "end") — Alignment relative to trigger
+    - sideOffset (number) — Offset from trigger (px)
+    - alignOffset (number) — Alignment offset (px)
 
 ### Overview
 ```vue
@@ -4537,6 +4591,11 @@ The default slot of PopoverContent receives {"{ close, shake }"}. Components ren
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
 Import: import { Progress } from "@plexui/vue/components/Progress"
 Docs: https://plexui.com/vue/components/progress
+Props:
+  - value (number | null) default: null — Current progress between 0 and max. Pass null for indeterminate.
+  - max (number) default: 100 — Maximum progress value
+  - get-value-label ((value: number, max: number) => string) — Accessible value text (aria-valuetext). Defaults to the rounded percentage, e.g. "67%".
+  - class (string) — Applied to the root <div>
 
 ### With label
 Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern.
@@ -4571,7 +4630,8 @@ Props:
   - connector-style ("solid" | "dashed") default: "solid" — Connector line style
   - variant ("minimal") — Compact bar variant (requires total)
   - total (number) — Total steps for minimal variant
-  - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
+  ProgressStepsStep:
+    - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
 
 ### Overview
 ```vue
@@ -4743,8 +4803,14 @@ Props:
   - default slot (VNode[]) — RadioGroupItem children
   - @update:value ((value: string) => void) — Emitted when the selected option changes; powers v-model:value
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
-  - block (boolean) default: false — Stretch item to fill available width
-  - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+  RadioGroupItem:
+    - value (string) — Item value
+    - disabled (boolean) default: false — Disable this item only
+    - required (boolean) — Marks this item's hidden form input as required
+    - block (boolean) default: false — Stretch item to fill available width
+    - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+    - class (string) — Extra classes on the label element
+    - default slot (VNode[]) — Label content (text or rich content)
 
 ### Overview
 ```vue
@@ -5054,6 +5120,7 @@ Props:
   - disabled (boolean) default: false — Disable select
   - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
   - actions (array) — Actions below options list
+  - check-position ("start" | "end" | "none") default: "start" — Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection
   - #optionView / OptionView (slot (option) | Component) — Custom option render
   - #triggerView / TriggerView (slot | Component) — Custom trigger render: the selected option, or { values, selectedAll } with multiple
   - #trigger / trigger (slot ({ open, onToggle }) | function) — Custom trigger element, wrapped as the popover trigger
@@ -5453,6 +5520,10 @@ Use optically-align with either "start" or "end" to offset the gutter of the con
 A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
 Import: import { Separator } from "@plexui/vue/components/Separator"
 Docs: https://plexui.com/vue/components/separator
+Props:
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Direction of the divider
+  - decorative (boolean) default: true — When true, the separator is ignored by assistive technologies. Set false when the divider carries semantic grouping (renders role="separator").
+  - class (string) — Applied to the root <div>
 
 ### Overview
 ```vue
@@ -5523,7 +5594,11 @@ Props:
   - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
   - default slot (VNode[]) — Text content to shimmer
   - class (string) — Additional CSS classes
-  - shimmer (boolean) default: false — Whether the shimmer animation is active
+  ShimmerableText:
+    - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+    - shimmer (boolean) default: false — Whether the shimmer animation is active
+    - default slot (VNode[]) — Text content to shimmer
+    - class (string) — Additional CSS classes
 
 ### Overview
 ShimmerText applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.
@@ -5555,15 +5630,15 @@ ShimmerableText allows toggling the shimmer on and off. When shimmer is set to f
 Composable navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/vue/components/Sidebar"
 Docs: https://plexui.com/vue/components/sidebar
+Props:
+  - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
+  - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
     - default slot ({ state, open, setOpen, openMobile, setOpenMobile, isMobile, collapsible, toggleSidebar }) — Receives the sidebar context, the object useSidebar() returns
-  Sidebar:
-    - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
-    - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarMenuButton:
     - is-active (boolean) default: false — Highlight the current page
     - tooltip (string) — Label shown on hover when collapsed (icon mode). Hidden on mobile. The tooltip slot takes rich content
@@ -5587,7 +5662,21 @@ A multi-section app shell with a workspace selector, expandable parent sections 
 >
   <SidebarLayout class="h-full">
     <Sidebar>
-${indent(demoHeader("Console"), 6)}
+      <SidebarHeader>
+        <span class="demo-sidebar-wordmark">Console</span>
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+          <SidebarTrigger>
+            <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
+            <SidebarCollapseLeft v-else />
+          </SidebarTrigger>
+          <template #content>
+            <span class="inline-flex items-center gap-1.5">
+              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
+              <kbd class="console-trigger-kbd">⌘.</kbd>
+            </span>
+          </template>
+        </Tooltip>
+      </SidebarHeader>
 
       <SidebarContent class="console-content">
         <!-- Workspace selector -->
@@ -5749,7 +5838,21 @@ ${indent(demoHeader("Console"), 6)}
 >
   <SidebarLayout class="h-full">
     <Sidebar>
-${indent(demoHeader("App"), 6)}
+      <SidebarHeader>
+        <span class="demo-sidebar-wordmark">App</span>
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+          <SidebarTrigger>
+            <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
+            <SidebarCollapseLeft v-else />
+          </SidebarTrigger>
+          <template #content>
+            <span class="inline-flex items-center gap-1.5">
+              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
+              <kbd class="console-trigger-kbd">⌘.</kbd>
+            </span>
+          </template>
+        </Tooltip>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup v-for="group in navGroups" :key="group.label">
           <SidebarGroupLabel :size="labelSize">{{ group.label }}</SidebarGroupLabel>
@@ -5773,7 +5876,15 @@ ${indent(demoHeader("App"), 6)}
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter v-if="footerCard">
-${indent(upgradeCard, 8)}
+        <SidebarCard dismissible>
+          <SidebarCardTitleLink href="#" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardContent>
+            Unlock higher rate limits, priority support, and advanced features.
+          </SidebarCardContent>
+          <SidebarCardFooter>
+            <Button size="sm" pill color="primary">View Plans</Button>
+          </SidebarCardFooter>
+        </SidebarCard>
       </SidebarFooter>
     </Sidebar>
 
@@ -5794,9 +5905,71 @@ Build collapsible nested menus with chevron toggles for documentation and API re
   <SidebarLayout class="h-full">
     <Sidebar :variant="icons ? undefined : 'docs'">
       <SidebarContent>
-${indent(iconsNav("appPage").replace("<SidebarGroup>", '<SidebarGroup v-if="icons">'), 8)}
+        <SidebarGroup v-if="icons">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="section in iconSections" :key="section.id" :expanded="!!expanded[section.id]">
+                <SidebarMenuButton @click="expanded[section.id] = !expanded[section.id]">
+                  <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
+                  <SidebarMenuChevron />
+                </SidebarMenuButton>
+                <SidebarMenuSub :open="!!expanded[section.id]" has-icons>
+                  <SidebarMenuSubItem v-for="child in section.items" :key="child.id">
+                    <SidebarMenuSubButton :indent="1" :is-active="appPage.id === child.id" @click="appPage = child">{{ child.label }}</SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <template v-else>
-${indent(docsNav("docsPage"), 10)}
+          <SidebarGroup v-for="section in docsSections" :key="section.id">
+            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <template v-for="a in section.items" :key="a.id">
+                  <SidebarMenuItem v-if="a.items" :expanded="!!expanded[a.id]">
+                    <SidebarMenuSubButton :indent="0" @click="expanded[a.id] = !expanded[a.id]">
+                      {{ a.label }}<SidebarMenuChevron />
+                    </SidebarMenuSubButton>
+                    <SidebarMenuSub :open="!!expanded[a.id]">
+                      <template v-for="b in a.items" :key="b.id">
+                        <SidebarMenuItem v-if="b.items" :expanded="!!expanded[b.id]">
+                          <SidebarMenuSubButton :indent="1" @click="expanded[b.id] = !expanded[b.id]">
+                            {{ b.label }}<SidebarMenuChevron />
+                          </SidebarMenuSubButton>
+                          <SidebarMenuSub :open="!!expanded[b.id]">
+                            <template v-for="c in b.items" :key="c.id">
+                              <SidebarMenuItem v-if="c.items" :expanded="!!expanded[c.id]">
+                                <SidebarMenuSubButton :indent="2" @click="expanded[c.id] = !expanded[c.id]">
+                                  {{ c.label }}<SidebarMenuChevron />
+                                </SidebarMenuSubButton>
+                                <SidebarMenuSub :open="!!expanded[c.id]">
+                                  <SidebarMenuSubItem v-for="d in c.items" :key="d.id">
+                                    <SidebarMenuSubButton :indent="3" :is-active="docsPage.id === d.id" @click="docsPage = d">{{ d.label }}</SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                              </SidebarMenuItem>
+                              <SidebarMenuSubItem v-else>
+                                <SidebarMenuSubButton :indent="2" :is-active="docsPage.id === c.id" @click="docsPage = c">{{ c.label }}</SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            </template>
+                          </SidebarMenuSub>
+                        </SidebarMenuItem>
+                        <SidebarMenuSubItem v-else>
+                          <SidebarMenuSubButton :indent="1" :is-active="docsPage.id === b.id" @click="docsPage = b">{{ b.label }}</SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </template>
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
+                  <SidebarMenuSubItem v-else>
+                    <SidebarMenuSubButton :indent="0" :is-active="docsPage.id === a.id" @click="docsPage = a">{{ a.label }}</SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </template>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </template>
       </SidebarContent>
     </Sidebar>
@@ -5956,19 +6129,111 @@ Mobile behavior is handled automatically when using SidebarProvider. The Sidebar
   <!-- Desktop: the sidebar next to the page -->
   <SidebarLayout v-if="!mobile" class="h-full">
     <Sidebar v-if="!nested">
-${indent(demoHeader("App"), 6)}
+      <SidebarHeader>
+        <span class="demo-sidebar-wordmark">App</span>
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact @click="sidebar.toggleSidebar()">
+          <SidebarTrigger>
+            <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
+            <SidebarCollapseLeft v-else />
+          </SidebarTrigger>
+          <template #content>
+            <span class="inline-flex items-center gap-1.5">
+              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
+              <kbd class="console-trigger-kbd">⌘.</kbd>
+            </span>
+          </template>
+        </Tooltip>
+      </SidebarHeader>
       <SidebarContent>
-${indent(flatNav(), 8)}
+        <SidebarGroup v-for="group in navGroups" :key="group.label">
+          <SidebarGroupLabel size="sm">{{ group.label }}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="item in group.items" :key="item.label">
+                <SidebarMenuButton
+                  :is-active="active.label === item.label"
+                  :tooltip="item.label"
+                  @click="active = { id: item.label.toLowerCase(), label: item.label }"
+                >
+                  <SidebarMenuButtonIcon v-if="icons"><component :is="item.icon" /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
     <Sidebar v-else-if="icons" style="width: 280px">
       <SidebarContent>
-${indent(iconsNav("active"), 8)}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="section in iconSections" :key="section.id" :expanded="!!expanded[section.id]">
+                <SidebarMenuButton @click="expanded[section.id] = !expanded[section.id]">
+                  <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
+                  <SidebarMenuChevron />
+                </SidebarMenuButton>
+                <SidebarMenuSub :open="!!expanded[section.id]" has-icons>
+                  <SidebarMenuSubItem v-for="child in section.items" :key="child.id">
+                    <SidebarMenuSubButton :indent="1" :is-active="active.id === child.id" @click="active = child">{{ child.label }}</SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
     <Sidebar v-else variant="docs" style="width: 280px">
       <SidebarContent>
-${indent(docsNav("active"), 8)}
+        <SidebarGroup v-for="section in docsSections" :key="section.id">
+          <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <template v-for="a in section.items" :key="a.id">
+                <SidebarMenuItem v-if="a.items" :expanded="!!expanded[a.id]">
+                  <SidebarMenuSubButton :indent="0" @click="expanded[a.id] = !expanded[a.id]">
+                    {{ a.label }}<SidebarMenuChevron />
+                  </SidebarMenuSubButton>
+                  <SidebarMenuSub :open="!!expanded[a.id]">
+                    <template v-for="b in a.items" :key="b.id">
+                      <SidebarMenuItem v-if="b.items" :expanded="!!expanded[b.id]">
+                        <SidebarMenuSubButton :indent="1" @click="expanded[b.id] = !expanded[b.id]">
+                          {{ b.label }}<SidebarMenuChevron />
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSub :open="!!expanded[b.id]">
+                          <template v-for="c in b.items" :key="c.id">
+                            <SidebarMenuItem v-if="c.items" :expanded="!!expanded[c.id]">
+                              <SidebarMenuSubButton :indent="2" @click="expanded[c.id] = !expanded[c.id]">
+                                {{ c.label }}<SidebarMenuChevron />
+                              </SidebarMenuSubButton>
+                              <SidebarMenuSub :open="!!expanded[c.id]">
+                                <SidebarMenuSubItem v-for="d in c.items" :key="d.id">
+                                  <SidebarMenuSubButton :indent="3" :is-active="active.id === d.id" @click="active = d">{{ d.label }}</SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              </SidebarMenuSub>
+                            </SidebarMenuItem>
+                            <SidebarMenuSubItem v-else>
+                              <SidebarMenuSubButton :indent="2" :is-active="active.id === c.id" @click="active = c">{{ c.label }}</SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </template>
+                        </SidebarMenuSub>
+                      </SidebarMenuItem>
+                      <SidebarMenuSubItem v-else>
+                        <SidebarMenuSubButton :indent="1" :is-active="active.id === b.id" @click="active = b">{{ b.label }}</SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </template>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+                <SidebarMenuSubItem v-else>
+                  <SidebarMenuSubButton :indent="0" :is-active="active.id === a.id" @click="active = a">{{ a.label }}</SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </template>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
 
@@ -5995,15 +6260,101 @@ ${indent(docsNav("active"), 8)}
       <!-- Selecting an item closes the menu -->
       <div v-if="sidebar.openMobile" style="padding: 12px">
         <SidebarContent v-if="!nested">
-${indent(flatNav("; sidebar.setOpenMobile(false)"), 10)}
+          <SidebarGroup v-for="group in navGroups" :key="group.label">
+            <SidebarGroupLabel size="sm">{{ group.label }}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem v-for="item in group.items" :key="item.label">
+                  <SidebarMenuButton
+                    :is-active="active.label === item.label"
+                    :tooltip="item.label"
+                    @click="active = { id: item.label.toLowerCase(), label: item.label }; sidebar.setOpenMobile(false)"
+                  >
+                    <SidebarMenuButtonIcon v-if="icons"><component :is="item.icon" /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
         <SidebarContent v-else-if="icons">
-${indent(iconsNav("active", "; sidebar.setOpenMobile(false)"), 10)}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem v-for="section in iconSections" :key="section.id" :expanded="!!expanded[section.id]">
+                  <SidebarMenuButton @click="expanded[section.id] = !expanded[section.id]">
+                    <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
+                    <SidebarMenuChevron />
+                  </SidebarMenuButton>
+                  <SidebarMenuSub :open="!!expanded[section.id]" has-icons>
+                    <SidebarMenuSubItem v-for="child in section.items" :key="child.id">
+                      <SidebarMenuSubButton :indent="1" :is-active="active.id === child.id" @click="active = child; sidebar.setOpenMobile(false)">{{ child.label }}</SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
         <SidebarContent v-else>
-${indent(docsNav("active", "; sidebar.setOpenMobile(false)"), 10)}
+          <SidebarGroup v-for="section in docsSections" :key="section.id">
+            <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <template v-for="a in section.items" :key="a.id">
+                  <SidebarMenuItem v-if="a.items" :expanded="!!expanded[a.id]">
+                    <SidebarMenuSubButton :indent="0" @click="expanded[a.id] = !expanded[a.id]">
+                      {{ a.label }}<SidebarMenuChevron />
+                    </SidebarMenuSubButton>
+                    <SidebarMenuSub :open="!!expanded[a.id]">
+                      <template v-for="b in a.items" :key="b.id">
+                        <SidebarMenuItem v-if="b.items" :expanded="!!expanded[b.id]">
+                          <SidebarMenuSubButton :indent="1" @click="expanded[b.id] = !expanded[b.id]">
+                            {{ b.label }}<SidebarMenuChevron />
+                          </SidebarMenuSubButton>
+                          <SidebarMenuSub :open="!!expanded[b.id]">
+                            <template v-for="c in b.items" :key="c.id">
+                              <SidebarMenuItem v-if="c.items" :expanded="!!expanded[c.id]">
+                                <SidebarMenuSubButton :indent="2" @click="expanded[c.id] = !expanded[c.id]">
+                                  {{ c.label }}<SidebarMenuChevron />
+                                </SidebarMenuSubButton>
+                                <SidebarMenuSub :open="!!expanded[c.id]">
+                                  <SidebarMenuSubItem v-for="d in c.items" :key="d.id">
+                                    <SidebarMenuSubButton :indent="3" :is-active="active.id === d.id" @click="active = d; sidebar.setOpenMobile(false)">{{ d.label }}</SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                              </SidebarMenuItem>
+                              <SidebarMenuSubItem v-else>
+                                <SidebarMenuSubButton :indent="2" :is-active="active.id === c.id" @click="active = c; sidebar.setOpenMobile(false)">{{ c.label }}</SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            </template>
+                          </SidebarMenuSub>
+                        </SidebarMenuItem>
+                        <SidebarMenuSubItem v-else>
+                          <SidebarMenuSubButton :indent="1" :is-active="active.id === b.id" @click="active = b; sidebar.setOpenMobile(false)">{{ b.label }}</SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </template>
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
+                  <SidebarMenuSubItem v-else>
+                    <SidebarMenuSubButton :indent="0" :is-active="active.id === a.id" @click="active = a; sidebar.setOpenMobile(false)">{{ a.label }}</SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </template>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
-${indent(upgradeCard.replace("<SidebarCard dismissible>", '<SidebarCard v-if="!nested" dismissible>'), 8)}
+        <SidebarCard v-if="!nested" dismissible>
+          <SidebarCardTitleLink href="#" @click.prevent>Upgrade to Pro</SidebarCardTitleLink>
+          <SidebarCardContent>
+            Unlock higher rate limits, priority support, and advanced features.
+          </SidebarCardContent>
+          <SidebarCardFooter>
+            <Button size="sm" pill color="primary">View Plans</Button>
+          </SidebarCardFooter>
+        </SidebarCard>
       </div>
       <div v-else style="padding: 24px">
         <h1 class="text-2xl font-semibold mb-4">{{ active.label }}</h1>
@@ -6266,6 +6617,7 @@ Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an 
 Import: import { StatCard } from "@plexui/vue/components/StatCard"
 Docs: https://plexui.com/vue/components/stat-card
 Props:
+  - label (string) — Label describing the metric
   - value (string | number) — The primary metric value
   - value slot (VNode[]) — Rich value content; takes precedence over the value prop
   - description (string) — Subtitle below the value
@@ -6619,6 +6971,8 @@ Docs: https://plexui.com/vue/components/table
     - TableCell (td) — Table data cell
     - TableCaption (caption) — Table caption
   DataTable:
+    - columns (ColumnDef<TData>[]) — Column definitions following TanStack Table v8 API; header and cell renderers return VNodes
+    - data (TData[]) — Data array to display
     - variant ("default" | "bordered") default: "default" — Visual variant: bordered adds a rounded border and tinted header
     - page-size (number) default: 10 — Rows per page. Set 0 or Infinity to disable pagination
     - initial-sorting (SortingState) — Initial column sorting state
@@ -6636,6 +6990,8 @@ Docs: https://plexui.com/vue/components/table
     - @update:column-visibility ((visibility: VisibilityState) => void) — Emitted with the next visibility; powers v-model:column-visibility
     - @update:row-selection ((selection: RowSelectionState) => void) — Emitted with the next selection; powers v-model:row-selection
   DataTableColumnHeader:
+    - column (Column<TData, TValue>) — TanStack Table column object
+    - title (string) — Display text for the header
     - class (string) — Class applied to the header button (or text when the column cannot sort)
   Column helpers:
     - idCell(accessor) (CellComponent) — Monospace ID with copy-on-click tooltip
@@ -7014,10 +7370,15 @@ Props:
   - @update:value ((value: string) => void) — Emitted when a tab is selected; powers v-model:value
   - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
   - @click ((event: MouseEvent) => void) — Emitted on any click in the group, even when the selection does not change
-  - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
-  - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
-  - icon slot (VNode[]) — Icon before the label
-  - badge slot (VNode[]) — Badge content; styling still comes from the badge object
+  TabsTab:
+    - value (string) — Tab value
+    - disabled (boolean) — Disable this tab
+    - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
+    - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
+    - aria-label (string) — Accessible name (required for icon-only tabs)
+    - default slot (VNode[]) — Tab label
+    - icon slot (VNode[]) — Icon before the label
+    - badge slot (VNode[]) — Badge content; styling still comes from the badge object
 
 ### Overview
 Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable.
@@ -7524,7 +7885,12 @@ Use toast.promise to tie a single toast to an async operation. The toast shows a
   variant="outline"
   @click="toast.promise(saveProfile(), {
     loading: 'Saving…',
-    success: (data) => \
+    success: (data) => `${data.name} saved`,
+    error: 'Save failed',
+  })"
+>
+  Run promise
+</Button>
 ```
 
 ### Long content
@@ -7574,6 +7940,7 @@ Props:
   - content (string | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
   - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
   - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - maxWidth (number | "none") default: 300 — Max width of tooltip
   - openDelay (number) default: 150 — Delay before showing (ms)
   - side (string) default: "top" — Preferred side
   - sideOffset (number) default: 5 — Distance from trigger

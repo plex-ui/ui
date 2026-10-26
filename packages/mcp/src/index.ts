@@ -356,9 +356,7 @@ ${vueManifest.install}
 Add to your global stylesheet (e.g. \`src/main.css\`) and import it before mounting the app:
 
 \`\`\`css
-@layer theme, base, components, utilities;
 ${vueManifest.setup.css}
-@source "../node_modules/@plexui/vue";
 \`\`\`
 
 On Vite, add the plugin: \`import plexui from "@plexui/styles/vite"\` and \`plugins: [vue(), plexui()]\`.

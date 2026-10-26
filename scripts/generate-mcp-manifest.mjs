@@ -10,6 +10,11 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
 import { join, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+import remarkGfm from "remark-gfm";
+import remarkMdx from "remark-mdx";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -40,7 +45,7 @@ const FRAMEWORKS = {
       "PlexUI for Vue 3: the same components, props, markup and styles as the React library.",
     install: "npm install @plexui/vue",
     setup: {
-      css: '@import "tailwindcss";\n@import "@plexui/styles/css";',
+      css: '@layer theme, base, components, utilities;\n@import "tailwindcss";\n@import "@plexui/styles/css";\n@source "../node_modules/@plexui/vue";',
       provider:
         'Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"',
     },
@@ -95,139 +100,250 @@ function extractExportedNames(content, pkg) {
 }
 
 // ---------------------------------------------------------------------------
+// Parse the page: mdast with MDX + GFM, and the page's exports evaluated
+// ---------------------------------------------------------------------------
+
+/**
+ * Parses an MDX page and evaluates its top-level `export` declarations (the
+ * Vue pages build their example templates there, sometimes with helper
+ * functions) in a sandbox, so examples come out as the strings the page
+ * renders. Declarations that need an import are skipped.
+ */
+function parsePage(content) {
+  const tree = unified().use(remarkParse).use(remarkMdx).use(remarkGfm).parse(content);
+  const context = vm.createContext({});
+  for (const node of tree.children) {
+    if (node.type !== "mdxjsEsm") continue;
+    for (const statement of node.data?.estree?.body ?? []) {
+      const declaration =
+        statement.type === "ExportNamedDeclaration" ? statement.declaration : statement;
+      if (!declaration || statement.type === "ImportDeclaration") continue;
+      // `var` so each declaration lands on the shared context
+      const source = content
+        .slice(declaration.start, declaration.end)
+        .replace(/^(const|let)\s/, "var ");
+      try {
+        vm.runInContext(source, context, { timeout: 1000 });
+      } catch {
+        // Uses an import (a demo component, data from another module)
+      }
+    }
+  }
+  return { tree, context };
+}
+
+/** Evaluates a JSX attribute expression (`code={...}`) on the page's context. */
+function evaluateExpression(value, context) {
+  try {
+    return vm.runInContext(`(${value})`, context, { timeout: 1000 });
+  } catch {
+    return undefined;
+  }
+}
+
+const textOf = (node) => {
+  if (!node) return "";
+  if (node.type === "text" || node.type === "inlineCode") return node.value;
+  return (node.children ?? []).map(textOf).join("");
+};
+
+const attribute = (node, name) => node.attributes?.find((a) => a.name === name);
+
+/** Top-level blocks, looking through wrapper elements such as `<div id="first-component-page">`. */
+function* blocks(nodes) {
+  for (const node of nodes) {
+    if (node.type === "mdxJsxFlowElement" && !["PropsTable", "ComponentPreview"].includes(node.name) && node.children?.length) {
+      yield* blocks(node.children);
+    } else {
+      yield node;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Extract examples from ### headings + <ComponentPreview>
 // ---------------------------------------------------------------------------
 
-function extractExamples(content) {
+function extractExamples(content, { tree, context }) {
   const examples = [];
+  let name = null;
 
-  // Split into sections by ### headings
-  const sections = content.split(/^### /m);
-
-  for (let i = 1; i < sections.length; i++) {
-    const section = sections[i];
-    const nameEnd = section.indexOf("\n");
-    const name = section.slice(0, nameEnd).trim();
-
-    // Extract code from <ComponentPreview code={`...`}
-    // The code prop uses backtick template literals, or (Vue pages) names a
-    // template exported at the top of the page: code={name}
-    const codeMatch = section.match(/code=\{`([\s\S]*?)`\}/);
-    const codeRef = codeMatch ? null : section.match(/code=\{(\w+)\}/);
-    const exported = codeRef
-      ? content.match(new RegExp(`^export const ${codeRef[1]} = \`([\\s\\S]*?)\``, "m"))
-      : null;
-    const code = codeMatch ? codeMatch[1].trim() : exported ? exported[1].trim() : null;
-
-    // Extract details text (strip JSX tags)
-    const detailsMatch = section.match(/details=\{<>([\s\S]*?)<\/>\}/);
-    let details = null;
-    if (detailsMatch) {
-      details = detailsMatch[1]
-        .replace(/<[^>]+>/g, "")
+  const visit = (node) => {
+    if (node.type === "heading") {
+      name = node.depth === 3 ? textOf(node).trim() : null;
+      return;
+    }
+    if ((node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement") && node.name === "ComponentPreview") {
+      const codeAttribute = attribute(node, "code");
+      const code =
+        typeof codeAttribute?.value === "string"
+          ? codeAttribute.value
+          : evaluateExpression(codeAttribute?.value?.value, context);
+      // Details text (strip JSX tags)
+      const detailsAttribute = attribute(node, "details");
+      const detailsSource = detailsAttribute?.value?.value?.match(/^<>([\s\S]*)<\/>$/)?.[1];
+      const details = detailsSource
+        ?.replace(/<[^>]+>/g, "")
         .replace(/\s+/g, " ")
         .trim();
+      // One example per heading: the first preview (a section may show several)
+      if (name && typeof code === "string" && code.trim()) {
+        examples.push({ name, code: code.trim(), ...(details && { details }) });
+        name = null;
+      }
+      return;
     }
-
-    if (code) {
-      examples.push({ name, code, ...(details && { details }) });
-    }
-  }
+    for (const child of node.children ?? []) visit(child);
+  };
+  for (const node of blocks(tree.children)) visit(node);
 
   return examples;
 }
 
 // ---------------------------------------------------------------------------
-// Extract props from <PropsTable data={[...]} />
+// Extract props from <PropsTable data={[...]} /> and Markdown tables, owned by
+// the component (or sub-component) whose API section they sit in
 // ---------------------------------------------------------------------------
 
-function extractPropsTable(content) {
-  const allProps = [];
-
-  // Find all <PropsTable data={[...]} /> blocks
-  const regex = /<PropsTable\s+data=\{\[/g;
-  let match = regex.exec(content);
-
-  while (match !== null) {
-    const startIdx = match.index + match[0].length;
-
-    // Find the matching closing ]} by counting brackets
-    let depth = 1;
-    let i = startIdx;
-    while (i < content.length && depth > 0) {
-      if (content[i] === "[") depth++;
-      if (content[i] === "]") depth--;
-      i++;
-    }
-
-    const arrayContent = content.slice(startIdx, i - 1);
-
-    // Parse individual prop objects using regex
-    // { prop: "name", type: '...', default: '...', description: "..." }
-    const propRegex =
-      /\{\s*prop:\s*"([^"]*)"(?:,\s*type:\s*(?:"([^"]*)"|'([^']*)'))?(?:,\s*default:\s*(?:"([^"]*)"|'([^']*)'))?(?:,\s*description:\s*"([^"]*)")?\s*\}/g;
-
-    let propMatch = propRegex.exec(arrayContent);
-    while (propMatch !== null) {
-      const prop = {
-        name: propMatch[1],
-        type: propMatch[2] || propMatch[3] || undefined,
-        default: propMatch[4] || propMatch[5] || undefined,
-        description: propMatch[6] || undefined,
-      };
-      // Remove undefined values
-      for (const k of Object.keys(prop)) {
-        if (prop[k] === undefined) delete prop[k];
-      }
-      allProps.push(prop);
-      propMatch = propRegex.exec(arrayContent);
-    }
-
-    match = regex.exec(content);
+const cleanProp = (prop) => {
+  const clean = {
+    name: prop.name,
+    type: prop.type,
+    default: prop.default,
+    description: prop.description,
+  };
+  for (const key of Object.keys(clean)) {
+    if (clean[key] === undefined || clean[key] === "") delete clean[key];
   }
+  return clean;
+};
 
-  return allProps;
+// Fallback for tables that cannot be evaluated (e.g. JSX in a cell)
+const PROP_ROW =
+  /\{\s*prop:\s*"([^"]*)"(?:,\s*type:\s*(?:"([^"]*)"|'([^']*)'))?(?:,\s*default:\s*(?:"([^"]*)"|'([^']*)'))?(?:,\s*description:\s*"([^"]*)")?\s*\}/g;
+
+function propsFromPropsTable(node, context) {
+  const source = attribute(node, "data")?.value?.value;
+  const rows = evaluateExpression(source, context);
+  if (!Array.isArray(rows)) {
+    return [...(source ?? "").matchAll(PROP_ROW)].map((m) =>
+      cleanProp({ name: m[1], type: m[2] || m[3], default: m[4] || m[5], description: m[6] }),
+    );
+  }
+  return rows
+    .filter((row) => row && typeof row.prop === "string")
+    .map((row) =>
+      cleanProp({
+        name: row.prop,
+        type: typeof row.type === "string" ? row.type : undefined,
+        default: typeof row.default === "string" ? row.default : undefined,
+        description: typeof row.description === "string" ? row.description : undefined,
+      }),
+    );
 }
 
-// ---------------------------------------------------------------------------
-// Extract sub-component reference sections (for composite components)
-// ---------------------------------------------------------------------------
+function propsFromMarkdownTable(node) {
+  const [header, ...rows] = node.children;
+  const columns = header.children.map((cell) => textOf(cell).trim().toLowerCase());
+  const column = (...names) => columns.findIndex((c) => names.includes(c));
+  const nameColumn = column("prop", "name", "property", "attribute");
+  if (nameColumn === -1) return [];
+  const typeColumn = column("type");
+  const defaultColumn = column("default");
+  const descriptionColumn = column("description");
+  const cell = (row, index) => (index === -1 ? undefined : textOf(row.children[index]).trim());
+  return rows
+    .map((row) =>
+      cleanProp({
+        name: cell(row, nameColumn),
+        type: cell(row, typeColumn),
+        default: cell(row, defaultColumn),
+        description: cell(row, descriptionColumn),
+      }),
+    )
+    .filter((prop) => prop.name);
+}
 
-function extractSubComponents(content) {
+/**
+ * Props of the page's component, plus sub-components: inside the "Reference"
+ * or "API" section, a `### Name` heading or a paragraph that is only a bold
+ * name (`**DialogContent**`, optionally followed by "(root)") starts a
+ * sub-component; a name equal to the page's component, or marked "(root)",
+ * belongs to the component itself.
+ */
+function extractProps({ tree, context }, componentNames) {
+  const props = [];
   const subComponents = [];
-  const refSection = content.split("## Reference")[1];
-  if (!refSection) return subComponents;
+  let inApi = false;
+  let current = null;
 
-  // Find ### SubComponentName sections that have their own PropsTable
-  const subSections = refSection.split(/^### /m);
+  const startSection = (rawName) => {
+    const name = rawName.replace(/\s*\(root\)\s*$/i, "").trim();
+    const isRoot = /\(root\)\s*$/i.test(rawName) || componentNames.has(name.replace(/\./g, ""));
+    if (isRoot) {
+      current = null;
+      return;
+    }
+    current = { name, descriptionLines: [], props: [] };
+    subComponents.push(current);
+  };
 
-  for (let i = 1; i < subSections.length; i++) {
-    const section = subSections[i];
-    const nameEnd = section.indexOf("\n");
-    const name = section.slice(0, nameEnd).trim();
-
-    // Skip sections like "Structure" that are descriptive
-    if (!section.includes("<PropsTable")) continue;
-
-    // Extract description (text before PropsTable)
-    const descLines = [];
-    for (const line of section.split("\n").slice(1)) {
-      if (line.includes("<PropsTable")) break;
-      const cleaned = line.replace(/<[^>]+>/g, "").trim();
-      if (cleaned) descLines.push(cleaned);
+  for (const node of blocks(tree.children)) {
+    if (node.type === "heading" && node.depth <= 2) {
+      inApi = /^(reference|api)$/i.test(textOf(node).trim());
+      current = null;
+      continue;
+    }
+    if (inApi && node.type === "heading" && node.depth === 3) {
+      startSection(textOf(node).trim());
+      continue;
+    }
+    if (inApi && node.type === "paragraph" && node.children[0]?.type === "strong") {
+      const name = textOf(node.children[0]).trim();
+      const rest = textOf({ children: node.children.slice(1) }).trim();
+      if (/^[A-Z][\w.]*$/.test(name)) {
+        startSection(/^\(root\)/i.test(rest) ? `${name} (root)` : name);
+        // "**Name**: description" on one line
+        const description = rest.replace(/^\(root\)/i, "").replace(/^[:\s]+/, "").trim();
+        if (current && description) current.descriptionLines.push(description);
+        continue;
+      }
     }
 
-    const props = extractPropsTable(section);
+    const tableProps =
+      node.type === "mdxJsxFlowElement" && node.name === "PropsTable"
+        ? propsFromPropsTable(node, context)
+        : node.type === "table"
+          ? propsFromMarkdownTable(node)
+          : null;
+    if (tableProps) {
+      (current ? current.props : props).push(...tableProps);
+      continue;
+    }
 
-    subComponents.push({
-      name,
-      ...(descLines.length > 0 && { description: descLines.join(" ") }),
-      props,
-    });
+    if (current && node.type === "paragraph" && current.props.length === 0) {
+      const text = textOf(node).replace(/\s+/g, " ").trim();
+      if (text) current.descriptionLines.push(text);
+    }
   }
 
-  return subComponents;
+  const unique = (list) => {
+    const seen = new Set();
+    return list.filter((prop) => (seen.has(prop.name) ? false : (seen.add(prop.name), true)));
+  };
+
+  return {
+    props: unique(props),
+    subComponents: subComponents
+      .filter((sub) => sub.props.length > 0)
+      .map((sub) => ({
+        name: sub.name,
+        ...(sub.descriptionLines.length > 0 && { description: sub.descriptionLines.join(" ") }),
+        props: unique(sub.props),
+      })),
+  };
 }
+
 
 // ---------------------------------------------------------------------------
 // Extract hook documentation
@@ -288,22 +404,12 @@ function processFile(filePath, framework) {
   const frontmatter = parseFrontmatter(content);
   const importPath = extractImportPath(content, framework.package);
   const exportedNames = extractExportedNames(content, framework.package);
-  const examples = extractExamples(content);
-  const subComponents = extractSubComponents(content);
+  const page = parsePage(content);
+  const examples = extractExamples(content, page);
   const hooks = extractHooks(content);
-
-  const allProps = extractPropsTable(content);
-  const subPropNames = new Set(
-    subComponents.flatMap((sc) => sc.props.map((p) => p.name))
-  );
-
-  const seen = new Set();
-  const props = allProps.filter((p) => {
-    if (seen.has(p.name)) return false;
-    seen.add(p.name);
-    if (subComponents.length > 0 && subPropNames.has(p.name)) return false;
-    return true;
-  });
+  // The page's own component: its title without spaces (a page may document several)
+  const componentNames = new Set([frontmatter.title].filter(Boolean).map((name) => name.replace(/\s/g, "")));
+  const { props, subComponents } = extractProps(page, componentNames);
 
   if (!importPath && props.length === 0 && examples.length === 0) return null;
 

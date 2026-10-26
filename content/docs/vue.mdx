@@ -35,6 +35,8 @@ Add the foundation styles and Tailwind layers to the top of your global styleshe
 @source "../node_modules/@plexui/vue";
 ```
 
+The `@source` path is relative to the stylesheet. The one above assumes it lives in `src/`.
+
 On Vite, add the Plex UI plugin. It pins the CSS transformer and minifier so the layer order survives the build, and injects the layer order into `index.html` as a failsafe:
 
 ```ts
@@ -85,6 +87,8 @@ export default defineNuxtConfig({
   vite: { plugins: [plexui()] },
 });
 ```
+
+Point `@source` at `node_modules` from that file: `../../node_modules/@plexui/vue` for `assets/css/main.css` (Nuxt 3), or `../../../node_modules/@plexui/vue` for `app/assets/css/main.css` (Nuxt 4).
 
 ### 4. Configure router (optional)
 

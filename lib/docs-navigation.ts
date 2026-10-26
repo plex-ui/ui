@@ -12,8 +12,10 @@ const DOCS_SECTION_SLUGS = [
   'foundations',
   'concepts',
   'hooks',
+  'composables',
   'transitions',
   'installation',
+  'vue',
   'skills',
   'ai-setup',
   'mcp',
@@ -202,6 +204,7 @@ export const GET_STARTED: DocsGroup = {
   entries: [
     { label: 'Introduction', url: '/docs' },
     { label: 'Installation', url: '/docs/installation' },
+    { label: 'Vue', url: '/docs/vue' },
     // Changelog as the last item of the first group mirrors shadcn's
     // sidebar — it lives next to Introduction/Installation, not at
     // the very bottom (where it would visually attach to Components
@@ -229,6 +232,7 @@ export const FOUNDATIONS: DocsGroup = {
     // reaches for when building with the system, so they belong
     // alongside the other Foundations references.
     { label: 'Hooks', url: '/docs/hooks' },
+    { label: 'Composables', url: '/docs/composables' },
     { label: 'Transitions', url: '/docs/transitions' },
   ],
 };

@@ -828,7 +828,7 @@ describe("DataTable pagination parity", () => {
     container.remove()
 
     expect(vue).toEqual(react)
-    expect(react[0]).toMatch(/<option selected="" value="20">/)
+    expect(react[0]).toMatch(/<option selected="" value="20" \.selected=true>/)
     expect(react[1]).toBe('select value="20" index=1')
     expect(react[3]).toBe('select value="20" index=1')
   })

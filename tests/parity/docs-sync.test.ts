@@ -13,9 +13,11 @@ describe("Vue docs stay in sync with the React docs", () => {
     expect(JSON.parse(read("content/vue/components/meta.json"))).toEqual(vueMeta())
   })
 
-  test("every Vue page has a React page with the same slug", () => {
-    const react = new Set(readdirSync(fromRoot("content/components")))
-    const vue = readdirSync(fromRoot("content/vue/components")).filter((file) => file.endsWith(".mdx"))
-    expect(vue.filter((file) => !react.has(file))).toEqual([])
+  test("the React and Vue docs have the same component pages", () => {
+    const pages = (dir: string) =>
+      readdirSync(fromRoot(dir))
+        .filter((file) => file.endsWith(".mdx"))
+        .sort()
+    expect(pages("content/vue/components")).toEqual(pages("content/components"))
   })
 })

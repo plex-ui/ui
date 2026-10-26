@@ -14,6 +14,10 @@
 // - the one allowed dangling reference: Radix points a closed dialog
 //   trigger's aria-controls at content that is not mounted (Reka omits it).
 //   Any other reference to a missing element is printed as "[missing]".
+//
+// Form controls also print their live state (`.value`, `.checked`,
+// `.indeterminate`, `.selected`) after the attributes: React and Vue set these
+// as DOM properties, which the attributes do not always reflect.
 
 const DROPPED_ATTRIBUTE = /^(data-radix-.*|data-reka-.*|data-dismissable-layer|data-v-app)$/
 const ID_REFERENCE = new Set(["aria-labelledby", "aria-describedby", "aria-controls", "aria-activedescendant", "for"])
@@ -71,6 +75,20 @@ const attributesOf = (element: Element, doc: Document, idNames: IdNames) => {
   return result.sort()
 }
 
+const liveStateOf = (element: Element) => {
+  if (element instanceof HTMLInputElement) {
+    if (element.type === "checkbox" || element.type === "radio") {
+      return [`.checked=${element.checked}`, ...(element.indeterminate ? [".indeterminate=true"] : [])]
+    }
+    return element.type === "file" ? [] : [`.value=${JSON.stringify(element.value)}`]
+  }
+  if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+    return [`.value=${JSON.stringify(element.value)}`]
+  }
+  if (element instanceof HTMLOptionElement) return [`.selected=${element.selected}`]
+  return []
+}
+
 const serializeNode = (node: Node, doc: Document, idNames: IdNames, depth: number, out: string[]) => {
   const indent = "  ".repeat(depth)
 
@@ -86,7 +104,7 @@ const serializeNode = (node: Node, doc: Document, idNames: IdNames, depth: numbe
   if (isFocusGuard(element)) return
 
   const tag = element.tagName.toLowerCase()
-  const attributes = attributesOf(element, doc, idNames)
+  const attributes = [...attributesOf(element, doc, idNames), ...liveStateOf(element)]
   out.push(`${indent}<${[tag, ...attributes].join(" ")}>`)
   for (const child of Array.from(element.childNodes)) {
     serializeNode(child, doc, idNames, depth + 1, out)
