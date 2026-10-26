@@ -7,7 +7,7 @@
 // - `pointer-events` inline styles set by the dismissable layer
 // - comments and empty text nodes (Vue fragment and teleport anchors)
 // - attribute order and inline-style declaration order
-// - generated ids (`radix-*`, `reka-*`) become `gen-1`, `gen-2`, ... in
+// - generated ids (`radix-*`, `reka-*`, React/Vue useId) become `gen-1`, `gen-2`, ... in
 //   document order, and id references (`aria-labelledby`, ...) are rewritten
 //   to match, so a swapped label/description still shows. Explicit ids are
 //   kept as they are.
@@ -17,7 +17,10 @@
 
 const DROPPED_ATTRIBUTE = /^(data-radix-.*|data-reka-.*|data-dismissable-layer|data-v-app)$/
 const ID_REFERENCE = new Set(["aria-labelledby", "aria-describedby", "aria-controls"])
-const GENERATED_ID = /^(radix-|reka-)/
+// Library ids (radix-*, reka-*) and ids built from React's useId (`_r_0_`,
+// `_R_0_`, older `«r0»` / `:r0:`) or Vue's useId (`v-0`, `v-1-2`), alone or
+// inside a component's own id (`floating-label-input-_r_0_-description`)
+const GENERATED_ID = /^(radix-|reka-)|_[rR]_[\w]*_|«[rR][\w]*»|:[rR][\w]*:|(^|-)v-\d+(-\d+)*(-|$)/
 
 type IdNames = Map<string, string>
 

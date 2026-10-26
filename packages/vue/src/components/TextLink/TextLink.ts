@@ -36,7 +36,7 @@ export const TextLink = defineComponent({
       const { href, to, primary } = props
       const underline = props.underline ?? !primary
       const isExternal = props.forceExternal ?? /^https?:\/\//.test(href ?? (typeof to === "string" ? to : "") ?? "")
-      const Component = props.as || (isExternal ? "a" : DefaultComponent)
+      const Component = props.as || (isExternal ? "a" : DefaultComponent.value)
 
       // Caller attributes first, so the link's own class and data attributes win
       const sharedProps = {

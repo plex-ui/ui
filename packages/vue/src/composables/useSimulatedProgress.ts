@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, ref, toValue, watch, type ComputedRef, type MaybeRefOrGetter } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, toValue, watch, type ComputedRef, type MaybeRefOrGetter } from "vue"
 
 /**
  * Deterministically returns a progress value between 0 and 100 that decays as it approaches 100,
@@ -55,14 +55,17 @@ export const useSimulatedProgress = (
     progress.value = elapsedTime >= max ? 100 : getSimulatedProgress(max, elapsedTime)
   }
 
-  watch(
-    () => !!toValue(completed),
-    (isCompleted) => {
-      clearInterval(interval)
-      interval = isCompleted ? undefined : setInterval(incrementProgress, 100)
-    },
-    { immediate: true },
-  )
+  // Timers start on mount only, so server rendering leaves none behind
+  onMounted(() => {
+    watch(
+      () => !!toValue(completed),
+      (isCompleted) => {
+        clearInterval(interval)
+        interval = isCompleted ? undefined : setInterval(incrementProgress, 100)
+      },
+      { immediate: true },
+    )
+  })
   onBeforeUnmount(() => clearInterval(interval))
 
   return computed(() => (toValue(completed) ? 100 : progress.value))

@@ -8,12 +8,13 @@ import {
   toTransformProperty,
   waitForAnimationFrame,
 } from "../../lib/helpers.js"
-import { isPlaceholder } from "./childList.js"
+import { flattenChildren, isPlaceholder } from "./childList.js"
 import type {
   InitialTransitionDefinition,
   InsertMethod,
   LayoutTransitionDefinition,
   TransitionDefinition,
+  TransitionElement,
 } from "./shared.js"
 import { TransitionGroup } from "./TransitionGroup.js"
 import s from "@plexui/styles/components/Transition/AnimateLayoutGroup.module.css"
@@ -52,12 +53,12 @@ export const AnimateLayoutGroup = defineComponent({
     forceCompositeLayer: Boolean,
   },
   setup(props, { slots, attrs }) {
-    const handleEnter = (element: HTMLElement) => {
+    const handleEnter = (element: TransitionElement) => {
       // Stage zero layout
       element.style[props.dimension] = "0"
     }
 
-    const handleEnterActive = (element: HTMLElement) => {
+    const handleEnterActive = (element: TransitionElement) => {
       waitForAnimationFrame(() => {
         // Animate to target height
         // IMPORTANT: Use clientHeight/clientWidth to measure children, in case they have scale() applied
@@ -69,18 +70,18 @@ export const AnimateLayoutGroup = defineComponent({
       })
     }
 
-    const handleEnterComplete = (element: HTMLElement) => {
+    const handleEnterComplete = (element: TransitionElement) => {
       waitForAnimationFrame(() => {
         // Restore natural layout to the DOM node
         element.style[props.dimension] = ""
       })
     }
 
-    const handleExit = (element: HTMLElement) => {
+    const handleExit = (element: TransitionElement) => {
       element.style[props.dimension] = `${element.getBoundingClientRect()[props.dimension]}px`
     }
 
-    const handleExitActive = (element: HTMLElement) => {
+    const handleExitActive = (element: TransitionElement) => {
       waitForAnimationFrame(() => {
         // Animate to zero layout
         element.style[props.dimension] = "0"
@@ -89,7 +90,7 @@ export const AnimateLayoutGroup = defineComponent({
 
     return () => {
       const { enterTotalDuration, exitTotalDuration, variables } = getAnimationProperties(props)
-      const children: VNode[] = (slots.default?.() ?? []).filter((vnode) => !isPlaceholder(vnode))
+      const children: VNode[] = flattenChildren(slots.default?.() ?? []).filter((vnode) => !isPlaceholder(vnode))
 
       return h(
         TransitionGroup,

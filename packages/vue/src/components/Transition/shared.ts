@@ -37,7 +37,10 @@ export type CallbackType =
   | "exit-active"
   | "exit-complete"
 
-export type TransitionGroupChildCallback = (element: HTMLElement) => void
+/** The element a transition callback receives (HTML or SVG) */
+export type TransitionElement = HTMLElement | SVGElement
+
+export type TransitionGroupChildCallback = (element: TransitionElement) => void
 
 /** Lifecycle hooks, called with the transitioning element (same moments as React's `onEnter`...). */
 export type TransitionGroupChildCallbacks = {

@@ -1,6 +1,6 @@
 import { onBeforeUnmount, onMounted, reactive, watch } from "vue"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
-import type { CallbackType, TransitionGroupChildCallbacks } from "./shared.js"
+import type { CallbackType, TransitionElement, TransitionGroupChildCallbacks } from "./shared.js"
 import { getInitialTransitionState, transitionReducer, type TransitionStateAction } from "./transitionReducer.js"
 
 export type TransitionChildProps = {
@@ -27,7 +27,7 @@ const CALLBACKS: Record<CallbackType, keyof TransitionGroupChildCallbacks> = {
  * SlotTransitionGroup. Returns the reactive state that drives the
  * `data-entering*` / `data-exiting*` / `data-interrupted` attributes.
  */
-export function useTransitionChild(props: TransitionChildProps, getElement: () => HTMLElement | null) {
+export function useTransitionChild(props: TransitionChildProps, getElement: () => TransitionElement | null) {
   const state = reactive(getInitialTransitionState(!!props.preventMountTransition))
   const dispatch = (action: TransitionStateAction) => {
     Object.assign(state, transitionReducer(state, action))

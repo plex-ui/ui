@@ -1,4 +1,4 @@
-import { Comment, shallowRef, type VNode } from "vue"
+import { Comment, Fragment, shallowRef, type VNode } from "vue"
 import type { InsertMethod } from "./shared.js"
 
 export type RenderChild = {
@@ -9,6 +9,15 @@ export type RenderChild = {
 }
 
 export const isPlaceholder = (vnode: VNode) => vnode.type === Comment
+
+/**
+ * Expands fragments, so `v-for` (compiled to a fragment of keyed vnodes)
+ * yields the keyed children, as React flattens arrays of children.
+ */
+export const flattenChildren = (vnodes: VNode[]): VNode[] =>
+  vnodes.flatMap((vnode) =>
+    vnode.type === Fragment && Array.isArray(vnode.children) ? flattenChildren(vnode.children as VNode[]) : [vnode],
+  )
 
 /**
  * The keyed child bookkeeping of React's TransitionGroup

@@ -1,4 +1,4 @@
-import { onBeforeUnmount, toValue, watch, type MaybeRefOrGetter } from "vue"
+import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } from "vue"
 
 type Handler = {
   id: symbol
@@ -42,16 +42,19 @@ export const useEscCloseStack = (listening: MaybeRefOrGetter<boolean>, cb: () =>
     managerListener()
   }
 
-  watch(
-    () => toValue(listening),
-    (isListening) => {
-      unregister()
-      if (!isListening) return
-      handlers.unshift(handler)
-      managerListener()
-    },
-    { immediate: true },
-  )
+  // Register on mount, like React's effect: nothing global happens during SSR
+  onMounted(() => {
+    watch(
+      () => toValue(listening),
+      (isListening) => {
+        unregister()
+        if (!isListening) return
+        handlers.unshift(handler)
+        managerListener()
+      },
+      { immediate: true },
+    )
+  })
 
   onBeforeUnmount(unregister)
 }

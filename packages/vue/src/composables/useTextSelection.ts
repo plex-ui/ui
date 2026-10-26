@@ -1,4 +1,4 @@
-import { onBeforeUnmount, toValue, watch, type MaybeRefOrGetter } from "vue"
+import { onBeforeUnmount, onMounted, toValue, watch, type MaybeRefOrGetter } from "vue"
 import { canUseDOM } from "../lib/environment.js"
 
 type Handler = {
@@ -50,16 +50,19 @@ export const useTextSelection = (
     managerListener()
   }
 
-  watch(
-    () => toValue(listening),
-    (isListening) => {
-      unregister()
-      if (!isListening) return
-      handlers.push({ id, callback: cb })
-      managerListener()
-    },
-    { immediate: true },
-  )
+  // Register on mount, like React's effect: nothing global happens during SSR
+  onMounted(() => {
+    watch(
+      () => toValue(listening),
+      (isListening) => {
+        unregister()
+        if (!isListening) return
+        handlers.push({ id, callback: cb })
+        managerListener()
+      },
+      { immediate: true },
+    )
+  })
 
   onBeforeUnmount(unregister)
 }

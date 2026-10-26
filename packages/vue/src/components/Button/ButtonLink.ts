@@ -47,7 +47,7 @@ export const ButtonLink = defineComponent({
     return () => {
       const { href, to, disabled } = props
       const isExternal = props.external ?? /^https?:\/\//.test(href ?? (typeof to === "string" ? to : "") ?? "")
-      const LinkComponent = props.as || (isExternal ? "a" : DefaultComponent)
+      const LinkComponent = props.as || (isExternal ? "a" : DefaultComponent.value)
       const { class: className, ...restAttrs } = attrs
 
       const sharedProps = {

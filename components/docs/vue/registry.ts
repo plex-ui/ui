@@ -24,8 +24,8 @@ import {
   Animate,
   AnimateLayout,
   AnimateLayoutGroup,
+  PlexTransitionGroup,
   SlotTransitionGroup,
-  TransitionGroup,
 } from '@plexui/vue/components/Transition';
 import * as Icons from '@plexui/vue/components/Icon';
 
@@ -80,9 +80,10 @@ const components: Record<string, Component> = {
   ShimmerableText,
   ShimmerText,
   Skeleton,
+  // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
+  PlexTransitionGroup,
   SlotTransitionGroup,
   TextLink,
-  TransitionGroup,
 };
 
 // Icons whose names clash with a component (Card, Menu, Sidebar, ...) are

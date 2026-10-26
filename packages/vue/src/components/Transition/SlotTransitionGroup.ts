@@ -1,7 +1,7 @@
 import { cloneVNode, defineComponent, h, ref, type ComponentPublicInstance, type PropType, type VNode } from "vue"
 import getDisableAnimations from "./getDisableAnimations.js"
-import { isPlaceholder, useChildList } from "./childList.js"
-import type { InsertMethod, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
+import { flattenChildren, isPlaceholder, useChildList } from "./childList.js"
+import type { InsertMethod, TransitionElement, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
 import { useMountDelay } from "./TransitionGroup.js"
 import { useTransitionChild } from "./useTransitionChild.js"
 
@@ -11,10 +11,11 @@ import { useTransitionChild } from "./useTransitionChild.js"
 
 const callbackProp = Function as PropType<TransitionGroupChildCallback>
 
-const toElement = (value: unknown): HTMLElement | null => {
-  if (value instanceof HTMLElement) return value
+// HTML or SVG elements, or a component's root element
+const toElement = (value: unknown): TransitionElement | null => {
+  if (value instanceof HTMLElement || value instanceof SVGElement) return value
   const el = (value as ComponentPublicInstance | null)?.$el
-  return el instanceof HTMLElement ? el : null
+  return el instanceof HTMLElement || el instanceof SVGElement ? el : null
 }
 
 const SlotTransitionGroupChildInner = defineComponent({
@@ -29,7 +30,7 @@ const SlotTransitionGroupChildInner = defineComponent({
     callbacks: Object as PropType<TransitionGroupChildCallbacks>,
   },
   setup(props) {
-    const element = ref<HTMLElement | null>(null)
+    const element = ref<TransitionElement | null>(null)
     const state = useTransitionChild(props, () => element.value)
     const setElement = (value: unknown) => {
       element.value = toElement(value)
@@ -59,7 +60,7 @@ const SlotTransitionGroupChild = defineComponent({
     enterMountDelay: Number,
   },
   setup(props, { attrs }) {
-    const mounted = useMountDelay(props.preventMountTransition, props.enterMountDelay)
+    const mounted = useMountDelay(() => props)
     return () =>
       mounted.value
         ? h(SlotTransitionGroupChildInner, { ...attrs, preventMountTransition: props.preventMountTransition } as never)
@@ -101,7 +102,7 @@ export const SlotTransitionGroup = defineComponent({
     }
 
     return () => {
-      const slotChildren: VNode[] = slots.default?.() ?? []
+      const slotChildren: VNode[] = flattenChildren(slots.default?.() ?? [])
       const renderChildren = children.next(
         children.keyedChildren(slotChildren),
         props.insertMethod,

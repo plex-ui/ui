@@ -1,7 +1,7 @@
 import clsx from "clsx"
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, type PropType, type StyleValue, type VNode } from "vue"
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType, type StyleValue, type VNode } from "vue"
 import getDisableAnimations from "./getDisableAnimations.js"
-import { isPlaceholder, useChildList } from "./childList.js"
+import { flattenChildren, isPlaceholder, useChildList } from "./childList.js"
 import type { InsertMethod, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
 import { useTransitionChild } from "./useTransitionChild.js"
 import s from "@plexui/styles/components/Transition/TransitionGroup.module.css"
@@ -50,13 +50,30 @@ const TransitionGroupChildInner = defineComponent({
   },
 })
 
-/** Delays mounting a child by `enterMountDelay` ms, except on the initial (prevented) mount. */
-export const useMountDelay = (preventMountTransition: boolean | undefined, enterMountDelay: number | undefined) => {
-  const mountDelay = !preventMountTransition && enterMountDelay != null ? enterMountDelay : null
-  const mounted = ref(mountDelay == null)
+/**
+ * Delays mounting a child by `enterMountDelay` ms, except on the initial
+ * (prevented) mount. Like usehooks-ts' useTimeout, a changed delay restarts
+ * the pending timer; removing the delay while pending leaves it unmounted.
+ */
+export const useMountDelay = (getProps: () => { preventMountTransition?: boolean; enterMountDelay?: number }) => {
+  const delay = () => {
+    const { preventMountTransition, enterMountDelay } = getProps()
+    return !preventMountTransition && enterMountDelay != null ? enterMountDelay : null
+  }
+  const mounted = ref(delay() == null)
   let timeout: number | undefined
+
   onMounted(() => {
-    if (!mounted.value) timeout = window.setTimeout(() => (mounted.value = true), mountDelay!)
+    watch(
+      delay,
+      (mountDelay) => {
+        clearTimeout(timeout)
+        if (!mounted.value && mountDelay != null) {
+          timeout = window.setTimeout(() => (mounted.value = true), mountDelay)
+        }
+      },
+      { immediate: true },
+    )
   })
   onBeforeUnmount(() => clearTimeout(timeout))
   return mounted
@@ -70,7 +87,7 @@ const TransitionGroupChild = defineComponent({
     enterMountDelay: Number,
   },
   setup(props, { attrs, slots }) {
-    const mounted = useMountDelay(props.preventMountTransition, props.enterMountDelay)
+    const mounted = useMountDelay(() => props)
     return () =>
       mounted.value
         ? h(TransitionGroupChildInner, { ...attrs, preventMountTransition: props.preventMountTransition } as never, slots)
@@ -132,7 +149,7 @@ export const TransitionGroup = defineComponent({
     }
 
     return () => {
-      const slotChildren: VNode[] = slots.default?.() ?? []
+      const slotChildren: VNode[] = flattenChildren(slots.default?.() ?? [])
       const className = attrs.class as string | undefined
       const style = attrs.style as StyleValue | undefined
       const renderChildren = children.next(

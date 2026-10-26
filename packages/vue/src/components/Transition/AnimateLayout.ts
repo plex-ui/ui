@@ -13,6 +13,7 @@ import type {
   InsertMethod,
   LayoutTransitionDefinition,
   TransitionDefinition,
+  TransitionElement,
 } from "./shared.js"
 import { TransitionGroup } from "./TransitionGroup.js"
 import s from "@plexui/styles/components/Transition/AnimateLayout.module.css"
@@ -53,10 +54,10 @@ export const AnimateLayout = defineComponent({
   },
   setup(props, { slots }) {
     const containerRef = ref<HTMLElement | null>(null)
-    let captain: HTMLElement | null = null
+    let captain: TransitionElement | null = null
     let exitTimestamp: number | null = null
 
-    const handleEnter = (element: HTMLElement) => {
+    const handleEnter = (element: TransitionElement) => {
       const container = containerRef.value
       if (!container) return
 
@@ -78,7 +79,7 @@ export const AnimateLayout = defineComponent({
       container.style[props.dimension] = `${clientRect[props.dimension]}px`
     }
 
-    const handleEnterActive = (element: HTMLElement) => {
+    const handleEnterActive = (element: TransitionElement) => {
       const container = containerRef.value
       // ~Impossible to not be the captain at this point, but check anyway.
       if (!container || captain !== element) return
@@ -88,7 +89,7 @@ export const AnimateLayout = defineComponent({
       container.style[props.dimension] = `${value}px`
     }
 
-    const handleEnterComplete = (element: HTMLElement) => {
+    const handleEnterComplete = (element: TransitionElement) => {
       const container = containerRef.value
       // Wait for the next tick, to ensure `[data-entering*]` state is cleared from the DOM
       waitForAnimationFrame(() => {
@@ -98,7 +99,7 @@ export const AnimateLayout = defineComponent({
       })
     }
 
-    const handleExit = (element: HTMLElement) => {
+    const handleExit = (element: TransitionElement) => {
       const container = containerRef.value
       const amICaptain = !captain || captain === element
       if (!container || !amICaptain) return
