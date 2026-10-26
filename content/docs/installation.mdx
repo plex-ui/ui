@@ -239,3 +239,20 @@ export function ReservationCard() {
   )
 }
 ```
+
+## Use the styles in any framework
+
+The CSS behind every component ships as its own package, `@plexui/styles`: design tokens, resets, globals and one CSS module per component. `@plexui/ui` installs it for you, so a React app needs nothing extra. To use the same tokens and styles in a project without React, install it on its own. It has no React dependency, but it still needs Tailwind 4, because the stylesheet uses Tailwind directives.
+
+```bash
+npm install @plexui/styles
+```
+
+```css
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "@plexui/styles/css";
+```
+
+Component styles are CSS modules at `@plexui/styles/components/<Dir>/<File>.module.css`, for example `@plexui/styles/components/Button/Button.module.css`. Import them from your own components and let your bundler scope the class names, the same way `@plexui/ui` does. On Vite, `@plexui/styles/vite` is the same plugin as `@plexui/ui/vite`.
