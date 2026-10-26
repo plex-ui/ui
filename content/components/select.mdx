@@ -168,7 +168,7 @@ Searchable menus name their input `Search options` by default. Set `searchAriaLa
   { prop: "size", type: "string", default: '"md"', description: "Trigger size" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounded trigger" },
   { prop: "clearable", type: "boolean", default: "false", description: "Show clear button" },
-  { prop: "block", type: "boolean", default: "true", description: "Full width trigger" },
+  { prop: "block", type: "boolean", default: 'variant !== "ghost"', description: "Full width trigger" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable select" },
   { prop: "actions", type: "array", description: "Actions below options list" },
   { prop: "checkPosition", type: '"start" | "end" | "none"', default: '"start"', description: 'Where the check indicator sits in the list. "none" removes the indicator column for lists that never carry a selection' },
