@@ -105,7 +105,7 @@ import {
   { prop: "imageUrl", type: "string", description: "Absolute URL for image avatar" },
   { prop: "Icon", type: "React.ComponentType", description: "Icon component for icon avatar" },
   { prop: "size", type: "number", description: "Width and height in pixels" },
-  { prop: "color", type: "string", description: "Semantic color for text/icon avatar" },
+  { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color for text/icon avatar" },
   { prop: "variant", type: '"soft" | "solid"', description: "Style variant" },
   { prop: "overflowCount", type: "number", description: "Show overflow count (e.g. +9)" },
   { prop: "onClick", type: "function", description: "Makes avatar interactive" },
