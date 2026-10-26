@@ -57,9 +57,27 @@ export const bubbleInputStyle = (
   margin: 0,
 })
 
+// React's value tracker per input: its `checked` on mount, then the one React
+// last saw in a bubbling click. A form reset or a `checked` attribute update
+// moves the input's `checked` without the tracker noticing.
+const trackedChecked = new WeakMap<HTMLInputElement, boolean>()
+
+/** Starts the input's value tracker when it mounts, as React does. */
+export const useCheckedTracker = (input: Ref<HTMLInputElement | null>) =>
+  watch(
+    input,
+    (el) => {
+      if (el && !trackedChecked.has(el)) trackedChecked.set(el, el.checked)
+    },
+    { flush: "sync" },
+  )
+
 /**
  * Sets the input's `checked` (and `indeterminate`) through the native setter
  * and dispatches a `click` so form listeners see the change, as Radix does.
+ * React turns that click into the form's `onChange` when it bubbles and the
+ * input's `checked` differs from what React's value tracker last saw; Vue's
+ * form listeners are native, so a native `change` follows in those cases.
  */
 export const dispatchBubbleClick = (
   input: HTMLInputElement,
@@ -73,4 +91,8 @@ export const dispatchBubbleClick = (
   if (withIndeterminate) input.indeterminate = checked === "indeterminate"
   setChecked.call(input, checked === "indeterminate" ? false : checked)
   input.dispatchEvent(new Event("click", { bubbles }))
+  // A click that does not bubble never reaches React's root, nor its tracker
+  if (!bubbles || trackedChecked.get(input) === input.checked) return
+  trackedChecked.set(input, input.checked)
+  input.dispatchEvent(new Event("change", { bubbles }))
 }

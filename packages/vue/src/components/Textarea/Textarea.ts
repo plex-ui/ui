@@ -123,7 +123,16 @@ const TextareaComponent = defineComponent({
       runAutoSelect()
       autosizeTextarea()
     })
-    watch(() => props.autoSelect, runAutoSelect, { flush: "post" })
+    // React DOM writes a new value while committing, before any effect runs,
+    // so the selection covers the value that arrives with `autoSelect`
+    watch(
+      () => props.autoSelect,
+      () => {
+        syncValue()
+        runAutoSelect()
+      },
+      { flush: "post" },
+    )
     // Resize if value changes outside of user input - e.g. form reset
     watch(
       () => [controlledValue(), props.rows, props.autoResize, computedMaxRows.value],

@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, onMounted, ref, useId, watch, type PropType } from "vue"
 import { SwitchRoot as RekaSwitchRoot, SwitchThumb as RekaSwitchThumb } from "reka-ui"
-import { bubbleInputStyle, dispatchBubbleClick, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
+import { bubbleInputStyle, dispatchBubbleClick, useCheckedTracker, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
 import { ControlButton, isListener, type Listeners } from "../Checkbox/ControlButton.js"
 import s from "@plexui/styles/components/Switch/Switch.module.css"
 
@@ -50,6 +50,7 @@ const SwitchComponent = defineComponent({
     const container = ref<HTMLDivElement | null>(null)
     const control = ref<HTMLButtonElement | null>(null)
     const bubbleInput = ref<HTMLInputElement | null>(null)
+    useCheckedTracker(bubbleInput)
 
     // Radix's useControllableState: controlled while `checked` is set, and
     // only actual changes are reported

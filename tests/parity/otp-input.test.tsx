@@ -6,7 +6,7 @@ import { OTPInput as ROTPInput } from "../../packages/ui/src/components/OTPInput
 import { OTPInput } from "../../packages/vue/src/components/OTPInput"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
-import { interact, renderPair } from "./pair"
+import { interact, renderPair, walkPairWithState } from "./pair"
 
 type Props = Record<string, unknown>
 
@@ -112,6 +112,31 @@ describe("OTPInput behaviour parity", () => {
     expect(result.vueEvents).toEqual(result.reactEvents)
     expect(result.react[0]).toContain("1|2||||")
     expect(result.react[1]).toContain("1|2||||")
+  })
+
+  test("autoFocus focuses the first cell on mount and whenever autoFocus or disabled change", async () => {
+    const active = () => Array.from(document.querySelectorAll("input")).indexOf(document.activeElement as HTMLInputElement)
+    const log: number[] = []
+    const { react, vue } = await walkPairWithState(
+      { autoFocus: true, disabled: true },
+      (state) => createElement(ROTPInput, { autoFocus: state.autoFocus, disabled: state.disabled }),
+      (state) => h(OTPInput, { autoFocus: state.autoFocus, disabled: state.disabled }),
+      async ({ set, advance, snapshot }) => {
+        log.push(active())
+        await set({ disabled: false })
+        log.push(active())
+        snapshot()
+        await interact(() => (document.activeElement as HTMLElement).blur())
+        await advance(16)
+        await set({ autoFocus: false })
+        log.push(active())
+        await set({ autoFocus: true })
+        log.push(active())
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(log).toEqual([-1, 0, -1, 0, -1, 0, -1, 0])
   })
 
   test("blur clears focus after a frame", async () => {

@@ -1,6 +1,8 @@
-import { createElement, type ComponentType, type ReactNode } from "react"
+import { compile } from "@vue/compiler-dom"
+import { createElement, Fragment as RFragment, type ComponentType, type ReactNode } from "react"
 import { describe, expect, test } from "vitest"
-import { Fragment, h, type Component, type VNodeArrayChildren } from "vue"
+import * as Vue from "vue"
+import { defineComponent, Fragment, h, type Component, type VNodeArrayChildren } from "vue"
 import { Badge as RBadge } from "../../packages/ui/src/components/Badge"
 import { FieldError as RFieldError } from "../../packages/ui/src/components/FieldError"
 import { Flask as RFlask } from "../../packages/ui/src/components/Icon"
@@ -118,6 +120,42 @@ describe("Badge parity", () => {
   test.each(badgeCases)("%s", async (_name, props, kind) => {
     const { react, vue } = await parity(RBadge as never, Badge, props, kind)
     expect(vue).toBe(react)
+  })
+})
+
+describe("Badge text wrapping across fragments", () => {
+  // Compiles a template the way the docs previews do, so <template v-if> and
+  // <slot /> produce the fragments real templates produce
+  const fromTemplate = (template: string, components: Record<string, Component>) => {
+    const { code } = compile(template, { hoistStatic: true })
+    const render = new Function("Vue", code)(Vue) as Vue.RenderFunction & { _rc?: boolean }
+    render._rc = true
+    return () => h(defineComponent({ components, render }))
+  }
+
+  test("<template v-if> is a boundary like React's <>", async () => {
+    const { react, vue } = await renderPair(
+      createElement(RBadge, null, createElement(RFragment, null, 3), " Unread ", createElement(RFlask)),
+      fromTemplate(`<Badge><template v-if="true">3</template> Unread <Flask /></Badge>`, { Badge, Flask }),
+    )
+    expect(vue).toBe(react)
+    // "3" stays a bare text node; only the label is wrapped
+    expect(react).toContain('"3"\n    <span>\n      " Unread "')
+  })
+
+  test("content forwarded through <slot /> flattens like React children", async () => {
+    const Wrapper = defineComponent({ components: { Badge }, template: "" })
+    const { code } = compile(`<Badge><slot /></Badge>`, { hoistStatic: true })
+    const wrapperRender = new Function("Vue", code)(Vue) as Vue.RenderFunction & { _rc?: boolean }
+    wrapperRender._rc = true
+    Object.assign(Wrapper, { render: wrapperRender })
+    const RWrapper = ({ children }: { children?: ReactNode }) => createElement(RBadge, null, children)
+    const { react, vue } = await renderPair(
+      createElement(RWrapper, null, "12 new", createElement(RFlask)),
+      fromTemplate(`<Wrapper>12 new<Flask /></Wrapper>`, { Wrapper, Flask }),
+    )
+    expect(vue).toBe(react)
+    expect(react).toContain('<span>\n      "12 new"')
   })
 })
 

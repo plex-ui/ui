@@ -79,10 +79,13 @@ export const OTPInput = defineComponent({
     }
     onUpdated(syncInputs)
 
-    onMounted(() => {
+    // React's effect on [autoFocus, disabled]: on mount and on either change
+    const runAutoFocus = () => {
       if (!props.autoFocus || props.disabled) return
       inputRefs[0]?.focus()
-    })
+    }
+    onMounted(runAutoFocus)
+    watch([() => props.autoFocus, () => props.disabled], runAutoFocus, { flush: "post" })
 
     const commitValue = (nextValueRaw: string) => {
       const nextValue = sanitizeDigits(nextValueRaw, length.value)

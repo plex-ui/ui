@@ -56,7 +56,7 @@ type GroupSpec = {
 }
 
 // Vue attribute names to React prop names
-const REACT_NAMES: Record<string, string> = { class: "className", tabindex: "tabIndex" }
+const REACT_NAMES: Record<string, string> = { class: "className", tabindex: "tabIndex", onMousedown: "onMouseDown" }
 const reactAttrs = (attrs: Record<string, unknown> = {}) =>
   Object.fromEntries(Object.entries(attrs).map(([key, value]) => [REACT_NAMES[key] ?? key, value]))
 
@@ -694,6 +694,55 @@ describe("Tabs behaves like React", () => {
     })
     expect(vue).toEqual(react)
     expect(react[0]).toContain("focused: Overview")
+  })
+
+  // The label of the tab that holds the roving tab stop in a snapshot
+  const tabStop = (step: string) => step.match(/<button[^>]*tabindex="0"[^>]*>[\s\S]*?\n\s*"(\w+)"/)?.[1]
+
+  test("a caller mousedown handler that calls preventDefault() keeps the tab stop and click-focus state", async () => {
+    const prevent = (event: Event) => event.preventDefault()
+    const tabs = SECTIONS.map((tab) => (tab.value === "analytics" ? { ...tab, attrs: { onMousedown: prevent } } : tab))
+    const { react, vue } = await walkTabs({ value: "overview", tabs }, "fixed", async ({ focus, focusGroup, snapshot }) => {
+      await focus("Overview")
+      await interact(() => {
+        fireEvent.mouseDown(findTab("Analytics"))
+      })
+      await settle()
+      snapshot()
+      // No click focus is pending, so entering the group still moves focus in
+      await focusGroup()
+      snapshot()
+    })
+    expect(vue).toEqual(react)
+    expect(tabStop(react[0])).toBe("Overview")
+    expect(react[1]).toContain("focused: Overview")
+  })
+
+  test("a caller focus handler that calls preventDefault() keeps the tab stop", async () => {
+    const prevent = (event: Event) => event.preventDefault()
+    const tabs = SECTIONS.map((tab) => (tab.value === "analytics" ? { ...tab, attrs: { onFocus: prevent } } : tab))
+    const { react, vue } = await walkTabs({ value: "overview", tabs }, "fixed", async ({ focus, snapshot }) => {
+      await focus("Overview")
+      await focus("Analytics")
+      snapshot()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain("focused: Analytics")
+    expect(tabStop(react[0])).toBe("Overview")
+  })
+
+  test("a group focus handler that calls preventDefault() cancels entry focus", async () => {
+    const prevent = (event: Event) => event.preventDefault()
+    const { react, vue } = await walkTabs(
+      { value: "reports", tabs: SECTIONS, attrs: { onFocus: prevent } },
+      "fixed",
+      async ({ focusGroup, snapshot }) => {
+        await focusGroup()
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain("focused: (group)")
   })
 
   test("pointer enter sets --scale on the tab", () => {

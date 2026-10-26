@@ -774,6 +774,157 @@ describe("Form parity", () => {
     expect(react[3]).toContain('aria-checked="true"')
   })
 
+  // React's form onChange is a synthetic event: React derives it from the
+  // hidden input's bubbling click when the input's `checked` differs from the
+  // value it last reported (its value tracker), so no native `change` exists
+  // and a native listener on a React form sees none. Vue's form listeners are
+  // native, so the port dispatches a native `change` in exactly those cases.
+  const changeWalk = async (
+    reactControl: () => ReactNode,
+    vueControl: () => VNode,
+    script: (tools: Tools) => Promise<void>,
+  ) => {
+    const reactLog: FormLog = []
+    const vueLog: FormLog = []
+    const native: Record<"react" | "vue", FormLog> = { react: [], vue: [] }
+    let which: "react" | "vue" = "react"
+    const result = await walk(
+      () => (
+        <form onClick={formListener(reactLog)} onChange={formListener(reactLog)}>
+          {reactControl()}
+        </form>
+      ),
+      () => h("form", { onClick: formListener(vueLog), onChange: formListener(vueLog) }, [vueControl()]),
+      async (tools) => {
+        $("form").addEventListener("change", formListener(native[which]))
+        await script(tools)
+        which = "vue"
+      },
+    )
+    return { ...result, reactLog, vueLog, native }
+  }
+
+  test("Checkbox: the form's change listener sees each toggle, like React's onChange", async () => {
+    const { react, vue, reactLog, vueLog, native } = await changeWalk(
+      () => <RCheckbox name="terms" label="Terms" />,
+      () => h(Checkbox, { name: "terms", label: "Terms" }),
+      async ({ snapshot }) => {
+        await click("button")
+        await click("label")
+        await click("button")
+        // The reset restores the input before the state follows; React still
+        // reports a change, as its tracker last saw `true`
+        await interact(() => $<HTMLFormElement>("form").reset())
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(vueLog).toEqual(reactLog)
+    expect(reactLog).toEqual([
+      "click input true",
+      "change input true",
+      "click label",
+      "click input false",
+      "change input false",
+      "click input true",
+      "change input true",
+      "click input false",
+      "change input false",
+    ])
+    expect(native.react).toEqual([])
+    expect(native.vue).toEqual(["change input true", "change input false", "change input true", "change input false"])
+  })
+
+  test("Checkbox: no change when only indeterminate moves, or when the input's click does not bubble", async () => {
+    const stop = (event: { stopPropagation(): void }) => {
+      if (stopNext) event.stopPropagation()
+    }
+    let stopNext = false
+    const states = ["indeterminate", true, "indeterminate", false] as const
+    function ReactDemo() {
+      const [checked, setChecked] = useState<CheckedState>(false)
+      return (
+        <>
+          <RCheckbox name="all" checked={checked} onCheckedChange={setChecked} {...({ onClick: stop } as Props)} />
+          {states.map((state, i) => (
+            <span key={i} id={`set-${i}`} onClick={() => setChecked(state)} />
+          ))}
+        </>
+      )
+    }
+    const VueDemo = defineComponent(() => {
+      const checked = ref<CheckedState>(false)
+      return () => [
+        h(Checkbox, {
+          "name": "all",
+          "checked": checked.value,
+          "onUpdate:checked": (v: CheckedState) => (checked.value = v),
+          "onClick": stop,
+        }),
+        ...states.map((state, i) => h("span", { id: `set-${i}`, onClick: () => (checked.value = state) })),
+      ]
+    })
+    const { react, vue, reactLog, vueLog } = await changeWalk(
+      () => <ReactDemo />,
+      () => h(VueDemo),
+      async ({ snapshot }) => {
+        for (let i = 0; i < states.length; i++) await click(`#set-${i}`)
+        stopNext = true
+        await click("button")
+        stopNext = false
+        await click("button")
+        await click("button")
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(vueLog).toEqual(reactLog)
+    expect(reactLog).toEqual([
+      "click span",
+      "click input false",
+      "click span",
+      "click input true",
+      "change input true",
+      "click span",
+      "click input false",
+      "change input false",
+      "click span",
+      "click input false",
+      // The consumer stopped the next click: the input's click stays put and
+      // React's tracker misses it, so the click after reports no change
+      "click input false",
+      "click input true",
+      "change input true",
+    ])
+  })
+
+  test("Switch: the form's change listener sees each toggle, like React's onChange", async () => {
+    const { react, vue, reactLog, vueLog, native } = await changeWalk(
+      () => <RSwitch name="n" label="Notify" defaultChecked />,
+      () => h(Switch, { name: "n", label: "Notify", defaultChecked: true }),
+      async ({ snapshot }) => {
+        await click("button")
+        await press("button", "Enter")
+        await click("button")
+        await interact(() => $<HTMLFormElement>("form").reset())
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(vueLog).toEqual(reactLog)
+    expect(reactLog).toEqual([
+      "click input false",
+      "change input false",
+      "click input true",
+      "change input true",
+      "click input false",
+      "change input false",
+    ])
+    // Radix's Switch keeps its state on a form reset: nothing to report
+    expect(native.react).toEqual([])
+    expect(native.vue).toEqual(["change input false", "change input true", "change input false"])
+  })
+
   test("the hidden input takes the button's size and follows resizes", async () => {
     vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(16)
     vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(16)

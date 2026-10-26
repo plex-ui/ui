@@ -1,12 +1,20 @@
 import clsx from "clsx"
-import { defineComponent, h, mergeProps, onMounted, ref, useId, watch, type PropType, type VNodeChild } from "vue"
+import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, type PropType, type VNodeChild } from "vue"
 import { Eye, EyeOff, X } from "../Icon/index.js"
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
+
+// A fallthrough listener is a function or, when merged, an array of them
+const callListeners = (listener: unknown, evt: Event) => {
+  for (const fn of Array.isArray(listener) ? listener : [listener]) {
+    if (typeof fn === "function") fn(evt)
+  }
+}
 
 /**
  * Port of packages/ui/src/components/FloatingLabelInput/FloatingLabelInput.tsx.
  * Attributes other than `class` go to the <input> (dropped for `multiline`,
- * as in React). `value` + `update:value` support `v-model:value`.
+ * as in React, except `@focus`/`@blur`). `value` + `update:value` support
+ * `v-model:value`.
  */
 export const FloatingLabelInput = defineComponent({
   name: "FloatingLabelInput",
@@ -94,6 +102,13 @@ export const FloatingLabelInput = defineComponent({
       hasValue.value = !!target.value
       emit("update:value", target.value)
       autoResize()
+      // Like a React controlled input, a `value` the parent does not update
+      // is put back (Vue only re-applies `value` when this component renders)
+      void nextTick(() => {
+        if (props.value === undefined) return
+        const value = String(props.value)
+        if (target.value !== value) target.value = value
+      })
     }
 
     const handleAnimationStart = (evt: AnimationEvent) => {
@@ -118,7 +133,15 @@ export const FloatingLabelInput = defineComponent({
       const errorId = props.errorMessage ? `${inputId}-error` : undefined
       const startAdornment = slots.startAdornment?.()
       const endAdornment = slots.endAdornment?.()
-      const { class: className, "aria-describedby": ariaDescribedByAttr, ...restAttrs } = attrs
+      // Caller focus/blur listeners run from the shared handlers, so the
+      // textarea (which gets no other attributes, as in React) calls them too
+      const {
+        "class": className,
+        "aria-describedby": ariaDescribedByAttr,
+        "onFocus": onFocusAttr,
+        "onBlur": onBlurAttr,
+        ...restAttrs
+      } = attrs
 
       const invalid = props.invalid ?? !!props.errorMessage
       // Determine if clear button should be shown
@@ -135,16 +158,24 @@ export const FloatingLabelInput = defineComponent({
         "ref": inputRef,
         "id": inputId,
         "name": props.name,
-        "value": props.value ?? undefined,
+        // Vue re-applies a present `value` key on every render, so an
+        // uncontrolled field must not carry one (it would reset typed text)
+        ...(props.value !== undefined ? { value: props.value } : {}),
         "disabled": props.disabled,
         "readonly": props.readOnly,
         "aria-invalid": invalid ? true : undefined,
         "aria-describedby": ariaDescribedBy,
         "onInput": handleInput,
-        "onFocus": () => (focused.value = true),
-        "onBlur": () => (focused.value = false),
+        "onFocus": (evt: FocusEvent) => {
+          focused.value = true
+          callListeners(onFocusAttr, evt)
+        },
+        "onBlur": (evt: FocusEvent) => {
+          focused.value = false
+          callListeners(onBlurAttr, evt)
+        },
       }
-      // Uncontrolled: start from defaultValue, as React does
+      // Uncontrolled: `defaultValue` sets the initial value once, as in React
       const initialValue = props.value === undefined ? props.defaultValue : undefined
 
       return h("div", { class: clsx(s.Root, className as string | undefined) }, [
@@ -170,7 +201,7 @@ export const FloatingLabelInput = defineComponent({
                   ...controlProps,
                   rows: props.rows,
                   class: s.Textarea,
-                  ...(initialValue !== undefined ? { value: initialValue } : {}),
+                  ...(initialValue !== undefined ? { defaultValue: initialValue } : {}),
                 })
               : h(
                   "input",
@@ -178,7 +209,7 @@ export const FloatingLabelInput = defineComponent({
                     ...controlProps,
                     "type": effectiveType,
                     "class": s.Input,
-                    ...(initialValue !== undefined ? { value: initialValue } : {}),
+                    ...(initialValue !== undefined ? { defaultValue: initialValue } : {}),
                     "onAnimationstart": handleAnimationStart,
                     "data-lpignore": props.allowAutofillExtensions ? undefined : true,
                     "data-1p-ignore": props.allowAutofillExtensions ? undefined : true,

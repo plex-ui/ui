@@ -113,22 +113,36 @@ export const Accordion = defineComponent({
     const internalValue = ref<AccordionValue>(props.defaultValue ?? (isMultiple() ? [] : ""))
     const controlledValue = () => props.value
     const currentValue = computed(() => controlledValue() ?? internalValue.value)
+    // Radix's useControllableState: a controlled change is reported at once,
+    // from the click, when it differs from `value`. An uncontrolled one is
+    // reported from an effect, once the accordion has rendered it (so a
+    // listener finds the opened panel's content), when it differs from the
+    // last value reported.
+    let reportedValue = internalValue.value
+    watch(
+      internalValue,
+      (value) => {
+        if (value === reportedValue) return
+        reportedValue = value
+        emit("update:value", value)
+      },
+      { flush: "post" },
+    )
+
     // React swaps the single and multiple implementations when `type`
     // changes: the accordion remounts from `defaultValue` (see the `key` below)
     watch(
       () => props.type,
       () => {
         internalValue.value = props.defaultValue ?? (isMultiple() ? [] : "")
+        reportedValue = internalValue.value
       },
     )
 
-    // Radix's useControllableState: report only real changes
     const setValue = (next: AccordionValue) => {
-      const previous = currentValue.value
-      if (controlledValue() === undefined) internalValue.value = next
-      if (next !== previous) {
-        emit("update:value", next)
-      }
+      const controlled = controlledValue()
+      if (controlled === undefined) internalValue.value = next
+      else if (next !== controlled) emit("update:value", next)
     }
 
     const asArray = (value: AccordionValue | undefined) => (Array.isArray(value) ? value : [])
@@ -364,6 +378,7 @@ const AccordionContentImpl = defineComponent({
   inheritAttrs: false,
   props: {
     present: { type: Boolean, required: true },
+    asChild: { type: Boolean, required: true },
   },
   setup(props, { attrs, slots }) {
     const context = useAccordionContext()
@@ -418,31 +433,33 @@ const AccordionContentImpl = defineComponent({
       const { class: className, style, ...restAttrs } = attrs
       const open = itemContext.open.value
       const showContent = isOpen()
-      return h(
-        "div",
-        {
-          "data-state": getState(open),
-          "data-disabled": itemContext.disabled.value ? "" : undefined,
-          "id": collapsibleContext.contentId,
-          "hidden": !showContent,
-          "role": "region",
-          "aria-labelledby": itemContext.triggerId,
-          "data-orientation": context.orientation(),
-          ...restAttrs,
-          "class": [s.Content, className],
-          "ref": node,
-          "style": [
-            {
-              "--radix-collapsible-content-height": height ? `${height}px` : undefined,
-              "--radix-collapsible-content-width": width ? `${width}px` : undefined,
-              "--radix-accordion-content-height": "var(--radix-collapsible-content-height)",
-              "--radix-accordion-content-width": "var(--radix-collapsible-content-width)",
-            },
-            style,
-          ],
-        },
-        showContent ? [h("div", { class: s.ContentInner }, slots.default?.())] : undefined,
-      )
+      const panel = {
+        "data-state": getState(open),
+        "data-disabled": itemContext.disabled.value ? "" : undefined,
+        "id": collapsibleContext.contentId,
+        "hidden": !showContent,
+        "role": "region",
+        "aria-labelledby": itemContext.triggerId,
+        "data-orientation": context.orientation(),
+        ...restAttrs,
+        "class": [s.Content, className],
+        "ref": node,
+        "style": [
+          {
+            "--radix-collapsible-content-height": height ? `${height}px` : undefined,
+            "--radix-collapsible-content-width": width ? `${width}px` : undefined,
+            "--radix-accordion-content-height": "var(--radix-collapsible-content-height)",
+            "--radix-accordion-content-width": "var(--radix-collapsible-content-width)",
+          },
+          style,
+        ],
+      }
+      // `asChild`: Radix's Slot merges the panel onto the inner element,
+      // which only renders while the panel shows
+      if (props.asChild) {
+        return showContent ? h("div", { ...panel, class: [s.Content, className, s.ContentInner] }, slots.default?.()) : null
+      }
+      return h("div", panel, showContent ? [h("div", { class: s.ContentInner }, slots.default?.())] : undefined)
     }
   },
 })
@@ -454,6 +471,11 @@ export const AccordionContent = defineComponent({
   props: {
     /** Keep the panel mounted and visible while closed (for custom CSS or JS animations) */
     forceMount: { type: Boolean, default: undefined },
+    /**
+     * Merge the panel onto its inner element instead of wrapping it, as
+     * React's `asChild` does; a closed panel then renders nothing
+     */
+    asChild: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
     const itemContext = injectAccordionItemContext()
@@ -470,7 +492,7 @@ export const AccordionContent = defineComponent({
           // render slot (returning an array, like compiled slots) so Vue does
           // not warn about that call
           default: withCtx(({ present }: { present: boolean }) => [
-            h(AccordionContentImpl, { ...attrs, present }, { default: () => slots.default?.() }),
+            h(AccordionContentImpl, { ...attrs, present, asChild: props.asChild }, { default: () => slots.default?.() }),
           ]),
         },
       )

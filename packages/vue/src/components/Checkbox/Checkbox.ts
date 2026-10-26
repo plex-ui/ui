@@ -1,6 +1,6 @@
 import { computed, defineComponent, h, onMounted, ref, useId, watch, type PropType } from "vue"
 import { CheckboxIndicator as RekaCheckboxIndicator, CheckboxRoot as RekaCheckboxRoot } from "reka-ui"
-import { bubbleInputStyle, dispatchBubbleClick, useIsFormControl, useSize } from "./bubbleInput.js"
+import { bubbleInputStyle, dispatchBubbleClick, useCheckedTracker, useIsFormControl, useSize } from "./bubbleInput.js"
 import { ControlButton, isListener, type Listeners } from "./ControlButton.js"
 import s from "@plexui/styles/components/Checkbox/Checkbox.module.css"
 
@@ -54,6 +54,7 @@ const CheckboxComponent = defineComponent({
     const container = ref<HTMLDivElement | null>(null)
     const control = ref<HTMLButtonElement | null>(null)
     const bubbleInput = ref<HTMLInputElement | null>(null)
+    useCheckedTracker(bubbleInput)
 
     // Radix's useControllableState: controlled while `checked` is set, and
     // only actual changes are reported

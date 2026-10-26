@@ -109,6 +109,61 @@ describe("FloatingLabelInput behaviour parity", () => {
     expect(react[0]).toContain("data-focused")
   })
 
+  test("uncontrolled default-value keeps typed text across re-renders", async () => {
+    const values: string[] = []
+    const { react, vue } = await walk({ label: "Email", id: "e", defaultValue: "x" }, async (snap, input) => {
+      await interact(() => fireEvent.focus(input()))
+      await interact(() => fireEvent.input(input(), { target: { value: "abc" } }))
+      // Blur re-renders the component (data-focused changes)
+      await interact(() => fireEvent.blur(input()))
+      values.push(input().value)
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(values).toEqual(["abc", "abc"])
+  })
+
+  test.each([[false], [true]])("a controlled value the parent does not update is put back (multiline %s)", async (multiline) => {
+    const values: string[] = []
+    const props = { label: "Email", id: "e", value: "fixed", multiline }
+    for (const framework of ["react", "vue"] as const) {
+      if (framework === "react") {
+        render(createElement(RFloatingLabelInput, { ...toReact(props), onChange: () => {} } as never))
+        await interact(() => {})
+      } else {
+        mountVue(() => h(FloatingLabelInput, { ...props, "onUpdate:value": () => {} }))
+        await flushVue()
+      }
+      const field = document.querySelector("input, textarea") as HTMLInputElement
+      await interact(() => fireEvent.input(field, { target: { value: "fixedX" } }))
+      await flushVue()
+      values.push(field.value)
+      if (framework === "react") cleanup()
+    }
+    expect(values).toEqual(["fixed", "fixed"])
+  })
+
+  test.each([[false], [true]])("caller focus and blur listeners run (multiline %s)", async (multiline) => {
+    const calls: string[][] = []
+    for (const framework of ["react", "vue"] as const) {
+      const seen: string[] = []
+      const props = { label: "Email", id: "e", multiline, onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }
+      if (framework === "react") {
+        render(createElement(RFloatingLabelInput, toReact(props) as never))
+        await interact(() => {})
+      } else {
+        mountVue(() => h(FloatingLabelInput, props))
+        await flushVue()
+      }
+      const field = document.querySelector("input, textarea") as HTMLInputElement
+      await interact(() => fireEvent.focus(field))
+      await interact(() => fireEvent.blur(field))
+      calls.push(seen)
+      if (framework === "react") cleanup()
+    }
+    expect(calls).toEqual([["focus", "blur"], ["focus", "blur"]])
+  })
+
   test("reveal toggle swaps the type and reports it", async () => {
     const reactRevealed = vi.fn()
     const vueRevealed = vi.fn()

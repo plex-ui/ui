@@ -322,6 +322,23 @@ describe("Textarea behaviour parity", () => {
     expect(selections).toEqual(["0-9", "2-2", "0-9", "0-9", "2-2", "0-9"])
   })
 
+  test("autoSelect turning on with a new controlled value selects the new value", async () => {
+    const selections: string[] = []
+    const record = () => selections.push(`${textarea().value} ${textarea().selectionStart}-${textarea().selectionEnd}`)
+    const { react, vue } = await walkPairWithState(
+      { value: "old", autoSelect: false },
+      (state) => <RTextarea value={state.value} autoSelect={state.autoSelect} onChange={() => {}} />,
+      (state) => h(Textarea, { value: state.value, autoSelect: state.autoSelect }),
+      async ({ set, snapshot }) => {
+        await set({ value: "updated text", autoSelect: true })
+        record()
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(selections).toEqual(["updated text 0-12", "updated text 0-12"])
+  })
+
   test("browser autofill animation reports autofill", async () => {
     const calls: string[] = []
     // Without AnimationEvent (jsdom), React DOM listens for the prefixed
@@ -428,6 +445,18 @@ const accordionCases: Array<[string, Example]> = [
   ["passed attributes override the part's own", { root: { type: "single", defaultValue: "a", "data-orientation": "x" }, parts: { a: { item: { "data-state": "x" }, trigger: { type: "submit", "aria-expanded": false }, content: { role: "note", hidden: false } } } }],
   ["forceMount keeps a closed panel visible", { root: { type: "single", defaultValue: "a" }, parts: { b: { content: { forceMount: true } } } }],
   ["single item", { root: { type: "single" }, only: ["b"] }],
+  // Radix's Slot merges the panel onto the inner element; a closed panel renders nothing
+  [
+    "asChild merges the panel onto the inner element",
+    {
+      root: { type: "single", defaultValue: "a" },
+      parts: {
+        a: { content: { asChild: true, className: "content", style: { color: "red" }, "data-test": "content-a" } },
+        b: { content: { asChild: true } },
+      },
+    },
+  ],
+  ["asChild with forceMount keeps a closed panel", { root: { type: "single", defaultValue: "a" }, parts: { b: { content: { asChild: true, forceMount: true } } } }],
 ]
 
 describe("Accordion parity", () => {
@@ -497,6 +526,111 @@ describe("Accordion behaviour parity", () => {
     expect(run.vue).toEqual(run.react)
     expect(run.vueChanges).toEqual(run.reactChanges)
     expect(run.reactChanges).toEqual(["a", "b"])
+  })
+
+  // Radix's useControllableState reports an uncontrolled change from an
+  // effect, after the opened panel has rendered; a controlled one at once,
+  // from the click, before the parent passes the new value
+  test.each([
+    ["uncontrolled single", "single", false, ['"b" input', "field-b"]],
+    ["uncontrolled multiple", "multiple", false, ['["b"] input', "field-b"]],
+    ["controlled single", "single", true, ['"b" none', "(body)"]],
+  ] as const)("%s: a change listener can focus the opened panel's input", async (_name, type, controlled, expected) => {
+    const log: string[][] = []
+    const report = (value: unknown) => {
+      const input = document.querySelector<HTMLInputElement>("#field-b")
+      log.at(-1)!.push(`${JSON.stringify(value)} ${input ? "input" : "none"}`)
+      input?.focus()
+    }
+    const initial = type === "multiple" ? [] : ""
+    function ReactDemo() {
+      const [value, setValue] = useState<unknown>(initial)
+      return (
+        <RA
+          type={type}
+          {...(controlled ? { value } : {})}
+          onValueChange={(next: unknown) => {
+            report(next)
+            setValue(next)
+          }}
+        >
+          {["a", "b"].map((v) => (
+            <RA.Item key={v} value={v}>
+              <RA.Trigger>{v.toUpperCase()}</RA.Trigger>
+              <RA.Content>
+                <input id={`field-${v}`} />
+              </RA.Content>
+            </RA.Item>
+          ))}
+        </RA>
+      )
+    }
+    const VueDemo = defineComponent(() => {
+      const value = ref<unknown>(initial)
+      return () =>
+        h(
+          Accordion as never,
+          {
+            type,
+            ...(controlled ? { value: value.value } : {}),
+            "onUpdate:value": (next: unknown) => {
+              report(next)
+              value.value = next
+            },
+          },
+          {
+            default: () =>
+              ["a", "b"].map((v) =>
+                h(AccordionItem, { key: v, value: v }, {
+                  default: () => [
+                    h(AccordionTrigger, null, { default: () => v.toUpperCase() }),
+                    h(AccordionContent, null, { default: () => h("input", { id: `field-${v}` }) }),
+                  ],
+                }),
+              ),
+          },
+        )
+    })
+    const { react, vue } = await walkPair(
+      () => render(<ReactDemo />),
+      () => h(VueDemo),
+      async (snapshot) => {
+        log.push([])
+        await nextFrames()
+        await click("B")
+        log.at(-1)!.push(document.activeElement?.id || "(body)")
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(log[1]).toEqual(log[0])
+    expect(log[0]).toEqual(expected)
+  })
+
+  test("uncontrolled: switching `type` remounts from defaultValue without reporting a change", async () => {
+    const reactChanges: unknown[] = []
+    const vueChanges: unknown[] = []
+    const root = (type: string, onValueChange: (value: unknown) => void) => ({
+      type,
+      defaultValue: type === "multiple" ? ["c"] : "a",
+      onValueChange,
+    })
+    const { react, vue } = await walkPairWithState(
+      { type: "single" },
+      (state) => <ReactAccordion root={root(state.type, (value) => reactChanges.push(value))} />,
+      (state) => vueAccordion({ root: root(state.type, (value) => vueChanges.push(value)) }),
+      async ({ set, advance, snapshot }) => {
+        await advance(32)
+        await click("Beta")
+        snapshot()
+        await set({ type: "multiple" })
+        await advance(32)
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(vueChanges).toEqual(reactChanges)
+    expect(reactChanges).toEqual(["b"])
   })
 
   test("single collapsible: clicking the open item closes it and reports an empty string", async () => {
@@ -870,6 +1004,38 @@ describe("Accordion behaviour parity", () => {
       )
       expect(vue).toEqual(react)
       expect(react.join("\n")).toContain("--radix-collapsible-content-height: 120px")
+    })
+
+    test("asChild: the merged inner element is measured, animates out, then unmounts", async () => {
+      // A closing panel keeps its content, so it measures as it did open; a hidden one measures nothing
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+        const panel = this.classList.contains("Content") && !this.hidden
+        return { height: panel ? 120 : 0, width: panel ? 300 : 0, top: 0, left: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect
+      })
+      const parts = { a: { content: { asChild: true } }, b: { content: { asChild: true, className: "panel" } } }
+      const { react, vue } = await walkPairWithState(
+        { value: "" },
+        (state) => <ReactAccordion root={{ type: "single", collapsible: true, value: state.value, onValueChange: noop }} parts={parts} />,
+        (state) => vueAccordion({ root: { type: "single", collapsible: true, value: state.value, onValueChange: noop }, parts }),
+        async ({ set, advance, snapshot }) => {
+          snapshot()
+          await advance(32)
+          await set({ value: "a" })
+          snapshot()
+          await set({ value: "b" })
+          snapshot()
+          await animationEnd("Alpha", "accordion-up")
+          snapshot()
+        },
+      )
+      expect(vue).toEqual(react)
+      // Only Gamma's panel (no asChild) is mounted while closed
+      expect(react[0].match(/role="region"/g)).toHaveLength(1)
+      expect(react[1]).toMatch(/class="Content ContentInner" data-orientation="vertical" data-state="open" id="gen-2" role="region" style="[^"]*--radix-collapsible-content-height: 120px/)
+      expect(react[2]).toMatch(/class="Content ContentInner" data-orientation="vertical" data-state="closed" id="gen-2"/)
+      // Alpha's exit animation ended: its panel is gone, Beta's is open
+      expect(react[3].match(/role="region"/g)).toHaveLength(2)
+      expect(react[3]).toContain('class="Content panel ContentInner" data-orientation="vertical" data-state="open"')
     })
   })
 })

@@ -18,6 +18,8 @@ export type VueDemoControl =
  */
 export type VueDemoLoop = { name: string; every: number; holdFor: number };
 
+const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-full';
+
 /**
  * A Vue preview with optional demo controls. Each control's `name` is the
  * variable the template reads (`:size="size"`), so the code shown is the
@@ -28,13 +30,14 @@ export function VueDemo({
   controls = [],
   state,
   loop,
-  stageClassName = 'flex-1 flex flex-col items-center justify-center py-12 w-full',
+  stageClassName,
 }: {
   template: string;
   controls?: VueDemoControl[];
   /** Initial values the template reads and may change (`v-model:value="value"`) */
   state?: Record<string, unknown>;
   loop?: VueDemoLoop;
+  /** Classes of the demo stage; without controls the stage renders only when set */
   stageClassName?: string;
 }) {
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
@@ -63,7 +66,16 @@ export function VueDemo({
     };
   }, [loopName, every, holdFor]);
 
-  if (controls.length === 0) return <VuePreview key={run} template={template} props={props} />;
+  const preview = <VuePreview key={run} template={template} props={props} />;
+  if (controls.length === 0) {
+    return stageClassName ? (
+      <div className={stageClassName} data-demo-stage>
+        {preview}
+      </div>
+    ) : (
+      preview
+    );
+  }
 
   return (
     <>
@@ -106,8 +118,8 @@ export function VueDemo({
           ),
         )}
       </div>
-      <div className={stageClassName} data-demo-stage>
-        <VuePreview key={run} template={template} props={props} />
+      <div className={stageClassName ?? DEFAULT_STAGE} data-demo-stage>
+        {preview}
       </div>
     </>
   );

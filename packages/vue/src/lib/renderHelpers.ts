@@ -2,6 +2,20 @@ import { Comment, Fragment, Text, cloneVNode, h, isVNode, type VNode, type VNode
 
 // Port of packages/ui/src/lib/renderHelpers.tsx for slot vnodes.
 
+// PatchFlags.STABLE_FRAGMENT: a compiled <template v-if> or <template v-for> item
+const STABLE_FRAGMENT = 64
+
+// React flattens arrays but keeps a <>fragment</> as one child. A compiled
+// `<template v-if>` (or one `<template v-for>` item) is React's <>. The other
+// fragments pass their children on like an array: a v-for list (React's
+// `.map()`), the fragment <slot /> forwards content through (keyed
+// `_<slot name>`), and nested arrays in render functions (Vue turns those
+// into unflagged fragments, so `h(Fragment)` flattens too).
+const isTransparentFragment = (node: VNode) =>
+  node.type === Fragment &&
+  Array.isArray(node.children) &&
+  !(node.patchFlag > 0 && node.patchFlag & STABLE_FRAGMENT && !(typeof node.key === "string" && node.key.startsWith("_")))
+
 const flattenTextNodes = (children: VNodeArrayChildren): VNode[] => {
   const result: VNode[] = []
   let buffer = ""
@@ -38,9 +52,8 @@ const flattenTextNodes = (children: VNodeArrayChildren): VNode[] => {
         continue
       }
 
-      // v-for and <template> produce fragments; React flattens arrays the same way
-      if (node.type === Fragment && Array.isArray(node.children)) {
-        visit(node.children)
+      if (isTransparentFragment(node)) {
+        visit(node.children as VNodeArrayChildren)
         continue
       }
 
@@ -60,8 +73,9 @@ const wrapChildrenOf = (node: VNode): VNode => {
 
   const isComponent = typeof node.type === "object" || typeof node.type === "function"
 
-  // Element, or component given an array, with child vnodes
-  if ((typeof node.type === "string" || isComponent) && Array.isArray(children)) {
+  // Element, fragment (React clones a <> with wrapped children too), or
+  // component given an array, with child vnodes
+  if ((typeof node.type === "string" || node.type === Fragment || isComponent) && Array.isArray(children)) {
     return withChildren(node, wrapTextNodeSiblings(children))
   }
 

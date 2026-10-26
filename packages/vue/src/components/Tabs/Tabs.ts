@@ -16,6 +16,7 @@ import {
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
+  type Ref,
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
@@ -91,6 +92,83 @@ const focusFirst = (candidates: HTMLElement[]) => {
     if (document.activeElement !== previouslyFocused) return
   }
 }
+
+const callHandlers = (handlers: unknown, event: Event) => {
+  for (const handler of Array.isArray(handlers) ? handlers : [handlers]) {
+    if (typeof handler === "function") handler(event)
+  }
+}
+
+// Events a caller's handler called preventDefault() on. React's synthetic
+// event reports that call in `defaultPrevented` even when the native event is
+// not cancelable (focus), for every later handler of the same event.
+const preventedEvents = new WeakSet<Event>()
+
+const isPrevented = (event: Event) => event.defaultPrevented || preventedEvents.has(event)
+
+const callCallerHandlers = (handlers: unknown, event: Event) => {
+  if (!handlers) return
+  const preventDefault = event.preventDefault
+  event.preventDefault = () => {
+    preventedEvents.add(event)
+    preventDefault.call(event)
+  }
+  try {
+    callHandlers(handlers, event)
+  } finally {
+    Reflect.deleteProperty(event, "preventDefault")
+  }
+}
+
+// Internal: the element Tabs and TabsTab render through Reka's
+// RovingFocusGroup and RovingFocusItem with `asChild`. Reka merges its
+// handlers into these attrs and would run them before the caller's. Radix
+// composes them the other way (composeEventHandlers): the caller's handler
+// runs first, and Radix skips its own once the event is default-prevented.
+// So the caller's listeners for the `composed` events arrive separately in
+// `listeners` and are composed that way here.
+const RovingElement = defineComponent({
+  name: "TabsRovingElement",
+  inheritAttrs: false,
+  props: {
+    as: { type: String, required: true },
+    elementRef: Object as PropType<Ref<HTMLElement | null>>,
+    /** Events whose Reka handler Radix composes after the caller's */
+    composed: { type: Array as PropType<string[]>, required: true },
+    /** The caller's listeners for the `composed` events */
+    listeners: { type: Object as PropType<Record<string, unknown>>, default: () => ({}) },
+  },
+  setup(props, { attrs, slots }) {
+    return () => {
+      const handlers: Record<string, (event: Event) => void> = {}
+      for (const key of props.composed) {
+        const caller = props.listeners[key]
+        const internal = attrs[key]
+        handlers[key] = (event: Event) => {
+          callCallerHandlers(caller, event)
+          if (!isPrevented(event)) callHandlers(internal, event)
+        }
+      }
+      return h(props.as, { ...attrs, ...handlers, ref: props.elementRef }, slots.default?.())
+    }
+  },
+})
+
+/** Splits the caller's listeners for `keys` from the other attributes. */
+const splitListeners = (attrs: Record<string, unknown>, keys: string[]) => {
+  const listeners: Record<string, unknown> = {}
+  const rest: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    if (keys.includes(key)) listeners[key] = value
+    else rest[key] = value
+  }
+  return { listeners, rest }
+}
+
+// Radix RovingFocusGroup composes mousedown, focus and blur; its items
+// mousedown and focus (keydown too, which Reka already leaves to the caller)
+const GROUP_COMPOSED = ["onMousedown", "onFocus", "onBlur"]
+const ITEM_COMPOSED = ["onMousedown", "onFocus"]
 
 const TabsComponent = defineComponent({
   name: "Tabs",
@@ -351,7 +429,8 @@ const TabsComponent = defineComponent({
     }
 
     return () => {
-      const { class: className, dir, ...restAttrs } = attrs
+      const { class: className, dir, ...otherAttrs } = attrs
+      const { listeners, rest: restAttrs } = splitListeners(otherAttrs, GROUP_COMPOSED)
       // Only apply pill for segmented variant
       const isPill = props.variant === "segmented" && props.pill
       // Only apply flush for underline variant
@@ -369,9 +448,12 @@ const TabsComponent = defineComponent({
         {
           default: () =>
             h(
-              "div",
+              RovingElement,
               {
-                "ref": rootRef,
+                "as": "div",
+                "elementRef": rootRef,
+                "composed": GROUP_COMPOSED,
+                "listeners": listeners,
                 "class": [s.Tabs, className],
                 // `dir` comes from RovingFocusGroup ("ltr" unless set), like Radix
                 "role": "group",
@@ -385,7 +467,7 @@ const TabsComponent = defineComponent({
                 "data-gutter-size": props.gutterSize,
                 ...restAttrs,
               },
-              [h("div", { class: s.TabsThumb, ref: thumbRef }), slots.default?.()],
+              { default: () => [h("div", { class: s.TabsThumb, ref: thumbRef }), slots.default?.()] },
             ),
         },
       )
@@ -427,12 +509,6 @@ const renderIcon = (icon: TabsIconProp | undefined) => {
   return h(icon)
 }
 
-const callHandlers = (handlers: unknown, event: Event) => {
-  for (const handler of Array.isArray(handlers) ? handlers : [handlers]) {
-    if (typeof handler === "function") handler(event)
-  }
-}
-
 const TabComponent = defineComponent({
   name: "TabsTab",
   inheritAttrs: false,
@@ -457,7 +533,8 @@ const TabComponent = defineComponent({
       const disabled = context.disabled.value || !!props.disabled
       const selected = context.value.value
       const pressed = !!selected && selected === props.value
-      const { onClick, ...restAttrs } = attrs
+      const { onClick, ...otherAttrs } = attrs
+      const { listeners, rest: restAttrs } = splitListeners(otherAttrs, ITEM_COMPOSED)
 
       // Normalize badge prop; the slot replaces its content
       const badgeSlot = slots.badge?.()
@@ -486,8 +563,11 @@ const TabComponent = defineComponent({
         {
           default: () =>
             h(
-              "button",
+              RovingElement,
               {
+                "as": "button",
+                "composed": ITEM_COMPOSED,
+                "listeners": listeners,
                 // Radix Toggle defaults, then the single-select radio semantics
                 "type": "button",
                 "data-state": pressed ? "on" : "off",
@@ -503,24 +583,26 @@ const TabComponent = defineComponent({
                 "onPointerenter": handlePressableMouseEnter,
                 "onClick": handleClick,
               },
-              [
-                h("span", { class: s.TabContent }, [
-                  hasContent(iconSlot) ? iconSlot : renderIcon(props.icon),
-                  hasContent(children) ? h("span", null, children) : null,
-                  badgeProps
-                    ? h(
-                        "span",
-                        {
-                          "class": s.TabBadge,
-                          "data-color": badgeProps.color ?? "secondary",
-                          "data-variant": badgeProps.variant ?? "soft",
-                          "data-pill": badgeProps.pill ? "" : undefined,
-                        },
-                        badgeProps.loading ? [h(LoadingIndicator)] : [badgeProps.content as VNodeArrayChildren[number]],
-                      )
-                    : null,
-                ]),
-              ],
+              {
+                default: () => [
+                  h("span", { class: s.TabContent }, [
+                    hasContent(iconSlot) ? iconSlot : renderIcon(props.icon),
+                    hasContent(children) ? h("span", null, children) : null,
+                    badgeProps
+                      ? h(
+                          "span",
+                          {
+                            "class": s.TabBadge,
+                            "data-color": badgeProps.color ?? "secondary",
+                            "data-variant": badgeProps.variant ?? "soft",
+                            "data-pill": badgeProps.pill ? "" : undefined,
+                          },
+                          badgeProps.loading ? [h(LoadingIndicator)] : [badgeProps.content as VNodeArrayChildren[number]],
+                        )
+                      : null,
+                  ]),
+                ],
+              },
             ),
         },
       )
