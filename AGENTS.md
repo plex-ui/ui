@@ -208,7 +208,7 @@ Full doc: [`.memory/domains/full-sync.md`](.memory/domains/full-sync.md).
 
 ## Every change (add OR modify)
 
-1. `content/docs/overview/changelog.mdx` — entry under `## Unreleased → ### Added` (or `### Changed` / `### Fixed`)
+1. `content/docs/changelog.mdx` — entry under `## Unreleased → ### Added` (or `### Changed` / `### Fixed`)
 2. `packages/ui/package.json` — bump `version` (minor for new component / feature, patch for fix)
 
 ## New component (in addition to the above)

@@ -36,7 +36,7 @@ plexui-docs/
 - Keep PRs scoped — one component or one concern.
 - Include a short "why" in the PR description; link the issue you're addressing.
 - Update docs if you change a public prop or behavior.
-- Add a changelog entry under `content/docs/overview/changelog.mdx` for user-visible changes.
+- Add a changelog entry under `content/docs/changelog.mdx` for user-visible changes.
 
 ## Running tests / lint
 
