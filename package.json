@@ -25,6 +25,7 @@
     "build:styles": "npm run build --workspace=packages/styles",
     "build:ui": "npm run build --workspace=packages/ui",
     "build:vue": "npm run build --workspace=packages/vue",
+    "build:vue-icons": "node scripts/build-vue-icons.mjs",
     "build:mcp": "npm run build --workspace=packages/mcp",
     "generate:manifest": "node scripts/generate-mcp-manifest.mjs",
     "generate:llms": "node scripts/generate-llms-txt.mjs",

@@ -12,16 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@plexui/vue/components/Dialog';
-import {
-  ArrowRight,
-  ArrowUp,
-  Clear,
-  CompareArrows,
-  Delete,
-  Mail,
-  PlusLg,
-} from '@plexui/ui/components/Icon';
-import { vueIcon } from './reactIcon';
+import * as Icons from '@plexui/vue/components/Icon';
 
 // The `vue` package resolves to the runtime-only build, so preview templates
 // are compiled here, the way Vue's full build does it. The code a page shows
@@ -49,8 +40,7 @@ function compileToFunction(template: string | HTMLElement, options?: CompilerOpt
 
 registerRuntimeCompiler(compileToFunction as Parameters<typeof registerRuntimeCompiler>[0]);
 
-/** Everything a preview template can use without importing it. */
-export const vueComponents: Record<string, Component> = {
+const components: Record<string, Component> = {
   Button,
   Dialog,
   DialogClose,
@@ -60,11 +50,14 @@ export const vueComponents: Record<string, Component> = {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  ArrowRight: vueIcon('ArrowRight', ArrowRight),
-  ArrowUp: vueIcon('ArrowUp', ArrowUp),
-  Clear: vueIcon('Clear', Clear),
-  CompareArrows: vueIcon('CompareArrows', CompareArrows),
-  Delete: vueIcon('Delete', Delete),
-  Mail: vueIcon('Mail', Mail),
-  PlusLg: vueIcon('PlusLg', PlusLg),
 };
+
+// Icons whose names clash with a component (Card, Menu, Sidebar, ...) are
+// also registered as `<Name>Icon`; the component keeps the bare name.
+const icons: Record<string, Component> = {};
+for (const [name, icon] of Object.entries(Icons as Record<string, Component>)) {
+  icons[name in components ? `${name}Icon` : name] = icon;
+}
+
+/** Everything a preview template can use without importing it. */
+export const vueComponents: Record<string, Component> = { ...icons, ...components };
