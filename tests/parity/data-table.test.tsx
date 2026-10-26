@@ -1,7 +1,10 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as reactRenderToString } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { h, shallowReactive, type VNode } from "vue"
+import { createSSRApp, h, shallowReactive, type VNode } from "vue"
+import { renderToString as vueRenderToString } from "vue/server-renderer"
 import * as R from "../../packages/ui/src/components/DataTable"
 import * as V from "../../packages/vue/src/components/DataTable"
 import { flushVue, mountVue } from "./harness"
@@ -795,6 +798,39 @@ describe("DataTable pagination parity", () => {
     )
     expect(result.vue).toEqual(result.react)
     expect(result.react[1]).toContain('"1–4 of 15"')
+  })
+
+  test("server markup selects the page size; hydration keeps it", async () => {
+    const props = (fw: FW) => ({ columns: basic(fw), data: [...users, ...users], pageSize: 20 })
+    const element = dataTable("react", props("react"))
+    const container = document.createElement("div")
+    document.body.appendChild(container)
+    const select = () => container.querySelector("select")!
+    const state = () => `select value=${JSON.stringify(select().value)} index=${select().selectedIndex}`
+
+    container.innerHTML = reactRenderToString(element)
+    const reactServer = [serializeDom(container), state()]
+    let root: ReturnType<typeof hydrateRoot> | undefined
+    await act(async () => {
+      root = hydrateRoot(container, element)
+    })
+    const react = [...reactServer, serializeDom(container), state()]
+    await act(async () => root!.unmount())
+
+    const renderVue = () => dataTable("vue", props("vue")) as VNode
+    container.innerHTML = await vueRenderToString(createSSRApp({ render: renderVue }))
+    const vueServer = [serializeDom(container), state()]
+    const app = createSSRApp({ render: renderVue })
+    app.mount(container)
+    await flushVue()
+    const vue = [...vueServer, serializeDom(container), state()]
+    app.unmount()
+    container.remove()
+
+    expect(vue).toEqual(react)
+    expect(react[0]).toMatch(/<option selected="" value="20">/)
+    expect(react[1]).toBe('select value="20" index=1')
+    expect(react[3]).toBe('select value="20" index=1')
   })
 
   test("new data resets the page; data shrinking to nothing shows the empty row", async () => {

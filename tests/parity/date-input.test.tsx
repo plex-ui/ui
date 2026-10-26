@@ -1,8 +1,11 @@
 import { act, cleanup, render } from "@testing-library/react"
 import { DateTime } from "luxon"
 import { createElement, createRef, useSyncExternalStore, type ComponentType, type ReactElement } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test } from "vitest"
-import { h, reactive, ref, type VNode } from "vue"
+import { createSSRApp, h, reactive, ref, type VNode } from "vue"
+import { renderToString as vueRenderToString } from "vue/server-renderer"
 import { DateInput as RDateInput } from "../../packages/ui/src/components/DateInput"
 import { Field as RField } from "../../packages/ui/src/components/Field"
 import RCalendar from "../../packages/ui/src/components/Icon/svg/Calendar"
@@ -128,6 +131,51 @@ describe("DateInput parity", () => {
   test.each(cases)("%s", async (_name, props) => {
     const { react, vue } = await renderPair(reactDateInput(props), () => vueDateInput(props))
     expect(vue).toBe(react)
+  })
+})
+
+// Server-renders both, parses each markup into the document, then hydrates
+// it: the parsed server markup, then the DOM and the input's value after
+// hydration (and its effects).
+const dateInputSsrPair = async (props: Props) => {
+  const element = reactDateInput(props)
+  const renderVue = () => vueDateInput(props)
+  const container = document.createElement("div")
+  document.body.appendChild(container)
+
+  container.innerHTML = reactRenderToString(element)
+  const reactServer = serializeDom(container)
+  let root: ReturnType<typeof hydrateRoot> | undefined
+  await act(async () => {
+    root = hydrateRoot(container, element)
+  })
+  const react = [reactServer, serializeDom(container), theInput().value]
+  await act(async () => root!.unmount())
+
+  container.innerHTML = await vueRenderToString(createSSRApp({ render: renderVue }))
+  const vueServer = serializeDom(container)
+  const app = createSSRApp({ render: renderVue })
+  app.mount(container)
+  await flushVue()
+  const vue = [vueServer, serializeDom(container), theInput().value]
+  app.unmount()
+  container.remove()
+  return { react, vue }
+}
+
+describe("DateInput SSR parity", () => {
+  test.each<[string, Props, string]>([
+    ["clearable with a value", { value, clearable: true }, "15.03.2024"],
+    ["date and time", { value, timeMode: "HH:MM" }, "15.03.2024, 14:30"],
+    ["empty", { clearable: true }, ""],
+  ])("%s: the server renders an empty field, hydration formats the value", async (_name, props, shown) => {
+    const { react, vue } = await dateInputSsrPair(props)
+    expect(vue).toEqual(react)
+    // Formatting runs in an effect: no text, clear button or adornment attribute on the server
+    expect(react[0]).toMatch(/<input [^\n]*value=""/)
+    expect(react[0]).not.toContain("Clear input")
+    expect(react[0]).not.toContain("data-has-end-adornment")
+    expect(react[2]).toBe(shown)
   })
 })
 

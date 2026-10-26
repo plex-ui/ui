@@ -95,6 +95,18 @@ const TransitionGroupChild = defineComponent({
   },
 })
 
+// With `disableAnimations`, React wraps the children through `Children.map`,
+// which keys each wrapper by its child's key and a `false` child's wrapper by
+// its position. A reordered child moves with its wrapper (keeping its DOM and
+// state), and a `false` child turning into an element (or back) gets a new
+// wrapper. Placeholders take a symbol per position, which no child key can
+// equal.
+const placeholderKeys: symbol[] = []
+const wrapperKey = (vnode: VNode, index: number): PropertyKey => {
+  if (!isPlaceholder(vnode)) return vnode.key!
+  return (placeholderKeys[index] ??= Symbol(`placeholder-${index}`))
+}
+
 /**
  * Wraps each keyed child in a `<span>` (or `<div>`) that carries
  * `data-entering` / `data-exiting` state while it mounts and unmounts.
@@ -159,10 +171,10 @@ export const TransitionGroup = defineComponent({
       )
 
       if (props.disableAnimations) {
-        return slotChildren.map((vnode) =>
+        return slotChildren.map((vnode, index) =>
           h(
             props.as,
-            { "class": className, style, "data-transition-id": props.transitionId },
+            { "key": wrapperKey(vnode, index), "class": className, style, "data-transition-id": props.transitionId },
             isPlaceholder(vnode) ? undefined : [vnode],
           ),
         )

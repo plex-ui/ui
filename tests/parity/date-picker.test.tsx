@@ -17,8 +17,6 @@ import { serializeDom } from "./normalize"
 // Normalized here, and only here:
 // - Reka's popper wrapper: `--reka-popper-*` names and `dir="ltr"` (as in
 //   tooltip-popover.test.tsx); the content's own properties keep Radix's names.
-// - The month and year menus' wrappers in <body> are compared as a set (see
-//   normalize): a TransitionGroup gap, not one of DatePicker's.
 //
 // Snapshots also record the focused element, input values and the `change`
 // events. In Vue every `update:value` must carry the value of the `change`
@@ -38,14 +36,6 @@ const normalize = (root: Element) => {
     const style = element.getAttribute("style")!
     if (style.includes("--reka-popper-")) element.setAttribute("style", style.replaceAll("--reka-popper-", "--radix-popper-"))
   }
-  // The month and year menus portal into <body>. React's TransitionGroup
-  // (animations off) re-creates a menu's wrapper when it opens or closes, so
-  // the wrapper moves to the end of <body>; Vue's patches it in place. That
-  // is a TransitionGroup gap, not DatePicker's: the menu wrappers are
-  // compared as a set (sorted, after everything else).
-  const menus = Array.from(root.children).filter((element) => element.classList.contains("Menu"))
-  menus.sort((a, b) => (a.outerHTML < b.outerHTML ? -1 : a.outerHTML > b.outerHTML ? 1 : 0))
-  for (const menu of menus) root.appendChild(menu)
 }
 
 const describeFocus = () => {
@@ -579,6 +569,26 @@ describe("DatePicker parity: behaviour", () => {
         tools.snapshot()
       }),
     )
+  })
+
+  test("dropdown caption: opening the year menu while the month menu is open closes the month menu", async () => {
+    const result = await walk({ value: oct20, props: { captionLayout: "dropdown", yearRange: [2000, 2030] } }, async (tools) => {
+      await tools.open()
+      await tools.fire(button("Month"), "pointerDown", { button: 0, ...mouse })
+      await tools.advance(100)
+      tools.snapshot()
+      await tools.fire(button("Year"), "pointerDown", { button: 0, ...mouse })
+      await tools.advance(100)
+      tools.snapshot()
+      await tools.fire(button("Month"), "pointerDown", { button: 0, ...mouse })
+      await tools.advance(100)
+      tools.snapshot()
+    })
+    expectSame(result)
+    const menus = (dom: string) => dom.match(/class="MenuList"/g)?.length ?? 0
+    expect(result.react.map(menus)).toEqual([1, 1, 1])
+    expect(result.react[1]).toContain('data-option-id="2011"')
+    expect(result.react[2]).toContain('data-option-id="11"')
   })
 
   test("time: selecting a day keeps the popover open and uses the pending time", async () => {

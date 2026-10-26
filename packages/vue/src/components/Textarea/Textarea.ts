@@ -7,6 +7,8 @@ import {
   ref,
   useId,
   watch,
+  withDirectives,
+  type ObjectDirective,
   type PropType,
   type TextareaHTMLAttributes,
 } from "vue"
@@ -25,9 +27,18 @@ import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 //   `default-value`. Like a React controlled textarea, a `value` the parent
 //   does not update after input is put back.
 // - As in React, the textarea's text content (its `defaultValue`) follows
-//   the controlled value, or `default-value` when uncontrolled.
+//   the controlled value, or `default-value` when uncontrolled. It is set
+//   through the `textContent` property, which Vue's server renderer prints
+//   as the element's content, so `vServerText` can adjust it at SSR.
 
 type ListenerValue = ((event: Event) => void) | Array<(event: Event) => void> | undefined
+
+// The HTML parser drops a newline right after `<textarea>`: React's server
+// markup adds one before text that starts with a newline, so the text keeps
+// it after parsing (and hydration). SSR only; the client sets `textContent`.
+const vServerText: ObjectDirective<HTMLTextAreaElement, string> = {
+  getSSRProps: ({ value }) => (value.startsWith("\n") ? { textContent: `\n${value}` } : {}),
+}
 
 const invoke = (handler: unknown, event: Event) => {
   for (const fn of ([] as unknown[]).concat(handler ?? [])) {
@@ -194,9 +205,8 @@ const TextareaComponent = defineComponent({
           }),
         },
         [
-          h(
-            "textarea",
-            {
+          withDirectives(
+            h("textarea", {
               ...restAttrs,
               "onInput": (evt: Event) => {
                 invoke(onInput as ListenerValue, evt)
@@ -229,8 +239,9 @@ const TextareaComponent = defineComponent({
               // Prevent LastPass and 1Password from appearing
               "data-lpignore": allowAutofillExtensions ? undefined : true,
               "data-1p-ignore": allowAutofillExtensions ? undefined : true,
-            },
-            textContent,
+              "textContent": textContent,
+            }),
+            [[vServerText, textContent]],
           ),
         ],
       )

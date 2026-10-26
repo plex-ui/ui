@@ -2,7 +2,9 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
+import { Field as RField } from "../../packages/ui/src/components/Field"
 import { TagInput as RTagInput } from "../../packages/ui/src/components/TagInput"
+import { Field } from "../../packages/vue/src/components/Field"
 import { TagInput } from "../../packages/vue/src/components/TagInput"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
@@ -47,6 +49,19 @@ const cases: Array<[string, Props]> = [
 describe("TagInput parity", () => {
   test.each(cases)("%s", async (_name, props) => {
     const { react, vue } = await renderPair(createElement(RTagInput, props as never), () => h(TagInput, props as never))
+    expect(vue).toBe(react)
+  })
+})
+
+describe("TagInput inside Field", () => {
+  // Field passes id, aria-describedby and aria-invalid to its child. React's
+  // TagInput reads only `id`; the Vue port drops the rest instead of warning
+  // about attributes on its multi-root render
+  test("matches React and drops the attributes it does not read", async () => {
+    const { react, vue } = await renderPair(
+      createElement(RField, { label: "Tags", description: "Up to five", errorMessage: "Required" }, createElement(RTagInput, { placeholder: "Add a tag" })),
+      () => h(Field, { label: "Tags", description: "Up to five", errorMessage: "Required" }, () => h(TagInput, { placeholder: "Add a tag" })),
+    )
     expect(vue).toBe(react)
   })
 })

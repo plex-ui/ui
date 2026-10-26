@@ -153,6 +153,27 @@ const described = (rich: boolean, framework: "react" | "vue"): Opt[] => {
   ]
 }
 
+// Falsy descriptions: React's `description && ...` renders a 0 (and NaN) as
+// text, an empty string as nothing
+const numberDescribed: Opt[] = [
+  { value: "zero", label: "Zero", description: 0 },
+  { value: "nan", label: "NaN", description: Number.NaN },
+  { value: "empty", label: "Empty", description: "" },
+  { value: "one", label: "One", description: 1 },
+]
+
+// A Select inside an option's description, to open one Select in another's menu
+const nestedSelect = (framework: "react" | "vue"): Opt[] => [
+  {
+    value: "outer",
+    label: "Outer",
+    description:
+      framework === "react"
+        ? createElement(ReactSelect as unknown as ComponentType<Record<string, unknown>>, { options: items, value: "4", onChange: record })
+        : () => h(Select as unknown as Component, { options: items, value: "4", onChange: record }),
+  },
+]
+
 // Values that are not valid in a CSS selector unescaped
 const quoted: Opt[] = [
   { label: "Say hi", value: 'say "hi"' },
@@ -161,7 +182,19 @@ const quoted: Opt[] = [
   { label: "Digit first", value: "9 lives" },
 ]
 
-type OptionSet = "fruits" | "items" | "many" | "huge" | "grouped" | "hugeGroup" | "described" | "richDescribed" | "empty" | "quoted"
+type OptionSet =
+  | "fruits"
+  | "items"
+  | "many"
+  | "huge"
+  | "grouped"
+  | "hugeGroup"
+  | "described"
+  | "richDescribed"
+  | "numberDescribed"
+  | "nestedSelect"
+  | "empty"
+  | "quoted"
 
 const optionSet = (name: OptionSet, framework: "react" | "vue") => {
   switch (name) {
@@ -181,6 +214,10 @@ const optionSet = (name: OptionSet, framework: "react" | "vue") => {
       return described(false, framework)
     case "richDescribed":
       return described(true, framework)
+    case "numberDescribed":
+      return numberDescribed
+    case "nestedSelect":
+      return nestedSelect(framework)
     case "empty":
       return []
     case "quoted":
@@ -210,6 +247,8 @@ type Case = {
   controlled?: boolean
   /** Vue gets the custom views, trigger and empty message as props, not slots */
   vueProps?: boolean
+  /** A second Select (items, value "4") after the first */
+  sibling?: boolean
 }
 
 type Update = (patch: Partial<Case>) => void
@@ -275,6 +314,8 @@ const reactSelect = (c: Case, update: Update): ReactElement => {
         ...c.props,
         ...extra,
       })}
+      {c.sibling &&
+        createElement(ReactSelect as unknown as ComponentType<Record<string, unknown>>, { options: items, value: "4", onChange: record })}
       <button data-testid="outside">Outside</button>
     </>
   )
@@ -330,6 +371,7 @@ const vueSelect = (c: Case, update: Update): VNode => {
       },
       slots,
     ),
+    c.sibling ? h(Select as unknown as Component, { options: items, value: "4", onChange: record }) : null,
     h("button", { "data-testid": "outside" }, "Outside"),
   ])
 }
@@ -516,6 +558,7 @@ const openCases: Array<[string, Case]> = [
   ["custom option view", { value: "apple", optionView: true }],
   ["descriptions", { options: "described", value: "reader" }],
   ["rich descriptions and tooltip", { options: "richDescribed", value: "reader" }],
+  ["numeric and empty descriptions", { options: "numberDescribed", value: "one" }],
   ["groups, tooltips, expandable limit, search", { options: "grouped", value: "2" }],
   ["search placeholder and label", { options: "many", props: { searchPlaceholder: "Find...", searchAriaLabel: "Find an option" } }],
   ["flat hard limit", { options: "huge", value: "r2" }],
@@ -563,6 +606,18 @@ describe("Select markup details", () => {
     expect(dom).toContain("--select-list-max-width: auto")
     expect(dom).toMatch(/focus: <div class="MenuInner">/)
     expect(dom).toContain("scrolls: grapes:center")
+  })
+
+  test("numeric descriptions: 0 and NaN render as text, an empty string renders nothing", async () => {
+    const { react, vue } = await pair({ options: "numberDescribed" }, { open: true })
+    expect(vue).toEqual(react)
+    const optionOf = (value: string) => react[0]!.split(`data-option-id="${value}"`)[1]!.split("data-option-id=")[0]!
+    // The bare value follows the label, without the description wrapper
+    expect(optionOf("zero")).toMatch(/"Zero"\n\s*"0"\n/)
+    expect(optionOf("zero")).not.toContain("OptionDescription")
+    expect(optionOf("nan")).toMatch(/"NaN"\n\s*"NaN"\n/)
+    expect(optionOf("empty")).not.toContain("OptionDescription")
+    expect(optionOf("one")).toMatch(/OptionDescription">\n\s*"1"/)
   })
 
   test("searchable: the search input is a combobox controlling the list and takes focus", async () => {
@@ -660,6 +715,46 @@ describe("Select pointer behaviour parity", () => {
     expect(result.react[0]).not.toContain('role="dialog"')
     expect(result.react[1]).not.toContain('role="dialog"')
     expect(result.react[1]).toContain('focus: <button class=""> "Outside"')
+  })
+
+  test.each([
+    ["animations off (jsdom default)", true],
+    ["animations on (browser)", false],
+  ])("opening a sibling Select closes the open one, both ways (%s)", async (_mode, disabled) => {
+    animation.disabled = disabled
+    const SECOND = () => document.querySelectorAll(TRIGGER)[1] ?? null
+    const result = await walk({ value: "apple", sibling: true }, async ({ open, fire, advance, snapshot }) => {
+      await open()
+      await advance(50)
+      snapshot() // the first is open
+      await fire(SECOND, "pointerDown", { button: 0, ...mouse })
+      await advance(50)
+      snapshot() // the second is open, the first closed
+      await open()
+      await advance(50)
+      snapshot() // the first again
+    })
+    expect(result.vue).toEqual(result.react)
+    const menus = (dom: string) => dom.match(/class="MenuList"/g)?.length ?? 0
+    expect(result.react.map(menus)).toEqual([1, 1, 1])
+    expect(result.react[0]).toContain('data-option-id="apple"')
+    expect(result.react[1]).toContain('data-option-id="4"')
+    expect(result.react[1]).not.toContain('data-option-id="apple"')
+    expect(result.react[2]).toContain('data-option-id="apple"')
+  })
+
+  test("a Select opened inside another Select's menu keeps the outer one open", async () => {
+    const INNER = () => document.querySelector(`.MenuList ${TRIGGER}`)
+    const result = await walk({ options: "nestedSelect" }, async ({ open, fire, advance, snapshot }) => {
+      await open()
+      await advance(50)
+      await fire(INNER, "pointerDown", { button: 0, ...mouse })
+      await advance(50)
+      snapshot() // both open, focus in the inner menu
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]!.match(/class="MenuList"/g)).toHaveLength(2)
+    expect(result.react[0]).toContain('data-option-id="4"')
   })
 
   test("disabled options ignore the pointer", async () => {

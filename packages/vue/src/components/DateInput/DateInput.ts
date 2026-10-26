@@ -105,21 +105,21 @@ const DateInputComponent = defineComponent({
 
     const inputValue = ref("")
 
+    // React formats the value in an effect: the first render (and the server
+    // markup) has an empty field, without the clear button
+    const syncInputValue = () => {
+      const { value } = props
+      if (!value) {
+        inputValue.value = ""
+        return
+      }
+      inputValue.value = hasTime.value
+        ? maskitoStringifyDateTime(value.toJSDate(), dateTimeParams.value)
+        : maskitoStringifyDate(value.toJSDate(), dateParams.value)
+    }
     const valueMsKey = computed(() => props.value?.toMillis() ?? null)
-    watch(
-      [valueMsKey, hasTime, dateParams, dateTimeParams],
-      () => {
-        const { value } = props
-        if (!value) {
-          inputValue.value = ""
-          return
-        }
-        inputValue.value = hasTime.value
-          ? maskitoStringifyDateTime(value.toJSDate(), dateTimeParams.value)
-          : maskitoStringifyDate(value.toJSDate(), dateParams.value)
-      },
-      { immediate: true },
-    )
+    watch([valueMsKey, hasTime, dateParams, dateTimeParams], syncInputValue)
+    onMounted(syncInputValue)
 
     const change = (value: DateTime | null) => {
       emit("update:value", value)

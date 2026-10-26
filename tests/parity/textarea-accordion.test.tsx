@@ -1,12 +1,16 @@
 import { act, fireEvent, render } from "@testing-library/react"
 import { createElement, useState, type ComponentType } from "react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString as reactRenderToString } from "react-dom/server"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { defineComponent, h, ref } from "vue"
+import { createSSRApp, defineComponent, h, ref } from "vue"
+import { renderToString as vueRenderToString } from "vue/server-renderer"
 import { Accordion as RAccordion } from "../../packages/ui/src/components/Accordion"
 import { Textarea as RTextarea } from "../../packages/ui/src/components/Textarea"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../packages/vue/src/components/Accordion"
 import { Textarea } from "../../packages/vue/src/components/Textarea"
 import { flushVue } from "./harness"
+import { serializeDom } from "./normalize"
 import { renderPair, walkPair, walkPairWithState } from "./pair"
 
 type Props = Record<string, unknown>
@@ -71,6 +75,8 @@ const textareaCases: Array<[string, Props]> = [
   ["own attributes win over passed ones", { "data-lpignore": "no", "data-1p-ignore": "no", rows: 4 }],
   ["defaultValue", { defaultValue: "Jane Doe" }],
   ["multi-line defaultValue", { defaultValue: "Line 1\nLine 2" }],
+  ["defaultValue with a leading newline", { defaultValue: "\nInitial text" }],
+  ["value with leading newlines", { value: "\n\nTwo", onChange: noop }],
   ["controlled value", { value: "Hello", onChange: noop }],
   ["numeric value", { value: 42, onChange: noop }],
   ["controlled empty value", { value: "", onChange: noop }],
@@ -102,6 +108,53 @@ describe("Textarea parity", () => {
     expect(react).toContain('id="gen-1"')
     expect(react).toContain('data-lpignore="true"')
     expect((await textareaPair({ name: "bio" })).react).not.toContain("id=")
+  })
+})
+
+// Server-renders both, parses each markup into the document (the HTML parser
+// drops one newline right after <textarea>), then hydrates it. Returns the
+// parsed server markup and the value before hydration, then the value and
+// DOM after it.
+const textareaSsrPair = async (props: Props) => {
+  const { onChange: _onChange, ...vueProps } = props
+  const element = createElement(RTextarea as ComponentType<Props>, props)
+  const renderVue = () => h(Textarea, toVue(vueProps))
+  const container = document.createElement("div")
+  document.body.appendChild(container)
+  const field = () => container.querySelector("textarea")!
+
+  container.innerHTML = reactRenderToString(element)
+  const reactServer = { html: serializeDom(container), value: field().value }
+  let root: ReturnType<typeof hydrateRoot> | undefined
+  await act(async () => {
+    root = hydrateRoot(container, element)
+  })
+  const react = { ...reactServer, hydratedValue: field().value, hydrated: serializeDom(container) }
+  await act(async () => root!.unmount())
+
+  container.innerHTML = await vueRenderToString(createSSRApp({ render: renderVue }))
+  const vueServer = { html: serializeDom(container), value: field().value }
+  const app = createSSRApp({ render: renderVue })
+  app.mount(container)
+  await flushVue()
+  const vue = { ...vueServer, hydratedValue: field().value, hydrated: serializeDom(container) }
+  app.unmount()
+  container.remove()
+  return { react, vue }
+}
+
+describe("Textarea SSR parity", () => {
+  test.each<[string, Props, string]>([
+    ["defaultValue with a leading newline", { defaultValue: "\nInitial text" }, "\nInitial text"],
+    ["controlled value with a leading newline", { value: "\nInitial text", onChange: noop }, "\nInitial text"],
+    ["two leading newlines", { defaultValue: "\n\nTwo" }, "\n\nTwo"],
+    ["no leading newline", { defaultValue: "Plain\ntext" }, "Plain\ntext"],
+    ["empty", {}, ""],
+  ])("%s survives server rendering and hydration", async (_name, props, expected) => {
+    const { react, vue } = await textareaSsrPair(props)
+    expect(vue).toEqual(react)
+    expect(react.value).toBe(expected)
+    expect(react.hydratedValue).toBe(expected)
   })
 })
 

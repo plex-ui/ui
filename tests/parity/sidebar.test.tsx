@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
+import { createElement, createRef, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { createApp, defineComponent, h, reactive, type Component, type VNode, type VNodeChild } from "vue"
+import { createApp, defineComponent, h, reactive, ref, type Component, type VNode, type VNodeChild } from "vue"
 import { Badge as ReactBadge } from "../../packages/ui/src/components/Badge"
 import * as ReactIcons from "../../packages/ui/src/components/Icon"
 import * as ReactSidebar from "../../packages/ui/src/components/Sidebar"
@@ -565,6 +565,33 @@ describe("Sidebar markup", () => {
     unmount()
     expect(vue).toBe(react)
     expect(react).toContain("⌘K")
+  })
+
+  test("SidebarInput forwards the imperative API to the input (React: ref)", async () => {
+    const reactRef = createRef<HTMLInputElement>()
+    await act(async () => {
+      render(
+        <ReactSidebar.SidebarProvider>
+          <ReactSidebar.SidebarInput ref={reactRef} placeholder="Search" />
+        </ReactSidebar.SidebarProvider>,
+      )
+    })
+    await act(async () => reactRef.current!.focus())
+    const react = { isInput: reactRef.current === document.querySelector("input"), focused: document.activeElement?.tagName }
+    cleanup()
+
+    const vueRef = ref<{ focus: () => void; input: HTMLInputElement | null } | null>(null)
+    const { unmount } = mountVue(() =>
+      h(VueSidebar.SidebarProvider, null, {
+        default: () => h(VueSidebar.SidebarInput, { ref: vueRef, placeholder: "Search" } as never),
+      }),
+    )
+    await flushVue()
+    vueRef.value!.focus()
+    const vue = { isInput: vueRef.value!.input === document.querySelector("input"), focused: document.activeElement?.tagName }
+    unmount()
+    expect(vue).toEqual(react)
+    expect(react).toEqual({ isInput: true, focused: "INPUT" })
   })
 
   test("rich tooltip content: React node vs #tooltip slot", async () => {

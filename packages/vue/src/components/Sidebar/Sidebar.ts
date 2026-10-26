@@ -1,4 +1,5 @@
 import {
+  computed,
   defineComponent,
   h,
   onBeforeUnmount,
@@ -781,18 +782,27 @@ export type SidebarInputProps = InputProps
 /**
  * Search input: an Input with a Search icon in its `startAdornment` slot.
  * Every attribute, listener and slot goes to the Input (`v-model:value`,
- * `@clear`, ...).
+ * `@clear`, ...). A template ref gets the Input's `focus()` and `input`
+ * (React forwards its ref to the <input>).
  */
 export const SidebarInput = defineComponent({
   name: "SidebarInput",
   inheritAttrs: false,
-  setup(_props, { attrs, slots }) {
+  setup(_props, { attrs, slots, expose }) {
+    // Input's exposed API
+    const inputComponent = ref<{ input: HTMLInputElement | null; focus: () => void } | null>(null)
+
+    expose({
+      focus: () => inputComponent.value?.focus(),
+      input: computed(() => inputComponent.value?.input ?? null),
+    })
+
     return () => {
       const { className, rest } = cleanAttrs(attrs)
       return h("div", { class: s.Input }, [
         h(
           Input,
-          { class: className, ...rest },
+          { class: className, ...rest, ref: inputComponent },
           { ...slots, startAdornment: slots.startAdornment ?? (() => h(SearchIcon)) },
         ),
       ])

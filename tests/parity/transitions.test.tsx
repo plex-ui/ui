@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 import { createElement, type ReactNode } from "react"
-import { h, type VNode } from "vue"
+import { createCommentVNode, h, type VNode } from "vue"
 import * as R from "../../packages/ui/src/components/Transition"
 import * as V from "../../packages/vue/src/components/Transition"
 import { animation } from "./harness"
@@ -181,5 +181,71 @@ describe("Transition behaviour parity (animations on, fake timers)", () => {
     )
     expect(vue).toEqual(react)
     expect(react[0]).not.toContain(">\n    \"b\"")
+  })
+})
+
+describe("TransitionGroup keyed identity parity", () => {
+  // Uncontrolled inputs keep their typed value and focus only while the same
+  // element stays mounted
+  const reactInputs = (keys: string[]): ReactNode[] => keys.map((key) => <input key={key} data-key={key} />)
+  const vueInputs = (keys: string[]): VNode[] => keys.map((key) => h("input", { "key": key, "data-key": key }))
+
+  test.each([
+    ["animations off (jsdom default)", true],
+    ["animations on (browser)", false],
+  ])("reordering keyed children keeps their elements, typed values and focus (%s)", async (_mode, disabled) => {
+    animation.disabled = disabled
+    const notes: string[][] = []
+    const { react, vue } = await walkPairWithState(
+      { keys: ["a", "b", "c"] as string[] },
+      (state) => createElement(R.TransitionGroup, { transitionId: "list" }, reactInputs(state.keys)),
+      (state) => h(V.TransitionGroup, { transitionId: "list" }, { default: () => vueInputs(state.keys) }),
+      async ({ set, advance, snapshot }) => {
+        const note: string[] = []
+        notes.push(note)
+        const inputs = () => Array.from(document.querySelectorAll<HTMLInputElement>("input[data-key]"))
+        const before = new Map(inputs().map((input) => [input.dataset.key, input]))
+        for (const input of inputs()) input.value = `typed ${input.dataset.key}`
+        before.get("b")!.focus()
+        await set({ keys: ["b", "c", "a"] })
+        await advance(1000)
+        snapshot()
+        for (const input of inputs()) {
+          note.push(`${input.dataset.key}: ${JSON.stringify(input.value)} same element: ${before.get(input.dataset.key) === input}`)
+        }
+        note.push(`focus: ${(document.activeElement as HTMLElement | null)?.dataset.key ?? "none"}`)
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(notes[1]).toEqual(notes[0])
+    expect(notes[0]).toContain('b: "typed b" same element: true')
+    expect(notes[0]).toContain("focus: b")
+  })
+
+  test("a false child becoming an element replaces its empty wrapper (animations off)", async () => {
+    animation.disabled = true
+    const notes: string[][] = []
+    const wrapper = () => document.querySelector('[data-transition-id="slot"]')
+    const { react, vue } = await walkPairWithState(
+      { on: false },
+      (state) => createElement(R.TransitionGroup, { transitionId: "slot" }, state.on && <b key="x">x</b>),
+      (state) =>
+        h(V.TransitionGroup, { transitionId: "slot" }, { default: () => [state.on ? h("b", { key: "x" }, "x") : createCommentVNode()] }),
+      async ({ set, snapshot }) => {
+        const note: string[] = []
+        notes.push(note)
+        const empty = wrapper()
+        snapshot()
+        await set({ on: true })
+        const full = wrapper()
+        snapshot()
+        await set({ on: false })
+        snapshot()
+        note.push(`kept on show: ${empty === full}`, `kept on hide: ${full === wrapper()}`)
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(notes[1]).toEqual(notes[0])
+    expect(notes[0]).toEqual(["kept on show: false", "kept on hide: false"])
   })
 })

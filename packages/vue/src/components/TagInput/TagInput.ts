@@ -32,6 +32,9 @@ const SHAKE_ANIMATION_DURATION_MS = 500
  */
 export const TagInput = defineComponent({
   name: "TagInput",
+  // React's TagInput takes no extra attributes (Field's aria-describedby and
+  // aria-invalid are ignored); the render has several roots, so drop them
+  inheritAttrs: false,
   props: {
     /** The state of the tag input when it is initially rendered, used when uncontrolled */
     defaultValue: { type: Array as PropType<Tag[]>, default: () => [] },

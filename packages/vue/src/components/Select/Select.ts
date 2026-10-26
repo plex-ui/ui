@@ -303,6 +303,28 @@ type CustomSelectContextValue = {
 
 const CustomSelectContextKey: InjectionKey<CustomSelectContextValue> = Symbol("PlexUICustomSelect")
 
+// Radix decides "focus outside" on the React tree, where a Select opened next
+// to another one is outside it: focus entering the second one's menu closes
+// the first. Reka decides on the DOM and counts a layer later in the document
+// as nested, so the first would stay open. Each Select records its logical
+// parent (the Select whose menu renders it) and its content element, and
+// closes when focus enters the content of a Select not nested in it.
+type SelectLayer = {
+  parent: SelectLayer | null
+  content: ShallowRef<HTMLElement | null>
+}
+
+const SelectLayerKey: InjectionKey<SelectLayer> = Symbol("PlexUISelectLayer")
+
+const mountedSelectLayers = new Set<SelectLayer>()
+
+const isNestedIn = (layer: SelectLayer, ancestor: SelectLayer) => {
+  for (let parent = layer.parent; parent; parent = parent.parent) {
+    if (parent === ancestor) return true
+  }
+  return false
+}
+
 type CustomSelectMenuContextValue = {
   openingValue: string
   listId: string
@@ -666,6 +688,34 @@ const CustomSelect = defineComponent({
       handleOpenChange(nextState)
     }
 
+    const layer: SelectLayer = { parent: inject(SelectLayerKey, null), content: selectContentRef }
+    provide(SelectLayerKey, layer)
+
+    // Focus entering another Select's menu is outside this one, unless that
+    // Select is nested in this one's menu (see SelectLayer)
+    const handleFocusIn = (evt: FocusEvent) => {
+      const target = evt.target as Node | null
+      if (!open.value || !target) return
+      for (const other of mountedSelectLayers) {
+        if (other !== layer && other.content.value?.contains(target) && !isNestedIn(other, layer)) {
+          handleRootOpenChange(false)
+          return
+        }
+      }
+    }
+
+    let listenerDocument: Document | null = null
+    onMounted(() => {
+      mountedSelectLayers.add(layer)
+      listenerDocument = triggerEl.value?.ownerDocument ?? document
+      listenerDocument.addEventListener("focusin", handleFocusIn)
+    })
+    onBeforeUnmount(() => {
+      mountedSelectLayers.delete(layer)
+      listenerDocument?.removeEventListener("focusin", handleFocusIn)
+      listenerDocument = null
+    })
+
     const renderTrigger = () => {
       const renderProps: SelectTriggerRenderProps = {
         open: open.value,
@@ -686,7 +736,11 @@ const CustomSelect = defineComponent({
         {
           default: () => [
             h(SelectPopoverTrigger, null, { default: renderTrigger }),
-            h(RekaPopoverPortal, { forceMount: true }, {
+            // React replaces the menu's wrapper when it opens or closes (see
+            // TransitionGroup), so React DOM appends the new one to <body>.
+            // A Teleport keeps its place in <body>: a new one per state moves
+            // the wrapper to the end the same way.
+            h(RekaPopoverPortal, { key: open.value ? "open" : "closed", forceMount: true }, {
               default: () => [
                 h(
                   TransitionGroup,
@@ -762,6 +816,15 @@ const SelectPopoverContent = defineComponent({
  * Reka's capture listener has stamped it: its `data-focused` would stay
  * "false", while React's onFocus always runs. The focus events are stamped
  * one millisecond later for the listeners on their way.
+ *
+ * `_vts` is a private field of Vue's runtime-dom event invoker. Deferring the
+ * focus instead was tried and breaks parity, because React focuses
+ * synchronously in its mount effect: in the next animation frame, keys and
+ * Escape pressed right after opening reach the trigger, not the menu; in a
+ * 1ms timeout (a 0ms one fires within the same millisecond and is skipped
+ * too), a menu opened and closed quickly takes focus after closing. Should
+ * Vue drop the field, the stamp is ignored and only the search input's
+ * `data-focused` is affected.
  */
 const focusMounted = (element: HTMLElement) => {
   const view = element.ownerDocument.defaultView
@@ -1353,9 +1416,9 @@ const CustomSelectOption = defineComponent({
               : null,
             h("div", { class: s.OptionLeading }, [
               h("div", { class: s.OptionInner }, [renderOptionView(option), tooltip ? renderTooltip(tooltip) : null]),
-              option.description
-                ? h("div", { class: clsx(s.OptionInner, s.OptionDescription) }, [renderContent(option.description)])
-                : null,
+              // React's `description && ...`: a 0 (or NaN) renders as text
+              option.description &&
+                h("div", { class: clsx(s.OptionInner, s.OptionDescription) }, [renderContent(option.description)]),
             ]),
             checkPosition === "end"
               ? h("div", { "class": s.OptionIndicatorSlot, "data-position": "end" }, [
