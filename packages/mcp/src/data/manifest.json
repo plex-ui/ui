@@ -36,12 +36,48 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 41,
+  "componentCount": 47,
   "components": [
+    {
+      "slug": "accordion",
+      "name": "Accordion",
+      "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+      "importPath": "@plexui/ui/components/Accordion",
+      "exports": [
+        "Accordion"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Accordion type=\"single\" collapsible defaultValue=\"shipping\">\n  <Accordion.Item value=\"shipping\">\n    <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>\n    <Accordion.Content>\n      We offer standard (5–7 business days), express (2–3 days), and overnight shipping…\n    </Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"returns\">\n    <Accordion.Trigger>What is your return policy?</Accordion.Trigger>\n    <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"support\">\n    <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>\n    <Accordion.Content>Reach us by email, live chat, or phone Monday–Friday…</Accordion.Content>\n  </Accordion.Item>\n</Accordion>"
+        },
+        {
+          "name": "Single",
+          "code": "<Accordion type=\"single\" collapsible defaultValue=\"trial\">\n  {items.map((item) => (\n    <Accordion.Item key={item.value} value={item.value}>\n      <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n      <Accordion.Content>{item.content}</Accordion.Content>\n    </Accordion.Item>\n  ))}\n</Accordion>",
+          "details": "Default shape. type=\"single\" + collapsible lets users close the currently open item; without collapsible, one item is always open."
+        },
+        {
+          "name": "Multiple",
+          "code": "<Accordion type=\"multiple\" defaultValue={[\"notifications\"]}>\n  {items.map((item) => (\n    <Accordion.Item key={item.value} value={item.value}>\n      <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n      <Accordion.Content>{item.content}</Accordion.Content>\n    </Accordion.Item>\n  ))}\n</Accordion>",
+          "details": "Use type=\"multiple\" when readers can keep several sections open at once — settings pages, long FAQs, step-by-step references."
+        },
+        {
+          "name": "Disabled",
+          "code": "<Accordion type=\"single\" collapsible>\n  <Accordion.Item value=\"history\">\n    <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>\n    <Accordion.Content>…</Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"audit\" disabled>\n    <Accordion.Trigger>Audit log export (Enterprise only)</Accordion.Trigger>\n    <Accordion.Content>…</Accordion.Content>\n  </Accordion.Item>\n  <Accordion.Item value=\"two-factor\">\n    <Accordion.Trigger>How do I enable two-factor auth?</Accordion.Trigger>\n    <Accordion.Content>…</Accordion.Content>\n  </Accordion.Item>\n</Accordion>",
+          "details": "Pass disabled to an Accordion.Item to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it."
+        },
+        {
+          "name": "Card",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>Subscription & billing</Card.Title>\n    <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <Accordion type=\"single\" collapsible defaultValue=\"plans\">\n      {items.map((item) => (\n        <Accordion.Item key={item.value} value={item.value}>\n          <Accordion.Trigger>{item.trigger}</Accordion.Trigger>\n          <Accordion.Content>{item.content}</Accordion.Content>\n        </Accordion.Item>\n      ))}\n    </Accordion>\n  </Card.Content>\n</Card>",
+          "details": "Composed inside Card — the most common landing-page FAQ pattern."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/accordion"
+    },
     {
       "slug": "alert",
       "name": "Alert",
-      "description": "Call attention to a specific message or warning",
+      "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
       "importPath": "@plexui/ui/components/Alert",
       "exports": [
         "Alert"
@@ -136,7 +172,7 @@
     {
       "slug": "avatar-group",
       "name": "Avatar Group",
-      "description": "Display avatars as a single stack",
+      "description": "Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.",
       "importPath": "@plexui/ui/components/Avatar",
       "exports": [
         "AvatarGroup"
@@ -175,7 +211,7 @@
     {
       "slug": "avatar",
       "name": "Avatar",
-      "description": "Display user identities with either text, photo, or an icon",
+      "description": "An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.",
       "importPath": "@plexui/ui/components/Avatar",
       "exports": [
         "Avatar"
@@ -274,7 +310,7 @@
     {
       "slug": "badge",
       "name": "Badge",
-      "description": "Emphasize details with a status indicator",
+      "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
       "importPath": "@plexui/ui/components/Badge",
       "exports": [
         "Badge"
@@ -340,9 +376,75 @@
       "docsUrl": "https://plexui.com/components/badge"
     },
     {
+      "slug": "button-group",
+      "name": "Button Group",
+      "description": "Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.",
+      "importPath": "@plexui/ui/components/ButtonGroup",
+      "exports": [
+        "ButtonGroup"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ButtonGroup>\n  <ButtonGroup><Button uniform aria-label=\"Go back\"><ArrowLeftSm /></Button></ButtonGroup>\n  <ButtonGroup>\n    <Button>Pin</Button>\n    <Button>Tag</Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button>Bookmark</Button>\n    <Button uniform aria-label=\"More options\"><DotsHorizontal /></Button>\n  </ButtonGroup>\n</ButtonGroup>"
+        },
+        {
+          "name": "Orientation",
+          "code": "<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n  <Button uniform aria-label=\"Zoom in\"><PlusSm /></Button>\n  <Button uniform aria-label=\"Zoom out\"><Minus /></Button>\n</ButtonGroup>",
+          "details": "Pass orientation=\"vertical\" to stack the buttons — useful for + / − steppers, zoom controls, or any vertical toolbar."
+        },
+        {
+          "name": "Size",
+          "code": "<ButtonGroup>\n  <Button size=\"sm\">Small</Button>\n  <Button size=\"sm\">Button</Button>\n  <Button size=\"sm\">Group</Button>\n  <Button size=\"sm\" uniform aria-label=\"Add\"><PlusSm /></Button>\n</ButtonGroup>",
+          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons — each child keeps its own padding."
+        },
+        {
+          "name": "Nested",
+          "code": "<ButtonGroup aria-label=\"Pager\">\n  <ButtonGroup>\n    <Button size=\"sm\">1</Button>\n    <Button size=\"sm\">2</Button>\n    <Button size=\"sm\">3</Button>\n    <Button size=\"sm\">4</Button>\n    <Button size=\"sm\">5</Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button size=\"sm\" uniform aria-label=\"Previous page\"><ArrowLeftSm /></Button>\n    <Button size=\"sm\" uniform aria-label=\"Next page\"><ArrowRightSm /></Button>\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination + arrow nav is the canonical pattern."
+        },
+        {
+          "name": "Separator",
+          "code": "<ButtonGroup>\n  <Button variant=\"soft\" color=\"secondary\" size=\"sm\"><Undo /> Undo</Button>\n  <ButtonGroup.Separator />\n  <Button variant=\"soft\" color=\"secondary\" size=\"sm\">Redo <Redo /></Button>\n</ButtonGroup>",
+          "details": "Drop a ButtonGroup.Separator between items to add a visible divider — commonly used for Undo / Redo pairs or any \"two related actions\" toolbar."
+        },
+        {
+          "name": "Split",
+          "code": "<ButtonGroup>\n  <Button variant=\"soft\" color=\"secondary\"><Filter /> Filter</Button>\n  <ButtonGroup.Separator />\n  <Button variant=\"soft\" color=\"secondary\" uniform aria-label=\"Add filter\">\n    <Plus />\n  </Button>\n</ButtonGroup>",
+          "details": "The classic split button: an action joined to a secondary affordance via ButtonGroup.Separator. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo."
+        },
+        {
+          "name": "Input",
+          "code": "<ButtonGroup>\n  <Input placeholder=\"Search docs...\" />\n  <Button aria-label=\"Search\"><SearchSm /></Button>\n</ButtonGroup>",
+          "details": "Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content."
+        },
+        {
+          "name": "Input group",
+          "code": "<ButtonGroup>\n  <ButtonGroup>\n    <Button pill uniform aria-label=\"Add attachment\"><Plus /></Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Input\n      pill\n      placeholder={voiceEnabled ? \"Recording your idea…\" : \"Describe a component…\"}\n      disabled={voiceEnabled}\n      endAdornment={\n        <Input.AdornmentButton\n          color={voiceEnabled ? \"caution\" : undefined}\n          aria-label=\"Toggle voice mode\"\n          aria-pressed={voiceEnabled}\n          onClick={() => setVoiceEnabled((prev) => !prev)}\n        >\n          <Mic />\n        </Input.AdornmentButton>\n      }\n    />\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton — it sizes off the input's own size token so the button stays concentric with the pill at every size."
+        },
+        {
+          "name": "Dropdown menu",
+          "code": "<ButtonGroup>\n  <Button>Export</Button>\n  <Menu>\n    <Menu.Trigger>\n      <Button uniform aria-label=\"More export options\"><ChevronDownMd /></Button>\n    </Menu.Trigger>\n    <Menu.Content align=\"end\">\n      <Menu.Item><FileImage /> PNG image</Menu.Item>\n      <Menu.Item><FileCode /> SVG vector</Menu.Item>\n      <Menu.Item><FileDocument /> PDF document</Menu.Item>\n      <Menu.Separator />\n      <Menu.Item><Copy /> Copy as code</Menu.Item>\n      <Menu.Item><Link /> Copy share link</Menu.Item>\n    </Menu.Content>\n  </Menu>\n</ButtonGroup>",
+          "details": "Compose a primary action with a Menu trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / …."
+        },
+        {
+          "name": "Select",
+          "code": "<ButtonGroup>\n  <ButtonGroup>\n    <Select options={units} value={unit} onChange={(o) => setUnit(o.value)} variant=\"outline\" pill={false} block={false} />\n    <Input placeholder=\"2.50\" inputMode=\"decimal\" />\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button uniform aria-label=\"Log weight\"><ArrowRight /></Button>\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any \"qualifier + value\" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance."
+        },
+        {
+          "name": "Popover",
+          "code": "<ButtonGroup>\n  <Button><Sparkles /> Generate</Button>\n  <Popover>\n    <Popover.Trigger>\n      <Button uniform aria-label=\"More generate options\"><ChevronDownMd /></Button>\n    </Popover.Trigger>\n    <Popover.Content side=\"bottom\" align=\"end\" className=\"p-4\">\n      <Card variant=\"ghost\" size=\"sm\">\n        <Card.Header>\n          <Card.Title>Generate a component</Card.Title>\n          <Card.Description>Describe what to build in plain English.</Card.Description>\n        </Card.Header>\n        <Card.Content>\n          <Textarea placeholder=\"A login form with email and password…\" rows={3} />\n        </Card.Content>\n        <Card.Footer>\n          <Card.Description>Plex will draft the code and preview it live.</Card.Description>\n        </Card.Footer>\n      </Card>\n    </Popover.Content>\n  </Popover>\n</ButtonGroup>",
+          "details": "Same split-button shape, but the trailing trigger opens a Popover instead of a menu — useful for richer panels (prompt composers, notification preferences, link previews)."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/button-group"
+    },
+    {
       "slug": "button-link",
       "name": "Button Link",
-      "description": "\"Button as a semantic anchor element\"",
+      "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
       "importPath": "@plexui/ui/components/Button",
       "exports": [
         "ButtonLink"
@@ -481,7 +583,7 @@
     {
       "slug": "button",
       "name": "Button",
-      "description": "Create actions in many different styles",
+      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
       "importPath": "@plexui/ui/components/Button",
       "exports": [
         "Button"
@@ -618,9 +720,60 @@
       "docsUrl": "https://plexui.com/components/button"
     },
     {
+      "slug": "card",
+      "name": "Card",
+      "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+      "importPath": "@plexui/ui/components/Card",
+      "exports": [
+        "Card"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>Project activity</Card.Title>\n    <Card.Description>\n      Your team opened 12 issues and closed 8 pull requests over the last 7 days.\n    </Card.Description>\n  </Card.Header>\n  <Card.Footer>\n    <Button color=\"primary\" size=\"sm\" pill={false}>View report</Button>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\" pill={false}>Dismiss</Button>\n  </Card.Footer>\n</Card>"
+        },
+        {
+          "name": "Login",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>Log in to your account</Card.Title>\n    <Card.Description>Enter your email below to log in to your account.</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <Field label=\"Email\"><Input type=\"email\" placeholder=\"you@example.com\" /></Field>\n    <Field label=\"Password\"><Input type=\"password\" /></Field>\n  </Card.Content>\n  <Card.Footer>\n    <Button color=\"primary\" block pill={false}>Log in</Button>\n  </Card.Footer>\n</Card>",
+          "details": "A classic login form with a primary Log in CTA and an inline Sign up link below."
+        },
+        {
+          "name": "Create project",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>Create project</Card.Title>\n    <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <Field label=\"Name\"><Input placeholder=\"billing-service\" /></Field>\n    <Field label=\"Region\" description=\"Where your functions and database will live.\">\n      <Input placeholder=\"us-east-1\" />\n    </Field>\n  </Card.Content>\n  <Card.Footer style={{ justifyContent: 'flex-end' }}>\n    <Button variant=\"outline\" size=\"sm\" pill={false}>Cancel</Button>\n    <Button color=\"primary\" size=\"sm\" pill={false}>Deploy</Button>\n  </Card.Footer>\n</Card>",
+          "details": "Right-aligned footer with Cancel / Submit — use style=\\{{justifyContent: 'flex-end'}} on Card.Footer."
+        },
+        {
+          "name": "Payment Method",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>Payment Method</Card.Title>\n    <Card.Description>All transactions are secure and encrypted</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <Field label=\"Name on Card\"><Input placeholder=\"John Doe\" /></Field>\n    {/* Card Number (2fr) + CVV (1fr) */}\n    <Field label=\"Card Number\" description=\"Enter your 16-digit number.\">\n      <Input placeholder=\"1234 5678 9012 3456\" />\n    </Field>\n    <Field label=\"CVV\"><Input placeholder=\"123\" /></Field>\n    {/* Month + Year as Select dropdowns */}\n    <Field label=\"Month\"><Select options={MONTH_OPTIONS} /></Field>\n    <Field label=\"Year\"><Select options={YEAR_OPTIONS} /></Field>\n    <hr />\n    <section>\n      <h4>Billing Address</h4>\n      <p>The billing address associated with your payment method</p>\n      <Checkbox>Same as shipping address</Checkbox>\n    </section>\n    <hr />\n    <Field label=\"Comments\"><Textarea placeholder=\"Add any additional comments\" /></Field>\n  </Card.Content>\n  <Card.Footer>\n    <Button color=\"primary\" pill={false}>Submit</Button>\n    <Button variant=\"outline\" pill={false}>Cancel</Button>\n  </Card.Footer>\n</Card>",
+          "details": "Full-fidelity payment form. Card Number + CVV share a 2fr/1fr row with a helper line; Month/Year use Select. Sections are divided by subtle hrs for Billing Address and Comments."
+        },
+        {
+          "name": "No team members (empty state)",
+          "code": "<Card>\n  <EmptyMessage>\n    <EmptyMessage.Icon><UserAdd /></EmptyMessage.Icon>\n    <EmptyMessage.Title>No team members</EmptyMessage.Title>\n    <EmptyMessage.Description>Invite your team to collaborate on this project.</EmptyMessage.Description>\n    <EmptyMessage.ActionRow>\n      <Button color=\"primary\" size=\"sm\" pill={false}>Invite members</Button>\n    </EmptyMessage.ActionRow>\n  </EmptyMessage>\n</Card>",
+          "details": "Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action."
+        },
+        {
+          "name": "How did you hear about us?",
+          "code": "<Card>\n  <Card.Header>\n    <Card.Title>How did you hear about us?</Card.Title>\n    <Card.Description>Select the option that best describes how you heard about us.</Card.Description>\n  </Card.Header>\n  <Card.Content>\n    <RadioGroup value={source} onChange={setSource} direction=\"col\">\n      <RadioGroup.Item value=\"social\" block>Social Media</RadioGroup.Item>\n      <RadioGroup.Item value=\"search\" block>Search Engine</RadioGroup.Item>\n      <RadioGroup.Item value=\"referral\" block>Referral</RadioGroup.Item>\n      <RadioGroup.Item value=\"other\" block>Other</RadioGroup.Item>\n    </RadioGroup>\n  </Card.Content>\n  <Card.Footer><Button color=\"primary\" block pill={false}>Submit</Button></Card.Footer>\n</Card>",
+          "details": "A single-question survey using RadioGroup with direction=\"col\" and a full-width submit button."
+        },
+        {
+          "name": "Processing your request",
+          "code": "<Card>\n  <EmptyMessage>\n    <EmptyMessage.Icon><LoadingIndicator size={24} /></EmptyMessage.Icon>\n    <EmptyMessage.Title>Processing your request</EmptyMessage.Title>\n    <EmptyMessage.Description>Please wait while we process your request. Do not refresh the page.</EmptyMessage.Description>\n    <EmptyMessage.ActionRow>\n      <Button variant=\"outline\" size=\"sm\" pill={false}>Cancel</Button>\n    </EmptyMessage.ActionRow>\n  </EmptyMessage>\n</Card>",
+          "details": "Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor."
+        },
+        {
+          "name": "Pricing",
+          "code": "<Card variant=\"solid\">\n  <Card.Header>\n    <Card.Title>Pro</Card.Title>\n    <Card.Description>$19 / month</Card.Description>\n  </Card.Header>\n  <Card.Content>{/* features list */}</Card.Content>\n  <Card.Footer>\n    <Button color=\"primary\" block pill={false}>Choose Pro</Button>\n  </Card.Footer>\n</Card>",
+          "details": "Mix variant=\"outline\" and variant=\"solid\" to emphasize a highlighted plan."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/card"
+    },
+    {
       "slug": "checkbox",
       "name": "Checkbox",
-      "description": "Toggle control for on and off states",
+      "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
       "importPath": "@plexui/ui/components/Checkbox",
       "exports": [
         "Checkbox"
@@ -777,7 +930,7 @@
     {
       "slug": "code-block",
       "name": "Code Block",
-      "description": "Display syntax-highlighted code snippets",
+      "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
       "importPath": "@plexui/ui/components/CodeBlock",
       "exports": [
         "CodeBlock"
@@ -793,19 +946,19 @@
           "details": "Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action."
         },
         {
-          "name": "Collapsible — expanded by default",
+          "name": "Expanded by default",
           "code": "<CollapsibleCodeBlock language=\"tsx\" defaultExpanded>{code}</CollapsibleCodeBlock>"
         },
         {
-          "name": "Collapsible — custom height",
+          "name": "Custom collapsed height",
           "code": "<CollapsibleCodeBlock language=\"tsx\" collapsedHeight={60}>{code}</CollapsibleCodeBlock>"
         },
         {
-          "name": "Collapsible — max expanded height",
+          "name": "Max expanded height",
           "code": "<CollapsibleCodeBlock language=\"tsx\" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>"
         },
         {
-          "name": "Collapsible — without copy button",
+          "name": "Without copy button",
           "code": "<CollapsibleCodeBlock language=\"tsx\" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>"
         },
         {
@@ -879,7 +1032,7 @@
     {
       "slug": "copy-tooltip",
       "name": "Copy Tooltip",
-      "description": "Allow users to easily copy to clipboard",
+      "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
       "importPath": "@plexui/ui/components/Tooltip",
       "exports": [
         "CopyTooltip"
@@ -1079,7 +1232,7 @@
     {
       "slug": "date-picker",
       "name": "Date Picker",
-      "description": "Select a single date with an interactive calendar",
+      "description": "React date picker component with interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets",
       "importPath": "@plexui/ui/components/DatePicker",
       "exports": [
         "DatePicker"
@@ -1216,7 +1369,7 @@
     {
       "slug": "date-range-picker",
       "name": "Date Range Picker",
-      "description": "Select a date range with an interactive calendar",
+      "description": "React date range picker with interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates",
       "importPath": "@plexui/ui/components/DateRangePicker",
       "exports": [
         "DateRangePicker"
@@ -1373,7 +1526,7 @@
     {
       "slug": "dialog",
       "name": "Dialog",
-      "description": "Modal dialog overlay for confirmations, forms, and alerts",
+      "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
       "importPath": "@plexui/ui/components/Dialog",
       "exports": [
         "Dialog"
@@ -1423,7 +1576,7 @@
     {
       "slug": "empty-message",
       "name": "Empty Message",
-      "description": "Gracefully inform users when there's nothing to see",
+      "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
       "importPath": "@plexui/ui/components/EmptyMessage",
       "exports": [
         "EmptyMessage"
@@ -1651,7 +1804,7 @@
     {
       "slug": "file-upload",
       "name": "File Upload",
-      "description": "Mobile-first file picker with type validation and multi-file support",
+      "description": "Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.",
       "importPath": "@plexui/ui/components/FileUpload",
       "exports": [
         "FileUpload",
@@ -1801,7 +1954,7 @@
     {
       "slug": "floating-label-input",
       "name": "Float Input",
-      "description": "Input with floating label that animates on focus",
+      "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
       "importPath": "@plexui/ui/components/FloatingLabelInput",
       "exports": [
         "FloatingLabelInput"
@@ -1921,17 +2074,12 @@
         {
           "name": "Password input",
           "code": "<FloatingLabelInput label=\"Password\" type=\"password\" />",
-          "details": "The component works with different input types."
-        },
-        {
-          "name": "Password with visibility toggle",
-          "code": "const [visible, setVisible] = useState(false)\n\n<FloatingLabelInput\n  label=\"Password\"\n  type={visible ? \"text\" : \"password\"}\n  endAdornment={\n    <button onClick={() => setVisible(v => !v)} aria-label={visible ? \"Hide\" : \"Show\"}>\n      {visible ? <EyeOff /> : <Eye />}\n    </button>\n  }\n/>",
-          "details": "Use the endAdornment prop to render a visibility toggle button inside the input. Clicking the eye icon switches between type=\"password\" and type=\"text\"."
+          "details": "A type=\"password\" field ships a built-in reveal toggle — click the eye to show or hide the value. Set revealable to false to remove it."
         },
         {
           "name": "SSN input",
-          "code": "const [rawDigits, setRawDigits] = useState(\"\")\nconst [visible, setVisible] = useState(false)\nconst formatted = formatSSN(rawDigits)\n\n<FloatingLabelInput\n  label=\"Social Security Number\"\n  value={formatted}\n  inputMode=\"numeric\"\n  maxLength={11}\n  onChange={(evt) => setRawDigits(extractDigits(evt.target.value))}\n  style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\n  endAdornment={\n    <button onClick={() => setVisible(v => !v)}>\n      {visible ? <EyeOff /> : <Eye />}\n    </button>\n  }\n/>",
-          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and an endAdornment visibility toggle to reveal the real value."
+          "code": "const [rawDigits, setRawDigits] = useState(\"\")\nconst [visible, setVisible] = useState(false)\nconst formatted = formatSSN(rawDigits)\n\n<FloatingLabelInput\n  label=\"Social Security Number\"\n  value={formatted}\n  inputMode=\"numeric\"\n  maxLength={11}\n  onChange={(evt) => setRawDigits(extractDigits(evt.target.value))}\n  style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\n  revealable\n  onRevealedChange={setVisible}\n/>",
+          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value."
         },
         {
           "name": "Birthday input",
@@ -1974,7 +2122,7 @@
     {
       "slug": "indicators",
       "name": "Indicators",
-      "description": "Display loading and progress states to users",
+      "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
       "importPath": "@plexui/ui/components/Indicator",
       "exports": [
         "LoadingIndicator",
@@ -2094,7 +2242,7 @@
     {
       "slug": "input",
       "name": "Input",
-      "description": "Semantic input text collection",
+      "description": "Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.",
       "importPath": "@plexui/ui/components/Input",
       "exports": [
         "Input"
@@ -2200,13 +2348,13 @@
         },
         {
           "name": "Password with visibility toggle",
-          "code": "<Input\n  placeholder=\"Password\"\n  type={visible ? 'text' : 'password'}\n  endAdornment={<VisibilityToggle visible={visible} onToggle={toggle} />}\n/>",
-          "details": "Combine endAdornment with a toggle button to switch between type=\"password\" and type=\"text\". Works across all sizes, variants, and with pill."
+          "code": "<Input\n  placeholder=\"Password\"\n  type={visible ? 'text' : 'password'}\n  endAdornment={\n    <Input.AdornmentButton aria-pressed={visible} onClick={toggle}>\n      {visible ? <EyeOff /> : <Eye />}\n    </Input.AdornmentButton>\n  }\n/>",
+          "details": "Combine endAdornment with an Input.AdornmentButton to switch between type=\"password\" and type=\"text\". Works across all sizes, variants, and with pill."
         },
         {
           "name": "SSN input",
-          "code": "<Input\n  placeholder=\"Social Security Number\"\n  value={formatted}\n  inputMode=\"numeric\"\n  endAdornment={<VisibilityToggle visible={visible} onToggle={toggle} />}\n  style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\n/>",
-          "details": "A masked SSN field that formats input as XXX-XX-XXXX, hides digits behind bullets when masked, and reveals the value via a visibility toggle in endAdornment. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically."
+          "code": "<Input\n  placeholder=\"Social Security Number\"\n  value={formatted}\n  inputMode=\"numeric\"\n  endAdornment={\n    <Input.AdornmentButton aria-pressed={visible} onClick={toggle}>\n      {visible ? <EyeOff /> : <Eye />}\n    </Input.AdornmentButton>\n  }\n  style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\n/>",
+          "details": "A masked SSN field that formats input as XXX-XX-XXXX, hides digits behind bullets when masked, and reveals the value via an Input.AdornmentButton in endAdornment. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically."
         },
         {
           "name": "Birthday input",
@@ -2251,9 +2399,30 @@
       "docsUrl": "https://plexui.com/components/input"
     },
     {
+      "slug": "label",
+      "name": "Label",
+      "description": "Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.",
+      "importPath": "@plexui/ui/components/Label",
+      "exports": [
+        "Label"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>\n  <Checkbox id=\"terms\" />\n  <Label htmlFor=\"terms\">Accept terms and conditions</Label>\n</div>"
+        },
+        {
+          "name": "Label in Field",
+          "code": "<Field label=\"Name on Card\">\n  <Input placeholder=\"Aisha Cooper\" />\n</Field>\n\n<Field label=\"Card Number\" description=\"Enter your 16-digit card number\">\n  <Input placeholder=\"1234 5678 9012 3456\" />\n</Field>\n\n{/* Month / Year / CVV in a 3-col grid */}\n{/* Billing Address section + checkbox */}\n{/* Comments textarea + Submit / Cancel */}",
+          "details": "For stacked form rows with descriptions, errors, and horizontal layouts, use the Field component — it renders the label internally, hooks up htmlFor automatically, and handles the surrounding spacing."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/label"
+    },
+    {
       "slug": "markdown-editor",
       "name": "Markdown Editor",
-      "description": "Compact rich text editor embedded in a form field, powered by Tiptap",
+      "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
       "importPath": "@plexui/ui/components/MarkdownEditor",
       "exports": [
         "MarkdownEditor"
@@ -2351,7 +2520,7 @@
     {
       "slug": "markdown",
       "name": "Markdown",
-      "description": "Render rich formatted content",
+      "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
       "importPath": "@plexui/ui/components/Markdown",
       "exports": [
         "Markdown"
@@ -2386,7 +2555,7 @@
     {
       "slug": "menu",
       "name": "Menu",
-      "description": "Structured actions in a dropdown list",
+      "description": "Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.",
       "importPath": "@plexui/ui/components/Menu",
       "exports": [
         "Menu"
@@ -2446,6 +2615,11 @@
           "description": "Size of horizontal menu items (icon size + padding)"
         },
         {
+          "name": "description",
+          "type": "ReactNode",
+          "description": "Second line under the label. The label turns semibold on its own"
+        },
+        {
           "name": "onSelect",
           "type": "(event: Event) => void",
           "description": "Called when item is selected"
@@ -2479,7 +2653,7 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<Menu>\n  <Menu.Trigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Sample menu <ChevronDownMd /></Button>\n  </Menu.Trigger>\n  <Menu.Content width={210} minWidth={210}>\n    <Menu.Item>\n      <p className=\"font-semibold\">Sam Smith</p>\n      <p className=\"text-secondary\">sam.smith@gmail.com</p>\n    </Menu.Item>\n    <Menu.Separator />\n    <Menu.Link href=\"/settings\">Your profile</Menu.Link>\n    <Menu.Link href=\"#\">Terms & policies</Menu.Link>\n    <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>\n    <Menu.Separator />\n    <Menu.Item onSelect={() => {}}>Logout</Menu.Item>\n  </Menu.Content>\n</Menu>"
+          "code": "<Menu>\n  <Menu.Trigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Sample menu <ChevronDownMd /></Button>\n  </Menu.Trigger>\n  <Menu.Content width={210} minWidth={210}>\n    <Menu.Item description=\"sam.smith@gmail.com\">Sam Smith</Menu.Item>\n    <Menu.Separator />\n    <Menu.Link href=\"/settings\">Your profile</Menu.Link>\n    <Menu.Link href=\"#\">Terms & policies</Menu.Link>\n    <Menu.Item disabled onSelect={() => {}}>Feature flags</Menu.Item>\n    <Menu.Separator />\n    <Menu.Item onSelect={() => {}}>Logout</Menu.Item>\n  </Menu.Content>\n</Menu>"
         },
         {
           "name": "Natural sizing",
@@ -2527,7 +2701,7 @@
     {
       "slug": "otp-input",
       "name": "OTP Input",
-      "description": "Individual digit input cells for verification code entry",
+      "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
       "importPath": "@plexui/ui/components/OTPInput",
       "exports": [
         "OTPInput"
@@ -2610,7 +2784,7 @@
     {
       "slug": "popover",
       "name": "Popover",
-      "description": "Generic floating UI utility for contextual actions",
+      "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
       "importPath": "@plexui/ui/components/Popover",
       "exports": [
         "Popover"
@@ -2684,7 +2858,7 @@
     {
       "slug": "progress-steps",
       "name": "Progress Steps",
-      "description": "Display progress through a multi-step process",
+      "description": "Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.",
       "importPath": "@plexui/ui/components/ProgressSteps",
       "exports": [
         "ProgressSteps"
@@ -2779,9 +2953,35 @@
       "docsUrl": "https://plexui.com/components/progress-steps"
     },
     {
+      "slug": "progress",
+      "name": "Progress",
+      "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+      "importPath": "@plexui/ui/components/Progress",
+      "exports": [
+        "Progress"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const [value, setValue] = useState(13);\nuseEffect(() => {\n  const t = setTimeout(() => setValue(66), 500);\n  return () => clearTimeout(t);\n}, []);\n\nreturn <Progress value={value} />;"
+        },
+        {
+          "name": "With label",
+          "code": "<div>\n  <div style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <Label htmlFor=\"progress-upload\">Uploading plex-ui.zip</Label>\n    <span>3.2 / 4.8 MB</span>\n  </div>\n  <Progress id=\"progress-upload\" value={67} />\n</div>",
+          "details": "Pair a Label with a value readout above the bar — typical upload / onboarding progress pattern."
+        },
+        {
+          "name": "Controlled",
+          "code": "const [value, setValue] = useState(50);\n\nreturn (\n  <>\n    <Progress value={value} />\n    <Slider value={value} onChange={setValue} min={0} max={100} step={1} />\n  </>\n);",
+          "details": "Bind value to any source — here it follows a Slider."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/progress"
+    },
+    {
       "slug": "radio-group",
       "name": "Radio Group",
-      "description": "Semantic radio option selection",
+      "description": "React radio group component for single-choice selection with horizontal or vertical layout, per-item descriptions, and Field integration",
       "importPath": "@plexui/ui/components/RadioGroup",
       "exports": [
         "RadioGroup"
@@ -2903,7 +3103,7 @@
     {
       "slug": "select-control",
       "name": "Select Control",
-      "description": "Customizable select control for use with any type of floating UI",
+      "description": "Headless React select control primitive for building custom dropdowns — variants, sizing, start and dropdown icons, clearable, loading, and invalid states",
       "importPath": "@plexui/ui/components/SelectControl",
       "exports": [
         "SelectControl"
@@ -3027,11 +3227,6 @@
           "details": "Create full-width controls with the block prop."
         },
         {
-          "name": "Optical alignment",
-          "code": "<SelectControl selected variant=\"ghost\" opticallyAlign=\"start\">Ghost control</SelectControl>",
-          "details": "Use opticallyAlign with either \"start\" or \"end\" to offset the gutter of the control."
-        },
-        {
           "name": "Country selector",
           "code": "const countries = [\n  { value: \"us\", label: \"United States\" },\n  { value: \"gb\", label: \"United Kingdom\" },\n  // ...60 countries\n];\n\nconst CountryView = ({ value }) => (\n  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n    <img src={\\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\\${value}.svg\\",
           "details": "A plain country selector built with Select. Shows flag icons with country names — no dial codes. Useful for profile forms, shipping addresses, and other country-only fields."
@@ -3045,6 +3240,11 @@
           "name": "Phone form",
           "code": "import { useState, useCallback, useRef } from 'react';\nimport { Input } from '@plexui/ui/components/Input';\nimport { Select, type Option } from '@plexui/ui/components/Select';\nimport { Button } from '@plexui/ui/components/Button';\nimport { FieldError } from '@plexui/ui/components/FieldError';\n\n// Country data — include all 245 countries in production\ntype Country = { value: string; label: string; dialCode: string; flag: string };\n\nconst COUNTRIES: Country[] = [\n  { value: 'us', label: 'United States', dialCode: '+1', flag: '🇺🇸' },\n  { value: 'gb', label: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },\n  { value: 'de', label: 'Germany', dialCode: '+49', flag: '🇩🇪' },\n  { value: 'fr', label: 'France', dialCode: '+33', flag: '🇫🇷' },\n  { value: 'es', label: 'Spain', dialCode: '+34', flag: '🇪🇸' },\n  { value: 'it', label: 'Italy', dialCode: '+39', flag: '🇮🇹' },\n  { value: 'jp', label: 'Japan', dialCode: '+81', flag: '🇯🇵' },\n  { value: 'au', label: 'Australia', dialCode: '+61', flag: '🇦🇺' },\n  { value: 'br', label: 'Brazil', dialCode: '+55', flag: '🇧🇷' },\n  { value: 'in', label: 'India', dialCode: '+91', flag: '🇮🇳' },\n  // ... full list of 245 countries\n];\n\nconst COUNTRY_LOOKUP = new Map(COUNTRIES.map((c) => [c.value, c]));\nconst COUNTRY_OPTIONS = COUNTRIES.map((c) => ({\n  ...c,\n  label: \\`\\${c.label} (\\${c.dialCode})\\`,\n}));\n\n// Per-country phone number format patterns\nconst PHONE_FORMATS: Record<string, number[]> = {\n  us: [3, 3, 4], ca: [3, 3, 4],   // 123 456 7890\n  gb: [4, 3, 3], de: [3, 4, 4],   // 1234 567 890 | 123 4567 8901\n  fr: [1, 2, 2, 2, 2],            // 1 23 45 67 89\n  es: [3, 2, 2, 2],               // 123 45 67 89\n  it: [3, 3, 4], jp: [2, 4, 4],\n  au: [3, 3, 3], br: [2, 5, 4],\n  in: [5, 5],                      // 12345 67890\n  // ... add more countries as needed\n};\n\nfunction formatPhoneNumber(raw: string, countryCode?: string) {\n  const digits = raw.replace(/\\\\D/g, '');\n  if (!digits) return '';\n  const format = (countryCode && PHONE_FORMATS[countryCode]) || [3, 3, 4];\n  const groups: string[] = [];\n  let i = 0;\n  for (const size of format) {\n    if (i >= digits.length) break;\n    groups.push(digits.slice(i, i + size));\n    i += size;\n  }\n  if (i < digits.length) groups.push(digits.slice(i));\n  return groups.join(' ');\n}\n\n// Flag icon — SVG flags from lipis/flag-icons, all 4:3\nfunction FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {\n  return (\n    <span\n      style={{\n        display: 'block',\n        height: trigger ? 'var(--start-icon-size, 18px)' : 16,\n        aspectRatio: '4 / 3',\n        borderRadius: 2,\n        overflow: 'hidden',\n        flexShrink: 0,\n      }}\n    >\n      <img\n        src={\\`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/\\${code}.svg\\",
           "details": "Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. 123 456 7890 for US, 1234 567 890 for UK). Search works by both country name and dial code. Validation runs on submit &mdash; the phone field shows an error state with FieldError when the number is too short or too long."
+        },
+        {
+          "name": "Optical alignment",
+          "code": "<SelectControl selected variant=\"ghost\" opticallyAlign=\"start\">Ghost control</SelectControl>",
+          "details": "Use opticallyAlign with either \"start\" or \"end\" to offset the gutter of the control."
         }
       ],
       "docsUrl": "https://plexui.com/components/select-control"
@@ -3052,7 +3252,7 @@
     {
       "slug": "select",
       "name": "Select",
-      "description": "Choose from a dropdown of options",
+      "description": "React select dropdown component with grouped options, per-item descriptions, multi-select, action items, and column-based layouts",
       "importPath": "@plexui/ui/components/Select",
       "exports": [
         "Select"
@@ -3140,6 +3340,12 @@
           "name": "searchPlaceholder",
           "type": "string",
           "description": "Search input placeholder"
+        },
+        {
+          "name": "searchAriaLabel",
+          "type": "string",
+          "default": "\"Search options\"",
+          "description": "Accessible name of the search input, independent of the trigger label"
         }
       ],
       "examples": [
@@ -3148,13 +3354,13 @@
           "code": "<Select\n  value={fruit}\n  options={fruits}\n  onChange={handleChange}\n  placeholder=\"Select a fruit...\"\n  variant=\"solid\"\n/>"
         },
         {
-          "name": "Custom views",
-          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n  <div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n    {children}\n  </div>\n);\n\nconst roles = [\n  {\n    value: \"owner\",\n    label: \"Owner\",\n    description: (\n      <RoleOptionDescription>\n        Can modify project information and manage project members\n      </RoleOptionDescription>\n    ),\n  },\n  {\n    value: \"reader\",\n    label: \"Reader\",\n    description: (\n      <RoleOptionDescription>\n        Can make API requests that read or modify data\n      </RoleOptionDescription>\n    ),\n  },\n];\n\n<Select\n  value={role}\n  options={roles}\n  placeholder=\"Select role...\"\n  align=\"start\"\n  listMinWidth={260}\n  variant=\"ghost\"\n  size=\"lg\"\n  onChange={({ value }) => setRole(value)}\n  TriggerStartIcon={role === \"owner\" ? UserLock : User}\n  triggerClassName=\"font-semibold\"\n  optionClassName=\"font-semibold\"\n/>",
-          "details": "You can fully customize the styling and rendering of select's trigger and options:Trigger &ndash; triggerClassName, TriggerStartIcon, and TriggerViewOptions &ndash; optionClassName, OptionView, as well as description and tooltip fields in options"
+          "name": "With descriptions",
+          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n  <div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n    {children}\n  </div>\n);\n\nconst roles = [\n  {\n    value: \"owner\",\n    label: \"Owner\",\n    description: (\n      <RoleOptionDescription>\n        Can modify project information and manage project members\n      </RoleOptionDescription>\n    ),\n  },\n  {\n    value: \"reader\",\n    label: \"Reader\",\n    description: (\n      <RoleOptionDescription>\n        Can make API requests that read or modify data\n      </RoleOptionDescription>\n    ),\n  },\n];\n\n<Select\n  value={role}\n  options={roles}\n  placeholder=\"Select role...\"\n  align=\"start\"\n  listMinWidth={260}\n  variant=\"ghost\"\n  size=\"lg\"\n  onChange={({ value }) => setRole(value)}\n  TriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>",
+          "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected) — the component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger."
         },
         {
           "name": "Actions",
-          "code": "<Select\n  value={value}\n  onChange={handleChange}\n  options={items}\n  placeholder=\"Select...\"\n  align=\"start\"\n  listMinWidth={240}\n  triggerClassName=\"font-semibold\"\n  actions={[\n    { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n    { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n  ]}\n/>",
+          "code": "<Select\n  value={value}\n  onChange={handleChange}\n  options={items}\n  placeholder=\"Select...\"\n  align=\"start\"\n  listMinWidth={240}\n  actions={[\n    { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n    { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n  ]}\n/>",
           "details": "Custom, arbitrary actions can be displayed below the options list via the actions prop."
         },
         {
@@ -3176,9 +3382,40 @@
       "docsUrl": "https://plexui.com/components/select"
     },
     {
+      "slug": "separator",
+      "name": "Separator",
+      "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
+      "importPath": "@plexui/ui/components/Separator",
+      "exports": [
+        "Separator"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div>\n  <div>\n    <div style={{ fontWeight: 500 }}>Aisha Cooper</div>\n    <div className=\"text-muted\">Engineering · Platform team</div>\n  </div>\n  <Separator />\n  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>\n</div>"
+        },
+        {
+          "name": "Vertical",
+          "code": "<div style={{ display: 'flex', height: 20, alignItems: 'center', gap: 16 }}>\n  <div>MIT license</div>\n  <Separator orientation=\"vertical\" />\n  <div>12k weekly downloads</div>\n  <Separator orientation=\"vertical\" />\n  <div>48 kB bundle</div>\n</div>",
+          "details": "Use orientation=\"vertical\" between inline items. Works for meta-strips, breadcrumbs, and dot-less separators."
+        },
+        {
+          "name": "Menu",
+          "code": "<div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>\n  <div>\n    <div style={{ fontWeight: 500 }}>Starter</div>\n    <div className=\"text-muted\">Free · 1 project</div>\n  </div>\n  <Separator orientation=\"vertical\" />\n  <div>\n    <div style={{ fontWeight: 500 }}>Pro</div>\n    <div className=\"text-muted\">$19/mo · Unlimited</div>\n  </div>\n  <Separator orientation=\"vertical\" />\n  <div>\n    <div style={{ fontWeight: 500 }}>Enterprise</div>\n    <div className=\"text-muted\">Custom · Priority SLA</div>\n  </div>\n</div>",
+          "details": "Vertical separators between menu items with a short caption underneath each label."
+        },
+        {
+          "name": "List",
+          "code": "<div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 384 }}>\n  <dl style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <dt>Version</dt><dd>0.9.0</dd>\n  </dl>\n  <Separator />\n  <dl style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <dt>Published</dt><dd>2 days ago</dd>\n  </dl>\n  <Separator />\n  <dl style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <dt>Bundle</dt><dd>48 kB</dd>\n  </dl>\n  <Separator />\n  <dl style={{ display: 'flex', justifyContent: 'space-between' }}>\n    <dt>License</dt><dd>MIT</dd>\n  </dl>\n</div>",
+          "details": "Horizontal separators between rows in a definition list."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/separator"
+    },
+    {
       "slug": "shimmer-text",
       "name": "Shimmer Text",
-      "description": "Animated shimmer effect for text content",
+      "description": "Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.",
       "importPath": "@plexui/ui/components/ShimmerText",
       "exports": [
         "ShimmerText",
@@ -3230,7 +3467,7 @@
     {
       "slug": "sidebar",
       "name": "Sidebar",
-      "description": "Composable navigation sidebar for application layouts",
+      "description": "Composable React navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu",
       "importPath": "@plexui/ui/components/Sidebar",
       "exports": [
         "SidebarProvider",
@@ -3431,7 +3668,7 @@
     {
       "slug": "skeleton",
       "name": "Skeleton",
-      "description": "Use to show a placeholder while content is loading",
+      "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
       "importPath": "@plexui/ui/components/Skeleton",
       "exports": [
         "Skeleton"
@@ -3481,7 +3718,7 @@
     {
       "slug": "slider",
       "name": "Slider",
-      "description": "Fine-tune values within a set range",
+      "description": "React slider component for fine-tuning numeric values with single or range thumbs, marks, tooltip readouts, and vertical orientation",
       "importPath": "@plexui/ui/components/Slider",
       "exports": [
         "Slider"
@@ -3601,8 +3838,8 @@
     },
     {
       "slug": "stat-card",
-      "name": "StatCard",
-      "description": "Display key metrics and KPIs with trend indicators",
+      "name": "Stat Card",
+      "description": "React stat card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent border styling",
       "importPath": "@plexui/ui/components/StatCard",
       "exports": [
         "StatCard"
@@ -3732,7 +3969,7 @@
     {
       "slug": "switch",
       "name": "Switch",
-      "description": "Toggle control for on and off states",
+      "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
       "importPath": "@plexui/ui/components/Switch",
       "exports": [
         "Switch"
@@ -3877,7 +4114,7 @@
     {
       "slug": "table",
       "name": "Table",
-      "description": "Styled HTML table primitives and a full-featured data table powered by TanStack Table v8",
+      "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
       "importPath": "@plexui/ui/components/Table",
       "exports": [
         "Table",
@@ -4110,7 +4347,7 @@
     {
       "slug": "tabs",
       "name": "Tabs",
-      "description": "Toggle through grouped options with segmented or underline styles",
+      "description": "Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.",
       "importPath": "@plexui/ui/components/Tabs",
       "exports": [
         "Tabs"
@@ -4271,7 +4508,7 @@
     {
       "slug": "tag-input",
       "name": "Tag Input",
-      "description": "Enter multiple unique tags",
+      "description": "Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.",
       "importPath": "@plexui/ui/components/TagInput",
       "exports": [
         "TagInput"
@@ -4315,9 +4552,15 @@
         },
         {
           "name": "size",
-          "type": "string",
+          "type": "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'",
           "default": "xl",
-          "description": "Control height when rows=1"
+          "description": "Control height when rows=1; matches Input height of the same size"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully-rounded container and chips; matches Input/SelectControl pill"
         },
         {
           "name": "autoFocus",
@@ -4332,6 +4575,11 @@
           "code": "<TagInput\n  placeholder=\"Add a tag...\"\n  rows={3}\n/>"
         },
         {
+          "name": "Inline filter row",
+          "code": "<div className=\"flex items-start gap-2\">\n  <Field label=\"Where\" className=\"w-[160px] shrink-0\">\n    <Menu>\n      <Menu.Trigger>\n        <SelectControl size=\"md\" pill={pill} selected>{fieldLabel}</SelectControl>\n      </Menu.Trigger>\n      <Menu.Content minWidth={160}>\n        <Menu.RadioGroup value={field} onChange={setField}>\n          <Menu.RadioItem value=\"email\">Email</Menu.RadioItem>\n          <Menu.RadioItem value=\"name\">Name</Menu.RadioItem>\n          <Menu.RadioItem value=\"role\">Role</Menu.RadioItem>\n        </Menu.RadioGroup>\n      </Menu.Content>\n    </Menu>\n  </Field>\n  <Field label=\"Is in\" className=\"flex-1\">\n    <TagInput size=\"md\" pill={pill} value={tags} onChange={setTags} placeholder=\"Add value, press Enter…\" />\n  </Field>\n</div>",
+          "details": "When rows=1, TagInput matches the height of an Input or SelectControl of the same size, so it composes cleanly into horizontal filter rows. Toggle pill on both controls to keep the pair visually consistent."
+        },
+        {
           "name": "Suggestions",
           "code": "const SUGGESTIONS = ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'AWS'];\n\nconst [tags, setTags] = useState([\n  { value: 'React', valid: true },\n  { value: 'TypeScript', valid: true },\n]);\n\nconst selectedValues = new Set(tags.map((t) => t.value));\nconst available = SUGGESTIONS.filter((s) => !selectedValues.has(s));\n\n<div className=\"flex flex-col gap-3\">\n  <TagInput value={tags} onChange={setTags} placeholder=\"Add a skill...\" />\n  {available.length > 0 && (\n    <div className=\"flex flex-wrap gap-1.5\">\n      {available.map((s) => (\n        <Button key={s} size=\"xs\" color=\"secondary\" variant=\"soft\" pill={false}\n          onClick={() => setTags([...tags, { value: s, valid: true }])}>\n          {s}\n        </Button>\n      ))}\n    </div>\n  )}\n</div>",
           "details": "Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected."
@@ -4342,7 +4590,7 @@
     {
       "slug": "text-link",
       "name": "Text Link",
-      "description": "Semantic link for internal and external links",
+      "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
       "importPath": "@plexui/ui/components/TextLink",
       "exports": [
         "TextLink"
@@ -4426,7 +4674,7 @@
     {
       "slug": "textarea",
       "name": "Textarea",
-      "description": "Semantic multi-line text input collection",
+      "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
       "importPath": "@plexui/ui/components/Textarea",
       "exports": [
         "Textarea"
@@ -4537,7 +4785,7 @@
     {
       "slug": "toast",
       "name": "Toast",
-      "description": "Transient notifications anchored to a corner of the viewport",
+      "description": "React toast notification component for transient feedback — semantic variants, descriptions, action buttons, promise integration, and persistent toasts",
       "importPath": "@plexui/ui/components/Toast",
       "exports": [
         "Toaster",
@@ -4569,6 +4817,11 @@
         {
           "name": "Long content",
           "code": "toast(\"Your deployment is still running\", {\n  description: \"This is a long message to show how the toast handles multi-line content…\",\n})"
+        },
+        {
+          "name": "Compact",
+          "code": "import { toast, compact } from \"@plexui/ui/components/Toast\"\n\ntoast.success(\"Inquiry ID copied\", compact)",
+          "details": "Spread compact into any toast(...) options for a centered-text layout. Toast width shrinks to content by default regardless; the compact helper only adds center alignment for short status messages."
         },
         {
           "name": "Persistent",
@@ -4610,7 +4863,7 @@
     {
       "slug": "tooltip",
       "name": "Tooltip",
-      "description": "Brief and informative hover text",
+      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
       "importPath": "@plexui/ui/components/Tooltip",
       "exports": [
         "Tooltip"
@@ -4704,5 +4957,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-04-23T05:31:29.592Z"
+  "generatedAt": "2026-10-26T11:27:15.350Z"
 }

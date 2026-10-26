@@ -1,0 +1,3540 @@
+# PlexUI for Vue: full reference
+> PlexUI for Vue 3: the same components, props, markup and styles as the React library.
+
+Vue 3 components with the same names, props, defaults and markup as the React library. Quick overview: https://plexui.com/llms-vue.txt
+
+Install: npm install @plexui/vue
+Docs: https://plexui.com
+Components: 35
+
+## Setup
+
+```css
+@import "tailwindcss";
+@import "@plexui/styles/css";
+```
+
+Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"
+
+Size scale: 3xs, 2xs, xs, sm, md, lg, xl, 2xl, 3xl
+Colors: primary, secondary, danger, success, warning, caution, discovery, info
+Variants: solid, soft, outline, ghost
+
+---
+
+## Accordion
+Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
+Docs: https://plexui.com/vue/components/accordion
+
+### Overview
+```vue
+<Accordion type="single" collapsible default-value="shipping" style="width: 100%; max-width: 384px">
+  <AccordionItem value="shipping">
+    <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+    <AccordionContent>
+      We offer standard (5–7 business days), express (2–3 days), and
+      overnight shipping. Free standard shipping on orders over $50.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="returns">
+    <AccordionTrigger>What is your return policy?</AccordionTrigger>
+    <AccordionContent>
+      Returns are accepted within 30 days of delivery. Items must be unused
+      and in original packaging. Refunds are processed within 5–7 business
+      days of receipt.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="support">
+    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+    <AccordionContent>
+      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
+      ET. Weekend tickets are handled within 24 hours.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+### Single
+Default shape. type="single" + collapsible lets users close the currently open item; without collapsible, one item is always open.
+```vue
+<Accordion type="single" collapsible default-value="trial" style="width: 100%; max-width: 384px">
+  <AccordionItem
+    v-for="item in [
+      {
+        value: 'trial',
+        trigger: 'How long is the free trial?',
+        content: '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',
+      },
+      {
+        value: 'plan',
+        trigger: 'Can I change plans mid-cycle?',
+        content: 'Yes. Upgrades are prorated immediately; downgrades take effect at the next billing date. Invoices always reflect the exact span each plan was active.',
+      },
+      {
+        value: 'invoices',
+        trigger: 'Where can I find past invoices?',
+        content: 'Billing → Invoices in your workspace settings. Every PDF is archived for seven years and can be pulled via the Billing API.',
+      },
+    ]"
+    :key="item.value"
+    :value="item.value"
+  >
+    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+    <AccordionContent>{{ item.content }}</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+### Multiple
+Use type="multiple" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.
+```vue
+<Accordion type="multiple" :default-value="['notifications']" style="width: 100%; max-width: 384px">
+  <AccordionItem
+    v-for="item in [
+      {
+        value: 'notifications',
+        trigger: 'Notification settings',
+        content: 'Pick which events trigger email, push, or in-app alerts. Release-blocker incidents always page the on-call regardless of quiet hours.',
+      },
+      {
+        value: 'privacy',
+        trigger: 'Privacy & security',
+        content: 'Turn on two-factor, review active sessions, and manage connected apps. Workspace admins can also enforce SSO and hardware-key policies org-wide.',
+      },
+      {
+        value: 'billing',
+        trigger: 'Billing & subscription',
+        content: 'View your current plan, payment method, and upcoming renewal. Seat changes apply immediately; the next invoice will include a prorated adjustment.',
+      },
+    ]"
+    :key="item.value"
+    :value="item.value"
+  >
+    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>
+    <AccordionContent>{{ item.content }}</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+### Disabled
+Pass disabled to an AccordionItem to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.
+```vue
+<Accordion type="single" collapsible default-value="history" style="width: 100%; max-width: 384px">
+  <AccordionItem value="history">
+    <AccordionTrigger>Can I see my usage history?</AccordionTrigger>
+    <AccordionContent>
+      Yes, the Activity tab logs every API call, deploy, and admin action
+      for the last 90 days. Longer retention requires the Enterprise plan.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="audit" disabled>
+    <AccordionTrigger>Audit log export (Enterprise only)</AccordionTrigger>
+    <AccordionContent>
+      Upgrade to Enterprise to stream audit events to S3, Splunk, or your
+      SIEM of choice.
+    </AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="two-factor">
+    <AccordionTrigger>How do I enable two-factor auth?</AccordionTrigger>
+    <AccordionContent>
+      Settings → Security → Two-factor. You can use an authenticator app or
+      a FIDO2 hardware key. Recovery codes are issued once at enrollment.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Alert
+Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
+Import: import { Alert } from "@plexui/vue/components/Alert"
+Docs: https://plexui.com/vue/components/alert
+Props:
+  - title (string | slot) — Title displayed in the alert
+  - description (string | slot) — Description text
+  - actions (slot) — Actions (for example buttons)
+  - actions-placement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - actions-class-name (string) — Class applied to the actions container
+  - color (SemanticColors) default: "primary" — Color scheme
+  - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
+  - @dismiss (() => void) — Shows the dismiss button when set
+
+### Overview
+```vue
+<Alert
+  title="Scheduled maintenance"
+  description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
+>
+  <template #actions>
+    <Button color="primary" variant="soft" pill>Dismiss</Button>
+  </template>
+</Alert>
+```
+
+### Colors & variants
+You can stylize the display of the alert using the color and variant props.
+```vue
+<div class="w-fit min-w-full max-w-[500px]">
+  <div class="flex flex-col gap-6">
+    <div
+      v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
+      :key="color"
+      class="flex items-center"
+    >
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
+      <div class="flex-1">
+        <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
+          <template #description>
+            Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
+          </template>
+        </Alert>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Title
+You can optionally include a title for your alert with the title prop (or the title slot).
+```vue
+<Alert title="Your current access level limits what you can view or modify" />
+```
+
+### Description
+You can optionally include description text for your alert with the description prop, or the description slot for rich content.
+```vue
+<Alert>
+  <template #description>
+    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
+  </template>
+</Alert>
+```
+
+### Actions
+You can add actions to the alert with the actions slot. Combine with @dismiss to add a dismiss button.
+```vue
+<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Password expires in 3 days"
+    description="Update it now to avoid losing access to your account."
+  >
+    <template #actions>
+      <Button color="primary" pill>Update password</Button>
+    </template>
+  </Alert>
+  <Alert
+    variant="soft"
+    color="warning"
+    title="Your API key will be rotated soon"
+    description="Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running."
+    @dismiss="() => {}"
+  >
+    <template #actions>
+      <Button color="warning" variant="soft" pill>Remind me later</Button>
+    </template>
+  </Alert>
+</div>
+```
+
+### Action placement
+Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'.
+```vue
+<Alert
+  title="Our terms of service has been updated"
+  description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
+  actions-placement="bottom"
+>
+  <template #actions>
+    <Button color="primary" variant="soft" pill>Set reminder</Button>
+    <Button color="primary" variant="solid" pill>Review terms</Button>
+  </template>
+</Alert>
+```
+
+### Indicator
+Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator="false" to hide it entirely.
+```vue
+<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert>
+    <template #indicator>
+      <Lightbulb />
+    </template>
+    <template #description>
+      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
+    </template>
+  </Alert>
+  <Alert
+    :indicator="false"
+    description="Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything."
+  />
+</div>
+```
+
+### Dismissible
+The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome.
+```vue
+<div class="flex flex-col items-center justify-center gap-6 w-full">
+  <Alert
+    class="items-start"
+    title="Try our new dashboard layout"
+    description="We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time."
+  >
+    <template #actions>
+      <Button color="primary" variant="soft" pill>Dismiss</Button>
+      <Button color="primary" variant="solid" pill>Try it</Button>
+    </template>
+  </Alert>
+  <Alert
+    title="Thank you!"
+    description="Your application has been received. We will review your application and respond within the next 48 hours."
+    @dismiss="() => {}"
+  />
+</div>
+```
+
+## Avatar
+An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
+Import: import { Avatar } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar
+Props:
+  - name (string) — Display name; used for text initial when no image/icon
+  - image-url (string) — Absolute URL for image avatar
+  - Icon (Component) — Icon component for icon avatar, bound as :Icon
+  - size (number) — Width and height in pixels
+  - color ("primary" | "secondary" | "success" | "info" | "discovery" | "danger") default: "secondary" — Semantic color for text/icon avatar
+  - variant ("soft" | "solid") default: "soft" — Style variant
+  - overflow-count (number) — Show overflow count (e.g. +9)
+  - class (string) — Applied to the avatar root
+  - @click ((event: MouseEvent) => void) — Makes avatar interactive (renders a button)
+  - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
+
+### Overview
+A variety of avatar types: text, image, icon, and overflow.
+```vue
+<div class="flex gap-4">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
+  <Avatar name="Will" :size="48" />
+  <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
+</div>
+```
+
+### Text
+For text-based avatars, a single initial is displayed based on the name prop passed to the component.
+```vue
+<Avatar name="David" :size="48" />
+```
+
+### Image
+To display an image avatar, provide an absolute URL to the image with image-url. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load.
+```vue
+<Avatar
+  name="Tyler"
+  image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
+  :size="48"
+/>
+```
+
+### Icon
+To display an icon avatar, pass an icon component to the Icon prop, for example Robot imported from @plexui/vue/components/Icon. The name prop is not used in this case, and can be omitted.
+```vue
+<Avatar
+  :Icon="Robot"
+  :size="48"
+/>
+```
+
+### Overflow count
+To display an overflow avatar, provide a number to the overflow-count prop. The number will be automatically formatted and scaled to fit.
+```vue
+<Avatar :overflow-count="overflowCount" :size="size" />
+```
+
+### Sizing
+To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
+```vue
+<Avatar name="David" :size="size" />
+```
+
+### Colors & variants
+You can stylize the display of the avatar using the color and variant props.
+```vue
+<div
+  class="grid items-center gap-x-8 gap-y-5"
+  style="grid-template-columns: repeat(2, minmax(0, auto)) auto; justify-items: center"
+>
+  <div
+    v-for="variant in ['soft', 'solid']"
+    :key="variant"
+    class="text-sm font-medium"
+    style="color: var(--color-text-tertiary)"
+  >{{ variant }}</div>
+  <div />
+  <template v-for="(color, idx) in ['primary', 'secondary', 'success', 'danger', 'info', 'discovery']" :key="color">
+    <Avatar
+      v-for="variant in ['soft', 'solid']"
+      :key="variant"
+      :name="String.fromCharCode(65 + idx)"
+      :color="color"
+      :variant="variant"
+      :size="size"
+    />
+    <div class="text-sm font-medium justify-self-start" style="color: var(--color-text-tertiary)">{{ color }}</div>
+  </template>
+</div>
+```
+
+### Roundness
+By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to class.
+```vue
+<Avatar
+  name="Acme, co."
+  color="primary"
+  variant="solid"
+  :size="size"
+  :class="'rounded-' + roundness"
+/>
+```
+
+### Interactive
+Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles.
+```vue
+<div class="flex items-center gap-4">
+  <Avatar name="Will" :size="48" @click="saySup" />
+  <Avatar
+    image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
+    name="Tyler"
+    :size="48"
+    @click="saySup"
+  />
+  <Avatar name="Tech support" :Icon="Robot" :size="48" color="info" @click="saySup" />
+</div>
+```
+
+## Avatar Group
+Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
+Import: import { Avatar, AvatarGroup } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar-group
+Props:
+  - default slot (VNode[]) — The avatars of the group
+  - size (number) — Size of all avatars in the group
+  - stack ("start" | "end") default: "start" — Stacking direction
+  - class (string) — Applied to the group container; other attributes are not forwarded
+
+### Overview
+```vue
+<AvatarGroup :size="42">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Jane" color="primary" variant="solid" />
+  <Avatar name="Tech support" :Icon="Robot" variant="solid" />
+  <Avatar :overflow-count="5" />
+</AvatarGroup>
+```
+
+### Stacking direction
+You can control the stacking direction using the stack prop, as either "start" or "end".
+```vue
+<AvatarGroup :stack="stack" :size="42">
+  <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Will" />
+  <Avatar name="Tech support" :Icon="Robot" variant="solid" />
+  <Avatar :overflow-count="5" variant="soft" />
+</AvatarGroup>
+```
+
+### Group sizing
+You can control the size of all avatars in the group by passing size directly to the &lt;AvatarGroup&gt; component.
+```vue
+<AvatarGroup :size="size">
+  <Avatar name="Tyler" color="info" />
+  <Avatar name="Jane" color="discovery" />
+  <Avatar name="Will" color="danger" />
+  <Avatar :overflow-count="5" />
+</AvatarGroup>
+```
+
+## Badge
+Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+Import: import { Badge } from "@plexui/vue/components/Badge"
+Docs: https://plexui.com/vue/components/badge
+Props:
+  - default slot (VNode[]) — Content inside the badge
+  - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
+  - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
+  - size ("sm" | "md" | "lg") default: "sm" — Badge size
+  - pill (boolean) default: false — Fully rounded
+
+### Overview
+Status badges in different colors and compositions.
+```vue
+<div class="flex gap-4 flex-wrap">
+  <Badge color="success" size="lg">Successful</Badge>
+  <Badge size="lg" class="gap-1.5"><LoadingIndicator /> In progress</Badge>
+  <Badge color="danger" size="lg">Failed</Badge>
+  <Badge color="warning" size="lg" pill><Flask /> Beta</Badge>
+  <Badge color="caution" size="lg">Caution</Badge>
+</div>
+```
+
+### Colors & variants
+You can stylize the display of the badge using the color and variant props.
+```vue
+<div class="w-full overflow-x-auto">
+  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(7, min-content)">
+      <div />
+      <div
+        v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
+        :key="color"
+        class="text-center mb-1"
+        style="color: var(--color-text-tertiary); font-size: 0.875rem"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline']" :key="variant">
+        <div class="text-right mr-3" style="color: var(--color-text-tertiary); font-size: 0.875rem">{{ variant }}</div>
+        <div
+          v-for="color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']"
+          :key="color"
+          class="text-center"
+        >
+          <Badge :color="color" :variant="variant">Sample</Badge>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+```
+
+### Size & roundness
+You can control the size and roundness of the badge with size and pill props. When pill is set, extra horizontal gutter is dynamically applied to the badge.
+```vue
+<Badge color="info" :size="size" :pill="pill">New</Badge>
+```
+
+### Icon
+Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.
+```vue
+<Badge color="warning" size="lg"><Flask /> Beta</Badge>
+```
+
+### Loading
+In this example, additional gap is added with a Tailwind gap-1.5 class to provide the appropriate visual spacing.
+```vue
+<Badge size="lg" color="secondary" class="gap-1.5">
+  <LoadingIndicator /> In progress
+</Badge>
+```
+
+## Button
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
+Import: import { Button } from "@plexui/vue/components/Button"
+Docs: https://plexui.com/vue/components/button
+Props:
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
+  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and default gutter/icon size
+  - pill (boolean) default: false — Fully rounded corners
+  - block (boolean) default: false — Full width
+  - uniform (boolean) default: false — Square icon button (width equals height)
+  - disabled (boolean) default: false — Visually and accessibly disabled; click is not emitted
+  - disabled-tone ("relaxed") — Default cursor instead of not-allowed while disabled
+  - loading (boolean) default: false — Shows loading indicator
+  - inert (boolean) default: loading — Accessibly disabled without visual change
+  - selected (boolean) default: false — Selected state styling
+  - optically-align ("start" | "end") — Offset gutter for optical alignment
+  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding size
+  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot
+  - type ("button" | "submit" | "reset") default: "button" — Native button type
+  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+
+### Overview
+A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only.
+```vue
+<div class="flex flex-wrap gap-3">
+  <Button color="primary">Submit</Button>
+  <Button variant="soft"><CompareArrows /> Compare</Button>
+  <Button color="danger" gutter-size="sm" :pill="false"><Delete /></Button>
+  <Button variant="outline">Next <ArrowRight /></Button>
+  <Button variant="ghost" color="secondary" uniform><Clear /></Button>
+</div>
+```
+
+### Colors & variants
+You can stylize the display of the button using the color and variant props.
+```vue
+<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+  <div class="pt-1 pb-6 px-8 w-max mx-auto">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
+      <div />
+      <div
+        v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+        :key="color"
+        class="text-center text-sm mb-1"
+        style="color: var(--color-text-tertiary)"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+        <div class="text-right text-sm mr-3" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+        <div
+          v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+          :key="color"
+          class="text-center"
+        >
+          <Button :color="color" :variant="variant" size="md">Submit</Button>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+```
+
+### Sizing & roundness
+Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. Each size provides default values for gutter-size and icon-size, as well as font-size. Each of these values can be overridden independently.
+```vue
+<Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button <ArrowRight /></Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill">Button <ArrowRight /></Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button</Button>
+<Button :color="color" :variant="variant" :size="size" :pill="pill">Button</Button>
+```
+
+### Icons
+Add icons to the default slot. Sizing is automatic via the icon-size prop. For square icon buttons use uniform, which ignores gutter-size. Combine it with pill to make circular icons.
+```vue
+<Button
+  :color="color"
+  :size="size"
+  :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+  :icon-size="iconSize === 'auto' ? undefined : iconSize"
+  :uniform="uniform"
+  :variant="variant"
+>
+  <PlusLg />
+</Button>
+```
+
+### Block
+Create full-width buttons with the block prop.
+```vue
+<div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <Button color="primary" size="lg" :block="block">Continue</Button>
+</div>
+```
+
+### Disabled
+Use disabled to both visually and accessibly disable a button. Click events are not emitted.
+```vue
+<Button color="primary" :disabled="disabled">Submit</Button>
+```
+
+### Inert
+Use inert to accessibly disable a button without any visual changes.
+```vue
+<Button color="primary" :inert="inert">Submit</Button>
+```
+
+### Loading
+Use loading to display a loading indicator in the button, fading out the current content. Interactions are prevented during this state, because inert defaults to loading. Override it with inert, or use disabled to add visual disablement.
+```vue
+<Button loading size="xl" pill><ArrowUp /> Click to load</Button>
+```
+
+### Selected
+Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded="true"] or [data-state="open"] attributes.
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :selected="selected" :variant="variant">Click to open</Button>
+  </PopoverTrigger>
+  <PopoverContent min-width="auto" class="p-4 text-sm">
+    Button should look selected
+  </PopoverContent>
+</Popover>
+```
+
+### Optical alignment
+Use optically-align with either "start" or "end" to offset the gutter of the button.
+```vue
+<div class="flex flex-col gap-3">
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">Default gutters</div>
+    <Button variant="ghost">Ghost button</Button>
+  </div>
+  <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
+    <div class="mb-2 text-secondary text-sm">optically-align="start"</div>
+    <Button variant="ghost" optically-align="start">Ghost button</Button>
+  </div>
+</div>
+```
+
+## Button Group
+Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
+Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
+Docs: https://plexui.com/vue/components/button-group
+
+### Overview
+```vue
+<ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Go back">
+      <ArrowLeftSm />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size">Pin</Button>
+    <Button variant="outline" color="secondary" :size="size">Tag</Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size">Bookmark</Button>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="More options">
+      <DotsHorizontal />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>
+```
+
+### Orientation
+Pass orientation="vertical" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar.
+```vue
+<ButtonGroup orientation="vertical" aria-label="Zoom controls">
+  <Button variant="outline" color="secondary" :size="size" uniform aria-label="Zoom in">
+    <PlusSm />
+  </Button>
+  <Button variant="outline" color="secondary" :size="size" uniform aria-label="Zoom out">
+    <Minus />
+  </Button>
+</ButtonGroup>
+```
+
+### Size
+Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding.
+```vue
+<div class="flex flex-col items-start gap-6">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="sm">Small</Button>
+    <Button variant="outline" color="secondary" size="sm">Button</Button>
+    <Button variant="outline" color="secondary" size="sm">Group</Button>
+    <Button variant="outline" color="secondary" size="sm" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary">Default</Button>
+    <Button variant="outline" color="secondary">Button</Button>
+    <Button variant="outline" color="secondary">Group</Button>
+    <Button variant="outline" color="secondary" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" size="lg">Large</Button>
+    <Button variant="outline" color="secondary" size="lg">Button</Button>
+    <Button variant="outline" color="secondary" size="lg">Group</Button>
+    <Button variant="outline" color="secondary" size="lg" uniform aria-label="Add"><PlusSm /></Button>
+  </ButtonGroup>
+</div>
+```
+
+### Nested
+Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern.
+```vue
+<ButtonGroup aria-label="Pager">
+  <ButtonGroup>
+    <Button v-for="page in 5" :key="page" variant="outline" color="secondary" :size="size">{{ page }}</Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Previous page">
+      <ArrowLeftSm />
+    </Button>
+    <Button variant="outline" color="secondary" :size="size" uniform aria-label="Next page">
+      <ArrowRightSm />
+    </Button>
+  </ButtonGroup>
+</ButtonGroup>
+```
+
+### Separator
+Drop a ButtonGroupSeparator between items to add a visible divider, commonly used for Undo / Redo pairs or any "two related actions" toolbar.
+```vue
+<ButtonGroup>
+  <Button variant="soft" color="secondary" :size="size"><Undo /> Undo</Button>
+  <ButtonGroupSeparator />
+  <Button variant="soft" color="secondary" :size="size">Redo <Redo /></Button>
+</ButtonGroup>
+```
+
+### Split
+The classic split button: an action joined to a secondary affordance via ButtonGroupSeparator. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo.
+```vue
+<ButtonGroup>
+  <Button variant="soft" color="secondary" :size="size"><Filter /> Filter</Button>
+  <ButtonGroupSeparator />
+  <Button variant="soft" color="secondary" :size="size" uniform aria-label="Add filter">
+    <Plus />
+  </Button>
+</ButtonGroup>
+```
+
+### Input
+Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.
+```vue
+<ButtonGroup>
+  <Input placeholder="Search docs..." :size="size" />
+  <Button variant="outline" color="secondary" :size="size" aria-label="Search">
+    <SearchSm />
+  </Button>
+</ButtonGroup>
+```
+
+### Input group
+Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size.
+```vue
+<ButtonGroup style="width: 100%; max-width: 280px">
+  <ButtonGroup>
+    <Button variant="outline" color="secondary" pill :size="size" uniform aria-label="Add attachment">
+      <Plus />
+    </Button>
+  </ButtonGroup>
+  <ButtonGroup>
+    <Input
+      pill
+      :size="size"
+      :placeholder="voiceEnabled ? 'Recording your idea…' : 'Describe a component…'"
+      :disabled="voiceEnabled"
+    >
+      <template #endAdornment>
+        <InputAdornmentButton
+          :color="voiceEnabled ? 'caution' : undefined"
+          aria-label="Toggle voice mode"
+          :aria-pressed="voiceEnabled"
+          @click="voiceEnabled = !voiceEnabled"
+        >
+          <Mic />
+        </InputAdornmentButton>
+      </template>
+    </Input>
+  </ButtonGroup>
+</ButtonGroup>
+```
+
+## Button Link
+A semantic anchor with full button styling, for internal and external links with icons and block layout.
+Import: import { ButtonLink } from "@plexui/vue/components/Button"
+Docs: https://plexui.com/vue/components/button-link
+Props:
+  - default slot (VNode[]) — Content inside the link button
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
+  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
+  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
+  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
+  - href (string) — Link URL
+  - to (string | RouteLocationRaw) — Router link destination (internal)
+  - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
+  - external (boolean) — Force external-link behavior
+  - optically-align ("start" | "end") — Apply optical negative margin alignment
+  - block (boolean) default: false — Full width
+  - pill (boolean) default: false — Fully rounded
+  - disabled (boolean) default: false — Disable link
+  - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
+  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+
+### Overview
+```vue
+<ButtonLink color="primary" :pill="false" href="#">View API Keys <ArrowRight /></ButtonLink>
+```
+
+### Internal link
+When a relative href or to is provided, ButtonLink uses the link component configured on PlexUIProvider, so your router handles navigation.
+```vue
+<ButtonLink href="/vue/components/button" color="primary">
+  Internal link <ArrowRight />
+</ButtonLink>
+```
+
+### External link
+When linking to an external URL (or when external is set), &lt;a&gt; is used with target="_blank" and rel="noopener noreferrer" added automatically. If your link is not being automatically identified, you can force external link behavior with the external prop.
+```vue
+<ButtonLink href="#" color="primary">
+  External link <ArrowUpRight />
+</ButtonLink>
+```
+
+### Colors & variants
+Stylize the link with color and variant props.
+```vue
+<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
+      <div />
+      <div
+        v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+        :key="color"
+        class="text-center text-sm mb-1 text-tertiary"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+        <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
+        <div
+          v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+          :key="color"
+          class="text-center"
+        >
+          <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+```
+
+### Sizing & roundness
+Sizing of the link is controlled with size and gutter-size. size sets the control height, and gutter-size sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link.
+```vue
+<div class="flex flex-col gap-2 justify-start items-start">
+  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
+    View account <ArrowRight />
+  </ButtonLink>
+  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
+    View account
+  </ButtonLink>
+</div>
+```
+
+### Icons
+Icon sizing is controlled by the icon-size prop, which makes it easy to add icons to the slot without additional props. size provides a default value for icon-size, but setting the prop forces the specified size.
+```vue
+<ButtonLink color="info" :size="size" :icon-size="iconSize" variant="soft" href="#" class="whitespace-nowrap">
+  <Globe /> View website
+</ButtonLink>
+```
+
+### Block
+Create full-width links with the block prop.
+```vue
+<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <ButtonLink :block="block" size="lg" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
+</div>
+```
+
+### Disabled
+Use disabled to both visually and accessibly disable a link. The component renders as a span[role="link"], and click is not emitted.
+```vue
+<ButtonLink href="#" color="primary" :disabled="disabled" class="whitespace-nowrap">
+  <Key /> View API Keys
+</ButtonLink>
+```
+
+## Card
+Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
+Docs: https://plexui.com/vue/components/card
+
+### Overview
+```vue
+<Card style="max-width: 380px">
+  <CardHeader>
+    <CardTitle>Project activity</CardTitle>
+    <CardDescription>
+      Your team opened 12 issues and closed 8 pull requests over the last 7 days.
+    </CardDescription>
+  </CardHeader>
+  <CardFooter>
+    <Button color="primary" variant="solid" size="sm">View report</Button>
+    <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
+  </CardFooter>
+</Card>
+```
+
+### No team members (empty state)
+Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action.
+```vue
+<Card style="max-width: 380px; padding: 24px">
+  <EmptyMessage>
+    <EmptyMessageIcon>
+      <UserAdd />
+    </EmptyMessageIcon>
+    <EmptyMessageTitle>No team members</EmptyMessageTitle>
+    <EmptyMessageDescription>
+      Invite your team to collaborate on this project.
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="primary" variant="solid" size="sm">Invite members</Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</Card>
+```
+
+### Processing your request
+Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor.
+```vue
+<Card style="max-width: 380px; padding: 24px">
+  <EmptyMessage>
+    <div style="margin-bottom: 12px; color: var(--color-text-tertiary)">
+      <LoadingIndicator :size="28" />
+    </div>
+    <EmptyMessageTitle>Processing your request</EmptyMessageTitle>
+    <EmptyMessageDescription>
+      Please wait while we process your request. Do not refresh the page.
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="secondary" variant="outline" size="sm">Cancel</Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</Card>
+```
+
+### Pricing
+Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
+```vue
+<div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: 720px">
+  <Card
+    v-for="plan in [
+      { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },
+      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'All Figma kits', 'Early components'] },
+    ]"
+    :key="plan.name"
+    :variant="plan.highlighted ? 'solid' : 'outline'"
+  >
+    <CardHeader>
+      <CardTitle>{{ plan.name }}</CardTitle>
+      <CardDescription>
+        <span style="font-size: 28px; font-weight: 600; color: var(--color-text)">{{ plan.price }}</span>
+        <span style="margin-left: 4px">/ month</span>
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px">
+        <li v-for="feature in plan.features" :key="feature" style="display: flex; align-items: center; gap: 8px">
+          <Check style="width: 16px; height: 16px; color: var(--color-text-success-soft)" />
+          {{ feature }}
+        </li>
+      </ul>
+    </CardContent>
+    <CardFooter style="margin-top: auto; padding-top: 4px">
+      <Button
+        :color="plan.highlighted ? 'primary' : 'secondary'"
+        :variant="plan.highlighted ? 'solid' : 'outline'"
+        block
+      >
+        Choose {{ plan.name }}
+      </Button>
+    </CardFooter>
+  </Card>
+</div>
+```
+
+## Checkbox
+Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+Import: import { Checkbox } from "@plexui/vue/components/Checkbox"
+Docs: https://plexui.com/vue/components/checkbox
+Props:
+  - variant ("solid" | "ghost") default: "solid" — Visual style: solid (filled background) or ghost (checkmark only)
+  - pill (boolean) default: false — Fully rounded indicator corners
+  - checked / v-model:checked (boolean | "indeterminate") — Controlled state
+  - default-checked (boolean | "indeterminate") — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the checkbox
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - orientation ("left" | "right") default: "left" — Checkbox position relative to the label
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the checkbox element (generated when omitted)
+  - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
+  - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
+
+### Overview
+```vue
+<div class="flex flex-col gap-3">
+  <Checkbox label="Same as billing address" :variant="variant" :pill="pill" :disabled="disabled" />
+  <Checkbox label="Subscribe to newsletter" :variant="variant" :pill="pill" :disabled="disabled" default-checked />
+</div>
+```
+
+### Variants
+The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill.
+```vue
+<div class="flex flex-wrap gap-x-12 gap-y-6">
+  <div
+    v-for="group in [
+      { name: 'solid' },
+      { name: 'solid pill', pill: true },
+      { name: 'ghost', variant: 'ghost' },
+    ]"
+    :key="group.name"
+    class="flex flex-col gap-3 items-start"
+  >
+    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
+    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" :disabled="disabled" />
+    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" :disabled="disabled" default-checked />
+    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" :disabled="disabled" checked="indeterminate" />
+  </div>
+</div>
+```
+
+### Pill
+Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius.
+```vue
+<div class="flex flex-col gap-3">
+  <Checkbox label="Unchecked" :pill="pill" />
+  <Checkbox label="Checked" :pill="pill" default-checked />
+  <Checkbox label="Indeterminate" :pill="pill" checked="indeterminate" />
+</div>
+```
+
+### Ghost
+Use variant="ghost" to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists.
+```vue
+<div class="flex flex-col gap-3">
+  <Checkbox label="Unchecked" variant="ghost" :disabled="disabled" />
+  <Checkbox label="Checked" variant="ghost" :disabled="disabled" default-checked />
+  <Checkbox label="Indeterminate" variant="ghost" :disabled="disabled" checked="indeterminate" />
+</div>
+```
+
+### With description
+Pass rich content through the label slot to compose a label with secondary description text. This is useful for options that need additional context or explanation. For plain text, the label prop is enough.
+```vue
+<div class="flex flex-col gap-4 max-w-sm">
+  <Checkbox default-checked>
+    <template #label>
+      <div class="flex flex-col">
+        <span class="font-medium">Accept terms and conditions</span>
+        <span class="text-xs text-secondary mt-0.5">
+          By checking this box, you agree to our Terms of Service and Privacy Policy.
+        </span>
+      </div>
+    </template>
+  </Checkbox>
+  <Checkbox>
+    <template #label>
+      <div class="flex flex-col">
+        <span class="font-medium">Enable notifications</span>
+        <span class="text-xs text-secondary mt-0.5">
+          You can enable or disable notifications at any time from settings.
+        </span>
+      </div>
+    </template>
+  </Checkbox>
+</div>
+```
+
+### Indeterminate
+Use checked="indeterminate" to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here checked starts as "indeterminate" and each click moves it to the next state.
+```vue
+<Checkbox
+  :checked="checked"
+  @update:checked="checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'"
+  label="Select all"
+/>
+```
+
+### Disabled
+When disabled is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.
+```vue
+<div class="flex flex-wrap gap-x-12 gap-y-6">
+  <div
+    v-for="group in [
+      { name: 'solid' },
+      { name: 'solid pill', pill: true },
+      { name: 'ghost', variant: 'ghost' },
+    ]"
+    :key="group.name"
+    class="flex flex-col gap-3 items-start"
+  >
+    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
+    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" disabled />
+    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" disabled default-checked />
+    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" disabled checked="indeterminate" />
+  </div>
+</div>
+```
+
+### Label orientation
+By default the checkbox renders to the left of the label. Set orientation="right" to place the checkbox after the label.
+```vue
+<Checkbox label="Accept terms and conditions" :orientation="orientation" />
+```
+
+### Without label
+When no label is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate.
+```vue
+<div class="flex gap-4">
+  <Checkbox />
+  <Checkbox default-checked />
+  <Checkbox checked="indeterminate" />
+</div>
+```
+
+### Group with select all
+Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an indeterminate state when only some children are checked. Each child binds v-model:checked to its item in items.
+```vue
+<div class="flex flex-col gap-3">
+  <Checkbox
+    label="Permissions"
+    :checked="items.every((i) => i.checked) ? true : items.some((i) => i.checked) ? 'indeterminate' : false"
+    @update:checked="(next) => items.forEach((i) => (i.checked = next))"
+  />
+  <div class="flex flex-col gap-3 pl-6">
+    <Checkbox
+      v-for="item in items"
+      :key="item.id"
+      :label="item.label"
+      v-model:checked="item.checked"
+    />
+  </div>
+</div>
+```
+
+## Code Block
+Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
+Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
+Docs: https://plexui.com/vue/components/code-block
+  CodeBlock:
+    - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
+    - code (string) — Code content, used when the default slot is empty
+    - language (string) — Prism language name
+    - class (string) — Additional wrapper class
+  CollapsibleCodeBlock:
+    - default slot / code (string) — Code content
+    - language (string) — Prism language name
+    - default-expanded (boolean) default: false — Start expanded
+    - collapsed-height (number) default: 140 — Height when collapsed (px)
+    - max-expanded-height (number) — Max height when expanded (px)
+    - copyable (boolean) default: true — Show copy button
+
+### Overview
+The code is the text of the default slot. Interpolate a string ({"{{ code }}"}) so its whitespace is kept, or pass it with the code prop.
+```vue
+<CodeBlock language="javascript">{{ codeSnippet }}</CodeBlock>
+```
+
+### Collapsible
+Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action.
+```vue
+<CollapsibleCodeBlock language="tsx">{{ code }}</CollapsibleCodeBlock>
+```
+
+### Expanded by default
+```vue
+<CollapsibleCodeBlock language="tsx" default-expanded>{{ code }}</CollapsibleCodeBlock>
+```
+
+### Custom collapsed height
+```vue
+<CollapsibleCodeBlock language="typescript" :collapsed-height="60">{{ code }}</CollapsibleCodeBlock>
+```
+
+### Max expanded height
+```vue
+<CollapsibleCodeBlock language="typescript" default-expanded :max-expanded-height="200">{{ code }}</CollapsibleCodeBlock>
+```
+
+### Without copy button
+```vue
+<CollapsibleCodeBlock language="python" default-expanded :copyable="false">{{ code }}</CollapsibleCodeBlock>
+```
+
+### Supported languages
+A pragmatic set of Prism grammars are pre-registered out of the box.
+```vue
+<CodeBlock language="javascript">{{ code }}</CodeBlock>
+```
+
+## Copy Tooltip
+A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
+Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Docs: https://plexui.com/vue/components/copy-tooltip
+Props:
+  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
+  - copyValue (string) default: "Very cool content to copy" — Content to copy to clipboard
+  - openDelay (number) default: 150 — Tooltip open delay in milliseconds
+  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+  - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
+  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+  - sideOffset (number) default: 5 — Distance from trigger in pixels
+
+### Overview
+```vue
+<CopyTooltip
+  copy-value="Very cool content to copy"
+  :open-delay="openDelay"
+  :side-offset="sideOffset"
+  :align-offset="alignOffset"
+  :side="side"
+  :align="align"
+>
+  <TooltipTriggerDecorator>sess_12345abcdefg</TooltipTriggerDecorator>
+</CopyTooltip>
+```
+
+## Dialog
+Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+Import: import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Docs: https://plexui.com/vue/components/dialog
+Props:
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
+  - width (number | string) default: 480 — Panel width
+  - show-close (boolean) default: true — Show close button in top-right corner
+  - class (string) — Additional CSS class on the panel
+
+### Overview
+```vue
+<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Open dialog</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Unsaved changes</DialogTitle>
+    </DialogHeader>
+    <p class="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Save changes</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Destructive confirmation
+Use color="danger" on the action button for destructive operations.
+```vue
+<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="danger" variant="outline">Delete</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Delete assistant?</DialogTitle>
+    </DialogHeader>
+    <p class="text-sm text-secondary">
+      This change will affect all API integrations using
+      <span class="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+      It cannot be undone.
+    </p>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="secondary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="danger" @click="open = false">Delete</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+## Empty Message
+Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
+Docs: https://plexui.com/vue/components/empty-message
+Props:
+  - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  - size ("sm" | "md") default: "md" — Icon badge size
+  - class (string) — Additional classes for the action row container
+
+### Composition
+```vue
+<div
+  class="flex w-full items-center justify-center"
+  :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
+>
+  <EmptyMessage :fill="fill">
+    <EmptyMessageIcon v-if="icon === 'on'" :color="color" :size="size">
+      <Explore />
+    </EmptyMessageIcon>
+    <EmptyMessageTitle v-if="content !== 'description'" :color="color">No projects yet</EmptyMessageTitle>
+    <EmptyMessageDescription v-if="content !== 'title'">
+      Create your first project to get started
+    </EmptyMessageDescription>
+    <EmptyMessageActionRow>
+      <Button color="primary" :size="size === 'sm' ? 'md' : 'lg'">
+        <Plus class="mr-[-2px]" />
+        New project
+      </Button>
+    </EmptyMessageActionRow>
+  </EmptyMessage>
+</div>
+```
+
+### Error message
+The color property enables you to display clearer intent with the message, such as showing an error state.
+```vue
+<EmptyMessage>
+  <EmptyMessageIcon color="danger">
+    <Mic />
+  </EmptyMessageIcon>
+  <EmptyMessageTitle color="danger">
+    Enable microphone access in your browser's settings.
+  </EmptyMessageTitle>
+</EmptyMessage>
+```
+
+### Warning message
+```vue
+<EmptyMessage>
+  <EmptyMessageIcon color="warning">
+    <Sparkle />
+  </EmptyMessageIcon>
+  <EmptyMessageTitle>o1-preview is in beta</EmptyMessageTitle>
+  <EmptyMessageDescription>
+    System instructions and model configuration are not available yet. Responses may take
+    longer.
+  </EmptyMessageDescription>
+  <EmptyMessageActionRow class="text-sm">
+    <TextLink href="/">
+      Learn more
+      <ArrowUpRight />
+    </TextLink>
+  </EmptyMessageActionRow>
+</EmptyMessage>
+```
+
+### No results
+The parts of EmptyMessage are both composable and optional. This example omits EmptyMessageTitle, using only an icon and description for a simpler message style.
+```vue
+<div class="w-full">
+  <EmptyMessage fill="none">
+    <EmptyMessageIcon size="sm">
+      <Search />
+    </EmptyMessageIcon>
+    <EmptyMessageDescription>
+      No icons found matching <span class="font-semibold">"pizza"</span>
+    </EmptyMessageDescription>
+  </EmptyMessage>
+</div>
+```
+
+## File Upload
+Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
+Import: import { FileUpload, FileCard, FileCardGroup } from "@plexui/vue/components/FileUpload"
+Docs: https://plexui.com/vue/components/file-upload
+Props:
+  - variant ("compact" | "area") default: "compact" — Visual variant: compact button or larger tappable area
+  - label (string) — Button label text
+  - description (string) — Helper text below the icon (area variant only)
+  - multiple (boolean) default: false — Allow selecting multiple files
+  - max-files (number) — Maximum number of files. Button disables at limit.
+  - max-size (number) — Maximum file size in bytes
+  - value / v-model:value (File[]) — Controlled file list; `update:value` fires when files are added or removed
+  - @file-reject ((file: File, reason: string) => void) — Fires when a file is rejected (wrong type, too large, over limit)
+  - error-message (string) — Error message; sets the invalid visual state
+  - invalid (boolean) default: false — Invalid state (auto-set when error-message is provided)
+  FileCard:
+    - file (File) — The file to display
+    - @remove (() => void) — Remove callback. When omitted, the delete button is hidden.
+    - disabled (boolean) default: false — Disable the remove button
+    - class (string) — Additional CSS class
+  FileCardGroup:
+    - default slot (VNode[]) — FileCard elements
+    - class (string) — Additional CSS class
+
+### Overview
+```vue
+<div class="w-[360px]">
+  <FileUpload
+    v-model:value="files"
+    accept=".pdf,.png,.jpg,.jpeg"
+    multiple
+    :max-files="5"
+    :max-size="10 * 1024 * 1024"
+  />
+</div>
+```
+
+### With files
+File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button.
+```vue
+<div class="w-[360px]">
+  <FileUpload
+    v-model:value="files"
+    accept=".pdf,.png"
+    multiple
+    :max-files="5"
+  />
+</div>
+```
+
+### Error state
+```vue
+<div class="w-[360px]">
+  <FileUpload
+    v-model:value="files"
+    accept=".pdf"
+    multiple
+    error-message="Please upload at least 2 documents."
+  />
+</div>
+```
+
+### Disabled
+```vue
+<div class="w-[360px]">
+  <FileUpload disabled />
+</div>
+```
+
+### Read-only
+```vue
+<div class="w-[360px]">
+  <FileCardGroup>
+    <FileCard :file="file" />
+  </FileCardGroup>
+</div>
+```
+
+### With remove
+```vue
+<div v-if="file" class="w-[360px]">
+  <FileCardGroup>
+    <FileCard :file="file" @remove="file = null" />
+  </FileCardGroup>
+</div>
+<div v-else class="w-[360px] text-center text-sm text-tertiary">File removed</div>
+```
+
+### Multiple files
+```vue
+<div class="w-[360px]">
+  <FileCardGroup>
+    <FileCard
+      v-for="(file, index) in files"
+      :key="file.name + '-' + file.size"
+      :file="file"
+      @remove="files = files.filter((_, i) => i !== index)"
+    />
+  </FileCardGroup>
+</div>
+```
+
+### Read-only list
+```vue
+<div class="w-[360px]">
+  <FileCardGroup>
+    <FileCard v-for="file in files" :key="file.name + '-' + file.size" :file="file" />
+  </FileCardGroup>
+</div>
+```
+
+## Float Input
+Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
+Import: import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput"
+Docs: https://plexui.com/vue/components/floating-label-input
+Props:
+  - label (string) — Label text for the floating label
+  - value / v-model:value (string) — Controlled value; `update:value` fires on input
+  - default-value (string) — Initial value when uncontrolled
+  - error-message (string) — Error message to display below the input
+  - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
+  - description (string | slot) — Helper text below the input
+  - disabled (boolean) default: false — Disables the input
+  - read-only (boolean) default: false — Makes the input read-only
+  - type (string) default: "text" — Input type; password gets a reveal toggle
+  - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
+  - multiline (boolean) default: false — Render an auto-growing textarea
+  - rows (number) default: 2 — Visible lines when multiline
+  - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
+  - start-adornment / end-adornment (slots) — Content before or after the input
+  - @clear (() => void) — Shows the clear button and fires when it is clicked
+  - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
+  - @autofill (() => void) — Fires when the browser autofills the input
+
+### Overview
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" />
+</div>
+```
+
+### Filled state
+When the input has a value, the label stays floated above the input.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
+</div>
+```
+
+### Textarea
+Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    :key="String(multiline)"
+    v-model:value="value"
+    label="Message"
+    :multiline="multiline"
+  />
+</div>
+```
+
+### With error message
+Use the error-message prop to display a validation error below the input. When error-message is provided, the input automatically enters the invalid state.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+  />
+</div>
+```
+
+### With description
+Use the description prop (or the description slot) to display helper text below the input.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    description="We'll never share your email with anyone else."
+  />
+</div>
+```
+
+### With description and error
+When both description and error-message are provided, the error appears first (closest to the input), followed by the description.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+    description="We'll never share your email with anyone else."
+  />
+</div>
+```
+
+### Clear button
+Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :disabled="disabled"
+    :read-only="readOnly"
+    @clear="value = ''"
+  />
+</div>
+```
+
+### Disabled
+Use the disabled prop to disable the input, greying it out and preventing user interactions.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="disabled@example.com" :disabled="disabled" />
+</div>
+```
+
+### Read only
+Use the read-only prop to make the input read-only. The user can still select and copy the text.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" read-only />
+</div>
+```
+
+### All states
+Overview of all input states.
+```vue
+<div class="flex flex-col items-center gap-8 py-8">
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+    <FloatingLabelInput label="Email address" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+    <FloatingLabelInput label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+    <FloatingLabelInput invalid label="Email address" default-value="invalid@email" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+    <FloatingLabelInput disabled label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
+    <FloatingLabelInput read-only label="Email address" default-value="readonly@gmail.com" class="w-[320px]" />
+  </div>
+</div>
+```
+
+### Password input
+A type="password" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Password" type="password" />
+</div>
+```
+
+### Birthday with validation
+Use invalid and error-message to display the birthday validation state.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Birthday"
+    default-value="02 / 30 / 2001"
+    invalid
+    error-message="Please enter a valid date."
+  />
+</div>
+```
+
+### Birthday states
+Overview of birthday input states.
+```vue
+<div class="flex flex-col items-center gap-8 py-8">
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+    <FloatingLabelInput label="Birthday" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+    <FloatingLabelInput label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+    <FloatingLabelInput invalid label="Birthday" default-value="02 / 30 / 2001" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+    <FloatingLabelInput disabled label="Birthday" default-value="01 / 15 / 1995" class="w-[320px]" />
+  </div>
+</div>
+```
+
+## Indicators
+Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
+Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
+Docs: https://plexui.com/vue/components/indicators
+  LoadingIndicator:
+    - size (number | string) — Size in px (or use --indicator-size CSS variable)
+    - stroke-width (number) — Stroke width
+  CircularProgress:
+    - progress (number) — Static progress 0-100 (disables animation)
+    - size (number | string) — Diameter in px
+    - stroke-width (number) — Stroke thickness
+    - done (boolean) — Completion state for animation
+    - max-duration (number) default: 15000 — Duration of the simulated progress in ms
+    - track-color (string) — Track color (CSS variable or value)
+    - track-active-color (string) — Active segment color
+
+### Overview
+The demos restart every few seconds through a done flag that fills the ring before the simulation starts over.
+```vue
+<div class="flex items-center gap-6">
+  <LoadingIndicator :size="20" />
+  <CircularProgress :size="24" :done="done" />
+  <LoadingDots />
+</div>
+```
+
+### LoadingIndicator
+Simple spinning indicator for general loading states.
+```vue
+<LoadingIndicator />
+```
+
+### Sizing & stroke
+By default, the indicator adapts to the surrounding font-size and color of text. You can control the size of the LoadingIndicator using the --indicator-size CSS custom property.
+```vue
+<LoadingIndicator :size="size" :stroke-width="strokeWidth" />
+```
+
+### Color
+The indicator defaults to currentcolor, inheriting the surrounding text color. This can also be customized by altering the --indicator-color variable around the DOM scope of the component.
+```vue
+<div class="flex items-center gap-2 text-danger">
+  <LoadingIndicator :size="16" /> <span>Destroying forever...</span>
+</div>
+```
+
+### Duration
+You can control the rotation speed of the spinner with --indicator-rotate-duration.
+```vue
+<div style="--indicator-rotate-duration: 3s">
+  <LoadingIndicator />
+</div>
+```
+
+### CircularProgress
+Circular progress ring with simulated progress animation.
+```vue
+<CircularProgress :done="done" />
+```
+
+### Progress
+Use progress to show static progress and prevent the animation.
+```vue
+<CircularProgress :progress="25" />
+```
+
+### Sizing & stroke
+Use size and stroke-width. Or use --circular-progress-size and --circular-progress-stroke CSS variables.
+```vue
+<CircularProgress :size="size" :stroke-width="strokeWidth" :done="done" />
+```
+
+### Color
+Customize the color of the indicator with the --circular-progress-track-color and --circular-progress-track-active-color variables.
+```vue
+<CircularProgress
+  track-color="var(--alpha-15)"
+  track-active-color="var(--gray-1000)"
+  :done="done"
+/>
+```
+
+### LoadingDots
+Indicate typing progress with staggered pulsing dot animation.
+```vue
+<LoadingDots />
+```
+
+### Color
+The indicator defaults to currentcolor, inheriting the surrounding text color. You can customize the color by providing a different color value or context.
+```vue
+<div class="text-danger">
+  <LoadingDots />
+</div>
+```
+
+## Input
+Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+Import: import { Input, InputAdornmentButton } from "@plexui/vue/components/Input"
+Docs: https://plexui.com/vue/components/input
+Props:
+  - value / v-model:value (string | number) — Controlled value; `update:value` fires on every input
+  - default-value (string | number) — Initial value when uncontrolled
+  - variant ("outline" | "soft") default: "outline" — Visual style of the input
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
+  - gutter-size (string) — Controls gutter on the edges; defaults to value from size
+  - disabled (boolean) default: false — Disables the input visually and from interactions
+  - read-only (boolean) default: false — Makes the input read-only and hides the clear button
+  - invalid (boolean) default: false — Mark the input as invalid
+  - auto-select (boolean) default: false — Select all contents of the input when mounted
+  - startAdornment / endAdornment (slots) — Content rendered at the start or end of the input
+  - @clear (() => void) — When set, displays a clear button that appears when the input has a value
+  - @autofill (() => void) — Fires when the browser autofills the input
+  - pill (boolean) default: false — Fully rounded pill shape
+  - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
+  - type (string) default: "button" — Button type
+
+### Overview
+```vue
+<div class="w-[320px]">
+  <Input placeholder="Enter text..." />
+</div>
+```
+
+### Variants
+Use variant to stylize the input.
+```vue
+<div class="flex flex-col gap-2 w-[320px]">
+  <Input placeholder="Enter text..." variant="outline" />
+  <Input placeholder="Enter text..." variant="soft" />
+</div>
+```
+
+### Sizing & roundness
+Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently.
+```vue
+<div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
+  <Input
+    placeholder="Enter text..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  />
+  <Input
+    placeholder="Search..."
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #startAdornment>
+      <Search class="fill-tertiary" />
+    </template>
+  </Input>
+  <Input
+    v-model:value="username"
+    placeholder="Username"
+    maxlength="16"
+    :size="size"
+    :gutter-size="gutterSize === 'auto' ? undefined : gutterSize"
+    :pill="pill"
+  >
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
+</div>
+```
+
+### Start adornment
+You can add arbitrary content to the beginning of an input with the startAdornment slot, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutter-size determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutter-size, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes.
+```vue
+<div class="w-[320px]">
+  <Input placeholder="Start adornment">
+    <template #startAdornment>
+      <Search class="fill-tertiary" />
+    </template>
+  </Input>
+</div>
+```
+
+### Clear button
+Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+```vue
+<div class="w-[320px]">
+  <Input
+    v-model:value="value"
+    placeholder="Enter text..."
+    :pill="pill"
+    :size="size"
+    @clear="value = ''"
+  />
+</div>
+```
+
+### End adornment
+You can add arbitrary content to the end of an input with the endAdornment slot, like a character counter or custom icon. The same spacing guidance from startAdornment applies here.
+```vue
+<div class="w-[320px]">
+  <Input v-model:value="username" placeholder="Username" maxlength="16">
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
+</div>
+```
+
+### Password with visibility toggle
+Put an InputAdornmentButton in the endAdornment slot to switch between type="password" and type="text". Works across all sizes, variants, and with pill.
+```vue
+<div class="w-[320px]">
+  <Input
+    placeholder="Password"
+    :type="visible ? 'text' : 'password'"
+    :size="size"
+    :variant="variant"
+    :pill="pill"
+  >
+    <template #endAdornment>
+      <InputAdornmentButton
+        :aria-label="visible ? 'Hide' : 'Show'"
+        :aria-pressed="visible"
+        @click="visible = !visible"
+      >
+        <EyeOff v-if="visible" />
+        <Eye v-else />
+      </InputAdornmentButton>
+    </template>
+  </Input>
+</div>
+```
+
+### SSN input
+A masked SSN field that formats input as XXX-XX-XXXX, hides digits behind bullets when masked, and reveals the value via an InputAdornmentButton in the endAdornment slot. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically. formatSSN, nextSSNDigits, ssnMask and measureInput are plain helper functions of the example.
+```vue
+<div class="w-[320px]">
+  <div style="position: relative">
+    <Input
+      :value="formatSSN(digits)"
+      :placeholder="focused && ssnMask(digits).suffix ? undefined : 'Social Security Number'"
+      :size="size"
+      :variant="variant"
+      :pill="pill"
+      maxlength="11"
+      inputmode="numeric"
+      :style="{
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        ...(!visible && digits
+          ? { color: 'transparent', caretColor: 'transparent' }
+          : focused && ssnMask(digits).suffix
+            ? { caretColor: 'transparent' }
+            : {}),
+      }"
+      @update:value="(raw) => (digits = nextSSNDigits(raw, digits))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+    >
+      <template #endAdornment>
+        <InputAdornmentButton
+          :aria-label="visible ? 'Hide' : 'Show'"
+          :aria-pressed="visible"
+          @click="visible = !visible"
+        >
+          <EyeOff v-if="visible" />
+          <Eye v-else />
+        </InputAdornmentButton>
+      </template>
+    </Input>
+    <div
+      v-if="(!visible && digits) || (focused && ssnMask(digits).suffix)"
+      aria-hidden="true"
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 ' + metrics.padding,
+        pointerEvents: 'none',
+        fontSize: metrics.fontSize,
+        lineHeight: metrics.lineHeight,
+        zIndex: 2,
+        fontFamily: 'var(--font-mono, ui-monospace, monospace)',
+        overflow: 'hidden',
+      }"
+    >
+      <span v-if="!visible && digits" style="white-space: pre">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>
+      <span v-else style="visibility: hidden; white-space: pre">{{ formatSSN(digits) }}</span>
+      <template v-if="focused && ssnMask(digits).suffix">
+        <span v-if="ssnMask(digits).before" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).before }}</span>
+        <span
+          v-if="ssnMask(digits).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ ssnMask(digits).highlight }}</span>
+        <span v-if="ssnMask(digits).after" style="color: var(--color-text-tertiary); white-space: pre">{{ ssnMask(digits).after }}</span>
+      </template>
+    </div>
+  </div>
+</div>
+```
+
+### Birthday input
+A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with pill. nextBirthday, birthdayMask and measureInput are plain helper functions of the example.
+```vue
+<div class="w-[320px]">
+  <div style="position: relative">
+    <Input
+      :value="birthday"
+      :placeholder="focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'"
+      :size="size"
+      :variant="variant"
+      :pill="pill"
+      maxlength="14"
+      inputmode="numeric"
+      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      @focus="focused = true"
+      @blur="focused = false"
+      @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+    />
+    <div
+      v-if="focused && birthdayMask(birthday).suffix"
+      aria-hidden="true"
+      :style="{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 ' + metrics.padding,
+        pointerEvents: 'none',
+        fontSize: metrics.fontSize,
+        lineHeight: metrics.lineHeight,
+        zIndex: 2,
+        overflow: 'hidden',
+      }"
+    >
+      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+      <span
+        v-if="birthdayMask(birthday).highlight"
+        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+      >{{ birthdayMask(birthday).highlight }}</span>
+      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+    </div>
+  </div>
+</div>
+```
+
+### Birthday with validation
+Use invalid and FieldError to display a validation state when the entered date is not valid.
+```vue
+<div class="w-[320px]">
+  <div class="flex flex-col gap-1.5">
+    <div style="position: relative">
+      <Input
+        :value="birthday"
+        :placeholder="focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'"
+        :size="size"
+        :variant="variant"
+        :pill="pill"
+        maxlength="14"
+        inputmode="numeric"
+        :invalid="!!birthday && !isValidBirthday(birthday)"
+        :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+        @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+        @focus="focused = true"
+        @blur="focused = false"
+        @vue:mounted="(vnode) => Object.assign(metrics, measureInput(vnode))"
+        @vue:updated="(vnode) => Object.assign(metrics, measureInput(vnode))"
+      />
+      <div
+        v-if="focused && birthdayMask(birthday).suffix"
+        aria-hidden="true"
+        :style="{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 ' + metrics.padding,
+          pointerEvents: 'none',
+          fontSize: metrics.fontSize,
+          lineHeight: metrics.lineHeight,
+          zIndex: 2,
+          overflow: 'hidden',
+        }"
+      >
+        <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+        <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+        <span
+          v-if="birthdayMask(birthday).highlight"
+          style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+        >{{ birthdayMask(birthday).highlight }}</span>
+        <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+      </div>
+    </div>
+    <FieldError v-if="birthday && !isValidBirthday(birthday)" id="input-birthday-validation-demo-error">
+      Please enter a valid date.
+    </FieldError>
+  </div>
+</div>
+```
+
+### Disabled
+Use the disabled prop to disable the input, greying it out and preventing user interactions.
+```vue
+<div class="w-[320px]">
+  <Input placeholder="Jane Doe" :disabled="disabled" default-value="Jane Doe" />
+</div>
+```
+
+### Invalid
+Use the invalid prop to mark the input as invalid. You decide how this state is removed, whether that's through @focus, @update:value, a submit handler, etc. Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.
+```vue
+<div class="w-[320px]">
+  <Input placeholder="Invalid input" :invalid="invalid" />
+</div>
+```
+
+### Auto select text
+Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
+```vue
+<div class="w-[320px]">
+  <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
+</div>
+```
+
+### Autofill extensions
+By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true.
+```vue
+<div class="w-[320px]">
+  <Input
+    :key="String(allowAutofillExtensions)"
+    name="email"
+    :allow-autofill-extensions="allowAutofillExtensions"
+    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+  />
+</div>
+```
+
+### With button
+You can pair Input and Button components together by using the same size value.
+```vue
+<div class="flex w-[320px] gap-2">
+  <Input placeholder="jane.doe@gmail.com" :size="size" :variant="variant" />
+  <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
+</div>
+```
+
+## Label
+Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
+Import: import { Label } from "@plexui/vue/components/Label"
+Docs: https://plexui.com/vue/components/label
+
+### Overview
+Clicking the label toggles the checkbox it points at. Here accepted starts as true.
+```vue
+<div style="display: flex; align-items: center; gap: 8px">
+  <Checkbox id="label-demo-terms" v-model:checked="accepted" />
+  <Label for="label-demo-terms">Accept terms and conditions</Label>
+</div>
+```
+
+## Markdown
+Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+Import: import { Markdown } from "@plexui/vue/components/Markdown"
+Docs: https://plexui.com/vue/components/markdown
+Props:
+  - default slot (string) — Markdown source (text only; interpolate a string to keep its newlines)
+  - source (string) — Markdown source, used when the default slot is empty
+  - include-math (boolean) default: false — Enable LaTeX math rendering
+
+### Overview
+Use Markdown to render rich markdown text. The markdown is the text of the default slot: interpolate a string ({"{{ markdown }}"}) so its newlines are kept, or pass it with the source prop.
+```vue
+<Markdown>{{ markdownContent }}</Markdown>
+```
+
+### Math
+Use include-math to enable LaTeX rendering.
+```vue
+<Markdown include-math>{{ markdownWithLatex }}</Markdown>
+```
+
+## Markdown Editor
+Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
+Import: import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor"
+Docs: https://plexui.com/vue/components/markdown-editor
+Props:
+  - variant ("outline" | "soft") default: "outline" — Visual style of the editor
+  - disabled (boolean) default: false — Disable the editor
+  - invalid (boolean) default: false — Mark as invalid
+  - placeholder (string) — Placeholder text when empty
+  - value / v-model:value (string) — Controlled markdown value; `update:value` fires on every change
+  - default-value (string) — Initial markdown for uncontrolled mode
+  - @change ((markdown: string) => void) — Called on content change
+  - #toolbarEnd (slot) — Content rendered at the end of the toolbar
+  - rows (number) default: 1 — Minimum visible rows
+
+### Placeholder
+Use placeholder to display hint text when the editor is empty.
+```vue
+<div class="w-[500px]">
+  <MarkdownEditor placeholder="Enter text..." />
+</div>
+```
+
+### All formatting
+Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle.
+```vue
+<div class="w-[500px]">
+  <MarkdownEditor :default-value="allFormattingMd" />
+</div>
+```
+
+### Toolbar end slot
+Use the #toolbarEnd slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons.
+```vue
+<div class="w-[500px]">
+  <MarkdownEditor placeholder="Enter text...">
+    <template #toolbarEnd>
+      <button
+        type="button"
+        :class="markdownEditorStyles.toolbarButton"
+        aria-label="Edit translations"
+        title="Edit translations"
+      >
+        <Translate />
+      </button>
+    </template>
+  </MarkdownEditor>
+</div>
+```
+
+### Variants
+Use variant to switch between outline (default) and soft styles.
+```vue
+<div class="flex flex-col gap-4 w-[500px]">
+  <MarkdownEditor placeholder="Outline variant..." variant="outline" />
+  <MarkdownEditor placeholder="Soft variant..." variant="soft" />
+</div>
+```
+
+### Disabled
+Use disabled to prevent editing and grey out the component.
+```vue
+<div class="w-[500px]">
+  <MarkdownEditor disabled default-value="This content is **read-only**." />
+</div>
+```
+
+### Invalid
+Use invalid to show an error state.
+```vue
+<div class="w-[500px]">
+  <MarkdownEditor placeholder="Tell us about yourself..." invalid />
+</div>
+```
+
+## OTP Input
+Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
+Import: import { OTPInput } from "@plexui/vue/components/OTPInput"
+Docs: https://plexui.com/vue/components/otp-input
+Props:
+  - length (number) default: 6 — Number of digit cells
+  - value / v-model:value (string) — Controlled value; `update:value` fires on every change
+  - @change ((value: string) => void) — Fires when the value changes
+  - @complete ((value: string) => void) — Fires when all digits are filled
+  - grouping (number[]) — Grouping pattern with extra gap (e.g. [3,3])
+  - invalid (boolean) default: false — Invalid visual state
+  - error-message (string) — Error message below the input
+  - disabled (boolean) default: false — Disable all cells
+  - auto-focus (boolean) default: false — Auto-focus first cell on mount
+
+### Overview
+```vue
+<OTPInput v-model:value="value" />
+```
+
+### Filled state
+```vue
+<OTPInput v-model:value="value" />
+```
+
+### Grouped (3+3)
+```vue
+<OTPInput v-model:value="value" :grouping="[3, 3]" />
+```
+
+### With error
+```vue
+<OTPInput v-model:value="value" invalid error-message="Invalid verification code." />
+```
+
+### Disabled
+```vue
+<OTPInput value="488030" disabled />
+```
+
+## Popover
+A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
+Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
+Docs: https://plexui.com/vue/components/popover
+Props:
+  - showOnHover (boolean) — Open on hover and focus instead of click
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - width (number | string) — Panel width (px or CSS value)
+  - minWidth (number | string) default: 300 — Minimum panel width in px
+  - maxWidth (number | string) — Maximum panel width
+  - side ("top" | "right" | "bottom" | "left") — Preferred placement
+  - align ("start" | "center" | "end") — Alignment relative to trigger
+  - sideOffset (number) — Offset from trigger (px)
+  - alignOffset (number) — Alignment offset (px)
+
+### Overview
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :pill="false">Generate</Button>
+  </PopoverTrigger>
+  <PopoverContent side="right">
+    <div class="p-4">
+      <p class="text-sm text-secondary">Popover content. Use with any floating UI.</p>
+    </div>
+  </PopoverContent>
+</Popover>
+```
+
+### Sizing the popover
+The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of the popper's viewport detection.
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="primary" size="sm" variant="ghost" :pill="false" gutter-size="xs" class="gap-1.5">
+      <Bolt /> Actions
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent class="flex p-1.5" min-width="auto" side="top">
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Functions :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Search :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Globe :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <Code :height="18" :width="18" />
+    </Button>
+    <Button color="primary" variant="ghost" :pill="false" size="sm" gutter-size="2xs">
+      <ImageSquare :height="18" :width="18" />
+    </Button>
+  </PopoverContent>
+</Popover>
+```
+
+### Open on hover
+Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
+```vue
+<div class="flex flex-col gap-4">
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Static content</Button>
+    </PopoverTrigger>
+    <PopoverContent :width="320" side="right">
+      <div class="p-3">
+        <h3 class="mb-0.5 font-semibold">Popover Title</h3>
+        <p class="text-sm text-secondary">
+          This is an example of a hoverable popover containing presentational content.
+        </p>
+        <footer class="mt-2 text-xs text-tertiary">Last updated June 20, 2025</footer>
+      </div>
+    </PopoverContent>
+  </Popover>
+  <Popover show-on-hover>
+    <PopoverTrigger>
+      <Button color="primary" :pill="false">Interactive content</Button>
+    </PopoverTrigger>
+    <PopoverContent :min-width="230" side="right" v-slot="{ close }">
+      <div class="p-3">
+        <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
+        <p class="text-sm text-secondary">Try using tab to navigate</p>
+        <div class="mt-3 flex gap-2">
+          <Button color="secondary" variant="soft" :pill="false" @click="close">
+            Cancel
+          </Button>
+          <Button color="primary" :pill="false" @click="close">
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </PopoverContent>
+  </Popover>
+</div>
+```
+
+### Using the controller
+The default slot of PopoverContent receives {"{ close, shake }"}. Components rendered inside it can get the same two methods from usePopoverController() in their setup(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter async submission occurs (submitPrompt() fakes a two-second request), the close() method is called to close the popup imperatively.
+```vue
+<Popover>
+  <PopoverTrigger>
+    <Button color="primary" :pill="false">Generate</Button>
+  </PopoverTrigger>
+  <PopoverContent side="right" v-slot="{ close, shake }">
+    <form
+      @submit.prevent="
+        if (!prompt) return shake();
+        submitting = true;
+        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
+      "
+    >
+      <textarea
+        v-model="prompt"
+        placeholder="Describe what you're using the model for, and we'll generate system instructions."
+        style="width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0"
+      />
+      <div class="px-3 pb-3 flex items-center justify-between">
+        <div class="flex gap-1.5 items-center font-normal text-sm text-tertiary">
+          <Sparkles :width="16" :height="16" />
+          Free beta
+        </div>
+        <Button color="primary" size="xs" :pill="false" :loading="submitting" type="submit">
+          Create
+        </Button>
+      </div>
+    </form>
+  </PopoverContent>
+</Popover>
+```
+
+## Progress
+A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+Import: import { Progress } from "@plexui/vue/components/Progress"
+Docs: https://plexui.com/vue/components/progress
+
+### With label
+Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern.
+```vue
+<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px">
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+    <Label for="progress-upload">Uploading plex-ui.zip</Label>
+    <span style="color: var(--color-text-tertiary); font-size: 14px">3.2 / 4.8 MB</span>
+  </div>
+  <Progress id="progress-upload" :value="67" />
+</div>
+```
+
+## Progress Steps
+Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
+Docs: https://plexui.com/vue/components/progress-steps
+Props:
+  - current (number) — Current active step (1-based)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
+  - size ("sm" | "md" | "lg") default: "md" — Step indicator size
+  - color ("default" | "success") default: "default" — Color scheme for completed/active steps
+  - connector-style ("solid" | "dashed") default: "solid" — Connector line style
+  - variant ("minimal") — Compact bar variant (requires total)
+  - total (number) — Total steps for minimal variant
+  - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
+
+### Overview
+```vue
+<ProgressSteps
+  :current="Number(current)"
+  :orientation="orientation"
+  :size="size"
+  :color="color"
+  :connector-style="connectorStyle"
+  class="w-full"
+>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Your details</ProgressStepsTitle>
+    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Company details</ProgressStepsTitle>
+    <ProgressStepsDescription>A few details about your company</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
+    <ProgressStepsDescription>Start collaborating with your team</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <ProgressStepsTitle>Add your socials</ProgressStepsTitle>
+    <ProgressStepsDescription>Share posts to your social accounts</ProgressStepsDescription>
+  </ProgressStepsStep>
+</ProgressSteps>
+```
+
+### Sizes
+Use size to control the scale of step indicators.
+```vue
+<ProgressSteps :current="Number(current)" :size="size" class="w-full">
+  <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+  <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+</ProgressSteps>
+```
+
+### Vertical
+Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {"{ title, description }"} objects.
+```vue
+<div class="flex flex-wrap justify-center gap-20">
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Default</div>
+    <ProgressSteps :current="2" orientation="vertical">
+      <ProgressStepsStep v-for="step in steps" :key="step.title">
+        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
+        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
+      </ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+  <div>
+    <div class="mb-4 text-tertiary text-sm">With dashed connector</div>
+    <ProgressSteps :current="3" orientation="vertical" connector-style="dashed">
+      <ProgressStepsStep v-for="step in steps" :key="step.title">
+        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>
+        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>
+      </ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+</div>
+```
+
+### With Icons
+Use the icon slot (or the icon prop) on ProgressStepsStep to display custom icons instead of step numbers.
+```vue
+<ProgressSteps :current="3" class="w-full">
+  <ProgressStepsStep>
+    <template #icon><Email /></template>
+    <ProgressStepsTitle>Your details</ProgressStepsTitle>
+    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Globe /></template>
+    <ProgressStepsTitle>Company details</ProgressStepsTitle>
+    <ProgressStepsDescription>Website and location</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Users /></template>
+    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>
+    <ProgressStepsDescription>Start collaborating</ProgressStepsDescription>
+  </ProgressStepsStep>
+  <ProgressStepsStep>
+    <template #icon><Bolt /></template>
+    <ProgressStepsTitle>Get started</ProgressStepsTitle>
+    <ProgressStepsDescription>Ready to go</ProgressStepsDescription>
+  </ProgressStepsStep>
+</ProgressSteps>
+```
+
+### With Navigation
+Example of integrating with navigation controls.
+```vue
+<div class="flex flex-col items-center gap-6">
+  <ProgressSteps variant="minimal" :current="step" :total="4" />
+  <div class="text-center">
+    <h3 class="text-lg font-semibold">Step {{ step }} of 4</h3>
+    <p class="text-secondary mt-1">{{ steps[Math.min(step - 1, 3)].title }}</p>
+  </div>
+  <div class="flex gap-3">
+    <Button color="secondary" variant="outline" class="w-28" :disabled="step === 1" @click="step = Math.max(1, step - 1)">
+      Previous
+    </Button>
+    <Button color="primary" class="w-28" :disabled="step === 4" @click="step = Math.min(4, step + 1)">
+      Next
+    </Button>
+  </div>
+</div>
+```
+
+### Minimal
+Use variant="minimal" for a compact horizontal bar indicator. Requires total prop.
+```vue
+<ProgressSteps variant="minimal" :current="Number(current)" :total="4" :color="color" />
+```
+
+### Icons Only
+Omit ProgressStepsTitle and ProgressStepsDescription for a minimal indicator when step details are shown elsewhere.
+```vue
+<ProgressSteps :current="2" class="w-full">
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+  <ProgressStepsStep />
+</ProgressSteps>
+```
+
+### Colors
+Use color to change the color scheme of completed and active steps.
+```vue
+<div class="flex flex-col gap-12 w-full">
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Default</div>
+    <ProgressSteps :current="3" class="w-full">
+      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+  <div>
+    <div class="mb-4 text-tertiary text-sm">Success</div>
+    <ProgressSteps :current="3" color="success" class="w-full">
+      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>
+      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>
+    </ProgressSteps>
+  </div>
+</div>
+```
+
+## Separator
+A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+Import: import { Separator } from "@plexui/vue/components/Separator"
+Docs: https://plexui.com/vue/components/separator
+
+### Overview
+```vue
+<div style="display: flex; max-width: 384px; flex-direction: column; gap: 16px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
+  <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
+    <div style="font-weight: 500">Aisha Cooper</div>
+    <div style="color: var(--color-text-tertiary)">Engineering · Platform team</div>
+  </div>
+  <Separator />
+  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>
+</div>
+```
+
+### Vertical
+Use orientation="vertical" between inline items. Works for meta-strips, breadcrumbs, and dot-less separators.
+```vue
+<div style="display: flex; height: 20px; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
+  <div>MIT license</div>
+  <Separator orientation="vertical" />
+  <div>12k weekly downloads</div>
+  <Separator orientation="vertical" />
+  <div>48 kB bundle</div>
+</div>
+```
+
+### Menu
+Vertical separators between menu items with a short caption underneath each label.
+```vue
+<div style="display: flex; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)">
+  <template v-for="(plan, i) in [
+    { name: 'Starter', meta: 'Free · 1 project' },
+    { name: 'Pro', meta: '$19/mo · Unlimited' },
+    { name: 'Enterprise', meta: 'Custom · Priority SLA' },
+  ]" :key="plan.name">
+    <Separator v-if="i > 0" orientation="vertical" />
+    <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2">
+      <span style="font-weight: 500">{{ plan.name }}</span>
+      <span style="font-size: var(--font-text-xs-size); color: var(--color-text-tertiary)">{{ plan.meta }}</span>
+    </div>
+  </template>
+</div>
+```
+
+### List
+Horizontal separators between rows in a definition list.
+```vue
+<div style="display: flex; width: 100%; max-width: 384px; flex-direction: column; gap: 8px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)">
+  <template v-for="(row, i) in [
+    ['Version', '0.9.0'],
+    ['Published', '2 days ago'],
+    ['Bundle', '48 kB'],
+    ['License', 'MIT'],
+  ]" :key="row[0]">
+    <Separator v-if="i > 0" />
+    <dl style="display: flex; align-items: center; justify-content: space-between; margin: 0">
+      <dt>{{ row[0] }}</dt>
+      <dd style="margin: 0; color: var(--color-text-tertiary)">{{ row[1] }}</dd>
+    </dl>
+  </template>
+</div>
+```
+
+## Shimmer Text
+Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
+Import: import { ShimmerText, ShimmerableText } from "@plexui/vue/components/ShimmerText"
+Docs: https://plexui.com/vue/components/shimmer-text
+Props:
+  - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+  - default slot (VNode[]) — Text content to shimmer
+  - class (string) — Additional CSS classes
+  - shimmer (boolean) default: false — Whether the shimmer animation is active
+
+### Overview
+ShimmerText applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.
+```vue
+<ShimmerText class="text-lg font-semibold">
+  Thinking...
+</ShimmerText>
+```
+
+### Semantic elements
+Use the as prop to render as any text element: p, span, h1 to h6, or div.
+```vue
+<div class="flex flex-col gap-4">
+  <ShimmerText as="h2" class="text-2xl font-bold">Heading shimmer</ShimmerText>
+  <ShimmerText as="p" class="text-base">Paragraph shimmer effect</ShimmerText>
+  <ShimmerText as="span" class="text-sm text-secondary">Inline shimmer</ShimmerText>
+</div>
+```
+
+### Controllable shimmer
+ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut. Use this variant when text transitions between a loading and idle state.
+```vue
+<ShimmerableText :shimmer="shimmer" class="text-lg font-semibold">
+  Generating response...
+</ShimmerableText>
+```
+
+## Skeleton
+Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
+Import: import { Skeleton } from "@plexui/vue/components/Skeleton"
+Docs: https://plexui.com/vue/components/skeleton
+Props:
+  - circle (boolean) default: false — Render a circular skeleton
+  - class (string) — Set dimensions and custom styling
+
+### Overview
+Use a circular skeleton to represent loading avatars, combined with text placeholders.
+```vue
+<div class="flex items-center gap-4">
+  <Skeleton circle class="size-12" />
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[200px]" />
+    <Skeleton class="h-4 w-[150px]" />
+  </div>
+</div>
+```
+
+### Card
+Compose multiple skeletons to represent loading cards with images and text content.
+```vue
+<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
+  <Skeleton class="h-[150px] w-full rounded-lg" />
+  <Skeleton class="h-4 w-3/4" />
+  <Skeleton class="h-4 w-1/2" />
+</div>
+```
+
+### Text
+Multiple text lines with varying widths create natural-looking paragraph placeholders.
+```vue
+<div class="flex flex-col gap-2 w-[300px]">
+  <Skeleton class="h-4 w-full" />
+  <Skeleton class="h-4 w-full" />
+  <Skeleton class="h-4 w-4/5" />
+</div>
+```
+
+### Form
+Form skeletons use Plex UI control sizing (32px height for inputs and buttons).
+```vue
+<div class="flex flex-col gap-4 w-[300px]">
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[80px]" />
+    <Skeleton class="h-10 w-full rounded-lg" />
+  </div>
+  <div class="flex flex-col gap-2">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-10 w-full rounded-lg" />
+  </div>
+  <Skeleton class="h-10 w-[120px] rounded-lg" />
+</div>
+```
+
+### Table
+Table skeletons show header and row structure while data loads.
+```vue
+<div class="flex flex-col gap-2 w-[400px]">
+  <div class="flex gap-4 pb-2 border-b border-default">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-4 w-[150px]" />
+    <Skeleton class="h-4 w-[80px]" />
+  </div>
+  <div v-for="i in 4" :key="i" class="flex gap-4 py-2">
+    <Skeleton class="h-4 w-[100px]" />
+    <Skeleton class="h-4 w-[150px]" />
+    <Skeleton class="h-4 w-[80px]" />
+  </div>
+</div>
+```
+
+## Switch
+Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+Import: import { Switch } from "@plexui/vue/components/Switch"
+Docs: https://plexui.com/vue/components/switch
+Props:
+  - checked / v-model:checked (boolean) — Controlled state
+  - default-checked (boolean) — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the switch
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Secondary text below the label, linked via aria-describedby
+  - description slot (VNode[]) — Rich description content; takes precedence over the description prop
+  - label-position ("start" | "end") default: "end" — Label on the left (start) or right (end)
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the switch element (generated when omitted)
+  - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
+  - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
+
+### Base
+```vue
+<Switch />
+```
+
+### With label
+Add a label using the label prop. The label is automatically connected to the switch via id.
+```vue
+<Switch label="Notifications" />
+```
+
+### With description
+Add a description below the label for additional context. It is linked to the switch via aria-describedby.
+```vue
+<Switch
+  label="Disable user API keys"
+  description="Disable user-based API keys across your entire organization."
+/>
+```
+
+### Label position
+Set label-position="start" to place the label on the left side of the switch control.
+```vue
+<Switch label="Right aligned" label-position="start" />
+```
+
+### Label position with description
+The description follows the label position, so both move together when label-position="start" is set.
+```vue
+<Switch
+  label="Dark mode"
+  description="Use dark theme across the entire application."
+  label-position="start"
+/>
+```
+
+### Default checked
+Initialize the switch with default-checked when you don't need to control its state. Use the name prop to read the value on form submission.
+```vue
+<Switch label="Enable notifications" name="notifications" default-checked />
+```
+
+### Controlled
+Bind v-model:checked to manage the state in a controlled manner. Here checked starts as false.
+```vue
+<Switch label="Airplane mode" v-model:checked="checked" />
+```
+
+### Disabled
+Use disabled to prevent the user from toggling the control.
+```vue
+<div class="flex gap-6">
+  <Switch disabled />
+  <Switch disabled checked />
+</div>
+```
+
+### Disabled with label
+The disabled state works with labels: both the toggle and the label show a not-allowed cursor.
+```vue
+<div class="flex flex-col gap-4">
+  <Switch label="Notifications" disabled />
+  <Switch label="Notifications" disabled default-checked />
+</div>
+```
+
+### Disabled with description
+Combine disabled with label and description for read-only settings that need explanation.
+```vue
+<div class="flex flex-col gap-4">
+  <Switch
+    label="Enable SSO"
+    description="Requires an Enterprise plan to configure."
+    disabled
+  />
+  <Switch
+    label="Two-factor authentication"
+    description="Enforced by organization policy."
+    disabled
+    default-checked
+  />
+</div>
+```
+
+### Settings panel
+Combine label and description to build settings-style toggle panels.
+```vue
+<div class="flex w-full max-w-lg flex-col gap-8">
+  <Switch
+    label="Enable custom providers for evals"
+    description="Allow eval runs to use third-party models you configure under Custom model providers."
+  />
+  <Switch
+    label="Enable OpenRouter models"
+    description="Make OpenRouter models available for evaluation runs."
+  />
+  <Switch
+    label="Disable user API keys"
+    description="Disable user-based API keys across your entire organization."
+    default-checked
+  />
+</div>
+```
+
+## Table
+Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
+Docs: https://plexui.com/vue/components/table
+  Table Primitives:
+    - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
+    - TableHeader (thead) — Table header group
+    - TableBody (tbody) — Table body group
+    - TableFooter (tfoot) — Table footer group
+    - TableRow (tr) — Table row
+    - TableHead (th) — Table header cell
+    - TableCell (td) — Table data cell
+    - TableCaption (caption) — Table caption
+
+### Overview
+A complete table with header, body, footer, and caption showing invoice data.
+```vue
+<Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead class="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow
+      v-for="invoice in [
+        { invoice: 'INV001', status: 'Paid', method: 'Credit Card', amount: '$250.00' },
+        { invoice: 'INV002', status: 'Pending', method: 'PayPal', amount: '$150.00' },
+        { invoice: 'INV003', status: 'Unpaid', method: 'Bank Transfer', amount: '$350.00' },
+        { invoice: 'INV004', status: 'Paid', method: 'Credit Card', amount: '$450.00' },
+        { invoice: 'INV005', status: 'Paid', method: 'PayPal', amount: '$550.00' },
+      ]"
+      :key="invoice.invoice"
+    >
+      <TableCell class="font-medium">{{ invoice.invoice }}</TableCell>
+      <TableCell>{{ invoice.status }}</TableCell>
+      <TableCell>{{ invoice.method }}</TableCell>
+      <TableCell class="text-right">{{ invoice.amount }}</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell colspan="3">Total</TableCell>
+      <TableCell class="text-right">$1,750.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>
+```
+
+### With footer
+A table with a footer row displaying subtotal information.
+```vue
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Product</TableHead>
+      <TableHead class="text-right">Qty</TableHead>
+      <TableHead class="text-right">Price</TableHead>
+      <TableHead class="text-right">Total</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell class="font-medium">Pro Plan</TableCell>
+      <TableCell class="text-right">3</TableCell>
+      <TableCell class="text-right">$29.00</TableCell>
+      <TableCell class="text-right">$87.00</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell class="font-medium">Storage Add-on</TableCell>
+      <TableCell class="text-right">1</TableCell>
+      <TableCell class="text-right">$9.00</TableCell>
+      <TableCell class="text-right">$9.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell colspan="3">Subtotal</TableCell>
+      <TableCell class="text-right font-semibold">$96.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>
+```
+
+### Minimal
+A simple table without caption or footer, showing a list of people.
+```vue
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Title</TableHead>
+      <TableHead>Email</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow
+      v-for="person in [
+        { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay@example.com' },
+        { name: 'Courtney Henry', title: 'Designer', email: 'courtney@example.com' },
+        { name: 'Tom Cook', title: 'Director of Product', email: 'tom@example.com' },
+      ]"
+      :key="person.email"
+    >
+      <TableCell class="font-medium">{{ person.name }}</TableCell>
+      <TableCell>{{ person.title }}</TableCell>
+      <TableCell>{{ person.email }}</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+## Tabs
+Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
+Import: import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
+Docs: https://plexui.com/vue/components/tabs
+Props:
+  - value (string) — Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group
+  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height (3xs through 3xl)
+  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
+  - pill (boolean) default: true — Fully rounded control (segmented variant only)
+  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
+  - block (boolean) default: false — Full-width control with equal-width tabs
+  - disabled (boolean) default: false — Disable all tabs
+  - aria-label (string) — Accessible name (required)
+  - class (string) — Extra classes on the group element
+  - default slot (VNode[]) — TabsTab children
+  - @update:value ((value: string) => void) — Emitted when a tab is selected; powers v-model:value
+  - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
+  - @click ((event: MouseEvent) => void) — Emitted on any click in the group, even when the selection does not change
+  - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
+  - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
+  - icon slot (VNode[]) — Icon before the label
+  - badge slot (VNode[]) — Badge content; styling still comes from the badge object
+
+### Overview
+Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable.
+```vue
+<Tabs
+  v-model:value="tab"
+  :variant="variant"
+  :orientation="orientation"
+  :size="size"
+  :pill="pill"
+  :flush="flush"
+  :block="block"
+  :disabled="disabled"
+  aria-label="Demo tabs"
+>
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>
+```
+
+### Segmented with icons
+Icons work with the segmented variant: put the icon in the icon slot of individual tabs, or pass a component to the icon prop. Icons are automatically sized to match the current size.
+```vue
+<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>
+```
+
+### Icon only
+Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility.
+```vue
+<Tabs v-model:value="tab" :variant="variant" :size="size" :pill="pill" aria-label="Navigation">
+  <TabsTab value="home" aria-label="Home"><template #icon><Home /></template></TabsTab>
+  <TabsTab value="settings" aria-label="Settings"><template #icon><SettingsCog /></template></TabsTab>
+  <TabsTab value="notifications" aria-label="Notifications"><template #icon><Bell /></template></TabsTab>
+</Tabs>
+```
+
+### Segmented with badge
+Pass a number or an object with content, color, and variant to the badge prop. Badges render inline after the tab label inside the segmented container.
+```vue
+<Tabs v-model:value="tab" :size="size" :pill="pill" aria-label="Filter">
+  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
+  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
+  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
+</Tabs>
+```
+
+### Underline
+Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.
+```vue
+<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>
+```
+
+### Underline flush
+Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.
+```vue
+<Tabs v-model:value="tab" variant="underline" flush :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>
+```
+
+### Underline block
+Use block with the underline variant for full-width tabs that stretch evenly across the container.
+```vue
+<Tabs v-model:value="tab" variant="underline" block :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+</Tabs>
+```
+
+### Underline with icons
+Icons work with the underline variant the same way as with segmented. Use the icon slot on individual tabs.
+```vue
+<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>
+```
+
+### Underline with badge
+Badges are supported with the underline variant. Pass a simple value or an object with content, color, and variant.
+```vue
+<Tabs v-model:value="tab" variant="underline" :size="size" aria-label="Filter">
+  <TabsTab value="all" :badge="{ content: 128, pill: badgePill }">All</TabsTab>
+  <TabsTab value="unread" :badge="{ content: 12, color: 'info', pill: badgePill }">Unread</TabsTab>
+  <TabsTab value="flagged" :badge="{ content: 3, color: 'danger', pill: badgePill }">Flagged</TabsTab>
+</Tabs>
+```
+
+### Vertical segmented
+Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down.
+```vue
+<Tabs v-model:value="tab" orientation="vertical" :size="size" aria-label="Settings">
+  <TabsTab value="account">Account</TabsTab>
+  <TabsTab value="password">Password</TabsTab>
+  <TabsTab value="notifications">Notifications</TabsTab>
+  <TabsTab value="display">Display</TabsTab>
+</Tabs>
+```
+
+### Vertical underline
+Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side.
+```vue
+<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Settings">
+  <TabsTab value="account">Account</TabsTab>
+  <TabsTab value="password">Password</TabsTab>
+  <TabsTab value="notifications">Notifications</TabsTab>
+  <TabsTab value="display">Display</TabsTab>
+</Tabs>
+```
+
+### Vertical underline with icons
+Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.
+```vue
+<Tabs v-model:value="tab" variant="underline" orientation="vertical" :size="size" aria-label="Navigation">
+  <TabsTab value="home"><template #icon><Home /></template>Home</TabsTab>
+  <TabsTab value="settings"><template #icon><SettingsCog /></template>Settings</TabsTab>
+  <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
+</Tabs>
+```
+
+### Disabled tab
+Use disabled on individual TabsTab elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected.
+```vue
+<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Sections">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports" disabled>Reports</TabsTab>
+  <TabsTab value="settings">Settings</TabsTab>
+</Tabs>
+```
+
+### Sizing
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs.
+```vue
+<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
+  <TabsTab value="overview">Overview</TabsTab>
+  <TabsTab value="analytics">Analytics</TabsTab>
+  <TabsTab value="reports">Reports</TabsTab>
+</Tabs>
+```
+
+### Scrollable
+When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.
+```vue
+<div class="max-w-[400px] flex">
+  <Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
+    <TabsTab value="1">Overview</TabsTab>
+    <TabsTab value="2">Analytics</TabsTab>
+    <TabsTab value="3">Reports</TabsTab>
+    <TabsTab value="4">Settings</TabsTab>
+    <TabsTab value="5">Members</TabsTab>
+    <TabsTab value="6">Billing</TabsTab>
+    <TabsTab value="7">Security</TabsTab>
+    <TabsTab value="8">Integrations</TabsTab>
+  </Tabs>
+</div>
+```
+
+## Tag Input
+Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
+Import: import { TagInput } from "@plexui/vue/components/TagInput"
+Docs: https://plexui.com/vue/components/tag-input
+Props:
+  - value / v-model:value (Tag[]) — Controlled value; `update:value` fires on every change
+  - default-value (Tag[]) — Uncontrolled initial tags
+  - @change ((tags: Tag[]) => void) — Fires when the tags change
+  - placeholder (string) — Input placeholder
+  - validator ((value: string) => boolean) — Validates each tag; invalid tags shown in red
+  - max-tags (number) — Max tags before input is disabled
+  - rows (number) default: 1 — Min rows
+  - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
+  - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
+  - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
+  - auto-focus (boolean) default: false — Focus on mount
+
+### Overview
+```vue
+<div class="w-[480px]">
+  <TagInput placeholder="Add a tag..." :size="size" :rows="Number(rows)" :pill="pill" />
+</div>
+```
+
+### Suggestions
+Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.
+```vue
+<script setup lang="ts">
+import { computed, ref } from "vue"
+import { Button } from "@plexui/vue/components/Button"
+import { TagInput, type Tag } from "@plexui/vue/components/TagInput"
+
+const SUGGESTIONS = ["React", "TypeScript", "Next.js", "Tailwind CSS", "Node.js", "GraphQL", "PostgreSQL", "Redis", "Docker", "AWS"]
+
+const tags = ref<Tag[]>([
+  { value: "React", valid: true },
+  { value: "TypeScript", valid: true },
+])
+
+const available = computed(() => {
+  const selected = new Set(tags.value.map((t) => t.value))
+  return SUGGESTIONS.filter((s) => !selected.has(s))
+})
+</script>
+
+<template>
+  <div class="flex flex-col gap-3">
+    <TagInput v-model:value="tags" placeholder="Add a skill..." />
+    <div v-if="available.length > 0" class="flex flex-wrap gap-1.5">
+      <Button
+        v-for="s in available"
+        :key="s"
+        size="xs"
+        color="secondary"
+        variant="soft"
+        :pill="false"
+        @click="tags = [...tags, { value: s, valid: true }]"
+      >
+        {{ s }}
+      </Button>
+    </div>
+  </div>
+</template>
+```
+
+## Text Link
+Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
+Import: import { TextLink } from "@plexui/vue/components/TextLink"
+Docs: https://plexui.com/vue/components/text-link
+Props:
+  - default slot (VNode[]) — Link content
+  - href (string) — URL
+  - to (string | RouteLocationRaw) — Router link destination (internal)
+  - primary (boolean) default: false — Primary color, no default underline
+  - underline (boolean) default: true — Underline (default true unless primary)
+  - force-external (boolean) — Force external link behavior
+  - as (Component) — Link component (e.g. RouterLink, NuxtLink)
+
+### Overview
+```vue
+<div class="flex gap-4">
+  <TextLink href="#">Read more</TextLink>
+  <TextLink href="#" primary>External link <ArrowUpRight /></TextLink>
+</div>
+```
+
+### Inline usage
+```vue
+<p>
+  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
+  either use the API directly from an HTTP client of your choice, or use one of the
+  <TextLink href="#">official SDKs</TextLink> for your preferred language.
+</p>
+```
+
+### Default inheritance
+By default, TextLink uses currentcolor inheritance and text-decoration: underline to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the currentcolor, with some special cases for text-secondary and text-tertiary contexts.You can see this behavior by changing the text color context of the paragraph the links are in below:
+```vue
+<p :class="colorClassName">
+  You can use the <TextLink href="#">responses endpoint</TextLink> to generate text. You can
+  either use the API directly from an HTTP client of your choice, or use one of the
+  <TextLink href="#">official SDKs</TextLink> for your preferred language.
+</p>
+```
+
+### Primary color
+You can create a colorful link style with the primary prop, which uses color for visual differentiation.Primary links also remove the default underline treatment: pass underline to re-apply that style.
+```vue
+<p>
+  Sample text with a <TextLink href="#" :primary="primary">primary link</TextLink>
+</p>
+```
+
+### Underline
+Links have an underlined aesthetic by default.Pass {':underline="false"'} to remove the underline from the link.
+```vue
+<p class="text-secondary">
+  Sample text with a <TextLink href="#" :underline="underline">subtle link</TextLink>
+</p>
+```
+
+### External links
+When external paths are provided, {''} will be used with {'target="_blank"'} and {'rel="noopener noreferrer"'} included by default. You can also compose icons along with the text to add visual indication.
+```vue
+<TextLink href="#" primary underline>
+  External link <ArrowUpRight />
+</TextLink>
+```
+
+### Font weight
+Use the class attribute to customize font weight.
+```vue
+<TextLink href="#" class="font-semibold" :underline="false">
+  Contact support <ArrowRight />
+</TextLink>
+```
+
+## Textarea
+Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
+Import: import { Textarea } from "@plexui/vue/components/Textarea"
+Docs: https://plexui.com/vue/components/textarea
+Props:
+  - value / v-model:value (string | number) — Controlled value; uncontrolled when omitted
+  - default-value (string | number) — Initial value when uncontrolled
+  - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
+  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
+  - disabled (boolean) default: false — Disable the textarea
+  - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
+  - invalid (boolean) default: false — Mark as invalid
+  - allow-autofill-extensions (boolean) default: false — Allow autofill extensions; true by default when name is set
+  - auto-select (boolean) default: false — Select all contents when mounted
+  - rows (number) default: 3 — Initial row count
+  - auto-resize (boolean) default: false — Grow/shrink with content
+  - max-rows (number) — Max rows when auto-resize; defaults to the larger of rows and 10
+  - class (string) — Applied to the container <div>
+  - @update:value ((value: string) => void) — Emitted on every input
+  - @autofill (() => void) — Emitted when the browser autofills the textarea
+
+### Base
+```vue
+<div class="w-[400px]">
+  <Textarea placeholder="Enter text..." auto-resize :rows="3" />
+</div>
+```
+
+### Variants
+Use variant to stylize the textarea.
+```vue
+<div class="w-[400px]">
+  <div class="flex flex-col gap-6">
+    <div v-for="variant in ['outline', 'soft']" :key="variant" class="flex items-center">
+      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
+      <div class="flex-1">
+        <Textarea placeholder="Enter text..." class="w-full" :variant="variant" :rows="3" />
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Auto resize
+Enable auto-resize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and max-rows. Bind the text with v-model:value.
+```vue
+<div class="w-[400px]">
+  <Textarea
+    v-model:value="value"
+    placeholder="Type to grow..."
+    :auto-resize="autoResize"
+    :rows="Number(rows)"
+    :max-rows="Number(maxRows)"
+  />
+</div>
+```
+
+### Sizing
+Sizing of the textarea is controlled with size and gutter-size props. size sets the textarea to a specific control height for single-line equivalent, and gutter-size sets the horizontal padding.Each size provides default values for gutter-size, as well as font-size and border-radius. Each of these values can be overridden independently.
+```vue
+<div class="w-[400px]">
+  <Textarea placeholder="Write a message..." :size="size" :gutter-size="gutterSize" />
+</div>
+```
+
+### Disabled
+Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
+```vue
+<div class="w-[400px]">
+  <Textarea :disabled="disabled" default-value="Jane Doe" />
+</div>
+```
+
+### Invalid
+Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through @focus, @input, a submit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.
+```vue
+<div class="w-[400px]">
+  <Textarea :invalid="invalid" placeholder="Invalid textarea" />
+</div>
+```
+
+### Auto select text
+Pass auto-select to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
+```vue
+<div class="w-[400px]">
+  <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" />
+</div>
+```
+
+### Autofill extensions
+By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling.When name is passed this value will default to true.
+```vue
+<div class="w-[400px]">
+  <Textarea
+    :key="String(allowAutofillExtensions)"
+    name="email"
+    :allow-autofill-extensions="allowAutofillExtensions"
+    :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+  />
+</div>
+```
+
+## Tooltip
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
+Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Docs: https://plexui.com/vue/components/tooltip
+Props:
+  - content (string | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
+  - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
+  - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - openDelay (number) default: 150 — Delay before showing (ms)
+  - side (string) default: "top" — Preferred side
+  - sideOffset (number) default: 5 — Distance from trigger
+  - align (string) default: "center" — Alignment
+  - alignOffset (number) default: 0 — Alignment offset
+  - gutterSize ("sm" | "md" | "lg") default: "md" — Content padding
+  - contentClassName (string) — Class for tooltip content
+  - forceOpen (boolean) — Force open or closed
+
+### Base
+```vue
+<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
+  <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>
+</Tooltip>
+```
+
+### Different triggers
+Tooltip provides an optional component, TooltipTriggerDecorator, to help create accessible tooltip triggers. However, any component can be used as a trigger.
+```vue
+<div class="flex items-center gap-4">
+  <Tooltip content="Tooltip on button">
+    <Button color="primary" size="lg">Sample button</Button>
+  </Tooltip>
+  <Tooltip content="Tooltip on span">
+    <span>Inaccessible trigger</span>
+  </Tooltip>
+</div>
+```
+
+### Conditionally enabled
+Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in null content.
+```vue
+<Tooltip :content="disabled ? 'This action is disabled for reasons' : null">
+  <Button color="primary" size="lg" :disabled="disabled">
+    Sample button
+  </Button>
+</Tooltip>
+```
+
+### Compact tooltips
+Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use compact for brief status messages.
+```vue
+<Tooltip content="Copy to clipboard" compact>
+  <Button color="secondary" variant="ghost" size="md"><Copy /></Button>
+</Tooltip>
+```

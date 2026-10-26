@@ -129,6 +129,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           title="llms.txt"
           href="/llms.txt"
         />
+        <link
+          rel="alternate"
+          type="text/markdown"
+          title="llms-vue.txt"
+          href="/llms-vue.txt"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

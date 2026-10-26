@@ -1,7 +1,8 @@
 /**
- * Generates component manifest for @plexui/mcp from MDX documentation files.
+ * Generates the component manifests for @plexui/mcp from MDX documentation files.
  *
- * Parses content/components/*.mdx → packages/mcp/src/data/manifest.json
+ * Parses content/components/*.mdx → packages/mcp/src/data/manifest.json (React)
+ * and content/vue/components/*.mdx → packages/mcp/src/data/manifest-vue.json (Vue).
  *
  * Extracts: title, description, import path, props, examples, sub-components.
  */
@@ -12,8 +13,41 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
-const COMPONENTS_DIR = join(ROOT, "content/components");
-const OUTPUT_PATH = join(ROOT, "packages/mcp/src/data/manifest.json");
+
+const FRAMEWORKS = {
+  react: {
+    dir: join(ROOT, "content/components"),
+    output: "packages/mcp/src/data/manifest.json",
+    package: "@plexui/ui",
+    docsUrl: "https://plexui.com/components",
+    description:
+      "The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.",
+    install: "npm install @plexui/ui",
+    setup: {
+      css: '@import "tailwindcss";\n@import "@plexui/ui/css";',
+      provider:
+        'Wrap your app with <PlexUIProvider> from "@plexui/ui/components/PlexUIProvider"',
+    },
+  },
+  vue: {
+    dir: join(ROOT, "content/vue/components"),
+    // The Vue pages in the nav, in nav order (see scripts/sync-vue-meta.mjs)
+    meta: join(ROOT, "content/vue/components/meta.json"),
+    output: "packages/mcp/src/data/manifest-vue.json",
+    package: "@plexui/vue",
+    docsUrl: "https://plexui.com/vue/components",
+    description:
+      "PlexUI for Vue 3: the same components, props, markup and styles as the React library.",
+    install: "npm install @plexui/vue",
+    setup: {
+      css: '@import "tailwindcss";\n@import "@plexui/styles/css";',
+      provider:
+        'Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"',
+    },
+  },
+};
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 
 // ---------------------------------------------------------------------------
 // Frontmatter parser (simple, no deps)
@@ -37,10 +71,10 @@ function parseFrontmatter(content) {
 // Extract import path from <UsageBlock>
 // ---------------------------------------------------------------------------
 
-function extractImportPath(content) {
+function extractImportPath(content, pkg) {
   // <UsageBlock>{`import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
   const match = content.match(
-    /<UsageBlock>\{\`import \{[^}]+\} from "(@plexui\/ui\/[^"]+)"/
+    new RegExp(`<UsageBlock>\\{\`import \\{[^}]+\\} from "(${escapeRegExp(pkg)}/[^"]+)"`)
   );
   return match ? match[1] : null;
 }
@@ -49,9 +83,9 @@ function extractImportPath(content) {
 // Extract exported names from <UsageBlock>
 // ---------------------------------------------------------------------------
 
-function extractExportedNames(content) {
+function extractExportedNames(content, pkg) {
   const match = content.match(
-    /<UsageBlock>\{\`import \{([^}]+)\} from "@plexui\/ui/
+    new RegExp(`<UsageBlock>\\{\`import \\{([^}]+)\\} from "${escapeRegExp(pkg)}`)
   );
   if (!match) return [];
   return match[1]
@@ -76,9 +110,14 @@ function extractExamples(content) {
     const name = section.slice(0, nameEnd).trim();
 
     // Extract code from <ComponentPreview code={`...`}
-    // The code prop uses backtick template literals
+    // The code prop uses backtick template literals, or (Vue pages) names a
+    // template exported at the top of the page: code={name}
     const codeMatch = section.match(/code=\{`([\s\S]*?)`\}/);
-    const code = codeMatch ? codeMatch[1].trim() : null;
+    const codeRef = codeMatch ? null : section.match(/code=\{(\w+)\}/);
+    const exported = codeRef
+      ? content.match(new RegExp(`^export const ${codeRef[1]} = \`([\\s\\S]*?)\``, "m"))
+      : null;
+    const code = codeMatch ? codeMatch[1].trim() : exported ? exported[1].trim() : null;
 
     // Extract details text (strip JSX tags)
     const detailsMatch = section.match(/details=\{<>([\s\S]*?)<\/>\}/);
@@ -240,15 +279,15 @@ function extractHooks(content) {
 // Process a single MDX file
 // ---------------------------------------------------------------------------
 
-function processFile(filePath) {
+function processFile(filePath, framework) {
   const content = readFileSync(filePath, "utf-8");
   const slug = basename(filePath, ".mdx");
 
   if (slug === "index" || slug === "form-examples") return null;
 
   const frontmatter = parseFrontmatter(content);
-  const importPath = extractImportPath(content);
-  const exportedNames = extractExportedNames(content);
+  const importPath = extractImportPath(content, framework.package);
+  const exportedNames = extractExportedNames(content, framework.package);
   const examples = extractExamples(content);
   const subComponents = extractSubComponents(content);
   const hooks = extractHooks(content);
@@ -278,7 +317,7 @@ function processFile(filePath) {
     ...(examples.length > 0 && { examples }),
     ...(subComponents.length > 0 && { subComponents }),
     ...(hooks.length > 0 && { hooks }),
-    docsUrl: `https://plexui.com/components/${slug}`,
+    docsUrl: `${framework.docsUrl}/${slug}`,
   };
 
   return component;
@@ -288,15 +327,17 @@ function processFile(filePath) {
 // Main
 // ---------------------------------------------------------------------------
 
-function main() {
-  const files = readdirSync(COMPONENTS_DIR).filter((f) => f.endsWith(".mdx"));
+function generate(framework) {
+  const files = framework.meta
+    ? JSON.parse(readFileSync(framework.meta, "utf-8")).pages.map((slug) => `${slug}.mdx`)
+    : readdirSync(framework.dir).filter((f) => f.endsWith(".mdx"));
 
-  console.error(`Processing ${files.length} MDX files...`);
+  console.error(`Processing ${files.length} ${framework.package} MDX files...`);
 
   const components = [];
 
   for (const file of files) {
-    const result = processFile(join(COMPONENTS_DIR, file));
+    const result = processFile(join(framework.dir, file), framework);
     if (result) {
       components.push(result);
       const propCount = result.props?.length || 0;
@@ -308,18 +349,13 @@ function main() {
   }
 
   const manifest = {
-    name: "@plexui/ui",
+    name: framework.package,
     version: "latest",
-    description:
-      "The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.",
+    description: framework.description,
     homepage: "https://plexui.com",
-    docsUrl: "https://plexui.com/components",
-    install: 'npm install @plexui/ui',
-    setup: {
-      css: '@import "tailwindcss";\n@import "@plexui/ui/css";',
-      provider:
-        'Wrap your app with <PlexUIProvider> from "@plexui/ui/components/PlexUIProvider"',
-    },
+    docsUrl: framework.docsUrl,
+    install: framework.install,
+    setup: framework.setup,
     sizeScale: [
       "3xs",
       "2xs",
@@ -348,12 +384,14 @@ function main() {
   };
 
   // Ensure output directory exists
-  mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(manifest, null, 2));
+  const outputPath = join(ROOT, framework.output);
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
   console.error(
-    `\nManifest written to packages/mcp/src/data/manifest.json (${components.length} components)`
+    `\nManifest written to ${framework.output} (${components.length} components)`
   );
 }
 
-main();
+generate(FRAMEWORKS.react);
+generate(FRAMEWORKS.vue);

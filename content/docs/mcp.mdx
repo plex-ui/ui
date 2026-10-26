@@ -106,6 +106,8 @@ The MCP server exposes 4 tools:
 | `search_components` | Find components by name, description, or functionality |
 | `get_setup_guide` | Installation, CSS setup, provider config, and a quick example |
 
+Every tool takes an optional `framework` argument: `"react"` (the default, `@plexui/ui`) or `"vue"` (`@plexui/vue`, Vue 3). With `"vue"`, imports, props, examples and the setup guide come from the [Vue pages](/vue/components), so an assistant writes Vue templates with `v-model:value`, slots and flat exports such as `DialogTrigger`.
+
 ## Example Prompts
 
 Once connected, try these prompts in your AI editor:
@@ -124,6 +126,10 @@ Once connected, try these prompts in your AI editor:
 - "Build a settings page with PlexUI Tabs, Switch, and Select"
 - "Set up PlexUI in my Next.js project"
 
+**Vue:**
+- "Set up PlexUI for Vue in my Nuxt app"
+- "Show me the Vue props and examples for Tabs"
+
 ## How It Works
 
 The MCP server bundles a pre-generated manifest of all PlexUI component documentation. When an AI assistant calls a tool, the server returns structured documentation including:
@@ -134,7 +140,7 @@ The MCP server bundles a pre-generated manifest of all PlexUI component document
 - Sub-component documentation (for composite components like Sidebar)
 - Hook APIs (e.g. `useSidebar`)
 
-The manifest is generated from the same MDX files that power this documentation site, so it's always consistent with what you see here.
+The manifests (one for React, one for Vue) are generated from the same MDX files that power this documentation site, so they're always consistent with what you see here.
 
 ## Troubleshooting
 

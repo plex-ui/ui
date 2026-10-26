@@ -1,0 +1,557 @@
+# PlexUI for Vue
+> PlexUI for Vue 3: the same components, props, markup and styles as the React library.
+
+Vue 3 components with the same names, props, defaults and markup as the React library (https://plexui.com/llms.txt).
+In Vue: `class` instead of `className`, slots instead of ReactNode props, `v-model:value` for controlled values, `@x` listeners for `onX` callbacks, flat named exports for compound parts (e.g. DialogTrigger), composables from @plexui/vue/composables/<name>.
+Every example's code: https://plexui.com/llms-vue-full.txt
+
+Install: npm install @plexui/vue
+Docs: https://plexui.com
+Components: 35
+
+## Setup
+
+```css
+@import "tailwindcss";
+@import "@plexui/styles/css";
+```
+
+Wrap your app with <PlexUIProvider :link-component="RouterLink"> from "@plexui/vue/components/PlexUIProvider"
+
+Size scale: 3xs, 2xs, xs, sm, md, lg, xl, 2xl, 3xl
+Colors: primary, secondary, danger, success, warning, caution, discovery, info
+Variants: solid, soft, outline, ghost
+
+---
+
+## Accordion
+Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+Import: import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@plexui/vue/components/Accordion"
+Docs: https://plexui.com/vue/components/accordion
+Examples: Overview, Single, Multiple, Disabled
+
+## Alert
+Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
+Import: import { Alert } from "@plexui/vue/components/Alert"
+Docs: https://plexui.com/vue/components/alert
+Props:
+  - title (string | slot) — Title displayed in the alert
+  - description (string | slot) — Description text
+  - actions (slot) — Actions (for example buttons)
+  - actions-placement ("end" | "bottom") — Placement of actions; automatic from sizing when unset
+  - actions-class-name (string) — Class applied to the actions container
+  - color (SemanticColors) default: "primary" — Color scheme
+  - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
+  - @dismiss (() => void) — Shows the dismiss button when set
+Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible
+
+## Avatar
+An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
+Import: import { Avatar } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar
+Props:
+  - name (string) — Display name; used for text initial when no image/icon
+  - image-url (string) — Absolute URL for image avatar
+  - Icon (Component) — Icon component for icon avatar, bound as :Icon
+  - size (number) — Width and height in pixels
+  - color ("primary" | "secondary" | "success" | "info" | "discovery" | "danger") default: "secondary" — Semantic color for text/icon avatar
+  - variant ("soft" | "solid") default: "soft" — Style variant
+  - overflow-count (number) — Show overflow count (e.g. +9)
+  - class (string) — Applied to the avatar root
+  - @click ((event: MouseEvent) => void) — Makes avatar interactive (renders a button)
+  - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
+Examples: Overview, Text, Image, Icon, Overflow count, Sizing, Colors & variants, Roundness, Interactive
+
+## Avatar Group
+Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
+Import: import { Avatar, AvatarGroup } from "@plexui/vue/components/Avatar"
+Docs: https://plexui.com/vue/components/avatar-group
+Props:
+  - default slot (VNode[]) — The avatars of the group
+  - size (number) — Size of all avatars in the group
+  - stack ("start" | "end") default: "start" — Stacking direction
+  - class (string) — Applied to the group container; other attributes are not forwarded
+Examples: Overview, Stacking direction, Group sizing
+
+## Badge
+Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+Import: import { Badge } from "@plexui/vue/components/Badge"
+Docs: https://plexui.com/vue/components/badge
+Props:
+  - default slot (VNode[]) — Content inside the badge
+  - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
+  - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
+  - size ("sm" | "md" | "lg") default: "sm" — Badge size
+  - pill (boolean) default: false — Fully rounded
+Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
+
+## Button
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
+Import: import { Button } from "@plexui/vue/components/Button"
+Docs: https://plexui.com/vue/components/button
+Props:
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
+  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and default gutter/icon size
+  - pill (boolean) default: false — Fully rounded corners
+  - block (boolean) default: false — Full width
+  - uniform (boolean) default: false — Square icon button (width equals height)
+  - disabled (boolean) default: false — Visually and accessibly disabled; click is not emitted
+  - disabled-tone ("relaxed") — Default cursor instead of not-allowed while disabled
+  - loading (boolean) default: false — Shows loading indicator
+  - inert (boolean) default: loading — Accessibly disabled without visual change
+  - selected (boolean) default: false — Selected state styling
+  - optically-align ("start" | "end") — Offset gutter for optical alignment
+  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding size
+  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot
+  - type ("button" | "submit" | "reset") default: "button" — Native button type
+  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disabled, Inert, Loading, Selected, Optical alignment
+
+## Button Group
+Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
+Import: import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@plexui/vue/components/ButtonGroup"
+Docs: https://plexui.com/vue/components/button-group
+Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group
+
+## Button Link
+A semantic anchor with full button styling, for internal and external links with icons and block layout.
+Import: import { ButtonLink } from "@plexui/vue/components/Button"
+Docs: https://plexui.com/vue/components/button-link
+Props:
+  - default slot (VNode[]) — Content inside the link button
+  - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
+  - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Style variant
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and typography scale
+  - gutter-size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Override horizontal padding
+  - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Override icon size
+  - href (string) — Link URL
+  - to (string | RouteLocationRaw) — Router link destination (internal)
+  - as (Component) — Link component override (e.g. RouterLink, NuxtLink)
+  - external (boolean) — Force external-link behavior
+  - optically-align ("start" | "end") — Apply optical negative margin alignment
+  - block (boolean) default: false — Full width
+  - pill (boolean) default: false — Fully rounded
+  - disabled (boolean) default: false — Disable link
+  - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
+  - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
+Examples: Overview, Internal link, External link, Colors & variants, Sizing & roundness, Icons, Block, Disabled
+
+## Card
+Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+Import: import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@plexui/vue/components/Card"
+Docs: https://plexui.com/vue/components/card
+Examples: Overview, No team members (empty state), Processing your request, Pricing
+
+## Checkbox
+Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+Import: import { Checkbox } from "@plexui/vue/components/Checkbox"
+Docs: https://plexui.com/vue/components/checkbox
+Props:
+  - variant ("solid" | "ghost") default: "solid" — Visual style: solid (filled background) or ghost (checkmark only)
+  - pill (boolean) default: false — Fully rounded indicator corners
+  - checked / v-model:checked (boolean | "indeterminate") — Controlled state
+  - default-checked (boolean | "indeterminate") — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the checkbox
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - orientation ("left" | "right") default: "left" — Checkbox position relative to the label
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the checkbox element (generated when omitted)
+  - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
+  - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
+Examples: Overview, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all
+
+## Code Block
+Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
+Import: import { CodeBlock } from "@plexui/vue/components/CodeBlock"
+Docs: https://plexui.com/vue/components/code-block
+  CodeBlock:
+    - default slot (string) — Code content (text only; interpolate a string to keep its whitespace)
+    - code (string) — Code content, used when the default slot is empty
+    - language (string) — Prism language name
+    - class (string) — Additional wrapper class
+  CollapsibleCodeBlock:
+    - default slot / code (string) — Code content
+    - language (string) — Prism language name
+    - default-expanded (boolean) default: false — Start expanded
+    - collapsed-height (number) default: 140 — Height when collapsed (px)
+    - max-expanded-height (number) — Max height when expanded (px)
+    - copyable (boolean) default: true — Show copy button
+Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
+
+## Copy Tooltip
+A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
+Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Docs: https://plexui.com/vue/components/copy-tooltip
+Props:
+  - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
+  - copyValue (string) default: "Very cool content to copy" — Content to copy to clipboard
+  - openDelay (number) default: 150 — Tooltip open delay in milliseconds
+  - align ("start" | "center" | "end") default: "center" — Preferred tooltip alignment against the trigger
+  - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
+  - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
+  - sideOffset (number) default: 5 — Distance from trigger in pixels
+Examples: Overview
+
+## Dialog
+Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+Import: import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Docs: https://plexui.com/vue/components/dialog
+Props:
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
+  - width (number | string) default: 480 — Panel width
+  - show-close (boolean) default: true — Show close button in top-right corner
+  - class (string) — Additional CSS class on the panel
+Examples: Overview, Destructive confirmation
+
+## Empty Message
+Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+Import: import { EmptyMessage, EmptyMessageActionRow, EmptyMessageDescription, EmptyMessageIcon, EmptyMessageTitle } from "@plexui/vue/components/EmptyMessage"
+Docs: https://plexui.com/vue/components/empty-message
+Props:
+  - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
+  - size ("sm" | "md") default: "md" — Icon badge size
+  - class (string) — Additional classes for the action row container
+Examples: Composition, Error message, Warning message, No results
+
+## File Upload
+Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
+Import: import { FileUpload, FileCard, FileCardGroup } from "@plexui/vue/components/FileUpload"
+Docs: https://plexui.com/vue/components/file-upload
+Props:
+  - variant ("compact" | "area") default: "compact" — Visual variant: compact button or larger tappable area
+  - label (string) — Button label text
+  - description (string) — Helper text below the icon (area variant only)
+  - multiple (boolean) default: false — Allow selecting multiple files
+  - max-files (number) — Maximum number of files. Button disables at limit.
+  - max-size (number) — Maximum file size in bytes
+  - value / v-model:value (File[]) — Controlled file list; `update:value` fires when files are added or removed
+  - @file-reject ((file: File, reason: string) => void) — Fires when a file is rejected (wrong type, too large, over limit)
+  - error-message (string) — Error message; sets the invalid visual state
+  - invalid (boolean) default: false — Invalid state (auto-set when error-message is provided)
+  FileCard:
+    - file (File) — The file to display
+    - @remove (() => void) — Remove callback. When omitted, the delete button is hidden.
+    - disabled (boolean) default: false — Disable the remove button
+    - class (string) — Additional CSS class
+  FileCardGroup:
+    - default slot (VNode[]) — FileCard elements
+    - class (string) — Additional CSS class
+Examples: Overview, With files, Error state, Disabled, Read-only, With remove, Multiple files, Read-only list
+
+## Float Input
+Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
+Import: import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput"
+Docs: https://plexui.com/vue/components/floating-label-input
+Props:
+  - label (string) — Label text for the floating label
+  - value / v-model:value (string) — Controlled value; `update:value` fires on input
+  - default-value (string) — Initial value when uncontrolled
+  - error-message (string) — Error message to display below the input
+  - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
+  - description (string | slot) — Helper text below the input
+  - disabled (boolean) default: false — Disables the input
+  - read-only (boolean) default: false — Makes the input read-only
+  - type (string) default: "text" — Input type; password gets a reveal toggle
+  - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
+  - multiline (boolean) default: false — Render an auto-growing textarea
+  - rows (number) default: 2 — Visible lines when multiline
+  - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
+  - start-adornment / end-adornment (slots) — Content before or after the input
+  - @clear (() => void) — Shows the clear button and fires when it is clicked
+  - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
+  - @autofill (() => void) — Fires when the browser autofills the input
+Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, Birthday with validation, Birthday states
+
+## Indicators
+Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
+Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
+Docs: https://plexui.com/vue/components/indicators
+  LoadingIndicator:
+    - size (number | string) — Size in px (or use --indicator-size CSS variable)
+    - stroke-width (number) — Stroke width
+  CircularProgress:
+    - progress (number) — Static progress 0-100 (disables animation)
+    - size (number | string) — Diameter in px
+    - stroke-width (number) — Stroke thickness
+    - done (boolean) — Completion state for animation
+    - max-duration (number) default: 15000 — Duration of the simulated progress in ms
+    - track-color (string) — Track color (CSS variable or value)
+    - track-active-color (string) — Active segment color
+Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color
+
+## Input
+Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+Import: import { Input, InputAdornmentButton } from "@plexui/vue/components/Input"
+Docs: https://plexui.com/vue/components/input
+Props:
+  - value / v-model:value (string | number) — Controlled value; `update:value` fires on every input
+  - default-value (string | number) — Initial value when uncontrolled
+  - variant ("outline" | "soft") default: "outline" — Visual style of the input
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
+  - gutter-size (string) — Controls gutter on the edges; defaults to value from size
+  - disabled (boolean) default: false — Disables the input visually and from interactions
+  - read-only (boolean) default: false — Makes the input read-only and hides the clear button
+  - invalid (boolean) default: false — Mark the input as invalid
+  - auto-select (boolean) default: false — Select all contents of the input when mounted
+  - startAdornment / endAdornment (slots) — Content rendered at the start or end of the input
+  - @clear (() => void) — When set, displays a clear button that appears when the input has a value
+  - @autofill (() => void) — Fires when the browser autofills the input
+  - pill (boolean) default: false — Fully rounded pill shape
+  - optically-align ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
+  - type (string) default: "button" — Button type
+Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button
+
+## Label
+Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
+Import: import { Label } from "@plexui/vue/components/Label"
+Docs: https://plexui.com/vue/components/label
+Examples: Overview
+
+## Markdown
+Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+Import: import { Markdown } from "@plexui/vue/components/Markdown"
+Docs: https://plexui.com/vue/components/markdown
+Props:
+  - default slot (string) — Markdown source (text only; interpolate a string to keep its newlines)
+  - source (string) — Markdown source, used when the default slot is empty
+  - include-math (boolean) default: false — Enable LaTeX math rendering
+Examples: Overview, Math
+
+## Markdown Editor
+Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
+Import: import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor"
+Docs: https://plexui.com/vue/components/markdown-editor
+Props:
+  - variant ("outline" | "soft") default: "outline" — Visual style of the editor
+  - disabled (boolean) default: false — Disable the editor
+  - invalid (boolean) default: false — Mark as invalid
+  - placeholder (string) — Placeholder text when empty
+  - value / v-model:value (string) — Controlled markdown value; `update:value` fires on every change
+  - default-value (string) — Initial markdown for uncontrolled mode
+  - @change ((markdown: string) => void) — Called on content change
+  - #toolbarEnd (slot) — Content rendered at the end of the toolbar
+  - rows (number) default: 1 — Minimum visible rows
+Examples: Placeholder, All formatting, Toolbar end slot, Variants, Disabled, Invalid
+
+## OTP Input
+Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
+Import: import { OTPInput } from "@plexui/vue/components/OTPInput"
+Docs: https://plexui.com/vue/components/otp-input
+Props:
+  - length (number) default: 6 — Number of digit cells
+  - value / v-model:value (string) — Controlled value; `update:value` fires on every change
+  - @change ((value: string) => void) — Fires when the value changes
+  - @complete ((value: string) => void) — Fires when all digits are filled
+  - grouping (number[]) — Grouping pattern with extra gap (e.g. [3,3])
+  - invalid (boolean) default: false — Invalid visual state
+  - error-message (string) — Error message below the input
+  - disabled (boolean) default: false — Disable all cells
+  - auto-focus (boolean) default: false — Auto-focus first cell on mount
+Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
+
+## Popover
+A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
+Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
+Docs: https://plexui.com/vue/components/popover
+Props:
+  - showOnHover (boolean) — Open on hover and focus instead of click
+  - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
+  - width (number | string) — Panel width (px or CSS value)
+  - minWidth (number | string) default: 300 — Minimum panel width in px
+  - maxWidth (number | string) — Maximum panel width
+  - side ("top" | "right" | "bottom" | "left") — Preferred placement
+  - align ("start" | "center" | "end") — Alignment relative to trigger
+  - sideOffset (number) — Offset from trigger (px)
+  - alignOffset (number) — Alignment offset (px)
+Examples: Overview, Sizing the popover, Open on hover, Using the controller
+
+## Progress
+A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+Import: import { Progress } from "@plexui/vue/components/Progress"
+Docs: https://plexui.com/vue/components/progress
+Examples: With label
+
+## Progress Steps
+Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+Import: import { ProgressSteps, ProgressStepsStep, ProgressStepsTitle, ProgressStepsDescription } from "@plexui/vue/components/ProgressSteps"
+Docs: https://plexui.com/vue/components/progress-steps
+Props:
+  - current (number) — Current active step (1-based)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
+  - size ("sm" | "md" | "lg") default: "md" — Step indicator size
+  - color ("default" | "success") default: "default" — Color scheme for completed/active steps
+  - connector-style ("solid" | "dashed") default: "solid" — Connector line style
+  - variant ("minimal") — Compact bar variant (requires total)
+  - total (number) — Total steps for minimal variant
+  - icon (Component | VNode | string) — Custom icon instead of step number; the icon slot takes precedence
+Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
+
+## Separator
+A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+Import: import { Separator } from "@plexui/vue/components/Separator"
+Docs: https://plexui.com/vue/components/separator
+Examples: Overview, Vertical, Menu, List
+
+## Shimmer Text
+Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
+Import: import { ShimmerText, ShimmerableText } from "@plexui/vue/components/ShimmerText"
+Docs: https://plexui.com/vue/components/shimmer-text
+Props:
+  - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
+  - default slot (VNode[]) — Text content to shimmer
+  - class (string) — Additional CSS classes
+  - shimmer (boolean) default: false — Whether the shimmer animation is active
+Examples: Overview, Semantic elements, Controllable shimmer
+
+## Skeleton
+Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
+Import: import { Skeleton } from "@plexui/vue/components/Skeleton"
+Docs: https://plexui.com/vue/components/skeleton
+Props:
+  - circle (boolean) default: false — Render a circular skeleton
+  - class (string) — Set dimensions and custom styling
+Examples: Overview, Card, Text, Form, Table
+
+## Switch
+Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+Import: import { Switch } from "@plexui/vue/components/Switch"
+Docs: https://plexui.com/vue/components/switch
+Props:
+  - checked / v-model:checked (boolean) — Controlled state
+  - default-checked (boolean) — Initial state (uncontrolled)
+  - label (string) — Accessible label rendered next to the switch
+  - label slot (VNode[]) — Rich label content; takes precedence over the label prop
+  - description (string) — Secondary text below the label, linked via aria-describedby
+  - description slot (VNode[]) — Rich description content; takes precedence over the description prop
+  - label-position ("start" | "end") default: "end" — Label on the left (start) or right (end)
+  - disabled (boolean) default: false — Prevent interaction
+  - required (boolean) — Required for form submission
+  - name (string) — Form field name
+  - value (string) default: "on" — Value when submitted
+  - class (string) — CSS classes applied to the wrapper node
+  - id (string) — The id of the switch element (generated when omitted)
+  - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
+  - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
+  - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
+Examples: Base, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, Settings panel
+
+## Table
+Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
+Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table"
+Docs: https://plexui.com/vue/components/table
+  Table Primitives:
+    - Table (table) — Root table container with horizontal scroll wrapper; attributes go to the <table>
+    - TableHeader (thead) — Table header group
+    - TableBody (tbody) — Table body group
+    - TableFooter (tfoot) — Table footer group
+    - TableRow (tr) — Table row
+    - TableHead (th) — Table header cell
+    - TableCell (td) — Table data cell
+    - TableCaption (caption) — Table caption
+Examples: Overview, With footer, Minimal
+
+## Tabs
+Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
+Import: import { Tabs, TabsTab } from "@plexui/vue/components/Tabs"
+Docs: https://plexui.com/vue/components/tabs
+Props:
+  - value (string) — Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group
+  - variant ("segmented" | "underline") default: "segmented" — Visual style: segmented (background highlight) or underline (line indicator)
+  - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction of the tab group
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height (3xs through 3xl)
+  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding of tabs
+  - pill (boolean) default: true — Fully rounded control (segmented variant only)
+  - flush (boolean) default: false — Text-width indicator, no border, gap spacing (underline variant only)
+  - block (boolean) default: false — Full-width control with equal-width tabs
+  - disabled (boolean) default: false — Disable all tabs
+  - aria-label (string) — Accessible name (required)
+  - class (string) — Extra classes on the group element
+  - default slot (VNode[]) — TabsTab children
+  - @update:value ((value: string) => void) — Emitted when a tab is selected; powers v-model:value
+  - @change ((value: string) => void) — Emitted with update:value, named after the React onChange prop
+  - @click ((event: MouseEvent) => void) — Emitted on any click in the group, even when the selection does not change
+  - icon (Component | VNode | string) — Icon before the label (sized automatically); the icon slot takes precedence
+  - badge (number | string | VNode | { content; color?; variant?; pill?; loading? }) — Badge/count or custom badge config
+  - icon slot (VNode[]) — Icon before the label
+  - badge slot (VNode[]) — Badge content; styling still comes from the badge object
+Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
+
+## Tag Input
+Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
+Import: import { TagInput } from "@plexui/vue/components/TagInput"
+Docs: https://plexui.com/vue/components/tag-input
+Props:
+  - value / v-model:value (Tag[]) — Controlled value; `update:value` fires on every change
+  - default-value (Tag[]) — Uncontrolled initial tags
+  - @change ((tags: Tag[]) => void) — Fires when the tags change
+  - placeholder (string) — Input placeholder
+  - validator ((value: string) => boolean) — Validates each tag; invalid tags shown in red
+  - max-tags (number) — Max tags before input is disabled
+  - rows (number) default: 1 — Min rows
+  - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
+  - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
+  - delimiters (string[]) default: [",", " "] — Characters that commit the current text as a tag
+  - auto-focus (boolean) default: false — Focus on mount
+Examples: Overview, Suggestions
+
+## Text Link
+Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
+Import: import { TextLink } from "@plexui/vue/components/TextLink"
+Docs: https://plexui.com/vue/components/text-link
+Props:
+  - default slot (VNode[]) — Link content
+  - href (string) — URL
+  - to (string | RouteLocationRaw) — Router link destination (internal)
+  - primary (boolean) default: false — Primary color, no default underline
+  - underline (boolean) default: true — Underline (default true unless primary)
+  - force-external (boolean) — Force external link behavior
+  - as (Component) — Link component (e.g. RouterLink, NuxtLink)
+Examples: Overview, Inline usage, Default inheritance, Primary color, Underline, External links, Font weight
+
+## Textarea
+Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
+Import: import { Textarea } from "@plexui/vue/components/Textarea"
+Docs: https://plexui.com/vue/components/textarea
+Props:
+  - value / v-model:value (string | number) — Controlled value; uncontrolled when omitted
+  - default-value (string | number) — Initial value when uncontrolled
+  - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
+  - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
+  - disabled (boolean) default: false — Disable the textarea
+  - read-only (boolean) default: false — Make the textarea read-only (the native readonly attribute works too)
+  - invalid (boolean) default: false — Mark as invalid
+  - allow-autofill-extensions (boolean) default: false — Allow autofill extensions; true by default when name is set
+  - auto-select (boolean) default: false — Select all contents when mounted
+  - rows (number) default: 3 — Initial row count
+  - auto-resize (boolean) default: false — Grow/shrink with content
+  - max-rows (number) — Max rows when auto-resize; defaults to the larger of rows and 10
+  - class (string) — Applied to the container <div>
+  - @update:value ((value: string) => void) — Emitted on every input
+  - @autofill (() => void) — Emitted when the browser autofills the textarea
+Examples: Base, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
+
+## Tooltip
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
+Import: import { Tooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Docs: https://plexui.com/vue/components/tooltip
+Props:
+  - content (string | VNode | null) — Tooltip content, or the #content slot (null = no tooltip)
+  - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling
+  - interactive (boolean) default: false — Content is interactive, stays open when hovered
+  - openDelay (number) default: 150 — Delay before showing (ms)
+  - side (string) default: "top" — Preferred side
+  - sideOffset (number) default: 5 — Distance from trigger
+  - align (string) default: "center" — Alignment
+  - alignOffset (number) default: 0 — Alignment offset
+  - gutterSize ("sm" | "md" | "lg") default: "md" — Content padding
+  - contentClassName (string) — Class for tooltip content
+  - forceOpen (boolean) — Force open or closed
+Examples: Base, Different triggers, Conditionally enabled, Compact tooltips

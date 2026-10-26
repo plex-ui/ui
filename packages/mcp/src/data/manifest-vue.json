@@ -1,0 +1,3217 @@
+{
+  "name": "@plexui/vue",
+  "version": "latest",
+  "description": "PlexUI for Vue 3: the same components, props, markup and styles as the React library.",
+  "homepage": "https://plexui.com",
+  "docsUrl": "https://plexui.com/vue/components",
+  "install": "npm install @plexui/vue",
+  "setup": {
+    "css": "@import \"tailwindcss\";\n@import \"@plexui/styles/css\";",
+    "provider": "Wrap your app with <PlexUIProvider :link-component=\"RouterLink\"> from \"@plexui/vue/components/PlexUIProvider\""
+  },
+  "sizeScale": [
+    "3xs",
+    "2xs",
+    "xs",
+    "sm",
+    "md",
+    "lg",
+    "xl",
+    "2xl",
+    "3xl"
+  ],
+  "colors": [
+    "primary",
+    "secondary",
+    "danger",
+    "success",
+    "warning",
+    "caution",
+    "discovery",
+    "info"
+  ],
+  "variants": [
+    "solid",
+    "soft",
+    "outline",
+    "ghost"
+  ],
+  "componentCount": 35,
+  "components": [
+    {
+      "slug": "accordion",
+      "name": "Accordion",
+      "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+      "importPath": "@plexui/vue/components/Accordion",
+      "exports": [
+        "Accordion",
+        "AccordionContent",
+        "AccordionItem",
+        "AccordionTrigger"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Accordion type=\"single\" collapsible default-value=\"shipping\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"shipping\">\n    <AccordionTrigger>What are your shipping options?</AccordionTrigger>\n    <AccordionContent>\n      We offer standard (5–7 business days), express (2–3 days), and\n      overnight shipping. Free standard shipping on orders over $50.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"returns\">\n    <AccordionTrigger>What is your return policy?</AccordionTrigger>\n    <AccordionContent>\n      Returns are accepted within 30 days of delivery. Items must be unused\n      and in original packaging. Refunds are processed within 5–7 business\n      days of receipt.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"support\">\n    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>\n    <AccordionContent>\n      Reach us by email, live chat, or phone Monday through Friday, 9am–6pm\n      ET. Weekend tickets are handled within 24 hours.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>"
+        },
+        {
+          "name": "Single",
+          "code": "<Accordion type=\"single\" collapsible default-value=\"trial\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem\n    v-for=\"item in [\n      {\n        value: 'trial',\n        trigger: 'How long is the free trial?',\n        content: '14 days, no credit card required. At the end of the trial you can keep the free tier or upgrade to Pro; your projects stay in place either way.',\n      },\n      {\n        value: 'plan',\n        trigger: 'Can I change plans mid-cycle?',\n        content: 'Yes. Upgrades are prorated immediately; downgrades take effect at the next billing date. Invoices always reflect the exact span each plan was active.',\n      },\n      {\n        value: 'invoices',\n        trigger: 'Where can I find past invoices?',\n        content: 'Billing → Invoices in your workspace settings. Every PDF is archived for seven years and can be pulled via the Billing API.',\n      },\n    ]\"\n    :key=\"item.value\"\n    :value=\"item.value\"\n  >\n    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n    <AccordionContent>{{ item.content }}</AccordionContent>\n  </AccordionItem>\n</Accordion>",
+          "details": "Default shape. type=\"single\" + collapsible lets users close the currently open item; without collapsible, one item is always open."
+        },
+        {
+          "name": "Multiple",
+          "code": "<Accordion type=\"multiple\" :default-value=\"['notifications']\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem\n    v-for=\"item in [\n      {\n        value: 'notifications',\n        trigger: 'Notification settings',\n        content: 'Pick which events trigger email, push, or in-app alerts. Release-blocker incidents always page the on-call regardless of quiet hours.',\n      },\n      {\n        value: 'privacy',\n        trigger: 'Privacy & security',\n        content: 'Turn on two-factor, review active sessions, and manage connected apps. Workspace admins can also enforce SSO and hardware-key policies org-wide.',\n      },\n      {\n        value: 'billing',\n        trigger: 'Billing & subscription',\n        content: 'View your current plan, payment method, and upcoming renewal. Seat changes apply immediately; the next invoice will include a prorated adjustment.',\n      },\n    ]\"\n    :key=\"item.value\"\n    :value=\"item.value\"\n  >\n    <AccordionTrigger>{{ item.trigger }}</AccordionTrigger>\n    <AccordionContent>{{ item.content }}</AccordionContent>\n  </AccordionItem>\n</Accordion>",
+          "details": "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references."
+        },
+        {
+          "name": "Disabled",
+          "code": "<Accordion type=\"single\" collapsible default-value=\"history\" style=\"width: 100%; max-width: 384px\">\n  <AccordionItem value=\"history\">\n    <AccordionTrigger>Can I see my usage history?</AccordionTrigger>\n    <AccordionContent>\n      Yes, the Activity tab logs every API call, deploy, and admin action\n      for the last 90 days. Longer retention requires the Enterprise plan.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"audit\" disabled>\n    <AccordionTrigger>Audit log export (Enterprise only)</AccordionTrigger>\n    <AccordionContent>\n      Upgrade to Enterprise to stream audit events to S3, Splunk, or your\n      SIEM of choice.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"two-factor\">\n    <AccordionTrigger>How do I enable two-factor auth?</AccordionTrigger>\n    <AccordionContent>\n      Settings → Security → Two-factor. You can use an authenticator app or\n      a FIDO2 hardware key. Recovery codes are issued once at enrollment.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>",
+          "details": "Pass disabled to an AccordionItem to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/accordion"
+    },
+    {
+      "slug": "alert",
+      "name": "Alert",
+      "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
+      "importPath": "@plexui/vue/components/Alert",
+      "exports": [
+        "Alert"
+      ],
+      "props": [
+        {
+          "name": "title",
+          "type": "string | slot",
+          "description": "Title displayed in the alert"
+        },
+        {
+          "name": "description",
+          "type": "string | slot",
+          "description": "Description text"
+        },
+        {
+          "name": "actions",
+          "type": "slot",
+          "description": "Actions (for example buttons)"
+        },
+        {
+          "name": "actions-placement",
+          "type": "\"end\" | \"bottom\"",
+          "description": "Placement of actions; automatic from sizing when unset"
+        },
+        {
+          "name": "actions-class-name",
+          "type": "string",
+          "description": "Class applied to the actions container"
+        },
+        {
+          "name": "color",
+          "type": "SemanticColors",
+          "default": "\"primary\"",
+          "description": "Color scheme"
+        },
+        {
+          "name": "variant",
+          "type": "\"solid\" | \"soft\" | \"outline\"",
+          "default": "\"outline\"",
+          "description": "Style variant"
+        },
+        {
+          "name": "@dismiss",
+          "type": "() => void",
+          "description": "Shows the dismiss button when set"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Alert\n  title=\"Scheduled maintenance\"\n  description=\"We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database.\"\n>\n  <template #actions>\n    <Button color=\"primary\" variant=\"soft\" pill>Dismiss</Button>\n  </template>\n</Alert>"
+        },
+        {
+          "name": "Colors & variants",
+          "code": "<div class=\"w-fit min-w-full max-w-[500px]\">\n  <div class=\"flex flex-col gap-6\">\n    <div\n      v-for=\"color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']\"\n      :key=\"color\"\n      class=\"flex items-center\"\n    >\n      <div class=\"text-right text-sm mr-8 min-w-[4rem]\" style=\"color: var(--color-text-tertiary)\">{{ color }}</div>\n      <div class=\"flex-1\">\n        <Alert :color=\"color\" :variant=\"variant\" title=\"Scheduled maintenance on Saturday, 2-4 AM PT\">\n          <template #description>\n            Track status updates on <TextLink color=\"currentcolor\" href=\"#\">status page</TextLink>\n          </template>\n        </Alert>\n      </div>\n    </div>\n  </div>\n</div>",
+          "details": "You can stylize the display of the alert using the color and variant props."
+        },
+        {
+          "name": "Title",
+          "code": "<Alert title=\"Your current access level limits what you can view or modify\" />",
+          "details": "You can optionally include a title for your alert with the title prop (or the title slot)."
+        },
+        {
+          "name": "Description",
+          "code": "<Alert>\n  <template #description>\n    We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href=\"#\">Learn more</TextLink>\n  </template>\n</Alert>",
+          "details": "You can optionally include description text for your alert with the description prop, or the description slot for rich content."
+        },
+        {
+          "name": "Actions",
+          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert\n    variant=\"soft\"\n    color=\"warning\"\n    title=\"Password expires in 3 days\"\n    description=\"Update it now to avoid losing access to your account.\"\n  >\n    <template #actions>\n      <Button color=\"primary\" pill>Update password</Button>\n    </template>\n  </Alert>\n  <Alert\n    variant=\"soft\"\n    color=\"warning\"\n    title=\"Your API key will be rotated soon\"\n    description=\"Automatic key rotation is scheduled for March 10. Download the new key afterward to keep your integrations running.\"\n    @dismiss=\"() => {}\"\n  >\n    <template #actions>\n      <Button color=\"warning\" variant=\"soft\" pill>Remind me later</Button>\n    </template>\n  </Alert>\n</div>",
+          "details": "You can add actions to the alert with the actions slot. Combine with @dismiss to add a dismiss button."
+        },
+        {
+          "name": "Action placement",
+          "code": "<Alert\n  title=\"Our terms of service has been updated\"\n  description=\"We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service.\"\n  actions-placement=\"bottom\"\n>\n  <template #actions>\n    <Button color=\"primary\" variant=\"soft\" pill>Set reminder</Button>\n    <Button color=\"primary\" variant=\"solid\" pill>Review terms</Button>\n  </template>\n</Alert>",
+          "details": "Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'."
+        },
+        {
+          "name": "Indicator",
+          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert>\n    <template #indicator>\n      <Lightbulb />\n    </template>\n    <template #description>\n      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href=\"#\">Learn more</TextLink>\n    </template>\n  </Alert>\n  <Alert\n    :indicator=\"false\"\n    description=\"Version 2.18.5 rolls out behind-the-scenes tweaks to caching and background sync. You don't need to do anything.\"\n  />\n</div>",
+          "details": "Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator=\"false\" to hide it entirely."
+        },
+        {
+          "name": "Dismissible",
+          "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert\n    class=\"items-start\"\n    title=\"Try our new dashboard layout\"\n    description=\"We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time.\"\n  >\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" pill>Dismiss</Button>\n      <Button color=\"primary\" variant=\"solid\" pill>Try it</Button>\n    </template>\n  </Alert>\n  <Alert\n    title=\"Thank you!\"\n    description=\"Your application has been received. We will review your application and respond within the next 48 hours.\"\n    @dismiss=\"() => {}\"\n  />\n</div>",
+          "details": "The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/alert"
+    },
+    {
+      "slug": "avatar",
+      "name": "Avatar",
+      "description": "An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.",
+      "importPath": "@plexui/vue/components/Avatar",
+      "exports": [
+        "Avatar"
+      ],
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Display name; used for text initial when no image/icon"
+        },
+        {
+          "name": "image-url",
+          "type": "string",
+          "description": "Absolute URL for image avatar"
+        },
+        {
+          "name": "Icon",
+          "type": "Component",
+          "description": "Icon component for icon avatar, bound as :Icon"
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "description": "Width and height in pixels"
+        },
+        {
+          "name": "color",
+          "type": "\"primary\" | \"secondary\" | \"success\" | \"info\" | \"discovery\" | \"danger\"",
+          "default": "\"secondary\"",
+          "description": "Semantic color for text/icon avatar"
+        },
+        {
+          "name": "variant",
+          "type": "\"soft\" | \"solid\"",
+          "default": "\"soft\"",
+          "description": "Style variant"
+        },
+        {
+          "name": "overflow-count",
+          "type": "number",
+          "description": "Show overflow count (e.g. +9)"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the avatar root"
+        },
+        {
+          "name": "@click",
+          "type": "(event: MouseEvent) => void",
+          "description": "Makes avatar interactive (renders a button)"
+        },
+        {
+          "name": "@pointerdown",
+          "type": "(event: PointerEvent) => void",
+          "description": "Makes avatar interactive (renders a button)"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
+          "details": "A variety of avatar types: text, image, icon, and overflow."
+        },
+        {
+          "name": "Text",
+          "code": "<Avatar name=\"David\" :size=\"48\" />",
+          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
+        },
+        {
+          "name": "Image",
+          "code": "<Avatar\n  name=\"Tyler\"\n  image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  :size=\"48\"\n/>",
+          "details": "To display an image avatar, provide an absolute URL to the image with image-url. Images will have a soft fade entrance once loaded, or fall back to a text display if the image fails to load."
+        },
+        {
+          "name": "Icon",
+          "code": "<Avatar\n  :Icon=\"Robot\"\n  :size=\"48\"\n/>",
+          "details": "To display an icon avatar, pass an icon component to the Icon prop, for example Robot imported from @plexui/vue/components/Icon. The name prop is not used in this case, and can be omitted."
+        },
+        {
+          "name": "Overflow count",
+          "code": "<Avatar :overflow-count=\"overflowCount\" :size=\"size\" />",
+          "details": "To display an overflow avatar, provide a number to the overflow-count prop. The number will be automatically formatted and scaled to fit."
+        },
+        {
+          "name": "Sizing",
+          "code": "<Avatar name=\"David\" :size=\"size\" />",
+          "details": "To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
+        },
+        {
+          "name": "Colors & variants",
+          "code": "<div\n  class=\"grid items-center gap-x-8 gap-y-5\"\n  style=\"grid-template-columns: repeat(2, minmax(0, auto)) auto; justify-items: center\"\n>\n  <div\n    v-for=\"variant in ['soft', 'solid']\"\n    :key=\"variant\"\n    class=\"text-sm font-medium\"\n    style=\"color: var(--color-text-tertiary)\"\n  >{{ variant }}</div>\n  <div />\n  <template v-for=\"(color, idx) in ['primary', 'secondary', 'success', 'danger', 'info', 'discovery']\" :key=\"color\">\n    <Avatar\n      v-for=\"variant in ['soft', 'solid']\"\n      :key=\"variant\"\n      :name=\"String.fromCharCode(65 + idx)\"\n      :color=\"color\"\n      :variant=\"variant\"\n      :size=\"size\"\n    />\n    <div class=\"text-sm font-medium justify-self-start\" style=\"color: var(--color-text-tertiary)\">{{ color }}</div>\n  </template>\n</div>",
+          "details": "You can stylize the display of the avatar using the color and variant props."
+        },
+        {
+          "name": "Roundness",
+          "code": "<Avatar\n  name=\"Acme, co.\"\n  color=\"primary\"\n  variant=\"solid\"\n  :size=\"size\"\n  :class=\"'rounded-' + roundness\"\n/>",
+          "details": "By default, avatars are fully rounded. You can override this by passing a Tailwind rounding class to class."
+        },
+        {
+          "name": "Interactive",
+          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
+          "details": "Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/avatar"
+    },
+    {
+      "slug": "avatar-group",
+      "name": "Avatar Group",
+      "description": "Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.",
+      "importPath": "@plexui/vue/components/Avatar",
+      "exports": [
+        "Avatar",
+        "AvatarGroup"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "The avatars of the group"
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "description": "Size of all avatars in the group"
+        },
+        {
+          "name": "stack",
+          "type": "\"start\" | \"end\"",
+          "default": "\"start\"",
+          "description": "Stacking direction"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the group container; other attributes are not forwarded"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<AvatarGroup :size=\"42\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" />\n  <Avatar name=\"Jane\" color=\"primary\" variant=\"solid\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" variant=\"solid\" />\n  <Avatar :overflow-count=\"5\" />\n</AvatarGroup>"
+        },
+        {
+          "name": "Stacking direction",
+          "code": "<AvatarGroup :stack=\"stack\" :size=\"42\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" />\n  <Avatar name=\"Will\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" variant=\"solid\" />\n  <Avatar :overflow-count=\"5\" variant=\"soft\" />\n</AvatarGroup>",
+          "details": "You can control the stacking direction using the stack prop, as either \"start\" or \"end\"."
+        },
+        {
+          "name": "Group sizing",
+          "code": "<AvatarGroup :size=\"size\">\n  <Avatar name=\"Tyler\" color=\"info\" />\n  <Avatar name=\"Jane\" color=\"discovery\" />\n  <Avatar name=\"Will\" color=\"danger\" />\n  <Avatar :overflow-count=\"5\" />\n</AvatarGroup>",
+          "details": "You can control the size of all avatars in the group by passing size directly to the &lt;AvatarGroup&gt; component."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/avatar-group"
+    },
+    {
+      "slug": "badge",
+      "name": "Badge",
+      "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
+      "importPath": "@plexui/vue/components/Badge",
+      "exports": [
+        "Badge"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "Content inside the badge"
+        },
+        {
+          "name": "color",
+          "type": "\"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\" | \"caution\"",
+          "default": "\"secondary\"",
+          "description": "Semantic color"
+        },
+        {
+          "name": "variant",
+          "type": "\"solid\" | \"soft\" | \"outline\"",
+          "default": "\"soft\"",
+          "description": "Style variant"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "default": "\"sm\"",
+          "description": "Badge size"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex gap-4 flex-wrap\">\n  <Badge color=\"success\" size=\"lg\">Successful</Badge>\n  <Badge size=\"lg\" class=\"gap-1.5\"><LoadingIndicator /> In progress</Badge>\n  <Badge color=\"danger\" size=\"lg\">Failed</Badge>\n  <Badge color=\"warning\" size=\"lg\" pill><Flask /> Beta</Badge>\n  <Badge color=\"caution\" size=\"lg\">Caution</Badge>\n</div>",
+          "details": "Status badges in different colors and compositions."
+        },
+        {
+          "name": "Colors & variants",
+          "code": "<div class=\"w-full overflow-x-auto\">\n  <div class=\"pt-1 pb-6 px-8 w-fit min-w-full\">\n    <div class=\"grid gap-6 items-center justify-center\" style=\"grid-template-columns: auto repeat(7, min-content)\">\n      <div />\n      <div\n        v-for=\"color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']\"\n        :key=\"color\"\n        class=\"text-center mb-1\"\n        style=\"color: var(--color-text-tertiary); font-size: 0.875rem\"\n      >{{ color }}</div>\n      <template v-for=\"variant in ['soft', 'solid', 'outline']\" :key=\"variant\">\n        <div class=\"text-right mr-3\" style=\"color: var(--color-text-tertiary); font-size: 0.875rem\">{{ variant }}</div>\n        <div\n          v-for=\"color in ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution']\"\n          :key=\"color\"\n          class=\"text-center\"\n        >\n          <Badge :color=\"color\" :variant=\"variant\">Sample</Badge>\n        </div>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "You can stylize the display of the badge using the color and variant props."
+        },
+        {
+          "name": "Size & roundness",
+          "code": "<Badge color=\"info\" :size=\"size\" :pill=\"pill\">New</Badge>",
+          "details": "You can control the size and roundness of the badge with size and pill props. When pill is set, extra horizontal gutter is dynamically applied to the badge."
+        },
+        {
+          "name": "Icon",
+          "code": "<Badge color=\"warning\" size=\"lg\"><Flask /> Beta</Badge>",
+          "details": "Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default."
+        },
+        {
+          "name": "Loading",
+          "code": "<Badge size=\"lg\" color=\"secondary\" class=\"gap-1.5\">\n  <LoadingIndicator /> In progress\n</Badge>",
+          "details": "In this example, additional gap is added with a Tailwind gap-1.5 class to provide the appropriate visual spacing."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/badge"
+    },
+    {
+      "slug": "button",
+      "name": "Button",
+      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
+      "importPath": "@plexui/vue/components/Button",
+      "exports": [
+        "Button"
+      ],
+      "props": [
+        {
+          "name": "color",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
+          "default": "\"primary\"",
+          "description": "Visual color scheme"
+        },
+        {
+          "name": "variant",
+          "type": "\"solid\" | \"soft\" | \"outline\" | \"ghost\"",
+          "default": "\"solid\"",
+          "description": "Button style variant"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height and default gutter/icon size"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded corners"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full width"
+        },
+        {
+          "name": "uniform",
+          "type": "boolean",
+          "default": "false",
+          "description": "Square icon button (width equals height)"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Visually and accessibly disabled; click is not emitted"
+        },
+        {
+          "name": "disabled-tone",
+          "type": "\"relaxed\"",
+          "description": "Default cursor instead of not-allowed while disabled"
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "default": "false",
+          "description": "Shows loading indicator"
+        },
+        {
+          "name": "inert",
+          "type": "boolean",
+          "default": "loading",
+          "description": "Accessibly disabled without visual change"
+        },
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": "false",
+          "description": "Selected state styling"
+        },
+        {
+          "name": "optically-align",
+          "type": "\"start\" | \"end\"",
+          "description": "Offset gutter for optical alignment"
+        },
+        {
+          "name": "gutter-size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Horizontal padding size"
+        },
+        {
+          "name": "icon-size",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
+          "description": "Size of icons in the slot"
+        },
+        {
+          "name": "type",
+          "type": "\"button\" | \"submit\" | \"reset\"",
+          "default": "\"button\"",
+          "description": "Native button type"
+        },
+        {
+          "name": "@click",
+          "type": "(event: MouseEvent) => void",
+          "description": "Emitted on click, unless disabled"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex flex-wrap gap-3\">\n  <Button color=\"primary\">Submit</Button>\n  <Button variant=\"soft\"><CompareArrows /> Compare</Button>\n  <Button color=\"danger\" gutter-size=\"sm\" :pill=\"false\"><Delete /></Button>\n  <Button variant=\"outline\">Next <ArrowRight /></Button>\n  <Button variant=\"ghost\" color=\"secondary\" uniform><Clear /></Button>\n</div>",
+          "details": "A showcase of Button's key styles: solid, soft, outline, ghost, and icon-only."
+        },
+        {
+          "name": "Colors & variants",
+          "code": "<div class=\"w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden\">\n  <div class=\"pt-1 pb-6 px-8 w-max mx-auto\">\n    <div class=\"grid gap-6 items-center justify-center\" style=\"grid-template-columns: auto repeat(8, min-content)\">\n      <div />\n      <div\n        v-for=\"color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']\"\n        :key=\"color\"\n        class=\"text-center text-sm mb-1\"\n        style=\"color: var(--color-text-tertiary)\"\n      >{{ color }}</div>\n      <template v-for=\"variant in ['soft', 'solid', 'outline', 'ghost']\" :key=\"variant\">\n        <div class=\"text-right text-sm mr-3\" style=\"color: var(--color-text-tertiary)\">{{ variant }}</div>\n        <div\n          v-for=\"color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']\"\n          :key=\"color\"\n          class=\"text-center\"\n        >\n          <Button :color=\"color\" :variant=\"variant\" size=\"md\">Submit</Button>\n        </div>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "You can stylize the display of the button using the color and variant props."
+        },
+        {
+          "name": "Sizing & roundness",
+          "code": "<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\"><Mail /> Button <ArrowRight /></Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\">Button <ArrowRight /></Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\"><Mail /> Button</Button>\n<Button :color=\"color\" :variant=\"variant\" :size=\"size\" :pill=\"pill\">Button</Button>",
+          "details": "Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. Each size provides default values for gutter-size and icon-size, as well as font-size. Each of these values can be overridden independently."
+        },
+        {
+          "name": "Icons",
+          "code": "<Button\n  :color=\"color\"\n  :size=\"size\"\n  :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n  :icon-size=\"iconSize === 'auto' ? undefined : iconSize\"\n  :uniform=\"uniform\"\n  :variant=\"variant\"\n>\n  <PlusLg />\n</Button>",
+          "details": "Add icons to the default slot. Sizing is automatic via the icon-size prop. For square icon buttons use uniform, which ignores gutter-size. Combine it with pill to make circular icons."
+        },
+        {
+          "name": "Block",
+          "code": "<div class=\"w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n  <Button color=\"primary\" size=\"lg\" :block=\"block\">Continue</Button>\n</div>",
+          "details": "Create full-width buttons with the block prop."
+        },
+        {
+          "name": "Disabled",
+          "code": "<Button color=\"primary\" :disabled=\"disabled\">Submit</Button>",
+          "details": "Use disabled to both visually and accessibly disable a button. Click events are not emitted."
+        },
+        {
+          "name": "Inert",
+          "code": "<Button color=\"primary\" :inert=\"inert\">Submit</Button>",
+          "details": "Use inert to accessibly disable a button without any visual changes."
+        },
+        {
+          "name": "Loading",
+          "code": "<Button loading size=\"xl\" pill><ArrowUp /> Click to load</Button>",
+          "details": "Use loading to display a loading indicator in the button, fading out the current content. Interactions are prevented during this state, because inert defaults to loading. Override it with inert, or use disabled to add visual disablement."
+        },
+        {
+          "name": "Selected",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" :selected=\"selected\" :variant=\"variant\">Click to open</Button>\n  </PopoverTrigger>\n  <PopoverContent min-width=\"auto\" class=\"p-4 text-sm\">\n    Button should look selected\n  </PopoverContent>\n</Popover>",
+          "details": "Use selected to show that a button is in an open or selected state. The exact visual behavior differs across each variant. This behavior is automatically configured with components like Menu that apply [aria-expanded=\"true\"] or [data-state=\"open\"] attributes."
+        },
+        {
+          "name": "Optical alignment",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-4 px-6\">\n    <div class=\"mb-2 text-secondary text-sm\">Default gutters</div>\n    <Button variant=\"ghost\">Ghost button</Button>\n  </div>\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-4 px-6\">\n    <div class=\"mb-2 text-secondary text-sm\">optically-align=\"start\"</div>\n    <Button variant=\"ghost\" optically-align=\"start\">Ghost button</Button>\n  </div>\n</div>",
+          "details": "Use optically-align with either \"start\" or \"end\" to offset the gutter of the button."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/button"
+    },
+    {
+      "slug": "button-group",
+      "name": "Button Group",
+      "description": "Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.",
+      "importPath": "@plexui/vue/components/ButtonGroup",
+      "exports": [
+        "ButtonGroup",
+        "ButtonGroupSeparator",
+        "ButtonGroupText"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Go back\">\n      <ArrowLeftSm />\n    </Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\">Pin</Button>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\">Tag</Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\">Bookmark</Button>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"More options\">\n      <DotsHorizontal />\n    </Button>\n  </ButtonGroup>\n</ButtonGroup>"
+        },
+        {
+          "name": "Orientation",
+          "code": "<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n  <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Zoom in\">\n    <PlusSm />\n  </Button>\n  <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Zoom out\">\n    <Minus />\n  </Button>\n</ButtonGroup>",
+          "details": "Pass orientation=\"vertical\" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar."
+        },
+        {
+          "name": "Size",
+          "code": "<div class=\"flex flex-col items-start gap-6\">\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Small</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Button</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Group</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Add\"><PlusSm /></Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\">Default</Button>\n    <Button variant=\"outline\" color=\"secondary\">Button</Button>\n    <Button variant=\"outline\" color=\"secondary\">Group</Button>\n    <Button variant=\"outline\" color=\"secondary\" uniform aria-label=\"Add\"><PlusSm /></Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Large</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Button</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Group</Button>\n    <Button variant=\"outline\" color=\"secondary\" size=\"lg\" uniform aria-label=\"Add\"><PlusSm /></Button>\n  </ButtonGroup>\n</div>",
+          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding."
+        },
+        {
+          "name": "Nested",
+          "code": "<ButtonGroup aria-label=\"Pager\">\n  <ButtonGroup>\n    <Button v-for=\"page in 5\" :key=\"page\" variant=\"outline\" color=\"secondary\" :size=\"size\">{{ page }}</Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Previous page\">\n      <ArrowLeftSm />\n    </Button>\n    <Button variant=\"outline\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Next page\">\n      <ArrowRightSm />\n    </Button>\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Place ButtonGroup inside ButtonGroup to create visually separated sub-groups. The outer group automatically adds a small gap between children; pagination with arrow navigation is the canonical pattern."
+        },
+        {
+          "name": "Separator",
+          "code": "<ButtonGroup>\n  <Button variant=\"soft\" color=\"secondary\" :size=\"size\"><Undo /> Undo</Button>\n  <ButtonGroupSeparator />\n  <Button variant=\"soft\" color=\"secondary\" :size=\"size\">Redo <Redo /></Button>\n</ButtonGroup>",
+          "details": "Drop a ButtonGroupSeparator between items to add a visible divider, commonly used for Undo / Redo pairs or any \"two related actions\" toolbar."
+        },
+        {
+          "name": "Split",
+          "code": "<ButtonGroup>\n  <Button variant=\"soft\" color=\"secondary\" :size=\"size\"><Filter /> Filter</Button>\n  <ButtonGroupSeparator />\n  <Button variant=\"soft\" color=\"secondary\" :size=\"size\" uniform aria-label=\"Add filter\">\n    <Plus />\n  </Button>\n</ButtonGroup>",
+          "details": "The classic split button: an action joined to a secondary affordance via ButtonGroupSeparator. Useful for Save / Save-As, Filter / Add-filter, Delete / Undo."
+        },
+        {
+          "name": "Input",
+          "code": "<ButtonGroup>\n  <Input placeholder=\"Search docs...\" :size=\"size\" />\n  <Button variant=\"outline\" color=\"secondary\" :size=\"size\" aria-label=\"Search\">\n    <SearchSm />\n  </Button>\n</ButtonGroup>",
+          "details": "Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content."
+        },
+        {
+          "name": "Input group",
+          "code": "<ButtonGroup style=\"width: 100%; max-width: 280px\">\n  <ButtonGroup>\n    <Button variant=\"outline\" color=\"secondary\" pill :size=\"size\" uniform aria-label=\"Add attachment\">\n      <Plus />\n    </Button>\n  </ButtonGroup>\n  <ButtonGroup>\n    <Input\n      pill\n      :size=\"size\"\n      :placeholder=\"voiceEnabled ? 'Recording your idea…' : 'Describe a component…'\"\n      :disabled=\"voiceEnabled\"\n    >\n      <template #endAdornment>\n        <InputAdornmentButton\n          :color=\"voiceEnabled ? 'caution' : undefined\"\n          aria-label=\"Toggle voice mode\"\n          :aria-pressed=\"voiceEnabled\"\n          @click=\"voiceEnabled = !voiceEnabled\"\n        >\n          <Mic />\n        </InputAdornmentButton>\n      </template>\n    </Input>\n  </ButtonGroup>\n</ButtonGroup>",
+          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via the endAdornment slot. Use InputAdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/button-group"
+    },
+    {
+      "slug": "button-link",
+      "name": "Button Link",
+      "description": "A semantic anchor with full button styling, for internal and external links with icons and block layout.",
+      "importPath": "@plexui/vue/components/Button",
+      "exports": [
+        "ButtonLink"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "Content inside the link button"
+        },
+        {
+          "name": "color",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"success\" | \"info\" | \"discovery\" | \"caution\" | \"warning\"",
+          "default": "\"primary\"",
+          "description": "Visual color"
+        },
+        {
+          "name": "variant",
+          "type": "\"solid\" | \"soft\" | \"outline\" | \"ghost\"",
+          "default": "\"solid\"",
+          "description": "Style variant"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height and typography scale"
+        },
+        {
+          "name": "gutter-size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Override horizontal padding"
+        },
+        {
+          "name": "icon-size",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"",
+          "description": "Override icon size"
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "description": "Link URL"
+        },
+        {
+          "name": "to",
+          "type": "string | RouteLocationRaw",
+          "description": "Router link destination (internal)"
+        },
+        {
+          "name": "as",
+          "type": "Component",
+          "description": "Link component override (e.g. RouterLink, NuxtLink)"
+        },
+        {
+          "name": "external",
+          "type": "boolean",
+          "description": "Force external-link behavior"
+        },
+        {
+          "name": "optically-align",
+          "type": "\"start\" | \"end\"",
+          "description": "Apply optical negative margin alignment"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full width"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable link"
+        },
+        {
+          "name": "disabled-tone",
+          "type": "\"relaxed\"",
+          "description": "Use relaxed visual tone for disabled state"
+        },
+        {
+          "name": "@click",
+          "type": "(event: MouseEvent) => void",
+          "description": "Emitted on click, unless disabled"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ButtonLink color=\"primary\" :pill=\"false\" href=\"#\">View API Keys <ArrowRight /></ButtonLink>"
+        },
+        {
+          "name": "Internal link",
+          "code": "<ButtonLink href=\"/vue/components/button\" color=\"primary\">\n  Internal link <ArrowRight />\n</ButtonLink>",
+          "details": "When a relative href or to is provided, ButtonLink uses the link component configured on PlexUIProvider, so your router handles navigation."
+        },
+        {
+          "name": "External link",
+          "code": "<ButtonLink href=\"#\" color=\"primary\">\n  External link <ArrowUpRight />\n</ButtonLink>",
+          "details": "When linking to an external URL (or when external is set), &lt;a&gt; is used with target=\"_blank\" and rel=\"noopener noreferrer\" added automatically. If your link is not being automatically identified, you can force external link behavior with the external prop."
+        },
+        {
+          "name": "Colors & variants",
+          "code": "<div class=\"w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden\">\n  <div class=\"pt-1 pb-6 px-8 w-fit min-w-full\">\n    <div class=\"grid gap-6 items-center justify-center\" style=\"grid-template-columns: auto repeat(8, min-content)\">\n      <div />\n      <div\n        v-for=\"color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']\"\n        :key=\"color\"\n        class=\"text-center text-sm mb-1 text-tertiary\"\n      >{{ color }}</div>\n      <template v-for=\"variant in ['soft', 'solid', 'outline', 'ghost']\" :key=\"variant\">\n        <div class=\"text-right text-sm mr-3 text-tertiary\">{{ variant }}</div>\n        <div\n          v-for=\"color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']\"\n          :key=\"color\"\n          class=\"text-center\"\n        >\n          <ButtonLink href=\"#\" size=\"lg\" :color=\"color\" :variant=\"variant\" class=\"whitespace-nowrap\">Button</ButtonLink>\n        </div>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "Stylize the link with color and variant props."
+        },
+        {
+          "name": "Sizing & roundness",
+          "code": "<div class=\"flex flex-col gap-2 justify-start items-start\">\n  <ButtonLink color=\"primary\" :size=\"size\" :pill=\"pill\" href=\"#\" class=\"whitespace-nowrap\">\n    View account <ArrowRight />\n  </ButtonLink>\n  <ButtonLink color=\"primary\" :size=\"size\" :pill=\"pill\" href=\"#\" class=\"whitespace-nowrap\">\n    View account\n  </ButtonLink>\n</div>",
+          "details": "Sizing of the link is controlled with size and gutter-size. size sets the control height, and gutter-size sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link."
+        },
+        {
+          "name": "Icons",
+          "code": "<ButtonLink color=\"info\" :size=\"size\" :icon-size=\"iconSize\" variant=\"soft\" href=\"#\" class=\"whitespace-nowrap\">\n  <Globe /> View website\n</ButtonLink>",
+          "details": "Icon sizing is controlled by the icon-size prop, which makes it easy to add icons to the slot without additional props. size provides a default value for icon-size, but setting the prop forces the specified size."
+        },
+        {
+          "name": "Block",
+          "code": "<div class=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n  <ButtonLink :block=\"block\" size=\"lg\" href=\"#\" class=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>",
+          "details": "Create full-width links with the block prop."
+        },
+        {
+          "name": "Disabled",
+          "code": "<ButtonLink href=\"#\" color=\"primary\" :disabled=\"disabled\" class=\"whitespace-nowrap\">\n  <Key /> View API Keys\n</ButtonLink>",
+          "details": "Use disabled to both visually and accessibly disable a link. The component renders as a span[role=\"link\"], and click is not emitted."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/button-link"
+    },
+    {
+      "slug": "card",
+      "name": "Card",
+      "description": "Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.",
+      "importPath": "@plexui/vue/components/Card",
+      "exports": [
+        "Card",
+        "CardAction",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Card style=\"max-width: 380px\">\n  <CardHeader>\n    <CardTitle>Project activity</CardTitle>\n    <CardDescription>\n      Your team opened 12 issues and closed 8 pull requests over the last 7 days.\n    </CardDescription>\n  </CardHeader>\n  <CardFooter>\n    <Button color=\"primary\" variant=\"solid\" size=\"sm\">View report</Button>\n    <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Dismiss</Button>\n  </CardFooter>\n</Card>"
+        },
+        {
+          "name": "No team members (empty state)",
+          "code": "<Card style=\"max-width: 380px; padding: 24px\">\n  <EmptyMessage>\n    <EmptyMessageIcon>\n      <UserAdd />\n    </EmptyMessageIcon>\n    <EmptyMessageTitle>No team members</EmptyMessageTitle>\n    <EmptyMessageDescription>\n      Invite your team to collaborate on this project.\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow>\n      <Button color=\"primary\" variant=\"solid\" size=\"sm\">Invite members</Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</Card>",
+          "details": "Compose Card with EmptyMessage for a center-aligned empty state with icon badge, title, description, and primary action."
+        },
+        {
+          "name": "Processing your request",
+          "code": "<Card style=\"max-width: 380px; padding: 24px\">\n  <EmptyMessage>\n    <div style=\"margin-bottom: 12px; color: var(--color-text-tertiary)\">\n      <LoadingIndicator :size=\"28\" />\n    </div>\n    <EmptyMessageTitle>Processing your request</EmptyMessageTitle>\n    <EmptyMessageDescription>\n      Please wait while we process your request. Do not refresh the page.\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow>\n      <Button color=\"secondary\" variant=\"outline\" size=\"sm\">Cancel</Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</Card>",
+          "details": "Loading state built with EmptyMessage and a LoadingIndicator as the visual anchor."
+        },
+        {
+          "name": "Pricing",
+          "code": "<div style=\"display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: 720px\">\n  <Card\n    v-for=\"plan in [\n      { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },\n      { name: 'Pro', price: '$19', highlighted: true, features: ['Unlimited projects', 'Priority support', 'All Figma kits', 'Early components'] },\n    ]\"\n    :key=\"plan.name\"\n    :variant=\"plan.highlighted ? 'solid' : 'outline'\"\n  >\n    <CardHeader>\n      <CardTitle>{{ plan.name }}</CardTitle>\n      <CardDescription>\n        <span style=\"font-size: 28px; font-weight: 600; color: var(--color-text)\">{{ plan.price }}</span>\n        <span style=\"margin-left: 4px\">/ month</span>\n      </CardDescription>\n    </CardHeader>\n    <CardContent>\n      <ul style=\"list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px\">\n        <li v-for=\"feature in plan.features\" :key=\"feature\" style=\"display: flex; align-items: center; gap: 8px\">\n          <Check style=\"width: 16px; height: 16px; color: var(--color-text-success-soft)\" />\n          {{ feature }}\n        </li>\n      </ul>\n    </CardContent>\n    <CardFooter style=\"margin-top: auto; padding-top: 4px\">\n      <Button\n        :color=\"plan.highlighted ? 'primary' : 'secondary'\"\n        :variant=\"plan.highlighted ? 'solid' : 'outline'\"\n        block\n      >\n        Choose {{ plan.name }}\n      </Button>\n    </CardFooter>\n  </Card>\n</div>",
+          "details": "Mix variant=\"outline\" and variant=\"solid\" to emphasize a highlighted plan."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/card"
+    },
+    {
+      "slug": "checkbox",
+      "name": "Checkbox",
+      "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
+      "importPath": "@plexui/vue/components/Checkbox",
+      "exports": [
+        "Checkbox"
+      ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"solid\" | \"ghost\"",
+          "default": "\"solid\"",
+          "description": "Visual style: solid (filled background) or ghost (checkmark only)"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded indicator corners"
+        },
+        {
+          "name": "checked / v-model:checked",
+          "type": "boolean | \"indeterminate\"",
+          "description": "Controlled state"
+        },
+        {
+          "name": "default-checked",
+          "type": "boolean | \"indeterminate\"",
+          "description": "Initial state (uncontrolled)"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible label rendered next to the checkbox"
+        },
+        {
+          "name": "label slot",
+          "type": "VNode[]",
+          "description": "Rich label content; takes precedence over the label prop"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Prevent interaction"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "description": "Required for form submission"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "\"on\"",
+          "description": "Value when submitted"
+        },
+        {
+          "name": "orientation",
+          "type": "\"left\" | \"right\"",
+          "default": "\"left\"",
+          "description": "Checkbox position relative to the label"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "CSS classes applied to the wrapper node"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the checkbox element (generated when omitted)"
+        },
+        {
+          "name": "@update:checked",
+          "type": "(next: boolean | \"indeterminate\") => void",
+          "description": "Emitted with the next state when it changes (a click always emits a boolean)"
+        },
+        {
+          "name": "@focus",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the checkbox gains focus"
+        },
+        {
+          "name": "@blur",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the checkbox loses focus"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox label=\"Same as billing address\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" />\n  <Checkbox label=\"Subscribe to newsletter\" :variant=\"variant\" :pill=\"pill\" :disabled=\"disabled\" default-checked />\n</div>"
+        },
+        {
+          "name": "Variants",
+          "code": "<div class=\"flex flex-wrap gap-x-12 gap-y-6\">\n  <div\n    v-for=\"group in [\n      { name: 'solid' },\n      { name: 'solid pill', pill: true },\n      { name: 'ghost', variant: 'ghost' },\n    ]\"\n    :key=\"group.name\"\n    class=\"flex flex-col gap-3 items-start\"\n  >\n    <span class=\"text-xs text-secondary font-mono mb-1\">{{ group.name }}</span>\n    <Checkbox label=\"Unchecked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" />\n    <Checkbox label=\"Checked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" default-checked />\n    <Checkbox label=\"Indeterminate\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" checked=\"indeterminate\" />\n  </div>\n</div>",
+          "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill."
+        },
+        {
+          "name": "Pill",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox label=\"Unchecked\" :pill=\"pill\" />\n  <Checkbox label=\"Checked\" :pill=\"pill\" default-checked />\n  <Checkbox label=\"Indeterminate\" :pill=\"pill\" checked=\"indeterminate\" />\n</div>",
+          "details": "Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius."
+        },
+        {
+          "name": "Ghost",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox label=\"Unchecked\" variant=\"ghost\" :disabled=\"disabled\" />\n  <Checkbox label=\"Checked\" variant=\"ghost\" :disabled=\"disabled\" default-checked />\n  <Checkbox label=\"Indeterminate\" variant=\"ghost\" :disabled=\"disabled\" checked=\"indeterminate\" />\n</div>",
+          "details": "Use variant=\"ghost\" to render the checkbox without a border or background. The checkmark uses the text color instead of white, making it suitable for subtle inline selections or task lists."
+        },
+        {
+          "name": "With description",
+          "code": "<div class=\"flex flex-col gap-4 max-w-sm\">\n  <Checkbox default-checked>\n    <template #label>\n      <div class=\"flex flex-col\">\n        <span class=\"font-medium\">Accept terms and conditions</span>\n        <span class=\"text-xs text-secondary mt-0.5\">\n          By checking this box, you agree to our Terms of Service and Privacy Policy.\n        </span>\n      </div>\n    </template>\n  </Checkbox>\n  <Checkbox>\n    <template #label>\n      <div class=\"flex flex-col\">\n        <span class=\"font-medium\">Enable notifications</span>\n        <span class=\"text-xs text-secondary mt-0.5\">\n          You can enable or disable notifications at any time from settings.\n        </span>\n      </div>\n    </template>\n  </Checkbox>\n</div>",
+          "details": "Pass rich content through the label slot to compose a label with secondary description text. This is useful for options that need additional context or explanation. For plain text, the label prop is enough."
+        },
+        {
+          "name": "Indeterminate",
+          "code": "<Checkbox\n  :checked=\"checked\"\n  @update:checked=\"checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'\"\n  label=\"Select all\"\n/>",
+          "details": "Use checked=\"indeterminate\" to indicate a partially selected state. This is typically used for \"select all\" controls where only some child items are checked. Here checked starts as \"indeterminate\" and each click moves it to the next state."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"flex flex-wrap gap-x-12 gap-y-6\">\n  <div\n    v-for=\"group in [\n      { name: 'solid' },\n      { name: 'solid pill', pill: true },\n      { name: 'ghost', variant: 'ghost' },\n    ]\"\n    :key=\"group.name\"\n    class=\"flex flex-col gap-3 items-start\"\n  >\n    <span class=\"text-xs text-secondary font-mono mb-1\">{{ group.name }}</span>\n    <Checkbox label=\"Unchecked\" :pill=\"group.pill\" :variant=\"group.variant\" disabled />\n    <Checkbox label=\"Checked\" :pill=\"group.pill\" :variant=\"group.variant\" disabled default-checked />\n    <Checkbox label=\"Indeterminate\" :pill=\"group.pill\" :variant=\"group.variant\" disabled checked=\"indeterminate\" />\n  </div>\n</div>",
+          "details": "When disabled is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost."
+        },
+        {
+          "name": "Label orientation",
+          "code": "<Checkbox label=\"Accept terms and conditions\" :orientation=\"orientation\" />",
+          "details": "By default the checkbox renders to the left of the label. Set orientation=\"right\" to place the checkbox after the label."
+        },
+        {
+          "name": "Without label",
+          "code": "<div class=\"flex gap-4\">\n  <Checkbox />\n  <Checkbox default-checked />\n  <Checkbox checked=\"indeterminate\" />\n</div>",
+          "details": "When no label is provided, the checkbox renders as a standalone control. All three visual states are shown: unchecked, checked, and indeterminate."
+        },
+        {
+          "name": "Group with select all",
+          "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox\n    label=\"Permissions\"\n    :checked=\"items.every((i) => i.checked) ? true : items.some((i) => i.checked) ? 'indeterminate' : false\"\n    @update:checked=\"(next) => items.forEach((i) => (i.checked = next))\"\n  />\n  <div class=\"flex flex-col gap-3 pl-6\">\n    <Checkbox\n      v-for=\"item in items\"\n      :key=\"item.id\"\n      :label=\"item.label\"\n      v-model:checked=\"item.checked\"\n    />\n  </div>\n</div>",
+          "details": "Combine a parent checkbox with child checkboxes to create a \"select all\" pattern. The parent shows an indeterminate state when only some children are checked. Each child binds v-model:checked to its item in items."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/checkbox"
+    },
+    {
+      "slug": "code-block",
+      "name": "Code Block",
+      "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
+      "importPath": "@plexui/vue/components/CodeBlock",
+      "exports": [
+        "CodeBlock"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<CodeBlock language=\"javascript\">{{ codeSnippet }}</CodeBlock>",
+          "details": "The code is the text of the default slot. Interpolate a string ({\"{{ code }}\"}) so its whitespace is kept, or pass it with the code prop."
+        },
+        {
+          "name": "Collapsible",
+          "code": "<CollapsibleCodeBlock language=\"tsx\">{{ code }}</CollapsibleCodeBlock>",
+          "details": "Use CollapsibleCodeBlock to display code in a compact view with gradient overlay and an expand action."
+        },
+        {
+          "name": "Expanded by default",
+          "code": "<CollapsibleCodeBlock language=\"tsx\" default-expanded>{{ code }}</CollapsibleCodeBlock>"
+        },
+        {
+          "name": "Custom collapsed height",
+          "code": "<CollapsibleCodeBlock language=\"typescript\" :collapsed-height=\"60\">{{ code }}</CollapsibleCodeBlock>"
+        },
+        {
+          "name": "Max expanded height",
+          "code": "<CollapsibleCodeBlock language=\"typescript\" default-expanded :max-expanded-height=\"200\">{{ code }}</CollapsibleCodeBlock>"
+        },
+        {
+          "name": "Without copy button",
+          "code": "<CollapsibleCodeBlock language=\"python\" default-expanded :copyable=\"false\">{{ code }}</CollapsibleCodeBlock>"
+        },
+        {
+          "name": "Supported languages",
+          "code": "<CodeBlock language=\"javascript\">{{ code }}</CodeBlock>",
+          "details": "A pragmatic set of Prism grammars are pre-registered out of the box."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "CodeBlock",
+          "props": [
+            {
+              "name": "default slot",
+              "type": "string",
+              "description": "Code content (text only; interpolate a string to keep its whitespace)"
+            },
+            {
+              "name": "code",
+              "type": "string",
+              "description": "Code content, used when the default slot is empty"
+            },
+            {
+              "name": "language",
+              "type": "string",
+              "description": "Prism language name"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional wrapper class"
+            }
+          ]
+        },
+        {
+          "name": "CollapsibleCodeBlock",
+          "props": [
+            {
+              "name": "default slot / code",
+              "type": "string",
+              "description": "Code content"
+            },
+            {
+              "name": "language",
+              "type": "string",
+              "description": "Prism language name"
+            },
+            {
+              "name": "default-expanded",
+              "type": "boolean",
+              "default": "false",
+              "description": "Start expanded"
+            },
+            {
+              "name": "collapsed-height",
+              "type": "number",
+              "default": "140",
+              "description": "Height when collapsed (px)"
+            },
+            {
+              "name": "max-expanded-height",
+              "type": "number",
+              "description": "Max height when expanded (px)"
+            },
+            {
+              "name": "copyable",
+              "type": "boolean",
+              "default": "true",
+              "description": "Show copy button"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/code-block"
+    },
+    {
+      "slug": "copy-tooltip",
+      "name": "Copy Tooltip",
+      "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",
+      "importPath": "@plexui/vue/components/Tooltip",
+      "exports": [
+        "CopyTooltip",
+        "TooltipTriggerDecorator"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "VNode",
+          "description": "Trigger element (for example TooltipTriggerDecorator)"
+        },
+        {
+          "name": "copyValue",
+          "type": "string",
+          "default": "\"Very cool content to copy\"",
+          "description": "Content to copy to clipboard"
+        },
+        {
+          "name": "openDelay",
+          "type": "number",
+          "default": "150",
+          "description": "Tooltip open delay in milliseconds"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "default": "\"center\"",
+          "description": "Preferred tooltip alignment against the trigger"
+        },
+        {
+          "name": "alignOffset",
+          "type": "number",
+          "default": "0",
+          "description": "Offset from start/end alignment in pixels"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+          "default": "\"top\"",
+          "description": "Preferred side of the trigger"
+        },
+        {
+          "name": "sideOffset",
+          "type": "number",
+          "default": "5",
+          "description": "Distance from trigger in pixels"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<CopyTooltip\n  copy-value=\"Very cool content to copy\"\n  :open-delay=\"openDelay\"\n  :side-offset=\"sideOffset\"\n  :align-offset=\"alignOffset\"\n  :side=\"side\"\n  :align=\"align\"\n>\n  <TooltipTriggerDecorator>sess_12345abcdefg</TooltipTriggerDecorator>\n</CopyTooltip>"
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/copy-tooltip"
+    },
+    {
+      "slug": "dialog",
+      "name": "Dialog",
+      "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
+      "importPath": "@plexui/vue/components/Dialog",
+      "exports": [
+        "Dialog",
+        "DialogClose",
+        "DialogContent",
+        "DialogFooter",
+        "DialogHeader",
+        "DialogTitle",
+        "DialogTrigger"
+      ],
+      "props": [
+        {
+          "name": "open / v-model:open",
+          "type": "boolean",
+          "description": "Controlled open state; uncontrolled when omitted"
+        },
+        {
+          "name": "@update:open",
+          "type": "(open: boolean) => void",
+          "description": "Fires when the dialog opens or closes"
+        },
+        {
+          "name": "width",
+          "type": "number | string",
+          "default": "480",
+          "description": "Panel width"
+        },
+        {
+          "name": "show-close",
+          "type": "boolean",
+          "default": "true",
+          "description": "Show close button in top-right corner"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Additional CSS class on the panel"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">Open dialog</Button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Unsaved changes</DialogTitle>\n    </DialogHeader>\n    <p class=\"text-sm text-secondary\">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"primary\" @click=\"open = false\">Save changes</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>"
+        },
+        {
+          "name": "Destructive confirmation",
+          "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"danger\" variant=\"outline\">Delete</Button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Delete assistant?</DialogTitle>\n    </DialogHeader>\n    <p class=\"text-sm text-secondary\">\n      This change will affect all API integrations using\n      <span class=\"font-medium text-[var(--color-text)]\">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.\n      It cannot be undone.\n    </p>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"secondary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"danger\" @click=\"open = false\">Delete</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
+          "details": "Use color=\"danger\" on the action button for destructive operations."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/dialog"
+    },
+    {
+      "slug": "empty-message",
+      "name": "Empty Message",
+      "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+      "importPath": "@plexui/vue/components/EmptyMessage",
+      "exports": [
+        "EmptyMessage",
+        "EmptyMessageActionRow",
+        "EmptyMessageDescription",
+        "EmptyMessageIcon",
+        "EmptyMessageTitle"
+      ],
+      "props": [
+        {
+          "name": "color",
+          "type": "\"secondary\" | \"danger\" | \"warning\"",
+          "default": "\"secondary\"",
+          "description": "Semantic color"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\"",
+          "description": "Icon badge size"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Additional classes for the action row container"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Composition",
+          "code": "<div\n  class=\"flex w-full items-center justify-center\"\n  :style=\"fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined\"\n>\n  <EmptyMessage :fill=\"fill\">\n    <EmptyMessageIcon v-if=\"icon === 'on'\" :color=\"color\" :size=\"size\">\n      <Explore />\n    </EmptyMessageIcon>\n    <EmptyMessageTitle v-if=\"content !== 'description'\" :color=\"color\">No projects yet</EmptyMessageTitle>\n    <EmptyMessageDescription v-if=\"content !== 'title'\">\n      Create your first project to get started\n    </EmptyMessageDescription>\n    <EmptyMessageActionRow>\n      <Button color=\"primary\" :size=\"size === 'sm' ? 'md' : 'lg'\">\n        <Plus class=\"mr-[-2px]\" />\n        New project\n      </Button>\n    </EmptyMessageActionRow>\n  </EmptyMessage>\n</div>"
+        },
+        {
+          "name": "Error message",
+          "code": "<EmptyMessage>\n  <EmptyMessageIcon color=\"danger\">\n    <Mic />\n  </EmptyMessageIcon>\n  <EmptyMessageTitle color=\"danger\">\n    Enable microphone access in your browser's settings.\n  </EmptyMessageTitle>\n</EmptyMessage>",
+          "details": "The color property enables you to display clearer intent with the message, such as showing an error state."
+        },
+        {
+          "name": "Warning message",
+          "code": "<EmptyMessage>\n  <EmptyMessageIcon color=\"warning\">\n    <Sparkle />\n  </EmptyMessageIcon>\n  <EmptyMessageTitle>o1-preview is in beta</EmptyMessageTitle>\n  <EmptyMessageDescription>\n    System instructions and model configuration are not available yet. Responses may take\n    longer.\n  </EmptyMessageDescription>\n  <EmptyMessageActionRow class=\"text-sm\">\n    <TextLink href=\"/\">\n      Learn more\n      <ArrowUpRight />\n    </TextLink>\n  </EmptyMessageActionRow>\n</EmptyMessage>"
+        },
+        {
+          "name": "No results",
+          "code": "<div class=\"w-full\">\n  <EmptyMessage fill=\"none\">\n    <EmptyMessageIcon size=\"sm\">\n      <Search />\n    </EmptyMessageIcon>\n    <EmptyMessageDescription>\n      No icons found matching <span class=\"font-semibold\">\"pizza\"</span>\n    </EmptyMessageDescription>\n  </EmptyMessage>\n</div>",
+          "details": "The parts of EmptyMessage are both composable and optional. This example omits EmptyMessageTitle, using only an icon and description for a simpler message style."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/empty-message"
+    },
+    {
+      "slug": "file-upload",
+      "name": "File Upload",
+      "description": "Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.",
+      "importPath": "@plexui/vue/components/FileUpload",
+      "exports": [
+        "FileUpload",
+        "FileCard",
+        "FileCardGroup"
+      ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"compact\" | \"area\"",
+          "default": "\"compact\"",
+          "description": "Visual variant: compact button or larger tappable area"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Button label text"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Helper text below the icon (area variant only)"
+        },
+        {
+          "name": "multiple",
+          "type": "boolean",
+          "default": "false",
+          "description": "Allow selecting multiple files"
+        },
+        {
+          "name": "max-files",
+          "type": "number",
+          "description": "Maximum number of files. Button disables at limit."
+        },
+        {
+          "name": "max-size",
+          "type": "number",
+          "description": "Maximum file size in bytes"
+        },
+        {
+          "name": "value / v-model:value",
+          "type": "File[]",
+          "description": "Controlled file list; `update:value` fires when files are added or removed"
+        },
+        {
+          "name": "@file-reject",
+          "type": "(file: File, reason: string) => void",
+          "description": "Fires when a file is rejected (wrong type, too large, over limit)"
+        },
+        {
+          "name": "error-message",
+          "type": "string",
+          "description": "Error message; sets the invalid visual state"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Invalid state (auto-set when error-message is provided)"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"w-[360px]\">\n  <FileUpload\n    v-model:value=\"files\"\n    accept=\".pdf,.png,.jpg,.jpeg\"\n    multiple\n    :max-files=\"5\"\n    :max-size=\"10 * 1024 * 1024\"\n  />\n</div>"
+        },
+        {
+          "name": "With files",
+          "code": "<div class=\"w-[360px]\">\n  <FileUpload\n    v-model:value=\"files\"\n    accept=\".pdf,.png\"\n    multiple\n    :max-files=\"5\"\n  />\n</div>",
+          "details": "File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button."
+        },
+        {
+          "name": "Error state",
+          "code": "<div class=\"w-[360px]\">\n  <FileUpload\n    v-model:value=\"files\"\n    accept=\".pdf\"\n    multiple\n    error-message=\"Please upload at least 2 documents.\"\n  />\n</div>"
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[360px]\">\n  <FileUpload disabled />\n</div>"
+        },
+        {
+          "name": "Read-only",
+          "code": "<div class=\"w-[360px]\">\n  <FileCardGroup>\n    <FileCard :file=\"file\" />\n  </FileCardGroup>\n</div>"
+        },
+        {
+          "name": "With remove",
+          "code": "<div v-if=\"file\" class=\"w-[360px]\">\n  <FileCardGroup>\n    <FileCard :file=\"file\" @remove=\"file = null\" />\n  </FileCardGroup>\n</div>\n<div v-else class=\"w-[360px] text-center text-sm text-tertiary\">File removed</div>"
+        },
+        {
+          "name": "Multiple files",
+          "code": "<div class=\"w-[360px]\">\n  <FileCardGroup>\n    <FileCard\n      v-for=\"(file, index) in files\"\n      :key=\"file.name + '-' + file.size\"\n      :file=\"file\"\n      @remove=\"files = files.filter((_, i) => i !== index)\"\n    />\n  </FileCardGroup>\n</div>"
+        },
+        {
+          "name": "Read-only list",
+          "code": "<div class=\"w-[360px]\">\n  <FileCardGroup>\n    <FileCard v-for=\"file in files\" :key=\"file.name + '-' + file.size\" :file=\"file\" />\n  </FileCardGroup>\n</div>"
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "FileCard",
+          "props": [
+            {
+              "name": "file",
+              "type": "File",
+              "description": "The file to display"
+            },
+            {
+              "name": "@remove",
+              "type": "() => void",
+              "description": "Remove callback. When omitted, the delete button is hidden."
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the remove button"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional CSS class"
+            }
+          ]
+        },
+        {
+          "name": "FileCardGroup",
+          "props": [
+            {
+              "name": "default slot",
+              "type": "VNode[]",
+              "description": "FileCard elements"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Additional CSS class"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/file-upload"
+    },
+    {
+      "slug": "floating-label-input",
+      "name": "Float Input",
+      "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
+      "importPath": "@plexui/vue/components/FloatingLabelInput",
+      "exports": [
+        "FloatingLabelInput"
+      ],
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Label text for the floating label"
+        },
+        {
+          "name": "value / v-model:value",
+          "type": "string",
+          "description": "Controlled value; `update:value` fires on input"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "description": "Initial value when uncontrolled"
+        },
+        {
+          "name": "error-message",
+          "type": "string",
+          "description": "Error message to display below the input"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false (true if error-message)",
+          "description": "Mark the input as invalid"
+        },
+        {
+          "name": "description",
+          "type": "string | slot",
+          "description": "Helper text below the input"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables the input"
+        },
+        {
+          "name": "read-only",
+          "type": "boolean",
+          "default": "false",
+          "description": "Makes the input read-only"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "default": "\"text\"",
+          "description": "Input type; password gets a reveal toggle"
+        },
+        {
+          "name": "revealable",
+          "type": "boolean",
+          "default": "true for password without an end adornment",
+          "description": "Built-in reveal toggle"
+        },
+        {
+          "name": "multiline",
+          "type": "boolean",
+          "default": "false",
+          "description": "Render an auto-growing textarea"
+        },
+        {
+          "name": "rows",
+          "type": "number",
+          "default": "2",
+          "description": "Visible lines when multiline"
+        },
+        {
+          "name": "allow-autofill-extensions",
+          "type": "boolean",
+          "default": "false",
+          "description": "Let password-manager extensions decorate the input"
+        },
+        {
+          "name": "start-adornment / end-adornment",
+          "type": "slots",
+          "description": "Content before or after the input"
+        },
+        {
+          "name": "@clear",
+          "type": "() => void",
+          "description": "Shows the clear button and fires when it is clicked"
+        },
+        {
+          "name": "@revealed-change",
+          "type": "(revealed: boolean) => void",
+          "description": "Fires when the reveal toggle is clicked"
+        },
+        {
+          "name": "@autofill",
+          "type": "() => void",
+          "description": "Fires when the browser autofills the input"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" />\n</div>"
+        },
+        {
+          "name": "Filled state",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@example.com\" />\n</div>",
+          "details": "When the input has a value, the label stays floated above the input."
+        },
+        {
+          "name": "Textarea",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    :key=\"String(multiline)\"\n    v-model:value=\"value\"\n    label=\"Message\"\n    :multiline=\"multiline\"\n  />\n</div>",
+          "details": "Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height."
+        },
+        {
+          "name": "With error message",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    label=\"Email address\"\n    default-value=\"jane.doe@example\"\n    invalid\n    error-message=\"Email is not valid.\"\n  />\n</div>",
+          "details": "Use the error-message prop to display a validation error below the input. When error-message is provided, the input automatically enters the invalid state."
+        },
+        {
+          "name": "With description",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    label=\"Email address\"\n    description=\"We'll never share your email with anyone else.\"\n  />\n</div>",
+          "details": "Use the description prop (or the description slot) to display helper text below the input."
+        },
+        {
+          "name": "With description and error",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    label=\"Email address\"\n    default-value=\"jane.doe@example\"\n    invalid\n    error-message=\"Email is not valid.\"\n    description=\"We'll never share your email with anyone else.\"\n  />\n</div>",
+          "details": "When both description and error-message are provided, the error appears first (closest to the input), followed by the description."
+        },
+        {
+          "name": "Clear button",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    v-model:value=\"value\"\n    label=\"Email address\"\n    :disabled=\"disabled\"\n    :read-only=\"readOnly\"\n    @clear=\"value = ''\"\n  />\n</div>",
+          "details": "Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" default-value=\"disabled@example.com\" :disabled=\"disabled\" />\n</div>",
+          "details": "Use the disabled prop to disable the input, greying it out and preventing user interactions."
+        },
+        {
+          "name": "Read only",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@example.com\" read-only />\n</div>",
+          "details": "Use the read-only prop to make the input read-only. The user can still select and copy the text."
+        },
+        {
+          "name": "All states",
+          "code": "<div class=\"flex flex-col items-center gap-8 py-8\">\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n    <FloatingLabelInput label=\"Email address\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n    <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@gmail.com\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n    <FloatingLabelInput invalid label=\"Email address\" default-value=\"invalid@email\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n    <FloatingLabelInput disabled label=\"Email address\" default-value=\"jane.doe@gmail.com\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Read only</div>\n    <FloatingLabelInput read-only label=\"Email address\" default-value=\"readonly@gmail.com\" class=\"w-[320px]\" />\n  </div>\n</div>",
+          "details": "Overview of all input states."
+        },
+        {
+          "name": "Password input",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Password\" type=\"password\" />\n</div>",
+          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
+        },
+        {
+          "name": "Birthday with validation",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    label=\"Birthday\"\n    default-value=\"02 / 30 / 2001\"\n    invalid\n    error-message=\"Please enter a valid date.\"\n  />\n</div>",
+          "details": "Use invalid and error-message to display the birthday validation state."
+        },
+        {
+          "name": "Birthday states",
+          "code": "<div class=\"flex flex-col items-center gap-8 py-8\">\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n    <FloatingLabelInput label=\"Birthday\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n    <FloatingLabelInput label=\"Birthday\" default-value=\"01 / 15 / 1995\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n    <FloatingLabelInput invalid label=\"Birthday\" default-value=\"02 / 30 / 2001\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n    <FloatingLabelInput disabled label=\"Birthday\" default-value=\"01 / 15 / 1995\" class=\"w-[320px]\" />\n  </div>\n</div>",
+          "details": "Overview of birthday input states."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/floating-label-input"
+    },
+    {
+      "slug": "indicators",
+      "name": "Indicators",
+      "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
+      "importPath": "@plexui/vue/components/Indicator",
+      "exports": [
+        "LoadingIndicator",
+        "CircularProgress",
+        "LoadingDots"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex items-center gap-6\">\n  <LoadingIndicator :size=\"20\" />\n  <CircularProgress :size=\"24\" :done=\"done\" />\n  <LoadingDots />\n</div>",
+          "details": "The demos restart every few seconds through a done flag that fills the ring before the simulation starts over."
+        },
+        {
+          "name": "LoadingIndicator",
+          "code": "<LoadingIndicator />",
+          "details": "Simple spinning indicator for general loading states."
+        },
+        {
+          "name": "Sizing & stroke",
+          "code": "<LoadingIndicator :size=\"size\" :stroke-width=\"strokeWidth\" />",
+          "details": "By default, the indicator adapts to the surrounding font-size and color of text. You can control the size of the LoadingIndicator using the --indicator-size CSS custom property."
+        },
+        {
+          "name": "Color",
+          "code": "<div class=\"flex items-center gap-2 text-danger\">\n  <LoadingIndicator :size=\"16\" /> <span>Destroying forever...</span>\n</div>",
+          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. This can also be customized by altering the --indicator-color variable around the DOM scope of the component."
+        },
+        {
+          "name": "Duration",
+          "code": "<div style=\"--indicator-rotate-duration: 3s\">\n  <LoadingIndicator />\n</div>",
+          "details": "You can control the rotation speed of the spinner with --indicator-rotate-duration."
+        },
+        {
+          "name": "CircularProgress",
+          "code": "<CircularProgress :done=\"done\" />",
+          "details": "Circular progress ring with simulated progress animation."
+        },
+        {
+          "name": "Progress",
+          "code": "<CircularProgress :progress=\"25\" />",
+          "details": "Use progress to show static progress and prevent the animation."
+        },
+        {
+          "name": "Sizing & stroke",
+          "code": "<CircularProgress :size=\"size\" :stroke-width=\"strokeWidth\" :done=\"done\" />",
+          "details": "Use size and stroke-width. Or use --circular-progress-size and --circular-progress-stroke CSS variables."
+        },
+        {
+          "name": "Color",
+          "code": "<CircularProgress\n  track-color=\"var(--alpha-15)\"\n  track-active-color=\"var(--gray-1000)\"\n  :done=\"done\"\n/>",
+          "details": "Customize the color of the indicator with the --circular-progress-track-color and --circular-progress-track-active-color variables."
+        },
+        {
+          "name": "LoadingDots",
+          "code": "<LoadingDots />",
+          "details": "Indicate typing progress with staggered pulsing dot animation."
+        },
+        {
+          "name": "Color",
+          "code": "<div class=\"text-danger\">\n  <LoadingDots />\n</div>",
+          "details": "The indicator defaults to currentcolor, inheriting the surrounding text color. You can customize the color by providing a different color value or context."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "LoadingIndicator",
+          "props": [
+            {
+              "name": "size",
+              "type": "number | string",
+              "description": "Size in px (or use --indicator-size CSS variable)"
+            },
+            {
+              "name": "stroke-width",
+              "type": "number",
+              "description": "Stroke width"
+            }
+          ]
+        },
+        {
+          "name": "CircularProgress",
+          "props": [
+            {
+              "name": "progress",
+              "type": "number",
+              "description": "Static progress 0-100 (disables animation)"
+            },
+            {
+              "name": "size",
+              "type": "number | string",
+              "description": "Diameter in px"
+            },
+            {
+              "name": "stroke-width",
+              "type": "number",
+              "description": "Stroke thickness"
+            },
+            {
+              "name": "done",
+              "type": "boolean",
+              "description": "Completion state for animation"
+            },
+            {
+              "name": "max-duration",
+              "type": "number",
+              "default": "15000",
+              "description": "Duration of the simulated progress in ms"
+            },
+            {
+              "name": "track-color",
+              "type": "string",
+              "description": "Track color (CSS variable or value)"
+            },
+            {
+              "name": "track-active-color",
+              "type": "string",
+              "description": "Active segment color"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/indicators"
+    },
+    {
+      "slug": "input",
+      "name": "Input",
+      "description": "Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.",
+      "importPath": "@plexui/vue/components/Input",
+      "exports": [
+        "Input",
+        "InputAdornmentButton"
+      ],
+      "props": [
+        {
+          "name": "value / v-model:value",
+          "type": "string | number",
+          "description": "Controlled value; `update:value` fires on every input"
+        },
+        {
+          "name": "default-value",
+          "type": "string | number",
+          "description": "Initial value when uncontrolled"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style of the input"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Controls the size of the input"
+        },
+        {
+          "name": "gutter-size",
+          "type": "string",
+          "description": "Controls gutter on the edges; defaults to value from size"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disables the input visually and from interactions"
+        },
+        {
+          "name": "read-only",
+          "type": "boolean",
+          "default": "false",
+          "description": "Makes the input read-only and hides the clear button"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Mark the input as invalid"
+        },
+        {
+          "name": "auto-select",
+          "type": "boolean",
+          "default": "false",
+          "description": "Select all contents of the input when mounted"
+        },
+        {
+          "name": "startAdornment / endAdornment",
+          "type": "slots",
+          "description": "Content rendered at the start or end of the input"
+        },
+        {
+          "name": "@clear",
+          "type": "() => void",
+          "description": "When set, displays a clear button that appears when the input has a value"
+        },
+        {
+          "name": "@autofill",
+          "type": "() => void",
+          "description": "Fires when the browser autofills the input"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully rounded pill shape"
+        },
+        {
+          "name": "optically-align",
+          "type": "\"start\" | \"end\"",
+          "description": "Applies a negative margin using the current gutter to optically align with surrounding content"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "default": "\"button\"",
+          "description": "Button type"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"w-[320px]\">\n  <Input placeholder=\"Enter text...\" />\n</div>"
+        },
+        {
+          "name": "Variants",
+          "code": "<div class=\"flex flex-col gap-2 w-[320px]\">\n  <Input placeholder=\"Enter text...\" variant=\"outline\" />\n  <Input placeholder=\"Enter text...\" variant=\"soft\" />\n</div>",
+          "details": "Use variant to stylize the input."
+        },
+        {
+          "name": "Sizing & roundness",
+          "code": "<div class=\"flex flex-col gap-2.5 justify-start items-start w-[320px]\">\n  <Input\n    placeholder=\"Enter text...\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  />\n  <Input\n    placeholder=\"Search...\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  >\n    <template #startAdornment>\n      <Search class=\"fill-tertiary\" />\n    </template>\n  </Input>\n  <Input\n    v-model:value=\"username\"\n    placeholder=\"Username\"\n    maxlength=\"16\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  >\n    <template #endAdornment>\n      <span class=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">{{ username.length }}/16</span>\n    </template>\n  </Input>\n</div>",
+          "details": "Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently."
+        },
+        {
+          "name": "Start adornment",
+          "code": "<div class=\"w-[320px]\">\n  <Input placeholder=\"Start adornment\">\n    <template #startAdornment>\n      <Search class=\"fill-tertiary\" />\n    </template>\n  </Input>\n</div>",
+          "details": "You can add arbitrary content to the beginning of an input with the startAdornment slot, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutter-size determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutter-size, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes."
+        },
+        {
+          "name": "Clear button",
+          "code": "<div class=\"w-[320px]\">\n  <Input\n    v-model:value=\"value\"\n    placeholder=\"Enter text...\"\n    :pill=\"pill\"\n    :size=\"size\"\n    @clear=\"value = ''\"\n  />\n</div>",
+          "details": "Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only."
+        },
+        {
+          "name": "End adornment",
+          "code": "<div class=\"w-[320px]\">\n  <Input v-model:value=\"username\" placeholder=\"Username\" maxlength=\"16\">\n    <template #endAdornment>\n      <span class=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">{{ username.length }}/16</span>\n    </template>\n  </Input>\n</div>",
+          "details": "You can add arbitrary content to the end of an input with the endAdornment slot, like a character counter or custom icon. The same spacing guidance from startAdornment applies here."
+        },
+        {
+          "name": "Password with visibility toggle",
+          "code": "<div class=\"w-[320px]\">\n  <Input\n    placeholder=\"Password\"\n    :type=\"visible ? 'text' : 'password'\"\n    :size=\"size\"\n    :variant=\"variant\"\n    :pill=\"pill\"\n  >\n    <template #endAdornment>\n      <InputAdornmentButton\n        :aria-label=\"visible ? 'Hide' : 'Show'\"\n        :aria-pressed=\"visible\"\n        @click=\"visible = !visible\"\n      >\n        <EyeOff v-if=\"visible\" />\n        <Eye v-else />\n      </InputAdornmentButton>\n    </template>\n  </Input>\n</div>",
+          "details": "Put an InputAdornmentButton in the endAdornment slot to switch between type=\"password\" and type=\"text\". Works across all sizes, variants, and with pill."
+        },
+        {
+          "name": "SSN input",
+          "code": "<div class=\"w-[320px]\">\n  <div style=\"position: relative\">\n    <Input\n      :value=\"formatSSN(digits)\"\n      :placeholder=\"focused && ssnMask(digits).suffix ? undefined : 'Social Security Number'\"\n      :size=\"size\"\n      :variant=\"variant\"\n      :pill=\"pill\"\n      maxlength=\"11\"\n      inputmode=\"numeric\"\n      :style=\"{\n        fontFamily: 'var(--font-mono, ui-monospace, monospace)',\n        ...(!visible && digits\n          ? { color: 'transparent', caretColor: 'transparent' }\n          : focused && ssnMask(digits).suffix\n            ? { caretColor: 'transparent' }\n            : {}),\n      }\"\n      @update:value=\"(raw) => (digits = nextSSNDigits(raw, digits))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n      @vue:mounted=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n      @vue:updated=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n    >\n      <template #endAdornment>\n        <InputAdornmentButton\n          :aria-label=\"visible ? 'Hide' : 'Show'\"\n          :aria-pressed=\"visible\"\n          @click=\"visible = !visible\"\n        >\n          <EyeOff v-if=\"visible\" />\n          <Eye v-else />\n        </InputAdornmentButton>\n      </template>\n    </Input>\n    <div\n      v-if=\"(!visible && digits) || (focused && ssnMask(digits).suffix)\"\n      aria-hidden=\"true\"\n      :style=\"{\n        position: 'absolute',\n        top: '0',\n        left: '0',\n        right: '0',\n        bottom: '0',\n        display: 'flex',\n        alignItems: 'center',\n        padding: '0 ' + metrics.padding,\n        pointerEvents: 'none',\n        fontSize: metrics.fontSize,\n        lineHeight: metrics.lineHeight,\n        zIndex: 2,\n        fontFamily: 'var(--font-mono, ui-monospace, monospace)',\n        overflow: 'hidden',\n      }\"\n    >\n      <span v-if=\"!visible && digits\" style=\"white-space: pre\">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>\n      <span v-else style=\"visibility: hidden; white-space: pre\">{{ formatSSN(digits) }}</span>\n      <template v-if=\"focused && ssnMask(digits).suffix\">\n        <span v-if=\"ssnMask(digits).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).before }}</span>\n        <span\n          v-if=\"ssnMask(digits).highlight\"\n          style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n        >{{ ssnMask(digits).highlight }}</span>\n        <span v-if=\"ssnMask(digits).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).after }}</span>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "A masked SSN field that formats input as XXX-XX-XXXX, hides digits behind bullets when masked, and reveals the value via an InputAdornmentButton in the endAdornment slot. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically. formatSSN, nextSSNDigits, ssnMask and measureInput are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday input",
+          "code": "<div class=\"w-[320px]\">\n  <div style=\"position: relative\">\n    <Input\n      :value=\"birthday\"\n      :placeholder=\"focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'\"\n      :size=\"size\"\n      :variant=\"variant\"\n      :pill=\"pill\"\n      maxlength=\"14\"\n      inputmode=\"numeric\"\n      :style=\"focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n      @vue:mounted=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n      @vue:updated=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n    />\n    <div\n      v-if=\"focused && birthdayMask(birthday).suffix\"\n      aria-hidden=\"true\"\n      :style=\"{\n        position: 'absolute',\n        top: '0',\n        left: '0',\n        right: '0',\n        bottom: '0',\n        display: 'flex',\n        alignItems: 'center',\n        padding: '0 ' + metrics.padding,\n        pointerEvents: 'none',\n        fontSize: metrics.fontSize,\n        lineHeight: metrics.lineHeight,\n        zIndex: 2,\n        overflow: 'hidden',\n      }\"\n    >\n      <span style=\"visibility: hidden; white-space: pre\">{{ birthday }}</span>\n      <span v-if=\"birthdayMask(birthday).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).before }}</span>\n      <span\n        v-if=\"birthdayMask(birthday).highlight\"\n        style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n      >{{ birthdayMask(birthday).highlight }}</span>\n      <span v-if=\"birthdayMask(birthday).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).after }}</span>\n    </div>\n  </div>\n</div>",
+          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with pill. nextBirthday, birthdayMask and measureInput are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday with validation",
+          "code": "<div class=\"w-[320px]\">\n  <div class=\"flex flex-col gap-1.5\">\n    <div style=\"position: relative\">\n      <Input\n        :value=\"birthday\"\n        :placeholder=\"focused && birthdayMask(birthday).suffix ? undefined : 'Birthday (MM / DD / YYYY)'\"\n        :size=\"size\"\n        :variant=\"variant\"\n        :pill=\"pill\"\n        maxlength=\"14\"\n        inputmode=\"numeric\"\n        :invalid=\"!!birthday && !isValidBirthday(birthday)\"\n        :style=\"focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined\"\n        @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n        @focus=\"focused = true\"\n        @blur=\"focused = false\"\n        @vue:mounted=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n        @vue:updated=\"(vnode) => Object.assign(metrics, measureInput(vnode))\"\n      />\n      <div\n        v-if=\"focused && birthdayMask(birthday).suffix\"\n        aria-hidden=\"true\"\n        :style=\"{\n          position: 'absolute',\n          top: '0',\n          left: '0',\n          right: '0',\n          bottom: '0',\n          display: 'flex',\n          alignItems: 'center',\n          padding: '0 ' + metrics.padding,\n          pointerEvents: 'none',\n          fontSize: metrics.fontSize,\n          lineHeight: metrics.lineHeight,\n          zIndex: 2,\n          overflow: 'hidden',\n        }\"\n      >\n        <span style=\"visibility: hidden; white-space: pre\">{{ birthday }}</span>\n        <span v-if=\"birthdayMask(birthday).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).before }}</span>\n        <span\n          v-if=\"birthdayMask(birthday).highlight\"\n          style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n        >{{ birthdayMask(birthday).highlight }}</span>\n        <span v-if=\"birthdayMask(birthday).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).after }}</span>\n      </div>\n    </div>\n    <FieldError v-if=\"birthday && !isValidBirthday(birthday)\" id=\"input-birthday-validation-demo-error\">\n      Please enter a valid date.\n    </FieldError>\n  </div>\n</div>",
+          "details": "Use invalid and FieldError to display a validation state when the entered date is not valid."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[320px]\">\n  <Input placeholder=\"Jane Doe\" :disabled=\"disabled\" default-value=\"Jane Doe\" />\n</div>",
+          "details": "Use the disabled prop to disable the input, greying it out and preventing user interactions."
+        },
+        {
+          "name": "Invalid",
+          "code": "<div class=\"w-[320px]\">\n  <Input placeholder=\"Invalid input\" :invalid=\"invalid\" />\n</div>",
+          "details": "Use the invalid prop to mark the input as invalid. You decide how this state is removed, whether that's through @focus, @update:value, a submit handler, etc. Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling."
+        },
+        {
+          "name": "Auto select text",
+          "code": "<div class=\"w-[320px]\">\n  <Input placeholder=\"Add text...\" :auto-select=\"autoSelect\" default-value=\"Toggle to auto select\" />\n</div>",
+          "details": "Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
+        },
+        {
+          "name": "Autofill extensions",
+          "code": "<div class=\"w-[320px]\">\n  <Input\n    :key=\"String(allowAutofillExtensions)\"\n    name=\"email\"\n    :allow-autofill-extensions=\"allowAutofillExtensions\"\n    :placeholder=\"allowAutofillExtensions ? 'Allowed' : 'Not allowed'\"\n  />\n</div>",
+          "details": "By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to \"password\", this value will default to true."
+        },
+        {
+          "name": "With button",
+          "code": "<div class=\"flex w-[320px] gap-2\">\n  <Input placeholder=\"jane.doe@gmail.com\" :size=\"size\" :variant=\"variant\" />\n  <Button color=\"primary\" :size=\"size\" :variant=\"variant\">Subscribe</Button>\n</div>",
+          "details": "You can pair Input and Button components together by using the same size value."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/input"
+    },
+    {
+      "slug": "label",
+      "name": "Label",
+      "description": "Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.",
+      "importPath": "@plexui/vue/components/Label",
+      "exports": [
+        "Label"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style=\"display: flex; align-items: center; gap: 8px\">\n  <Checkbox id=\"label-demo-terms\" v-model:checked=\"accepted\" />\n  <Label for=\"label-demo-terms\">Accept terms and conditions</Label>\n</div>",
+          "details": "Clicking the label toggles the checkbox it points at. Here accepted starts as true."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/label"
+    },
+    {
+      "slug": "markdown",
+      "name": "Markdown",
+      "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
+      "importPath": "@plexui/vue/components/Markdown",
+      "exports": [
+        "Markdown"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "string",
+          "description": "Markdown source (text only; interpolate a string to keep its newlines)"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "description": "Markdown source, used when the default slot is empty"
+        },
+        {
+          "name": "include-math",
+          "type": "boolean",
+          "default": "false",
+          "description": "Enable LaTeX math rendering"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Markdown>{{ markdownContent }}</Markdown>",
+          "details": "Use Markdown to render rich markdown text. The markdown is the text of the default slot: interpolate a string ({\"{{ markdown }}\"}) so its newlines are kept, or pass it with the source prop."
+        },
+        {
+          "name": "Math",
+          "code": "<Markdown include-math>{{ markdownWithLatex }}</Markdown>",
+          "details": "Use include-math to enable LaTeX rendering."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/markdown"
+    },
+    {
+      "slug": "markdown-editor",
+      "name": "Markdown Editor",
+      "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
+      "importPath": "@plexui/vue/components/MarkdownEditor",
+      "exports": [
+        "MarkdownEditor"
+      ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style of the editor"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable the editor"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Mark as invalid"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "description": "Placeholder text when empty"
+        },
+        {
+          "name": "value / v-model:value",
+          "type": "string",
+          "description": "Controlled markdown value; `update:value` fires on every change"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "description": "Initial markdown for uncontrolled mode"
+        },
+        {
+          "name": "@change",
+          "type": "(markdown: string) => void",
+          "description": "Called on content change"
+        },
+        {
+          "name": "#toolbarEnd",
+          "type": "slot",
+          "description": "Content rendered at the end of the toolbar"
+        },
+        {
+          "name": "rows",
+          "type": "number",
+          "default": "1",
+          "description": "Minimum visible rows"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Placeholder",
+          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor placeholder=\"Enter text...\" />\n</div>",
+          "details": "Use placeholder to display hint text when the editor is empty."
+        },
+        {
+          "name": "All formatting",
+          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor :default-value=\"allFormattingMd\" />\n</div>",
+          "details": "Example with all supported formatting: bold, italic, links, ordered lists, and unordered lists. Click inside formatted text to see toolbar buttons toggle."
+        },
+        {
+          "name": "Toolbar end slot",
+          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor placeholder=\"Enter text...\">\n    <template #toolbarEnd>\n      <button\n        type=\"button\"\n        :class=\"markdownEditorStyles.toolbarButton\"\n        aria-label=\"Edit translations\"\n        title=\"Edit translations\"\n      >\n        <Translate />\n      </button>\n    </template>\n  </MarkdownEditor>\n</div>",
+          "details": "Use the #toolbarEnd slot to render custom content at the end of the toolbar, for example an &ldquo;Edit translations&rdquo; button. markdownEditorStyles.toolbarButton gives it the style of the built-in toolbar buttons."
+        },
+        {
+          "name": "Variants",
+          "code": "<div class=\"flex flex-col gap-4 w-[500px]\">\n  <MarkdownEditor placeholder=\"Outline variant...\" variant=\"outline\" />\n  <MarkdownEditor placeholder=\"Soft variant...\" variant=\"soft\" />\n</div>",
+          "details": "Use variant to switch between outline (default) and soft styles."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor disabled default-value=\"This content is **read-only**.\" />\n</div>",
+          "details": "Use disabled to prevent editing and grey out the component."
+        },
+        {
+          "name": "Invalid",
+          "code": "<div class=\"w-[500px]\">\n  <MarkdownEditor placeholder=\"Tell us about yourself...\" invalid />\n</div>",
+          "details": "Use invalid to show an error state."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/markdown-editor"
+    },
+    {
+      "slug": "otp-input",
+      "name": "OTP Input",
+      "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
+      "importPath": "@plexui/vue/components/OTPInput",
+      "exports": [
+        "OTPInput"
+      ],
+      "props": [
+        {
+          "name": "length",
+          "type": "number",
+          "default": "6",
+          "description": "Number of digit cells"
+        },
+        {
+          "name": "value / v-model:value",
+          "type": "string",
+          "description": "Controlled value; `update:value` fires on every change"
+        },
+        {
+          "name": "@change",
+          "type": "(value: string) => void",
+          "description": "Fires when the value changes"
+        },
+        {
+          "name": "@complete",
+          "type": "(value: string) => void",
+          "description": "Fires when all digits are filled"
+        },
+        {
+          "name": "grouping",
+          "type": "number[]",
+          "description": "Grouping pattern with extra gap (e.g. [3,3])"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Invalid visual state"
+        },
+        {
+          "name": "error-message",
+          "type": "string",
+          "description": "Error message below the input"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable all cells"
+        },
+        {
+          "name": "auto-focus",
+          "type": "boolean",
+          "default": "false",
+          "description": "Auto-focus first cell on mount"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<OTPInput v-model:value=\"value\" />"
+        },
+        {
+          "name": "Filled state",
+          "code": "<OTPInput v-model:value=\"value\" />"
+        },
+        {
+          "name": "Grouped (3+3)",
+          "code": "<OTPInput v-model:value=\"value\" :grouping=\"[3, 3]\" />"
+        },
+        {
+          "name": "With error",
+          "code": "<OTPInput v-model:value=\"value\" invalid error-message=\"Invalid verification code.\" />"
+        },
+        {
+          "name": "Disabled",
+          "code": "<OTPInput value=\"488030\" disabled />"
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/otp-input"
+    },
+    {
+      "slug": "popover",
+      "name": "Popover",
+      "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
+      "importPath": "@plexui/vue/components/Popover",
+      "exports": [
+        "Popover",
+        "PopoverContent",
+        "PopoverTrigger"
+      ],
+      "props": [
+        {
+          "name": "showOnHover",
+          "type": "boolean",
+          "description": "Open on hover and focus instead of click"
+        },
+        {
+          "name": "open / v-model:open",
+          "type": "boolean",
+          "description": "Controlled open state; uncontrolled when omitted"
+        },
+        {
+          "name": "width",
+          "type": "number | string",
+          "description": "Panel width (px or CSS value)"
+        },
+        {
+          "name": "minWidth",
+          "type": "number | string",
+          "default": "300",
+          "description": "Minimum panel width in px"
+        },
+        {
+          "name": "maxWidth",
+          "type": "number | string",
+          "description": "Maximum panel width"
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
+          "description": "Preferred placement"
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"center\" | \"end\"",
+          "description": "Alignment relative to trigger"
+        },
+        {
+          "name": "sideOffset",
+          "type": "number",
+          "description": "Offset from trigger (px)"
+        },
+        {
+          "name": "alignOffset",
+          "type": "number",
+          "description": "Alignment offset (px)"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" :pill=\"false\">Generate</Button>\n  </PopoverTrigger>\n  <PopoverContent side=\"right\">\n    <div class=\"p-4\">\n      <p class=\"text-sm text-secondary\">Popover content. Use with any floating UI.</p>\n    </div>\n  </PopoverContent>\n</Popover>"
+        },
+        {
+          "name": "Sizing the popover",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" size=\"sm\" variant=\"ghost\" :pill=\"false\" gutter-size=\"xs\" class=\"gap-1.5\">\n      <Bolt /> Actions\n    </Button>\n  </PopoverTrigger>\n  <PopoverContent class=\"flex p-1.5\" min-width=\"auto\" side=\"top\">\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Functions :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Search :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Globe :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <Code :height=\"18\" :width=\"18\" />\n    </Button>\n    <Button color=\"primary\" variant=\"ghost\" :pill=\"false\" size=\"sm\" gutter-size=\"2xs\">\n      <ImageSquare :height=\"18\" :width=\"18\" />\n    </Button>\n  </PopoverContent>\n</Popover>",
+          "details": "The popover can be sized with any combination of width, min-width, or max-width. All popovers default to a min-width of 300px, and a max-width of the popper's viewport detection."
+        },
+        {
+          "name": "Open on hover",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <Popover show-on-hover>\n    <PopoverTrigger>\n      <Button color=\"primary\" :pill=\"false\">Static content</Button>\n    </PopoverTrigger>\n    <PopoverContent :width=\"320\" side=\"right\">\n      <div class=\"p-3\">\n        <h3 class=\"mb-0.5 font-semibold\">Popover Title</h3>\n        <p class=\"text-sm text-secondary\">\n          This is an example of a hoverable popover containing presentational content.\n        </p>\n        <footer class=\"mt-2 text-xs text-tertiary\">Last updated June 20, 2025</footer>\n      </div>\n    </PopoverContent>\n  </Popover>\n  <Popover show-on-hover>\n    <PopoverTrigger>\n      <Button color=\"primary\" :pill=\"false\">Interactive content</Button>\n    </PopoverTrigger>\n    <PopoverContent :min-width=\"230\" side=\"right\" v-slot=\"{ close }\">\n      <div class=\"p-3\">\n        <h3 class=\"mb-0.5 text-sm font-semibold\">Popover with actions</h3>\n        <p class=\"text-sm text-secondary\">Try using tab to navigate</p>\n        <div class=\"mt-3 flex gap-2\">\n          <Button color=\"secondary\" variant=\"soft\" :pill=\"false\" @click=\"close\">\n            Cancel\n          </Button>\n          <Button color=\"primary\" :pill=\"false\" @click=\"close\">\n            Confirm\n          </Button>\n        </div>\n      </div>\n    </PopoverContent>\n  </Popover>\n</div>",
+          "details": "Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close."
+        },
+        {
+          "name": "Using the controller",
+          "code": "<Popover>\n  <PopoverTrigger>\n    <Button color=\"primary\" :pill=\"false\">Generate</Button>\n  </PopoverTrigger>\n  <PopoverContent side=\"right\" v-slot=\"{ close, shake }\">\n    <form\n      @submit.prevent=\"\n        if (!prompt) return shake();\n        submitting = true;\n        submitPrompt().then(() => { submitting = false; prompt = ''; close(); });\n      \"\n    >\n      <textarea\n        v-model=\"prompt\"\n        placeholder=\"Describe what you're using the model for, and we'll generate system instructions.\"\n        style=\"width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0\"\n      />\n      <div class=\"px-3 pb-3 flex items-center justify-between\">\n        <div class=\"flex gap-1.5 items-center font-normal text-sm text-tertiary\">\n          <Sparkles :width=\"16\" :height=\"16\" />\n          Free beta\n        </div>\n        <Button color=\"primary\" size=\"xs\" :pill=\"false\" :loading=\"submitting\" type=\"submit\">\n          Create\n        </Button>\n      </div>\n    </form>\n  </PopoverContent>\n</Popover>",
+          "details": "The default slot of PopoverContent receives {\"{ close, shake }\"}. Components rendered inside it can get the same two methods from usePopoverController() in their setup(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter async submission occurs (submitPrompt() fakes a two-second request), the close() method is called to close the popup imperatively."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/popover"
+    },
+    {
+      "slug": "progress",
+      "name": "Progress",
+      "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+      "importPath": "@plexui/vue/components/Progress",
+      "exports": [
+        "Progress"
+      ],
+      "examples": [
+        {
+          "name": "With label",
+          "code": "<div style=\"display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px\">\n  <div style=\"display: flex; align-items: baseline; justify-content: space-between; gap: 16px\">\n    <Label for=\"progress-upload\">Uploading plex-ui.zip</Label>\n    <span style=\"color: var(--color-text-tertiary); font-size: 14px\">3.2 / 4.8 MB</span>\n  </div>\n  <Progress id=\"progress-upload\" :value=\"67\" />\n</div>",
+          "details": "Pair a Label with a value readout above the bar, the typical upload or onboarding progress pattern."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/progress"
+    },
+    {
+      "slug": "progress-steps",
+      "name": "Progress Steps",
+      "description": "Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.",
+      "importPath": "@plexui/vue/components/ProgressSteps",
+      "exports": [
+        "ProgressSteps",
+        "ProgressStepsStep",
+        "ProgressStepsTitle",
+        "ProgressStepsDescription"
+      ],
+      "props": [
+        {
+          "name": "current",
+          "type": "number",
+          "description": "Current active step (1-based)"
+        },
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Layout direction"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "default": "\"md\"",
+          "description": "Step indicator size"
+        },
+        {
+          "name": "color",
+          "type": "\"default\" | \"success\"",
+          "default": "\"default\"",
+          "description": "Color scheme for completed/active steps"
+        },
+        {
+          "name": "connector-style",
+          "type": "\"solid\" | \"dashed\"",
+          "default": "\"solid\"",
+          "description": "Connector line style"
+        },
+        {
+          "name": "variant",
+          "type": "\"minimal\"",
+          "description": "Compact bar variant (requires total)"
+        },
+        {
+          "name": "total",
+          "type": "number",
+          "description": "Total steps for minimal variant"
+        },
+        {
+          "name": "icon",
+          "type": "Component | VNode | string",
+          "description": "Custom icon instead of step number; the icon slot takes precedence"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ProgressSteps\n  :current=\"Number(current)\"\n  :orientation=\"orientation\"\n  :size=\"size\"\n  :color=\"color\"\n  :connector-style=\"connectorStyle\"\n  class=\"w-full\"\n>\n  <ProgressStepsStep>\n    <ProgressStepsTitle>Your details</ProgressStepsTitle>\n    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <ProgressStepsTitle>Company details</ProgressStepsTitle>\n    <ProgressStepsDescription>A few details about your company</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>\n    <ProgressStepsDescription>Start collaborating with your team</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <ProgressStepsTitle>Add your socials</ProgressStepsTitle>\n    <ProgressStepsDescription>Share posts to your social accounts</ProgressStepsDescription>\n  </ProgressStepsStep>\n</ProgressSteps>"
+        },
+        {
+          "name": "Sizes",
+          "code": "<ProgressSteps :current=\"Number(current)\" :size=\"size\" class=\"w-full\">\n  <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>\n  <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>\n  <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>\n  <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>\n</ProgressSteps>",
+          "details": "Use size to control the scale of step indicators."
+        },
+        {
+          "name": "Vertical",
+          "code": "<div class=\"flex flex-wrap justify-center gap-20\">\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Default</div>\n    <ProgressSteps :current=\"2\" orientation=\"vertical\">\n      <ProgressStepsStep v-for=\"step in steps\" :key=\"step.title\">\n        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>\n        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>\n      </ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">With dashed connector</div>\n    <ProgressSteps :current=\"3\" orientation=\"vertical\" connector-style=\"dashed\">\n      <ProgressStepsStep v-for=\"step in steps\" :key=\"step.title\">\n        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>\n        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>\n      </ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n</div>",
+          "details": "Use orientation=\"vertical\" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {\"{ title, description }\"} objects."
+        },
+        {
+          "name": "With Icons",
+          "code": "<ProgressSteps :current=\"3\" class=\"w-full\">\n  <ProgressStepsStep>\n    <template #icon><Email /></template>\n    <ProgressStepsTitle>Your details</ProgressStepsTitle>\n    <ProgressStepsDescription>Please provide your name and email</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <template #icon><Globe /></template>\n    <ProgressStepsTitle>Company details</ProgressStepsTitle>\n    <ProgressStepsDescription>Website and location</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <template #icon><Users /></template>\n    <ProgressStepsTitle>Invite your team</ProgressStepsTitle>\n    <ProgressStepsDescription>Start collaborating</ProgressStepsDescription>\n  </ProgressStepsStep>\n  <ProgressStepsStep>\n    <template #icon><Bolt /></template>\n    <ProgressStepsTitle>Get started</ProgressStepsTitle>\n    <ProgressStepsDescription>Ready to go</ProgressStepsDescription>\n  </ProgressStepsStep>\n</ProgressSteps>",
+          "details": "Use the icon slot (or the icon prop) on ProgressStepsStep to display custom icons instead of step numbers."
+        },
+        {
+          "name": "With Navigation",
+          "code": "<div class=\"flex flex-col items-center gap-6\">\n  <ProgressSteps variant=\"minimal\" :current=\"step\" :total=\"4\" />\n  <div class=\"text-center\">\n    <h3 class=\"text-lg font-semibold\">Step {{ step }} of 4</h3>\n    <p class=\"text-secondary mt-1\">{{ steps[Math.min(step - 1, 3)].title }}</p>\n  </div>\n  <div class=\"flex gap-3\">\n    <Button color=\"secondary\" variant=\"outline\" class=\"w-28\" :disabled=\"step === 1\" @click=\"step = Math.max(1, step - 1)\">\n      Previous\n    </Button>\n    <Button color=\"primary\" class=\"w-28\" :disabled=\"step === 4\" @click=\"step = Math.min(4, step + 1)\">\n      Next\n    </Button>\n  </div>\n</div>",
+          "details": "Example of integrating with navigation controls."
+        },
+        {
+          "name": "Minimal",
+          "code": "<ProgressSteps variant=\"minimal\" :current=\"Number(current)\" :total=\"4\" :color=\"color\" />",
+          "details": "Use variant=\"minimal\" for a compact horizontal bar indicator. Requires total prop."
+        },
+        {
+          "name": "Icons Only",
+          "code": "<ProgressSteps :current=\"2\" class=\"w-full\">\n  <ProgressStepsStep />\n  <ProgressStepsStep />\n  <ProgressStepsStep />\n  <ProgressStepsStep />\n</ProgressSteps>",
+          "details": "Omit ProgressStepsTitle and ProgressStepsDescription for a minimal indicator when step details are shown elsewhere."
+        },
+        {
+          "name": "Colors",
+          "code": "<div class=\"flex flex-col gap-12 w-full\">\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Default</div>\n    <ProgressSteps :current=\"3\" class=\"w-full\">\n      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Success</div>\n    <ProgressSteps :current=\"3\" color=\"success\" class=\"w-full\">\n      <ProgressStepsStep><ProgressStepsTitle>Step 1</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 2</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 3</ProgressStepsTitle></ProgressStepsStep>\n      <ProgressStepsStep><ProgressStepsTitle>Step 4</ProgressStepsTitle></ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n</div>",
+          "details": "Use color to change the color scheme of completed and active steps."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/progress-steps"
+    },
+    {
+      "slug": "separator",
+      "name": "Separator",
+      "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
+      "importPath": "@plexui/vue/components/Separator",
+      "exports": [
+        "Separator"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div style=\"display: flex; max-width: 384px; flex-direction: column; gap: 16px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)\">\n  <div style=\"display: flex; flex-direction: column; gap: 2px; line-height: 1.3\">\n    <div style=\"font-weight: 500\">Aisha Cooper</div>\n    <div style=\"color: var(--color-text-tertiary)\">Engineering · Platform team</div>\n  </div>\n  <Separator />\n  <div>Shipped 24 pull requests this week across CI/CD and developer tooling.</div>\n</div>"
+        },
+        {
+          "name": "Vertical",
+          "code": "<div style=\"display: flex; height: 20px; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)\">\n  <div>MIT license</div>\n  <Separator orientation=\"vertical\" />\n  <div>12k weekly downloads</div>\n  <Separator orientation=\"vertical\" />\n  <div>48 kB bundle</div>\n</div>",
+          "details": "Use orientation=\"vertical\" between inline items. Works for meta-strips, breadcrumbs, and dot-less separators."
+        },
+        {
+          "name": "Menu",
+          "code": "<div style=\"display: flex; align-items: center; gap: 16px; font-size: var(--font-text-sm-size)\">\n  <template v-for=\"(plan, i) in [\n    { name: 'Starter', meta: 'Free · 1 project' },\n    { name: 'Pro', meta: '$19/mo · Unlimited' },\n    { name: 'Enterprise', meta: 'Custom · Priority SLA' },\n  ]\" :key=\"plan.name\">\n    <Separator v-if=\"i > 0\" orientation=\"vertical\" />\n    <div style=\"display: flex; flex-direction: column; gap: 2px; line-height: 1.2\">\n      <span style=\"font-weight: 500\">{{ plan.name }}</span>\n      <span style=\"font-size: var(--font-text-xs-size); color: var(--color-text-tertiary)\">{{ plan.meta }}</span>\n    </div>\n  </template>\n</div>",
+          "details": "Vertical separators between menu items with a short caption underneath each label."
+        },
+        {
+          "name": "List",
+          "code": "<div style=\"display: flex; width: 100%; max-width: 384px; flex-direction: column; gap: 8px; font-size: var(--font-text-sm-size); line-height: var(--font-text-sm-line-height)\">\n  <template v-for=\"(row, i) in [\n    ['Version', '0.9.0'],\n    ['Published', '2 days ago'],\n    ['Bundle', '48 kB'],\n    ['License', 'MIT'],\n  ]\" :key=\"row[0]\">\n    <Separator v-if=\"i > 0\" />\n    <dl style=\"display: flex; align-items: center; justify-content: space-between; margin: 0\">\n      <dt>{{ row[0] }}</dt>\n      <dd style=\"margin: 0; color: var(--color-text-tertiary)\">{{ row[1] }}</dd>\n    </dl>\n  </template>\n</div>",
+          "details": "Horizontal separators between rows in a definition list."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/separator"
+    },
+    {
+      "slug": "shimmer-text",
+      "name": "Shimmer Text",
+      "description": "Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.",
+      "importPath": "@plexui/vue/components/ShimmerText",
+      "exports": [
+        "ShimmerText",
+        "ShimmerableText"
+      ],
+      "props": [
+        {
+          "name": "as",
+          "type": "\"p\" | \"span\" | \"h1\" | \"h2\" | \"h3\" | \"h4\" | \"h5\" | \"h6\" | \"div\"",
+          "default": "\"div\"",
+          "description": "HTML element to render"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "Text content to shimmer"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Additional CSS classes"
+        },
+        {
+          "name": "shimmer",
+          "type": "boolean",
+          "default": "false",
+          "description": "Whether the shimmer animation is active"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ShimmerText class=\"text-lg font-semibold\">\n  Thinking...\n</ShimmerText>",
+          "details": "ShimmerText applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis."
+        },
+        {
+          "name": "Semantic elements",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <ShimmerText as=\"h2\" class=\"text-2xl font-bold\">Heading shimmer</ShimmerText>\n  <ShimmerText as=\"p\" class=\"text-base\">Paragraph shimmer effect</ShimmerText>\n  <ShimmerText as=\"span\" class=\"text-sm text-secondary\">Inline shimmer</ShimmerText>\n</div>",
+          "details": "Use the as prop to render as any text element: p, span, h1 to h6, or div."
+        },
+        {
+          "name": "Controllable shimmer",
+          "code": "<ShimmerableText :shimmer=\"shimmer\" class=\"text-lg font-semibold\">\n  Generating response...\n</ShimmerableText>",
+          "details": "ShimmerableText allows toggling the shimmer on and off. When shimmer is set to false, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut. Use this variant when text transitions between a loading and idle state."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/shimmer-text"
+    },
+    {
+      "slug": "skeleton",
+      "name": "Skeleton",
+      "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+      "importPath": "@plexui/vue/components/Skeleton",
+      "exports": [
+        "Skeleton"
+      ],
+      "props": [
+        {
+          "name": "circle",
+          "type": "boolean",
+          "default": "false",
+          "description": "Render a circular skeleton"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Set dimensions and custom styling"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex items-center gap-4\">\n  <Skeleton circle class=\"size-12\" />\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[200px]\" />\n    <Skeleton class=\"h-4 w-[150px]\" />\n  </div>\n</div>",
+          "details": "Use a circular skeleton to represent loading avatars, combined with text placeholders."
+        },
+        {
+          "name": "Card",
+          "code": "<div class=\"flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl\">\n  <Skeleton class=\"h-[150px] w-full rounded-lg\" />\n  <Skeleton class=\"h-4 w-3/4\" />\n  <Skeleton class=\"h-4 w-1/2\" />\n</div>",
+          "details": "Compose multiple skeletons to represent loading cards with images and text content."
+        },
+        {
+          "name": "Text",
+          "code": "<div class=\"flex flex-col gap-2 w-[300px]\">\n  <Skeleton class=\"h-4 w-full\" />\n  <Skeleton class=\"h-4 w-full\" />\n  <Skeleton class=\"h-4 w-4/5\" />\n</div>",
+          "details": "Multiple text lines with varying widths create natural-looking paragraph placeholders."
+        },
+        {
+          "name": "Form",
+          "code": "<div class=\"flex flex-col gap-4 w-[300px]\">\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[80px]\" />\n    <Skeleton class=\"h-10 w-full rounded-lg\" />\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <Skeleton class=\"h-4 w-[100px]\" />\n    <Skeleton class=\"h-10 w-full rounded-lg\" />\n  </div>\n  <Skeleton class=\"h-10 w-[120px] rounded-lg\" />\n</div>",
+          "details": "Form skeletons use Plex UI control sizing (32px height for inputs and buttons)."
+        },
+        {
+          "name": "Table",
+          "code": "<div class=\"flex flex-col gap-2 w-[400px]\">\n  <div class=\"flex gap-4 pb-2 border-b border-default\">\n    <Skeleton class=\"h-4 w-[100px]\" />\n    <Skeleton class=\"h-4 w-[150px]\" />\n    <Skeleton class=\"h-4 w-[80px]\" />\n  </div>\n  <div v-for=\"i in 4\" :key=\"i\" class=\"flex gap-4 py-2\">\n    <Skeleton class=\"h-4 w-[100px]\" />\n    <Skeleton class=\"h-4 w-[150px]\" />\n    <Skeleton class=\"h-4 w-[80px]\" />\n  </div>\n</div>",
+          "details": "Table skeletons show header and row structure while data loads."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/skeleton"
+    },
+    {
+      "slug": "switch",
+      "name": "Switch",
+      "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
+      "importPath": "@plexui/vue/components/Switch",
+      "exports": [
+        "Switch"
+      ],
+      "props": [
+        {
+          "name": "checked / v-model:checked",
+          "type": "boolean",
+          "description": "Controlled state"
+        },
+        {
+          "name": "default-checked",
+          "type": "boolean",
+          "description": "Initial state (uncontrolled)"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible label rendered next to the switch"
+        },
+        {
+          "name": "label slot",
+          "type": "VNode[]",
+          "description": "Rich label content; takes precedence over the label prop"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "Secondary text below the label, linked via aria-describedby"
+        },
+        {
+          "name": "description slot",
+          "type": "VNode[]",
+          "description": "Rich description content; takes precedence over the description prop"
+        },
+        {
+          "name": "label-position",
+          "type": "\"start\" | \"end\"",
+          "default": "\"end\"",
+          "description": "Label on the left (start) or right (end)"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Prevent interaction"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "description": "Required for form submission"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Form field name"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "\"on\"",
+          "description": "Value when submitted"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "CSS classes applied to the wrapper node"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the switch element (generated when omitted)"
+        },
+        {
+          "name": "@update:checked",
+          "type": "(next: boolean) => void",
+          "description": "Emitted with the next state when toggled"
+        },
+        {
+          "name": "@focus",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the switch gains focus"
+        },
+        {
+          "name": "@blur",
+          "type": "(event: FocusEvent) => void",
+          "description": "Emitted when the switch loses focus"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Base",
+          "code": "<Switch />"
+        },
+        {
+          "name": "With label",
+          "code": "<Switch label=\"Notifications\" />",
+          "details": "Add a label using the label prop. The label is automatically connected to the switch via id."
+        },
+        {
+          "name": "With description",
+          "code": "<Switch\n  label=\"Disable user API keys\"\n  description=\"Disable user-based API keys across your entire organization.\"\n/>",
+          "details": "Add a description below the label for additional context. It is linked to the switch via aria-describedby."
+        },
+        {
+          "name": "Label position",
+          "code": "<Switch label=\"Right aligned\" label-position=\"start\" />",
+          "details": "Set label-position=\"start\" to place the label on the left side of the switch control."
+        },
+        {
+          "name": "Label position with description",
+          "code": "<Switch\n  label=\"Dark mode\"\n  description=\"Use dark theme across the entire application.\"\n  label-position=\"start\"\n/>",
+          "details": "The description follows the label position, so both move together when label-position=\"start\" is set."
+        },
+        {
+          "name": "Default checked",
+          "code": "<Switch label=\"Enable notifications\" name=\"notifications\" default-checked />",
+          "details": "Initialize the switch with default-checked when you don't need to control its state. Use the name prop to read the value on form submission."
+        },
+        {
+          "name": "Controlled",
+          "code": "<Switch label=\"Airplane mode\" v-model:checked=\"checked\" />",
+          "details": "Bind v-model:checked to manage the state in a controlled manner. Here checked starts as false."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"flex gap-6\">\n  <Switch disabled />\n  <Switch disabled checked />\n</div>",
+          "details": "Use disabled to prevent the user from toggling the control."
+        },
+        {
+          "name": "Disabled with label",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <Switch label=\"Notifications\" disabled />\n  <Switch label=\"Notifications\" disabled default-checked />\n</div>",
+          "details": "The disabled state works with labels: both the toggle and the label show a not-allowed cursor."
+        },
+        {
+          "name": "Disabled with description",
+          "code": "<div class=\"flex flex-col gap-4\">\n  <Switch\n    label=\"Enable SSO\"\n    description=\"Requires an Enterprise plan to configure.\"\n    disabled\n  />\n  <Switch\n    label=\"Two-factor authentication\"\n    description=\"Enforced by organization policy.\"\n    disabled\n    default-checked\n  />\n</div>",
+          "details": "Combine disabled with label and description for read-only settings that need explanation."
+        },
+        {
+          "name": "Settings panel",
+          "code": "<div class=\"flex w-full max-w-lg flex-col gap-8\">\n  <Switch\n    label=\"Enable custom providers for evals\"\n    description=\"Allow eval runs to use third-party models you configure under Custom model providers.\"\n  />\n  <Switch\n    label=\"Enable OpenRouter models\"\n    description=\"Make OpenRouter models available for evaluation runs.\"\n  />\n  <Switch\n    label=\"Disable user API keys\"\n    description=\"Disable user-based API keys across your entire organization.\"\n    default-checked\n  />\n</div>",
+          "details": "Combine label and description to build settings-style toggle panels."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/switch"
+    },
+    {
+      "slug": "table",
+      "name": "Table",
+      "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
+      "importPath": "@plexui/vue/components/Table",
+      "exports": [
+        "Table",
+        "TableHeader",
+        "TableBody",
+        "TableRow",
+        "TableHead",
+        "TableCell"
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Table>\n  <TableCaption>A list of your recent invoices.</TableCaption>\n  <TableHeader>\n    <TableRow>\n      <TableHead>Invoice</TableHead>\n      <TableHead>Status</TableHead>\n      <TableHead>Method</TableHead>\n      <TableHead class=\"text-right\">Amount</TableHead>\n    </TableRow>\n  </TableHeader>\n  <TableBody>\n    <TableRow\n      v-for=\"invoice in [\n        { invoice: 'INV001', status: 'Paid', method: 'Credit Card', amount: '$250.00' },\n        { invoice: 'INV002', status: 'Pending', method: 'PayPal', amount: '$150.00' },\n        { invoice: 'INV003', status: 'Unpaid', method: 'Bank Transfer', amount: '$350.00' },\n        { invoice: 'INV004', status: 'Paid', method: 'Credit Card', amount: '$450.00' },\n        { invoice: 'INV005', status: 'Paid', method: 'PayPal', amount: '$550.00' },\n      ]\"\n      :key=\"invoice.invoice\"\n    >\n      <TableCell class=\"font-medium\">{{ invoice.invoice }}</TableCell>\n      <TableCell>{{ invoice.status }}</TableCell>\n      <TableCell>{{ invoice.method }}</TableCell>\n      <TableCell class=\"text-right\">{{ invoice.amount }}</TableCell>\n    </TableRow>\n  </TableBody>\n  <TableFooter>\n    <TableRow>\n      <TableCell colspan=\"3\">Total</TableCell>\n      <TableCell class=\"text-right\">$1,750.00</TableCell>\n    </TableRow>\n  </TableFooter>\n</Table>",
+          "details": "A complete table with header, body, footer, and caption showing invoice data."
+        },
+        {
+          "name": "With footer",
+          "code": "<Table>\n  <TableHeader>\n    <TableRow>\n      <TableHead>Product</TableHead>\n      <TableHead class=\"text-right\">Qty</TableHead>\n      <TableHead class=\"text-right\">Price</TableHead>\n      <TableHead class=\"text-right\">Total</TableHead>\n    </TableRow>\n  </TableHeader>\n  <TableBody>\n    <TableRow>\n      <TableCell class=\"font-medium\">Pro Plan</TableCell>\n      <TableCell class=\"text-right\">3</TableCell>\n      <TableCell class=\"text-right\">$29.00</TableCell>\n      <TableCell class=\"text-right\">$87.00</TableCell>\n    </TableRow>\n    <TableRow>\n      <TableCell class=\"font-medium\">Storage Add-on</TableCell>\n      <TableCell class=\"text-right\">1</TableCell>\n      <TableCell class=\"text-right\">$9.00</TableCell>\n      <TableCell class=\"text-right\">$9.00</TableCell>\n    </TableRow>\n  </TableBody>\n  <TableFooter>\n    <TableRow>\n      <TableCell colspan=\"3\">Subtotal</TableCell>\n      <TableCell class=\"text-right font-semibold\">$96.00</TableCell>\n    </TableRow>\n  </TableFooter>\n</Table>",
+          "details": "A table with a footer row displaying subtotal information."
+        },
+        {
+          "name": "Minimal",
+          "code": "<Table>\n  <TableHeader>\n    <TableRow>\n      <TableHead>Name</TableHead>\n      <TableHead>Title</TableHead>\n      <TableHead>Email</TableHead>\n    </TableRow>\n  </TableHeader>\n  <TableBody>\n    <TableRow\n      v-for=\"person in [\n        { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay@example.com' },\n        { name: 'Courtney Henry', title: 'Designer', email: 'courtney@example.com' },\n        { name: 'Tom Cook', title: 'Director of Product', email: 'tom@example.com' },\n      ]\"\n      :key=\"person.email\"\n    >\n      <TableCell class=\"font-medium\">{{ person.name }}</TableCell>\n      <TableCell>{{ person.title }}</TableCell>\n      <TableCell>{{ person.email }}</TableCell>\n    </TableRow>\n  </TableBody>\n</Table>",
+          "details": "A simple table without caption or footer, showing a list of people."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "Table Primitives",
+          "props": [
+            {
+              "name": "Table",
+              "type": "table",
+              "description": "Root table container with horizontal scroll wrapper; attributes go to the <table>"
+            },
+            {
+              "name": "TableHeader",
+              "type": "thead",
+              "description": "Table header group"
+            },
+            {
+              "name": "TableBody",
+              "type": "tbody",
+              "description": "Table body group"
+            },
+            {
+              "name": "TableFooter",
+              "type": "tfoot",
+              "description": "Table footer group"
+            },
+            {
+              "name": "TableRow",
+              "type": "tr",
+              "description": "Table row"
+            },
+            {
+              "name": "TableHead",
+              "type": "th",
+              "description": "Table header cell"
+            },
+            {
+              "name": "TableCell",
+              "type": "td",
+              "description": "Table data cell"
+            },
+            {
+              "name": "TableCaption",
+              "type": "caption",
+              "description": "Table caption"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/table"
+    },
+    {
+      "slug": "tabs",
+      "name": "Tabs",
+      "description": "Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.",
+      "importPath": "@plexui/vue/components/Tabs",
+      "exports": [
+        "Tabs",
+        "TabsTab"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "Selected tab value. Bind with v-model:value; leave unset for an uncontrolled group"
+        },
+        {
+          "name": "variant",
+          "type": "\"segmented\" | \"underline\"",
+          "default": "\"segmented\"",
+          "description": "Visual style: segmented (background highlight) or underline (line indicator)"
+        },
+        {
+          "name": "orientation",
+          "type": "\"horizontal\" | \"vertical\"",
+          "default": "\"horizontal\"",
+          "description": "Layout direction of the tab group"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height (3xs through 3xl)"
+        },
+        {
+          "name": "gutter-size",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Horizontal padding of tabs"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "true",
+          "description": "Fully rounded control (segmented variant only)"
+        },
+        {
+          "name": "flush",
+          "type": "boolean",
+          "default": "false",
+          "description": "Text-width indicator, no border, gap spacing (underline variant only)"
+        },
+        {
+          "name": "block",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full-width control with equal-width tabs"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable all tabs"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Accessible name (required)"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Extra classes on the group element"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "TabsTab children"
+        },
+        {
+          "name": "@update:value",
+          "type": "(value: string) => void",
+          "description": "Emitted when a tab is selected; powers v-model:value"
+        },
+        {
+          "name": "@change",
+          "type": "(value: string) => void",
+          "description": "Emitted with update:value, named after the React onChange prop"
+        },
+        {
+          "name": "@click",
+          "type": "(event: MouseEvent) => void",
+          "description": "Emitted on any click in the group, even when the selection does not change"
+        },
+        {
+          "name": "icon",
+          "type": "Component | VNode | string",
+          "description": "Icon before the label (sized automatically); the icon slot takes precedence"
+        },
+        {
+          "name": "badge",
+          "type": "number | string | VNode | { content; color?; variant?; pill?; loading? }",
+          "description": "Badge/count or custom badge config"
+        },
+        {
+          "name": "icon slot",
+          "type": "VNode[]",
+          "description": "Icon before the label"
+        },
+        {
+          "name": "badge slot",
+          "type": "VNode[]",
+          "description": "Badge content; styling still comes from the badge object"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Tabs\n  v-model:value=\"tab\"\n  :variant=\"variant\"\n  :orientation=\"orientation\"\n  :size=\"size\"\n  :pill=\"pill\"\n  :flush=\"flush\"\n  :block=\"block\"\n  :disabled=\"disabled\"\n  aria-label=\"Demo tabs\"\n>\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n  <TabsTab value=\"settings\">Settings</TabsTab>\n</Tabs>",
+          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with v-model:value; the examples keep it in a tab variable."
+        },
+        {
+          "name": "Segmented with icons",
+          "code": "<Tabs v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"Navigation\">\n  <TabsTab value=\"home\"><template #icon><Home /></template>Home</TabsTab>\n  <TabsTab value=\"settings\"><template #icon><SettingsCog /></template>Settings</TabsTab>\n  <TabsTab value=\"notifications\"><template #icon><Bell /></template>Notifications</TabsTab>\n</Tabs>",
+          "details": "Icons work with the segmented variant: put the icon in the icon slot of individual tabs, or pass a component to the icon prop. Icons are automatically sized to match the current size."
+        },
+        {
+          "name": "Icon only",
+          "code": "<Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" :pill=\"pill\" aria-label=\"Navigation\">\n  <TabsTab value=\"home\" aria-label=\"Home\"><template #icon><Home /></template></TabsTab>\n  <TabsTab value=\"settings\" aria-label=\"Settings\"><template #icon><SettingsCog /></template></TabsTab>\n  <TabsTab value=\"notifications\" aria-label=\"Notifications\"><template #icon><Bell /></template></TabsTab>\n</Tabs>",
+          "details": "Leave out the label and fill only the icon slot for compact icon-only tabs. Always provide an aria-label on each tab for accessibility."
+        },
+        {
+          "name": "Segmented with badge",
+          "code": "<Tabs v-model:value=\"tab\" :size=\"size\" :pill=\"pill\" aria-label=\"Filter\">\n  <TabsTab value=\"all\" :badge=\"{ content: 128, pill: badgePill }\">All</TabsTab>\n  <TabsTab value=\"unread\" :badge=\"{ content: 12, color: 'info', pill: badgePill }\">Unread</TabsTab>\n  <TabsTab value=\"flagged\" :badge=\"{ content: 3, color: 'danger', pill: badgePill }\">Flagged</TabsTab>\n</Tabs>",
+          "details": "Pass a number or an object with content, color, and variant to the badge prop. Badges render inline after the tab label inside the segmented container."
+        },
+        {
+          "name": "Underline",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" :size=\"size\" aria-label=\"Sections\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n  <TabsTab value=\"settings\">Settings</TabsTab>\n</Tabs>",
+          "details": "Set variant=\"underline\" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered."
+        },
+        {
+          "name": "Underline flush",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" flush :size=\"size\" aria-label=\"Sections\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n  <TabsTab value=\"settings\">Settings</TabsTab>\n</Tabs>",
+          "details": "Add flush with variant=\"underline\" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding."
+        },
+        {
+          "name": "Underline block",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" block :size=\"size\" aria-label=\"Sections\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n</Tabs>",
+          "details": "Use block with the underline variant for full-width tabs that stretch evenly across the container."
+        },
+        {
+          "name": "Underline with icons",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" :size=\"size\" aria-label=\"Navigation\">\n  <TabsTab value=\"home\"><template #icon><Home /></template>Home</TabsTab>\n  <TabsTab value=\"settings\"><template #icon><SettingsCog /></template>Settings</TabsTab>\n  <TabsTab value=\"notifications\"><template #icon><Bell /></template>Notifications</TabsTab>\n</Tabs>",
+          "details": "Icons work with the underline variant the same way as with segmented. Use the icon slot on individual tabs."
+        },
+        {
+          "name": "Underline with badge",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" :size=\"size\" aria-label=\"Filter\">\n  <TabsTab value=\"all\" :badge=\"{ content: 128, pill: badgePill }\">All</TabsTab>\n  <TabsTab value=\"unread\" :badge=\"{ content: 12, color: 'info', pill: badgePill }\">Unread</TabsTab>\n  <TabsTab value=\"flagged\" :badge=\"{ content: 3, color: 'danger', pill: badgePill }\">Flagged</TabsTab>\n</Tabs>",
+          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, and variant."
+        },
+        {
+          "name": "Vertical segmented",
+          "code": "<Tabs v-model:value=\"tab\" orientation=\"vertical\" :size=\"size\" aria-label=\"Settings\">\n  <TabsTab value=\"account\">Account</TabsTab>\n  <TabsTab value=\"password\">Password</TabsTab>\n  <TabsTab value=\"notifications\">Notifications</TabsTab>\n  <TabsTab value=\"display\">Display</TabsTab>\n</Tabs>",
+          "details": "Set orientation=\"vertical\" to stack tabs vertically. The sliding thumb animates up and down."
+        },
+        {
+          "name": "Vertical underline",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" orientation=\"vertical\" :size=\"size\" aria-label=\"Settings\">\n  <TabsTab value=\"account\">Account</TabsTab>\n  <TabsTab value=\"password\">Password</TabsTab>\n  <TabsTab value=\"notifications\">Notifications</TabsTab>\n  <TabsTab value=\"display\">Display</TabsTab>\n</Tabs>",
+          "details": "Combine variant=\"underline\" with orientation=\"vertical\" for a sidebar-style navigation pattern. The line indicator appears on the left side."
+        },
+        {
+          "name": "Vertical underline with icons",
+          "code": "<Tabs v-model:value=\"tab\" variant=\"underline\" orientation=\"vertical\" :size=\"size\" aria-label=\"Navigation\">\n  <TabsTab value=\"home\"><template #icon><Home /></template>Home</TabsTab>\n  <TabsTab value=\"settings\"><template #icon><SettingsCog /></template>Settings</TabsTab>\n  <TabsTab value=\"notifications\"><template #icon><Bell /></template>Notifications</TabsTab>\n</Tabs>",
+          "details": "Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels."
+        },
+        {
+          "name": "Disabled tab",
+          "code": "<Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Sections\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\" disabled>Reports</TabsTab>\n  <TabsTab value=\"settings\">Settings</TabsTab>\n</Tabs>",
+          "details": "Use disabled on individual TabsTab elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected."
+        },
+        {
+          "name": "Sizing",
+          "code": "<Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Demo tabs\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n</Tabs>",
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs."
+        },
+        {
+          "name": "Scrollable",
+          "code": "<div class=\"max-w-[400px] flex\">\n  <Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Scrollable tabs\">\n    <TabsTab value=\"1\">Overview</TabsTab>\n    <TabsTab value=\"2\">Analytics</TabsTab>\n    <TabsTab value=\"3\">Reports</TabsTab>\n    <TabsTab value=\"4\">Settings</TabsTab>\n    <TabsTab value=\"5\">Members</TabsTab>\n    <TabsTab value=\"6\">Billing</TabsTab>\n    <TabsTab value=\"7\">Security</TabsTab>\n    <TabsTab value=\"8\">Integrations</TabsTab>\n  </Tabs>\n</div>",
+          "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/tabs"
+    },
+    {
+      "slug": "tag-input",
+      "name": "Tag Input",
+      "description": "Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.",
+      "importPath": "@plexui/vue/components/TagInput",
+      "exports": [
+        "TagInput"
+      ],
+      "props": [
+        {
+          "name": "value / v-model:value",
+          "type": "Tag[]",
+          "description": "Controlled value; `update:value` fires on every change"
+        },
+        {
+          "name": "default-value",
+          "type": "Tag[]",
+          "description": "Uncontrolled initial tags"
+        },
+        {
+          "name": "@change",
+          "type": "(tags: Tag[]) => void",
+          "description": "Fires when the tags change"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "description": "Input placeholder"
+        },
+        {
+          "name": "validator",
+          "type": "(value: string) => boolean",
+          "description": "Validates each tag; invalid tags shown in red"
+        },
+        {
+          "name": "max-tags",
+          "type": "number",
+          "description": "Max tags before input is disabled"
+        },
+        {
+          "name": "rows",
+          "type": "number",
+          "default": "1",
+          "description": "Min rows"
+        },
+        {
+          "name": "size",
+          "type": "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'",
+          "default": "xl",
+          "description": "Control height when rows=1; matches Input height of the same size"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "false",
+          "description": "Fully-rounded container and chips; matches Input/SelectControl pill"
+        },
+        {
+          "name": "delimiters",
+          "type": "string[]",
+          "default": "[\",\", \" \"]",
+          "description": "Characters that commit the current text as a tag"
+        },
+        {
+          "name": "auto-focus",
+          "type": "boolean",
+          "default": "false",
+          "description": "Focus on mount"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"w-[480px]\">\n  <TagInput placeholder=\"Add a tag...\" :size=\"size\" :rows=\"Number(rows)\" :pill=\"pill\" />\n</div>"
+        },
+        {
+          "name": "Suggestions",
+          "code": "<script setup lang=\"ts\">\nimport { computed, ref } from \"vue\"\nimport { Button } from \"@plexui/vue/components/Button\"\nimport { TagInput, type Tag } from \"@plexui/vue/components/TagInput\"\n\nconst SUGGESTIONS = [\"React\", \"TypeScript\", \"Next.js\", \"Tailwind CSS\", \"Node.js\", \"GraphQL\", \"PostgreSQL\", \"Redis\", \"Docker\", \"AWS\"]\n\nconst tags = ref<Tag[]>([\n  { value: \"React\", valid: true },\n  { value: \"TypeScript\", valid: true },\n])\n\nconst available = computed(() => {\n  const selected = new Set(tags.value.map((t) => t.value))\n  return SUGGESTIONS.filter((s) => !selected.has(s))\n})\n</script>\n\n<template>\n  <div class=\"flex flex-col gap-3\">\n    <TagInput v-model:value=\"tags\" placeholder=\"Add a skill...\" />\n    <div v-if=\"available.length > 0\" class=\"flex flex-wrap gap-1.5\">\n      <Button\n        v-for=\"s in available\"\n        :key=\"s\"\n        size=\"xs\"\n        color=\"secondary\"\n        variant=\"soft\"\n        :pill=\"false\"\n        @click=\"tags = [...tags, { value: s, valid: true }]\"\n      >\n        {{ s }}\n      </Button>\n    </div>\n  </div>\n</template>",
+          "details": "Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/tag-input"
+    },
+    {
+      "slug": "text-link",
+      "name": "Text Link",
+      "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
+      "importPath": "@plexui/vue/components/TextLink",
+      "exports": [
+        "TextLink"
+      ],
+      "props": [
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "Link content"
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "description": "URL"
+        },
+        {
+          "name": "to",
+          "type": "string | RouteLocationRaw",
+          "description": "Router link destination (internal)"
+        },
+        {
+          "name": "primary",
+          "type": "boolean",
+          "default": "false",
+          "description": "Primary color, no default underline"
+        },
+        {
+          "name": "underline",
+          "type": "boolean",
+          "default": "true",
+          "description": "Underline (default true unless primary)"
+        },
+        {
+          "name": "force-external",
+          "type": "boolean",
+          "description": "Force external link behavior"
+        },
+        {
+          "name": "as",
+          "type": "Component",
+          "description": "Link component (e.g. RouterLink, NuxtLink)"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex gap-4\">\n  <TextLink href=\"#\">Read more</TextLink>\n  <TextLink href=\"#\" primary>External link <ArrowUpRight /></TextLink>\n</div>"
+        },
+        {
+          "name": "Inline usage",
+          "code": "<p>\n  You can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\n  either use the API directly from an HTTP client of your choice, or use one of the\n  <TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>"
+        },
+        {
+          "name": "Default inheritance",
+          "code": "<p :class=\"colorClassName\">\n  You can use the <TextLink href=\"#\">responses endpoint</TextLink> to generate text. You can\n  either use the API directly from an HTTP client of your choice, or use one of the\n  <TextLink href=\"#\">official SDKs</TextLink> for your preferred language.\n</p>",
+          "details": "By default, TextLink uses currentcolor inheritance and text-decoration: underline to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the currentcolor, with some special cases for text-secondary and text-tertiary contexts.You can see this behavior by changing the text color context of the paragraph the links are in below:"
+        },
+        {
+          "name": "Primary color",
+          "code": "<p>\n  Sample text with a <TextLink href=\"#\" :primary=\"primary\">primary link</TextLink>\n</p>",
+          "details": "You can create a colorful link style with the primary prop, which uses color for visual differentiation.Primary links also remove the default underline treatment: pass underline to re-apply that style."
+        },
+        {
+          "name": "Underline",
+          "code": "<p class=\"text-secondary\">\n  Sample text with a <TextLink href=\"#\" :underline=\"underline\">subtle link</TextLink>\n</p>",
+          "details": "Links have an underlined aesthetic by default.Pass {':underline=\"false\"'} to remove the underline from the link."
+        },
+        {
+          "name": "External links",
+          "code": "<TextLink href=\"#\" primary underline>\n  External link <ArrowUpRight />\n</TextLink>",
+          "details": "When external paths are provided, {''} will be used with {'target=\"_blank\"'} and {'rel=\"noopener noreferrer\"'} included by default. You can also compose icons along with the text to add visual indication."
+        },
+        {
+          "name": "Font weight",
+          "code": "<TextLink href=\"#\" class=\"font-semibold\" :underline=\"false\">\n  Contact support <ArrowRight />\n</TextLink>",
+          "details": "Use the class attribute to customize font weight."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/text-link"
+    },
+    {
+      "slug": "textarea",
+      "name": "Textarea",
+      "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
+      "importPath": "@plexui/vue/components/Textarea",
+      "exports": [
+        "Textarea"
+      ],
+      "props": [
+        {
+          "name": "value / v-model:value",
+          "type": "string | number",
+          "description": "Controlled value; uncontrolled when omitted"
+        },
+        {
+          "name": "default-value",
+          "type": "string | number",
+          "description": "Initial value when uncontrolled"
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"soft\"",
+          "default": "\"outline\"",
+          "description": "Visual style of the textarea"
+        },
+        {
+          "name": "size",
+          "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
+          "default": "\"md\"",
+          "description": "Control height for single-line equivalent"
+        },
+        {
+          "name": "gutter-size",
+          "type": "\"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "description": "Horizontal padding; defaults from size"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable the textarea"
+        },
+        {
+          "name": "read-only",
+          "type": "boolean",
+          "default": "false",
+          "description": "Make the textarea read-only (the native readonly attribute works too)"
+        },
+        {
+          "name": "invalid",
+          "type": "boolean",
+          "default": "false",
+          "description": "Mark as invalid"
+        },
+        {
+          "name": "allow-autofill-extensions",
+          "type": "boolean",
+          "default": "false",
+          "description": "Allow autofill extensions; true by default when name is set"
+        },
+        {
+          "name": "auto-select",
+          "type": "boolean",
+          "default": "false",
+          "description": "Select all contents when mounted"
+        },
+        {
+          "name": "rows",
+          "type": "number",
+          "default": "3",
+          "description": "Initial row count"
+        },
+        {
+          "name": "auto-resize",
+          "type": "boolean",
+          "default": "false",
+          "description": "Grow/shrink with content"
+        },
+        {
+          "name": "max-rows",
+          "type": "number",
+          "description": "Max rows when auto-resize; defaults to the larger of rows and 10"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the container <div>"
+        },
+        {
+          "name": "@update:value",
+          "type": "(value: string) => void",
+          "description": "Emitted on every input"
+        },
+        {
+          "name": "@autofill",
+          "type": "() => void",
+          "description": "Emitted when the browser autofills the textarea"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Base",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea placeholder=\"Enter text...\" auto-resize :rows=\"3\" />\n</div>"
+        },
+        {
+          "name": "Variants",
+          "code": "<div class=\"w-[400px]\">\n  <div class=\"flex flex-col gap-6\">\n    <div v-for=\"variant in ['outline', 'soft']\" :key=\"variant\" class=\"flex items-center\">\n      <div class=\"text-right text-sm mr-8 min-w-[4rem]\" style=\"color: var(--color-text-tertiary)\">{{ variant }}</div>\n      <div class=\"flex-1\">\n        <Textarea placeholder=\"Enter text...\" class=\"w-full\" :variant=\"variant\" :rows=\"3\" />\n      </div>\n    </div>\n  </div>\n</div>",
+          "details": "Use variant to stylize the textarea."
+        },
+        {
+          "name": "Auto resize",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea\n    v-model:value=\"value\"\n    placeholder=\"Type to grow...\"\n    :auto-resize=\"autoResize\"\n    :rows=\"Number(rows)\"\n    :max-rows=\"Number(maxRows)\"\n  />\n</div>",
+          "details": "Enable auto-resize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and max-rows. Bind the text with v-model:value."
+        },
+        {
+          "name": "Sizing",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea placeholder=\"Write a message...\" :size=\"size\" :gutter-size=\"gutterSize\" />\n</div>",
+          "details": "Sizing of the textarea is controlled with size and gutter-size props. size sets the textarea to a specific control height for single-line equivalent, and gutter-size sets the horizontal padding.Each size provides default values for gutter-size, as well as font-size and border-radius. Each of these values can be overridden independently."
+        },
+        {
+          "name": "Disabled",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea :disabled=\"disabled\" default-value=\"Jane Doe\" />\n</div>",
+          "details": "Use the disabled prop to disable the textarea, greying it out and preventing user interactions."
+        },
+        {
+          "name": "Invalid",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea :invalid=\"invalid\" placeholder=\"Invalid textarea\" />\n</div>",
+          "details": "Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through @focus, @input, a submit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling."
+        },
+        {
+          "name": "Auto select text",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea default-value=\"Toggle to auto select\" :auto-select=\"autoSelect\" />\n</div>",
+          "details": "Pass auto-select to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
+        },
+        {
+          "name": "Autofill extensions",
+          "code": "<div class=\"w-[400px]\">\n  <Textarea\n    :key=\"String(allowAutofillExtensions)\"\n    name=\"email\"\n    :allow-autofill-extensions=\"allowAutofillExtensions\"\n    :placeholder=\"allowAutofillExtensions ? 'Allowed' : 'Not allowed'\"\n  />\n</div>",
+          "details": "By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling.When name is passed this value will default to true."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/textarea"
+    },
+    {
+      "slug": "tooltip",
+      "name": "Tooltip",
+      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",
+      "importPath": "@plexui/vue/components/Tooltip",
+      "exports": [
+        "Tooltip",
+        "TooltipTriggerDecorator"
+      ],
+      "props": [
+        {
+          "name": "content",
+          "type": "string | VNode | null",
+          "description": "Tooltip content, or the #content slot (null = no tooltip)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "default": "false",
+          "description": "Short 1–3 word tooltips, inverse styling"
+        },
+        {
+          "name": "interactive",
+          "type": "boolean",
+          "default": "false",
+          "description": "Content is interactive, stays open when hovered"
+        },
+        {
+          "name": "openDelay",
+          "type": "number",
+          "default": "150",
+          "description": "Delay before showing (ms)"
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "default": "\"top\"",
+          "description": "Preferred side"
+        },
+        {
+          "name": "sideOffset",
+          "type": "number",
+          "default": "5",
+          "description": "Distance from trigger"
+        },
+        {
+          "name": "align",
+          "type": "string",
+          "default": "\"center\"",
+          "description": "Alignment"
+        },
+        {
+          "name": "alignOffset",
+          "type": "number",
+          "default": "0",
+          "description": "Alignment offset"
+        },
+        {
+          "name": "gutterSize",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "default": "\"md\"",
+          "description": "Content padding"
+        },
+        {
+          "name": "contentClassName",
+          "type": "string",
+          "description": "Class for tooltip content"
+        },
+        {
+          "name": "forceOpen",
+          "type": "boolean",
+          "description": "Force open or closed"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Base",
+          "code": "<Tooltip content=\"This is additional context that appears when the trigger is hovered or focused\">\n  <TooltipTriggerDecorator>Simple text with tooltip</TooltipTriggerDecorator>\n</Tooltip>"
+        },
+        {
+          "name": "Different triggers",
+          "code": "<div class=\"flex items-center gap-4\">\n  <Tooltip content=\"Tooltip on button\">\n    <Button color=\"primary\" size=\"lg\">Sample button</Button>\n  </Tooltip>\n  <Tooltip content=\"Tooltip on span\">\n    <span>Inaccessible trigger</span>\n  </Tooltip>\n</div>",
+          "details": "Tooltip provides an optional component, TooltipTriggerDecorator, to help create accessible tooltip triggers. However, any component can be used as a trigger."
+        },
+        {
+          "name": "Conditionally enabled",
+          "code": "<Tooltip :content=\"disabled ? 'This action is disabled for reasons' : null\">\n  <Button color=\"primary\" size=\"lg\" :disabled=\"disabled\">\n    Sample button\n  </Button>\n</Tooltip>",
+          "details": "Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in null content."
+        },
+        {
+          "name": "Compact tooltips",
+          "code": "<Tooltip content=\"Copy to clipboard\" compact>\n  <Button color=\"secondary\" variant=\"ghost\" size=\"md\"><Copy /></Button>\n</Tooltip>",
+          "details": "Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use compact for brief status messages."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/tooltip"
+    }
+  ],
+  "generatedAt": "2026-10-26T11:27:15.359Z"
+}

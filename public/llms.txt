@@ -1,9 +1,11 @@
 # PlexUI
 > The most flexible UI kit for React. Production-grade components with pixel-perfect Figma parity.
 
+Vue 3: https://plexui.com/llms-vue.txt
+
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 41
+Components: 47
 
 ## Setup
 
@@ -20,10 +22,16 @@ Variants: solid, soft, outline, ghost
 
 ---
 
+## Accordion
+Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+Import: import { Accordion } from "@plexui/ui/components/Accordion"
+Docs: https://plexui.com/components/accordion
+Examples: Overview, Single, Multiple, Disabled, Card
+
 ## Alert
-Call attention to a specific message or warning
+Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
 Import: import { Alert } from "@plexui/ui/components/Alert"
-Docs: https://plexui.com/docs/components/alert
+Docs: https://plexui.com/components/alert
 Props:
   - title (ReactNode) — Title displayed in the alert
   - description (ReactNode) — Description text
@@ -36,18 +44,18 @@ Props:
 Examples: Overview, Colors & variants, Title, Description, Actions, Action placement, Indicator, Dismissible
 
 ## Avatar Group
-Display avatars as a single stack
+Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
 Import: import { AvatarGroup } from "@plexui/ui/components/Avatar"
-Docs: https://plexui.com/docs/components/avatar-group
+Docs: https://plexui.com/components/avatar-group
 Props:
   - size (number) — Size of all avatars in the group
   - stack ("start" | "end") default: "start" — Stacking direction
 Examples: Overview, Stacking direction, Group sizing
 
 ## Avatar
-Display user identities with either text, photo, or an icon
+An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
 Import: import { Avatar } from "@plexui/ui/components/Avatar"
-Docs: https://plexui.com/docs/components/avatar
+Docs: https://plexui.com/components/avatar
 Props:
   - name (string) — Display name; used for text initial when no image/icon
   - imageUrl (string) — Absolute URL for image avatar
@@ -60,9 +68,9 @@ Props:
 Examples: Overview, Text, Image, Icon, Overflow count, Sizing, Colors & variants, Roundness, Interactive
 
 ## Badge
-Emphasize details with a status indicator
+Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
 Import: import { Badge } from "@plexui/ui/components/Badge"
-Docs: https://plexui.com/docs/components/badge
+Docs: https://plexui.com/components/badge
 Props:
   - children (ReactNode) — Content inside the badge
   - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
@@ -71,10 +79,16 @@ Props:
   - pill (boolean) default: false — Fully rounded
 Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
 
+## Button Group
+Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
+Import: import { ButtonGroup } from "@plexui/ui/components/ButtonGroup"
+Docs: https://plexui.com/components/button-group
+Examples: Overview, Orientation, Size, Nested, Separator, Split, Input, Input group, Dropdown menu, Select, Popover
+
 ## Button Link
-"Button as a semantic anchor element"
+A semantic anchor with full button styling, for internal and external links with icons and block layout.
 Import: import { ButtonLink } from "@plexui/ui/components/Button"
-Docs: https://plexui.com/docs/components/button-link
+Docs: https://plexui.com/components/button-link
 Props:
   - children (ReactNode) — Content inside the link button
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color
@@ -95,9 +109,9 @@ Props:
 Examples: Overview, Internal link, External link, Colors & variants, Sizing & roundness, Icons, Block, Disabled
 
 ## Button
-Create actions in many different styles
+Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.
 Import: import { Button } from "@plexui/ui/components/Button"
-Docs: https://plexui.com/docs/components/button
+Docs: https://plexui.com/components/button
 Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
   - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
@@ -114,10 +128,16 @@ Props:
   - iconSize (string) — Size of icons in children
 Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disabled, Inert, Loading, Selected, Optical alignment
 
+## Card
+Card surface for composing login flows, sign-up forms, pricing tiles, payment methods, empty states, and stat showcases.
+Import: import { Card } from "@plexui/ui/components/Card"
+Docs: https://plexui.com/components/card
+Examples: Overview, Login, Create project, Payment Method, No team members (empty state), How did you hear about us?, Processing your request, Pricing
+
 ## Checkbox
-Toggle control for on and off states
+Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
 Import: import { Checkbox } from "@plexui/ui/components/Checkbox"
-Docs: https://plexui.com/docs/components/checkbox
+Docs: https://plexui.com/components/checkbox
 Props:
   - variant ("solid" | "ghost") default: "solid" — Visual style — solid (filled background) or ghost (checkmark only)
   - pill (boolean) default: false — Fully rounded indicator corners
@@ -135,9 +155,9 @@ Props:
 Examples: With Radio Group, Descriptions, Overview, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
 
 ## Code Block
-Display syntax-highlighted code snippets
+Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
 Import: import { CodeBlock } from "@plexui/ui/components/CodeBlock"
-Docs: https://plexui.com/docs/components/code-block
+Docs: https://plexui.com/components/code-block
   CodeBlock:
     - children (string) — Code content
     - language (string) — Prism language name
@@ -149,12 +169,12 @@ Docs: https://plexui.com/docs/components/code-block
     - collapsedHeight (number) default: 80 — Height when collapsed (px)
     - maxExpandedHeight (number) — Max height when expanded (px)
     - copyable (boolean) default: true — Show copy button
-Examples: Overview, Collapsible, Collapsible — expanded by default, Collapsible — custom height, Collapsible — max expanded height, Collapsible — without copy button, Supported languages
+Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
 
 ## Copy Tooltip
-Allow users to easily copy to clipboard
+A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
 Import: import { CopyTooltip } from "@plexui/ui/components/Tooltip"
-Docs: https://plexui.com/docs/components/copy-tooltip
+Docs: https://plexui.com/components/copy-tooltip
 Props:
   - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
   - copyValue (string) default: "Very cool content to copy" — Content to copy to clipboard
@@ -168,7 +188,7 @@ Examples: Overview
 ## Date Input
 Masked text input for typing dates with automatic formatting and validation
 Import: import { DateInput } from "@plexui/ui/components/DateInput"
-Docs: https://plexui.com/docs/components/date-input
+Docs: https://plexui.com/components/date-input
 Props:
   - value (DateTime | null) — Selected date (Luxon DateTime)
   - onChange ((date: DateTime | null) => void) — Called when a complete valid date is entered or the field is cleared
@@ -188,9 +208,9 @@ Props:
 Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation, Disabled
 
 ## Date Picker
-Select a single date with an interactive calendar
+React date picker component with interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets
 Import: import { DatePicker } from "@plexui/ui/components/DatePicker"
-Docs: https://plexui.com/docs/components/date-picker
+Docs: https://plexui.com/components/date-picker
 Props:
   - value (DateTime | null) — Selected date (luxon)
   - onChange ((date: DateTime | null) => void) — Called when date changes
@@ -209,9 +229,9 @@ Props:
 Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon, Disabled
 
 ## Date Range Picker
-Select a date range with an interactive calendar
+React date range picker with interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates
 Import: import { DateRangePicker } from "@plexui/ui/components/DateRangePicker"
-Docs: https://plexui.com/docs/components/date-range-picker
+Docs: https://plexui.com/components/date-range-picker
 Props:
   - value (DateRange | null) — Selected range ([start, end], inclusive)
   - onChange ((next: DateRange | null, shortcut?: DateRangeShortcut) => void) — Called when range changes
@@ -238,9 +258,9 @@ Props:
 Examples: Overview, Limits, Shortcuts, Month stepper
 
 ## Dialog
-Modal dialog overlay for confirmations, forms, and alerts
+Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 Import: import { Dialog } from "@plexui/ui/components/Dialog"
-Docs: https://plexui.com/docs/components/dialog
+Docs: https://plexui.com/components/dialog
 Props:
   - open (boolean) — Controlled open state
   - onOpenChange ((open: boolean) => void) — Called when the dialog opens or closes
@@ -250,9 +270,9 @@ Props:
 Examples: Overview, Destructive confirmation
 
 ## Empty Message
-Gracefully inform users when there's nothing to see
+Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
 Import: import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
-Docs: https://plexui.com/docs/components/empty-message
+Docs: https://plexui.com/components/empty-message
 Props:
   - color (string) — Semantic color (e.g. danger, warning)
   - size ("sm" | "md" | "lg") — Icon size
@@ -262,7 +282,7 @@ Examples: Composition, Error message, Warning message, No results
 ## Field
 Form field wrapper with label, description, error, and accessibility linking
 Import: import { Field } from "@plexui/ui/components/Field"
-Docs: https://plexui.com/docs/components/field
+Docs: https://plexui.com/components/field
 Props:
   - label (ReactNode) — Label text for the field
   - description (ReactNode) — Helper text below the label; linked via aria-describedby
@@ -276,9 +296,9 @@ Props:
 Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
-Mobile-first file picker with type validation and multi-file support
+Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
 Import: import { FileUpload, FileCard, FileCardGroup } from "@plexui/ui/components/FileUpload"
-Docs: https://plexui.com/docs/components/file-upload
+Docs: https://plexui.com/components/file-upload
 Props:
   - variant ("compact" | "area") default: "compact" — Visual variant — compact button or larger tappable area
   - label (string) — Button label text
@@ -302,9 +322,9 @@ Props:
 Examples: Overview, With files, Error state, Disabled, Read-only, With remove, Multiple files, Read-only list
 
 ## Float Input
-Input with floating label that animates on focus
+Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
-Docs: https://plexui.com/docs/components/floating-label-input
+Docs: https://plexui.com/components/floating-label-input
 Props:
   - label (string) — Floating label text
   - description (ReactNode) — Helper text below the input
@@ -317,12 +337,12 @@ Props:
   - endAdornment (ReactNode) — Content rendered after the input, before the clear button
   - multiline (boolean) default: false — Render as an auto-growing textarea
   - rows (number) default: 2 — Initial visible text lines when multiline is true
-Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
+Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
 
 ## Indicators
-Display loading and progress states to users
+Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
-Docs: https://plexui.com/docs/components/indicators
+Docs: https://plexui.com/components/indicators
   LoadingIndicator:
     - size (number) — Size in px (or use --indicator-size CSS variable)
     - strokeWidth (number) — Stroke width
@@ -336,9 +356,9 @@ Docs: https://plexui.com/docs/components/indicators
 Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color
 
 ## Input
-Semantic input text collection
+Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
 Import: import { Input } from "@plexui/ui/components/Input"
-Docs: https://plexui.com/docs/components/input
+Docs: https://plexui.com/components/input
 Props:
   - variant ("outline" | "soft") default: "outline" — Visual style of the input
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
@@ -354,10 +374,16 @@ Props:
   - opticallyAlign ("start" | "end") — Applies a negative margin using the current gutter to optically align with surrounding content
 Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
 
+## Label
+Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
+Import: import { Label } from "@plexui/ui/components/Label"
+Docs: https://plexui.com/components/label
+Examples: Overview, Label in Field
+
 ## Markdown Editor
-Compact rich text editor embedded in a form field, powered by Tiptap
+Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
 Import: import { MarkdownEditor } from "@plexui/ui/components/MarkdownEditor"
-Docs: https://plexui.com/docs/components/markdown-editor
+Docs: https://plexui.com/components/markdown-editor
 Props:
   - variant ("outline" | "soft") default: "outline" — Visual style of the editor
   - disabled (boolean) default: false — Disable the editor
@@ -371,18 +397,18 @@ Props:
 Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants, Disabled, Invalid
 
 ## Markdown
-Render rich formatted content
+Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
 Import: import { Markdown } from "@plexui/ui/components/Markdown"
-Docs: https://plexui.com/docs/components/markdown
+Docs: https://plexui.com/components/markdown
 Props:
   - children (string) — Markdown source
   - includeMath (boolean) default: false — Enable LaTeX math rendering
 Examples: Overview, Math
 
 ## Menu
-Structured actions in a dropdown list
+Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
 Import: import { Menu } from "@plexui/ui/components/Menu"
-Docs: https://plexui.com/docs/components/menu
+Docs: https://plexui.com/components/menu
 Props:
   - forceOpen (boolean) — Keep menu open (controlled)
   - onOpen (() => void) — Called when menu opens
@@ -394,6 +420,7 @@ Props:
   - align ("start" | "center" | "end") — Alignment relative to trigger
   - layout ("vertical" | "horizontal") default: "vertical" — Layout direction. Use horizontal for icon toolbars
   - size ("sm" | "md" | "lg") default: "md" — Size of horizontal menu items (icon size + padding)
+  - description (ReactNode) — Second line under the label. The label turns semibold on its own
   - onSelect ((event: Event) => void) — Called when item is selected
   - disabled (boolean) — Disable the item
   - checked (boolean) — Checked state
@@ -403,9 +430,9 @@ Props:
 Examples: Overview, Natural sizing, Horizontal (icons only), Horizontal (icons with labels), Grouped items, Submenus, Checkbox items, Radio items, Item actions
 
 ## OTP Input
-Individual digit input cells for verification code entry
+Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
 Import: import { OTPInput } from "@plexui/ui/components/OTPInput"
-Docs: https://plexui.com/docs/components/otp-input
+Docs: https://plexui.com/components/otp-input
 Props:
   - length (number) default: 6 — Number of digit cells
   - value (string) — Controlled value
@@ -419,9 +446,9 @@ Props:
 Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
 
 ## Popover
-Generic floating UI utility for contextual actions
+A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
 Import: import { Popover } from "@plexui/ui/components/Popover"
-Docs: https://plexui.com/docs/components/popover
+Docs: https://plexui.com/components/popover
 Props:
   - showOnHover (boolean) — Open on hover and focus instead of click
   - width (number | string) — Panel width (px or CSS value)
@@ -434,9 +461,9 @@ Props:
 Examples: Overview, Sizing the popover, Open on hover, Using the controller
 
 ## Progress Steps
-Display progress through a multi-step process
+Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
 Import: import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
-Docs: https://plexui.com/docs/components/progress-steps
+Docs: https://plexui.com/components/progress-steps
 Props:
   - current (number) — Current active step (1-based)
   - orientation ("horizontal" | "vertical") default: "horizontal" — Layout direction
@@ -448,10 +475,16 @@ Props:
   - icon (ReactNode) — Custom icon instead of step number
 Examples: Overview, Sizes, Vertical, With Icons, With Navigation, Minimal, Icons Only, Colors
 
+## Progress
+A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+Import: import { Progress } from "@plexui/ui/components/Progress"
+Docs: https://plexui.com/components/progress
+Examples: Overview, With label, Controlled
+
 ## Radio Group
-Semantic radio option selection
+React radio group component for single-choice selection with horizontal or vertical layout, per-item descriptions, and Field integration
 Import: import { RadioGroup } from "@plexui/ui/components/RadioGroup"
-Docs: https://plexui.com/docs/components/radio-group
+Docs: https://plexui.com/components/radio-group
 Props:
   - value (string) — Controlled selected value
   - defaultValue (string) — Initial selected value (uncontrolled)
@@ -464,9 +497,9 @@ Props:
 Examples: With Checkbox, Descriptions, Overview, Direction, Orientation, Group disabled, Item disabled, With description, With Field, With Field error, Choice card, Card selection, Grouped sections
 
 ## Select Control
-Customizable select control for use with any type of floating UI
+Headless React select control primitive for building custom dropdowns — variants, sizing, start and dropdown icons, clearable, loading, and invalid states
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
-Docs: https://plexui.com/docs/components/select-control
+Docs: https://plexui.com/components/select-control
 Props:
   - selected (boolean) — Whether a value is selected (affects placeholder styling)
   - variant ("soft" | "outline" | "ghost") default: "outline" — Visual variant
@@ -480,12 +513,12 @@ Props:
   - block (boolean) — Full width
   - loading (boolean) — Loading state
   - opticallyAlign ("start" | "end") — Optical alignment
-Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Optical alignment, Country selector, Country code selector, Phone form
+Examples: Overview, Variants, Sizing & roundness, Selected, Start icon, Dropdown icon, Clearable, Loading, Invalid, Disabled, Block, Country selector, Country code selector, Phone form, Optical alignment
 
 ## Select
-Choose from a dropdown of options
+React select dropdown component with grouped options, per-item descriptions, multi-select, action items, and column-based layouts
 Import: import { Select } from "@plexui/ui/components/Select"
-Docs: https://plexui.com/docs/components/select
+Docs: https://plexui.com/components/select
 Props:
   - options (Options<T>) — Array of options or grouped options
   - value (string | string[]) — Selected value (single) or values (multiple)
@@ -502,12 +535,19 @@ Props:
   - OptionView (React.FC) — Custom option render
   - TriggerView (React.FC) — Custom trigger render (multi)
   - searchPlaceholder (string) — Search input placeholder
-Examples: Overview, Custom views, Actions, Grouped options, Multiple selection, Column configuration
+  - searchAriaLabel (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+Examples: Overview, With descriptions, Actions, Grouped options, Multiple selection, Column configuration
+
+## Separator
+A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+Import: import { Separator } from "@plexui/ui/components/Separator"
+Docs: https://plexui.com/components/separator
+Examples: Overview, Vertical, Menu, List
 
 ## Shimmer Text
-Animated shimmer effect for text content
+Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
 Import: import { ShimmerText, ShimmerableText } from "@plexui/ui/components/ShimmerText"
-Docs: https://plexui.com/docs/components/shimmer-text
+Docs: https://plexui.com/components/shimmer-text
 Props:
   - as ("p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div") default: "div" — HTML element to render
   - children (ReactNode) — Text content to shimmer
@@ -516,9 +556,9 @@ Props:
 Examples: Overview, Semantic elements, Controllable shimmer
 
 ## Sidebar
-Composable navigation sidebar for application layouts
+Composable React navigation sidebar for app shells with collapsible sections, search and filter, tree views with hover actions, and a mobile menu
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/ui/components/Sidebar"
-Docs: https://plexui.com/docs/components/sidebar
+Docs: https://plexui.com/components/sidebar
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - defaultOpen (boolean) default: true — Initial open state (uncontrolled)
@@ -541,18 +581,18 @@ Docs: https://plexui.com/docs/components/sidebar
 Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
 
 ## Skeleton
-Use to show a placeholder while content is loading
+Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
 Import: import { Skeleton } from "@plexui/ui/components/Skeleton"
-Docs: https://plexui.com/docs/components/skeleton
+Docs: https://plexui.com/components/skeleton
 Props:
   - circle (boolean) default: false — Render a circular skeleton
   - className (string) — Set dimensions and custom styling
 Examples: Overview, Card, Text, Form, Table
 
 ## Slider
-Fine-tune values within a set range
+React slider component for fine-tuning numeric values with single or range thumbs, marks, tooltip readouts, and vertical orientation
 Import: import { Slider } from "@plexui/ui/components/Slider"
-Docs: https://plexui.com/docs/components/slider
+Docs: https://plexui.com/components/slider
 Props:
   - value (number | number[]) — Current value; array when range is true
   - min (number) — Minimum value
@@ -570,10 +610,10 @@ Props:
   - disabled (boolean) default: false — Disable slider
 Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical, Disabled
 
-## StatCard
-Display key metrics and KPIs with trend indicators
+## Stat Card
+React stat card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent border styling
 Import: import { StatCard } from "@plexui/ui/components/StatCard"
-Docs: https://plexui.com/docs/components/stat-card
+Docs: https://plexui.com/components/stat-card
 Props:
   - description (string) — Subtitle below the value
   - trend ({ value: number; label?: string }) — Trend indicator with percentage
@@ -591,9 +631,9 @@ Props:
 Examples: Overview, Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border, Inverted trend
 
 ## Switch
-Toggle control for on and off states
+Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
 Import: import { Switch } from "@plexui/ui/components/Switch"
-Docs: https://plexui.com/docs/components/switch
+Docs: https://plexui.com/components/switch
 Props:
   - checked (boolean) — Controlled state
   - defaultChecked (boolean) — Initial state (uncontrolled)
@@ -610,9 +650,9 @@ Props:
 Examples: Base, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, With Field, With Field and description, Settings panel, Grouped sections
 
 ## Table
-Styled HTML table primitives and a full-featured data table powered by TanStack Table v8
+Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table"
-Docs: https://plexui.com/docs/components/table
+Docs: https://plexui.com/components/table
   Table Primitives:
     - Table (table) — Root table container with horizontal scroll wrapper
     - TableHeader (thead) — Table header group
@@ -647,9 +687,9 @@ Docs: https://plexui.com/docs/components/table
 Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Cell variants, Filtering, Column visibility, Empty state
 
 ## Tabs
-Toggle through grouped options with segmented or underline styles
+Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
 Import: import { Tabs } from "@plexui/ui/components/Tabs"
-Docs: https://plexui.com/docs/components/tabs
+Docs: https://plexui.com/components/tabs
 Props:
   - value (string) — Selected tab value (controlled)
   - onChange ((value: string) => void) — Called when selection changes
@@ -667,9 +707,9 @@ Props:
 Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable
 
 ## Tag Input
-Enter multiple unique tags
+Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
 Import: import { TagInput } from "@plexui/ui/components/TagInput"
-Docs: https://plexui.com/docs/components/tag-input
+Docs: https://plexui.com/components/tag-input
 Props:
   - value (Tag[]) — Controlled value
   - defaultValue (Tag[]) — Uncontrolled initial tags
@@ -678,14 +718,15 @@ Props:
   - validator ((value: string) => boolean) — Validates each tag; invalid tags shown in red
   - maxTags (number) — Max tags before input is disabled
   - rows (number) default: 1 — Min rows
-  - size (string) default: xl — Control height when rows=1
+  - size ('sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl') default: xl — Control height when rows=1; matches Input height of the same size
+  - pill (boolean) default: false — Fully-rounded container and chips; matches Input/SelectControl pill
   - autoFocus (boolean) default: false — Focus on mount
-Examples: Overview, Suggestions
+Examples: Overview, Inline filter row, Suggestions
 
 ## Text Link
-Semantic link for internal and external links
+Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
 Import: import { TextLink } from "@plexui/ui/components/TextLink"
-Docs: https://plexui.com/docs/components/text-link
+Docs: https://plexui.com/components/text-link
 Props:
   - children (ReactNode) — Link content
   - href (string) — URL
@@ -697,9 +738,9 @@ Props:
 Examples: Overview, Inline usage, Default inheritance, Primary color, Underline, External links, Font weight
 
 ## Textarea
-Semantic multi-line text input collection
+Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
 Import: import { Textarea } from "@plexui/ui/components/Textarea"
-Docs: https://plexui.com/docs/components/textarea
+Docs: https://plexui.com/components/textarea
 Props:
   - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
@@ -714,20 +755,20 @@ Props:
 Examples: Base, Variants, Auto resize, Sizing, Disabled, Invalid, Auto select text, Autofill extensions
 
 ## Toast
-Transient notifications anchored to a corner of the viewport
+React toast notification component for transient feedback — semantic variants, descriptions, action buttons, promise integration, and persistent toasts
 Import: import { Toaster, toast } from "@plexui/ui/components/Toast"
-Docs: https://plexui.com/docs/components/toast
+Docs: https://plexui.com/components/toast
   `<Toaster />`:
     - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
     - duration (number) default: 3000 — Default auto-dismiss duration in ms
     - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
     - gap (number) — Gap between stacked toasts in px
-Examples: Overview, Variants, Description, Action, Promise, Long content, Persistent
+Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
 
 ## Tooltip
-Brief and informative hover text
+Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.
 Import: import { Tooltip } from "@plexui/ui/components/Tooltip"
-Docs: https://plexui.com/docs/components/tooltip
+Docs: https://plexui.com/components/tooltip
 Props:
   - content (ReactNode) — Tooltip content (null = no tooltip)
   - compact (boolean) default: false — Short 1–3 word tooltips, inverse styling

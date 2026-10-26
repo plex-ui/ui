@@ -3,6 +3,7 @@
 > The most complete React design system. 35+ components, 14 hooks, 6,600+ icons, 9-size scale, three-layer design tokens, and exact Figma-to-code parity.
 
 This is the detailed reference. For a quick overview, see https://plexui.com/llms.txt
+For Vue 3 (@plexui/vue), see https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 ---
 
