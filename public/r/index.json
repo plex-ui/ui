@@ -22,6 +22,12 @@
       "dependencies": ["@plexui/ui"]
     },
     {
+      "name": "input-group",
+      "type": "registry:ui",
+      "description": "Input or textarea with icons, text, buttons and menus inside one frame.",
+      "dependencies": ["@plexui/ui"]
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "description": "Status indicator badge.",

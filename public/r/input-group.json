@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input-group",
+  "type": "registry:ui",
+  "title": "Input Group",
+  "description": "Plex UI InputGroup: an input or textarea with icons, text, buttons and menus inside one frame, inline or as header and footer rows, in every Input size and style.",
+  "dependencies": ["@plexui/ui"],
+  "registryDependencies": ["https://plexui.com/r/styles.json"],
+  "files": [
+    {
+      "path": "components/ui/input-group.tsx",
+      "type": "registry:ui",
+      "content": "export { InputGroup } from '@plexui/ui/components/InputGroup';\nexport type { InputGroupProps, InputGroupInputProps, InputGroupTextareaProps, InputGroupAddonProps, InputGroupAddonAlign, InputGroupButtonProps, InputGroupTextProps } from '@plexui/ui/components/InputGroup';\n"
+    }
+  ],
+  "docs": "Import as `import { InputGroup } from '@/components/ui/input-group'`. See https://plexui.com/components/input-group for full prop reference."
+}

@@ -8,11 +8,11 @@ import {
   useId,
   watch,
   withDirectives,
-  type ObjectDirective,
   type PropType,
   type TextareaHTMLAttributes,
 } from "vue"
 import type { ControlSize, Sizes, Variants } from "@plexui/styles/types"
+import { vServerText } from "../../lib/defaultValue.js"
 import { toCssVariables } from "../../lib/helpers.js"
 import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 
@@ -32,13 +32,6 @@ import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 //   as the element's content, so `vServerText` can adjust it at SSR.
 
 type ListenerValue = ((event: Event) => void) | Array<(event: Event) => void> | undefined
-
-// The HTML parser drops a newline right after `<textarea>`: React's server
-// markup adds one before text that starts with a newline, so the text keeps
-// it after parsing (and hydration). SSR only; the client sets `textContent`.
-const vServerText: ObjectDirective<HTMLTextAreaElement, string> = {
-  getSSRProps: ({ value }) => (value.startsWith("\n") ? { textContent: `\n${value}` } : {}),
-}
 
 const invoke = (handler: unknown, event: Event) => {
   for (const fn of ([] as unknown[]).concat(handler ?? [])) {

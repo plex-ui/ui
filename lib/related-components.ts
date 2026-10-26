@@ -36,6 +36,7 @@ export const RELATED_COMPONENTS: Record<string, string[]> = {
   'floating-label-input': ['input', 'field', 'textarea'],
   indicators: ['progress', 'progress-steps', 'shimmer-text', 'skeleton'],
   input: ['field', 'floating-label-input', 'textarea', 'otp-input'],
+  'input-group': ['input', 'button-group', 'menu', 'textarea'],
   label: ['field', 'input', 'checkbox'],
   markdown: ['markdown-editor', 'code-block', 'text-link'],
   'markdown-editor': ['markdown', 'code-block', 'textarea'],

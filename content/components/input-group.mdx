@@ -1,0 +1,202 @@
+---
+title: Input Group
+description: Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
+metaDescription: React input group component with icons, text, buttons and dropdown menus inside the input frame, inline or as header and footer rows, in every input size and style.
+---
+
+import {
+  InputGroupOverviewDemo,
+  InputGroupVariantsDemo,
+  InputGroupSizesDemo,
+  InputGroupAlignDemo,
+  InputGroupTextDemo,
+  InputGroupButtonDemo,
+  InputGroupDropdownDemo,
+  InputGroupSpinnerDemo,
+  InputGroupTextareaDemo,
+} from "@/components/docs/InputGroupDemos"
+
+<UsageBlock>{`import { InputGroup } from "@plexui/ui/components/InputGroup";`}</UsageBlock>
+
+For a single icon or action button inside a plain field, [Input](/components/input) with `startAdornment` / `endAdornment` is enough. Reach for `InputGroup` when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Put an <code>InputGroup.Input</code> and one or more <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons.</>} code={`<InputGroup>
+  <InputGroup.Input placeholder="Search..." />
+  <InputGroup.Addon>
+    <Search />
+  </InputGroup.Addon>
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Text>12 results</InputGroup.Text>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={280}>
+  <InputGroupOverviewDemo />
+</ComponentPreview>
+
+### Variants
+
+<ComponentPreview details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>.</>} code={`<InputGroup variant="outline">...</InputGroup>
+<InputGroup variant="soft">...</InputGroup>`} previewMinHeight={168}>
+  <InputGroupVariantsDemo />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset.</>} code={`<InputGroup size="lg">
+  <InputGroup.Input placeholder="Search..." />
+  <InputGroup.Addon>
+    <Search />
+  </InputGroup.Addon>
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Button>Search</InputGroup.Button>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={480}>
+  <InputGroupSizesDemo />
+</ComponentPreview>
+
+### Align
+
+<ComponentPreview details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position.</>} code={`<InputGroup>
+  <InputGroup.Input placeholder="Ada Lovelace" />
+  <InputGroup.Addon align="block-start">
+    <InputGroup.Text>Full name</InputGroup.Text>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={280}>
+  <InputGroupAlignDemo />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview details={<>Use <code>InputGroup.Text</code> for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.</>} code={`<InputGroup>
+  <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+  <InputGroup.Addon>
+    <InputGroup.Text>$</InputGroup.Text>
+  </InputGroup.Addon>
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Text>USD</InputGroup.Text>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={320}>
+  <InputGroupTextDemo />
+</ComponentPreview>
+
+### Button
+
+<ComponentPreview details={<><code>InputGroup.Button</code> is a <a href="/components/button"><code>Button</code></a> that defaults to <code>ghost</code> and <code>secondary</code> and takes its size from the group. Pass <code>uniform</code> for icon buttons.</>} code={`<InputGroup>
+  <InputGroup.Input placeholder="Search the docs..." />
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Button variant="soft">Search</InputGroup.Button>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={200}>
+  <InputGroupButtonDemo />
+</ComponentPreview>
+
+### Dropdown
+
+<ComponentPreview details={<>Wrap an <code>InputGroup.Button</code> in a <a href="/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={`const [unit, setUnit] = useState("kg")
+
+<InputGroup>
+  <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
+  <InputGroup.Addon>
+    <InputGroup.Text>Weight</InputGroup.Text>
+  </InputGroup.Addon>
+  <InputGroup.Addon align="inline-end">
+    <Menu>
+      <Menu.Trigger>
+        <InputGroup.Button aria-label="Weight unit">
+          {unit}
+          <ChevronDownMd />
+        </InputGroup.Button>
+      </Menu.Trigger>
+      <Menu.Content align="end" minWidth={160}>
+        <Menu.RadioGroup value={unit} onChange={setUnit}>
+          <Menu.RadioItem value="kg">Kilograms (kg)</Menu.RadioItem>
+          <Menu.RadioItem value="lb">Pounds (lb)</Menu.RadioItem>
+          <Menu.RadioItem value="st">Stones (st)</Menu.RadioItem>
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={200}>
+  <InputGroupDropdownDemo />
+</ComponentPreview>
+
+### Spinner
+
+<ComponentPreview details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched or saved.</>} code={`<InputGroup>
+  <InputGroup.Input defaultValue="Saving changes" readOnly />
+  <InputGroup.Addon align="inline-end">
+    <InputGroup.Text>Saving...</InputGroup.Text>
+    <LoadingIndicator />
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={200}>
+  <InputGroupSpinnerDemo />
+</ComponentPreview>
+
+### Textarea
+
+<ComponentPreview details={<>With <code>InputGroup.Textarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={`<InputGroup>
+  <InputGroup.Textarea placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
+  <InputGroup.Addon align="block-start">
+    <InputGroup.Text>
+      <FileCode />
+      script.js
+    </InputGroup.Text>
+    <InputGroup.Button uniform aria-label="Copy" className="ml-auto">
+      <Copy />
+    </InputGroup.Button>
+  </InputGroup.Addon>
+  <InputGroup.Addon align="block-end">
+    <InputGroup.Text>Line 1, Column 1</InputGroup.Text>
+    <InputGroup.Button variant="solid" color="primary" className="ml-auto">
+      Run
+      <Play />
+    </InputGroup.Button>
+  </InputGroup.Addon>
+</InputGroup>`} previewMinHeight={280}>
+  <InputGroupTextareaDemo />
+</ComponentPreview>
+
+## API
+
+### InputGroup
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `"3xs" \| "2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"md"` | Control height, on the same scale as `Input` (22px to 48px) |
+| `variant` | `"outline" \| "soft"` | `"outline"` | Visual style of the frame |
+| `pill` | `boolean` | `false` | Fully rounded frame, with pill buttons inside |
+| `disabled` | `boolean` | `false` | Disables the control and the buttons inside |
+| `invalid` | `boolean` | `false` | Invalid border; sets `aria-invalid` on the control |
+| `className` | `string` | | Applied to the root `<div>` |
+
+Renders a `<div role="group">`. All other `<div>` attributes are forwarded. Clicking the frame, an icon or text focuses the control.
+
+### InputGroup.Input
+
+A native `<input>` (`type="text"` by default) without its own frame. Takes every `<input>` attribute; `disabled` and `aria-invalid` default to the group's state.
+
+### InputGroup.Textarea
+
+A native `<textarea>` with `rows={3}` by default. Same props and defaults as `InputGroup.Input`.
+
+### InputGroup.Addon
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `align` | `"inline-start" \| "inline-end" \| "block-start" \| "block-end"` | `"inline-start"` | Before or after the control on its line, or a row above or below it |
+| `className` | `string` | | Applied to the addon `<div>` |
+
+### InputGroup.Button
+
+Takes the [`Button`](/components/button) props except `size`, which follows the group. `color` defaults to `"secondary"`, `variant` to `"ghost"`, and `pill` and `disabled` to the group's values.
+
+### InputGroup.Text
+
+A `<span>` for text and icons inside an addon. All `<span>` attributes are forwarded.
+
+## Styling
+
+The frame uses the `Input` tokens: `--input-outline-border-color` (and its `-hover` and `-focus` states), `--input-soft-background-color`, `--input-soft-border-color-focus`, `--input-border-color-invalid`, `--input-text-color` and `--input-placeholder-text-color`, which also colors addon icons and text.

@@ -53,6 +53,14 @@ import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect'
 import { CircularProgress, LoadingDots, LoadingIndicator } from '@plexui/vue/components/Indicator';
 import { Image } from '@plexui/vue/components/Image';
 import { Input, InputAdornmentButton } from '@plexui/vue/components/Input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from '@plexui/vue/components/InputGroup';
 import { Label } from '@plexui/vue/components/Label';
 import { Markdown } from '@plexui/vue/components/Markdown';
 import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
@@ -254,6 +262,12 @@ const components: Record<string, Component> = {
   Image,
   Input,
   InputAdornmentButton,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
   Label,
   LoadingDots,
   LoadingIndicator,

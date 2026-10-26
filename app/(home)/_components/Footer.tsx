@@ -27,6 +27,7 @@ const componentLinks: FooterLink[] = [
   { label: 'Floating Label Input', href: '/components/floating-label-input' },
   { label: 'Indicators', href: '/components/indicators' },
   { label: 'Input', href: '/components/input' },
+  { label: 'Input Group', href: '/components/input-group' },
   { label: 'Label', href: '/components/label' },
   { label: 'Markdown', href: '/components/markdown' },
   { label: 'Markdown Editor', href: '/components/markdown-editor' },

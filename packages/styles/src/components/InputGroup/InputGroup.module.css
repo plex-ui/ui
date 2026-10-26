@@ -1,0 +1,311 @@
+/* InputGroup: an input or textarea joined with addons (icons, text, buttons,
+   menus) inside one control frame. The frame, sizes and states follow Input;
+   addons sit inline (start / end) or as a header / footer row
+   (block-start / block-end). */
+.InputGroup {
+  --input-group-gutter-x: var(--input-group-gutter);
+  /* Inline addon buttons leave spacing(1) = 4px above and below, like Input.AdornmentButton */
+  --input-group-button-size: calc(var(--input-group-size) - spacing(2));
+  --input-group-line-height: 20px;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  border-radius: var(--input-group-radius);
+  color: var(--input-text-color);
+  cursor: text;
+  /* NOTE: Whenever this is not 16px on mobile, zooming occurs. */
+  font-size: var(--input-group-font-size);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+  transition-duration: var(--transition-duration-basic);
+  transition-property: color, box-shadow, background-color;
+  transition-timing-function: var(--transition-ease-basic);
+
+  /* =============================================
+    Outline variant
+  ============================================= */
+  &:where([data-variant="outline"]) {
+    box-shadow: 0 0 0 1px var(--input-outline-border-color) inset;
+
+    &:not([data-disabled]) {
+      @mixin hover {
+        box-shadow: 0 0 0 1px var(--input-outline-border-color-hover) inset;
+      }
+
+      &:has([data-slot="input-group-control"]:focus) {
+        box-shadow: 0 0 0 1px var(--input-outline-border-color-focus) inset;
+      }
+
+      &[data-invalid] {
+        box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset;
+      }
+    }
+  }
+
+  /* =============================================
+    Soft variant
+  ============================================= */
+  &:where([data-variant="soft"]) {
+    background-color: var(--input-soft-background-color);
+
+    &:not([data-disabled]) {
+      &:has([data-slot="input-group-control"]:focus) {
+        box-shadow: 0 0 0 1px var(--input-soft-border-color-focus) inset;
+      }
+
+      &[data-invalid] {
+        box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset;
+      }
+    }
+  }
+
+  &[data-invalid] {
+    ::selection {
+      background-color: var(--red-a50);
+    }
+  }
+
+  /* =============================================
+    Sizes (same scale as Input)
+  ============================================= */
+  &:where([data-size="3xs"]) {
+    --input-group-size: var(--control-size-3xs);
+    --input-group-font-size: var(--control-font-size-sm);
+    --input-group-radius: var(--control-radius-sm);
+    --input-group-gutter: var(--control-gutter-2xs);
+    --input-group-gap: var(--input-gap-xs);
+    --input-group-icon-size: var(--control-icon-size-xs);
+  }
+
+  &:where([data-size="2xs"]) {
+    --input-group-size: var(--control-size-2xs);
+    --input-group-font-size: var(--control-font-size-sm);
+    --input-group-radius: var(--control-radius-sm);
+    --input-group-gutter: var(--control-gutter-xs);
+    --input-group-gap: var(--input-gap-xs);
+    --input-group-icon-size: var(--control-icon-size-sm);
+  }
+
+  &:where([data-size="xs"]) {
+    --input-group-size: var(--control-size-xs);
+    --input-group-font-size: var(--control-font-size-md);
+    --input-group-radius: var(--control-radius-sm);
+    --input-group-gutter: var(--control-gutter-xs);
+    --input-group-gap: var(--input-gap-sm);
+    --input-group-icon-size: var(--control-icon-size-sm);
+  }
+
+  &:where([data-size="sm"]) {
+    --input-group-size: var(--control-size-sm);
+    --input-group-font-size: var(--control-font-size-md);
+    --input-group-radius: var(--control-radius-sm);
+    --input-group-gutter: var(--control-gutter-sm);
+    --input-group-gap: var(--input-gap-md);
+    --input-group-icon-size: var(--control-icon-size-md);
+  }
+
+  &:where([data-size="md"]) {
+    --input-group-size: var(--control-size-md);
+    --input-group-font-size: var(--control-font-size-md);
+    --input-group-radius: var(--control-radius-md);
+    --input-group-gutter: var(--control-gutter-md);
+    --input-group-gap: var(--input-gap-md);
+    --input-group-icon-size: var(--control-icon-size-md);
+  }
+
+  &:where([data-size="lg"]) {
+    --input-group-size: var(--control-size-lg);
+    --input-group-font-size: var(--control-font-size-md);
+    --input-group-radius: var(--control-radius-lg);
+    --input-group-gutter: var(--control-gutter-md);
+    --input-group-gap: var(--input-gap-md);
+    --input-group-icon-size: var(--control-icon-size-md);
+  }
+
+  &:where([data-size="xl"]) {
+    --input-group-size: var(--control-size-xl);
+    --input-group-font-size: var(--control-font-size-lg);
+    --input-group-radius: var(--control-radius-xl);
+    --input-group-gutter: var(--control-gutter-lg);
+    --input-group-gap: var(--input-gap-lg);
+    --input-group-icon-size: var(--control-icon-size-md);
+  }
+
+  &:where([data-size="2xl"]) {
+    --input-group-size: var(--control-size-2xl);
+    --input-group-font-size: var(--control-font-size-lg);
+    --input-group-radius: var(--control-radius-xl);
+    --input-group-gutter: var(--control-gutter-lg);
+    --input-group-gap: var(--input-gap-lg);
+    --input-group-icon-size: var(--control-icon-size-lg);
+  }
+
+  &:where([data-size="3xl"]) {
+    --input-group-size: var(--control-size-3xl);
+    --input-group-font-size: var(--control-font-size-lg);
+    --input-group-radius: var(--control-radius-xl);
+    --input-group-gutter: var(--control-gutter-xl);
+    --input-group-gap: var(--input-gap-lg);
+    --input-group-icon-size: var(--control-icon-size-lg);
+  }
+
+  /* =============================================
+    Pill
+  ============================================= */
+  &:where([data-pill]) {
+    --input-group-radius: var(--radius-full);
+    --input-group-gutter-x: calc(var(--input-group-gutter) * var(--control-gutter-pill-scaling));
+  }
+
+  /* =============================================
+    Disabled
+    ---------------------------------------------
+    Fade the control and the addon content; buttons fade on their own
+    through their disabled state.
+  ============================================= */
+  &[data-disabled] {
+    cursor: not-allowed;
+
+    > .Control,
+    > .Addon > :not(.Button) {
+      opacity: 0.5;
+    }
+  }
+
+  /* =============================================
+    Block addons stack the group into a column
+  ============================================= */
+  &:has(> .Addon[data-align="block-start"], > .Addon[data-align="block-end"]) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* The gap between an inline addon and the control replaces the control's gutter */
+  &:has(> .Addon[data-align="inline-start"]) > .Control {
+    padding-inline-start: var(--input-group-gap);
+  }
+
+  &:has(> .Addon[data-align="inline-end"]) > .Control {
+    padding-inline-end: var(--input-group-gap);
+  }
+}
+
+.Control {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: var(--input-group-size);
+  padding: 0 var(--input-group-gutter-x);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: var(--input-placeholder-text-color);
+  }
+
+  /* Hide up/down arrows */
+  &[type="number"] {
+    /* Firefox */
+    appearance: textfield;
+
+    /* Chrome, Safari, Edge, Opera */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+  }
+}
+
+/* Textarea: rows of --input-group-line-height, centered in the control height like Textarea */
+textarea.Control {
+  height: auto;
+  padding-block: calc((var(--input-group-size) - var(--input-group-line-height)) / 2);
+  line-height: var(--input-group-line-height);
+  resize: none;
+}
+
+.Addon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  gap: var(--input-group-gap);
+  color: var(--input-placeholder-text-color);
+  user-select: none;
+
+  > svg {
+    flex-shrink: 0;
+    width: var(--input-group-icon-size);
+    height: var(--input-group-icon-size);
+  }
+
+  &[data-align="inline-start"] {
+    order: -1;
+    padding-inline-start: var(--input-group-gutter-x);
+  }
+
+  &[data-align="inline-end"] {
+    order: 1;
+    padding-inline-end: var(--input-group-gutter-x);
+  }
+
+  &[data-align="block-start"] {
+    order: -1;
+    padding: var(--input-group-gap) var(--input-group-gutter-x) 0;
+  }
+
+  &[data-align="block-end"] {
+    order: 1;
+    padding: 0 var(--input-group-gutter-x) var(--input-group-gap);
+  }
+
+  /* Inline buttons fit the control height and sit spacing(1) = 4px from the edge */
+  &[data-align^="inline"] > .Button {
+    --button-size: var(--input-group-button-size);
+  }
+
+  &[data-align="inline-start"] > .Button:first-child {
+    margin-inline-start: calc(spacing(1) - var(--input-group-gutter-x));
+  }
+
+  &[data-align="inline-end"] > .Button:last-child {
+    margin-inline-end: calc(spacing(1) - var(--input-group-gutter-x));
+  }
+}
+
+/* InputGroup.Button: a Plex Button sized from the group (see .Addon) */
+.Button {
+  flex-shrink: 0;
+}
+
+.Text {
+  display: flex;
+  align-items: center;
+  gap: var(--input-group-gap);
+  white-space: nowrap;
+
+  > svg {
+    flex-shrink: 0;
+    width: var(--input-group-icon-size);
+    height: var(--input-group-icon-size);
+  }
+}

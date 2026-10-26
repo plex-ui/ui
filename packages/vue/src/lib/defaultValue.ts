@@ -33,3 +33,11 @@ export const vDefaultValue: ObjectDirective<Field, string | number | undefined> 
     else el.removeAttribute("value")
   },
 }
+
+// The HTML parser drops a newline right after `<textarea>`: React's server
+// markup adds one before text that starts with a newline, so the text keeps
+// it after parsing (and hydration). For a <textarea> whose text content is
+// set through `textContent`; SSR only, the client sets `textContent`.
+export const vServerText: ObjectDirective<HTMLTextAreaElement, string> = {
+  getSSRProps: ({ value }) => (value.startsWith("\n") ? { textContent: `\n${value}` } : {}),
+}
