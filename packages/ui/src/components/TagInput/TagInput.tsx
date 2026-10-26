@@ -467,7 +467,9 @@ export const TagInput = (props: TagInputProps) => {
         data-focused={focused ? "" : undefined}
         data-empty={tags.size === 0 ? "" : undefined}
         data-pill={pill ? "" : undefined}
-        tabIndex={-1}
+        // At maxTags the input is gone, so the container becomes the tab stop;
+        // arrow keys and Backspace then select and remove tags from here
+        tabIndex={showInput || disabled ? -1 : 0}
         style={toCssVariables({ "min-rows": String(rows) })}
         data-disabled={disabled ? "" : undefined}
       >
