@@ -30,13 +30,24 @@
 }
 
 .Content {
+  /* Placement presets set these; the panel and this layer read them */
+  --dialog-content-align: center;
+  --dialog-content-justify: center;
+  --dialog-content-padding: 1rem;
+  --dialog-panel-width: var(--dialog-width, 480px);
+  --dialog-panel-height: auto;
+  --dialog-panel-max-height: calc(100dvh - 2rem);
+  --dialog-panel-radius: var(--radius-xl);
+  --dialog-panel-padding-bottom: 1.25rem;
+  --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
+
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  align-items: var(--dialog-content-align);
+  justify-content: var(--dialog-content-justify);
+  padding: var(--dialog-content-padding);
   /* The positioning layer covers the overlay: presses around the panel go
      through to the overlay, outside the dialog, so they dismiss it.
      !important beats the dismissable layer's inline pointer-events. */
@@ -52,19 +63,25 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: var(--dialog-width, 480px);
+  width: var(--dialog-panel-width);
   max-width: 100%;
-  max-height: calc(100vh - 2rem);
+  height: var(--dialog-panel-height);
+  max-height: var(--dialog-panel-max-height);
   overflow: auto;
-  border-radius: var(--radius-xl);
+  border-radius: var(--dialog-panel-radius);
   background: var(--color-surface-elevated);
   box-shadow: var(--shadow-lg), var(--shadow-hairline);
-  padding: 1.25rem;
+  padding: 1.25rem 1.25rem var(--dialog-panel-padding-bottom);
   pointer-events: auto;
+
+  /* With a Body, only the body scrolls: the header and footer stay in view */
+  &:has(> .Body) {
+    overflow: hidden;
+  }
 
   .Transition[data-entering] & {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: var(--dialog-panel-hidden-transform);
   }
 
   .Transition[data-entering-active] &,
@@ -82,8 +99,92 @@
   .Transition[data-exiting-active] &,
   .Transition[data-exiting][data-interrupted] & {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: var(--dialog-panel-hidden-transform);
     transition: opacity 0.15s var(--cubic-exit), transform 0.15s var(--cubic-exit);
+  }
+}
+
+/* =============================================
+   Placement: `placement` everywhere, `mobilePlacement` at 640px and below
+============================================= */
+.Content:where([data-placement="top"]) {
+  --dialog-content-align: flex-start;
+  --dialog-content-padding: min(12vh, 6rem) 1rem 1rem;
+}
+
+.Content:where([data-placement="bottom"]) {
+  --dialog-content-align: flex-end;
+  --dialog-content-padding: 0;
+  --dialog-panel-width: 100%;
+  --dialog-panel-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  --dialog-panel-hidden-transform: translateY(100%);
+}
+
+.Content:where([data-placement="start"], [data-placement="end"]) {
+  --dialog-content-align: stretch;
+  --dialog-content-padding: 0;
+  --dialog-panel-height: 100%;
+  --dialog-panel-max-height: none;
+  --dialog-panel-radius: 0;
+  --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+.Content:where([data-placement="start"]) {
+  --dialog-content-justify: flex-start;
+  --dialog-panel-hidden-transform: translateX(-100%);
+}
+
+.Content:where([data-placement="end"]) {
+  --dialog-content-justify: flex-end;
+  --dialog-panel-hidden-transform: translateX(100%);
+}
+
+.Content:where([data-placement="fullscreen"]) {
+  --dialog-content-padding: 0;
+  --dialog-panel-width: 100%;
+  --dialog-panel-height: 100%;
+  --dialog-panel-max-height: none;
+  --dialog-panel-radius: 0;
+  --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  --dialog-panel-hidden-transform: translateY(8px);
+}
+
+@media (width <= 640px) {
+  .Content:where([data-mobile-placement="center"]) {
+    --dialog-content-align: center;
+    --dialog-content-justify: center;
+    --dialog-content-padding: 1rem;
+    --dialog-panel-width: var(--dialog-width, 480px);
+    --dialog-panel-height: auto;
+    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-radius: var(--radius-xl);
+    --dialog-panel-padding-bottom: 1.25rem;
+    --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
+  }
+
+  .Content:where([data-mobile-placement="bottom"]) {
+    --dialog-content-align: flex-end;
+    --dialog-content-justify: center;
+    --dialog-content-padding: 0;
+    --dialog-panel-width: 100%;
+    --dialog-panel-height: auto;
+    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    --dialog-panel-hidden-transform: translateY(100%);
+  }
+
+  .Content:where([data-mobile-placement="fullscreen"]) {
+    --dialog-content-align: center;
+    --dialog-content-justify: center;
+    --dialog-content-padding: 0;
+    --dialog-panel-width: 100%;
+    --dialog-panel-height: 100%;
+    --dialog-panel-max-height: none;
+    --dialog-panel-radius: 0;
+    --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    --dialog-panel-hidden-transform: translateY(8px);
   }
 }
 
@@ -120,12 +221,25 @@
 
 .Header {
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   gap: 0.25rem;
 }
 
+/* The scrolling part between the header and the footer. It reaches the
+   panel's edges, so its scrollbar sits there and focus rings are not cut */
+.Body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-inline: -1.25rem;
+  padding: 2px 1.25rem;
+}
+
 .Footer {
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-end;
   gap: 0.5rem;
 }

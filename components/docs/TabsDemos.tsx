@@ -646,3 +646,38 @@ export function TabsScrollableDemo() {
     </>
   );
 }
+
+const OVERFLOW_WIDTHS = ['240', '360', '560'] as const;
+
+export function TabsOverflowMenuDemo() {
+  const [tab, setTab] = useState('code');
+  const [width, setWidth] = useState<(typeof OVERFLOW_WIDTHS)[number]>('360');
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="container width">
+          <SegmentedControl value={width} onChange={setWidth} size="xs" aria-label="container width">
+            {OVERFLOW_WIDTHS.map((w) => (
+              <SegmentedControl.Option key={w} value={w}>{w}px</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
+        <div className="flex" style={{ width: Number(width) }}>
+          <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
+            <Tabs.Tab value="code">Code</Tabs.Tab>
+            <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
+            <Tabs.Tab value="pulls" badge={3}>Pull requests</Tabs.Tab>
+            <Tabs.Tab value="actions">Actions</Tabs.Tab>
+            <Tabs.Tab value="projects">Projects</Tabs.Tab>
+            <Tabs.Tab value="insights">Insights</Tabs.Tab>
+            <Tabs.Tab value="settings">Settings</Tabs.Tab>
+          </Tabs>
+        </div>
+      </div>
+    </>
+  );
+}
+

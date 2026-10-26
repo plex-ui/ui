@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@p
 import { Alert } from '@plexui/vue/components/Alert';
 import { Avatar, AvatarGroup } from '@plexui/vue/components/Avatar';
 import { Badge } from '@plexui/vue/components/Badge';
+import { Breadcrumb, BreadcrumbItem } from '@plexui/vue/components/Breadcrumb';
 import { Button, ButtonLink, CopyButton } from '@plexui/vue/components/Button';
 import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '@plexui/vue/components/ButtonGroup';
 import {
@@ -30,6 +31,7 @@ import { DatePicker } from '@plexui/vue/components/DatePicker';
 import { DateRangePicker } from '@plexui/vue/components/DateRangePicker';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -61,6 +63,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from '@plexui/vue/components/InputGroup';
+import { Kbd, KbdGroup } from '@plexui/vue/components/Kbd';
 import { Label } from '@plexui/vue/components/Label';
 import { Markdown } from '@plexui/vue/components/Markdown';
 import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
@@ -212,6 +215,8 @@ const components: Record<string, Component> = {
   Avatar,
   AvatarGroup,
   Badge,
+  Breadcrumb,
+  BreadcrumbItem,
   Button,
   ButtonGroup,
   ButtonGroupSeparator,
@@ -240,6 +245,7 @@ const components: Record<string, Component> = {
   DatePicker,
   DateRangePicker,
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -268,6 +274,8 @@ const components: Record<string, Component> = {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
+  Kbd,
+  KbdGroup,
   Label,
   LoadingDots,
   LoadingIndicator,

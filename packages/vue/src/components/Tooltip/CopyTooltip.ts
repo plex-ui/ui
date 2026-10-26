@@ -22,19 +22,25 @@ export const CopyTooltip = defineComponent({
     /** Distance from the trigger, in pixels. @default 5 */
     sideOffset: { type: Number, default: 5 },
   },
-  setup(props, { slots }) {
+  emits: {
+    /** The clipboard write settled; `copied` says whether it succeeded (React's `onCopy`). */
+    copy: (_copied: boolean) => true,
+  },
+  setup(props, { slots, emit }) {
     const open = ref(false)
     const copied = ref(false)
     let copiedTimer: ReturnType<typeof setTimeout> | undefined
 
-    const copy = () => {
+    const copy = async () => {
+      // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+      const succeeded = await copyText(props.copyValue)
+      emit("copy", succeeded)
+      if (!succeeded) return
+
       copied.value = true
 
-      // Not currently revealing the slight async nature of this operation,
-      // nor indicating the failure state.
-      copyText(props.copyValue)
-
       // Persist the copied state for a second, then close
+      clearTimeout(copiedTimer)
       copiedTimer = setTimeout(() => {
         open.value = false
       }, 1000)

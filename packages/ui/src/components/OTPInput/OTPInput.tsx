@@ -115,6 +115,18 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
     input.setSelectionRange(1, 1)
   }, [length])
 
+  // A field cleared from outside (a wrong code wiped by the form) puts the
+  // caret back in the first cell, when the focus was in the field already
+  const hadValueRef = useRef(currentValue.length > 0)
+  useEffect(() => {
+    const filled = currentValue.length > 0
+    const root = rootRef.current
+    if (!filled && hadValueRef.current && !disabled && root?.contains(document.activeElement)) {
+      focusCell(0)
+    }
+    hadValueRef.current = filled
+  }, [currentValue, disabled, focusCell])
+
   const handleCellClick = useCallback((index: number) => {
     if (disabled) return
     focusCell(index)

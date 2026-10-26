@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 48
+Components: 50
 
 ## Setup
 
@@ -143,6 +143,7 @@ Props:
   - variant ("solid" | "soft" | "outline") default: "outline" — Style variant
   - indicator (ReactNode | false) — Custom indicator or false to hide
   - onDismiss (() => void) — Shows dismiss button when provided
+  - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
 
 ### Overview
 ```tsx
@@ -236,6 +237,18 @@ actions={(
     <Button color="primary" variant="solid" pill>Try it</Button>
   </>
 )}
+/>
+```
+
+### Banner
+Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass indicator={'{false}'} for a plain strip.
+```tsx
+<Alert
+banner
+color="caution"
+variant="soft"
+indicator={false}
+description="You are offline. Changes will sync when the connection is back."
 />
 ```
 
@@ -462,6 +475,64 @@ In this example, additional gap is added with a Tailwind gap-1.5 class to provid
 <Badge size="lg" color="secondary" className="gap-1.5">
 <LoadingIndicator /> In progress
 </Badge>
+```
+
+## Breadcrumb
+The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+Import: import { Breadcrumb } from "@plexui/ui/components/Breadcrumb"
+Docs: https://plexui.com/components/breadcrumb
+Props:
+  - size ("sm" | "md") default: "md" — Text size: sm above a compact header, md above a page title
+  - separator (ReactNode) default: a small chevron — What stands between two items
+  - aria-label (string) default: "Breadcrumb" — Name of the navigation landmark
+  - className (string) — Applied to the nav element
+  Breadcrumb.Item:
+    - href (string) — Link destination. Internal paths use the linkComponent of PlexUIProvider
+    - to (string) — Router destination, for link components that take to
+    - current (boolean) default: false — The current page: plain text marked aria-current="page"
+    - onClick ((event: MouseEvent) => void) — Makes an item without a destination act as a button
+    - className (string) — Applied to the li element
+
+### Overview
+Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href is a link (internal paths use the linkComponent of PlexUIProvider, such as your router's link); the current item is plain text marked aria-current="page".
+```tsx
+<Breadcrumb>
+<Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+<Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
+<Breadcrumb.Item current>Members</Breadcrumb.Item>
+</Breadcrumb>
+```
+
+### Sizes
+Use size="sm" for a trail above a compact header; the default md sits above a page title.
+```tsx
+<Breadcrumb size="sm">
+<Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
+<Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
+<Breadcrumb.Item current>Deployments</Breadcrumb.Item>
+</Breadcrumb>
+```
+
+### Separator
+A small chevron stands between items by default. Pass any node to separator, such as a slash for file paths. Separators are hidden from assistive technology.
+```tsx
+<Breadcrumb separator="/">
+<Breadcrumb.Item href="/acme">acme</Breadcrumb.Item>
+<Breadcrumb.Item href="/acme/design-system">design-system</Breadcrumb.Item>
+<Breadcrumb.Item current>README.md</Breadcrumb.Item>
+</Breadcrumb>
+```
+
+### Long trails
+A trail that does not fit wraps onto the next line instead of leaving the screen. An item without href is a plain step; give it onClick to make it act as a button.
+```tsx
+<Breadcrumb>
+<Breadcrumb.Item href="/">Workspace</Breadcrumb.Item>
+<Breadcrumb.Item href="/accounts">Customer accounts</Breadcrumb.Item>
+<Breadcrumb.Item href="/accounts/northwind">Northwind Traders</Breadcrumb.Item>
+<Breadcrumb.Item>Archived</Breadcrumb.Item>
+<Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>
+</Breadcrumb>
 ```
 
 ## Button Group
@@ -1036,6 +1107,7 @@ Props:
   - defaultChecked (boolean | "indeterminate") — Initial state (uncontrolled)
   - onCheckedChange ((next: boolean) => void) — Called when state changes
   - label (ReactNode) — Accessible label. Accepts ReactNode for rich content
+  - description (ReactNode) — Second line below the label, linked via aria-describedby. Renders only with a label
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
@@ -1142,31 +1214,17 @@ Use variant="ghost" to render the checkbox without a border or background. The c
 ```
 
 ### With description
-The label prop accepts ReactNode, so you can compose a label with secondary description text. This is useful for options that need additional context or explanation.
+Use description for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. The description renders only next to a label.
 ```tsx
 <div className="flex flex-col gap-4">
 <Checkbox
-  label={
-    <div className="flex flex-col">
-      <span>Accept terms and conditions</span>
-      <span className="text-xs text-secondary mt-0.5">
-        By checking this box, you agree to our Terms of Service
-        and Privacy Policy.
-      </span>
-    </div>
-  }
+  label="Accept terms and conditions"
+  description="By checking this box, you agree to our Terms of Service and Privacy Policy."
   defaultChecked
 />
 <Checkbox
-  label={
-    <div className="flex flex-col">
-      <span>Enable notifications</span>
-      <span className="text-xs text-secondary mt-0.5">
-        You can enable or disable notifications at any time
-        from settings.
-      </span>
-    </div>
-  }
+  label="Enable notifications"
+  description="You can enable or disable notifications at any time from settings."
 />
 </div>
 ```
@@ -1402,6 +1460,7 @@ Props:
   - alignOffset (number) default: 0 — Offset from start/end alignment in pixels
   - side ("top" | "right" | "bottom" | "left") default: "top" — Preferred side of the trigger
   - sideOffset (number) default: 5 — Distance from trigger in pixels
+  - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
 ```tsx
@@ -1671,6 +1730,10 @@ Props:
     - width (number | string) default: 480 — Panel width
     - showClose (boolean) default: true — Show close button in top-right corner
     - className (string) — Additional CSS class on the panel
+    - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
+    - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
+    - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
+    - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
 
 ### Overview
 ```tsx
@@ -1711,12 +1774,47 @@ Use color="danger" on the action button for destructive operations.
 </Dialog>
 ```
 
+### Scrolling body
+Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.
+```tsx
+<Dialog.Content>
+<Dialog.Header>
+  <Dialog.Title>Terms of service</Dialog.Title>
+  <Dialog.Description>Please read them before you continue.</Dialog.Description>
+</Dialog.Header>
+<Dialog.Body>
+  {terms.map((term) => <p key={term}>{term}</p>)}
+</Dialog.Body>
+<Dialog.Footer>
+  <Dialog.Close><Button color="secondary" variant="soft">Decline</Button></Dialog.Close>
+  <Button color="primary">Accept</Button>
+</Dialog.Footer>
+</Dialog.Content>
+```
+
+### Placement
+Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 640px and below, so a centered dialog can become a bottom sheet on phones: {''}.
+```tsx
+<Dialog.Content placement="end" width={360}>
+<Dialog.Header>
+  <Dialog.Title>Filters</Dialog.Title>
+</Dialog.Header>
+<Dialog.Body>{/* fields */}</Dialog.Body>
+<Dialog.Footer>
+  <Dialog.Close><Button color="secondary" variant="soft">Clear filters</Button></Dialog.Close>
+  <Button color="primary">Done</Button>
+</Dialog.Footer>
+</Dialog.Content>
+```
+
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
 Import: import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
 Docs: https://plexui.com/components/empty-message
 Props:
   - fill ("static" | "absolute" | "none") default: "static" — How the container fills its parent: "static" takes full width and height, "absolute" covers a positioned parent (inset 0), "none" applies no sizing
+  - size ("sm" | "md") default: "md" — sm is the compact message for a panel, a card section or an empty list
+  - align ("center" | "start") default: "center" — start left-aligns the message, for an empty state under a section heading
   EmptyMessage.Icon:
     - color ("secondary" | "danger" | "warning") default: "secondary" — Semantic color
     - size ("sm" | "md") default: "md" — Icon size
@@ -1765,6 +1863,41 @@ The components of EmptyMessage are both composable and optional. This example om
 </EmptyMessage>
 ```
 
+### Compact
+Use size="sm" for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with fill="none" when the container sets the height.
+```tsx
+<Card>
+<Card.Header>
+  <Card.Title>Members</Card.Title>
+</Card.Header>
+<Card.Content>
+  <EmptyMessage size="sm" fill="none">
+    <EmptyMessage.Icon size="sm"><Group /></EmptyMessage.Icon>
+    <EmptyMessage.Title>No members yet</EmptyMessage.Title>
+    <EmptyMessage.Description>Invite people to work on this project.</EmptyMessage.Description>
+    <EmptyMessage.ActionRow>
+      <Button color="secondary" variant="soft" size="sm">Invite</Button>
+    </EmptyMessage.ActionRow>
+  </EmptyMessage>
+</Card.Content>
+</Card>
+```
+
+### Left aligned
+Use align="start" for an empty state that sits under a section heading instead of filling a surface: a single line such as "No tags added" reads with the heading above it.
+```tsx
+<Card>
+<Card.Header>
+  <Card.Title>Tags</Card.Title>
+</Card.Header>
+<Card.Content>
+  <EmptyMessage size="sm" align="start" fill="none">
+    <EmptyMessage.Description>No tags added.</EmptyMessage.Description>
+  </EmptyMessage>
+</Card.Content>
+</Card>
+```
+
 ## Field
 Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
 Import: import { Field } from "@plexui/ui/components/Field"
@@ -1773,12 +1906,13 @@ Props:
   - label (ReactNode) — Label text for the field
   - description (ReactNode) — Helper text below the label; linked via aria-describedby
   - errorMessage (ReactNode) — Error message below the control; auto-sets aria-invalid on child
-  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the label font size to match the child control
+  - labelAction (ReactNode) — Content at the end of the label row, such as a link that acts on the field
+  - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the auto-generated id used for htmlFor/aria linking
-  - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby, and aria-invalid
+  - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread
 
 ### Overview
 Field wraps a form control with a label, optional description, and error message. It automatically generates htmlFor, aria-describedby, and aria-invalid linking between the label, description, error, and child control.
@@ -1813,9 +1947,9 @@ Use required to show a visual asterisk after the label. This is purely visual an
 ```
 
 ### Sizing
-Field accepts a size prop that scales the label and description font size to match the child control. Pass the same size to both Field and the child control.
+The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop.
 ```tsx
-<Field label="Email" size="lg">
+<Field label="Email">
 <Input placeholder="Enter email..." size="lg" />
 </Field>
 ```
@@ -1841,20 +1975,30 @@ Use orientation="horizontal" to render the label beside the control instead of a
 ```
 
 ### Select
-For components like Select that may not forward all props via cloneElement, use the render prop pattern to explicitly pass field props.
+A Select trigger is not a native form control, so the label's htmlFor cannot name it. Field points the trigger's aria-labelledby at the label, and Select adds its value: a screen reader hears "Role, Admin". DatePicker works the same way. A control with its own aria-label, aria-labelledby or label keeps its name.
 ```tsx
 <Field label="Role" description="Select your primary role.">
-{(fieldProps) => (
-  <Select
-    {...fieldProps}
-    placeholder="Select a role..."
-    options={[
-      { label: "Admin", value: "admin" },
-      { label: "Editor", value: "editor" },
-      { label: "Viewer", value: "viewer" },
-    ]}
-  />
-)}
+<Select
+  placeholder="Select a role..."
+  value={role}
+  onChange={(option) => setRole(option.value)}
+  options={[
+    { label: "Admin", value: "admin" },
+    { label: "Editor", value: "editor" },
+    { label: "Viewer", value: "viewer" },
+  ]}
+/>
+</Field>
+```
+
+### Label action
+Use labelAction for a link or a small control that acts on the field, at the end of the label row: a password reset, a template switch, a "Replace" link. It takes the label's font size.
+```tsx
+<Field
+label="Password"
+labelAction={<TextLink href="/reset-password">Forgot password?</TextLink>}
+>
+<Input type="password" placeholder="Enter password..." />
 </Field>
 ```
 
@@ -2857,7 +3001,7 @@ Text input with start and end adornments, a clear button, a password visibility 
 Import: import { Input } from "@plexui/ui/components/Input"
 Docs: https://plexui.com/components/input
 Props:
-  - variant ("outline" | "soft") default: "outline" — Visual style of the input
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the input; ghost has no border and no fill
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Controls the size of the input
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Controls gutter on the edges; defaults to value from size
   - disabled (boolean) default: false — Disables the input visually and from interactions
@@ -2876,11 +3020,12 @@ Props:
 ```
 
 ### Variants
-Use variant to stylize the input.
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid.
 ```tsx
 <div className="flex flex-col gap-2 w-[320px]">
 <Input placeholder="Enter text..." variant="outline" />
 <Input placeholder="Enter text..." variant="soft" />
+<Input placeholder="Enter text..." variant="ghost" />
 </div>
 ```
 
@@ -3035,6 +3180,73 @@ Submit
 </Button>
 ```
 
+## Kbd
+A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
+Import: import { Kbd } from "@plexui/ui/components/Kbd"
+Docs: https://plexui.com/components/kbd
+Props:
+  - size ("xs" | "sm" | "md") default: "sm" — Height and text size: 16px, 20px or 24px
+  - variant ("soft" | "outline") default: "soft" — soft fills the key, outline draws its edge; both mix the text color
+  - className (string) — Applied to the kbd element
+
+### Overview
+Kbd renders a {''} element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.
+```tsx
+<p>
+Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.
+</p>
+```
+
+### Shortcut
+Use Kbd.Group for keys pressed together. Each key keeps its own frame.
+```tsx
+<Kbd.Group>
+<Kbd>⌘</Kbd>
+<Kbd>K</Kbd>
+</Kbd.Group>
+
+<Kbd.Group>
+<Kbd>Ctrl</Kbd>
+<Kbd>Shift</Kbd>
+<Kbd>P</Kbd>
+</Kbd.Group>
+```
+
+### Sizes and variants
+Three sizes: xs (16px) for tooltips and menu items, sm (20px, default) for text, md (24px) next to larger controls. soft (default) fills the key, outline draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.
+```tsx
+<Kbd size="xs">⌘K</Kbd>
+<Kbd size="sm">⌘K</Kbd>
+<Kbd size="md">⌘K</Kbd>
+
+<Kbd variant="outline">⌘K</Kbd>
+```
+
+### In a tooltip and a menu
+Show a control's shortcut in its tooltip, or at the end of a menu item. Kbd only shows the keys: announce the shortcut to assistive technology with aria-keyshortcuts on the control that has it.
+```tsx
+<Tooltip
+content={
+  <span className="flex items-center gap-2">
+    Search
+    <Kbd.Group>
+      <Kbd size="xs">⌘</Kbd>
+      <Kbd size="xs">K</Kbd>
+    </Kbd.Group>
+  </span>
+}
+>
+<Button color="secondary" variant="outline" uniform aria-label="Search" aria-keyshortcuts="Meta+K">
+  <Search />
+</Button>
+</Tooltip>
+
+<Menu.Item onSelect={undo}>
+<span className="flex-1">Undo</span>
+<Kbd size="xs" variant="outline">⌘Z</Kbd>
+</Menu.Item>
+```
+
 ## Label
 Accessible form label that points at any control by its id, so clicking it focuses or toggles the control, with consistent typography across forms.
 Import: import { Label } from "@plexui/ui/components/Label"
@@ -3176,6 +3388,7 @@ Props:
     - description (ReactNode) — Second line under the label. The label turns semibold on its own
     - onSelect ((event: Event) => void) — Called when item is selected
     - disabled (boolean) — Disable the item
+    - danger (boolean) — Destructive action: the item is drawn in the danger color
   Menu.CheckboxItem:
     - checked (boolean | "indeterminate") — Checked state
     - onCheckedChange ((checked: boolean) => void) — When checkbox toggles
@@ -3405,6 +3618,24 @@ Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an i
       <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
     </Menu.ItemActions>
   </Menu.Item>
+</Menu.Content>
+</Menu>
+```
+
+### Destructive items
+Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. Menu.Link takes danger too. Put such items last, after a separator.
+```tsx
+<Menu>
+<Menu.Trigger>
+  <Button color="secondary" variant="soft" uniform aria-label="More actions">
+    <DotsHorizontal />
+  </Button>
+</Menu.Trigger>
+<Menu.Content align="end" minWidth={200}>
+  <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
+  <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+  <Menu.Separator />
+  <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
 </Menu.Content>
 </Menu>
 ```
@@ -3656,6 +3887,7 @@ Props:
     - disabled (boolean) default: false — Disable this item only
     - block (boolean) default: false — Stretch item to fill available width
     - orientation ("left" | "right") default: "left" — Position of the radio indicator relative to the label
+    - description (ReactNode) — Second line below the option's label, linked via aria-describedby
 
 ### Overview
 ```tsx
@@ -3784,32 +4016,17 @@ Use disabled on single RadioGroup.Item to disable only that option.
 ```
 
 ### With description
-Radio items accept ReactNode children, so you can compose a label with secondary description text, useful for options that need additional context.
+Use description on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option.
 ```tsx
 <RadioGroup direction="col" value={value} onChange={setValue} aria-label="Spacing">
-<RadioGroup.Item value="default">
-  <div className="flex flex-col">
-    <span>Default</span>
-    <span className="text-xs text-secondary mt-0.5">
-      Standard spacing for most use cases.
-    </span>
-  </div>
+<RadioGroup.Item value="default" description="Standard spacing for most use cases.">
+  Default
 </RadioGroup.Item>
-<RadioGroup.Item value="comfortable">
-  <div className="flex flex-col">
-    <span>Comfortable</span>
-    <span className="text-xs text-secondary mt-0.5">
-      More space between elements.
-    </span>
-  </div>
+<RadioGroup.Item value="comfortable" description="More space between elements.">
+  Comfortable
 </RadioGroup.Item>
-<RadioGroup.Item value="compact">
-  <div className="flex flex-col">
-    <span>Compact</span>
-    <span className="text-xs text-secondary mt-0.5">
-      Minimal spacing for dense layouts.
-    </span>
-  </div>
+<RadioGroup.Item value="compact" description="Minimal spacing for dense layouts.">
+  Compact
 </RadioGroup.Item>
 </RadioGroup>
 ```
@@ -4292,6 +4509,7 @@ Props:
   - TriggerView (React.FC) — Custom trigger render (multi)
   - searchPlaceholder (string) — Search input placeholder
   - searchAriaLabel (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
+  - searchSize (ControlSize) default: "md" — Size of the search input in the menu, such as 2xl for 44px touch targets on phones
 
 ### Overview
 ```tsx
@@ -5619,6 +5837,8 @@ Props:
   - block (boolean) default: false — Full-width control with equal-width tabs
   - disabled (boolean) default: false — Disable all tabs
   - aria-label (string) — Accessible name (required)
+  - overflow ("scroll" | "menu") default: "scroll" — Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)
+  - overflowLabel (string) default: "More" — Text of the menu button with overflow="menu"
   Tabs.Tab:
     - value (string) — Tab value
     - disabled (boolean) — Disable this tab
@@ -5784,6 +6004,22 @@ When tabs overflow their container, they automatically become horizontally scrol
   <Tabs.Tab value="6">Billing</Tabs.Tab>
   <Tabs.Tab value="7">Security</Tabs.Tab>
   <Tabs.Tab value="8">Integrations</Tabs.Tab>
+</Tabs>
+</div>
+```
+
+### Overflow menu
+With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
+```tsx
+<div className="flex w-[360px]">
+<Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
+  <Tabs.Tab value="code">Code</Tabs.Tab>
+  <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
+  <Tabs.Tab value="pulls" badge={3}>Pull requests</Tabs.Tab>
+  <Tabs.Tab value="actions">Actions</Tabs.Tab>
+  <Tabs.Tab value="projects">Projects</Tabs.Tab>
+  <Tabs.Tab value="insights">Insights</Tabs.Tab>
+  <Tabs.Tab value="settings">Settings</Tabs.Tab>
 </Tabs>
 </div>
 ```

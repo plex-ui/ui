@@ -1,6 +1,6 @@
 .FieldError {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--field-error-gap);
   padding-inline-start: var(--field-error-padding-inline);
   color: var(--field-error-color);
@@ -17,13 +17,22 @@
   margin-bottom: var(--field-error-margin-bottom);
 }
 
+/* The icon keeps its size and sits on the first line; the text wraps, also
+   inside a long unbroken word, instead of pushing out of the field. */
 .FieldError > * {
   flex-shrink: 0;
+}
+
+.FieldError > span {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .Icon {
   width: var(--field-error-icon-size);
   height: var(--field-error-icon-size);
   display: block;
-  align-self: center;
+  align-self: flex-start;
+  margin-block-start: calc((var(--field-error-line-height) - var(--field-error-icon-size)) / 2);
 }

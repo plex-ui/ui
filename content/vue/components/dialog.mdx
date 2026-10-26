@@ -46,8 +46,68 @@ export const destructive = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
+export const terms = [
+  "Accounts. You are responsible for the activity on your account and for keeping its password safe.",
+  "Content. You keep the rights to what you upload; you give us the rights we need to run the service.",
+  "Acceptable use. Do not use the service to break the law, to harm others or to probe its security.",
+  "Payments. Paid plans renew until cancelled; you can cancel at any time from the billing page.",
+  "Changes. We tell you about material changes to these terms at least 30 days before they apply.",
+  "Termination. You can stop using the service at any time; we can suspend accounts that break these terms.",
+  "Liability. The service is provided as is, to the extent the law allows.",
+  "Contact. Questions about these terms go to the support address in your account settings.",
+]
+
+export const body = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Review terms</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Terms of service</DialogTitle>
+      <DialogDescription>Please read them before you continue.</DialogDescription>
+    </DialogHeader>
+    <DialogBody>
+      <div class="flex flex-col gap-4 text-sm text-secondary">
+        <p v-for="(term, index) in [...terms, ...terms]" :key="index">{{ term }}</p>
+      </div>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="secondary" variant="soft">Decline</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Accept</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
+export const placement = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Open filters</Button>
+  </DialogTrigger>
+  <DialogContent :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
+    <DialogHeader>
+      <DialogTitle>Filters</DialogTitle>
+      <DialogDescription>Narrow the list down.</DialogDescription>
+    </DialogHeader>
+    <DialogBody>
+      <div class="flex flex-col gap-4">
+        <Field label="Status"><Input placeholder="Any status" /></Field>
+        <Field label="Owner"><Input placeholder="Anyone" /></Field>
+        <Field label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
+      </div>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="secondary" variant="soft">Clear filters</Button>
+      </DialogClose>
+      <Button color="primary" @click="open = false">Done</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
 <UsageBlock>{`import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogFooter,
@@ -70,6 +130,23 @@ export const destructive = `<Dialog v-model:open="open">
   <VueDemo template={destructive} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
+### Scrolling body
+
+<ComponentPreview language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
+  <VueDemo template={body} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
+</ComponentPreview>
+
+### Placement
+
+<ComponentPreview language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
+  <VueDemo
+    template={placement}
+    stageClassName="py-10 flex justify-center"
+    state={{ open: false }}
+    controls={[{ name: "placement", type: "select", options: ["center", "top", "bottom", "start", "end", "fullscreen"], default: "end" }]}
+  />
+</ComponentPreview>
+
 ## Reference
 
 **Dialog** (root)
@@ -85,6 +162,10 @@ export const destructive = `<Dialog v-model:open="open">
   { prop: "width", type: "number | string", default: "480", description: "Panel width" },
   { prop: "show-close", type: "boolean", default: "true", description: "Show close button in top-right corner" },
   { prop: "class", type: "string", description: "Additional CSS class on the panel" },
+  { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
+  { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below; defaults to placement" },
+  { prop: "@open-auto-focus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
+  { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
 **DialogTrigger**: opens the dialog; renders its child element (Reka's `as-child`).
@@ -94,6 +175,8 @@ export const destructive = `<Dialog v-model:open="open">
 **DialogTitle**: accessible heading for the dialog.
 
 **DialogDescription**: supporting text under the title.
+
+**DialogBody**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `class`.
 
 **DialogFooter**: footer area for action buttons.
 

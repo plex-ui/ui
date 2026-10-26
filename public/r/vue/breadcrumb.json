@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "breadcrumb",
+  "type": "registry:ui",
+  "title": "Breadcrumb",
+  "description": "The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/breadcrumb/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Breadcrumb\"\n"
+    }
+  ],
+  "docs": "Import as `import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb'`. See https://plexui.com/vue/components/breadcrumb for props and examples."
+}

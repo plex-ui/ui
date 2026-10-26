@@ -111,6 +111,22 @@ export const OTPInput = defineComponent({
       input.setSelectionRange(1, 1)
     }
 
+    // A field cleared from outside (a wrong code wiped by the form) puts the
+    // caret back in the first cell, when the focus was in the field already
+    let hadValue = currentValue.value.length > 0
+    watch(
+      [currentValue, () => props.disabled],
+      () => {
+        const filled = currentValue.value.length > 0
+        const root = rootRef.value
+        if (!filled && hadValue && !props.disabled && root?.contains(document.activeElement)) {
+          focusCell(0)
+        }
+        hadValue = filled
+      },
+      { flush: "post" },
+    )
+
     const handleCellClick = (index: number) => {
       if (props.disabled) return
       focusCell(index)

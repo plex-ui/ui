@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "kbd",
+  "type": "registry:ui",
+  "title": "Kbd",
+  "description": "Plex UI Kbd: a key or a keyboard shortcut such as ⌘K, in text, in a tooltip or at the end of a menu item, with soft and outline styles that read on any surface.",
+  "dependencies": ["@plexui/ui"],
+  "registryDependencies": ["https://plexui.com/r/styles.json"],
+  "files": [
+    {
+      "path": "components/ui/kbd.tsx",
+      "type": "registry:ui",
+      "content": "export { Kbd } from '@plexui/ui/components/Kbd';\nexport type { KbdProps, KbdGroupProps } from '@plexui/ui/components/Kbd';\n"
+    }
+  ],
+  "docs": "Import as `import { Kbd } from '@/components/ui/kbd'`. See https://plexui.com/components/kbd for full prop reference."
+}

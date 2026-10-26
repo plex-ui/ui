@@ -26,6 +26,8 @@ const CheckboxComponent = defineComponent({
     checked: { type: [Boolean, String] as PropType<CheckedState>, default: undefined },
     /** Optional accessible label rendered to the right of the checkbox. The `label` slot takes rich content. */
     label: String,
+    /** Optional second line below the label, linked via `aria-describedby`. The `description` slot takes rich content. */
+    description: String,
     /** When `true`, prevents the user from interacting with the checkbox. */
     disabled: { type: Boolean, default: false },
     /** When `true`, indicates that the user must check the checkbox before the owning form can be submitted. */
@@ -103,6 +105,9 @@ const CheckboxComponent = defineComponent({
       const { class: className, form, ...rest } = attrs
       const id = props.id ?? generatedId
       const hasLabel = Boolean(slots.label || props.label)
+      // The description only renders next to a label; it comes before any ids
+      // the caller (a Field, say) passes
+      const descriptionId = hasLabel && (slots.description || props.description) ? `${id}-description` : undefined
       const indeterminateDefault = props.defaultChecked === "indeterminate" ? false : props.defaultChecked
       const inputDefaultChecked = indeterminateDefault ?? (initialChecked === "indeterminate" ? false : initialChecked)
 
@@ -117,6 +122,11 @@ const CheckboxComponent = defineComponent({
         if (isListener(key)) listeners[key] = value
         else buttonAttrs[key] = value
       }
+      const ariaDescribedBy =
+        [descriptionId, buttonAttrs["aria-describedby"] as string | undefined].filter(Boolean).join(" ") || undefined
+      const labelElement = hasLabel
+        ? h("label", { for: id, class: s.Label, onMousedown: handleLabelMouseDown }, slots.label ? slots.label() : props.label)
+        : null
 
       return h(
         "div",
@@ -153,6 +163,7 @@ const CheckboxComponent = defineComponent({
                     // Reka marks a disabled checkbox aria-disabled; Radix does not
                     "aria-disabled": undefined,
                     ...buttonAttrs,
+                    "aria-describedby": ariaDescribedBy,
                   },
                   { default: () => h(RekaCheckboxIndicator, { class: s.CheckMark }) },
                 ),
@@ -173,13 +184,16 @@ const CheckboxComponent = defineComponent({
                 "style": bubbleInputStyle(controlSize.value, { transform: "translateX(-100%)" }),
               })
             : null,
-          hasLabel
-            ? h(
-                "label",
-                { for: id, class: s.Label, onMousedown: handleLabelMouseDown },
-                slots.label ? slots.label() : props.label,
-              )
-            : null,
+          descriptionId
+            ? h("div", { class: s.LabelGroup }, [
+                labelElement,
+                h(
+                  "span",
+                  { id: descriptionId, class: s.Description },
+                  slots.description ? slots.description() : props.description,
+                ),
+              ])
+            : labelElement,
         ],
       )
     }

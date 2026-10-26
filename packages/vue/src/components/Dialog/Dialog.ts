@@ -162,6 +162,18 @@ export const DialogContent = defineComponent({
     width: { type: [Number, String] as PropType<number | string>, default: 480 },
     /** Renders the close button in the top corner. @default true */
     showClose: { type: Boolean, default: true },
+    /**
+     * Where the panel sits: centered, near the top, a sheet along the bottom,
+     * a full-height panel on the start or end side, or the whole screen.
+     * @default "center"
+     */
+    placement: { type: String as PropType<DialogPlacement>, default: "center" },
+    /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
+    mobilePlacement: String as PropType<Extract<DialogPlacement, "center" | "bottom" | "fullscreen">>,
+    /** Called when focus moves into the dialog on open; `event.preventDefault()` keeps it for you to place. */
+    onOpenAutoFocus: Function as PropType<(event: Event) => void>,
+    /** Called when focus returns on close; `event.preventDefault()` keeps it elsewhere. */
+    onCloseAutoFocus: Function as PropType<(event: Event) => void>,
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
@@ -202,6 +214,10 @@ export const DialogContent = defineComponent({
             "forceMount": true,
             "class": s.Content,
             "style": toCssVariables({ "dialog-width": props.width }),
+            "data-placement": props.placement === "center" ? undefined : props.placement,
+            "data-mobile-placement": props.mobilePlacement,
+            "onOpenAutoFocus": props.onOpenAutoFocus,
+            "onCloseAutoFocus": props.onCloseAutoFocus,
             // Radix labels and describes the content only by mounted parts
             ...(titleCount.value > 0 ? {} : { "aria-labelledby": undefined }),
             ...(descriptionCount.value > 0 ? {} : { "aria-describedby": undefined }),
@@ -246,6 +262,15 @@ export const DialogHeader = defineComponent({
   name: "DialogHeader",
   setup(_props, { slots }) {
     return () => h("div", { class: s.Header }, slots.default?.())
+  },
+})
+
+/** The scrolling part between DialogHeader and DialogFooter: with it, only the body scrolls. */
+export const DialogBody = defineComponent({
+  name: "DialogBody",
+  inheritAttrs: false,
+  setup(_props, { slots, attrs }) {
+    return () => h("div", { class: [s.Body, attrs.class] }, slots.default?.())
   },
 })
 
@@ -294,6 +319,8 @@ export const DialogClose = defineComponent({
 })
 
 export type DialogProps = InstanceType<typeof Dialog>["$props"]
+
+export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
 
 /** DialogContent props; `class` lands on the panel, like `className` in React. */
 export type DialogContentProps = InstanceType<typeof DialogContent>["$props"] & { class?: HTMLAttributes["class"] }

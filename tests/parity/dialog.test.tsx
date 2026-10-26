@@ -11,6 +11,7 @@ import { Tooltip as ReactTooltip } from "../../packages/ui/src/components/Toolti
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -23,7 +24,13 @@ import { Tooltip } from "../../packages/vue/src/components/Tooltip"
 import { flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
 
-type ContentProps = { width?: number | string; showClose?: boolean; className?: string }
+type ContentProps = {
+  width?: number | string
+  showClose?: boolean
+  className?: string
+  placement?: "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
+  mobilePlacement?: "center" | "bottom" | "fullscreen"
+}
 
 // Click handlers on the Trigger and Close children; preventDefault() in one
 // must cancel the dialog action in both frameworks
@@ -132,6 +139,14 @@ const cases: Array<[string, { open?: boolean; content?: ContentProps }]> = [
   ["open, string width", { open: true, content: { width: "40rem" } }],
   ["open, no close button", { open: true, content: { showClose: false } }],
   ["open, panel class", { open: true, content: { className: "custom" } }],
+  ["open, placement top", { open: true, content: { placement: "top" } }],
+  ["open, placement bottom", { open: true, content: { placement: "bottom" } }],
+  ["open, placement start", { open: true, content: { placement: "start" } }],
+  ["open, placement end", { open: true, content: { placement: "end", width: 400 } }],
+  ["open, placement fullscreen", { open: true, content: { placement: "fullscreen" } }],
+  ["open, centered with a bottom sheet on phones", { open: true, content: { mobilePlacement: "bottom" } }],
+  ["open, side panel, full screen on phones", { open: true, content: { placement: "end", mobilePlacement: "fullscreen" } }],
+  ["open, explicit center", { open: true, content: { placement: "center" } }],
 ]
 
 describe("Dialog parity", () => {
@@ -477,5 +492,77 @@ describe("Dialog parity, radix-ui 1.8", () => {
     // !important beats the dismissable layer's inline pointer-events
     expect(rule(".Content")).toContain("pointer-events: none !important;")
     expect(rule(".Panel")).toContain("pointer-events: auto;")
+  })
+})
+
+describe("Dialog body and focus hooks", () => {
+  test("Dialog.Body renders the scrolling part between header and footer", async () => {
+    await act(async () => {
+      render(
+        <ReactDialog open>
+          <ReactDialog.Content placement="end">
+            <ReactDialog.Header>
+              <ReactDialog.Title>Filters</ReactDialog.Title>
+            </ReactDialog.Header>
+            <ReactDialog.Body className="filters">
+              <p>Status</p>
+            </ReactDialog.Body>
+            <ReactDialog.Footer>
+              <ReactButton color="primary">Done</ReactButton>
+            </ReactDialog.Footer>
+          </ReactDialog.Content>
+        </ReactDialog>,
+      )
+    })
+    const react = serializeDom()
+    cleanup()
+
+    const { unmount } = mountVue(() =>
+      h(Dialog, { open: true }, () =>
+        h(DialogContent, { placement: "end" }, () => [
+          h(DialogHeader, null, () => h(DialogTitle, null, () => "Filters")),
+          h(DialogBody, { class: "filters" }, () => h("p", null, "Status")),
+          h(DialogFooter, null, () => h(VueButton, { color: "primary" }, () => "Done")),
+        ]),
+      ),
+    )
+    await flushVue()
+    const vue = serializeDom()
+    unmount()
+
+    expect(vue).toBe(react)
+    expect(react).toContain('class="Body filters"')
+    expect(react).toContain('data-placement="end"')
+  })
+
+  test("onOpenAutoFocus runs on open and can keep the focus on the dialog", async () => {
+    const reactOpen = vi.fn((event: Event) => event.preventDefault())
+    await act(async () => {
+      render(
+        <ReactDialog open>
+          <ReactDialog.Content onOpenAutoFocus={reactOpen}>
+            <ReactDialog.Title>Name</ReactDialog.Title>
+            <input aria-label="Name" />
+          </ReactDialog.Content>
+        </ReactDialog>,
+      )
+    })
+    const reactFocusedInput = document.activeElement?.tagName === "INPUT"
+    cleanup()
+
+    const vueOpen = vi.fn((event: Event) => event.preventDefault())
+    const { unmount } = mountVue(() =>
+      h(Dialog, { open: true }, () =>
+        h(DialogContent, { onOpenAutoFocus: vueOpen }, () => [h(DialogTitle, null, () => "Name"), h("input", { "aria-label": "Name" })]),
+      ),
+    )
+    await flushVue()
+    const vueFocusedInput = document.activeElement?.tagName === "INPUT"
+    unmount()
+
+    expect(reactOpen).toHaveBeenCalledTimes(1)
+    expect(vueOpen).toHaveBeenCalledTimes(1)
+    expect(reactFocusedInput).toBe(false)
+    expect(vueFocusedInput).toBe(false)
   })
 })

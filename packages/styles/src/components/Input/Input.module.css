@@ -70,6 +70,18 @@
   }
 
   /* =============================================
+    Ghost variant: no border, no fill. For a field that its container
+    already frames, such as the search line at the top of a dialog
+  ============================================= */
+  &:where([data-variant="ghost"]) {
+    background-color: transparent;
+
+    &:not([data-disabled])[data-invalid] {
+      box-shadow: 0 0 0 1px var(--input-border-color-invalid) inset;
+    }
+  }
+
+  /* =============================================
     Invalid
   ============================================= */
   &[data-invalid] {

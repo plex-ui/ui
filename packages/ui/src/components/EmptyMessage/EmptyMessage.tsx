@@ -11,11 +11,28 @@ export type EmptyMessageProps = {
    * @default static
    */
   fill?: "static" | "absolute" | "none"
+  /**
+   * `sm` is the compact message for a panel, a card section or a list with
+   * nothing in it: smaller title, tighter spacing, no minimum width.
+   * @default md
+   */
+  size?: Sizes<"sm" | "md">
+  /**
+   * `start` left-aligns the message, for an empty state that sits under a
+   * section heading instead of filling a surface.
+   * @default center
+   */
+  align?: "center" | "start"
 }
 
-export const EmptyMessage = ({ children, className, fill = "static" }: EmptyMessageProps) => {
+export const EmptyMessage = ({ children, className, fill = "static", size = "md", align = "center" }: EmptyMessageProps) => {
   return (
-    <div className={clsx(s.EmptyMessage, className)} data-fill={fill}>
+    <div
+      className={clsx(s.EmptyMessage, className)}
+      data-fill={fill}
+      data-size={size === "sm" ? size : undefined}
+      data-align={align === "start" ? align : undefined}
+    >
       {children}
     </div>
   )

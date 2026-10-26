@@ -47,12 +47,16 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 
 export type FieldChildProps = {
   id: string
+  /** The label's id. Bind it to a control that the label's `for` cannot name, such as a Select trigger. */
+  "aria-labelledby"?: string
   "aria-describedby"?: string
   "aria-invalid"?: boolean
   opticallyAlign?: "start" | "end"
 }
 
 type Props = Record<string, unknown>
+
+const CONTROL_SIZES: ReadonlySet<unknown> = new Set(["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"])
 
 /** The slot props, recording whether the slot read them (the render-prop form). */
 const trackUse = (target: FieldChildProps) => {
@@ -120,17 +124,24 @@ const singleElement = (nodes: VNodeArrayChildren): VNode | undefined => {
 /** A child prop under its attribute name or its camelCase prop name. */
 const childProp = (props: Props, name: string) => props[name] ?? props[camelize(name)]
 
-/** `cloneElement(child, fieldProps)` with React Field's merging rules. */
-const cloneWithFieldProps = (child: VNode, fieldChildProps: FieldChildProps): VNode => {
+/**
+ * `cloneElement(child, fieldProps)` with React Field's merging rules. A child
+ * without its own name (`aria-label`, `aria-labelledby`, `label`) is also
+ * labelled by the field's label, which names triggers `for` cannot reach.
+ */
+const cloneWithFieldProps = (child: VNode, fieldChildProps: FieldChildProps, labelId: string): VNode => {
   const own: Props = { ...(child.props ?? {}) }
   const childDescribedBy = childProp(own, "aria-describedby") as string | undefined
   const childInvalid = childProp(own, "aria-invalid")
+  const childNamed =
+    childProp(own, "aria-label") != null || childProp(own, "aria-labelledby") != null || own.label != null
 
   const overrides: Props = {
     ...fieldChildProps,
     // Merge with the child's own associations instead of overwriting them
     "aria-describedby": [childDescribedBy, fieldChildProps["aria-describedby"]].filter(Boolean).join(" ") || undefined,
     "aria-invalid": childInvalid ?? fieldChildProps["aria-invalid"],
+    ...(!childNamed && { "aria-labelledby": labelId }),
   }
 
   // One spelling per prop, so the field's value is the one that applies
@@ -156,8 +167,10 @@ const FieldComponent = defineComponent({
      * the control gets `aria-invalid="true"`. Rendered with FieldError.
      */
     errorMessage: String,
-    /** Font size of the label, to match the control's size. @default "md" */
-    size: { type: String as PropType<ControlSize>, default: "md" },
+    /** Content at the end of the label row, such as a link that acts on the field (or the `labelAction` slot) */
+    labelAction: String,
+    /** Font size of the label, to match the control's size. @default the child control's `size`, else "md" */
+    size: String as PropType<ControlSize>,
     /** Shows a required asterisk after the label. Visual only: no `required` attribute. @default false */
     required: { type: Boolean, default: false },
     /** Layout direction of label and control. @default "vertical" */
@@ -171,6 +184,7 @@ const FieldComponent = defineComponent({
     /** The control. Read the props to render them yourself (React's render prop). */
     default?: (fieldProps: FieldChildProps) => VNodeChild
     label?: () => VNodeChild
+    labelAction?: () => VNodeChild
     description?: () => VNodeChild
     errorMessage?: () => VNodeChild
   }>,
@@ -178,8 +192,9 @@ const FieldComponent = defineComponent({
     const generatedId = useId()
 
     return () => {
-      const { size, required, orientation, opticallyAlign } = props
+      const { required, orientation, opticallyAlign } = props
       const fieldId = props.id || `field-${generatedId}`
+      const labelId = `${fieldId}-label`
 
       const description = slots.description ? slots.description() : props.description
       const hasDescription = slots.description ? hasContent(description as VNodeArrayChildren) : !!description
@@ -203,12 +218,22 @@ const FieldComponent = defineComponent({
 
       // Resolve the children
       let resolvedChildren: VNodeArrayChildren | undefined
+      let childSize: unknown
       if (slots.default) {
-        const { proxy, state } = trackUse(fieldChildProps)
+        const { proxy, state } = trackUse({ ...fieldChildProps, "aria-labelledby": labelId })
         const nodes = slots.default(proxy) as VNodeArrayChildren
         const child = state.used ? undefined : singleElement(nodes)
-        resolvedChildren = child ? [cloneWithFieldProps(child, fieldChildProps)] : nodes
+        childSize = child?.props?.size
+        resolvedChildren = child ? [cloneWithFieldProps(child, fieldChildProps, labelId)] : nodes
       }
+      const size = props.size ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
+
+      const labelAction = slots.labelAction ? slots.labelAction() : props.labelAction
+      const hasLabelAction = slots.labelAction ? hasContent(labelAction as VNodeArrayChildren) : !!labelAction
+      const labelElement = h("label", { class: s.Label, id: labelId, for: fieldId }, [
+        slots.label ? slots.label() : props.label,
+        required ? h("span", { "class": s.RequiredIndicator, "aria-hidden": "true" }, "*") : null,
+      ])
 
       return h(
         "div",
@@ -220,10 +245,9 @@ const FieldComponent = defineComponent({
         },
         [
           h("div", { class: s.LabelGroup }, [
-            h("label", { class: s.Label, for: fieldId }, [
-              slots.label ? slots.label() : props.label,
-              required ? h("span", { "class": s.RequiredIndicator, "aria-hidden": "true" }, "*") : null,
-            ]),
+            hasLabelAction
+              ? h("div", { class: s.LabelRow }, [labelElement, h("div", { class: s.LabelAction }, [labelAction as VNodeChild])])
+              : labelElement,
             hasDescription ? h("div", { class: s.Description, id: descriptionId }, [description as VNodeChild]) : null,
           ]),
           h("div", { class: s.Content }, [

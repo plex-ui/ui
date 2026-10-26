@@ -10,6 +10,7 @@ import {
   MenuGroupedDemo,
   MenuSubmenuDemo,
   MenuItemActionsDemo,
+  MenuDangerDemo,
   MenuWithCheckboxesDemoWithControls,
   MenuWithRadioItemsDemoWithControls,
   MenuHorizontalIconsOnlyDemoWithControls,
@@ -247,6 +248,24 @@ return (
   <MenuItemActionsDemo />
 </ComponentPreview>
 
+### Destructive items
+
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>Menu.Link</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={`<Menu>
+  <Menu.Trigger>
+    <Button color="secondary" variant="soft" uniform aria-label="More actions">
+      <DotsHorizontal />
+    </Button>
+  </Menu.Trigger>
+  <Menu.Content align="end" minWidth={200}>
+    <Menu.Item onSelect={rename}><EditPencil /> Rename</Menu.Item>
+    <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item onSelect={remove} danger><Trash /> Delete project</Menu.Item>
+  </Menu.Content>
+</Menu>`} previewMinHeight={168}>
+  <MenuDangerDemo />
+</ComponentPreview>
+
 ## API
 
 **Note:** Menu prevents `Tab` from advancing focus. For generic popover content use [Popover](/components/popover) instead.
@@ -279,9 +298,10 @@ return (
   { prop: "description", type: "ReactNode", description: "Second line under the label. The label turns semibold on its own" },
   { prop: "onSelect", type: "(event: Event) => void", description: "Called when item is selected" },
   { prop: "disabled", type: "boolean", description: "Disable the item" },
+  { prop: "danger", type: "boolean", description: "Destructive action: the item is drawn in the danger color" },
 ]} />
 
-**Menu.Link**: Item that navigates (uses your app link component). Pass `href` and link props.
+**Menu.Link**: Item that navigates (uses your app link component). Pass `href` and link props; `danger` marks a destructive destination.
 
 **Menu.Separator**: Divider between items. No props.
 

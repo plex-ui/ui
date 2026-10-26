@@ -125,26 +125,15 @@ export const ghost = `<div class="flex flex-col gap-3">
 </div>`
 
 export const withDescription = `<div class="flex flex-col gap-4 max-w-sm">
-  <Checkbox default-checked>
-    <template #label>
-      <div class="flex flex-col">
-        <span class="font-medium">Accept terms and conditions</span>
-        <span class="text-xs text-secondary mt-0.5">
-          By checking this box, you agree to our Terms of Service and Privacy Policy.
-        </span>
-      </div>
-    </template>
-  </Checkbox>
-  <Checkbox>
-    <template #label>
-      <div class="flex flex-col">
-        <span class="font-medium">Enable notifications</span>
-        <span class="text-xs text-secondary mt-0.5">
-          You can enable or disable notifications at any time from settings.
-        </span>
-      </div>
-    </template>
-  </Checkbox>
+  <Checkbox
+    label="Accept terms and conditions"
+    description="By checking this box, you agree to our Terms of Service and Privacy Policy."
+    default-checked
+  />
+  <Checkbox
+    label="Enable notifications"
+    description="You can enable or disable notifications at any time from settings."
+  />
 </div>`
 
 export const indeterminate = `<Checkbox
@@ -304,7 +293,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### With description
 
-<ComponentPreview language="vue" details={<>Pass rich content through the <code>label</code> slot to compose a label with secondary description text. This is useful for options that need additional context or explanation. For plain text, the <code>label</code> prop is enough.</>} code={withDescription} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Use <code>description</code> (or the <code>description</code> slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. The description renders only next to a label.</>} code={withDescription} previewMinHeight={200}>
   <VueDemo template={withDescription} />
 </ComponentPreview>
 
@@ -396,6 +385,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   { prop: "default-checked", type: 'boolean | "indeterminate"', description: "Initial state (uncontrolled)" },
   { prop: "label", type: "string", description: "Accessible label rendered next to the checkbox" },
   { prop: "label slot", type: "VNode[]", description: "Rich label content; takes precedence over the label prop" },
+  { prop: "description", type: "string", description: "Second line below the label, linked via aria-describedby (or the description slot)" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
   { prop: "required", type: "boolean", description: "Required for form submission" },
   { prop: "name", type: "string", description: "Form field name" },

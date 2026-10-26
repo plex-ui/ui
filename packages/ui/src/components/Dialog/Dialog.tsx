@@ -75,14 +75,41 @@ const Trigger = ({ children }: { children: ReactNode }) => {
   return <RadixDialog.Trigger asChild>{children}</RadixDialog.Trigger>
 }
 
+export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
+
 export type DialogContentProps = {
   children: ReactNode
   width?: number | string
   showClose?: boolean
   className?: string
+  /**
+   * Where the panel sits: centered, near the top (search, command lists),
+   * a sheet along the bottom, a full-height panel on the start or end side,
+   * or the whole screen.
+   * @default center
+   */
+  placement?: DialogPlacement
+  /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
+  mobilePlacement?: Extract<DialogPlacement, "center" | "bottom" | "fullscreen">
+  /**
+   * Called when focus moves into the dialog on open. Call
+   * `event.preventDefault()` to focus something else yourself.
+   */
+  onOpenAutoFocus?: (event: Event) => void
+  /** Called when focus returns on close. Call `event.preventDefault()` to keep it elsewhere. */
+  onCloseAutoFocus?: (event: Event) => void
 }
 
-const Content = ({ children, width = 480, showClose = true, className }: DialogContentProps) => {
+const Content = ({
+  children,
+  width = 480,
+  showClose = true,
+  className,
+  placement = "center",
+  mobilePlacement,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
+}: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
 
   useEscCloseStack(open, () => {
@@ -104,7 +131,11 @@ const Content = ({ children, width = 480, showClose = true, className }: DialogC
               forceMount
               className={s.Content}
               style={toCssVariables({ "dialog-width": width })}
+              data-placement={placement === "center" ? undefined : placement}
+              data-mobile-placement={mobilePlacement}
               onEscapeKeyDown={preventDefaultHandler}
+              onOpenAutoFocus={onOpenAutoFocus}
+              onCloseAutoFocus={onCloseAutoFocus}
             >
               <div className={clsx(s.Panel, className)}>
                 {showClose && (
@@ -144,6 +175,11 @@ const Header = ({ children, className }: DialogSlotProps) => {
   return <div className={clsx(s.Header, className)}>{children}</div>
 }
 
+/** The scrolling part between Header and Footer: with it, only the body scrolls */
+const Body = ({ children, className }: DialogSlotProps) => {
+  return <div className={clsx(s.Body, className)}>{children}</div>
+}
+
 const Footer = ({ children, className }: DialogSlotProps) => {
   return <div className={clsx(s.Footer, className)}>{children}</div>
 }
@@ -167,6 +203,7 @@ const Close = ({ children }: { children: ReactNode }) => {
 Dialog.Trigger = Trigger
 Dialog.Content = Content
 Dialog.Header = Header
+Dialog.Body = Body
 Dialog.Footer = Footer
 Dialog.Title = Title
 Dialog.Description = Description

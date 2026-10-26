@@ -55,6 +55,14 @@
       ]
     },
     {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "description": "The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
       "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout.",
@@ -194,6 +202,14 @@
       "name": "input-group",
       "type": "registry:ui",
       "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "description": "A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.",
       "dependencies": [
         "@plexui/vue"
       ]

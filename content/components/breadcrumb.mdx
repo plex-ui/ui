@@ -1,0 +1,91 @@
+---
+title: Breadcrumb
+description: The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+metaDescription: Accessible React breadcrumb component with a navigation landmark, router-aware links, the current page marked aria-current, custom separators and wrapping trails
+---
+
+import {
+  BreadcrumbOverviewDemo,
+  BreadcrumbSizesDemo,
+  BreadcrumbSeparatorDemo,
+  BreadcrumbWrapDemo,
+} from "@/components/docs/BreadcrumbDemos"
+
+<UsageBlock>{`import { Breadcrumb } from "@plexui/ui/components/Breadcrumb";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> is a link (internal paths use the <code>linkComponent</code> of <code>PlexUIProvider</code>, such as your router's link); the <code>current</code> item is plain text marked <code>aria-current="page"</code>.</>} code={`<Breadcrumb>
+  <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+  <Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
+  <Breadcrumb.Item current>Members</Breadcrumb.Item>
+</Breadcrumb>`} previewMinHeight={140}>
+  <BreadcrumbOverviewDemo />
+</ComponentPreview>
+
+### Sizes
+
+<ComponentPreview details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title.</>} code={`<Breadcrumb size="sm">
+  <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
+  <Breadcrumb.Item href="/projects/website">Website</Breadcrumb.Item>
+  <Breadcrumb.Item current>Deployments</Breadcrumb.Item>
+</Breadcrumb>`} previewMinHeight={160}>
+  <BreadcrumbSizesDemo />
+</ComponentPreview>
+
+### Separator
+
+<ComponentPreview details={<>A small chevron stands between items by default. Pass any node to <code>separator</code>, such as a slash for file paths. Separators are hidden from assistive technology.</>} code={`<Breadcrumb separator="/">
+  <Breadcrumb.Item href="/acme">acme</Breadcrumb.Item>
+  <Breadcrumb.Item href="/acme/design-system">design-system</Breadcrumb.Item>
+  <Breadcrumb.Item current>README.md</Breadcrumb.Item>
+</Breadcrumb>`} previewMinHeight={140}>
+  <BreadcrumbSeparatorDemo />
+</ComponentPreview>
+
+### Long trails
+
+<ComponentPreview details={<>A trail that does not fit wraps onto the next line instead of leaving the screen. An item without <code>href</code> is a plain step; give it <code>onClick</code> to make it act as a button.</>} code={`<Breadcrumb>
+  <Breadcrumb.Item href="/">Workspace</Breadcrumb.Item>
+  <Breadcrumb.Item href="/accounts">Customer accounts</Breadcrumb.Item>
+  <Breadcrumb.Item href="/accounts/northwind">Northwind Traders</Breadcrumb.Item>
+  <Breadcrumb.Item>Archived</Breadcrumb.Item>
+  <Breadcrumb.Item current>Invoice 2024-0193</Breadcrumb.Item>
+</Breadcrumb>`} previewMinHeight={160}>
+  <BreadcrumbWrapDemo />
+</ComponentPreview>
+
+## API
+
+### Breadcrumb
+
+<PropsTable data={[
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Text size: sm above a compact header, md above a page title" },
+  { prop: "separator", type: "ReactNode", default: "a small chevron", description: "What stands between two items" },
+  { prop: "aria-label", type: "string", default: '"Breadcrumb"', description: "Name of the navigation landmark" },
+  { prop: "className", type: "string", description: "Applied to the nav element" },
+]} />
+
+Other `<nav>` attributes are forwarded.
+
+### Breadcrumb.Item
+
+<PropsTable data={[
+  { prop: "href", type: "string", description: "Link destination. Internal paths use the linkComponent of PlexUIProvider" },
+  { prop: "to", type: "string", description: "Router destination, for link components that take to" },
+  { prop: "current", type: "boolean", default: "false", description: "The current page: plain text marked aria-current=\"page\"" },
+  { prop: "onClick", type: "(event: MouseEvent) => void", description: "Makes an item without a destination act as a button" },
+  { prop: "className", type: "string", description: "Applied to the li element" },
+]} />
+
+## Styling
+
+Breadcrumb reads these component tokens. Override them at any scope to restyle it:
+
+- `--breadcrumb-font-size`: text size (`--font-text-sm-size`, or `--font-text-xs-size` at `sm`)
+- `--breadcrumb-line-height`: line height
+- `--breadcrumb-gap`: space around separators (`spacing(1)`, or `spacing(0.5)` at `sm`)
+
+Links use the secondary text color and turn to the text color on hover; the current page uses the text color; separators use the tertiary color.

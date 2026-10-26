@@ -189,3 +189,28 @@ export function AlertDismissibleDemo() {
     </div>
   );
 }
+
+export function AlertBannerDemo() {
+  return (
+    <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6">
+      <Alert
+        banner
+        color="caution"
+        variant="soft"
+        indicator={false}
+        description="You are offline. Changes will sync when the connection is back."
+      />
+      <Alert
+        banner
+        color="info"
+        variant="outline"
+        description="A new version is available."
+        actions={
+          <Button color="primary" variant="soft" size="sm">
+            Reload
+          </Button>
+        }
+      />
+    </div>
+  );
+}

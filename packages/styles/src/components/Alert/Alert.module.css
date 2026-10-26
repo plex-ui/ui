@@ -12,6 +12,17 @@
     align-items: flex-start;
   }
 
+  /* Banner: a full-width strip, square, with lines above and below only */
+  &[data-banner] {
+    border-radius: 0;
+  }
+
+  &[data-banner]:is([data-variant="soft"], [data-variant="outline"]) {
+    box-shadow:
+      0 1px 0 0 var(--alert-border-color) inset,
+      0 -1px 0 0 var(--alert-border-color) inset;
+  }
+
   /* =============================================
     Variants
   ============================================= */

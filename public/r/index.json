@@ -28,9 +28,21 @@
       "dependencies": ["@plexui/ui"]
     },
     {
+      "name": "kbd",
+      "type": "registry:ui",
+      "description": "Key or keyboard shortcut, such as ⌘K, in text, tooltips and menus.",
+      "dependencies": ["@plexui/ui"]
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "description": "Status indicator badge.",
+      "dependencies": ["@plexui/ui"]
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "description": "Trail of pages that leads to the current one, above a page title.",
       "dependencies": ["@plexui/ui"]
     },
     {

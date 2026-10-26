@@ -127,29 +127,15 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### With description
 
-<ComponentPreview details={<>The <code>label</code> prop accepts <code>ReactNode</code>, so you can compose a label with secondary description text. This is useful for options that need additional context or explanation.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview details={<>Use <code>description</code> for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. The description renders only next to a <code>label</code>.</>} code={`<div className="flex flex-col gap-4">
   <Checkbox
-    label={
-      <div className="flex flex-col">
-        <span>Accept terms and conditions</span>
-        <span className="text-xs text-secondary mt-0.5">
-          By checking this box, you agree to our Terms of Service
-          and Privacy Policy.
-        </span>
-      </div>
-    }
+    label="Accept terms and conditions"
+    description="By checking this box, you agree to our Terms of Service and Privacy Policy."
     defaultChecked
   />
   <Checkbox
-    label={
-      <div className="flex flex-col">
-        <span>Enable notifications</span>
-        <span className="text-xs text-secondary mt-0.5">
-          You can enable or disable notifications at any time
-          from settings.
-        </span>
-      </div>
-    }
+    label="Enable notifications"
+    description="You can enable or disable notifications at any time from settings."
   />
 </div>`} previewMinHeight={200}>
   <CheckboxWithDescriptionDemo />
@@ -331,6 +317,7 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate";
   { prop: "defaultChecked", type: 'boolean | "indeterminate"', description: "Initial state (uncontrolled)" },
   { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called when state changes" },
   { prop: "label", type: "ReactNode", description: "Accessible label. Accepts ReactNode for rich content" },
+  { prop: "description", type: "ReactNode", description: "Second line below the label, linked via aria-describedby. Renders only with a label" },
   { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction" },
   { prop: "required", type: "boolean", description: "Required for form submission" },
   { prop: "name", type: "string", description: "Form field name" },

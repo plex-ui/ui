@@ -136,6 +136,17 @@
   }
 }
 
+/* Destructive item (delete, remove, leave): the danger color for the label
+   and the highlight; a description keeps its secondary color */
+.MenuItem[data-danger] {
+  --menu-item-background-color: var(--color-background-danger-ghost-hover);
+  color: var(--color-text-danger-ghost);
+
+  @mixin hover {
+    color: var(--color-text-danger-ghost-hover);
+  }
+}
+
 /* Two-line item: label over description, the same anatomy a Select option
    with a description uses (OptionLeading / OptionDescription there). */
 .ItemLeading {

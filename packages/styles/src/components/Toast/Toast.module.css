@@ -16,7 +16,12 @@
      at the Toaster's --width. Sonner positions toasts absolutely, so we set
      left/right: 0 + auto margins to center without touching its transform. */
   width: max-content !important;
-  max-width: var(--width) !important;
+  /* On a phone Sonner insets the toaster by its mobile offsets; the toast
+     stays inside them instead of overflowing at the desktop width */
+  max-width: min(
+    var(--width),
+    calc(100vw - var(--mobile-offset-left, 16px) - var(--mobile-offset-right, 16px))
+  ) !important;
   left: 0 !important;
   right: 0 !important;
   margin-inline: auto !important;

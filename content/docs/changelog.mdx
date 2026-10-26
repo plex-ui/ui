@@ -17,6 +17,21 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Select accepts `checkPosition="none"`, which removes the indicator column from the list. A menu of one-shot actions, or a list whose option view states the selection itself, no longer reserves an empty 16px column in every row.
 - `Slider` accepts `aria-label` and `aria-labelledby`, so a slider without a visible `label` can be named. Range thumbs keep their `Minimum` and `Maximum` names.
 - `MarkdownEditor` accepts `aria-label` and `aria-labelledby` for its editable region, which a `<label for>` cannot name.
+- `Kbd`: a key or a keyboard shortcut such as ⌘K, in text, in a tooltip or at the end of a menu item. `Kbd.Group` holds keys pressed together; three sizes, `soft` and `outline`, both mixing the surrounding text color so a key reads on any surface. Also in `@plexui/vue` as `Kbd` and `KbdGroup`.
+- `Breadcrumb`: the trail of pages above a page title. A `nav` landmark around an ordered list; `Breadcrumb.Item` is a link (`href` or `to`, through the `linkComponent` of `PlexUIProvider`), a button (`onClick`), a plain step or the `current` page (`aria-current="page"`). Custom `separator`, `size="sm"`, and long trails wrap. Also in `@plexui/vue` as `Breadcrumb` and `BreadcrumbItem` (the separator is a slot).
+- `Tabs` take `overflow="menu"`: the tabs that do not fit move into a menu at the end of the row instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection; badges move into the menu with their tabs. `overflowLabel` sets the button's text.
+- `Dialog.Body` (Vue `DialogBody`): with it, only the body scrolls and the header and footer stay in view. `Dialog.Content` takes `placement` (`center`, `top`, `bottom`, `start`, `end`, `fullscreen`) for search dialogs, bottom sheets and side panels, `mobilePlacement` for 640px and below (a centered dialog that becomes a bottom sheet on phones), and `onOpenAutoFocus` / `onCloseAutoFocus`.
+- `Field` takes a `labelAction`: a link or small control at the end of the label row, such as "Forgot password?".
+- `Checkbox` and `RadioGroup.Item` take a `description`: a second line under the label, outside it, linked through `aria-describedby`. `Switch` already had one.
+- `Menu.Item` and `Menu.Link` take `danger` for destructive actions: the label and the highlight use the danger color.
+- `EmptyMessage` takes `size="sm"` for an empty panel, card section or list, and `align="start"` for an empty state under a section heading.
+- `Alert` takes `banner`: a full-width strip with square corners and lines above and below only, for offline, read-only or new-version notices.
+- `Input` takes `variant="ghost"`: no border and no fill, for a field its container already frames, such as a search line at the top of a dialog.
+- `FieldError` takes `icon={false}` for a message that stands alone, such as under a centered code input.
+- `CopyButton` and `CopyTooltip` report the clipboard result through `onCopy(copied)` (Vue: the `copy` event).
+- `--sidebar-menu-sub-max-height` sets the height an open `SidebarMenuSub` animates to (1000px by default), so long lists are not cut off.
+- `Select` takes `searchSize` for the search field in its menu, such as `2xl` for 44px touch targets on phones.
+- `@plexui/ui/styles/tailwind-utilities.css` is exported, for apps that import the token files one by one instead of `@plexui/ui/css`.
 
 ### Changed
 
@@ -24,6 +39,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Grouped Select menus separate their sections. A group heading is now smaller and semibold in the secondary color instead of an option-sized muted row, a rule runs between sections, and the heading starts at the row's content edge instead of being indented to the option labels.
 - `@plexui/ui` requires React 19 in `peerDependencies`. The components already used React 19 APIs (`use(Context)`, `<Context value>`, `ref` as a prop) and could not run on React 18.
 - Published modules use fully specified imports (`./Button.js`, `lodash/clamp.js`), so the package resolves under webpack 5's strict ESM rules, Node ESM and TypeScript `NodeNext`. The `PlexUI` global types now ship with the declarations instead of being dropped from them.
+- `Field` takes its label size from the child control: `<Field><Input size="sm" /></Field>` gets an `sm` label without repeating the size. An explicit `size` on Field still wins, and a render prop keeps `md`.
+- `FloatingLabelSelect` shows its error as the same plain line as `FloatingLabelInput`, so the two read alike on one form. It used to render `FieldError` with an icon.
 
 ### Fixed
 
@@ -58,6 +75,16 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `TagInput` keeps a tab stop when `maxTags` is reached, so tags can still be removed from the keyboard.
 - `MarkdownEditor` toolbar toggles expose their state through `aria-pressed`.
 - `FloatingLabelInput` with `multiline` forwards props such as `required`, `maxLength` and key handlers to its textarea, and resizes when a controlled `value` or `rows` changes.
+- `Field` names controls that its label's `for` cannot reach. The label has an id, and a child without its own `aria-label`, `aria-labelledby` or `label` gets `aria-labelledby` pointing at it, so a Select or DatePicker trigger in a Field reads "Role, Admin" instead of only its value. A render prop receives `aria-labelledby` among the field props.
+- `CopyButton` (and so every `CodeBlock` copy button) and `CopyTooltip` show the copied state only after the clipboard write succeeds; a failed write used to show the check mark anyway. A second click while the write is in flight no longer copies twice.
+- A long `FieldError` message wraps inside the field, and its icon stays on the first line.
+- `Sidebar`: the collapsed header no longer hides or shrinks the collapse trigger; collapsed-state rules no longer hide labels, group labels and badges in an expanded sidebar nested inside a collapsed one; in React the phone layout is used on the first render instead of one frame of the desktop sidebar.
+- Toasts stay inside the screen on phones instead of keeping the 400px desktop width.
+- The opaque soft fills (`--color-background-{info,success,warning,caution,danger,discovery}-soft` and their hover and active states) have dark-theme values: they stayed light, under text that turned light.
+- `Checkbox` plays its check animation only for the checkbox in use, not for every checked box when a list first renders or a tab with checkboxes opens.
+- `OTPInput` cells narrow to fit a 320px screen, and a field cleared from outside (a wrong code wiped by the form) puts the caret back in the first cell when the focus was in the field.
+- `Select`'s hidden form input uses its own class instead of Tailwind utilities, so it can no longer take the trigger's width in an app whose Tailwind build orders `w-full` after `sr-only` or does not generate `sr-only`.
+- The `Tabs` thumb follows the active tab when tabs are added, removed, reordered or relabelled.
 - `Menu.Trigger` forwards its props and `ref` to the trigger element.
 - `AnimateLayoutGroup` applies `insertMethod` and `preventInitialTransition`.
 - `ButtonLink`, `TextLink` and `Menu.Link` type their props from the link component set in `PlexUIConfig`, as the installation guide describes. The augmentation used to reach only `PlexUIProvider`, so `<ButtonLink to="/x">` with a router `Link` failed to type-check. `PlexUIOverrides` still works.

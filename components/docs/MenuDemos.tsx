@@ -8,6 +8,7 @@ import {
   ArrowUp,
   ChevronDownMd,
   Code,
+  DotsHorizontal,
   EditPencil,
   UnfoldHorizontal,
   Functions,
@@ -470,6 +471,30 @@ export function MenuGroupedDemo() {
             <Menu.Link href="#">New promo campaign</Menu.Link>
             <Menu.Link href="#">Account deactivation</Menu.Link>
           </Menu.Group>
+        </Menu.Content>
+      </Menu>
+    </div>
+  );
+}
+
+export function MenuDangerDemo() {
+  return (
+    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
+      <Menu>
+        <Menu.Trigger>
+          <Button color="secondary" variant="soft" uniform aria-label="More actions">
+            <DotsHorizontal />
+          </Button>
+        </Menu.Trigger>
+        <Menu.Content align="end" minWidth={200}>
+          <Menu.Item onSelect={() => {}}>
+            <EditPencil /> Rename
+          </Menu.Item>
+          <Menu.Item onSelect={() => {}}>Duplicate</Menu.Item>
+          <Menu.Separator />
+          <Menu.Item onSelect={() => {}} danger>
+            <Trash /> Delete project
+          </Menu.Item>
         </Menu.Content>
       </Menu>
     </div>

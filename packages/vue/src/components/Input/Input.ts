@@ -24,7 +24,7 @@ const InputComponent = defineComponent({
   inheritAttrs: false,
   props: {
     /** Visual style of the input. @default "outline" */
-    variant: { type: String as PropType<Variants<"outline" | "soft">>, default: "outline" },
+    variant: { type: String as PropType<Variants<"outline" | "soft" | "ghost">>, default: "outline" },
     /** Controls the size of the input: `3xs` 22px up to `3xl` 48px. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
     /** Controls gutter on the edges of the input, defaults to value from `size`. */

@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 48,
+  "componentCount": 50,
   "components": [
     {
       "slug": "accordion",
@@ -206,6 +206,12 @@
           "name": "@dismiss",
           "type": "() => void",
           "description": "Shows the dismiss button when set"
+        },
+        {
+          "name": "banner",
+          "type": "boolean",
+          "default": "false",
+          "description": "Full-width strip: square corners, lines above and below only"
         }
       ],
       "examples": [
@@ -247,6 +253,11 @@
           "name": "Dismissible",
           "code": "<div class=\"flex flex-col items-center justify-center gap-6 w-full\">\n  <Alert\n    class=\"items-start\"\n    title=\"Try our new dashboard layout\"\n    description=\"We've introduced a streamlined layout that makes using the dashboard even easier. You can switch back any time.\"\n  >\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" pill>Dismiss</Button>\n      <Button color=\"primary\" variant=\"solid\" pill>Try it</Button>\n    </template>\n  </Alert>\n  <Alert\n    title=\"Thank you!\"\n    description=\"Your application has been received. We will review your application and respond within the next 48 hours.\"\n    @dismiss=\"() => {}\"\n  />\n</div>",
           "details": "The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome."
+        },
+        {
+          "name": "Banner",
+          "code": "<div class=\"flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6\">\n  <Alert\n    banner\n    color=\"caution\"\n    variant=\"soft\"\n    :indicator=\"false\"\n    description=\"You are offline. Changes will sync when the connection is back.\"\n  />\n  <Alert banner color=\"info\" variant=\"outline\" description=\"A new version is available.\">\n    <template #actions>\n      <Button color=\"primary\" variant=\"soft\" size=\"sm\">Reload</Button>\n    </template>\n  </Alert>\n</div>",
+          "details": "Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass :indicator=\"false\" for a plain strip."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/alert"
@@ -479,6 +490,97 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/badge"
+    },
+    {
+      "slug": "breadcrumb",
+      "name": "Breadcrumb",
+      "description": "The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.",
+      "importPath": "@plexui/vue/components/Breadcrumb",
+      "exports": [
+        "Breadcrumb",
+        "BreadcrumbItem"
+      ],
+      "props": [
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\"",
+          "description": "Text size: sm above a compact header, md above a page title"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Breadcrumb\"",
+          "description": "Name of the navigation landmark"
+        },
+        {
+          "name": "separator slot",
+          "type": "VNode[]",
+          "default": "a small chevron",
+          "description": "What stands between two items"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "The BreadcrumbItem elements"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Breadcrumb>\n  <BreadcrumbItem href=\"#\">Home</BreadcrumbItem>\n  <BreadcrumbItem href=\"#\">Settings</BreadcrumbItem>\n  <BreadcrumbItem current>Members</BreadcrumbItem>\n</Breadcrumb>",
+          "details": "Breadcrumb renders a nav landmark named \"Breadcrumb\" around an ordered list. An item with href or to is a link (internal paths use the link component from PlexUIProvider, such as vue-router's RouterLink); the current item is plain text marked aria-current=\"page\"."
+        },
+        {
+          "name": "Sizes",
+          "code": "<Breadcrumb size=\"sm\">\n  <BreadcrumbItem href=\"#\">Projects</BreadcrumbItem>\n  <BreadcrumbItem href=\"#\">Website</BreadcrumbItem>\n  <BreadcrumbItem current>Deployments</BreadcrumbItem>\n</Breadcrumb>\n<Breadcrumb>\n  <BreadcrumbItem href=\"#\">Projects</BreadcrumbItem>\n  <BreadcrumbItem href=\"#\">Website</BreadcrumbItem>\n  <BreadcrumbItem current>Deployments</BreadcrumbItem>\n</Breadcrumb>",
+          "details": "Use size=\"sm\" for a trail above a compact header; the default md sits above a page title."
+        },
+        {
+          "name": "Separator",
+          "code": "<Breadcrumb>\n  <template #separator>/</template>\n  <BreadcrumbItem href=\"#\">acme</BreadcrumbItem>\n  <BreadcrumbItem href=\"#\">design-system</BreadcrumbItem>\n  <BreadcrumbItem current>README.md</BreadcrumbItem>\n</Breadcrumb>",
+          "details": "A small chevron stands between items by default. The separator slot replaces it, such as with a slash for file paths. Separators are hidden from assistive technology."
+        },
+        {
+          "name": "Long trails",
+          "code": "<div class=\"w-[260px]\">\n  <Breadcrumb>\n    <BreadcrumbItem href=\"#\">Workspace</BreadcrumbItem>\n    <BreadcrumbItem href=\"#\">Customer accounts</BreadcrumbItem>\n    <BreadcrumbItem href=\"#\">Northwind Traders</BreadcrumbItem>\n    <BreadcrumbItem>Archived</BreadcrumbItem>\n    <BreadcrumbItem current>Invoice 2024-0193</BreadcrumbItem>\n  </Breadcrumb>\n</div>",
+          "details": "A trail that does not fit wraps onto the next line instead of leaving the screen. An item without href is a plain step; listen to @click to make it act as a button."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "BreadcrumbItem",
+          "props": [
+            {
+              "name": "href",
+              "type": "string",
+              "description": "Link destination. Internal paths use the link component from PlexUIProvider"
+            },
+            {
+              "name": "to",
+              "type": "string | RouteLocation",
+              "description": "Router destination, for link components that take to"
+            },
+            {
+              "name": "current",
+              "type": "boolean",
+              "default": "false",
+              "description": "The current page: plain text marked aria-current=\"page\""
+            },
+            {
+              "name": "@click",
+              "type": "(event: MouseEvent) => void",
+              "description": "Makes an item without a destination act as a button"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "description": "Applied to the li element"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/breadcrumb"
     },
     {
       "slug": "button",
@@ -1014,6 +1116,11 @@
           "description": "Rich label content; takes precedence over the label prop"
         },
         {
+          "name": "description",
+          "type": "string",
+          "description": "Second line below the label, linked via aria-describedby (or the description slot)"
+        },
+        {
           "name": "disabled",
           "type": "boolean",
           "default": "false",
@@ -1099,8 +1206,8 @@
         },
         {
           "name": "With description",
-          "code": "<div class=\"flex flex-col gap-4 max-w-sm\">\n  <Checkbox default-checked>\n    <template #label>\n      <div class=\"flex flex-col\">\n        <span class=\"font-medium\">Accept terms and conditions</span>\n        <span class=\"text-xs text-secondary mt-0.5\">\n          By checking this box, you agree to our Terms of Service and Privacy Policy.\n        </span>\n      </div>\n    </template>\n  </Checkbox>\n  <Checkbox>\n    <template #label>\n      <div class=\"flex flex-col\">\n        <span class=\"font-medium\">Enable notifications</span>\n        <span class=\"text-xs text-secondary mt-0.5\">\n          You can enable or disable notifications at any time from settings.\n        </span>\n      </div>\n    </template>\n  </Checkbox>\n</div>",
-          "details": "Pass rich content through the label slot to compose a label with secondary description text. This is useful for options that need additional context or explanation. For plain text, the label prop is enough."
+          "code": "<div class=\"flex flex-col gap-4 max-w-sm\">\n  <Checkbox\n    label=\"Accept terms and conditions\"\n    description=\"By checking this box, you agree to our Terms of Service and Privacy Policy.\"\n    default-checked\n  />\n  <Checkbox\n    label=\"Enable notifications\"\n    description=\"You can enable or disable notifications at any time from settings.\"\n  />\n</div>",
+          "details": "Use description (or the description slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. The description renders only next to a label."
         },
         {
           "name": "Indeterminate",
@@ -1299,6 +1406,11 @@
           "type": "number",
           "default": "5",
           "description": "Distance from trigger in pixels"
+        },
+        {
+          "name": "@copy",
+          "type": "(copied: boolean) => void",
+          "description": "Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write"
         }
       ],
       "examples": [
@@ -1759,6 +1871,7 @@
       "importPath": "@plexui/vue/components/Dialog",
       "exports": [
         "Dialog",
+        "DialogBody",
         "DialogClose",
         "DialogContent",
         "DialogFooter",
@@ -1787,6 +1900,16 @@
           "name": "Destructive confirmation",
           "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"danger\" variant=\"outline\">Delete</Button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Delete assistant?</DialogTitle>\n    </DialogHeader>\n    <p class=\"text-sm text-secondary\">\n      This change will affect all API integrations using\n      <span class=\"font-medium text-[var(--color-text)]\">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.\n      It cannot be undone.\n    </p>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"secondary\" variant=\"soft\">Cancel</Button>\n      </DialogClose>\n      <Button color=\"danger\" @click=\"open = false\">Delete</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
           "details": "Use color=\"danger\" on the action button for destructive operations."
+        },
+        {
+          "name": "Scrolling body",
+          "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">Review terms</Button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Terms of service</DialogTitle>\n      <DialogDescription>Please read them before you continue.</DialogDescription>\n    </DialogHeader>\n    <DialogBody>\n      <div class=\"flex flex-col gap-4 text-sm text-secondary\">\n        <p v-for=\"(term, index) in [...terms, ...terms]\" :key=\"index\">{{ term }}</p>\n      </div>\n    </DialogBody>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"secondary\" variant=\"soft\">Decline</Button>\n      </DialogClose>\n      <Button color=\"primary\" @click=\"open = false\">Accept</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
+          "details": "Put long content in DialogBody: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls."
+        },
+        {
+          "name": "Placement",
+          "code": "<Dialog v-model:open=\"open\">\n  <DialogTrigger>\n    <Button color=\"secondary\" variant=\"outline\">Open filters</Button>\n  </DialogTrigger>\n  <DialogContent :placement=\"placement\" :width=\"placement === 'start' || placement === 'end' ? 360 : 480\">\n    <DialogHeader>\n      <DialogTitle>Filters</DialogTitle>\n      <DialogDescription>Narrow the list down.</DialogDescription>\n    </DialogHeader>\n    <DialogBody>\n      <div class=\"flex flex-col gap-4\">\n        <Field label=\"Status\"><Input placeholder=\"Any status\" /></Field>\n        <Field label=\"Owner\"><Input placeholder=\"Anyone\" /></Field>\n        <Field label=\"Created after\"><Input placeholder=\"YYYY-MM-DD\" /></Field>\n      </div>\n    </DialogBody>\n    <DialogFooter>\n      <DialogClose>\n        <Button color=\"secondary\" variant=\"soft\">Clear filters</Button>\n      </DialogClose>\n      <Button color=\"primary\" @click=\"open = false\">Done</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>",
+          "details": "Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobile-placement applies at 640px and below, so a centered dialog can become a bottom sheet on phones: {''}."
         }
       ],
       "subComponents": [
@@ -1809,6 +1932,27 @@
               "name": "class",
               "type": "string",
               "description": "Additional CSS class on the panel"
+            },
+            {
+              "name": "placement",
+              "type": "\"center\" | \"top\" | \"bottom\" | \"start\" | \"end\" | \"fullscreen\"",
+              "default": "\"center\"",
+              "description": "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen"
+            },
+            {
+              "name": "mobile-placement",
+              "type": "\"center\" | \"bottom\" | \"fullscreen\"",
+              "description": "Placement at 640px and below; defaults to placement"
+            },
+            {
+              "name": "@open-auto-focus",
+              "type": "(event: Event) => void",
+              "description": "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field"
+            },
+            {
+              "name": "@close-auto-focus",
+              "type": "(event: Event) => void",
+              "description": "Called when focus returns on close; call event.preventDefault() to keep it elsewhere"
             }
           ]
         }
@@ -1833,6 +1977,18 @@
           "type": "\"static\" | \"absolute\" | \"none\"",
           "default": "\"static\"",
           "description": "How the container fills available space; use \"none\" for transparent (e.g. in search results)"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\"",
+          "description": "sm is the compact message for a panel, a card section or an empty list"
+        },
+        {
+          "name": "align",
+          "type": "\"center\" | \"start\"",
+          "default": "\"center\"",
+          "description": "start left-aligns the message, for an empty state under a section heading"
         }
       ],
       "examples": [
@@ -1853,6 +2009,16 @@
           "name": "No results",
           "code": "<div class=\"w-full\">\n  <EmptyMessage fill=\"none\">\n    <EmptyMessageIcon size=\"sm\">\n      <Search />\n    </EmptyMessageIcon>\n    <EmptyMessageDescription>\n      No icons found matching <span class=\"font-semibold\">\"pizza\"</span>\n    </EmptyMessageDescription>\n  </EmptyMessage>\n</div>",
           "details": "The parts of EmptyMessage are both composable and optional. This example omits EmptyMessageTitle, using only an icon and description for a simpler message style."
+        },
+        {
+          "name": "Compact",
+          "code": "<div class=\"w-[320px]\">\n  <Card>\n    <CardHeader>\n      <CardTitle>Members</CardTitle>\n    </CardHeader>\n    <CardContent>\n      <EmptyMessage size=\"sm\" fill=\"none\">\n        <EmptyMessageIcon size=\"sm\"><Group /></EmptyMessageIcon>\n        <EmptyMessageTitle>No members yet</EmptyMessageTitle>\n        <EmptyMessageDescription>Invite people to work on this project.</EmptyMessageDescription>\n        <EmptyMessageActionRow>\n          <Button color=\"secondary\" variant=\"soft\" size=\"sm\">Invite</Button>\n        </EmptyMessageActionRow>\n      </EmptyMessage>\n    </CardContent>\n  </Card>\n</div>",
+          "details": "Use size=\"sm\" for an empty panel, card section or list: a smaller title, tighter spacing and no minimum width. Pair it with fill=\"none\" when the container sets the height."
+        },
+        {
+          "name": "Left aligned",
+          "code": "<div class=\"w-[320px]\">\n  <Card>\n    <CardHeader>\n      <CardTitle>Tags</CardTitle>\n    </CardHeader>\n    <CardContent>\n      <EmptyMessage size=\"sm\" align=\"start\" fill=\"none\">\n        <EmptyMessageDescription>No tags added.</EmptyMessageDescription>\n      </EmptyMessage>\n    </CardContent>\n  </Card>\n</div>",
+          "details": "Use align=\"start\" for an empty state that sits under a section heading instead of filling a surface: a single line such as \"No tags added\" reads with the heading above it."
         }
       ],
       "subComponents": [
@@ -1927,10 +2093,15 @@
           "description": "Error message below the control; sets aria-invalid on the child (or the errorMessage slot)"
         },
         {
+          "name": "label-action",
+          "type": "string",
+          "description": "Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)"
+        },
+        {
           "name": "size",
           "type": "\"3xs\" | \"2xs\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | \"3xl\"",
-          "default": "\"md\"",
-          "description": "Controls the label font size to match the child control"
+          "default": "child's size, else \"md\"",
+          "description": "Label font size; defaults to the child control's size"
         },
         {
           "name": "required",
@@ -1962,7 +2133,7 @@
         {
           "name": "default slot",
           "type": "(fieldProps) => VNode[]",
-          "description": "Form control; its single root element receives id, aria-describedby, and aria-invalid unless the slot reads fieldProps"
+          "description": "Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby"
         }
       ],
       "examples": [
@@ -1989,7 +2160,7 @@
         {
           "name": "Sizing",
           "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
-          "details": "Field accepts a size prop that scales the label and description font size to match the child control. Pass the same size to both Field and the child control."
+          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props."
         },
         {
           "name": "Horizontal layout",
@@ -2002,8 +2173,13 @@
         },
         {
           "name": "Select",
-          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Role\" description=\"Select your primary role.\" v-slot=\"fieldProps\">\n    <Select\n      :id=\"fieldProps.id\"\n      placeholder=\"Select a role...\"\n      v-model:value=\"role\"\n      :options=\"[\n        { label: 'Admin', value: 'admin' },\n        { label: 'Editor', value: 'editor' },\n        { label: 'Viewer', value: 'viewer' },\n      ]\"\n    />\n  </Field>\n</div>",
-          "details": "For components like Select that do not take every field prop on their root, read the field props from the default slot (v-slot=\"fieldProps\") and pass them yourself."
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Role\" description=\"Select your primary role.\">\n    <Select\n      placeholder=\"Select a role...\"\n      v-model:value=\"role\"\n      :options=\"[\n        { label: 'Admin', value: 'admin' },\n        { label: 'Editor', value: 'editor' },\n        { label: 'Viewer', value: 'viewer' },\n      ]\"\n    />\n  </Field>\n</div>",
+          "details": "A Select trigger is not a native form control, so the label's for cannot name it. Field points the trigger's aria-labelledby at the label, and Select adds its value: a screen reader hears \"Role, Admin\". DatePicker works the same way. A control with its own aria-label, aria-labelledby or label keeps its name; a slot that reads the field props gets aria-labelledby among them to bind."
+        },
+        {
+          "name": "Label action",
+          "code": "<div class=\"w-[320px]\">\n  <Field label=\"Password\">\n    <template #labelAction>\n      <TextLink href=\"#reset-password\">Forgot password?</TextLink>\n    </template>\n    <Input type=\"password\" placeholder=\"Enter password...\" />\n  </Field>\n</div>",
+          "details": "Use the labelAction slot (or the label-action string prop) for a link or a small control that acts on the field, at the end of the label row. It takes the label's font size."
         },
         {
           "name": "Slider",
@@ -2594,9 +2770,9 @@
         },
         {
           "name": "variant",
-          "type": "\"outline\" | \"soft\"",
+          "type": "\"outline\" | \"soft\" | \"ghost\"",
           "default": "\"outline\"",
-          "description": "Visual style of the input"
+          "description": "Visual style of the input; ghost has no border and no fill"
         },
         {
           "name": "size",
@@ -2673,8 +2849,8 @@
         },
         {
           "name": "Variants",
-          "code": "<div class=\"flex flex-col gap-2 w-[320px]\">\n  <Input placeholder=\"Enter text...\" variant=\"outline\" />\n  <Input placeholder=\"Enter text...\" variant=\"soft\" />\n</div>",
-          "details": "Use variant to stylize the input."
+          "code": "<div class=\"flex flex-col gap-2 w-[320px]\">\n  <Input placeholder=\"Enter text...\" variant=\"outline\" />\n  <Input placeholder=\"Enter text...\" variant=\"soft\" />\n  <Input placeholder=\"Enter text...\" variant=\"ghost\" />\n</div>",
+          "details": "Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid."
         },
         {
           "name": "Sizing & roundness",
@@ -2882,6 +3058,63 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/input-group"
+    },
+    {
+      "slug": "kbd",
+      "name": "Kbd",
+      "description": "A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.",
+      "importPath": "@plexui/vue/components/Kbd",
+      "exports": [
+        "Kbd",
+        "KbdGroup"
+      ],
+      "props": [
+        {
+          "name": "size",
+          "type": "\"xs\" | \"sm\" | \"md\"",
+          "default": "\"sm\"",
+          "description": "Height and text size: 16px, 20px or 24px"
+        },
+        {
+          "name": "variant",
+          "type": "\"soft\" | \"outline\"",
+          "default": "\"soft\"",
+          "description": "soft fills the key, outline draws its edge; both mix the text color"
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "description": "Applied to the kbd element"
+        },
+        {
+          "name": "default slot",
+          "type": "VNode[]",
+          "description": "The key"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<p class=\"text-sm text-secondary\">\n  Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.\n</p>",
+          "details": "Kbd renders a {''} element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence."
+        },
+        {
+          "name": "Shortcut",
+          "code": "<KbdGroup>\n  <Kbd>⌘</Kbd>\n  <Kbd>K</Kbd>\n</KbdGroup>\n<KbdGroup>\n  <Kbd>Ctrl</Kbd>\n  <Kbd>Shift</Kbd>\n  <Kbd>P</Kbd>\n</KbdGroup>",
+          "details": "Use KbdGroup for keys pressed together. Each key keeps its own frame."
+        },
+        {
+          "name": "Sizes and variants",
+          "code": "<div class=\"flex flex-col items-center gap-4\">\n  <div v-for=\"variant in ['soft', 'outline']\" :key=\"variant\" class=\"flex items-center gap-4\">\n    <Kbd size=\"xs\" :variant=\"variant\">⌘K</Kbd>\n    <Kbd size=\"sm\" :variant=\"variant\">⌘K</Kbd>\n    <Kbd size=\"md\" :variant=\"variant\">⌘K</Kbd>\n  </div>\n</div>",
+          "details": "Three sizes: xs (16px) for tooltips and menu items, sm (20px, default) for text, md (24px) next to larger controls. soft (default) fills the key, outline draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike."
+        },
+        {
+          "name": "In a tooltip and a menu",
+          "code": "<Tooltip>\n  <template #content>\n    <span class=\"flex items-center gap-2\">\n      Search\n      <KbdGroup>\n        <Kbd size=\"xs\">⌘</Kbd>\n        <Kbd size=\"xs\">K</Kbd>\n      </KbdGroup>\n    </span>\n  </template>\n  <Button color=\"secondary\" variant=\"outline\" uniform aria-label=\"Search\" aria-keyshortcuts=\"Meta+K\">\n    <Search />\n  </Button>\n</Tooltip>\n<Menu>\n  <MenuTrigger>\n    <Button color=\"secondary\" variant=\"soft\">Edit</Button>\n  </MenuTrigger>\n  <MenuContent :min-width=\"220\">\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1\">Undo</span>\n      <Kbd size=\"xs\" variant=\"outline\">⌘Z</Kbd>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1\">Redo</span>\n      <Kbd size=\"xs\" variant=\"outline\">⇧⌘Z</Kbd>\n    </MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Show a control's shortcut in its tooltip, or at the end of a menu item. Kbd only shows the keys: announce the shortcut to assistive technology with aria-keyshortcuts on the control that has it."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/kbd"
     },
     {
       "slug": "label",
@@ -3140,6 +3373,11 @@
           "name": "Item actions",
           "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"primary\" size=\"lg\" variant=\"ghost\" class=\"font-semibold gap-1.5\"><History /> Conversations</Button>\n  </MenuTrigger>\n  <MenuContent :width=\"270\">\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Another sample thread title</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n    <MenuItem @select=\"() => {}\">\n      <span class=\"flex-1 truncate\">Long thread title that is going to be clipped off</span>\n      <MenuItemActions>\n        <MenuItemAction @click=\"() => {}\"><Trash /></MenuItemAction>\n      </MenuItemActions>\n    </MenuItem>\n  </MenuContent>\n</Menu>",
           "details": "Use MenuItemActions and MenuItemAction for hover actions (e.g. delete) on an item.Accessibility note: these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity."
+        },
+        {
+          "name": "Destructive items",
+          "code": "<Menu>\n  <MenuTrigger>\n    <Button color=\"secondary\" variant=\"soft\" uniform aria-label=\"More actions\">\n      <DotsHorizontal />\n    </Button>\n  </MenuTrigger>\n  <MenuContent align=\"end\" :min-width=\"200\">\n    <MenuItem @select=\"() => {}\"><EditPencil /> Rename</MenuItem>\n    <MenuItem @select=\"() => {}\">Duplicate</MenuItem>\n    <MenuSeparator />\n    <MenuItem @select=\"() => {}\" danger><Trash /> Delete project</MenuItem>\n  </MenuContent>\n</Menu>",
+          "details": "Mark a destructive action (delete, remove, leave) with danger: the label and the highlight take the danger color, and a description keeps its secondary color. MenuLink takes danger too. Put such items last, after a separator."
         }
       ],
       "subComponents": [
@@ -3229,6 +3467,12 @@
               "type": "boolean",
               "default": "false",
               "description": "Disable the item"
+            },
+            {
+              "name": "danger",
+              "type": "boolean",
+              "default": "false",
+              "description": "Destructive action: the item is drawn in the danger color"
             },
             {
               "name": "@select",
@@ -3718,8 +3962,8 @@
         },
         {
           "name": "With description",
-          "code": "<RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Spacing\">\n  <RadioGroupItem value=\"default\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Default</span>\n      <span class=\"text-xs text-secondary mt-0.5\">Standard spacing for most use cases.</span>\n    </div>\n  </RadioGroupItem>\n  <RadioGroupItem value=\"comfortable\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Comfortable</span>\n      <span class=\"text-xs text-secondary mt-0.5\">More space between elements.</span>\n    </div>\n  </RadioGroupItem>\n  <RadioGroupItem value=\"compact\">\n    <div class=\"flex flex-col\">\n      <span class=\"font-medium\">Compact</span>\n      <span class=\"text-xs text-secondary mt-0.5\">Minimal spacing for dense layouts.</span>\n    </div>\n  </RadioGroupItem>\n</RadioGroup>",
-          "details": "Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context."
+          "code": "<RadioGroup direction=\"col\" v-model:value=\"value\" aria-label=\"Spacing\">\n  <RadioGroupItem value=\"default\" description=\"Standard spacing for most use cases.\">Default</RadioGroupItem>\n  <RadioGroupItem value=\"comfortable\" description=\"More space between elements.\">Comfortable</RadioGroupItem>\n  <RadioGroupItem value=\"compact\" description=\"Minimal spacing for dense layouts.\">Compact</RadioGroupItem>\n</RadioGroup>",
+          "details": "Use description (or the description slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option."
         },
         {
           "name": "With Field",
@@ -3778,6 +4022,11 @@
               "type": "\"left\" | \"right\"",
               "default": "\"left\"",
               "description": "Position of the radio indicator relative to the label"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Second line below the option's label, linked via aria-describedby (or the description slot)"
             },
             {
               "name": "class",
@@ -3914,6 +4163,12 @@
           "type": "string",
           "default": "\"Search options\"",
           "description": "Accessible name of the search input, independent of the trigger label"
+        },
+        {
+          "name": "search-size",
+          "type": "ControlSize",
+          "default": "\"md\"",
+          "description": "Size of the search input in the menu, such as 2xl for 44px touch targets on phones"
         },
         {
           "name": "search-predicate",
@@ -5327,6 +5582,18 @@
           "description": "Accessible name (required)"
         },
         {
+          "name": "overflow",
+          "type": "\"scroll\" | \"menu\"",
+          "default": "\"scroll\"",
+          "description": "Tabs that do not fit: scroll sideways, or move into a menu at the end (horizontal, not block)"
+        },
+        {
+          "name": "overflow-label",
+          "type": "string",
+          "default": "\"More\"",
+          "description": "Text of the menu button with overflow=\"menu\""
+        },
+        {
           "name": "class",
           "type": "string",
           "description": "Extra classes on the group element"
@@ -5427,6 +5694,11 @@
           "name": "Scrollable",
           "code": "<div class=\"max-w-[400px] flex\">\n  <Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Scrollable tabs\">\n    <TabsTab value=\"1\">Overview</TabsTab>\n    <TabsTab value=\"2\">Analytics</TabsTab>\n    <TabsTab value=\"3\">Reports</TabsTab>\n    <TabsTab value=\"4\">Settings</TabsTab>\n    <TabsTab value=\"5\">Members</TabsTab>\n    <TabsTab value=\"6\">Billing</TabsTab>\n    <TabsTab value=\"7\">Security</TabsTab>\n    <TabsTab value=\"8\">Integrations</TabsTab>\n  </Tabs>\n</div>",
           "details": "When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width."
+        },
+        {
+          "name": "Overflow menu",
+          "code": "<div class=\"flex\" :style=\"{ width: width + 'px' }\">\n  <Tabs v-model:value=\"tab\" variant=\"underline\" overflow=\"menu\" aria-label=\"Repository\">\n    <TabsTab value=\"code\">Code</TabsTab>\n    <TabsTab value=\"issues\" :badge=\"12\">Issues</TabsTab>\n    <TabsTab value=\"pulls\" :badge=\"3\">Pull requests</TabsTab>\n    <TabsTab value=\"actions\">Actions</TabsTab>\n    <TabsTab value=\"projects\">Projects</TabsTab>\n    <TabsTab value=\"insights\">Insights</TabsTab>\n    <TabsTab value=\"settings\">Settings</TabsTab>\n  </Tabs>\n</div>",
+          "details": "With overflow=\"menu\", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflow-label sets the button's text (default \"More\"). Works for horizontal tabs without block."
         }
       ],
       "subComponents": [
@@ -5974,5 +6246,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T15:54:30.933Z"
+  "generatedAt": "2026-10-26T18:30:54.113Z"
 }

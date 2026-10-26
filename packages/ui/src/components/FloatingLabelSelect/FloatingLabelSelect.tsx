@@ -3,7 +3,6 @@
 import clsx from "clsx"
 import { forwardRef, useCallback, useId } from "react"
 
-import { FieldError } from "../FieldError"
 import { Button } from "../Button"
 import { Dropdown, X } from "../Icon"
 
@@ -157,9 +156,10 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
           </div>
         </div>
         {errorMessage && (
-          <FieldError id={errorId} className={s.ErrorMessage}>
+          // Same plain line as FloatingLabelInput, so the two read alike on one form
+          <div id={errorId} className={s.ErrorMessage} role="alert">
             {errorMessage}
-          </FieldError>
+          </div>
         )}
       </div>
     )

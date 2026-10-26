@@ -130,24 +130,9 @@ export const itemDisabled = `<RadioGroup aria-label="Delivery method" class="max
 </RadioGroup>`
 
 export const withDescription = `<RadioGroup direction="col" v-model:value="value" aria-label="Spacing">
-  <RadioGroupItem value="default">
-    <div class="flex flex-col">
-      <span class="font-medium">Default</span>
-      <span class="text-xs text-secondary mt-0.5">Standard spacing for most use cases.</span>
-    </div>
-  </RadioGroupItem>
-  <RadioGroupItem value="comfortable">
-    <div class="flex flex-col">
-      <span class="font-medium">Comfortable</span>
-      <span class="text-xs text-secondary mt-0.5">More space between elements.</span>
-    </div>
-  </RadioGroupItem>
-  <RadioGroupItem value="compact">
-    <div class="flex flex-col">
-      <span class="font-medium">Compact</span>
-      <span class="text-xs text-secondary mt-0.5">Minimal spacing for dense layouts.</span>
-    </div>
-  </RadioGroupItem>
+  <RadioGroupItem value="default" description="Standard spacing for most use cases.">Default</RadioGroupItem>
+  <RadioGroupItem value="comfortable" description="More space between elements.">Comfortable</RadioGroupItem>
+  <RadioGroupItem value="compact" description="Minimal spacing for dense layouts.">Compact</RadioGroupItem>
 </RadioGroup>`
 
 export const withField = `<div class="max-w-sm">
@@ -308,7 +293,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### With description
 
-<ComponentPreview language="vue" details={<>Radio items take any content in their default slot, so you can compose a label with secondary description text. This is useful for options that need additional context.</>} code={withDescription} previewMinHeight={200}>
+<ComponentPreview language="vue" details={<>Use <code>description</code> (or the <code>description</code> slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</>} code={withDescription} previewMinHeight={200}>
   <VueDemo template={withDescription} stageClassName={stage} state={{ value: "default" }} />
 </ComponentPreview>
 
@@ -378,6 +363,7 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   { prop: "required", type: "boolean", description: "Marks this item's hidden form input as required" },
   { prop: "block", type: "boolean", default: "false", description: "Stretch item to fill available width" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Position of the radio indicator relative to the label" },
+  { prop: "description", type: "string", description: "Second line below the option's label, linked via aria-describedby (or the description slot)" },
   { prop: "class", type: "string", description: "Extra classes on the label element" },
   { prop: "default slot", type: "VNode[]", description: "Label content (text or rich content)" },
 ]} />

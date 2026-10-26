@@ -202,6 +202,8 @@ const selectProps = {
   searchPlaceholder: { type: String, default: "" },
   /** Accessible name of the search input, independent of the trigger label. @default "Search options" */
   searchAriaLabel: { type: String, default: "Search options" },
+  /** Size of the search input in the menu, such as `2xl` for 44px touch targets on phones. @default "md" */
+  searchSize: String as PropType<ControlSize>,
   /** Message displayed when search results are empty (or the `#searchEmptyMessage` slot) */
   searchEmptyMessage: { type: [String, Number, Object] as PropType<string | number | VNode>, default: "No results found." },
   /** Position of the check indicator in the option list. @default "start" */
@@ -250,6 +252,7 @@ type SelectPropsValue = {
   searchPredicate?: SearchPredicate<Option>
   searchPlaceholder: string
   searchAriaLabel: string
+  searchSize?: ControlSize
   searchEmptyMessage: string | number | VNode
   checkPosition: CheckPosition
   trigger?: (props: SelectTriggerRenderProps) => VNodeChild
@@ -591,7 +594,7 @@ const SelectTrigger = defineComponent({
                     },
                     // don't make this readOnly because that prevents the value from being required
                     "required": props.required,
-                    "class": "sr-only w-full h-0 left-0 bottom-0 pointer-events-none",
+                    "class": s.FormInput,
                     "aria-hidden": "true",
                   }),
                 )
@@ -1190,6 +1193,7 @@ const CustomSelectSearch = defineComponent({
           Input,
           {
             "value": props.value,
+            "size": selectProps.searchSize,
             "placeholder": selectProps.searchPlaceholder,
             "aria-label": selectProps.searchAriaLabel,
             "onUpdate:value": (next: string) => emit("update:value", next),

@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
-import { ArrowUpRight, Explore, Mic, Plus, Search, Sparkle } from '@plexui/ui/components/Icon';
+import { ArrowUpRight, Explore, Group, Mic, Plus, Search, Sparkle } from '@plexui/ui/components/Icon';
 import { TextLink } from '@plexui/ui/components/TextLink';
+import { Card } from '@plexui/ui/components/Card';
 import { EmptyMessage } from '@plexui/ui/components/EmptyMessage';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 
@@ -208,5 +209,48 @@ export function EmptyMessageWarningDemo() {
         </TextLink>
       </EmptyMessage.ActionRow>
     </EmptyMessage>
+  );
+}
+
+export function EmptyMessageCompactDemo() {
+  return (
+    <div className="w-[320px]">
+      <Card>
+        <Card.Header>
+          <Card.Title>Members</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <EmptyMessage size="sm" fill="none">
+            <EmptyMessage.Icon size="sm">
+              <Group />
+            </EmptyMessage.Icon>
+            <EmptyMessage.Title>No members yet</EmptyMessage.Title>
+            <EmptyMessage.Description>Invite people to work on this project.</EmptyMessage.Description>
+            <EmptyMessage.ActionRow>
+              <Button color="secondary" variant="soft" size="sm">
+                Invite
+              </Button>
+            </EmptyMessage.ActionRow>
+          </EmptyMessage>
+        </Card.Content>
+      </Card>
+    </div>
+  );
+}
+
+export function EmptyMessageStartDemo() {
+  return (
+    <div className="w-[320px]">
+      <Card>
+        <Card.Header>
+          <Card.Title>Tags</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <EmptyMessage size="sm" align="start" fill="none">
+            <EmptyMessage.Description>No tags added.</EmptyMessage.Description>
+          </EmptyMessage>
+        </Card.Content>
+      </Card>
+    </div>
   );
 }

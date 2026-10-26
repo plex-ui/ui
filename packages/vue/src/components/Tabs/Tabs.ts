@@ -1,5 +1,6 @@
 import {
   Comment,
+  Fragment,
   Text,
   computed,
   defineComponent,
@@ -8,8 +9,10 @@ import {
   isVNode,
   onBeforeUnmount,
   onMounted,
+  onUpdated,
   provide,
   ref,
+  shallowRef,
   watch,
   type Component,
   type ComputedRef,
@@ -23,7 +26,10 @@ import {
 import { RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import type { ControlSize, SemanticColors, Sizes, Variants } from "@plexui/styles/types"
 import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers.js"
+import ChevronDownMd from "../Icon/svg/ChevronDownMd.js"
 import { LoadingIndicator } from "../Indicator/index.js"
+import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "../Menu/index.js"
+import { fitCount, visibleTabCount } from "./overflow.js"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 // Vue port of packages/ui/src/components/Tabs/Tabs.tsx. Props, defaults,
@@ -170,46 +176,52 @@ const splitListeners = (attrs: Record<string, unknown>, keys: string[]) => {
 const GROUP_COMPOSED = ["onMousedown", "onFocus", "onBlur"]
 const ITEM_COMPOSED = ["onMousedown", "onFocus"]
 
+const tabsProps = {
+  /** Controlled value for the group. Bind with `v-model:value`; leave unset for an uncontrolled group. */
+  value: String,
+  /**
+   * Visual variant of the tab group
+   * - `"segmented"`: background container with sliding highlight (default)
+   * - `"underline"`: no background, animated line indicator under active tab
+   * @default "segmented"
+   */
+  variant: { type: String as PropType<TabsVariant>, default: "segmented" },
+  /** Orientation of the tab layout. @default "horizontal" */
+  orientation: { type: String as PropType<TabsOrientation>, default: "horizontal" },
+  /** Controls the size of the tabs, `3xs` (22px) to `3xl` (48px). @default "md" */
+  size: { type: String as PropType<ControlSize>, default: "md" },
+  /** Controls gutter on the edges of the tabs, defaults to value from `size`. */
+  gutterSize: String as PropType<Sizes<"2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,
+  /** Disable the entire group. @default false */
+  disabled: { type: Boolean, default: false },
+  /** Display the control as a block element with equal width segments. @default false */
+  block: { type: Boolean, default: false },
+  /** Fully rounded pill shape. Only applies to the `"segmented"` variant. @default true */
+  pill: { type: Boolean, default: true },
+  /**
+   * Flush underline style: no tab padding, so the indicator matches the text
+   * width, gap spacing and no bottom border. Only applies to the `"underline"` variant.
+   * @default false
+   */
+  flush: { type: Boolean, default: false },
+}
+
+const tabsEmits = {
+  /** A new value was selected (`v-model:value`) */
+  "update:value": (_value: string) => true,
+  /** Same payload as `update:value`, named after React's `onChange` */
+  "change": (_value: string) => true,
+  /** Any click on the control, even if a new value was not selected */
+  "click": (_event: MouseEvent) => true,
+}
+
+// The group itself. `Tabs` renders it as it is, or measures and splits it
+// for `overflow="menu"`
 const TabsComponent = defineComponent({
-  name: "Tabs",
+  name: "TabsRoot",
   inheritAttrs: false,
-  props: {
-    /** Controlled value for the group. Bind with `v-model:value`; leave unset for an uncontrolled group. */
-    value: String,
-    /**
-     * Visual variant of the tab group
-     * - `"segmented"`: background container with sliding highlight (default)
-     * - `"underline"`: no background, animated line indicator under active tab
-     * @default "segmented"
-     */
-    variant: { type: String as PropType<TabsVariant>, default: "segmented" },
-    /** Orientation of the tab layout. @default "horizontal" */
-    orientation: { type: String as PropType<TabsOrientation>, default: "horizontal" },
-    /** Controls the size of the tabs, `3xs` (22px) to `3xl` (48px). @default "md" */
-    size: { type: String as PropType<ControlSize>, default: "md" },
-    /** Controls gutter on the edges of the tabs, defaults to value from `size`. */
-    gutterSize: String as PropType<Sizes<"2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,
-    /** Disable the entire group. @default false */
-    disabled: { type: Boolean, default: false },
-    /** Display the control as a block element with equal width segments. @default false */
-    block: { type: Boolean, default: false },
-    /** Fully rounded pill shape. Only applies to the `"segmented"` variant. @default true */
-    pill: { type: Boolean, default: true },
-    /**
-     * Flush underline style: no tab padding, so the indicator matches the text
-     * width, gap spacing and no bottom border. Only applies to the `"underline"` variant.
-     * @default false
-     */
-    flush: { type: Boolean, default: false },
-  },
-  emits: {
-    /** A new value was selected (`v-model:value`) */
-    "update:value": (_value: string) => true,
-    /** Same payload as `update:value`, named after React's `onChange` */
-    "change": (_value: string) => true,
-    /** Any click on the control, even if a new value was not selected */
-    "click": (_event: MouseEvent) => true,
-  },
+  props: tabsProps,
+  emits: tabsEmits,
   setup(props, { slots, attrs, emit }) {
     const rootRef = ref<HTMLDivElement | null>(null)
     const thumbRef = ref<HTMLDivElement | null>(null)
@@ -413,8 +425,26 @@ const TabsComponent = defineComponent({
       observer.observe(root, { box: "content-box" })
     })
 
+    // Tabs added, removed, reordered or relabelled move the active tab without
+    // resizing the group: measure again, instantly, like a resize
+    let mutationObserver: MutationObserver | undefined
+    onMounted(() => {
+      const root = rootRef.value
+      if (!root || typeof MutationObserver === "undefined") return
+      mutationObserver = new MutationObserver(() => {
+        const thumb = thumbRef.value
+        if (!thumb) return
+        const currentTransition = thumb.style.transition
+        thumb.style.transition = ""
+        applyThumbSizing(props.orientation === "vertical", false)
+        thumb.style.transition = currentTransition
+      })
+      mutationObserver.observe(root, { childList: true, characterData: true, subtree: true })
+    })
+
     onBeforeUnmount(() => {
       observer?.disconnect()
+      mutationObserver?.disconnect()
     })
 
     // Radix moves focus into the group onto the selected tab, then the last
@@ -476,12 +506,6 @@ const TabsComponent = defineComponent({
   },
 })
 
-type TabsOwnProps = InstanceType<typeof TabsComponent>["$props"]
-
-/** Tabs props plus the attributes that fall through to the group element, as in React. */
-export type TabsProps = TabsOwnProps & Omit<HTMLAttributes, keyof TabsOwnProps> & { "aria-label"?: string }
-
-export const Tabs = TabsComponent as typeof TabsComponent & { new (): { $props: TabsProps } }
 
 const useTabsContext = () => {
   const context = inject(TabsContextKey, null)
@@ -620,3 +644,261 @@ export const TabsTab = TabComponent as typeof TabComponent & { new (): { $props:
 
 /** Backward-compat alias of `TabsTab`, like React's `Tabs.Option` */
 export const TabsOption: typeof TabsTab = TabsTab
+
+// ---------------------------------------------------------------------------
+// overflow="menu" (React's OverflowTabs)
+
+/** Value of the menu button; no real tab has it */
+const MORE_VALUE = "__plexui_tabs_more__"
+
+type Slots = Record<string, ((...args: unknown[]) => VNodeArrayChildren) | undefined>
+
+/** The TabsTab vnodes of a default slot, through fragments (`v-for`, `<template>`) */
+const tabVNodes = (nodes: VNodeArrayChildren | undefined): VNode[] =>
+  (nodes ?? []).flatMap((node) => {
+    if (!isVNode(node)) return []
+    if (node.type === Fragment && Array.isArray(node.children)) return tabVNodes(node.children as VNodeArrayChildren)
+    return node.type === TabComponent ? [node] : []
+  })
+
+const slotsOf = (node: VNode) => (node.children && typeof node.children === "object" && !Array.isArray(node.children) ? (node.children as Slots) : {})
+
+/** A tab's default slot content; a vnode's raw slot may return a string or nothing */
+const labelContent = (node: VNode): VNodeArrayChildren => {
+  const content = slotsOf(node).default?.() as VNodeArrayChildren | VNodeArrayChildren[number] | undefined
+  if (content == null) return []
+  return Array.isArray(content) ? content : [content]
+}
+
+const plainText = (node: unknown): string => {
+  if (typeof node === "string" || typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(plainText).join("")
+  if (isVNode(node)) {
+    if (node.type === Comment) return ""
+    if (typeof node.children === "string") return node.children
+    if (Array.isArray(node.children)) return plainText(node.children)
+    return plainText(labelContent(node))
+  }
+  return ""
+}
+
+const tabProps = (node: VNode) => (node.props ?? {}) as Record<string, unknown>
+
+const badgeText = (badge: unknown) => (isBadgeObject(badge as TabsBadgeProp) ? plainText((badge as { content: unknown }).content) : plainText(badge))
+
+/** A tab's name: its text, else its accessible name, else its value */
+const tabLabel = (node: VNode) =>
+  plainText(labelContent(node)) || (tabProps(node)["aria-label"] as string | undefined) || String(tabProps(node).value)
+
+/** What a tab's width depends on: the strip measures again when it changes */
+const tabsSignature = (nodes: VNode[]) =>
+  nodes
+    .map((node) => [tabProps(node).value, plainText(labelContent(node)), badgeText(tabProps(node).badge)].join("\u0000"))
+    .join("\u0001")
+
+/**
+ * MenuTrigger sets `data-state` (open or closed) on its child, while a tab
+ * keeps `on` or `off` in the same attribute and the thumb finds the active tab
+ * by it. The menu's value does not reach the tab; its handlers and
+ * `aria-haspopup` / `aria-expanded` do.
+ */
+const MoreTab = defineComponent({
+  name: "TabsMoreTab",
+  inheritAttrs: false,
+  setup(_props, { attrs, slots }) {
+    return () => {
+      const { "data-state": _menuState, ...rest } = attrs
+      return h(TabComponent, rest as TabProps, slots)
+    }
+  },
+})
+
+const TabsPublic = defineComponent({
+  name: "Tabs",
+  inheritAttrs: false,
+  props: {
+    ...tabsProps,
+    /**
+     * What happens to tabs that do not fit in one row: the strip scrolls
+     * sideways (`scroll`), or they move into a menu at its end (`menu`). The
+     * menu button shows the active tab's name when it is a hidden one.
+     * Horizontal tabs without `block` only.
+     * @default "scroll"
+     */
+    overflow: { type: String as PropType<"scroll" | "menu">, default: "scroll" },
+    /** Text of the menu button with `overflow="menu"`. @default "More" */
+    overflowLabel: { type: String, default: "More" },
+  },
+  emits: tabsEmits,
+  setup(props, { slots, attrs, emit }) {
+    const hostRef = ref<HTMLDivElement | null>(null)
+    // Uncontrolled like the group: `value` unset starts empty
+    const uncontrolledValue = ref("")
+    const current = computed(() => (props.value !== undefined ? props.value : uncontrolledValue.value))
+    const select = (next: string) => {
+      if (props.value === undefined) uncontrolledValue.value = next
+      emit("update:value", next)
+      emit("change", next)
+    }
+
+    // { count: null } while the measuring pass renders every tab and the
+    // menu button; a new object each time, so an unchanged count still renders
+    const measured = shallowRef<{ count: number | null }>({ count: null })
+    let measuredSignature = ""
+    let measuredActive = -1
+    let lastRender = { measuring: true, signature: "", activeIndex: -1, length: 0 }
+    let boxWidth = -1
+
+    const measure = () => {
+      if (!lastRender.measuring) return
+      const root = hostRef.value?.firstElementChild
+      if (!(root instanceof HTMLElement)) return
+
+      const buttons = Array.from(root.querySelectorAll<HTMLElement>(":scope > button"))
+      if (buttons.length !== lastRender.length + 1) return
+
+      const widths = buttons.map((button) => button.getBoundingClientRect().width)
+      const moreButton = buttons[buttons.length - 1]
+      const moreWidth = widths.pop() ?? 0
+      const style = getComputedStyle(root)
+      const available =
+        root.getBoundingClientRect().width -
+        (Number.parseFloat(style.paddingLeft) || 0) -
+        (Number.parseFloat(style.paddingRight) || 0)
+      const gap = Number.parseFloat(style.columnGap) || 0
+      boxWidth = hostRef.value?.parentElement?.clientWidth ?? -1
+      measuredSignature = lastRender.signature
+      measuredActive = lastRender.activeIndex
+
+      if (available <= 0) {
+        measured.value = { count: lastRender.length }
+        return
+      }
+
+      const { activeIndex } = lastRender
+      const chevron = moreButton?.querySelector("svg")
+      const chevronWidth = chevron?.getBoundingClientRect().width ?? 0
+      const labelGap = chevron?.parentElement ? Number.parseFloat(getComputedStyle(chevron.parentElement).columnGap) || 0 : 0
+      const activeWidth = activeIndex < 0 ? 0 : (widths[activeIndex] ?? 0) + chevronWidth + labelGap
+      measured.value = { count: visibleTabCount(widths, moreWidth, activeWidth, activeIndex, gap, available) }
+    }
+
+    let observer: ResizeObserver | undefined
+    onMounted(() => {
+      measure()
+      const box = hostRef.value?.parentElement
+      if (!box || typeof ResizeObserver === "undefined") return
+      // The width to fit is the container's; reports during a measuring pass are skipped
+      observer = new ResizeObserver(() => {
+        if (lastRender.measuring) return
+        const width = box.clientWidth
+        if (width === boxWidth) return
+        boxWidth = width
+        measured.value = { count: null }
+      })
+      observer.observe(box)
+    })
+    onUpdated(measure)
+    onBeforeUnmount(() => observer?.disconnect())
+
+    const forward = {
+      "onUpdate:value": (value: string) => emit("update:value", value),
+      "onChange": (value: string) => emit("change", value),
+      "onClick": (event: MouseEvent) => emit("click", event),
+    }
+
+    return () => {
+      const { overflow, overflowLabel, ...rootProps } = props
+      if (overflow !== "menu" || props.block || props.orientation === "vertical") {
+        return h(TabsComponent, { ...rootProps, ...attrs, ...forward }, slots)
+      }
+
+      const items = tabVNodes(slots.default?.() as VNodeArrayChildren | undefined)
+      const signature = tabsSignature(items)
+      const activeIndex = items.findIndex((item) => tabProps(item).value === current.value)
+      const { count } = measured.value
+      // New tabs measure again; so does an active tab that moves under the
+      // menu button or back out, since the button carries the hidden one's name
+      const stale =
+        count !== null &&
+        (signature !== measuredSignature ||
+          (activeIndex !== measuredActive && (measuredActive >= count || activeIndex >= count)))
+      const measuring = count === null || stale
+      lastRender = { measuring, signature, activeIndex, length: items.length }
+
+      const shown = measuring ? items : items.slice(0, count)
+      const hidden = measuring ? [] : items.slice(count)
+      const hiddenActive = hidden.find((item) => tabProps(item).value === current.value) ?? null
+
+      const strip = h(
+        TabsComponent,
+        {
+          ...rootProps,
+          ...attrs,
+          "data-overflow": "menu",
+          "value": hiddenActive ? MORE_VALUE : current.value,
+          // Pressing the menu button opens the menu; it is not a tab
+          "onUpdate:value": (next: string) => {
+            if (next !== MORE_VALUE) select(next)
+          },
+          "onClick": forward.onClick,
+        },
+        {
+          default: () => [
+            ...shown,
+            measuring || hidden.length > 0
+              ? h(MenuTrigger, null, {
+                  default: () =>
+                    h(MoreTab, { value: MORE_VALUE }, {
+                      default: () => [
+                        h("span", { class: s.OverflowLabel }, [hiddenActive ? tabLabel(hiddenActive) : overflowLabel, h(ChevronDownMd)]),
+                      ],
+                    }),
+                })
+              : null,
+          ],
+        },
+      )
+
+      return h("div", { ref: hostRef, class: s.OverflowHost }, [
+        h(Menu, null, {
+          default: () => [
+            strip,
+            h(MenuContent, { align: "end", minWidth: "auto" }, {
+              default: () =>
+                h(MenuRadioGroup, { "value": current.value, "onUpdate:value": select }, {
+                  default: () =>
+                    hidden.map((item) => {
+                      const itemProps = tabProps(item)
+                      const count = badgeText(itemProps.badge)
+                      const label = labelContent(item)
+                      return h(
+                        MenuRadioItem,
+                        { key: String(itemProps.value), value: String(itemProps.value), disabled: !!itemProps.disabled },
+                        {
+                          default: () => [
+                            renderIcon(itemProps.icon as TabsIconProp | undefined),
+                            plainText(label) !== "" || label.some((node) => isVNode(node) && node.type !== Comment)
+                              ? label
+                              : ((itemProps["aria-label"] as string | undefined) ?? String(itemProps.value)),
+                            // A tab's count moves into the menu with it
+                            count !== "" ? h("span", { class: s.OverflowBadge }, count) : null,
+                          ],
+                        },
+                      )
+                    }),
+                }),
+            }),
+          ],
+        }),
+      ])
+    }
+  },
+})
+
+type TabsOwnProps = InstanceType<typeof TabsPublic>["$props"]
+
+/** Tabs props plus the attributes that fall through to the group element, as in React. */
+export type TabsProps = TabsOwnProps & Omit<HTMLAttributes, keyof TabsOwnProps> & { "aria-label"?: string }
+
+export const Tabs = TabsPublic as typeof TabsPublic & { new (): { $props: TabsProps } }

@@ -88,6 +88,8 @@ export type RadioGroupItemProps<T extends string> = {
    */
   orientation?: "left" | "right"
   children: React.ReactNode
+  /** Optional second line below the option's label. Linked via `aria-describedby`. */
+  description?: React.ReactNode
 }
 
 const Item = <T extends string>({
@@ -95,6 +97,7 @@ const Item = <T extends string>({
   disabled: itemDisabled = false,
   required,
   children,
+  description,
   className,
   block = false,
   orientation = "left",
@@ -105,35 +108,51 @@ const Item = <T extends string>({
 
   const id = useId()
   const itemId = `${value}-${id}`
+  const descriptionId = description ? `${itemId}-description` : undefined
+
+  const label = (
+    <label
+      htmlFor={itemId}
+      className={clsx(s.RadioLabel, className)}
+      data-disabled={disabled ? "" : undefined}
+      data-block={block ? "" : undefined}
+      data-orientation={orientation}
+      onMouseDown={(event) => {
+        if (!event.defaultPrevented && event.detail > 1) event.preventDefault()
+      }}
+    >
+      <div className={s.RadioIndicatorWrapper}>
+        <RadixRadioGroup.Item
+          id={itemId}
+          value={value}
+          disabled={disabled}
+          required={required}
+          className={s.RadioItem}
+          aria-describedby={descriptionId}
+        >
+          <RadixRadioGroup.Indicator className={s.RadioIndicator} />
+        </RadixRadioGroup.Item>
+      </div>
+      {children}
+    </label>
+  )
 
   return (
     // Providing an extra wrapper enables `label` to be inline-flex, avoiding clickable whitespace
     // when radio options are of varied lengths.
     // NOTE: Important that this is `flex` to prevent the `inline-flex` label from extra, unintentional whitespace.
     <div className={clsx("flex", block && "w-full")} {...restProps}>
-      <label
-        htmlFor={itemId}
-        className={clsx(s.RadioLabel, className)}
-        data-disabled={disabled ? "" : undefined}
-        data-block={block ? "" : undefined}
-        data-orientation={orientation}
-        onMouseDown={(event) => {
-          if (!event.defaultPrevented && event.detail > 1) event.preventDefault()
-        }}
-      >
-        <div className={s.RadioIndicatorWrapper}>
-          <RadixRadioGroup.Item
-            id={itemId}
-            value={value}
-            disabled={disabled}
-            required={required}
-            className={s.RadioItem}
-          >
-            <RadixRadioGroup.Indicator className={s.RadioIndicator} />
-          </RadixRadioGroup.Item>
+      {description ? (
+        // The description stays outside the label, so it describes the radio instead of naming it
+        <div className={s.RadioItemGroup} data-block={block ? "" : undefined} data-orientation={orientation}>
+          {label}
+          <span id={descriptionId} className={s.RadioDescription} data-disabled={disabled ? "" : undefined}>
+            {description}
+          </span>
         </div>
-        {children}
-      </label>
+      ) : (
+        label
+      )}
     </div>
   )
 }

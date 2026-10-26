@@ -10,10 +10,14 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 
 export type FieldChildProps = {
   id: string
+  /** The label's id. Spread onto a control that the label's `for` cannot name, such as a Select trigger. */
+  "aria-labelledby"?: string
   "aria-describedby"?: string
   "aria-invalid"?: boolean
   opticallyAlign?: "start" | "end"
 }
+
+const CONTROL_SIZES: ReadonlySet<unknown> = new Set(["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"])
 
 export type FieldProps = {
   /**
@@ -32,9 +36,14 @@ export type FieldProps = {
    */
   errorMessage?: React.ReactNode
   /**
+   * Content placed at the end of the label row, such as a link that acts on
+   * the field ("Forgot password?", "Replace").
+   */
+  labelAction?: React.ReactNode
+  /**
    * Controls the font size of the label to visually match the child control's size.
    * Matches the ControlSize scale used by Input, Select, etc.
-   * @default "md"
+   * @default the child control's `size`, else "md"
    */
   size?: ControlSize
   /**
@@ -68,7 +77,10 @@ export type FieldProps = {
   /**
    * The form control(s) to render.
    * - If a single ReactElement, Field clones it with { id, aria-describedby, aria-invalid }.
-   * - If a function (render prop), it is called with { id, "aria-describedby", "aria-invalid" }.
+   *   A child without its own `aria-label`, `aria-labelledby` or `label` also gets
+   *   `aria-labelledby` pointing at the label, which names controls the label's
+   *   `for` cannot reach, such as the Select and DatePicker triggers.
+   * - If a function (render prop), it is called with { id, "aria-labelledby", "aria-describedby", "aria-invalid" }.
    */
   children: React.ReactElement | ((fieldProps: FieldChildProps) => React.ReactNode)
 }
@@ -77,7 +89,8 @@ export function Field({
   label,
   description,
   errorMessage,
-  size = "md",
+  labelAction,
+  size: sizeProp,
   required = false,
   orientation = "vertical",
   opticallyAlign,
@@ -87,6 +100,9 @@ export function Field({
 }: FieldProps) {
   const generatedId = useId()
   const fieldId = idProp || `field-${generatedId}`
+  const labelId = `${fieldId}-label`
+  const childSize = isValidElement<{ size?: unknown }>(children) ? children.props.size : undefined
+  const size = sizeProp ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
   const descriptionId = description ? `${fieldId}-description` : undefined
   const errorId = errorMessage ? `${fieldId}-error` : undefined
 
@@ -96,7 +112,8 @@ export function Field({
 
   const invalid = !!errorMessage
 
-  // Props to inject into the child control
+  // Props to inject into the child control (`aria-labelledby` is added below:
+  // to a render prop's props, and to a cloned child without a name of its own)
   const fieldChildProps: FieldChildProps = {
     id: fieldId,
     "aria-describedby": ariaDescribedBy,
@@ -107,20 +124,34 @@ export function Field({
   // Resolve the children
   let resolvedChildren: React.ReactNode
   if (typeof children === "function") {
-    resolvedChildren = children(fieldChildProps)
+    resolvedChildren = children({ ...fieldChildProps, "aria-labelledby": labelId })
   } else if (isValidElement(children)) {
     const child = children as React.ReactElement<Record<string, unknown>>
     // Merge with the child's own associations instead of overwriting them
     const childDescribedBy = child.props["aria-describedby"] as string | undefined
+    const childNamed =
+      child.props["aria-label"] != null || child.props["aria-labelledby"] != null || child.props.label != null
     resolvedChildren = cloneElement(child, {
       ...fieldChildProps,
       "aria-describedby":
         [childDescribedBy, ariaDescribedBy].filter(Boolean).join(" ") || undefined,
       "aria-invalid": child.props["aria-invalid"] ?? fieldChildProps["aria-invalid"],
+      ...(!childNamed && { "aria-labelledby": labelId }),
     })
   } else {
     resolvedChildren = children
   }
+
+  const labelElement = (
+    <label className={s.Label} id={labelId} htmlFor={fieldId}>
+      {label}
+      {required && (
+        <span className={s.RequiredIndicator} aria-hidden="true">
+          *
+        </span>
+      )}
+    </label>
+  )
 
   return (
     <div
@@ -130,14 +161,14 @@ export function Field({
       data-optically-align={opticallyAlign}
     >
       <div className={s.LabelGroup}>
-        <label className={s.Label} htmlFor={fieldId}>
-          {label}
-          {required && (
-            <span className={s.RequiredIndicator} aria-hidden="true">
-              *
-            </span>
-          )}
-        </label>
+        {labelAction ? (
+          <div className={s.LabelRow}>
+            {labelElement}
+            <div className={s.LabelAction}>{labelAction}</div>
+          </div>
+        ) : (
+          labelElement
+        )}
         {description && (
           <div className={s.Description} id={descriptionId}>
             {description}

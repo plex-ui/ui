@@ -35,6 +35,11 @@ export type CopyTooltipProps = {
    * @default 5
    */
   sideOffset?: RadixTooltip.TooltipContentProps["sideOffset"]
+  /**
+   * Called once the clipboard write settles, with whether it succeeded. The
+   * tooltip says "Copied!" only after a successful write.
+   */
+  onCopy?: (copied: boolean) => void
 }
 
 export const CopyTooltip = ({
@@ -45,19 +50,22 @@ export const CopyTooltip = ({
   alignOffset = 0,
   side = "top",
   sideOffset = 5,
+  onCopy,
 }: CopyTooltipProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [copied, setCopied] = useState<boolean>(false)
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  const copy = () => {
+  const copy = async () => {
+    // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+    const succeeded = await copyText(copyValue)
+    onCopy?.(succeeded)
+    if (!succeeded) return
+
     setCopied(true)
 
-    // Not currently revealing the slight async nature of this operation,
-    // nor indicating the failure state.
-    copyText(copyValue)
-
     // Persist the copied state for a second, then close
+    clearTimeout(copiedTimerRef.current)
     copiedTimerRef.current = setTimeout(() => {
       setOpen(false)
     }, 1000)

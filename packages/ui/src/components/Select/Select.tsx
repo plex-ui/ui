@@ -18,6 +18,7 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
 import { Check, Info, Search } from "../Icon"
+import type { ControlSize } from "../../types"
 import { Input } from "../Input"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { Tooltip } from "../Tooltip"
@@ -240,6 +241,12 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   /** Accessible name of the search input, independent of the trigger label. */
   searchAriaLabel?: string
   /**
+   * Size of the search input in the menu, such as `2xl` for 44px touch
+   * targets on phones.
+   * @default md
+   */
+  searchSize?: ControlSize
+  /**
    * Message displayed when search results are empty. Can be a simple string, or custom JSX.
    */
   searchEmptyMessage?: ReactNode
@@ -295,6 +302,7 @@ type SelectContextValue<T extends Option> = (
   searchEmptyMessage: ReactNode
   searchPlaceholder: string
   searchAriaLabel: string
+  searchSize?: ControlSize
   TriggerStartIcon?: SelectControlProps["StartIcon"]
   triggerClassName?: string
   opticallyAlign?: "start" | "end"
@@ -384,6 +392,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     TriggerView: TriggerViewFromProps,
     searchPlaceholder = "",
     searchAriaLabel = "Search options",
+    searchSize,
     searchPredicate = defaultSearchPredicate,
     searchEmptyMessage = "No results found.",
     listMaxWidth = "auto",
@@ -506,6 +515,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       listMaxWidth,
       searchPlaceholder,
       searchAriaLabel,
+      searchSize,
       searchEmptyMessage,
       TriggerStartIcon,
       triggerClassName,
@@ -551,6 +561,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       listMaxWidth,
       searchPlaceholder,
       searchAriaLabel,
+      searchSize,
       searchEmptyMessage,
       TriggerStartIcon,
       triggerClassName,
@@ -731,7 +742,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
             // prevents the value from being required
             onChange={() => {}}
             required={required}
-            className="sr-only w-full h-0 left-0 bottom-0 pointer-events-none"
+            className={s.FormInput}
             aria-hidden="true"
           />
         ))}
@@ -1173,7 +1184,7 @@ type CustomSelectSearchProps = {
 }
 
 const CustomSelectSearch = ({ value, onChange, hasResults }: CustomSelectSearchProps) => {
-  const { searchPlaceholder, searchAriaLabel } = useSelectContext()
+  const { searchPlaceholder, searchAriaLabel, searchSize } = useSelectContext()
   const { listId, searchInputRef } = useCustomSelectMenuContext()
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -1192,6 +1203,7 @@ const CustomSelectSearch = ({ value, onChange, hasResults }: CustomSelectSearchP
           />
         }
         ref={searchInputRef}
+        size={searchSize}
         value={value}
         placeholder={searchPlaceholder}
         aria-label={searchAriaLabel}

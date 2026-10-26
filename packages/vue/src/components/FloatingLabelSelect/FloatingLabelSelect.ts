@@ -1,6 +1,5 @@
 import clsx from "clsx"
 import { defineComponent, h, shallowRef, useId, type PropType } from "vue"
-import { FieldError } from "../FieldError/index.js"
 import { Button } from "../Button/index.js"
 import { Dropdown, X } from "../Icon/index.js"
 import s from "@plexui/styles/components/FloatingLabelSelect/FloatingLabelSelect.module.css"
@@ -165,7 +164,8 @@ export const FloatingLabelSelect = defineComponent({
             ]),
           ],
         ),
-        errorMessage ? h(FieldError, { id: errorId, class: s.ErrorMessage }, { default: () => [errorMessage] }) : null,
+        // Same plain line as FloatingLabelInput, so the two read alike on one form
+        errorMessage ? h("div", { id: errorId, class: s.ErrorMessage, role: "alert" }, [errorMessage]) : null,
       ])
     }
   },

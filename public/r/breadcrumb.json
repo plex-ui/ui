@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "breadcrumb",
+  "type": "registry:ui",
+  "title": "Breadcrumb",
+  "description": "Plex UI Breadcrumb: the trail of pages that leads to the current one, with a navigation landmark, router-aware links, the current page marked aria-current, custom separators and wrapping trails.",
+  "dependencies": ["@plexui/ui"],
+  "registryDependencies": ["https://plexui.com/r/styles.json"],
+  "files": [
+    {
+      "path": "components/ui/breadcrumb.tsx",
+      "type": "registry:ui",
+      "content": "export { Breadcrumb } from '@plexui/ui/components/Breadcrumb';\nexport type { BreadcrumbProps, BreadcrumbItemProps } from '@plexui/ui/components/Breadcrumb';\n"
+    }
+  ],
+  "docs": "Import as `import { Breadcrumb } from '@/components/ui/breadcrumb'`. See https://plexui.com/components/breadcrumb for full prop reference."
+}

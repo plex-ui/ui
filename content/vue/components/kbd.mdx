@@ -1,0 +1,115 @@
+---
+title: Kbd
+description: A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.
+metaDescription: Vue 3 keyboard key component for shortcuts like ⌘K in text, tooltips and menu items, with soft and outline styles that read on any surface
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const STAGE = "flex-1 flex items-center justify-center gap-6 py-12 w-full"
+
+export const overview = `<p class="text-sm text-secondary">
+  Press <Kbd>/</Kbd> to search, <Kbd>Esc</Kbd> to close.
+</p>`
+
+export const shortcut = `<KbdGroup>
+  <Kbd>⌘</Kbd>
+  <Kbd>K</Kbd>
+</KbdGroup>
+<KbdGroup>
+  <Kbd>Ctrl</Kbd>
+  <Kbd>Shift</Kbd>
+  <Kbd>P</Kbd>
+</KbdGroup>`
+
+export const sizes = `<div class="flex flex-col items-center gap-4">
+  <div v-for="variant in ['soft', 'outline']" :key="variant" class="flex items-center gap-4">
+    <Kbd size="xs" :variant="variant">⌘K</Kbd>
+    <Kbd size="sm" :variant="variant">⌘K</Kbd>
+    <Kbd size="md" :variant="variant">⌘K</Kbd>
+  </div>
+</div>`
+
+export const inContext = `<Tooltip>
+  <template #content>
+    <span class="flex items-center gap-2">
+      Search
+      <KbdGroup>
+        <Kbd size="xs">⌘</Kbd>
+        <Kbd size="xs">K</Kbd>
+      </KbdGroup>
+    </span>
+  </template>
+  <Button color="secondary" variant="outline" uniform aria-label="Search" aria-keyshortcuts="Meta+K">
+    <Search />
+  </Button>
+</Tooltip>
+<Menu>
+  <MenuTrigger>
+    <Button color="secondary" variant="soft">Edit</Button>
+  </MenuTrigger>
+  <MenuContent :min-width="220">
+    <MenuItem @select="() => {}">
+      <span class="flex-1">Undo</span>
+      <Kbd size="xs" variant="outline">⌘Z</Kbd>
+    </MenuItem>
+    <MenuItem @select="() => {}">
+      <span class="flex-1">Redo</span>
+      <Kbd size="xs" variant="outline">⇧⌘Z</Kbd>
+    </MenuItem>
+  </MenuContent>
+</Menu>`
+
+<UsageBlock>{`import { Kbd, KbdGroup } from "@plexui/vue/components/Kbd";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Kbd renders a <code>{'<kbd>'}</code> element: the semantic tag for keyboard input. It sits on the text baseline, so it can stand in a sentence.</>} code={overview} previewMinHeight={140}>
+  <VueDemo stageClassName={STAGE} template={overview} />
+</ComponentPreview>
+
+### Shortcut
+
+<ComponentPreview language="vue" details={<>Use <code>KbdGroup</code> for keys pressed together. Each key keeps its own frame.</>} code={shortcut} previewMinHeight={140}>
+  <VueDemo stageClassName={STAGE} template={shortcut} />
+</ComponentPreview>
+
+### Sizes and variants
+
+<ComponentPreview language="vue" details={<>Three sizes: <code>xs</code> (16px) for tooltips and menu items, <code>sm</code> (20px, default) for text, <code>md</code> (24px) next to larger controls. <code>soft</code> (default) fills the key, <code>outline</code> draws its edge. Both mix the surrounding text color, so a key reads on a page, in a dark tooltip and in a highlighted menu item alike.</>} code={sizes} previewMinHeight={180}>
+  <VueDemo stageClassName={STAGE} template={sizes} />
+</ComponentPreview>
+
+### In a tooltip and a menu
+
+<ComponentPreview language="vue" details={<>Show a control's shortcut in its tooltip, or at the end of a menu item. Kbd only shows the keys: announce the shortcut to assistive technology with <code>aria-keyshortcuts</code> on the control that has it.</>} code={inContext} previewMinHeight={160}>
+  <VueDemo stageClassName={STAGE} template={inContext} />
+</ComponentPreview>
+
+## Reference
+
+### Kbd
+
+<PropsTable data={[
+  { prop: "size", type: '"xs" | "sm" | "md"', default: '"sm"', description: "Height and text size: 16px, 20px or 24px" },
+  { prop: "variant", type: '"soft" | "outline"', default: '"soft"', description: "soft fills the key, outline draws its edge; both mix the text color" },
+  { prop: "class", type: "string", description: "Applied to the kbd element" },
+  { prop: "default slot", type: "VNode[]", description: "The key" },
+]} />
+
+Other `<kbd>` attributes (`title`, `aria-label`, ...) fall through to it.
+
+### KbdGroup
+
+A row of keys pressed together (React's `Kbd.Group`). Renders a `<span>`; attributes fall through to it.
+
+## Styling
+
+Kbd reads these component tokens. Override them at any scope to restyle it:
+
+- `--kbd-background`: fill (defaults to the text color at 10%)
+- `--kbd-border-color`: edge (transparent for `soft`, the text color at 24% for `outline`)
+- `--kbd-color`: text color (defaults to `inherit`)
+- `--kbd-radius`: corner radius (defaults to `--radius-xs`)
