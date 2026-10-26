@@ -255,7 +255,7 @@ export default function AntDesignComparisonPage() {
            <h2 className="mt-10 text-xl font-semibold tracking-tight text-fd-foreground md:text-2xl">Where Plex UI wins</h2>
            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-fd-muted-foreground md:text-base">
              <li>Modern CSS with Tailwind 4 and zero runtime overhead, no CSS-in-JS dependency.</li>
-             <li>9-step control sizing gives more precision than Ant Design's 3 size presets.</li>
+             <li>9-step control sizing gives more precision than Ant Design&apos;s 3 size presets.</li>
              <li>Tighter Figma-to-code parity with an official Figma design system built in sync with React.</li>
              <li>Lighter bundle size with tree-shaking and no CSS-in-JS runtime cost.</li>
              <li>Designed for AI-assisted development workflows from the ground up.</li>
