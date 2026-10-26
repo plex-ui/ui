@@ -69,6 +69,8 @@ export const AvatarInner = (props: AvatarProps) => {
         "avatar-size": size,
       })}
       role={isInteractive ? undefined : "presentation"}
+      // An interactive avatar is a button; name it by the full name, not the initial
+      aria-label={isInteractive ? name : undefined}
       data-color={color}
       data-variant={variant}
       type={isInteractive ? "button" : undefined}
