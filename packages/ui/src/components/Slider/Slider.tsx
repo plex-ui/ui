@@ -406,8 +406,11 @@ export const Slider = memo((props: SliderProps) => {
             (value as number[]).map((_, i) => (
               <RadixSlider.Thumb
                 key={i}
+                id={`${id}-thumb-${i}`}
                 className={s.Thumb}
-                aria-labelledby={label ? labelId : undefined}
+                // Label plus the thumb's own Radix name ("Minimum" / "Maximum"),
+                // so the endpoints stay distinguishable
+                aria-labelledby={label ? `${labelId} ${id}-thumb-${i}` : undefined}
               />
             ))
           ) : (
