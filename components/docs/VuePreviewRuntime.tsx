@@ -28,6 +28,15 @@ export default function VuePreviewRuntime({ template, props }: VuePreviewProps) 
     return () => app.unmount();
   }, [template]);
 
-  // `contents` keeps the mount node out of the preview stage's layout
-  return <div ref={hostRef} className="contents" />;
+  // `contents` keeps the mount node out of the preview stage's layout.
+  // Placeholder `href="#"` links in examples must not jump the page.
+  return (
+    <div
+      ref={hostRef}
+      className="contents"
+      onClickCapture={(event) => {
+        if ((event.target as Element).closest?.('a[href="#"]')) event.preventDefault();
+      }}
+    />
+  );
 }

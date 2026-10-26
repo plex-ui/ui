@@ -1,7 +1,7 @@
 import { compile, type CompilerOptions } from '@vue/compiler-dom';
 import * as Vue from 'vue';
 import { registerRuntimeCompiler, type Component, type RenderFunction } from 'vue';
-import { Button } from '@plexui/vue/components/Button';
+import { Button, ButtonLink } from '@plexui/vue/components/Button';
 import {
   Dialog,
   DialogClose,
@@ -12,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@plexui/vue/components/Dialog';
+import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
+import { TextLink } from '@plexui/vue/components/TextLink';
 import * as Icons from '@plexui/vue/components/Icon';
 
 // The `vue` package resolves to the runtime-only build, so preview templates
@@ -42,6 +44,7 @@ registerRuntimeCompiler(compileToFunction as Parameters<typeof registerRuntimeCo
 
 const components: Record<string, Component> = {
   Button,
+  ButtonLink,
   Dialog,
   DialogClose,
   DialogContent,
@@ -50,6 +53,8 @@ const components: Record<string, Component> = {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  PlexUIProvider,
+  TextLink,
 };
 
 // Icons whose names clash with a component (Card, Menu, Sidebar, ...) are

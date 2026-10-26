@@ -1,0 +1,161 @@
+---
+title: Button Link
+description: A semantic anchor with full button styling, for internal and external links with icons and block layout.
+metaDescription: Vue 3 button-link component that renders a semantic anchor with full button styling, for internal and external links with icons and block layout.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<ButtonLink color="primary" :pill="false" href="#">View API Keys <ArrowRight /></ButtonLink>`
+
+export const internal = `<ButtonLink href="/vue/components/button" color="primary">
+  Internal link <ArrowRight />
+</ButtonLink>`
+
+export const external = `<ButtonLink href="#" color="primary">
+  External link <ArrowUpRight />
+</ButtonLink>`
+
+export const colors = `<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+  <div class="pt-1 pb-6 px-8 w-fit min-w-full">
+    <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
+      <div />
+      <div
+        v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+        :key="color"
+        class="text-center text-sm mb-1 text-tertiary"
+      >{{ color }}</div>
+      <template v-for="variant in ['soft', 'solid', 'outline', 'ghost']" :key="variant">
+        <div class="text-right text-sm mr-3 text-tertiary">{{ variant }}</div>
+        <div
+          v-for="color in ['primary', 'secondary', 'danger', 'info', 'discovery', 'success', 'caution', 'warning']"
+          :key="color"
+          class="text-center"
+        >
+          <ButtonLink href="#" size="lg" :color="color" :variant="variant" class="whitespace-nowrap">Button</ButtonLink>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>`
+
+export const sizing = `<div class="flex flex-col gap-2 justify-start items-start">
+  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
+    View account <ArrowRight />
+  </ButtonLink>
+  <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
+    View account
+  </ButtonLink>
+</div>`
+
+export const icons = `<ButtonLink color="info" :size="size" :icon-size="iconSize" variant="soft" href="#" class="whitespace-nowrap">
+  <Globe /> View website
+</ButtonLink>`
+
+export const block = `<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <ButtonLink :block="block" size="lg" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
+</div>`
+
+export const disabled = `<ButtonLink href="#" color="primary" :disabled="disabled" class="whitespace-nowrap">
+  <Key /> View API Keys
+</ButtonLink>`
+
+<UsageBlock>{`import { ButtonLink } from "@plexui/vue/components/Button";`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Internal link
+
+<ComponentPreview language="vue" details={<>When a relative <code>href</code> or <code>to</code> is provided, <code>ButtonLink</code> uses the link component configured on <code>PlexUIProvider</code>, so your router handles navigation.</>} code={internal} previewMinHeight={168}>
+  <VueDemo template={internal} />
+</ComponentPreview>
+
+### External link
+
+<ComponentPreview language="vue" details={<>When linking to an external URL (or when <code>external</code> is set), <code>&lt;a&gt;</code> is used with <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code> added automatically. If your link is not being automatically identified, you can force external link behavior with the <code>external</code> prop.</>} code={external} previewMinHeight={168}>
+  <VueDemo template={external} />
+</ComponentPreview>
+
+### Colors & variants
+
+<ComponentPreview language="vue" details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={colors} previewMinHeight={280}>
+  <VueDemo template={colors} />
+</ComponentPreview>
+
+### Sizing & roundness
+
+<ComponentPreview language="vue" details={<>Sizing of the link is controlled with <code>size</code> and <code>gutter-size</code>. <code>size</code> sets the control height, and <code>gutter-size</code> sets the horizontal padding. Create fully rounded links with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the link.</>} code={sizing} previewMinHeight={206}>
+  <VueDemo template={sizing} stageClassName="flex items-center justify-center py-12" controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" }, { name: "pill", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+### Icons
+
+<ComponentPreview language="vue" details={<>Icon sizing is controlled by the <code>icon-size</code> prop, which makes it easy to add icons to the slot without additional props. <code>size</code> provides a default value for <code>icon-size</code>, but setting the prop forces the specified size.</>} code={icons} previewMinHeight={206}>
+  <VueDemo template={icons} stageClassName="flex items-center justify-center py-12" controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" }, { name: "iconSize", type: "select", options: ["sm", "md", "lg", "xl", "2xl"], default: "lg" }]} />
+</ComponentPreview>
+
+### Block
+
+<ComponentPreview language="vue" details={<>Create full-width links with the <code>block</code> prop.</>} code={block} previewMinHeight={206}>
+  <VueDemo template={block} stageClassName="flex items-center justify-center py-12" controls={[{ name: "block", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+### Disabled
+
+<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable a link. The component renders as a <code>span[role="link"]</code>, and <code>click</code> is not emitted.</>} code={disabled} previewMinHeight={206}>
+  <VueDemo template={disabled} stageClassName="flex items-center justify-center py-12" controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+## Reference
+
+<PropsTable data={[
+  { prop: "default slot", type: "VNode[]", description: "Content inside the link button" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color" },
+  { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Style variant" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and typography scale" },
+  { prop: "gutter-size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Override horizontal padding" },
+  { prop: "icon-size", type: '"sm" | "md" | "lg" | "xl" | "2xl"', description: "Override icon size" },
+  { prop: "href", type: "string", description: "Link URL" },
+  { prop: "to", type: "string | RouteLocationRaw", description: "Router link destination (internal)" },
+  { prop: "as", type: "Component", description: "Link component override (e.g. RouterLink, NuxtLink)" },
+  { prop: "external", type: "boolean", description: "Force external-link behavior" },
+  { prop: "optically-align", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
+  { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
+  { prop: "disabled-tone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },
+  { prop: "@click", type: "(event: MouseEvent) => void", description: "Emitted on click, unless disabled" },
+]} />
+
+### Configure your router
+
+```vue
+<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router"
+import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider"
+</script>
+
+<template>
+  <PlexUIProvider :link-component="RouterLink">
+    <RouterView />
+  </PlexUIProvider>
+</template>
+```
+
+Elsewhere, internal links go through the router:
+
+```vue
+<ButtonLink to="/help">Get Help</ButtonLink>
+```
+
+You can also pass your link component to the `as` prop:
+
+```vue
+<ButtonLink :as="NuxtLink" to="/dashboard">Open dashboard</ButtonLink>
+```

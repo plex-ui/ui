@@ -45,7 +45,7 @@ export function DemoControlBoolean({
   );
 }
 
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
+export function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
   return (
     <div style={controlRowStyle}>
       <span style={controlLabelStyle}>{name}</span>
