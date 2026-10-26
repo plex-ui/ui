@@ -16,6 +16,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Changed
 
+- The CSS now ships in its own package, `@plexui/styles`: design tokens, globals and the CSS module of every component. `@plexui/ui` depends on it and re-exports it, so `@import "@plexui/ui/css"`, the `@plexui/ui/styles/*.css` files, `@plexui/ui/vite` and `@plexui/ui/types` keep working unchanged. Rendered markup and compiled CSS are identical to 0.19. Install `@plexui/styles` on its own to use the same styles from another framework.
 - Grouped Select menus separate their sections. A group heading is now smaller and semibold in the secondary color instead of an option-sized muted row, a rule runs between sections, and the heading starts at the row's content edge instead of being indented to the option labels.
 
 ### Fixed
