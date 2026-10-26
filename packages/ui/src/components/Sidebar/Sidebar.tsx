@@ -90,8 +90,8 @@ import {
 } from "./useSidebarContext"
 
 // Helper to filter out props that shouldn't be spread to the DOM (e.g. injected by MDX)
-const cleanProps = (props: any) => {
-  const { "data-toggle": _, ...rest } = props
+const cleanProps = <P extends object>(props: P): Omit<P, "data-toggle"> => {
+  const { "data-toggle": _, ...rest } = props as P & { "data-toggle"?: unknown }
   return rest
 }
 
