@@ -1,0 +1,143 @@
+---
+title: Vue
+description: Install Plex UI for Vue 3. Add @plexui/vue, wire up the stylesheet, and configure your router in a Vite or Nuxt app.
+---
+
+`@plexui/vue` is the Vue 3 version of Plex UI. Its components have the same props, defaults, markup and styles as the React components in `@plexui/ui`, and both packages read their CSS from `@plexui/styles`. Every component page has a **Vue** tab next to **React**.
+
+## Prerequisites
+
+- Vue 3.5 or later ([install guide](https://vuejs.org/guide/quick-start.html))
+- Tailwind 4 ([install guide](https://tailwindcss.com/docs/installation))
+
+## Install steps
+
+### 1. Install the package
+
+```bash
+npm install @plexui/vue
+```
+
+`@plexui/styles` (tokens, resets and the component CSS modules) is installed with it.
+
+### 2. Setup styles
+
+Add the foundation styles and Tailwind layers to the top of your global stylesheet (e.g. `main.css`):
+
+```css
+/* Pin the cascade-layer order so Plex UI's reset wins over Tailwind preflight
+   for form controls. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "@plexui/styles/css";
+/* Required for Tailwind to find class references in Plex UI components. */
+@source "../node_modules/@plexui/vue";
+```
+
+On Vite, add the Plex UI plugin. It pins the CSS transformer and minifier so the layer order survives the build, and injects the layer order into `index.html` as a failsafe:
+
+```ts
+// vite.config.ts
+import vue from "@vitejs/plugin-vue";
+import plexui from "@plexui/styles/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [vue(), plexui()],
+});
+```
+
+The [Installation](/docs/installation) guide explains the layer order, the Lightning CSS caveats and the optional Tailwind theme import in detail. They apply to Vue unchanged; replace `@plexui/ui/css` with `@plexui/styles/css` and `@plexui/ui/vite` with `@plexui/styles/vite`.
+
+Then import your stylesheet before mounting the app:
+
+```ts
+// main.ts
+import "./main.css";
+import { createApp } from "vue";
+import App from "./App.vue";
+
+createApp(App).mount("#app");
+```
+
+### 3. Server-side rendering
+
+Components import their CSS modules from `@plexui/styles`, which Node cannot load on its own. When you render on the server, let your bundler process `@plexui/vue` instead of loading it from `node_modules`:
+
+```ts
+// vite.config.ts (SSR)
+export default defineConfig({
+  plugins: [vue(), plexui()],
+  ssr: { noExternal: ["@plexui/vue", "@plexui/styles"] },
+});
+```
+
+In Nuxt, add it to `build.transpile` and register the stylesheet (keep the `@layer` line at its top, since Nuxt does not use `index.html`):
+
+```ts
+// nuxt.config.ts
+import plexui from "@plexui/styles/vite";
+
+export default defineNuxtConfig({
+  css: ["~/assets/css/main.css"],
+  build: { transpile: ["@plexui/vue"] },
+  vite: { plugins: [plexui()] },
+});
+```
+
+### 4. Configure router (optional)
+
+`<PlexUIProvider>` sets the default link component used by `<TextLink>`, `<ButtonLink>` and other components that render links. Pass `RouterLink` (or `NuxtLink` in Nuxt):
+
+```vue
+<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router";
+import { PlexUIProvider } from "@plexui/vue/components/PlexUIProvider";
+</script>
+
+<template>
+  <PlexUIProvider :link-component="RouterLink">
+    <RouterView />
+  </PlexUIProvider>
+</template>
+```
+
+### Start building
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import { Badge } from "@plexui/vue/components/Badge";
+import { Button } from "@plexui/vue/components/Button";
+import { Input } from "@plexui/vue/components/Input";
+import { Search, Sparkles } from "@plexui/vue/components/Icon";
+
+const query = ref("");
+</script>
+
+<template>
+  <div class="flex items-center gap-3">
+    <Input v-model:value="query" placeholder="Search">
+      <template #startAdornment><Search /></template>
+    </Input>
+    <Button color="primary"><Sparkles /> Generate</Button>
+    <Badge color="success">New</Badge>
+  </div>
+</template>
+```
+
+## From React to Vue
+
+Component names, props and defaults are the same as in React. The differences follow Vue conventions:
+
+<PropsTable data={[
+  { prop: "className", type: "class", description: "Classes go on the same element as in React" },
+  { prop: "value + onChange", type: "v-model:value", description: "Controlled values use a `value` prop and an `update:value` event. Other controlled props work the same way, e.g. `v-model:open` on Dialog" },
+  { prop: "onX callbacks", type: "@x listeners", description: "For example `onClick` is `@click` and `onOpenChange` is `@update:open`" },
+  { prop: "ReactNode props", type: "slots", description: "Content props are slots, e.g. `#startAdornment`; most also accept a plain string prop" },
+  { prop: "Dialog.Trigger", type: "DialogTrigger", description: "Compound parts are flat named exports from the same module" },
+  { prop: "Hooks", type: "composables", description: "One module per hook, e.g. `useSimulatedProgress` from `@plexui/vue/composables/useSimulatedProgress`" },
+]} />
+
+Icons have the same names as in React and import from `@plexui/vue/components/Icon`.

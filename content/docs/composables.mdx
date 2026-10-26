@@ -1,0 +1,131 @@
+---
+title: Composables
+description: Plex UI Vue composables reference, the Vue counterparts of the React hooks, from useBreakpoint to useSimulatedProgress and useTextSelection.
+---
+
+`@plexui/vue` ships the hooks that carry behaviour as Vue composables, one module per hook under `@plexui/vue/composables/<name>`. They accept refs and getters (`MaybeRefOrGetter`) where the React hook takes plain values, return refs where it returns state, and clean up when the calling component unmounts. Browser APIs are only touched after mount, so they are safe in SSR.
+
+## useAnimatedScrollTo
+
+Animates a scroll container toward a target `scrollTop` with interrupt handling and reduced-motion support.
+
+```ts
+import { useAnimatedScrollTo } from "@plexui/vue/composables/useAnimatedScrollTo";
+
+const container = ref<HTMLElement | null>(null);
+const scrollTo = useAnimatedScrollTo(container);
+scrollTo(640);
+```
+
+## useAutoGrowTextarea
+
+Keeps textarea height synced to content and reacts to width changes that affect wrapping.
+
+```ts
+import { useAutoGrowTextarea } from "@plexui/vue/composables/useAutoGrowTextarea";
+
+const textarea = ref<HTMLTextAreaElement | null>(null);
+const value = ref("");
+useAutoGrowTextarea(textarea, value);
+```
+
+The module also exports `getAutoGrowTextareaHeight(element)` for imperative measurement and `unsafeForceCalculateAutoGrowHeight(element)` for forcing a recalculation outside the composable.
+
+## useBreakpoint
+
+Reads Plex UI breakpoints from CSS variables and returns a ref that is `true` when the viewport is at or above the requested breakpoint.
+
+```ts
+import { useBreakpoint } from "@plexui/vue/composables/useBreakpoints";
+
+const isDesktop = useBreakpoint("lg");
+```
+
+## useCharactersPerSecond
+
+Tracks streaming text speed and returns a getter for smoothed characters-per-second.
+
+```ts
+import { useCharactersPerSecond } from "@plexui/vue/composables/useCharactersPerSecond";
+
+const getCps = useCharactersPerSecond(text, streaming);
+const cps = getCps();
+```
+
+## useDocumentVisible
+
+Returns a ref with the document visibility state (`true` when the tab or page is visible).
+
+```ts
+import { useDocumentVisible } from "@plexui/vue/composables/useDocumentVisible";
+
+const isVisible = useDocumentVisible();
+```
+
+## useEscCloseStack
+
+Registers escape handlers in stack order so the most recent listener handles `Escape` first.
+
+```ts
+import { useEscCloseStack } from "@plexui/vue/composables/useEscCloseStack";
+
+const isOpen = ref(false);
+useEscCloseStack(isOpen, () => (isOpen.value = false));
+```
+
+## useScrollable
+
+Returns refs with the scroll state of a container: `isScrollable`, `isAtStart`, `isAtEnd`.
+
+```ts
+import { useScrollable } from "@plexui/vue/composables/useScrollable";
+
+const container = ref<HTMLElement | null>(null);
+const { isScrollable, isAtStart, isAtEnd } = useScrollable(container);
+```
+
+## useSimulatedProgress
+
+Generates deterministic progress that slows near completion; useful for loading UX. Returns a computed ref.
+
+```ts
+import {
+  getSimulatedProgress,
+  useSimulatedProgress,
+} from "@plexui/vue/composables/useSimulatedProgress";
+
+const progress = useSimulatedProgress(startAt, 8000, completed);
+```
+
+## useTextSelection
+
+Subscribes to text selection changes and exposes a helper to clear selection.
+
+```ts
+import {
+  clearTextSelection,
+  useTextSelection,
+} from "@plexui/vue/composables/useTextSelection";
+
+useTextSelection(enabled, (selection) => {
+  // Selection | null
+});
+```
+
+## useTrailingValue
+
+Returns a ref with a delayed trailing version of a value, useful for transition coordination.
+
+```ts
+import { useTrailingValue } from "@plexui/vue/composables/useTrailingValue";
+
+const trailingValue = useTrailingValue(value, 180);
+```
+
+## React hooks without a composable
+
+These React hooks work around React's render model and have no Vue counterpart:
+
+- `useIsMounted`: use `onMounted`.
+- `useLatestValue` and `useStableCallback`: functions in `<script setup>` already read the latest refs.
+- `usePrevious`: `watch(value, (next, previous) => ...)` receives the previous value.

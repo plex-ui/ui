@@ -11,6 +11,18 @@ import {
   AnimateLayoutTalkButtonDemo,
 } from "@/components/docs/TransitionDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const vueExample = `<div class="w-[450px] max-w-full mx-auto">
+  <div class="w-[100px] mx-auto mb-6">
+    <Button block color="primary" variant="outline" @click="show = !show">{{ show ? "Hide" : "Show" }}</Button>
+  </div>
+  <div class="story-example-secondary rounded-lg w-full h-12" />
+  <AnimateLayout transition-class-name="pt-4">
+    <div v-if="show" key="box" class="story-example-primary rounded-lg shadow-xl w-full h-[80px]" />
+  </AnimateLayout>
+  <div class="story-example-secondary rounded-lg w-full h-12 mt-4" />
+</div>`
 
 <UsageBlock>{`import { AnimateLayout } from "@plexui/ui/components/Transition";`}</UsageBlock>
 
@@ -90,6 +102,16 @@ Animate <code>width</code> with consistent height. Use <code>transitionClassName
   </AnimateLayout>
 </Button>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AnimateLayoutTalkButtonDemo />
+</ComponentPreview>
+
+## Vue
+
+<UsageBlock>{`import { AnimateLayout } from "@plexui/vue/components/Transition";`}</UsageBlock>
+
+Props are the same as in React, in kebab-case (<code>transition-class-name</code>). Children come from the default slot and keep a stable <code>key</code>.
+
+<ComponentPreview language="vue" code={vueExample} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo template={vueExample} state={{ show: false }} />
 </ComponentPreview>
 
 ## Reference

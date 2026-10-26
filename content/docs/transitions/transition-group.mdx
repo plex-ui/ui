@@ -6,6 +6,18 @@ description: TransitionGroup React primitive for rendering components over time 
 import { TransitionGroup } from "@plexui/ui/components/Transition"
 import { TransitionGroupBaseDemo } from "@/components/docs/TransitionDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const vueExample = `<div class="w-[200px]">
+  <div class="w-[100px] mx-auto mb-6">
+    <Button block color="primary" variant="outline" @click="show = !show">{{ show ? "Hide" : "Show" }}</Button>
+  </div>
+  <div class="h-[200px]">
+    <PlexTransitionGroup class="storybook-tg rounded-lg" :enter-duration="2000" :exit-duration="1000">
+      <div v-if="show" key="s" class="w-[200px] h-[200px] bg-gray-300 rounded-lg" />
+    </PlexTransitionGroup>
+  </div>
+</div>`
 
 <UsageBlock>{`import { TransitionGroup } from "@plexui/ui/components/Transition";`}</UsageBlock>
 
@@ -59,6 +71,16 @@ By default, children do not run enter/exit when <code>&lt;TransitionGroup&gt;</c
   }
 }
 ```
+
+## Vue
+
+<UsageBlock>{`import { TransitionGroup, PlexTransitionGroup } from "@plexui/vue/components/Transition";`}</UsageBlock>
+
+Vue's template compiler always resolves <code>&lt;TransitionGroup&gt;</code> to its built-in component, so templates use the <code>PlexTransitionGroup</code> alias (render functions can use either name). Props and data attributes are the same as in React; lifecycle callbacks are listeners such as <code>@enter</code> and <code>@exit-complete</code>.
+
+<ComponentPreview language="vue" code={vueExample} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo template={vueExample} state={{ show: true }} />
+</ComponentPreview>
 
 ## Reference
 

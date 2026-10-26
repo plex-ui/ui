@@ -9,6 +9,36 @@ import {
   AnimateLayoutGroupHorizontalDemo,
 } from "@/components/docs/TransitionDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const vueExample = `<div>
+  <div class="text-center mb-6">
+    <Button color="primary" class="w-[100px]" variant="outline" @click="list = [...list, { id: String(next++) }]">Add item</Button>
+    <p class="mt-2 opacity-50">(Click to remove)</p>
+  </div>
+  <div class="w-[450px] max-w-full">
+    <div class="py-2">
+      <div class="story-example-secondary rounded-lg h-[50px]" />
+    </div>
+    <AnimateLayoutGroup
+      :initial="{ y: -10, opacity: 0, blur: 0 }"
+      :enter="{ y: 0, delay: 150, duration: 600 }"
+      :exit="{ scale: 0.8, blur: 10, duration: 400 }"
+      :layout-enter="{ duration: 400, timingFunction: 'ease' }"
+      :layout-exit="{ delay: 150 }"
+    >
+      <div v-for="item in list" :key="item.id" class="py-2">
+        <div
+          class="story-example-primary rounded-lg shadow-xl h-[50px] cursor-pointer"
+          @click="list = list.filter((other) => other.id !== item.id)"
+        />
+      </div>
+    </AnimateLayoutGroup>
+    <div class="py-2">
+      <div class="story-example-secondary rounded-lg h-[50px]" />
+    </div>
+  </div>
+</div>`
 
 <UsageBlock>{`import { AnimateLayoutGroup } from "@plexui/ui/components/Transition";`}</UsageBlock>
 
@@ -50,6 +80,16 @@ Same property set as <code>&lt;Animate&gt;</code> plus <code>layoutEnter</code>,
   ))}
 </AnimateLayoutGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
   <AnimateLayoutGroupHorizontalDemo />
+</ComponentPreview>
+
+## Vue
+
+<UsageBlock>{`import { AnimateLayoutGroup } from "@plexui/vue/components/Transition";`}</UsageBlock>
+
+Props are the same as in React. Render the items with <code>v-for</code> and a stable <code>:key</code>.
+
+<ComponentPreview language="vue" code={vueExample} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo template={vueExample} state={{ list: [], next: 0 }} />
 </ComponentPreview>
 
 ## Reference

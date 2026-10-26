@@ -5,6 +5,7 @@
     "components",
     "icons",
     "installation",
+    "vue",
     "troubleshooting",
     "foundations",
     "concepts",
@@ -13,6 +14,7 @@
     "mcp",
     "registry",
     "hooks",
+    "composables",
     "transitions",
     "changelog"
   ]

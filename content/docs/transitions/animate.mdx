@@ -11,6 +11,16 @@ import {
   AnimateCrossFadeDemo,
 } from "@/components/docs/TransitionDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const vueExample = `<div class="w-[200px]">
+  <div class="w-[100px] mx-auto mb-6">
+    <Button block color="primary" variant="outline" @click="show = !show">{{ show ? "Hide" : "Show" }}</Button>
+  </div>
+  <Animate class="w-[200px] h-[200px]">
+    <div v-if="show" key="s" class="story-example-primary rounded-lg shadow-xl w-[200px] h-[200px]" />
+  </Animate>
+</div>`
 
 <UsageBlock>{`import { Animate } from "@plexui/ui/components/Transition";`}</UsageBlock>
 
@@ -77,6 +87,16 @@ Use for icon or page cross-fades (e.g. copy button icon).
   </Animate>
 </Button>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <AnimateCrossFadeDemo />
+</ComponentPreview>
+
+## Vue
+
+<UsageBlock>{`import { Animate } from "@plexui/vue/components/Transition";`}</UsageBlock>
+
+Props are the same as in React. Children come from the default slot and keep a stable <code>key</code>, toggled with <code>v-if</code>.
+
+<ComponentPreview language="vue" code={vueExample} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo template={vueExample} state={{ show: true }} />
 </ComponentPreview>
 
 ## Reference

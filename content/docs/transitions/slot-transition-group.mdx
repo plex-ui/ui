@@ -6,6 +6,18 @@ description: SlotTransitionGroup React primitive for time-based transitions with
 import { SlotTransitionGroup } from "@plexui/ui/components/Transition"
 import { SlotTransitionGroupBaseDemo } from "@/components/docs/TransitionDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const vueExample = `<div class="w-[200px]">
+  <div class="w-[100px] mx-auto mb-6">
+    <Button block color="primary" variant="outline" @click="show = !show">{{ show ? "Hide" : "Show" }}</Button>
+  </div>
+  <div class="h-[200px]">
+    <SlotTransitionGroup :enter-duration="2000" :exit-duration="1000">
+      <div v-if="show" key="s" class="w-[200px] h-[200px] bg-gray-300 rounded-lg storybook-tg" />
+    </SlotTransitionGroup>
+  </div>
+</div>`
 
 <UsageBlock>{`import { SlotTransitionGroup } from "@plexui/ui/components/Transition";`}</UsageBlock>
 
@@ -61,6 +73,16 @@ Apply styles to the child using the data attributes:
   }
 }
 ```
+
+## Vue
+
+<UsageBlock>{`import { SlotTransitionGroup } from "@plexui/vue/components/Transition";`}</UsageBlock>
+
+Props and data attributes are the same as in React. The data attributes land on the slot child itself.
+
+<ComponentPreview language="vue" code={vueExample} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VueDemo template={vueExample} state={{ show: true }} />
+</ComponentPreview>
 
 ## Reference
 
