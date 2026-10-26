@@ -173,12 +173,20 @@ export const DataTable = <TData,>({
   // pageSize only seeds initialState, so apply later prop changes to the table
   const appliedPageSize = useRef(pageSize)
   useEffect(() => {
-    if (appliedPageSize.current === pageSize) {
+    const previous = appliedPageSize.current
+    if (previous === pageSize) {
       return
     }
     appliedPageSize.current = pageSize
-    if (shouldPaginate) {
+    if (!shouldPaginate) {
+      return
+    }
+    if (Number.isFinite(previous) && previous > 0) {
       table.setPageSize(pageSize)
+    } else {
+      // Page index is not auto-reset while pagination is off (filters may have
+      // changed since), so start over from the first page
+      table.setPagination({ pageIndex: 0, pageSize })
     }
   }, [table, pageSize, shouldPaginate])
 
