@@ -1,10 +1,13 @@
-import { isValidElement, type FunctionComponent, type ReactNode, type SVGProps } from 'react';
+import { isValidElement, type ReactNode, type SVGProps } from 'react';
 import { defineComponent, h, type VNodeChild } from 'vue';
 
 // Docs-only stand-in: @plexui/vue does not ship icons yet, so the Vue
 // previews reuse the React icon set. Plex icons are plain function
 // components that return static <svg> markup, so their element tree is
 // converted to Vue vnodes once, without rendering React.
+
+// Plex icons render synchronously (no hooks, no async)
+type SyncComponent<P = unknown> = (props: P) => ReactNode;
 
 // SVG attributes React spells in camelCase that the DOM keeps in camelCase
 const CAMEL_CASE_ATTRIBUTES = new Set(['viewBox', 'preserveAspectRatio']);
@@ -23,7 +26,7 @@ const toVNode = (node: ReactNode): VNodeChild => {
 
   const { children, ...props } = node.props as { children?: ReactNode };
   if (typeof node.type === 'function') {
-    return toVNode((node.type as FunctionComponent)(node.props));
+    return toVNode((node.type as SyncComponent)(node.props));
   }
   if (typeof node.type !== 'string') return null;
 
@@ -33,7 +36,7 @@ const toVNode = (node: ReactNode): VNodeChild => {
   return h(node.type, attributes, toVNode(children) as never);
 };
 
-export const vueIcon = (name: string, Icon: FunctionComponent<SVGProps<SVGSVGElement>>) => {
+export const vueIcon = (name: string, Icon: SyncComponent<SVGProps<SVGSVGElement>>) => {
   const tree = Icon({});
   return defineComponent({
     name,
