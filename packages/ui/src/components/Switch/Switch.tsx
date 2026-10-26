@@ -50,7 +50,8 @@ export const Switch = ({
 }: SwitchProps) => {
   const reactId = useId()
   const id = propsId ?? reactId
-  const descriptionId = description ? `${id}-description` : undefined
+  // The description only renders next to a label
+  const descriptionId = label && description ? `${id}-description` : undefined
 
   return (
     <div
