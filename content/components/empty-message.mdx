@@ -61,20 +61,20 @@ import {
 **EmptyMessage** (root)
 
 <PropsTable data={[
-  { prop: "fill", type: "string", description: "Background fill; use \"none\" for transparent (e.g. in search results)" },
+  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "How the container fills its parent: \"static\" takes full width and height, \"absolute\" covers a positioned parent (inset 0), \"none\" applies no sizing" },
 ]} />
 
 **EmptyMessage.Icon**
 
 <PropsTable data={[
-  { prop: "color", type: "string", description: "Semantic color (e.g. danger, warning)" },
-  { prop: "size", type: '"sm" | "md" | "lg"', description: "Icon size" },
+  { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
+  { prop: "size", type: '"sm" | "md"', default: '"md"', description: "Icon size" },
 ]} />
 
 **EmptyMessage.Title**
 
 <PropsTable data={[
-  { prop: "color", type: "string", description: "Semantic color (e.g. danger)" },
+  { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "Semantic color" },
 ]} />
 
 **EmptyMessage.Description** — Description text; no specific props.
