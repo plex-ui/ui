@@ -2,7 +2,7 @@
 
 # Plex UI
 
-**The React component library your AI agent actually understands.**
+**The design system for React and Vue that your AI agent actually understands.**
 
 [![npm](https://img.shields.io/npm/v/@plexui/ui?color=black&label=%40plexui%2Fui)](https://www.npmjs.com/package/@plexui/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@plexui/ui?color=black)](https://www.npmjs.com/package/@plexui/ui)
@@ -17,7 +17,7 @@
 
 ---
 
-Plex UI is a production-grade React component library (Radix + CSS modules) with **first-class AI coding agent support**. Ship the same component library to your humans *and* your LLMs — via Claude Code, Cursor, Codex, MCP, or any agent that speaks the open Agent Skills format.
+Production-grade components for React (`@plexui/ui`) and Vue (`@plexui/vue`) with the same props, markup and styles, plus an MCP server, a skill and a shadcn registry so Claude and Codex build with them correctly.
 
 ## Why Plex UI
 
