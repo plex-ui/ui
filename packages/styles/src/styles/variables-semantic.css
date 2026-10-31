@@ -145,7 +145,7 @@
       Warning colors
     ============================================= */
     /* Text */
-    --color-text-warning: light-dark(var(--orange-700), var(--orange-500));
+    --color-text-warning: light-dark(var(--orange-600), var(--orange-500));
     /* Soft */
     --color-background-warning-soft: light-dark(var(--orange-50), color-mix(in oklab, var(--orange-400) 25%, var(--gray-100)));
     --color-background-warning-soft-hover: light-dark(var(--orange-75), color-mix(in oklab, var(--orange-400) 40%, var(--gray-100)));
@@ -228,7 +228,7 @@
       Danger colors
     ============================================= */
     /* Text */
-    --color-text-danger: light-dark(var(--red-700), var(--red-500));
+    --color-text-danger: light-dark(var(--red-500), var(--red-500));
     /* Soft */
     --color-background-danger-soft: light-dark(var(--red-50), color-mix(in oklab, var(--red-400) 25%, var(--gray-100)));
     --color-background-danger-soft-hover: light-dark(var(--red-75), color-mix(in oklab, var(--red-400) 40%, var(--gray-100)));
@@ -269,7 +269,7 @@
       Success colors
     ============================================= */
     /* Text */
-    --color-text-success: light-dark(var(--green-700), var(--green-400));
+    --color-text-success: light-dark(var(--green-600), var(--green-400));
     /* Soft */
     --color-background-success-soft: light-dark(var(--green-50), color-mix(in oklab, var(--green-400) 25%, var(--gray-100)));
     --color-background-success-soft-hover: light-dark(var(--green-75), color-mix(in oklab, var(--green-400) 40%, var(--gray-100)));
