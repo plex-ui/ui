@@ -324,6 +324,15 @@
     width: 100%;
   }
 
+  /* The control reaches past one edge only: the other edge stays on the container. */
+  &:where([data-block][data-optically-align]) {
+    width: calc(100% + var(--select-control-gutter));
+
+    &[data-pill] {
+      width: calc(100% + var(--select-control-gutter) * var(--control-gutter-pill-scaling));
+    }
+  }
+
   /* =============================================
     Ghost variant
   ============================================= */

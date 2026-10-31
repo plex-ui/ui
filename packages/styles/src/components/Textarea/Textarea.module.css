@@ -77,6 +77,11 @@
     --textarea-gutter-x: var(--control-gutter-xl);
   }
 
+  /* The control reaches past one edge only: the other edge stays on the container. */
+  &[data-optically-align] {
+    width: calc(100% + var(--textarea-gutter-x));
+  }
+
   &:where([data-optically-align="start"]) {
     margin-inline-start: calc(var(--textarea-gutter-x) * -1);
   }
