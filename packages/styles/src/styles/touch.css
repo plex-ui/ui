@@ -50,6 +50,23 @@
     --sidebar-menu-sub-item-font-size: 17px;
     --sidebar-menu-sub-item-line-height: 22px;
     --sidebar-icon-size: 20px;
+
+    --table-cell-font-size: 15px;
+    --table-cell-line-height: 20px;
+
+    --switch-track-width: 64px;
+    --switch-track-height: 28px;
+    --switch-thumb-offset: 2px;
+  }
+
+  html [data-mobile-placement="bottom"] {
+    --dialog-panel-radius: 38px 38px 0 0;
+    --dialog-panel-max-height: calc(100dvh - 10px);
+  }
+
+  html [data-mobile-placement="center"] {
+    --dialog-panel-width: 300px;
+    --dialog-panel-radius: 34px;
   }
 
   html [role="radiogroup"] {
