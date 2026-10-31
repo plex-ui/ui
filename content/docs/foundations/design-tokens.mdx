@@ -8,3 +8,14 @@ Plex UI ships a set of CSS custom properties (design tokens) that drive all visu
 <div className="not-prose">
   <DesignTokens />
 </div>
+
+## Touch sizes for phones
+
+`@plexui/styles/styles/touch.css` is an optional layer of tokens for phones, taken from Apple's iOS 26 design resources. Below 768px every control takes one height of 44px with 17px text, and menus and the mobile sidebar follow the iOS measures. Desktop is untouched, and nothing changes without the import:
+
+```css
+@import "@plexui/styles/css";
+@import "@plexui/styles/styles/touch.css";
+```
+
+The `3xl` size stays large at 50px for the main action of a sign-in or checkout screen.

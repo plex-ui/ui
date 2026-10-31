@@ -489,14 +489,14 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px 12px;
+  padding: var(--sidebar-menu-sub-item-padding-y, 8px) 12px;
   margin: var(--sidebar-menu-item-margin);
   border: none;
   border-radius: 0;
   background: transparent;
   color: var(--sidebar-menu-text);
-  font-size: 14px;
-  line-height: 20px;
+  font-size: var(--sidebar-menu-sub-item-font-size, 14px);
+  line-height: var(--sidebar-menu-sub-item-line-height, 20px);
   text-decoration: none;
   cursor: pointer;
   user-select: none;
