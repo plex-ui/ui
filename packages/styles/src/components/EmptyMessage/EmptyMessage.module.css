@@ -41,16 +41,15 @@
   /* Left-aligned, under a section heading */
   &[data-align="start"] {
     align-items: flex-start;
-
-    .ActionRow {
-      justify-content: flex-start;
-    }
-
     min-width: 0;
 
     .Title,
     .Description {
       text-align: start;
+    }
+
+    .ActionRow {
+      justify-content: flex-start;
     }
   }
 }
