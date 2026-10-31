@@ -7,6 +7,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `@plexui/styles/styles/touch.css`: optional touch sizes for phones. Import it after the main stylesheet and, below 768px, every control takes one height of 44px with 17px text, while menus and the mobile sidebar follow Apple's iOS 26 measures. Nothing changes without the import.
+- Token hooks for the same purpose: `--menu-label-padding`, `--menu-label-padding-bottom`, `--menu-label-font-size`, `--menu-label-font-weight`, `--menu-label-line-height`, `--sidebar-menu-sub-item-padding-y`, `--sidebar-menu-sub-item-font-size` and `--sidebar-menu-sub-item-line-height`. Their defaults match the previous values.
+
 ## 0.20.0 (2026-10-26)
 
 ### Added

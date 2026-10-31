@@ -191,12 +191,12 @@
 
 
 .MenuLabel {
-  padding: var(--menu-item-padding);
-  padding-bottom: spacing(0.5);
+  padding: var(--menu-label-padding, var(--menu-item-padding));
+  padding-bottom: var(--menu-label-padding-bottom, spacing(0.5));
   color: var(--color-text-tertiary);
-  font-size: var(--font-text-xs-size);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--font-text-xs-line-height);
+  font-size: var(--menu-label-font-size, var(--font-text-xs-size));
+  font-weight: var(--menu-label-font-weight, var(--font-weight-semibold));
+  line-height: var(--menu-label-line-height, var(--font-text-xs-line-height));
   user-select: none;
 }
 
