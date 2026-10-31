@@ -41,6 +41,11 @@
   /* Left-aligned, under a section heading */
   &[data-align="start"] {
     align-items: flex-start;
+
+    .ActionRow {
+      justify-content: flex-start;
+    }
+
     min-width: 0;
 
     .Title,
@@ -119,5 +124,9 @@
 }
 
 .ActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: spacing(2);
   margin-top: spacing(4);
 }
