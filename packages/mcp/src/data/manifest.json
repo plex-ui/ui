@@ -1990,6 +1990,12 @@
               "description": "Show close button in top-right corner"
             },
             {
+              "name": "pill",
+              "type": "boolean",
+              "default": "false",
+              "description": "Rounder panel and a round close button, for dialogs beside pill controls"
+            },
+            {
               "name": "className",
               "type": "string",
               "description": "Additional CSS class on the panel"
@@ -6581,5 +6587,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-31T12:42:53.758Z"
+  "generatedAt": "2026-10-31T17:33:52.522Z"
 }

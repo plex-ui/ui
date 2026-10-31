@@ -1,6 +1,6 @@
 {
   "name": "@plexui/styles",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Framework-agnostic CSS for Plex UI: design tokens, globals and component styles",
   "type": "module",
   "license": "MIT",

@@ -162,7 +162,7 @@
   }
 
   /* Ghost variant — checkmark uses text color instead of white */
-  [data-variant="ghost"] & {
+  .Checkbox[data-variant="ghost"] & {
     &::before,
     &::after {
       background: var(--gray-900);

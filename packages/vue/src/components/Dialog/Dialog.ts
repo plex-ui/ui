@@ -163,6 +163,11 @@ export const DialogContent = defineComponent({
     /** Renders the close button in the top corner. @default true */
     showClose: { type: Boolean, default: true },
     /**
+     * Rounder panel and a round close button, for dialogs that sit beside pill controls.
+     * @default false
+     */
+    pill: { type: Boolean, default: false },
+    /**
      * Where the panel sits: centered, near the top, a sheet along the bottom,
      * a full-height panel on the start or end side, or the whole screen.
      * @default "center"
@@ -216,6 +221,7 @@ export const DialogContent = defineComponent({
             "style": toCssVariables({ "dialog-width": props.width }),
             "data-placement": props.placement === "center" ? undefined : props.placement,
             "data-mobile-placement": props.mobilePlacement,
+            "data-pill": props.pill ? "" : undefined,
             "onOpenAutoFocus": props.onOpenAutoFocus,
             "onCloseAutoFocus": props.onCloseAutoFocus,
             // Radix labels and describes the content only by mounted parts

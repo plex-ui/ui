@@ -81,6 +81,11 @@ export type DialogContentProps = {
   children: ReactNode
   width?: number | string
   showClose?: boolean
+  /**
+   * Rounder panel and a round close button, for dialogs that sit beside pill controls.
+   * @default false
+   */
+  pill?: boolean
   className?: string
   /**
    * Where the panel sits: centered, near the top (search, command lists),
@@ -104,6 +109,7 @@ const Content = ({
   children,
   width = 480,
   showClose = true,
+  pill = false,
   className,
   placement = "center",
   mobilePlacement,
@@ -133,6 +139,7 @@ const Content = ({
               style={toCssVariables({ "dialog-width": width })}
               data-placement={placement === "center" ? undefined : placement}
               data-mobile-placement={mobilePlacement}
+              data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
               onOpenAutoFocus={onOpenAutoFocus}
               onCloseAutoFocus={onCloseAutoFocus}

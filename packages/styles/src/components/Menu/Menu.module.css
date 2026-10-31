@@ -4,7 +4,6 @@
 
 .MenuList[data-pill] {
   --menu-radius: var(--menu-radius-pill, 22px);
-  --menu-item-radius: var(--radius-full);
 }
 
 .MenuList {

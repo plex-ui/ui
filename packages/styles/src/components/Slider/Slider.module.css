@@ -9,6 +9,14 @@
       visibility: visible;
     }
   }
+
+  /* Without hover the reset could never appear */
+  @media (hover: none) {
+    .Reset[data-hide="false"] {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
 }
 
 .Slider {

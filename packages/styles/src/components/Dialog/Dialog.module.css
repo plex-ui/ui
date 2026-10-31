@@ -37,7 +37,8 @@
   --dialog-panel-width: var(--dialog-width, 480px);
   --dialog-panel-height: auto;
   --dialog-panel-max-height: calc(100dvh - 2rem);
-  --dialog-panel-radius: var(--radius-xl);
+  --dialog-panel-corner: var(--radius-xl);
+  --dialog-panel-radius: var(--dialog-panel-corner);
   --dialog-panel-padding-bottom: 1.25rem;
   --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
 
@@ -56,6 +57,10 @@
   &:focus {
     outline: none;
   }
+}
+
+.Content[data-pill] {
+  --dialog-panel-corner: var(--dialog-radius-pill, 24px);
 }
 
 .Panel {
@@ -118,7 +123,7 @@
   --dialog-content-align: flex-end;
   --dialog-content-padding: 0;
   --dialog-panel-width: 100%;
-  --dialog-panel-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
   --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   --dialog-panel-hidden-transform: translateY(100%);
 }
@@ -169,7 +174,7 @@
     --dialog-panel-width: var(--dialog-width, 480px);
     --dialog-panel-height: auto;
     --dialog-panel-max-height: calc(100dvh - 2rem);
-    --dialog-panel-radius: var(--radius-xl);
+    --dialog-panel-radius: var(--dialog-panel-corner);
     --dialog-panel-padding-bottom: 1.25rem;
     --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
   }
@@ -181,7 +186,7 @@
     --dialog-panel-width: 100%;
     --dialog-panel-height: auto;
     --dialog-panel-max-height: calc(100dvh - 2rem);
-    --dialog-panel-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     --dialog-panel-hidden-transform: translateY(100%);
   }
@@ -224,6 +229,10 @@
     outline: 2px solid var(--color-text);
     outline-offset: 2px;
   }
+}
+
+.Content[data-pill] .CloseButton {
+  border-radius: var(--radius-full);
 }
 
 .CloseIcon {

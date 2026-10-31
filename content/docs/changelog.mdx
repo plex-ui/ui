@@ -7,6 +7,21 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.20.2 (2026-10-31)
+
+### Added
+
+- `Dialog.Content` takes `pill`: a rounder panel and a round close button, for dialogs beside pill controls. New token: `--dialog-radius-pill`.
+
+### Changed
+
+- Pill menus and select lists no longer round every row fully. A row takes the list's inner radius, so a one-line row stays a pill and a taller row with a description keeps its corners.
+
+### Fixed
+
+- `Slider`: the reset button shows on touch screens, which have no hover to reveal it.
+- `Checkbox`: a checked box inside a ghost parent such as a ghost `Card` keeps its check mark.
+
 ## 0.20.1 (2026-10-31)
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "@plexui/vue",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Plex UI components for Vue 3, built on Reka UI and the shared @plexui/styles CSS",
   "type": "module",
   "license": "MIT",

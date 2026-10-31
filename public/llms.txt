@@ -342,6 +342,7 @@ Props:
   Dialog.Content:
     - width (number | string) default: 480 — Panel width
     - showClose (boolean) default: true — Show close button in top-right corner
+    - pill (boolean) default: false — Rounder panel and a round close button, for dialogs beside pill controls
     - className (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
     - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
