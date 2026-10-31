@@ -2,6 +2,11 @@
   /* Top-level selector needs to exist */
 }
 
+.MenuList[data-pill] {
+  --menu-radius: var(--menu-radius-pill, 22px);
+  --menu-item-radius: var(--radius-full);
+}
+
 .MenuList {
   z-index: 50;
   overflow: auto;
@@ -95,7 +100,7 @@
     position: absolute;
     inset: 0;
     display: block;
-    border-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-radius: var(--menu-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
     background: var(--menu-item-background-color);
     content: "";
     opacity: 0;

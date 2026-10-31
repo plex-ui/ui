@@ -5,6 +5,11 @@
   /* Top-level selector needs to exist */
 }
 
+.MenuList[data-pill] {
+  --menu-radius: var(--menu-radius-pill, 22px);
+  --menu-item-radius: var(--radius-full);
+}
+
 .MenuList {
   z-index: 50;
   /* Default to the width of the trigger */
@@ -91,7 +96,7 @@
     position: absolute;
     inset: 0;
     display: block;
-    border-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-radius: var(--menu-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
     background: var(--menu-item-background-color);
     content: "";
     opacity: 0;
@@ -251,7 +256,7 @@
 .Action {
   position: relative;
   padding: var(--menu-item-padding);
-  border-radius: calc(var(--menu-radius) - var(--menu-gutter));
+  border-radius: var(--menu-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
   cursor: pointer;
   transition: background-color 0.15s ease;
 
@@ -260,7 +265,7 @@
     position: absolute;
     inset: 0;
     display: block;
-    border-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-radius: var(--menu-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
     background: light-dark(var(--gray-100), var(--gray-25));
     content: "";
     opacity: 0;
@@ -276,7 +281,7 @@
     position: absolute;
     inset: 0;
     display: block;
-    border-radius: calc(var(--menu-radius) - var(--menu-gutter));
+    border-radius: var(--menu-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
     content: "";
     pointer-events: none;
     transition-duration: 0.15s;

@@ -4788,6 +4788,7 @@ Props:
     - width (number | "auto") default: "auto" — Panel width (numbers are pixels)
     - min-width (number | "auto") default: 300 — Minimum panel width
     - max-height (number) — Maximum panel height, in pixels
+    - pill (boolean) default: false — Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too
     - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred placement
     - side-offset (number) default: 5 — Distance from the trigger, in pixels
     - align ("start" | "center" | "end") default: "center" — Alignment relative to trigger

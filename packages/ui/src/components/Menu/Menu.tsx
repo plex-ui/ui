@@ -331,6 +331,11 @@ export type MenuContentProps = {
    */
   maxHeight?: number
   /**
+   * Rounder list with fully rounded rows, for menus that sit beside pill controls.
+   * @default false
+   */
+  pill?: boolean
+  /**
    * Layout direction of menu items.
    * Use `"horizontal"` for icon-based toolbars (iOS-style).
    * @default "vertical"
@@ -359,6 +364,7 @@ const Content = ({
   width,
   minWidth,
   maxHeight,
+  pill = false,
   layout = "vertical",
   size,
   onCloseAutoFocus,
@@ -374,6 +380,7 @@ const Content = ({
             key="dropdown"
             forceMount
             className={s.MenuList}
+            data-pill={pill ? "" : undefined}
             side={side}
             sideOffset={sideOffset}
             align={align}
@@ -529,6 +536,7 @@ type SubContentProps = {
   width?: number | "auto"
   minWidth?: number | "auto"
   maxHeight?: number
+  pill?: boolean
 }
 
 const SubContent = ({
@@ -538,6 +546,7 @@ const SubContent = ({
   width = "auto",
   minWidth = "auto",
   maxHeight,
+  pill = false,
 }: SubContentProps) => {
   const { open } = useSubmenuContext()
 
@@ -548,6 +557,7 @@ const SubContent = ({
           <DropdownMenu.SubContent
             key="submenu"
             className={s.MenuList}
+            data-pill={pill ? "" : undefined}
             sideOffset={sideOffset}
             alignOffset={alignOffset}
             avoidCollisions

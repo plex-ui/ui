@@ -826,6 +826,7 @@ const SelectPopoverContent = defineComponent({
         {
           as: SelectContentElement,
           class: s.MenuList,
+          "data-pill": props.pill ? "" : undefined,
           side: props.side,
           sideOffset: 5,
           align: align.value,
