@@ -77,6 +77,14 @@
     --textarea-gutter-x: var(--control-gutter-xl);
   }
 
+  &:where([data-optically-align="start"]) {
+    margin-inline-start: calc(var(--textarea-gutter-x) * -1);
+  }
+
+  &:where([data-optically-align="end"]) {
+    margin-inline-end: calc(var(--textarea-gutter-x) * -1);
+  }
+
   /* ============================================ */
   /* Gutter sizes */
   /* ============================================ */

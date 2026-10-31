@@ -47,6 +47,8 @@ const TextareaComponent = defineComponent({
     variant: { type: String as PropType<Variants<"outline" | "soft">>, default: "outline" },
     /** Controls the size of the textarea. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
+    /** Applies a negative margin using the current gutter to optically align the text with surrounding content. */
+    opticallyAlign: String as PropType<"start" | "end">,
     /** Controls gutter on the edges of the textarea, defaults to value from `size`. */
     gutterSize: String as PropType<Sizes<"2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,
     /** Disables the textarea visually and from interactions. @default false */
@@ -188,6 +190,7 @@ const TextareaComponent = defineComponent({
           "data-variant": variant,
           "data-size": size,
           "data-gutter-size": gutterSize,
+          "data-optically-align": props.opticallyAlign,
           "data-focused": String(focused.value),
           "data-disabled": disabled ? "" : undefined,
           "data-readonly": readOnly ? "" : undefined,

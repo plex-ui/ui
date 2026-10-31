@@ -24,6 +24,10 @@ export type TextareaProps = {
    */
   size?: ControlSize
   /**
+   * Applies a negative margin using the current gutter to optically align the text with surrounding content.
+   */
+  opticallyAlign?: "start" | "end"
+  /**
    * Controls gutter on the edges of the textarea, defaults to value from `size`.
    *
    * | 2xs    | xs     | sm     | md     | lg     | xl     |
@@ -83,6 +87,7 @@ export const Textarea = (props: TextareaProps) => {
     name,
     variant = "outline",
     size = "md",
+    opticallyAlign,
     gutterSize,
     className,
     autoComplete,
@@ -137,6 +142,7 @@ export const Textarea = (props: TextareaProps) => {
       className={clsx(s.Container, className)}
       data-variant={variant}
       data-size={size}
+      data-optically-align={opticallyAlign}
       data-gutter-size={gutterSize}
       data-focused={focused}
       data-disabled={disabled ? "" : undefined}
