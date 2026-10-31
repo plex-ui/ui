@@ -332,6 +332,7 @@ const MenuRootContentImpl = defineComponent({
     maxHeight: Number,
     layout: { type: String as PropType<"vertical" | "horizontal">, required: true },
     size: String as PropType<"sm" | "md" | "lg">,
+    pill: Boolean,
     onCloseAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
   },
   setup(props, { slots }) {
@@ -399,6 +400,7 @@ const MenuRootContentImpl = defineComponent({
           "collisionPadding": COLLISION_PADDING,
           "reference": internals.trigger.value ?? undefined,
           "class": s.MenuList,
+          "data-pill": props.pill ? "" : undefined,
           "data-layout": isHorizontal ? "horizontal" : undefined,
           "data-size": isHorizontal && props.size ? props.size : undefined,
           "style": {
@@ -464,6 +466,11 @@ export const MenuContent = defineComponent({
      * @default "md"
      */
     size: String as PropType<"sm" | "md" | "lg">,
+    /**
+     * Rounder list with fully rounded rows, for menus that sit beside pill controls.
+     * @default false
+     */
+    pill: { type: Boolean, default: false },
   },
   emits: {
     /**
@@ -996,6 +1003,7 @@ const MenuSubContentImpl = defineComponent({
     width: { type: sizeProp, required: true },
     minWidth: { type: sizeProp, required: true },
     maxHeight: Number,
+    pill: Boolean,
   },
   setup(props, { slots }) {
     // The submenu's own Reka root: its content takes the submenu's ids
@@ -1049,6 +1057,7 @@ const MenuSubContentImpl = defineComponent({
           "collisionPadding": COLLISION_PADDING,
           "reference": subInternals.trigger.value ?? undefined,
           "class": s.MenuList,
+          "data-pill": props.pill ? "" : undefined,
           "style": {
             ...toCssVariables({
               "menu-width": props.width,
@@ -1103,6 +1112,11 @@ export const MenuSubContent = defineComponent({
     minWidth: { type: sizeProp, default: "auto" },
     /** Defines the `max-height` property of the content, in pixels. */
     maxHeight: Number,
+    /**
+     * Rounder list with fully rounded rows, for menus that sit beside pill controls.
+     * @default false
+     */
+    pill: { type: Boolean, default: false },
   },
   setup(props, { slots }) {
     const { open } = useSubmenuContext()

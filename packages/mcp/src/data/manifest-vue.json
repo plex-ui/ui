@@ -3598,6 +3598,12 @@
               "description": "Maximum panel height, in pixels"
             },
             {
+              "name": "pill",
+              "type": "boolean",
+              "default": "false",
+              "description": "Rounder list with fully rounded rows, for menus beside pill controls. MenuSubContent takes it too"
+            },
+            {
               "name": "side",
               "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
               "default": "\"bottom\"",
@@ -6692,5 +6698,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-10-26T19:44:21.103Z"
+  "generatedAt": "2026-10-31T12:42:54.325Z"
 }

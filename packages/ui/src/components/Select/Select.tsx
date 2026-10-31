@@ -764,6 +764,7 @@ const CustomSelect = () => {
     listMinWidth,
     listMaxWidth,
     trigger,
+    pill,
   } = useSelectContext()
   const [open, setOpen] = useState<boolean>(false)
   const selectContentRef = useRef<HTMLDivElement>(null)
@@ -830,6 +831,7 @@ const CustomSelect = () => {
               ref={selectContentRef}
               forceMount
               className={s.MenuList}
+              data-pill={pill ? "" : undefined}
               side={side}
               sideOffset={5}
               align={align}
