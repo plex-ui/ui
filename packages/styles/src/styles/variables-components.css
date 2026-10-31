@@ -296,6 +296,10 @@
     --menu-item-padding: spacing(1.5) spacing(2);
     --menu-item-gap: spacing(1.5);
     --menu-separator-gutter: var(--menu-gutter) calc(-1 * var(--menu-gutter));
+    /* Round corners need rows and text further in than a square list. */
+    --menu-pill-gutter: spacing(2);
+    --menu-pill-item-padding: spacing(1.5) spacing(3);
+    --menu-pill-separator-gutter: spacing(2) calc(-1 * spacing(2));
     --menu-separator-background-color: var(--color-border);
     --menu-radio-indicator-size: var(--font-text-lg-size);
     --menu-radio-indicator-hole-size: var(--font-text-3xs-size);

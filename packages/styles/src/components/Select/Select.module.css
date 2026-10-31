@@ -7,6 +7,9 @@
 
 .MenuList[data-pill] {
   --menu-radius: var(--menu-radius-pill, 22px);
+  --menu-gutter: var(--menu-pill-gutter);
+  --menu-item-padding: var(--menu-pill-item-padding);
+  --menu-separator-gutter: var(--menu-pill-separator-gutter);
 }
 
 .MenuList {

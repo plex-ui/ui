@@ -35,6 +35,9 @@
     --menu-item-padding: 10px 14px 10px 12px;
     --menu-item-gap: 6px;
     --menu-separator-gutter: 10px 14px;
+    --menu-pill-gutter: 10px;
+    --menu-pill-item-padding: 10px 14px 10px 12px;
+    --menu-pill-separator-gutter: 10px 14px;
     --menu-checkbox-indicator-size: 24px;
     --menu-label-padding: 4px 14px 10px;
     --menu-label-padding-bottom: 10px;
