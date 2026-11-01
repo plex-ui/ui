@@ -89,4 +89,5 @@ Vue's template compiler always resolves <code>&lt;TransitionGroup&gt;</code> to 
   { prop: "enterDuration", type: "number", description: "Duration in ms for enter transition" },
   { prop: "exitDuration", type: "number", description: "Duration in ms for exit transition" },
   { prop: "preventInitialTransition", type: "boolean", default: "true", description: "When false, children run enter when the group first mounts" },
+  { prop: "overlay", type: "boolean", default: "false", description: "For overlays: an exiting child is inert, out of the tab order and of hit testing, and with reduced motion it leaves without waiting for exitDuration" },
 ]} />

@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onMounted, reactive, watch } from "vue"
-import { waitForAnimationFrame } from "../../lib/helpers.js"
+import { prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers.js"
 import type { CallbackType, TransitionElement, TransitionGroupChildCallbacks } from "./shared.js"
 import { getInitialTransitionState, transitionReducer, type TransitionStateAction } from "./transitionReducer.js"
 
@@ -8,6 +8,7 @@ export type TransitionChildProps = {
   preventMountTransition?: boolean
   enterDuration: number
   exitDuration: number
+  overlay?: boolean
   removeChild: () => void
   callbacks?: TransitionGroupChildCallbacks
 }
@@ -58,10 +59,13 @@ export function useTransitionChild(props: TransitionChildProps, getElement: () =
       const cancelFrame = waitForAnimationFrame(() => {
         dispatch({ type: "exit-active" })
         trigger("exit-active")
-        exitTimeout = window.setTimeout(() => {
-          trigger("exit-complete")
-          props.removeChild()
-        }, props.exitDuration)
+        exitTimeout = window.setTimeout(
+          () => {
+            trigger("exit-complete")
+            props.removeChild()
+          },
+          props.overlay && prefersReducedMotion() ? 0 : props.exitDuration,
+        )
       })
       cancel = () => {
         cancelFrame()

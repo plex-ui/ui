@@ -722,6 +722,11 @@ describe("Menu behaviour parity", () => {
       await pointerDown(trigger())
       snap()
       await pointerDown(trigger())
+      // With animations focus and unmounting wait for the exit
+      if (!disabled) {
+        await settle(200)
+        await settle()
+      }
       snap()
     })
     expectSame(result)

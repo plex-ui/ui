@@ -23,6 +23,7 @@ import { Input } from "../Input"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { Tooltip } from "../Tooltip"
 import { TransitionGroup } from "../Transition"
+import { overlayTiming } from "../Transition/shared"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
 export type Option<T extends string = string> = {
@@ -819,12 +820,7 @@ const CustomSelect = () => {
         {trigger ? trigger({ open, onToggle: () => setOpen((current) => !current) }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
-        <TransitionGroup
-          className={s.Menu}
-          enterDuration={350}
-          exitDuration={200}
-          disableAnimations
-        >
+        <TransitionGroup className={s.Menu} {...overlayTiming} overlay>
           {open && (
             <Popover.Content
               key="dropdown"

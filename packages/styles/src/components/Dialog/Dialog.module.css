@@ -15,7 +15,7 @@
   .Transition[data-entering-active] &,
   .Transition[data-entering][data-interrupted] & {
     opacity: 1;
-    transition: opacity 0.2s var(--cubic-enter);
+    transition: opacity var(--motion-enter) var(--cubic-enter);
   }
 
   .Transition[data-exiting] & {
@@ -25,7 +25,7 @@
   .Transition[data-exiting-active] &,
   .Transition[data-exiting][data-interrupted] & {
     opacity: 0;
-    transition: opacity 0.15s var(--cubic-exit);
+    transition: opacity var(--motion-exit) var(--cubic-exit-snappy);
   }
 }
 
@@ -41,6 +41,9 @@
   --dialog-panel-radius: var(--dialog-panel-corner);
   --dialog-panel-padding-bottom: 1.25rem;
   --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
+  --dialog-enter-duration: var(--motion-enter);
+  --dialog-exit-duration: var(--motion-exit);
+  --dialog-exit-easing: var(--cubic-exit-snappy);
 
   position: fixed;
   inset: 0;
@@ -93,7 +96,9 @@
   .Transition[data-entering][data-interrupted] & {
     opacity: 1;
     transform: scale(1) translateY(0);
-    transition: opacity 0.25s var(--cubic-enter), transform 0.25s var(--cubic-enter);
+    transition:
+      opacity var(--dialog-enter-duration) var(--cubic-enter),
+      transform var(--dialog-enter-duration) var(--cubic-enter);
   }
 
   .Transition[data-exiting] & {
@@ -105,7 +110,9 @@
   .Transition[data-exiting][data-interrupted] & {
     opacity: 0;
     transform: var(--dialog-panel-hidden-transform);
-    transition: opacity 0.15s var(--cubic-exit), transform 0.15s var(--cubic-exit);
+    transition:
+      opacity var(--dialog-exit-duration) var(--dialog-exit-easing),
+      transform var(--dialog-exit-duration) var(--dialog-exit-easing);
   }
 }
 
@@ -126,6 +133,9 @@
   --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
   --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   --dialog-panel-hidden-transform: translateY(100%);
+  --dialog-enter-duration: var(--motion-enter-large);
+  --dialog-exit-duration: var(--motion-exit-large);
+  --dialog-exit-easing: var(--cubic-exit);
 }
 
 .Content:where([data-placement="start"], [data-placement="end"]) {
@@ -135,6 +145,9 @@
   --dialog-panel-max-height: none;
   --dialog-panel-radius: 0;
   --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  --dialog-enter-duration: var(--motion-enter-large);
+  --dialog-exit-duration: var(--motion-exit-large);
+  --dialog-exit-easing: var(--cubic-exit);
 }
 
 .Content:where([data-placement="start"]) {
@@ -177,6 +190,9 @@
     --dialog-panel-radius: var(--dialog-panel-corner);
     --dialog-panel-padding-bottom: 1.25rem;
     --dialog-panel-hidden-transform: scale(0.95) translateY(8px);
+    --dialog-enter-duration: var(--motion-enter);
+    --dialog-exit-duration: var(--motion-exit);
+    --dialog-exit-easing: var(--cubic-exit-snappy);
   }
 
   .Content:where([data-mobile-placement="bottom"]) {
@@ -189,6 +205,9 @@
     --dialog-panel-radius: var(--dialog-panel-corner) var(--dialog-panel-corner) 0 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     --dialog-panel-hidden-transform: translateY(100%);
+    --dialog-enter-duration: var(--motion-enter-large);
+    --dialog-exit-duration: var(--motion-exit-large);
+    --dialog-exit-easing: var(--cubic-exit);
   }
 
   .Content:where([data-mobile-placement="fullscreen"]) {
@@ -201,6 +220,9 @@
     --dialog-panel-radius: 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     --dialog-panel-hidden-transform: translateY(8px);
+    --dialog-enter-duration: var(--motion-enter);
+    --dialog-exit-duration: var(--motion-exit);
+    --dialog-exit-easing: var(--cubic-exit-snappy);
   }
 }
 

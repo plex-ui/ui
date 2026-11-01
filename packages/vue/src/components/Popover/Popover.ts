@@ -24,8 +24,9 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { focusableElements, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
+import { focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { overlayTiming } from "../Transition/shared.js"
 import { withRadixVariableNames } from "../Tooltip/Tooltip.js"
 import { composeEventHandlers, firstElementChild, mergeSlotProps } from "../Tooltip/slot.js"
 import { useDeferredPointerDownOutside } from "./deferredPointerDownOutside.js"
@@ -310,7 +311,7 @@ const PopoverContentElement = markRaw(defineComponent({
     }
 
     return () => {
-      const { "dir": _dir, "aria-labelledby": _labelledBy, style, ...rest } = attrs
+      const { "dir": _dir, "aria-labelledby": _labelledBy, "forceMount": _forceMount, style, ...rest } = attrs
       return h(
         "div",
         { ...rest, style: withRadixVariableNames(style, "popover"), ref: setContentRef },
@@ -338,6 +339,7 @@ const PopoverContentImpl = defineComponent({
     })
     const handleCloseAutoFocus = (event: Event) => {
       if (showOnHover.value || pressedOutside) event.preventDefault()
+      else keepMovedFocus(event)
     }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
@@ -395,6 +397,7 @@ const PopoverContentImpl = defineComponent({
       h(
         RekaPopoverContent,
         {
+          "forceMount": true,
           "as": PopoverContentElement,
           "class": [s.Popover, attrs.class],
           "style": toCssVariables({
@@ -429,7 +432,7 @@ const PopoverContentHoverable = defineComponent({
   inheritAttrs: false,
   props: contentProps,
   setup(props, { slots, attrs }) {
-    const { setOpen, triggerRef, contentRef, isPointerInTransitRef, hoverOpenFocusedWithTab } = usePopoverContext()
+    const { open, setOpen, triggerRef, contentRef, isPointerInTransitRef, hoverOpenFocusedWithTab } = usePopoverContext()
     const pointerGraceArea = shallowRef<Polygon | null>(null)
 
     const handleRemoveGraceArea = () => {
@@ -496,7 +499,8 @@ const PopoverContentHoverable = defineComponent({
     // If it is open and Tab is pressed, focus the first focusable element and
     // remember to restore focus to the trigger on close.
     const handleKeyDown = (evt: KeyboardEvent) => {
-      if (!contentRef.value) {
+      // Closed and still leaving: Tab belongs to the page again
+      if (!open.value || !contentRef.value) {
         return
       }
 
@@ -538,7 +542,7 @@ export const PopoverContent = defineComponent({
         default: () => [
           h(
             TransitionGroup,
-            { class: s.Transition, enterDuration: 600, exitDuration: 300, disableAnimations: true },
+            { class: s.Transition, ...overlayTiming, overlay: true },
             {
               default: () => [
                 open.value

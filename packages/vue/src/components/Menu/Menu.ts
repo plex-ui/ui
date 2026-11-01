@@ -5,6 +5,7 @@ import {
   defineComponent,
   h,
   inject,
+  markRaw,
   onBeforeUnmount,
   onMounted,
   provide,
@@ -28,13 +29,14 @@ import {
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { firstElementChild } from "../Tooltip/slot.js"
-import { preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { Check, ChevronRight } from "../Icon/index.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { createExitGuard, overlayTiming } from "../Transition/shared.js"
 import {
   MenuLevelKey,
   MenuRootInternalsKey,
@@ -319,6 +321,22 @@ type SizeValue = number | "auto"
 
 const sizeProp = [Number, String] as PropType<SizeValue>
 
+// The element Reka's content renders (`as`), without the `forceMount` Reka
+// forwards down to it. Raw: Reka passes `as` through reactive props, and Vue
+// warns about a component made reactive.
+const MenuContentElement = markRaw(
+  defineComponent({
+    name: "MenuContentElement",
+    inheritAttrs: false,
+    setup(_props, { slots, attrs }) {
+      return () => {
+        const { forceMount: _forceMount, ...rest } = attrs
+        return h("div", rest, slots.default?.())
+      }
+    },
+  }),
+)
+
 /** Content of the root menu, mounted while it is open (Radix's DropdownMenuContent). */
 const MenuRootContentImpl = defineComponent({
   name: "MenuRootContentImpl",
@@ -334,6 +352,7 @@ const MenuRootContentImpl = defineComponent({
     size: String as PropType<"sm" | "md" | "lg">,
     pill: Boolean,
     onCloseAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
+    exitGuard: { type: Object as PropType<ReturnType<typeof createExitGuard>>, required: true },
   },
   setup(props, { slots }) {
     const rootContext = injectDropdownMenuRootContext()
@@ -361,6 +380,7 @@ const MenuRootContentImpl = defineComponent({
         const event = new CustomEvent(AUTOFOCUS_ON_UNMOUNT, { bubbles: false, cancelable: true })
         const handleCloseAutoFocus = (closeEvent: Event) => {
           props.onCloseAutoFocus(closeEvent)
+          keepMovedFocus(closeEvent)
           if (closeEvent.defaultPrevented) return
           if (!hasInteractedOutside) internals.trigger.value?.focus()
           hasInteractedOutside = false
@@ -374,6 +394,7 @@ const MenuRootContentImpl = defineComponent({
       }, 0)
     }
     const onInteractOutside = (event: InteractOutsideEvent) => {
+      props.exitGuard.onInteractOutside(event)
       if (event.defaultPrevented) return
       const originalEvent = event.detail.originalEvent as PointerEvent
       const ctrlLeftClick = originalEvent.button === 0 && originalEvent.ctrlKey === true
@@ -392,6 +413,8 @@ const MenuRootContentImpl = defineComponent({
       return h(
         RekaDropdownMenuContent,
         {
+          "forceMount": true,
+          "as": MenuContentElement,
           "side": props.side,
           "sideOffset": props.sideOffset,
           "align": props.align,
@@ -483,6 +506,7 @@ export const MenuContent = defineComponent({
   setup(props, { slots, emit }) {
     const { open } = useMenuContext()
     const onCloseAutoFocus = (event: Event) => emit("closeAutoFocus", event)
+    const exitGuard = createExitGuard()
 
     return () =>
       h(
@@ -492,13 +516,13 @@ export const MenuContent = defineComponent({
           default: () => [
             h(
               TransitionGroup,
-              { class: s.Menu, enterDuration: 350, exitDuration: 200, disableAnimations: true },
+              { class: s.Menu, ...overlayTiming, ...exitGuard.transition, overlay: true },
               {
                 default: () => [
                   open.value
                     ? h(
                         MenuRootContentImpl,
-                        { key: "dropdown", ...props, onCloseAutoFocus },
+                        { key: "dropdown", ...props, onCloseAutoFocus, exitGuard },
                         { default: () => slots.default?.() },
                       )
                     : createCommentVNode(),
@@ -1049,6 +1073,8 @@ const MenuSubContentImpl = defineComponent({
       h(
         RekaDropdownMenuContent,
         {
+          "forceMount": true,
+          "as": MenuContentElement,
           "side": internals.dir.value === "rtl" ? "left" : "right",
           "align": "start",
           "sideOffset": props.sideOffset,
@@ -1129,7 +1155,7 @@ export const MenuSubContent = defineComponent({
           default: () => [
             h(
               TransitionGroup,
-              { class: s.Menu, enterDuration: 350, exitDuration: 200, disableAnimations: true },
+              { class: s.Menu, ...overlayTiming, overlay: true },
               {
                 default: () => [
                   open.value

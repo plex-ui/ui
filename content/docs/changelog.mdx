@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Dialog`, `Menu`, `Select` and `Popover` now animate in and out. They enter in 250 ms and leave in 150 ms on `--cubic-enter` and `--cubic-exit-snappy`; a sheet or side panel takes 300 and 200 ms and leaves on `--cubic-exit`, down on a phone. Only `transform` and `opacity` move. An overlay can be reversed while it leaves, and `prefers-reduced-motion` turns all of it off. New tokens: `--motion-enter`, `--motion-enter-large`, `--motion-exit`, `--motion-exit-large`. If you added your own keyframes to these overlays, remove them, or the entrance runs twice.
+- Focus returns to the trigger after the exit, and only if it was not moved somewhere else in the meantime. `Select` still gives focus back as it closes, so a key pressed right away reaches the field.
+- A closing overlay is `inert`: out of the tab order and of hit testing, so the page takes clicks during the exit. `TransitionGroup` has a new `overlay` prop for this.
+- The Vue `Dialog`, `Menu` and `Popover` keep their slots live during the exit. State you clear together with the close can blank that part of the panel for the length of the exit; it no longer throws.
+
+---
+
 ## 0.20.8 (2026-11-01)
 
 ### Changed

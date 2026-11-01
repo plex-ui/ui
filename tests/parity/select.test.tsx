@@ -820,10 +820,10 @@ describe("Select pointer behaviour parity", () => {
       await advance(50)
       snapshot() // the first is open
       await fire(SECOND, "pointerDown", { button: 0, ...mouse })
-      await advance(50)
+      await advance(200) // past the first one's exit
       snapshot() // the second is open, the first closed
       await open()
-      await advance(50)
+      await advance(200)
       snapshot() // the first again
     })
     expect(result.vue).toEqual(result.react)

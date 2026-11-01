@@ -559,6 +559,8 @@ Families: --font-sans (system stack), --font-mono
 ```
 --cubic-enter, --cubic-exit, --cubic-exit-snappy, --cubic-move
 --transition-duration-basic: 150ms
+--motion-enter: 250ms, --motion-enter-large: 300ms
+--motion-exit: 150ms, --motion-exit-large: 200ms
 ```
 
 ### Breakpoints

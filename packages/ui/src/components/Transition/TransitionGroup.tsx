@@ -12,7 +12,7 @@ import React, {
 } from "react"
 import { mergeRefs } from "react-merge-refs"
 
-import { waitForAnimationFrame } from "../../lib/helpers"
+import { prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers"
 
 import clsx from "clsx"
 import { useTimeout } from "usehooks-ts"
@@ -41,6 +41,7 @@ type TransitionGroupChildProps = {
   enterDuration: number
   exitDuration: number
   enterMountDelay?: number
+  overlay?: boolean
   removeChild: () => void
   ref?: React.Ref<unknown>
 } & TransitionGroupChildCallbacks
@@ -56,6 +57,7 @@ const TransitionGroupChildInner = ({
   shouldRender,
   enterDuration,
   exitDuration,
+  overlay,
   removeChild,
   onEnter,
   onEnterActive,
@@ -128,10 +130,13 @@ const TransitionGroupChildInner = ({
         dispatch({ type: "exit-active" })
         triggerCallback("exit-active")
 
-        exitTimeout = window.setTimeout(() => {
-          triggerCallback("exit-complete")
-          removeChild()
-        }, exitDurationRef.current)
+        exitTimeout = window.setTimeout(
+          () => {
+            triggerCallback("exit-complete")
+            removeChild()
+          },
+          overlay && prefersReducedMotion() ? 0 : exitDurationRef.current,
+        )
       })
 
       return () => {
@@ -172,6 +177,7 @@ const TransitionGroupChildInner = ({
     shouldRender,
     // This value is immutable after <TransitionGroup> is created, and does not change on re-renders.
     preventMountTransition,
+    overlay,
     removeChild,
     triggerCallback,
   ])
@@ -195,6 +201,7 @@ const TransitionGroupChildInner = ({
       data-exiting={state.exit ? "" : undefined}
       data-exiting-active={state.exitActive ? "" : undefined}
       data-interrupted={state.interrupted ? "" : undefined}
+      inert={overlay && state.exit ? true : undefined}
     >
       {children}
     </TagName>
@@ -235,6 +242,11 @@ export type TransitionGroupProps = {
   enterMountDelay?: number
   /** Render children changes immediately, bypassing transition timings */
   disableAnimations?: boolean
+  /**
+   * For overlays: an exiting child is `inert`, out of the tab order and of hit
+   * testing, and with reduced motion it leaves without waiting for `exitDuration`.
+   */
+  overlay?: boolean
   /** Determines how new children are added to the children array */
   insertMethod?: "append" | "prepend"
   /** Styles applied to wrapping elements */
@@ -264,6 +276,7 @@ export const TransitionGroup = (props: TransitionGroupProps) => {
     enterMountDelay,
     insertMethod = "append",
     disableAnimations = getDisableAnimations(),
+    overlay,
   } = props
   // Create stable, mutable references for all callbacks
   const onEnter = useChildCallback(props.onEnter ?? noop)
@@ -355,6 +368,7 @@ export const TransitionGroup = (props: TransitionGroupProps) => {
           enterDuration={enterDuration}
           exitDuration={exitDuration}
           enterMountDelay={enterMountDelay}
+          overlay={overlay}
           style={style}
           ref={forwardedRef}
         >

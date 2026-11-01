@@ -473,6 +473,13 @@
     --cubic-move: cubic-bezier(0.65, 0, 0.35, 1);
     --transition-duration-basic: 150ms;
     --transition-ease-basic: ease;
+    /* Overlays: enter slower than they leave. `large` is a panel that crosses
+       the screen (sheet, side panel). The timers that unmount an overlay match
+       these: overlayTiming in components/Transition/shared. */
+    --motion-enter: 250ms;
+    --motion-enter-large: 300ms;
+    --motion-exit: 150ms;
+    --motion-exit-large: 200ms;
 
     /* =============================================
       Scrollbar
@@ -518,5 +525,15 @@
     --color-surface-tertiary: light-dark(var(--gray-75), var(--gray-50));
     --color-surface-elevated: light-dark(var(--gray-0), var(--gray-300));
     --color-surface-elevated-secondary: light-dark(var(--gray-50), var(--gray-400));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root,
+    :where([data-theme]) {
+      --motion-enter: 0ms;
+      --motion-enter-large: 0ms;
+      --motion-exit: 0ms;
+      --motion-exit-large: 0ms;
+    }
   }
 }

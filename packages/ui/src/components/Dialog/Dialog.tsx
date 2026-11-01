@@ -11,8 +11,9 @@ import {
   type ReactNode,
 } from "react"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
-import { preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
+import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 type DialogContextValue = {
@@ -117,6 +118,9 @@ const Content = ({
   onCloseAutoFocus,
 }: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
+  const [exitGuard] = useState(createExitGuard)
+  const crossesScreen =
+    placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement === "bottom"
 
   useEscCloseStack(open, () => {
     setOpen(false)
@@ -125,10 +129,10 @@ const Content = ({
   return (
     <RadixDialog.Portal forceMount>
       <TransitionGroup
-        enterDuration={250}
-        exitDuration={150}
+        {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
+        {...exitGuard.transition}
         className={s.Transition}
-        disableAnimations
+        overlay
       >
         {open && (
           <div key="dialog">
@@ -141,8 +145,12 @@ const Content = ({
               data-mobile-placement={mobilePlacement}
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
+              onInteractOutside={exitGuard.onInteractOutside}
               onOpenAutoFocus={onOpenAutoFocus}
-              onCloseAutoFocus={onCloseAutoFocus}
+              onCloseAutoFocus={(event) => {
+                onCloseAutoFocus?.(event)
+                keepMovedFocus(event)
+              }}
             >
               <div className={clsx(s.Panel, className)}>
                 {showClose && (

@@ -1,5 +1,16 @@
 import clsx from "clsx"
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType, type StyleValue, type VNode } from "vue"
+import {
+  defineComponent,
+  h,
+  onBeforeUnmount,
+  onErrorCaptured,
+  onMounted,
+  ref,
+  watch,
+  type PropType,
+  type StyleValue,
+  type VNode,
+} from "vue"
 import getDisableAnimations from "./getDisableAnimations.js"
 import { flattenChildren, isPlaceholder, useChildList } from "./childList.js"
 import type { InsertMethod, TransitionGroupChildCallback, TransitionGroupChildCallbacks } from "./shared.js"
@@ -24,12 +35,17 @@ const TransitionGroupChildInner = defineComponent({
     shouldRender: { type: Boolean, required: true },
     enterDuration: { type: Number, required: true },
     exitDuration: { type: Number, required: true },
+    overlay: Boolean,
     removeChild: { type: Function as PropType<() => void>, required: true },
     callbacks: Object as PropType<TransitionGroupChildCallbacks>,
   },
   setup(props, { slots }) {
     const element = ref<HTMLElement | null>(null)
     const state = useTransitionChild(props, () => element.value)
+
+    // An exiting child stays mounted with live slots, where React renders its
+    // last element: state cleared along with the close must not throw here
+    onErrorCaptured(() => (props.shouldRender ? undefined : false))
 
     return () =>
       h(
@@ -44,6 +60,7 @@ const TransitionGroupChildInner = defineComponent({
           "data-exiting": state.exit ? "" : undefined,
           "data-exiting-active": state.exitActive ? "" : undefined,
           "data-interrupted": state.interrupted ? "" : undefined,
+          "inert": props.overlay && state.exit ? "" : undefined,
         },
         slots.default?.(),
       )
@@ -133,6 +150,11 @@ export const TransitionGroup = defineComponent({
     enterMountDelay: Number,
     /** Render children changes immediately, bypassing transition timings */
     disableAnimations: { type: Boolean, default: () => getDisableAnimations() },
+    /**
+     * For overlays: an exiting child is `inert`, out of the tab order and of hit
+     * testing, and with reduced motion it leaves without waiting for `exitDuration`.
+     */
+    overlay: Boolean,
     /** Determines how new children are added to the children array */
     insertMethod: { type: String as PropType<InsertMethod>, default: "append" },
     /** Called when an enter animation is staged (e.g., component mounted to the DOM) */
@@ -194,6 +216,7 @@ export const TransitionGroup = defineComponent({
             shouldRender: child.shouldRender,
             enterDuration: props.enterDuration,
             exitDuration: props.exitDuration,
+            overlay: props.overlay,
             removeChild: () => children.remove(child.key),
             callbacks,
           },

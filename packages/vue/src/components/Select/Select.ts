@@ -45,7 +45,9 @@ import { SelectControl, type DropdownIconType } from "../SelectControl/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { withRadixVariableNames } from "../Tooltip/Tooltip.js"
 import { composeEventHandlers, firstElementChild, mergeSlotProps } from "../Tooltip/slot.js"
+import getDisableAnimations from "../Transition/getDisableAnimations.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { overlayTiming } from "../Transition/shared.js"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
 // Vue port of packages/ui/src/components/Select/Select.tsx on Reka UI.
@@ -768,15 +770,16 @@ const CustomSelect = defineComponent({
         {
           default: () => [
             h(SelectPopoverTrigger, null, { default: renderTrigger }),
-            // React replaces the menu's wrapper when it opens or closes (see
-            // TransitionGroup), so React DOM appends the new one to <body>.
-            // A Teleport keeps its place in <body>: a new one per state moves
-            // the wrapper to the end the same way.
-            h(RekaPopoverPortal, { key: open.value ? "open" : "closed", forceMount: mounted.value }, {
+            // Without animations React replaces the menu's wrapper when it
+            // opens or closes (see TransitionGroup), so React DOM appends the
+            // new one to <body>. A Teleport keeps its place in <body>: a new
+            // one per state moves the wrapper to the end the same way. With
+            // animations the group has to stay, to run the exit.
+            h(RekaPopoverPortal, { key: !getDisableAnimations() || open.value ? "open" : "closed", forceMount: mounted.value }, {
               default: () => [
                 h(
                   TransitionGroup,
-                  { class: s.Menu, enterDuration: 350, exitDuration: 200, disableAnimations: true },
+                  { class: s.Menu, ...overlayTiming, overlay: true },
                   { default: () => [open.value ? h(SelectPopoverContent, { key: "dropdown" }) : createCommentVNode()] },
                 ),
               ],
@@ -801,7 +804,7 @@ const SelectContentElement = markRaw(
       }
 
       return () => {
-        const { "dir": _dir, "aria-labelledby": _labelledBy, style, ...rest } = attrs
+        const { "dir": _dir, "aria-labelledby": _labelledBy, "forceMount": _forceMount, style, ...rest } = attrs
         return h("div", { ...rest, style: withRadixVariableNames(style, "popover"), ref: setContentRef }, slots.default?.())
       }
     },
@@ -824,6 +827,7 @@ const SelectPopoverContent = defineComponent({
       h(
         RekaPopoverContent,
         {
+          forceMount: true,
           as: SelectContentElement,
           class: s.MenuList,
           "data-pill": props.pill ? "" : undefined,

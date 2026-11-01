@@ -16,8 +16,9 @@ import {
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { focusableElements, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
+import { overlayTiming } from "../Transition/shared"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent"
 import s from "@plexui/styles/components/Popover/Popover.module.css"
 import { PopoverContext, usePopoverContext, type PopoverContextValue } from "./usePopoverContext"
@@ -363,7 +364,7 @@ const ContentImpl = ({
         "popover-min-width": minWidth,
         "popover-max-width": maxWidth,
       })}
-      onCloseAutoFocus={showOnHover ? preventDefaultHandler : undefined}
+      onCloseAutoFocus={showOnHover ? preventDefaultHandler : keepMovedFocus}
       // data-surface={surface}
       data-animate={shake ? "shake" : undefined}
       data-translucent={translucent ? "true" : undefined}
@@ -386,7 +387,7 @@ const ContentImpl = ({
 }
 
 const ContentHoverable = (props: PopoverContentProps) => {
-  const { setOpen, triggerRef, contentRef, isPointerInTransitRef, hoverOpenFocusedWithTab } =
+  const { open, setOpen, triggerRef, contentRef, isPointerInTransitRef, hoverOpenFocusedWithTab } =
     usePopoverContext()
   const [pointerGraceArea, setPointerGraceArea] = useState<Polygon | null>(null)
 
@@ -458,6 +459,11 @@ const ContentHoverable = (props: PopoverContentProps) => {
   // Then set a flag (probably in context) that tells us to restore focus to the trigger on close (e.g., not execute the onCloseAutoFocus handler)
 
   useEffect(() => {
+    // Closed and still leaving: Tab belongs to the page again
+    if (!open) {
+      return
+    }
+
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (!contentRef.current) {
         return
@@ -478,7 +484,7 @@ const ContentHoverable = (props: PopoverContentProps) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [contentRef, hoverOpenFocusedWithTab])
+  }, [open, contentRef, hoverOpenFocusedWithTab])
 
   return <ContentImpl {...props} />
 }
@@ -492,12 +498,7 @@ const Content = (props: PopoverContentProps) => {
 
   return (
     <RadixPopover.Portal forceMount>
-      <TransitionGroup
-        enterDuration={600}
-        exitDuration={300}
-        className={s.Transition}
-        disableAnimations
-      >
+      <TransitionGroup {...overlayTiming} className={s.Transition} overlay>
         {open &&
           (showOnHover ? (
             <ContentHoverable key="popover-hover" {...props} />

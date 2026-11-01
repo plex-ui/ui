@@ -82,6 +82,37 @@ export const ChildrenWithKeys = (
 
 export const noop = () => {}
 
+// Overlay timers, in step with the `--motion-*` tokens
+export const overlayTiming = { enterDuration: 250, exitDuration: 150 }
+/** A panel that crosses the screen: a sheet or a side panel */
+export const overlayTimingLarge = { enterDuration: 300, exitDuration: 200 }
+
+/**
+ * An overlay stays a dismissable layer through its exit. A press on its trigger
+ * turns it around, and the layer must not count that press as outside and
+ * close it again: pass `transition` to the TransitionGroup and
+ * `onInteractOutside` to the layer.
+ */
+export const createExitGuard = () => {
+  let exiting = false
+  return {
+    transition: {
+      onExit: () => {
+        exiting = true
+      },
+      onEnterActive: () => {
+        exiting = false
+      },
+      onExitComplete: () => {
+        exiting = false
+      },
+    },
+    onInteractOutside: (event: Event) => {
+      if (exiting) event.preventDefault()
+    },
+  }
+}
+
 export const useChildCallback = (cb: (el: HTMLDivElement) => void) => {
   const ref = useRef(cb)
   ref.current = cb

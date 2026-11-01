@@ -17,11 +17,12 @@ import React, {
 import clsx from "clsx"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { Button } from "../Button"
 import { Check, ChevronRight } from "../Icon"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
+import { createExitGuard, overlayTiming } from "../Transition/shared"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
 type MenuContextValue = {
@@ -370,11 +371,12 @@ const Content = ({
   onCloseAutoFocus,
 }: MenuContentProps) => {
   const { open } = useMenuContext()
+  const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
 
   return (
     <DropdownMenu.Portal forceMount>
-      <TransitionGroup className={s.Menu} enterDuration={350} exitDuration={200} disableAnimations>
+      <TransitionGroup className={s.Menu} {...overlayTiming} {...exitGuard.transition} overlay>
         {open && (
           <DropdownMenu.Content
             key="dropdown"
@@ -388,7 +390,11 @@ const Content = ({
             avoidCollisions
             collisionPadding={{ bottom: 30, top: 30, left: 12, right: 12 }}
             onEscapeKeyDown={preventDefaultHandler}
-            onCloseAutoFocus={onCloseAutoFocus}
+            onInteractOutside={exitGuard.onInteractOutside}
+            onCloseAutoFocus={(event) => {
+              onCloseAutoFocus?.(event)
+              keepMovedFocus(event)
+            }}
             data-layout={isHorizontal ? "horizontal" : undefined}
             data-size={isHorizontal && size ? size : undefined}
             style={toCssVariables({
@@ -552,7 +558,7 @@ const SubContent = ({
 
   return (
     <DropdownMenu.Portal forceMount>
-      <TransitionGroup className={s.Menu} enterDuration={350} exitDuration={200} disableAnimations>
+      <TransitionGroup className={s.Menu} {...overlayTiming} overlay>
         {open && (
           <DropdownMenu.SubContent
             key="submenu"

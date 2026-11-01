@@ -2489,4 +2489,10 @@ export const MOTION = [
   // Transitions
   { type: "value", name: "transition-duration-basic", value: "150ms" },
   { type: "value", name: "transition-ease-basic", value: "ease" },
+
+  // Overlays
+  { type: "value", name: "motion-enter", value: "250ms" },
+  { type: "value", name: "motion-enter-large", value: "300ms" },
+  { type: "value", name: "motion-exit", value: "150ms" },
+  { type: "value", name: "motion-exit-large", value: "200ms" },
 ]

@@ -146,6 +146,16 @@ export const preventDefaultHandler = (evt: Event) => {
   evt.preventDefault()
 }
 
+/**
+ * For an overlay's close auto focus: focus that moved on to something else
+ * while the overlay left stays there instead of going back to the trigger.
+ */
+export const keepMovedFocus = (evt: Event) => {
+  const active = document.activeElement
+  const movedOut = !!active && active !== document.body && !(evt.target as Node | null)?.contains(active)
+  if (movedOut) evt.preventDefault()
+}
+
 /*
  * Intentionally simple selector string. Purposeful exclusions: (for now)
  * - select, because our selects are better recognized as button

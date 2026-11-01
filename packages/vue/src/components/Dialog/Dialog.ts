@@ -29,10 +29,11 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { dismissableSurfaces, useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
 import { firstElementChild } from "../Tooltip/slot.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 // Vue port of packages/ui/src/components/Dialog/Dialog.tsx on Reka UI
@@ -182,9 +183,34 @@ export const DialogContent = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
+    const rootContext = injectDialogRootContext()
     // Radix's root makes the content id; Reka's trigger does, so a dialog
     // without one would render `id=""`
-    injectDialogRootContext().contentId ||= useId(undefined, "reka-dialog-content")
+    rootContext.contentId ||= useId(undefined, "reka-dialog-content")
+
+    // Force-mounted content refocuses Reka's trigger the moment it closes.
+    // Focus waits for the exit, as in Radix: the trigger is held back until
+    // the content unmounts, where Reka's own close auto focus uses it.
+    let closingTrigger: HTMLElement | undefined
+    watch(
+      open,
+      (isOpen) => {
+        if (isOpen) {
+          if (closingTrigger) rootContext.triggerElement.value = closingTrigger
+          closingTrigger = undefined
+        } else {
+          closingTrigger = rootContext.triggerElement.value
+          rootContext.triggerElement.value = undefined
+        }
+      },
+      { flush: "sync" },
+    )
+    const handleCloseAutoFocus = (event: Event) => {
+      props.onCloseAutoFocus?.(event)
+      keepMovedFocus(event)
+      if (closingTrigger) rootContext.triggerElement.value = closingTrigger
+      closingTrigger = undefined
+    }
 
     // Escape goes through the shared stack, as in React, so the dialog
     // closes before overlays opened earlier (a forced-open Tooltip)
@@ -212,7 +238,7 @@ export const DialogContent = defineComponent({
 
     const renderDialog = () =>
       h("div", { key: "dialog" }, [
-        h(RekaDialogOverlay, { class: s.Overlay, ref: setOverlayRef }),
+        h(RekaDialogOverlay, { class: s.Overlay, forceMount: true, ref: setOverlayRef }),
         h(
           RekaDialogContent,
           {
@@ -223,7 +249,7 @@ export const DialogContent = defineComponent({
             "data-mobile-placement": props.mobilePlacement,
             "data-pill": props.pill ? "" : undefined,
             "onOpenAutoFocus": props.onOpenAutoFocus,
-            "onCloseAutoFocus": props.onCloseAutoFocus,
+            "onCloseAutoFocus": handleCloseAutoFocus,
             // Radix labels and describes the content only by mounted parts
             ...(titleCount.value > 0 ? {} : { "aria-labelledby": undefined }),
             ...(descriptionCount.value > 0 ? {} : { "aria-describedby": undefined }),
@@ -250,17 +276,21 @@ export const DialogContent = defineComponent({
         ),
       ])
 
-    return () =>
-      h(RekaDialogPortal, null, {
+    return () => {
+      const { placement, mobilePlacement } = props
+      const crossesScreen =
+        placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement === "bottom"
+      return h(RekaDialogPortal, null, {
         default: () => [
           h(
             TransitionGroup,
-            { class: s.Transition, enterDuration: 250, exitDuration: 150, disableAnimations: true },
+            { class: s.Transition, ...(crossesScreen ? overlayTimingLarge : overlayTiming), overlay: true },
             // `open && <div>` in React: closed still renders the empty wrapper
             { default: () => [open.value ? renderDialog() : createCommentVNode()] },
           ),
         ],
       })
+    }
   },
 })
 

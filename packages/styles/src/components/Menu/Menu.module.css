@@ -42,7 +42,7 @@
   .Menu[data-entering][data-interrupted] & {
     opacity: 1;
     transform: scale(1);
-    transition-duration: 0.35s;
+    transition-duration: var(--motion-enter);
     transition-property: opacity, transform;
     transition-timing-function: var(--cubic-enter);
   }
@@ -56,9 +56,9 @@
   .Menu[data-exiting][data-interrupted] & {
     opacity: 0;
     transform: scale(0.95);
-    transition-duration: 0.2s;
+    transition-duration: var(--motion-exit);
     transition-property: opacity, transform;
-    transition-timing-function: var(--cubic-exit);
+    transition-timing-function: var(--cubic-exit-snappy);
   }
 }
 
