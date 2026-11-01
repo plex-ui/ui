@@ -236,7 +236,7 @@
     --color-background-danger-soft-alpha: var(--red-a50);
     --color-background-danger-soft-alpha-hover: var(--red-a75);
     --color-background-danger-soft-alpha-active: var(--red-a75);
-    --color-text-danger-soft: light-dark(var(--red-600), var(--red-400));
+    --color-text-danger-soft: light-dark(var(--red-600), var(--red-200));
     /* Surface */
     --color-background-danger-surface: light-dark(var(--red-a25), var(--red-a50));
     --color-border-danger-surface: light-dark(var(--red-a25), var(--red-a50));

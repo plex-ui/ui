@@ -15,6 +15,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Focus returns to the trigger after the exit, and only if it was not moved somewhere else in the meantime. `Select` still gives focus back as it closes, so a key pressed right away reaches the field.
 - A closing overlay is `inert`: out of the tab order and of hit testing, so the page takes clicks during the exit. `TransitionGroup` has a new `overlay` prop for this.
 - The Vue `Dialog`, `Menu` and `Popover` keep their slots live during the exit. State you clear together with the close can blank that part of the panel for the length of the exit; it no longer throws.
+- `--color-text-danger-soft` in the dark theme moves from red 400 to red 200, so soft danger text reads at 4.8:1 on its tint over an elevated panel, up from 3.18:1. Soft `Button`, `Badge`, `Avatar` and `StatCard` trends pick this up.
 
 ---
 
