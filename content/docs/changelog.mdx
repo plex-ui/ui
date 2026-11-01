@@ -35,6 +35,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Field` keeps an `id` its child already has and points the label at it, instead of replacing it silently.
 - A `Select` option or action under a touch acts on its click. It acted on pointerup, so the list closed first and the click landed on whatever lay behind it.
 - A `Dialog` mounted open runs its entrance, as with `v-if` and `open` set together.
+- A `Popover` or a Vue `Select` inside a `Dialog` no longer closes the moment it opens. Its focus reached the dialog's trap before the overlay's own focus scope had taken over, and came straight back.
 
 ---
 

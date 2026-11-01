@@ -425,6 +425,115 @@ describe("Dialog mounted open", () => {
   })
 })
 
+describe("Inside a Dialog", () => {
+  const OPTIONS = [
+    { value: "a", label: "Apple" },
+    { value: "b", label: "Pear" },
+  ]
+  const press = async (element: Element) => {
+    vi.setSystemTime(Date.now() + 1)
+    await act(async () => {
+      fireEvent.pointerDown(element, { button: 0, pointerType: "mouse" })
+    })
+    await flushVue()
+    await act(async () => {
+      vi.advanceTimersByTime(1)
+    })
+    await flushVue()
+  }
+
+  test.each<[string, () => ReactElement, () => VNode, string, string]>([
+    [
+      "Select",
+      () => (
+        <ReactDialog open>
+          <ReactDialog.Content>
+            <ReactDialog.Title>Title</ReactDialog.Title>
+            <button id="first">First</button>
+            <ReactSelect options={OPTIONS} value="a" onChange={() => {}} />
+          </ReactDialog.Content>
+        </ReactDialog>
+      ),
+      () =>
+        h(Dialog, { open: true }, {
+          default: () => [
+            h(DialogContent, null, {
+              default: () => [
+                h(DialogTitle, null, { default: () => "Title" }),
+                h("button", { id: "first" }, "First"),
+                h(Select, { options: OPTIONS, value: "a" }),
+              ],
+            }),
+          ],
+        }),
+      '[role="dialog"] [role="button"]',
+      '[role="listbox"]',
+    ],
+    [
+      "Popover",
+      () => (
+        <ReactDialog open>
+          <ReactDialog.Content>
+            <ReactDialog.Title>Title</ReactDialog.Title>
+            <button id="first">First</button>
+            <ReactPopover>
+              <ReactPopover.Trigger>
+                <button id="trigger">Open</button>
+              </ReactPopover.Trigger>
+              <ReactPopover.Content>
+                <div data-panel="">Inside</div>
+              </ReactPopover.Content>
+            </ReactPopover>
+          </ReactDialog.Content>
+        </ReactDialog>
+      ),
+      () =>
+        h(Dialog, { open: true }, {
+          default: () => [
+            h(DialogContent, null, {
+              default: () => [
+                h(DialogTitle, null, { default: () => "Title" }),
+                h("button", { id: "first" }, "First"),
+                h(Popover, null, {
+                  default: () => [
+                    h(PopoverTrigger, null, { default: () => [h("button", { id: "trigger" }, "Open")] }),
+                    h(PopoverContent, null, { default: () => [h("div", { "data-panel": "" }, "Inside")] }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+      "#trigger",
+      "[data-panel]",
+    ],
+  ])("%s pressed while focus is elsewhere in the dialog stays open and takes focus", async (name, reactApp, vueApp, trigger, content) => {
+    const open: boolean[] = []
+    const focused: boolean[] = []
+    await walk(reactApp, vueApp, async (tools) => {
+      await tools.advance(400)
+      await act(async () => {
+        document.querySelector<HTMLElement>("#first")!.focus()
+      })
+      await flushVue()
+      const opener = document.querySelector(trigger)!
+      if (name === "Select") await press(opener)
+      else
+        await act(async () => {
+          fireEvent.click(opener)
+        })
+      await flushVue()
+      await tools.advance(400)
+      const panel = document.querySelector(content)
+      open.push(!!panel && !panel.closest("[inert]"))
+      focused.push(!!panel?.closest('[id^="radix-"],[id^="reka-"]')?.contains(document.activeElement))
+    })
+    expect(open).toEqual([true, true])
+    // In Vue the focus goes in. React's Select keeps it in the dialog
+    expect(focused[1]).toBe(true)
+  })
+})
+
 describe("Select option under a touch", () => {
   const OPTIONS = [
     { value: "a", label: "Apple" },

@@ -4,6 +4,7 @@ import {
   defineComponent,
   h,
   markRaw,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   provide,
@@ -367,10 +368,14 @@ const PopoverContentImpl = defineComponent({
     // Important that we send initial focus into the popover, placing it onto the container.
     // This allows focus looping to begin, as well as capturing scoped key presses.
     // We prevent Reka's default behavior of focusing an element, because this can have adverse side-effects.
+    // A tick later, as with the Select's list: until Reka's focus scope here has
+    // registered, a Dialog around this content sends the focus straight back,
+    // and the content takes that for focus moving outside and closes.
     onMounted(() => {
       watch(
         [showOnHover, () => props.autoFocus],
-        () => {
+        async () => {
+          await nextTick()
           const contentElement = contentRef.value
 
           if (!contentElement || !props.autoFocus) {

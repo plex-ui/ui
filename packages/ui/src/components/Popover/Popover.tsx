@@ -353,7 +353,10 @@ const ContentImpl = ({
     // Our focus isn't in the content area - move it there.
     // NOTE: Don't automatically shift focus on hover popovers
     if (!showOnHover) {
-      contentElement.focus({ preventScroll: true })
+      // In a microtask: until Radix's focus scope here has registered, a Dialog
+      // around this content sends the focus straight back, and the content
+      // takes that for focus moving outside and closes.
+      queueMicrotask(() => contentElement.focus({ preventScroll: true }))
     }
   }, [contentRef, showOnHover, autoFocus])
 

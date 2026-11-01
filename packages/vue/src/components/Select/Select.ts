@@ -7,6 +7,7 @@ import {
   h,
   inject,
   markRaw,
+  nextTick,
   onBeforeUnmount,
   onBeforeUpdate,
   onMounted,
@@ -1127,7 +1128,10 @@ const CustomSelectMenu = defineComponent({
       // Send initial focus to the search input, or the list without one (the
       // menu container when there are no options), to capture key events
       const autoFocusTarget = searchInputRef.value || listRef.value || menuRef.value
-      if (autoFocusTarget) focusMounted(autoFocusTarget)
+      // A tick later: until Reka's focus scope here has registered, a Dialog
+      // around the menu sends the focus straight back, and the menu takes that
+      // for focus moving outside and closes. No key can come between.
+      if (autoFocusTarget) nextTick(() => focusMounted(autoFocusTarget))
     })
 
     // On search behavior (React's layout effect on `filteredOptions`, skipped on mount)
