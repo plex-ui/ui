@@ -12,6 +12,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Added
 
 - `DateRangePicker` takes `weekStartsOn`, from 0 (Sunday) to 6 (Saturday). The default stays Sunday. Day labels, blank cells, range trails and Home and End follow it.
+- `Select` takes `allSelectedLabel`, the text of a `multiple` trigger when every option is selected. The default stays `All selected`.
+- `SelectControl` takes `interactOnEnter`, off by default.
 - `--date-range-cell-size` sets the size of a `DateRangePicker` day, 30 px by default. `touch.css` makes it 44 px on phones.
 
 ### Changed
@@ -24,6 +26,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- `Select` opens on Enter, as a combobox button does. It already opened on Space and the arrow keys.
+- A `Field` label opens the `Select` it belongs to. Its `for` reached the hidden input and only moved focus to the trigger.
 - `Field` keeps an `id` its child already has and points the label at it, instead of replacing it silently.
 
 ---

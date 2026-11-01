@@ -946,10 +946,32 @@ describe("Select keyboard behaviour parity", () => {
     expect(result.react[7]).toContain('change {"value":"eggplant","label":"Eggplant"}')
   })
 
-  test("ArrowUp and Space open; Space selects; Enter on the trigger does nothing", async () => {
+  test("Enter on the trigger opens, like a combobox button", async () => {
     const result = await walk({ value: "apple", controlled: true }, async ({ focus, key, advance, snapshot }) => {
       await focus(TRIGGER)
       await key("Enter")
+      await advance(1)
+      snapshot() // open, focus in the list
+      await key("Escape")
+      await advance(1)
+      snapshot() // closed, focus back
+      await focus(TRIGGER)
+      await key("Enter")
+      await advance(1)
+      await key("Enter")
+      await advance(1)
+      snapshot() // the highlighted option picked, closed
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[1]).not.toContain('role="dialog"')
+    expect(result.react[2]).toContain('change {"value":"apple","label":"Apple"}')
+    expect(result.react[2]).not.toContain('role="dialog"')
+  })
+
+  test("ArrowUp and Space open; Space selects", async () => {
+    const result = await walk({ value: "apple", controlled: true }, async ({ focus, key, advance, snapshot }) => {
+      await focus(TRIGGER)
       snapshot() // closed
       await key("ArrowUp")
       await advance(1)

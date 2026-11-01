@@ -389,6 +389,7 @@ Use `SelectControl` with any floating UI (e.g. `Menu`, `Popover`). The control r
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded trigger" },
   { prop: "StartIcon", type: "ComponentType", description: "Icon at start" },
   { prop: "onClearClick", type: "() => void", description: "Enables the clear button when set" },
+  { prop: "interactOnEnter", type: "boolean", default: "false", description: "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form" },
   { prop: "onInteract", type: "() => void", description: "Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down" },
   { prop: "dropdownIconType", type: '"chevronDown" | "dropdown" | "none"', default: '"dropdown"', description: "Dropdown indicator style" },
   { prop: "invalid", type: "boolean", default: "false", description: "Invalid state" },

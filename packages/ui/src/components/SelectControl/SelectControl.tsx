@@ -58,6 +58,12 @@ export type SelectControlProps = Omit<React.HTMLAttributes<HTMLSpanElement>, "on
    */
   onInteract?: () => void
   /**
+   * Enter interacts too, as on a combobox button. Off by default, as Enter
+   * may be an attempt to submit a form.
+   * @default false
+   */
+  interactOnEnter?: boolean
+  /**
    * Determines size of the size and spacing of the control.
    *
    * | 3xs     | 2xs     | xs      | sm      | md      | lg      | xl      | 2xl     | 3xl     |
@@ -91,6 +97,7 @@ export const SelectControl = ({
   onKeyDown,
   onPointerEnter,
   onInteract,
+  interactOnEnter = false,
   invalid,
   disabled,
   children,
@@ -122,10 +129,15 @@ export const SelectControl = ({
       return
     }
     switch (evt.key) {
-      // NOTE: "Enter" does not open selects, as it may be an attempt to submit a form
+      case "Enter":
       case "ArrowDown":
       case "ArrowUp":
       case " ":
+        // NOTE: "Enter" may be an attempt to submit a form
+        if (evt.key === "Enter" && !interactOnEnter) {
+          break
+        }
+
         evt.stopPropagation()
         evt.preventDefault()
 
@@ -141,9 +153,6 @@ export const SelectControl = ({
             }),
           )
         }
-        break
-      case "Enter":
-        // NOTE: "Enter" does not open selects, as it may be an attempt to submit a form
         break
       default:
         // Allow all other key presses through

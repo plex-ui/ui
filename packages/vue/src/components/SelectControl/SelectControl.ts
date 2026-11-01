@@ -58,6 +58,8 @@ const SelectControlComponent = defineComponent({
     onClearClick: Function as PropType<() => void>,
     /** Primary handler for when the control is selected with pointer or keyboard events (`@interact`). */
     onInteract: Function as PropType<() => void>,
+    /** Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form. @default false */
+    interactOnEnter: { type: Boolean, default: false },
     /** Size and spacing of the control: `3xs` 22px up to `3xl` 48px. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
     /** Displays a loading indicator in place of the dropdown icon and clear action. @default false */
@@ -78,10 +80,15 @@ const SelectControlComponent = defineComponent({
         return
       }
       switch (evt.key) {
-        // NOTE: "Enter" does not open selects, as it may be an attempt to submit a form
+        case "Enter":
         case "ArrowDown":
         case "ArrowUp":
         case " ":
+          // NOTE: "Enter" may be an attempt to submit a form
+          if (evt.key === "Enter" && !props.interactOnEnter) {
+            break
+          }
+
           evt.stopPropagation()
           evt.preventDefault()
 
@@ -97,9 +104,6 @@ const SelectControlComponent = defineComponent({
               }),
             )
           }
-          break
-        case "Enter":
-          // NOTE: "Enter" does not open selects, as it may be an attempt to submit a form
           break
         default:
           // Allow all other key presses through

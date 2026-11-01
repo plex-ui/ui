@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, test } from "vitest"
 import { h } from "vue"
 import { Checkbox as RCheckbox } from "../../packages/ui/src/components/Checkbox"
@@ -45,6 +45,43 @@ describe("Field labels its control", () => {
     expect(pair.vue).toBe(pair.react)
     expect(pair.react).toContain('for="own"')
     expect(pair.react).toContain('id="own"')
+  })
+
+  test.each([
+    ["opens the list", {}, 1],
+    ["leaves a loading Select closed", { loading: true }, 0],
+  ])("a label click %s", async (_name, props, menus) => {
+    const count = () => document.querySelectorAll('[role="listbox"]').length
+    const seen: number[] = []
+    const { unmount: unmountReact } = render(
+      <RField label="Role">
+        <RSelect {...props} value="admin" onChange={noop} options={roles} />
+      </RField>,
+    )
+    await act(async () => {
+      fireEvent.click(document.querySelector("label")!)
+    })
+    seen.push(count())
+    unmountReact()
+    document.body.innerHTML = ""
+
+    mountVue(() => h(Field, { label: "Role" }, () => h(Select, { ...props, value: "admin", options: roles })))
+    await flushVue()
+    fireEvent.click(document.querySelector("label")!)
+    await flushVue()
+    seen.push(count())
+    expect(seen).toEqual([menus, menus])
+  })
+
+  test("allSelectedLabel is the trigger text when every option is selected", async () => {
+    const values = roles.map((role) => role.value)
+    const pair = await renderPair(
+      <RSelect multiple allSelectedLabel="Everyone" value={values} onChange={noop} options={roles} />,
+      () => h(Select, { multiple: true, allSelectedLabel: "Everyone", value: values, options: roles }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain("Everyone")
+    expect(pair.react).not.toContain("All selected")
   })
 
   test("a Select trigger is named by the label and its value", async () => {

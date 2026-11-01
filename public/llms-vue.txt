@@ -716,6 +716,7 @@ Props:
   - disabled (boolean) default: false — Disable select. A disabled select is not submitted or validated with its form
   - loading (boolean) default: false — Loading state; shows loading-placeholder and keeps the menu closed
   - loading-placeholder (string) default: "Loading..." — Trigger text while loading
+  - all-selected-label (string) default: "All selected" — Text of a multiple trigger when every option is selected
   - name (string) — Name of the hidden form input. With multiple, every selected value is submitted
   - required (boolean) — Required for native form validation
   - id (string) — Id of the hidden form input
@@ -750,6 +751,7 @@ Props:
   - pill (boolean) default: false — Fully rounded trigger
   - StartIcon (Component) — Icon at start
   - @clear-click (() => void) — Enables the clear button when set (a function prop, onClearClick)
+  - interact-on-enter (boolean) default: false — Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form
   - @interact (() => void) — Called on pointer down, ArrowDown, ArrowUp and Space (a function prop, onInteract). Without it, a wrapping trigger opens on pointer down
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Dropdown indicator style
   - invalid (boolean) default: false — Invalid state

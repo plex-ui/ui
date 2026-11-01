@@ -155,6 +155,11 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
    */
   pill?: boolean
   /**
+   * Text of a `multiple` trigger when every option is selected
+   * @default All selected
+   */
+  allSelectedLabel?: string
+  /**
    * Controls size of the select trigger, and several other aspects of trigger styling.
    *
    * | 3xs     | 2xs     | xs      | sm      | md      | lg      | xl      | 2xl     | 3xl     |
@@ -300,6 +305,7 @@ type SelectContextValue<T extends Option> = (
   clearable: boolean
   placeholder: string
   loadingPlaceholder: string
+  allSelectedLabel: string
   searchEmptyMessage: ReactNode
   searchPlaceholder: string
   searchAriaLabel: string
@@ -347,8 +353,9 @@ const DefaultMultiTriggerView = <T extends Option>({
   values,
   selectedAll,
 }: MultiSelectTriggerViewProps<T>) => {
+  const { allSelectedLabel } = useSelectContext()
   const displayValue = selectedAll
-    ? "All selected"
+    ? allSelectedLabel
     : values.length === 0
       ? // NOTE: Zero length is impossible - an empty option with `placeholder` is always returned
         "Select..."
@@ -378,6 +385,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     disabled = false,
     placeholder = "Select...",
     loadingPlaceholder = "Loading...",
+    allSelectedLabel = "All selected",
     pill = false,
     listWidth,
     options,
@@ -500,6 +508,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       options,
       placeholder,
       loadingPlaceholder,
+      allSelectedLabel,
       loading,
       clearable,
       variant,
@@ -546,6 +555,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
       options,
       placeholder,
       loadingPlaceholder,
+      allSelectedLabel,
       loading,
       clearable,
       variant,
@@ -716,6 +726,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
       dropdownIconType={dropdownIconType}
       onClearClick={clearable ? handleClearClick : undefined}
       onInteract={onOpenChange}
+      interactOnEnter
       onKeyDown={handleKeyDown}
       {...restProps}
     >
@@ -738,6 +749,12 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
             tabIndex={-1}
             onFocus={() => {
               document.getElementById(triggerId)?.focus()
+            }}
+            // A label's `for` lands here, and its click opens the list like a press on the trigger
+            onClick={() => {
+              if (!loading) {
+                onOpenChange?.(true)
+              }
             }}
             // keep react from complaining - don't make this readOnly because that
             // prevents the value from being required

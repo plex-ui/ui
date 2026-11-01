@@ -4384,6 +4384,12 @@
           "description": "Trigger text while loading"
         },
         {
+          "name": "all-selected-label",
+          "type": "string",
+          "default": "\"All selected\"",
+          "description": "Text of a multiple trigger when every option is selected"
+        },
+        {
           "name": "name",
           "type": "string",
           "description": "Name of the hidden form input. With multiple, every selected value is submitted"
@@ -4575,6 +4581,12 @@
           "name": "@clear-click",
           "type": "() => void",
           "description": "Enables the clear button when set (a function prop, onClearClick)"
+        },
+        {
+          "name": "interact-on-enter",
+          "type": "boolean",
+          "default": "false",
+          "description": "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form"
         },
         {
           "name": "@interact",
@@ -6704,5 +6716,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:36:07.206Z"
+  "generatedAt": "2026-11-01T11:37:28.567Z"
 }

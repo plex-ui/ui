@@ -156,6 +156,8 @@ const selectProps = {
   placeholder: { type: String, default: "Select..." },
   /** Placeholder text while loading. @default "Loading..." */
   loadingPlaceholder: { type: String, default: "Loading..." },
+  /** Text of a `multiple` trigger when every option is selected. @default "All selected" */
+  allSelectedLabel: { type: String, default: "All selected" },
   /** Displays loading indicator on top of button contents. @default false */
   loading: { type: Boolean, default: false },
   /** Style variant for the select trigger. @default "outline" */
@@ -230,6 +232,7 @@ type SelectPropsValue = {
   name?: string
   placeholder: string
   loadingPlaceholder: string
+  allSelectedLabel: string
   loading: boolean
   variant: "soft" | "outline" | "ghost"
   pill: boolean
@@ -364,9 +367,9 @@ const useCustomSelectMenuContext = () => {
 const renderContent = (content: unknown): VNodeChild =>
   typeof content === "function" ? (content as () => VNodeChild)() : (content as VNodeChild)
 
-const defaultMultiTriggerView = ({ values, selectedAll }: MultiSelectTriggerViewProps<Option>) =>
+const defaultMultiTriggerView = ({ values, selectedAll }: MultiSelectTriggerViewProps<Option>, allSelectedLabel: string) =>
   selectedAll
-    ? "All selected"
+    ? allSelectedLabel
     : values.length === 0
       ? // NOTE: Zero length is impossible - an empty option with `placeholder` is always returned
         "Select..."
@@ -546,7 +549,7 @@ const SelectTrigger = defineComponent({
         if (slots.triggerView) return slots.triggerView(viewProps)
         if (props.TriggerView) return h(props.TriggerView, viewProps)
         return multiple
-          ? defaultMultiTriggerView(viewProps as MultiSelectTriggerViewProps<Option>)
+          ? defaultMultiTriggerView(viewProps as MultiSelectTriggerViewProps<Option>, props.allSelectedLabel)
           : (viewProps as Option).label
       }
 
@@ -572,6 +575,7 @@ const SelectTrigger = defineComponent({
           "dropdownIconType": props.dropdownIconType,
           "onClearClick": props.clearable ? handleClearClick : undefined,
           "onInteract": ownProps.onOpenChange,
+          "interactOnEnter": true,
           "onKeydown": handleKeyDown,
           // pass along props from the popover trigger
           ...attrs,
@@ -593,6 +597,12 @@ const SelectTrigger = defineComponent({
                     "tabindex": -1,
                     "onFocus": () => {
                       triggerEl.value?.focus()
+                    },
+                    // A label's `for` lands here, and its click opens the list like a press on the trigger
+                    "onClick": () => {
+                      if (!loading) {
+                        ownProps.onOpenChange?.(true)
+                      }
                     },
                     // don't make this readOnly because that prevents the value from being required
                     "required": props.required,

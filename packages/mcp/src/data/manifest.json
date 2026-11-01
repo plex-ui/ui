@@ -4285,6 +4285,12 @@
           "description": "Enables the clear button when set"
         },
         {
+          "name": "interactOnEnter",
+          "type": "boolean",
+          "default": "false",
+          "description": "Enter interacts too, as on a combobox button. Off by default, as Enter may be an attempt to submit a form"
+        },
+        {
           "name": "onInteract",
           "type": "() => void",
           "description": "Called on pointer down, ArrowDown, ArrowUp and Space. Without it, a wrapping trigger opens on pointer down"
@@ -4491,6 +4497,12 @@
           "type": "string",
           "default": "\"Loading...\"",
           "description": "Trigger text while loading"
+        },
+        {
+          "name": "allSelectedLabel",
+          "type": "string",
+          "default": "\"All selected\"",
+          "description": "Text of a multiple trigger when every option is selected"
         },
         {
           "name": "name",
@@ -6593,5 +6605,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:36:06.614Z"
+  "generatedAt": "2026-11-01T11:37:27.857Z"
 }

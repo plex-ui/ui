@@ -184,6 +184,17 @@ describe("SelectControl behaviour parity", () => {
     expect(result.react.log).toEqual(["interact", "pointerDown prevented", "pointerDown allowed", "click allowed"])
   })
 
+  test("interactOnEnter makes Enter interact", async () => {
+    const result = await behaviour(
+      (log) => ({ ...recorder(log), interactOnEnter: true }),
+      async (log) => {
+        await fireAndRecord(log, "keyDown", { key: "Enter" })
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.react.log).toEqual(["interact", "keyDown Enter prevented"])
+  })
+
   test("onInteract: ArrowDown, ArrowUp and Space interact; Enter does nothing; other keys reach onKeyDown", async () => {
     const result = await behaviour(recorder, async (log) => {
       for (const key of ["ArrowDown", "ArrowUp", " ", "Enter", "a", "Escape", "Tab"]) {
