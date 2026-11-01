@@ -1137,9 +1137,14 @@ const CustomSelectMenu = defineComponent({
     // On search behavior (React's layout effect on `filteredOptions`, skipped on mount)
     watch(
       filteredOptions,
-      (nextFilteredOptions) => {
+      (nextFilteredOptions, previousFilteredOptions) => {
         // Impossible while mounted, list ref will exist
         if (!listRef.value) {
+          return
+        }
+
+        // The same list again, as after a pick in a multiple list: nothing moves
+        if (optionValues(nextFilteredOptions) === optionValues(previousFilteredOptions)) {
           return
         }
 
@@ -1245,6 +1250,11 @@ const isOptionGroup = <T extends Option>(mixedOption: T | OptionGroup<T>): mixed
 const isOptionGroupArray = <T extends Option>(arr: Options<T>): arr is OptionGroup<T>[] => {
   return !!arr[0] && isOptionGroup(arr[0])
 }
+
+const optionValues = <T extends Option>(options: Options<T>) =>
+  (isOptionGroupArray(options) ? options.flatMap((group) => group.options) : options)
+    .map((option) => option.value)
+    .join("\n")
 
 const HARD_OPTIONS_LIMIT = 300
 

@@ -927,6 +927,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     [options, literalSearchTerm, searchPredicateRef],
   )
   const firstOption = useMemo(() => getFirstValidOption(filteredOptions), [filteredOptions])
+  const shownValuesRef = useRef(optionValues(filteredOptions))
 
   // Regrettable requirement for running an effect *after* mount
   const isMountStableRef = useRef<boolean>(false)
@@ -1147,6 +1148,13 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
       return
     }
 
+    // The same list again, as after a pick in a multiple list: nothing moves
+    const nextValues = optionValues(filteredOptions)
+    if (nextValues === shownValuesRef.current) {
+      return
+    }
+    shownValuesRef.current = nextValues
+
     // Reset scroll position to the top
     listRef.current.scrollTop = 0
 
@@ -1247,6 +1255,11 @@ const isOptionGroup = <T extends Option>(
 const isOptionGroupArray = <T extends Option>(arr: Options<T>): arr is OptionGroup<T>[] => {
   return arr[0] && isOptionGroup(arr[0])
 }
+
+const optionValues = <T extends Option>(options: Options<T>) =>
+  (isOptionGroupArray(options) ? options.flatMap((group) => group.options) : options)
+    .map((option) => option.value)
+    .join("\n")
 
 const HARD_OPTIONS_LIMIT = 300
 
