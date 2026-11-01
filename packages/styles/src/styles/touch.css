@@ -90,3 +90,11 @@
     --menu-min-width: 238px !important;
   }
 }
+
+/* One calendar on a phone: a whole cell to the finger, narrower only where
+   seven of them would not fit between the popover's edges */
+@media (max-width: 575px) {
+  html:root {
+    --date-range-cell-size: min(44px, calc((100vw - 64px) / 7));
+  }
+}

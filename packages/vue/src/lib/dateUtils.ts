@@ -40,6 +40,13 @@ export const isSameDay = (targetDate: DateTime, compareDate: DateTime): boolean 
 export const isToday = (dateTime: DateTime): boolean => isSameDay(dateTime, DateTime.local())
 
 /**
+ * Where a date sits in a week row that starts on `weekStartsOn`, 0 (Sunday) to
+ * 6 (Saturday). Luxon's weekday runs from 1 (Monday) to 7 (Sunday).
+ */
+export const weekPosition = (date: DateTime, weekStartsOn: number): number =>
+  (date.weekday - weekStartsOn + 7) % 7
+
+/**
  * Split an array of days into weeks (arrays of 7 days each)
  */
 export const chunkIntoWeeks = (daysInMonth: DateTime[], size = 7): DateTime[][] => {

@@ -9,7 +9,7 @@ import type { SelectControlProps } from "../SelectControl"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar"
 import { DateRangeContext, type DateRangeContextValue } from "./context"
 import { DateRangeTrigger } from "./Trigger"
-import { type DateRange, type DateRangeShortcut } from "./types"
+import { type DateRange, type DateRangeShortcut, type WeekStart } from "./types"
 
 export type DateRangePickerProps = {
   /**
@@ -33,6 +33,11 @@ export type DateRangePickerProps = {
    * When set, the end date cannot be more than this many days after the start date.
    */
   maxRangeDays?: number
+  /**
+   * The day each week starts on, from 0 (Sunday) to 6 (Saturday).
+   * @default 0
+   */
+  weekStartsOn?: WeekStart
   /**
    * List of date range shortcuts displayed for quick selection, shown to the left of the calendar.
    */
@@ -130,6 +135,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     min,
     max,
     maxRangeDays,
+    weekStartsOn = 0,
     shortcuts,
     side = "bottom",
     sideOffset = 8,
@@ -163,6 +169,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       min,
       max,
       maxRangeDays,
+      weekStartsOn,
       variant,
       size,
       dropdownIconType,
@@ -183,6 +190,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       min,
       max,
       maxRangeDays,
+      weekStartsOn,
       variant,
       size,
       dropdownIconType,

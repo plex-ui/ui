@@ -1809,6 +1809,12 @@
           "description": "Max length of range in days (inclusive)"
         },
         {
+          "name": "weekStartsOn",
+          "type": "0 | 1 | 2 | 3 | 4 | 5 | 6",
+          "default": "0",
+          "description": "The day each week starts on, from 0 (Sunday) to 6 (Saturday)"
+        },
+        {
           "name": "shortcuts",
           "type": "DateRangeShortcut[]",
           "description": "Quick selection shortcuts ({ label, getDateRange })"
@@ -6587,5 +6593,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:24:48.971Z"
+  "generatedAt": "2026-11-01T11:28:27.844Z"
 }

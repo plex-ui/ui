@@ -1,7 +1,7 @@
 import { DateTime, Interval } from "luxon"
 import { computed, createCommentVNode, defineComponent, h, onMounted, ref, shallowRef, watch, type PropType } from "vue"
 import { useBreakpoint } from "../../composables/useBreakpoints.js"
-import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday } from "../../lib/dateUtils.js"
+import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday, weekPosition } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
 import { Check, ChevronLeft, ChevronRight } from "../Icon/index.js"
@@ -22,13 +22,9 @@ import { type DateRange, type DateRangeShortcut } from "./types.js"
 //   when animations are off.
 // - React quirk kept: the day buttons have no `type`.
 
-const CALENDAR_WIDTH_PX = 210
-const CALENDAR_GAP_PX = 32
-const STEP_DISTANCE_PX = CALENDAR_WIDTH_PX + CALENDAR_GAP_PX
-
-// The day a grid key moves to: a day, a week, the Sunday or Saturday of the
-// week (rows start on Sunday), or a month (Luxon clamps Jan 31 to Feb 28/29)
-const getKeyTarget = (key: string, day: DateTime): DateTime | null => {
+// The day a grid key moves to: a day, a week, the first or last day of the
+// week row, or a month (Luxon clamps Jan 31 to Feb 28/29)
+const getKeyTarget = (key: string, day: DateTime, weekStartsOn: number): DateTime | null => {
   switch (key) {
     case "ArrowLeft":
       return day.minus({ days: 1 })
@@ -39,9 +35,9 @@ const getKeyTarget = (key: string, day: DateTime): DateTime | null => {
     case "ArrowDown":
       return day.plus({ days: 7 })
     case "Home":
-      return day.minus({ days: day.weekday % 7 })
+      return day.minus({ days: weekPosition(day, weekStartsOn) })
     case "End":
-      return day.plus({ days: 6 - (day.weekday % 7) })
+      return day.plus({ days: 6 - weekPosition(day, weekStartsOn) })
     case "PageUp":
       return day.minus({ months: 1 })
     case "PageDown":
@@ -155,7 +151,7 @@ export const DateRangeCalendar = defineComponent({
 
       // While a move waits for its month to render, the next key starts from
       // the day it is moving to (key repeat), not the day that still has focus
-      const target = getKeyTarget(event.key, pendingFocus ?? day)
+      const target = getKeyTarget(event.key, pendingFocus ?? day, context.weekStartsOn)
       if (!target) {
         return
       }
@@ -354,7 +350,7 @@ export const DateRangeCalendar = defineComponent({
             "div",
             {
               class: s.CalendarRange,
-              style: { transform: `translate(${calendarSteps.value * -1 * STEP_DISTANCE_PX}px, 0)` },
+              style: { transform: `translate(calc(${calendarSteps.value * -1} * var(--calendar-step)), 0)` },
             },
             [
               h(
@@ -406,14 +402,16 @@ const CalendarView = defineComponent({
     stepPosition: { type: Number, required: true },
   },
   setup(props) {
+    const context = useDateRangeContext()
     // Lock position on mount and don't respond to changes
     const position = props.stepPosition
     const view = computed(() => {
       const { date, min, max } = props
+      const { weekStartsOn } = context
       const monthStart = date.startOf("month")
       const endOfMonth = date.endOf("month")
 
-      const daysBeforeMonthStart = monthStart.weekday % 7
+      const daysBeforeMonthStart = weekPosition(monthStart, weekStartsOn)
       const blankDays = new Array(daysBeforeMonthStart).fill(null)
       const daysInMonth = getDaysOfMonth(monthStart)
       const calendarCells = [...blankDays, ...daysInMonth]
@@ -449,12 +447,14 @@ const CalendarView = defineComponent({
       const rangeEndLimit =
         selectionStart && maxRangeDays != null ? selectionStart.plus({ days: maxRangeDays - 1 }) : undefined
 
-      return h("div", { "class": s.Calendar, "style": { left: `${position * STEP_DISTANCE_PX}px` }, "data-calendar": true }, [
+      const { weekStartsOn } = context
+      const dayLabels = [...daysOfTheWeekLabels.slice(weekStartsOn), ...daysOfTheWeekLabels.slice(0, weekStartsOn)]
+      return h("div", { "class": s.Calendar, "style": { left: `calc(${position} * var(--calendar-step))` }, "data-calendar": true }, [
         h("p", { class: s.MonthLabel }, [startOfMonth.monthLong, " ", String(startOfMonth.year)]),
         h(
           "div",
           { class: s.Week },
-          daysOfTheWeekLabels.map((day) => h("div", { key: day, class: s.DayLabel }, day)),
+          dayLabels.map((day) => h("div", { key: day, class: s.DayLabel }, day)),
         ),
         ...weeks.map((week, weekIndex) =>
           h(
@@ -474,14 +474,14 @@ const CalendarView = defineComponent({
               const dayIsToday = isToday(d)
               const isFirstRangeTrail =
                 d.day === 1 &&
-                // Trail doesn't make sense to display at the start of the week (Monday)
-                d.weekday !== 7 &&
+                // Trail doesn't make sense to display at the start of the week
+                weekPosition(d, weekStartsOn) !== 0 &&
                 isInRange &&
                 !isStart
               const isLastRangeTrail =
                 d.day === d.daysInMonth &&
-                // Trail doesn't make sense to display at the end of the week (Saturday)
-                d.weekday !== 6 &&
+                // Trail doesn't make sense to display at the end of the week
+                weekPosition(d, weekStartsOn) !== 6 &&
                 isInRange &&
                 !isEnd
 

@@ -7,7 +7,7 @@ import type { DropdownIconType } from "../SelectControl/index.js"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar.js"
 import { DateRangeContextKey, type DateRangeContextValue } from "./context.js"
 import { DateRangeTrigger } from "./Trigger.js"
-import { type DateRange, type DateRangeShortcut } from "./types.js"
+import { type DateRange, type DateRangeShortcut, type WeekStart } from "./types.js"
 
 // Vue port of packages/ui/src/components/DateRangePicker/DateRangePicker.tsx.
 // - `value` + `update:value` (`v-model:value`), plus `change`, which also
@@ -29,6 +29,8 @@ const DateRangePickerComponent = defineComponent({
     max: Object as PropType<DateTime>,
     /** Maximum length of the selectable range in days (inclusive). */
     maxRangeDays: Number,
+    /** The day each week starts on, from 0 (Sunday) to 6 (Saturday). @default 0 */
+    weekStartsOn: { type: Number as PropType<WeekStart>, default: 0 },
     /** Date range shortcuts for quick selection, shown to the left of the calendar. */
     shortcuts: Array as PropType<DateRangeShortcut[]>,
     /** The preferred side of the trigger to render against when open. @default "bottom" */
@@ -92,6 +94,9 @@ const DateRangePickerComponent = defineComponent({
       },
       get maxRangeDays() {
         return props.maxRangeDays
+      },
+      get weekStartsOn() {
+        return props.weekStartsOn
       },
       get triggerStepperUnit() {
         return props.triggerStepperUnit

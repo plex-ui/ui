@@ -125,7 +125,7 @@ const [value, setValue] = useState<DateRange | null>([today.startOf("month"), to
 
 ## API
 
-In the calendars, the arrow keys move focus by a day or a week, Home and End move it to the Sunday or Saturday of the week, and Page Up and Page Down move it by a month (January 31 goes to the last day of February). Focus moves across the visible months, and a day past them turns the calendars by a month first. Focus stays put when the day it would move to is disabled: outside `min` and `max`, or past `maxRangeDays` while a range is being picked. Enter and Space pick the focused day.
+In the calendars, the arrow keys move focus by a day or a week, Home and End move it to the first or last day of the week row, and Page Up and Page Down move it by a month (January 31 goes to the last day of February). Focus moves across the visible months, and a day past them turns the calendars by a month first. Focus stays put when the day it would move to is disabled: outside `min` and `max`, or past `maxRangeDays` while a range is being picked. Enter and Space pick the focused day.
 
 <PropsTable data={[
   { prop: "value", type: "DateRange | null", description: "Required. Selected range ([start, end], inclusive)" },
@@ -133,6 +133,7 @@ In the calendars, the arrow keys move focus by a day or a week, Home and End mov
   { prop: "min", type: "DateTime", description: "Earliest selectable date (inclusive)" },
   { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "maxRangeDays", type: "number", description: "Max length of range in days (inclusive)" },
+  { prop: "weekStartsOn", type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "0", description: "The day each week starts on, from 0 (Sunday) to 6 (Saturday)" },
   { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from trigger in pixels" },

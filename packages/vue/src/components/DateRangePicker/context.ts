@@ -2,7 +2,7 @@ import type { DateTime } from "luxon"
 import { inject, type InjectionKey } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
 import type { DropdownIconType } from "../SelectControl/index.js"
-import type { DateRange, DateRangeShortcut } from "./types.js"
+import type { DateRange, DateRangeShortcut, WeekStart } from "./types.js"
 
 // Vue port of packages/ui/src/components/DateRangePicker/context.tsx. The
 // values are getters over DateRangePicker's props (read them in render,
@@ -14,6 +14,7 @@ export type DateRangeContextValue = {
   readonly min?: DateTime
   readonly max?: DateTime
   readonly maxRangeDays?: number
+  readonly weekStartsOn: WeekStart
   readonly triggerStepperUnit?: "month"
   readonly triggerClassName?: string
   readonly triggerShowIcon?: boolean

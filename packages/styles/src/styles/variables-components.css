@@ -163,6 +163,11 @@
     --accordion-transition-ease: var(--transition-ease-basic);
 
     /* =============================================
+      DateRangePicker
+    ============================================= */
+    --date-range-cell-size: 30px;
+
+    /* =============================================
       Checkbox
     ============================================= */
     --checkbox-indicator-size: var(--radio-group-indicator-size);

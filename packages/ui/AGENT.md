@@ -312,7 +312,7 @@ Uses Luxon `DateTime`.
 
 **Import:** `@plexui/ui/components/DateRangePicker` -- also exports the types `DateRange`, `DateRangeShortcut`
 
-Props: `value` (`[DateTime, DateTime] | null`), `onChange(range, shortcut?)`, `min`, `max`, `maxRangeDays`, `shortcuts` (`{ label, getDateRange }[]`), `size`, `variant`, `pill`, `clearable`
+Props: `value` (`[DateTime, DateTime] | null`), `onChange(range, shortcut?)`, `min`, `max`, `maxRangeDays`, `weekStartsOn` (0 Sunday to 6 Saturday), `shortcuts` (`{ label, getDateRange }[]`), `size`, `variant`, `pill`, `clearable`
 
 ### TagInput
 

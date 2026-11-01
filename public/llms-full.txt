@@ -2102,6 +2102,7 @@ Props:
   - min (DateTime) — Earliest selectable date (inclusive)
   - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - maxRangeDays (number) — Max length of range in days (inclusive)
+  - weekStartsOn (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
   - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
   - sideOffset (number) default: 8 — Distance from trigger in pixels

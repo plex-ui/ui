@@ -1,12 +1,18 @@
 .CalendarContainer {
+  --cell-size: var(--date-range-cell-size);
+  --cell-vertical-gutter: 2px;
+  --calendar-width: calc(var(--cell-size) * 7);
+  /* From one calendar to the next, with the gap between them */
+  --calendar-step: calc(var(--calendar-width) + 32px);
+
   position: relative;
-  width: 210px;
+  width: var(--calendar-width);
   /*  Default size of the calendar is assumed to be 224px */
   /*  and then is dynamically set via JS measuring */
   height: 224px;
 
   @mixin breakpoint sm {
-    width: 452px;
+    width: calc(var(--calendar-width) * 2 + 32px);
   }
 }
 
@@ -105,12 +111,9 @@
 }
 
 .Calendar {
-  --cell-size: 30px;
-  --cell-vertical-gutter: 2px;
-
   position: absolute;
   top: 0;
-  width: 210px;
+  width: var(--calendar-width);
   font-size: 14px;
 }
 

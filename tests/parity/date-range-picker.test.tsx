@@ -394,6 +394,8 @@ const openCases: Array<[string, Case, number?]> = [
   ],
   ["max this month: the left calendar shows the month before", { props: { max: DateTime.local(2026, 10, 20) } }],
   ["value at max shows the month before on the left", { value: octMonth, props: { max: DateTime.local(2026, 10, 31).endOf("day") } }],
+  ["week starting on Monday", { props: { weekStartsOn: 1 } }],
+  ["week starting on Saturday, range with trails", { value: range([2026, 10, 20], [2026, 11, 6]), props: { weekStartsOn: 6 } }],
   ["shortcuts", { props: { shortcuts: dayShortcuts } }],
   ["active shortcut is selected and checked", { value: dayShortcuts[0]!.getDateRange(), props: { shortcuts: dayShortcuts } }],
   ["below md: no shortcuts", { props: { shortcuts: dayShortcuts } }, 700],
@@ -435,6 +437,29 @@ describe("DateRangePicker parity: markup", () => {
 // focus a frame later, once its month has rendered
 
 describe("DateRangePicker parity: calendar keyboard", () => {
+  test("weekStartsOn moves the labels, the blank days and Home and End", async () => {
+    const labels = () => Array.from(document.querySelectorAll(".DayLabel"), (element) => element.textContent)
+    const blanksBefore = (name: string) => {
+      const calendar = Array.from(document.querySelectorAll("[data-calendar]")).find((element) =>
+        element.textContent?.startsWith(name),
+      )!
+      return Array.from(calendar.querySelectorAll(".Week")[1]!.children).filter((cell) => !cell.children.length).length
+    }
+    const result = await walk({ value: oct5to12, props: { weekStartsOn: 1 } }, async (tools) => {
+      await tools.open()
+      expect(labels().slice(0, 7)).toEqual(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"])
+      // October 1, 2026 is a Thursday
+      expect(blanksBefore("October 2026")).toBe(3)
+      await tools.focus(day(22, "October 2026"))
+      await tools.key("Home")
+      expect(focused()).toBe(dayName(DateTime.local(2026, 10, 19)))
+      await tools.key("End")
+      expect(focused()).toBe(dayName(DateTime.local(2026, 10, 25)))
+      tools.snapshot()
+    })
+    expectSame(result)
+  })
+
   test("keys move within the two visible months without moving the view", async () => {
     const result = await walk({ value: oct5to12 }, async (tools) => {
       const stop = recordKeys()

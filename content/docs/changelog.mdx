@@ -9,6 +9,11 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- `DateRangePicker` takes `weekStartsOn`, from 0 (Sunday) to 6 (Saturday). The default stays Sunday. Day labels, blank cells, range trails and Home and End follow it.
+- `--date-range-cell-size` sets the size of a `DateRangePicker` day, 30 px by default. `touch.css` makes it 44 px on phones.
+
 ### Changed
 
 - `Dialog`, `Menu`, `Select` and `Popover` now animate in and out. They enter in 250 ms and leave in 150 ms on `--cubic-enter` and `--cubic-exit-snappy`; a sheet or side panel takes 300 and 200 ms and leaves on `--cubic-exit`, down on a phone. Only `transform` and `opacity` move. An overlay can be reversed while it leaves, and `prefers-reduced-motion` turns all of it off. New tokens: `--motion-enter`, `--motion-enter-large`, `--motion-exit`, `--motion-exit-large`. If you added your own keyframes to these overlays, remove them, or the entrance runs twice.
