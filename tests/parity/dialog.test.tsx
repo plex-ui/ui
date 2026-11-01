@@ -149,6 +149,9 @@ const cases: Array<[string, { open?: boolean; content?: ContentProps }]> = [
   ["open, explicit center", { open: true, content: { placement: "center" } }],
 ]
 
+// A press this soon after opening is the second click of a double click: the dialog ignores it
+const pastDoubleClick = () => new Promise((resolve) => setTimeout(resolve, 320))
+
 describe("Dialog parity", () => {
   test.each(cases)("%s", async (_name, props) => {
     const react = await reactDom(props)
@@ -336,6 +339,7 @@ describe("Dialog parity, radix-ui 1.8", () => {
       const states: boolean[] = []
       await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
       await nextTask()
+      await pastDoubleClick()
       await fire(overlay, "pointerDown", { pointerType: "mouse", ...init })
       states.push(dialogOpen())
       await fire(overlay, "pointerUp", { pointerType: "mouse", ...init })
@@ -361,10 +365,35 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(react.states).toEqual(expected)
   })
 
+  test("the second click of a double click, on the overlay, keeps the dialog open", async () => {
+    const run = async () => {
+      await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
+      await nextTask()
+      await fire(overlay, "pointerDown", { pointerType: "mouse" })
+      await fire(overlay, "pointerUp", { pointerType: "mouse" })
+      await fire(overlay, "click")
+      await nextTask()
+      await flushVue()
+      return dialogOpen()
+    }
+    await act(async () => {
+      render(<ReactExample />)
+    })
+    const react = await run()
+    cleanup()
+    const { unmount } = mountVue(() => vueExample({}))
+    await flushVue()
+    const vue = await run()
+    unmount()
+    expect(vue).toBe(react)
+    expect(react).toBe(true)
+  })
+
   test("the overlay is the dialog's own dismiss surface: a click stopped above it still closes", async () => {
     const run = async () => {
       await fire(() => document.querySelector('button[aria-haspopup="dialog"]'), "click")
       await nextTask()
+      await pastDoubleClick()
       // Something between the overlay and the document stops the click
       document.querySelector('[class~="Transition"]')!.addEventListener("click", (event) => event.stopPropagation())
       await fire(overlay, "pointerDown", { pointerType: "mouse" })

@@ -33,8 +33,11 @@ import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib
 import { dismissableSurfaces, useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
 import { firstElementChild } from "../Tooltip/slot.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { attachSheetDrag } from "./sheetDrag.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
+
+const DOUBLE_CLICK = 300
 
 // Vue port of packages/ui/src/components/Dialog/Dialog.tsx on Reka UI
 // (the Vue lineage of Radix, same anatomy). Exports are flat (`Dialog`,
@@ -218,13 +221,34 @@ export const DialogContent = defineComponent({
       setOpen(false)
     })
 
+    // The second click of a double click lands on the overlay: it must not undo the first
+    let openedAt = 0
+
     // Radix's modal content: a Ctrl+click (macOS right click) does not dismiss
     const outsidePress = useDeferredPointerDownOutside((originalEvent) => {
-      if (!originalEvent.ctrlKey) setOpen(false)
+      if (!originalEvent.ctrlKey && performance.now() - openedAt >= DOUBLE_CLICK) setOpen(false)
     })
-    watch(open, (isOpen) => {
-      if (!isOpen) outsidePress.reset()
-    })
+    watch(
+      open,
+      (isOpen) => {
+        if (isOpen) openedAt = performance.now()
+        else outsidePress.reset()
+      },
+      { immediate: true },
+    )
+
+    let panelElement: HTMLElement | undefined
+    let detachDrag: (() => void) | undefined
+    const setPanelRef = (instance: unknown) => {
+      const element = instance instanceof HTMLElement ? instance : undefined
+      if (element === panelElement) return
+      detachDrag?.()
+      detachDrag = undefined
+      panelElement = element
+      if (element && props.mobilePlacement === "bottom") {
+        detachDrag = attachSheetDrag(element, () => setOpen(false))
+      }
+    }
 
     let overlayElement: Element | undefined
     const setOverlayRef = (instance: unknown) => {
@@ -259,7 +283,7 @@ export const DialogContent = defineComponent({
           },
           {
             default: () => [
-              h("div", { class: [s.Panel, attrs.class] }, [
+              h("div", { class: [s.Panel, attrs.class], ref: setPanelRef }, [
                 props.showClose
                   ? h(DialogClose, null, {
                       default: () => [

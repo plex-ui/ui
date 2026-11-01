@@ -6,7 +6,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -14,12 +16,15 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
+import { attachSheetDrag } from "./sheetDrag"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 type DialogContextValue = {
   open: boolean
   setOpen: (nextState: boolean) => void
 }
+
+const DOUBLE_CLICK = 300
 
 const DialogContext = createContext<DialogContextValue | null>(null)
 
@@ -119,12 +124,23 @@ const Content = ({
 }: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
   const [exitGuard] = useState(createExitGuard)
+  const [panel, setPanel] = useState<HTMLDivElement | null>(null)
+  const openedAt = useRef(0)
   const crossesScreen =
     placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement === "bottom"
 
   useEscCloseStack(open, () => {
     setOpen(false)
   })
+
+  useEffect(() => {
+    if (open) openedAt.current = performance.now()
+  }, [open])
+
+  useEffect(() => {
+    if (!panel || mobilePlacement !== "bottom") return undefined
+    return attachSheetDrag(panel, () => setOpen(false))
+  }, [panel, mobilePlacement, setOpen])
 
   return (
     <RadixDialog.Portal forceMount>
@@ -147,14 +163,18 @@ const Content = ({
               data-mobile-placement={mobilePlacement}
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
-              onInteractOutside={exitGuard.onInteractOutside}
+              onInteractOutside={(event) => {
+                // The second click of a double click lands on the overlay: it must not undo the first
+                if (performance.now() - openedAt.current < DOUBLE_CLICK) event.preventDefault()
+                else exitGuard.onInteractOutside(event)
+              }}
               onOpenAutoFocus={onOpenAutoFocus}
               onCloseAutoFocus={(event) => {
                 onCloseAutoFocus?.(event)
                 keepMovedFocus(event)
               }}
             >
-              <div className={clsx(s.Panel, className)}>
+              <div ref={setPanel} className={clsx(s.Panel, className)}>
                 {showClose && (
                   <RadixDialog.Close asChild>
                     <button type="button" className={s.CloseButton} aria-label="Close dialog">

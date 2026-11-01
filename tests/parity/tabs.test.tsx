@@ -950,7 +950,7 @@ describe("Tabs thumb positioning matches React", () => {
     })
     expect(vue).toEqual(react)
     expect(react[1]).not.toContain("TabsThumb\" style")
-    expect(react[3]).toContain("transition: width 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)")
+    expect(react[3]).toContain("transition: width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)")
     expect(react[3]).toContain("translateX(2px)")
   })
 
@@ -982,7 +982,7 @@ describe("Tabs thumb positioning matches React", () => {
       snapshot()
     })
     expect(vue).toEqual(react)
-    expect(react[0]).toContain("height 300ms var(--cubic-enter)")
+    expect(react[0]).toContain("height 200ms var(--cubic-enter)")
     expect(react[0]).toMatch(/translateY\(30px\)/)
   })
 
@@ -1000,7 +1000,7 @@ describe("Tabs thumb positioning matches React", () => {
       snapshot()
     })
     expect(vue).toEqual(react)
-    expect(react[1]).toContain("transition: width 300ms")
+    expect(react[1]).toContain("transition: width 200ms")
   })
 
   test("uncontrolled selection moves the thumb only on the next resize", async () => {

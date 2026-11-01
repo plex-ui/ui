@@ -250,8 +250,8 @@ const TabsRoot = <T extends string>({
   }, [applyThumbSizing])
 
   const transitionProperty = isVertical
-    ? "height 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
-    : "width 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
+    ? "height 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
+    : "width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
 
   useLayoutEffect(() => {
     const root = rootRef.current

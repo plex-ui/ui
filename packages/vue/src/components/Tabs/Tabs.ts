@@ -346,8 +346,8 @@ const TabsComponent = defineComponent({
 
       const isVertical = props.orientation === "vertical"
       const transitionProperty = isVertical
-        ? "height 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
-        : "width 300ms var(--cubic-enter), transform 300ms var(--cubic-enter)"
+        ? "height 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
+        : "width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
 
       const sizeChanged = prevSize !== props.size
       prevSize = props.size

@@ -2,9 +2,7 @@
   z-index: 50;
   max-width: 300px;
   border-radius: var(--radius-md);
-  /* animation-duration: 0.3s; */
-  /* animation-name: scale-in; */
-  /* animation-timing-function: var(--cubic-enter); */
+  animation: tooltip-in var(--transition-duration-basic) var(--cubic-enter);
   background: var(--color-surface-elevated);
   box-shadow: var(--shadow), var(--shadow-hairline);
   font-size: 14px;
@@ -52,6 +50,18 @@
     background: var(--gray-700);
     color: var(--gray-0);
     font-size: 14px;
+  }
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Tooltip {
+    animation: none;
   }
 }
 

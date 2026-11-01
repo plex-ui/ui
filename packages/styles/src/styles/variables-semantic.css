@@ -471,7 +471,7 @@
     --cubic-exit: cubic-bezier(0.8, 0, 0.4, 1);
     --cubic-exit-snappy: cubic-bezier(0.65, 0, 0.4, 1); /* less inertia delay */
     --cubic-move: cubic-bezier(0.65, 0, 0.35, 1);
-    --transition-duration-basic: 150ms;
+    --transition-duration-basic: 120ms;
     --transition-ease-basic: ease;
     /* Overlays: enter slower than they leave. `large` is a panel that crosses
        the screen (sheet, side panel). The timers that unmount an overlay match
