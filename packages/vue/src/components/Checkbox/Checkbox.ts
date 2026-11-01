@@ -165,7 +165,9 @@ const CheckboxComponent = defineComponent({
                     ...buttonAttrs,
                     "aria-describedby": ariaDescribedBy,
                   },
-                  { default: () => h(RekaCheckboxIndicator, { class: s.CheckMark }) },
+                  // Mounted for good: on every uncheck Presence reads computed style, and
+                  // a long list of boxes cleared at once forces one style pass per box.
+                  { default: () => h(RekaCheckboxIndicator, { class: s.CheckMark, forceMount: true }) },
                 ),
             },
           ),

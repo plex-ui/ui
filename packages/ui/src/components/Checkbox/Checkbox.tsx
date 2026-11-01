@@ -99,7 +99,7 @@ export const Checkbox = ({
         {...restProps}
         aria-describedby={ariaDescribedBy}
       >
-        <RadixCheckbox.Indicator className={s.CheckMark} />
+        <RadixCheckbox.Indicator className={s.CheckMark} forceMount />
       </RadixCheckbox.Root>
       {descriptionId ? (
         <div className={s.LabelGroup}>

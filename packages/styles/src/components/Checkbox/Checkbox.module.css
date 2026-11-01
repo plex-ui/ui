@@ -126,14 +126,10 @@
     opacity 150ms ease,
     transform 150ms ease;
 
-  /* Radix mounts the indicator on every check, so the entry animation would
-     also play for every checked box on first render or when a tab with
-     checkboxes opens. It plays only for the checkbox in use: hovered, or
-     focused from the keyboard. */
-  .Container:is(:hover, :focus-within) & {
-    @starting-style {
-      opacity: 0;
-    }
+  /* The indicator stays mounted, so a long list of boxes cleared at once costs
+     no style pass per box and first render plays no animation. */
+  [data-state="unchecked"] > & {
+    opacity: 0;
   }
 
   [data-state="indeterminate"] & {
