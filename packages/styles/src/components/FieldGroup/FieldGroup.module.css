@@ -1,0 +1,49 @@
+.FieldGroup {
+  min-width: 0;
+}
+
+/* =============================================
+   Header  (title + description, action at the end)
+============================================= */
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: spacing(4);
+  min-height: spacing(8);
+  padding-bottom: spacing(2);
+}
+
+.HeaderText {
+  min-width: 0;
+}
+
+.Title {
+  margin: 0;
+  padding-inline: var(--field-group-title-padding-inline);
+  color: var(--field-group-title-color);
+  font-size: var(--field-group-title-font-size);
+  line-height: var(--field-group-title-line-height);
+  font-weight: var(--field-group-title-font-weight);
+}
+
+.Description {
+  margin: 0;
+  padding-inline: var(--field-group-title-padding-inline);
+  color: var(--color-text-secondary);
+  font-size: var(--field-group-description-font-size);
+  line-height: var(--field-group-description-line-height);
+}
+
+/* =============================================
+   Body  (the block of rows)
+============================================= */
+.Body {
+  border: var(--field-group-border-width) solid var(--color-border);
+  border-radius: var(--field-group-radius);
+  background: var(--field-group-background);
+}
+
+.Body > [data-row] + [data-row] {
+  border-top: 1px solid var(--color-border);
+}

@@ -62,6 +62,28 @@
     --switch-track-height: 28px;
     --switch-thumb-width: 39px;
     --switch-thumb-offset: 2px;
+
+    --field-row-min-height: 60px;
+    --field-row-padding-block: 8px;
+    --field-row-text-padding-block: 12px;
+    --field-row-gap: 16px;
+    --field-row-text-display: contents;
+    --field-row-label-font-size: 17px;
+    --field-row-label-line-height: 22px;
+    --field-row-label-font-weight: var(--font-weight-normal);
+    --field-row-description-font-size: 15px;
+    --field-row-description-line-height: 20px;
+
+    --field-group-radius: 26px;
+    --field-group-border-width: 0;
+    --field-group-background: var(--color-surface);
+    --field-group-title-color: var(--color-text-secondary);
+    --field-group-title-font-size: 17px;
+    --field-group-title-line-height: 22px;
+    --field-group-title-font-weight: var(--font-weight-semibold);
+    --field-group-title-padding-inline: 16px;
+    --field-group-description-font-size: 13px;
+    --field-group-description-line-height: 18px;
   }
 
   html [data-mobile-placement="bottom"] {

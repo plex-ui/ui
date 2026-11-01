@@ -201,3 +201,84 @@
 .Control {
   /* Container for the child form control */
 }
+
+/* =============================================
+   Row  (one line of a FieldGroup)
+   Label at the start, control at the end, an
+   error under both. Last in the file: a row
+   sets what the sizes above set.
+============================================= */
+.Field:where([data-row]) {
+  --field-label-font-size: var(--field-row-label-font-size);
+  --field-label-line-height: var(--field-row-label-line-height);
+  --field-label-font-weight: var(--field-row-label-font-weight);
+  --field-description-font-size: var(--field-row-description-font-size);
+  --field-description-line-height: var(--field-row-description-line-height);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--field-row-gap);
+  row-gap: var(--field-row-row-gap);
+  box-sizing: border-box;
+  min-height: var(--field-row-min-height);
+  padding: var(--field-row-padding-block) var(--field-row-padding-inline);
+}
+
+.Field:where([data-row]):has(.Description, .Content > :not(.Control)) {
+  padding-block: var(--field-row-text-padding-block);
+}
+
+/* Touch sizes set `contents`: the description then runs under the control too */
+.Field:where([data-row]) .LabelGroup {
+  display: var(--field-row-text-display);
+  align-items: flex-start;
+  grid-column: 1;
+  grid-row: 1;
+  width: auto;
+  min-width: 0;
+  padding-top: 0;
+}
+
+.Field:where([data-row]) .Label,
+.Field:where([data-row]) .LabelRow {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.Field:where([data-row]) .Label {
+  cursor: inherit;
+}
+
+.Field:where([data-row]) .LabelRow {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.Field:where([data-row]) .Description,
+.Field:where([data-row]) .Content > :not(.Control) {
+  grid-column: 1 / -1;
+}
+
+.Field:where([data-row]) .Content {
+  display: contents;
+}
+
+.Field:where([data-row]) .Control {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* A control that needs the width takes its own line */
+.Field:where([data-row][data-orientation="vertical"]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.Field:where([data-row][data-orientation="vertical"]) .Control {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: stretch;
+}

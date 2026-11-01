@@ -2193,8 +2193,14 @@
         {
           "name": "orientation",
           "type": "\"vertical\" | \"horizontal\"",
-          "default": "\"vertical\"",
+          "default": "\"horizontal\" on a row, else \"vertical\"",
           "description": "Layout direction of label and control"
+        },
+        {
+          "name": "row",
+          "type": "boolean",
+          "default": "false",
+          "description": "One line of a FieldGroup. Other attributes reach the root only on a row"
         },
         {
           "name": "optically-align",
@@ -2249,6 +2255,11 @@
           "details": "Use orientation=\"horizontal\" to render the label beside the control instead of above it."
         },
         {
+          "name": "Rows",
+          "code": "<div class=\"w-full max-w-[480px]\">\n  <FieldGroup title=\"Notifications\" description=\"How we reach you.\">\n    <Field row label=\"Email updates\">\n      <Switch />\n    </Field>\n    <Field row label=\"Weekly summary\" description=\"Sent on Mondays.\">\n      <Switch />\n    </Field>\n  </FieldGroup>\n</div>",
+          "details": "Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone."
+        },
+        {
           "name": "Textarea",
           "code": "<div class=\"w-[320px]\">\n  <Field label=\"Bio\" description=\"Write a short bio for your profile.\">\n    <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n  </Field>\n</div>"
         },
@@ -2288,7 +2299,7 @@
           "details": "Pair a Field with a Switch using orientation=\"horizontal\" for inline toggle settings."
         },
         {
-          "name": "Field group",
+          "name": "Stacked fields",
           "code": "<div class=\"w-[400px] divide-y divide-alpha/15\">\n  <div class=\"pb-6\">\n    <Field\n      label=\"Responses\"\n      description=\"Get notified when the assistant responds to requests that take time, like research or image generation.\"\n      v-slot=\"{ id }\"\n    >\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" default-checked />\n      </div>\n    </Field>\n  </div>\n  <div class=\"py-6\">\n    <Field\n      label=\"Tasks\"\n      description=\"Get notified when tasks you've created have updates.\"\n      v-slot=\"{ id }\"\n    >\n      <div class=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" />\n        <Checkbox label=\"Email notifications\" />\n      </div>\n    </Field>\n  </div>\n</div>",
           "details": "Stack Field components with a divider to group related notification settings."
         },
@@ -2341,6 +2352,43 @@
           "name": "Birthday with selects",
           "code": "<div class=\"w-[320px]\">\n  <Field label=\"Birthday\" v-slot=\"fieldProps\">\n    <div class=\"flex gap-2\">\n      <div class=\"w-[130px]\">\n        <Select\n          :id=\"fieldProps.id\"\n          v-model:value=\"month\"\n          :options=\"birthdayMonthOptions\"\n          placeholder=\"Month\"\n          size=\"md\"\n          variant=\"outline\"\n        />\n      </div>\n      <div class=\"w-[84px]\">\n        <Select\n          v-model:value=\"day\"\n          :options=\"birthdayDayOptions\"\n          placeholder=\"Day\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Day\"\n        />\n      </div>\n      <div class=\"w-[108px]\">\n        <Select\n          v-model:value=\"year\"\n          :options=\"birthdayYearOptions\"\n          placeholder=\"Year\"\n          size=\"md\"\n          variant=\"outline\"\n          aria-label=\"Year\"\n        />\n      </div>\n    </div>\n  </Field>\n</div>",
           "details": "Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group. The field id goes to the month select, and the day and year selects carry their own aria-label."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "FieldGroup",
+          "props": [
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Heading over the block (or the title slot); it names the group"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Line under the title (or the description slot)"
+            },
+            {
+              "name": "bodyClass",
+              "type": "string",
+              "description": "Applied to the block that holds the rows"
+            },
+            {
+              "name": "default slot",
+              "type": "VNode",
+              "description": "The rows"
+            },
+            {
+              "name": "action slot",
+              "type": "VNode",
+              "description": "Content at the end of the header"
+            },
+            {
+              "name": "footer slot",
+              "type": "VNode",
+              "description": "Content under the block"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/field"
@@ -6721,5 +6769,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T13:45:16.119Z"
+  "generatedAt": "2026-11-01T22:08:30.433Z"
 }

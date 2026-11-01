@@ -211,6 +211,36 @@
     --field-horizontal-control-width: 240px;
 
     /* =============================================
+      Field row
+    ============================================= */
+    --field-row-min-height: 52px;
+    --field-row-padding-block: 10px;
+    --field-row-text-padding-block: 10px;
+    --field-row-padding-inline: 16px;
+    --field-row-gap: 24px;
+    --field-row-row-gap: 2px;
+    --field-row-text-display: flex;
+    --field-row-label-font-size: var(--font-text-sm-size);
+    --field-row-label-line-height: var(--font-text-sm-line-height);
+    --field-row-label-font-weight: var(--font-weight-medium);
+    --field-row-description-font-size: var(--font-text-sm-size);
+    --field-row-description-line-height: var(--font-text-sm-line-height);
+
+    /* =============================================
+      FieldGroup
+    ============================================= */
+    --field-group-radius: 1rem;
+    --field-group-border-width: 1px;
+    --field-group-background: transparent;
+    --field-group-title-color: var(--color-text);
+    --field-group-title-font-size: var(--font-text-md-size);
+    --field-group-title-line-height: var(--font-text-md-line-height);
+    --field-group-title-font-weight: var(--font-weight-medium);
+    --field-group-title-padding-inline: 0;
+    --field-group-description-font-size: var(--font-text-xs-size);
+    --field-group-description-line-height: var(--font-text-xs-line-height);
+
+    /* =============================================
       FloatingLabelInput
     ============================================= */
     --floating-input-height: 3.25rem;

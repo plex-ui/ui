@@ -2409,11 +2409,19 @@ Props:
   - label-action (string) — Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
-  - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
+  - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
+  - row (boolean) default: false — One line of a FieldGroup. Other attributes reach the root only on a row
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element
   - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
+  FieldGroup:
+    - title (string) — Heading over the block (or the title slot); it names the group
+    - description (string) — Line under the title (or the description slot)
+    - bodyClass (string) — Applied to the block that holds the rows
+    - default slot (VNode) — The rows
+    - action slot (VNode) — Content at the end of the header
+    - footer slot (VNode) — Content under the block
 
 ### Overview
 Field wraps a form control with a label, optional description, and error message. It automatically generates the label's for, aria-describedby, and aria-invalid linking between the label, description, error, and child control.
@@ -2492,6 +2500,21 @@ Use orientation="horizontal" to render the label beside the control instead of a
   <Field label="Last name" :orientation="orientation">
     <Input placeholder="Doe" />
   </Field>
+</div>
+```
+
+### Rows
+Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone.
+```vue
+<div class="w-full max-w-[480px]">
+  <FieldGroup title="Notifications" description="How we reach you.">
+    <Field row label="Email updates">
+      <Switch />
+    </Field>
+    <Field row label="Weekly summary" description="Sent on Mondays.">
+      <Switch />
+    </Field>
+  </FieldGroup>
 </div>
 ```
 
@@ -2619,7 +2642,7 @@ Pair a Field with a Switch using orientation="horizontal" for inline toggle sett
 </div>
 ```
 
-### Field group
+### Stacked fields
 Stack Field components with a divider to group related notification settings.
 ```vue
 <div class="w-[400px] divide-y divide-alpha/15">

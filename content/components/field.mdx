@@ -15,6 +15,7 @@ import {
   FieldWithErrorDemo,
   FieldRequiredDemo,
   FieldOrientationDemo,
+  FieldRowsDemo,
   FieldWithTextareaDemo,
   FieldWithSelectDemo,
   FieldLabelActionDemo,
@@ -36,7 +37,8 @@ import {
   FieldConfigurationDemo,
 } from "@/components/docs/FieldDemos"
 
-<UsageBlock>{`import { Field } from "@plexui/ui/components/Field";`}</UsageBlock>
+<UsageBlock>{`import { Field } from "@plexui/ui/components/Field";
+import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ## Examples
 
@@ -114,6 +116,19 @@ import {
   </Field>
 </div>`} previewMinHeight={168}>
   <FieldOrientationDemo />
+</ComponentPreview>
+
+### Rows
+
+<ComponentPreview details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone.</>} code={`<FieldGroup title="Notifications" description="How we reach you.">
+  <Field row label="Email updates">
+    <Switch />
+  </Field>
+  <Field row label="Weekly summary" description="Sent on Mondays.">
+    <Switch />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <FieldRowsDemo />
 </ComponentPreview>
 
 ### Textarea
@@ -243,7 +258,7 @@ import {
   <FieldWithSwitchDemo />
 </ComponentPreview>
 
-### Field group
+### Stacked fields
 
 <ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="w-[400px] divide-y divide-alpha/15">
   <div className="pb-6">
@@ -846,11 +861,24 @@ const [year, setYear] = useState("")
   { prop: "labelAction", type: "ReactNode", description: "Content at the end of the label row, such as a link that acts on the field" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
-  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
+  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
+  { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Other div props reach the root only on a row" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread" },
   { prop: "className", type: "string", description: "Applied to the root wrapper" },
+]} />
+
+### FieldGroup
+
+<PropsTable data={[
+  { prop: "title", type: "ReactNode", description: "Heading over the block; it names the group" },
+  { prop: "description", type: "ReactNode", description: "Line under the title" },
+  { prop: "action", type: "ReactNode", description: "Content at the end of the header" },
+  { prop: "footer", type: "ReactNode", description: "Content under the block" },
+  { prop: "bodyClassName", type: "string", description: "Applied to the block that holds the rows" },
+  { prop: "children", type: "ReactNode", description: "The rows" },
+  { prop: "className", type: "string", description: "Applied to the root section" },
 ]} />
 
 ## Styling
@@ -868,3 +896,28 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-horizontal-control-width`: horizontal control width (default `240px`)
 - `--field-horizontal-label-width`: horizontal label width (default `120px`)
 - `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)
+- `--field-row-description-font-size`: description size on a row (default `var(--font-text-sm-size)`)
+- `--field-row-description-line-height`: description line height on a row (default `var(--font-text-sm-line-height)`)
+- `--field-row-gap`: space between label and control (default `24px`)
+- `--field-row-label-font-size`: label size on a row (default `var(--font-text-sm-size)`)
+- `--field-row-label-font-weight`: label weight on a row (default `var(--font-weight-medium)`)
+- `--field-row-label-line-height`: label line height on a row (default `var(--font-text-sm-line-height)`)
+- `--field-row-min-height`: row height (default `52px`)
+- `--field-row-padding-block`: row padding (default `10px`)
+- `--field-row-padding-inline`: row padding (default `16px`)
+- `--field-row-row-gap`: space above an error (default `2px`)
+- `--field-row-text-display`: `contents` runs the description under the control (default `flex`)
+- `--field-row-text-padding-block`: row padding with a description or an error (default `10px`)
+
+FieldGroup reads these:
+
+- `--field-group-background`: block background (default `transparent`)
+- `--field-group-border-width`: block border (default `1px`)
+- `--field-group-description-font-size`: description size (default `var(--font-text-xs-size)`)
+- `--field-group-description-line-height`: description line height (default `var(--font-text-xs-line-height)`)
+- `--field-group-radius`: block radius (default `1rem`)
+- `--field-group-title-color`: title color (default `var(--color-text)`)
+- `--field-group-title-font-size`: title size (default `var(--font-text-md-size)`)
+- `--field-group-title-font-weight`: title weight (default `var(--font-weight-medium)`)
+- `--field-group-title-line-height`: title line height (default `var(--font-text-md-line-height)`)
+- `--field-group-title-padding-inline`: title inset (default `0`)

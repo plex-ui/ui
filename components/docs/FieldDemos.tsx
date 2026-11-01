@@ -2,6 +2,7 @@
 
 import React, { useCallback, useId, useRef, useState } from 'react';
 import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { FieldError } from '@plexui/ui/components/FieldError';
 import { Input } from '@plexui/ui/components/Input';
 import { Textarea } from '@plexui/ui/components/Textarea';
@@ -166,6 +167,21 @@ export function FieldRequiredDemo() {
         </div>
       </div>
     </>
+  );
+}
+
+export function FieldRowsDemo() {
+  return (
+    <div className="w-full max-w-[480px]">
+      <FieldGroup title="Notifications" description="How we reach you.">
+        <Field row label="Email updates">
+          <Switch />
+        </Field>
+        <Field row label="Weekly summary" description="Sent on Mondays.">
+          <Switch />
+        </Field>
+      </FieldGroup>
+    </div>
   );
 }
 

@@ -56,9 +56,16 @@ export type FieldProps = {
    * Layout direction of label and control.
    * - "vertical": label stacked above control (default)
    * - "horizontal": label beside control
-   * @default "vertical"
+   * @default "horizontal" on a `row`, else "vertical"
    */
   orientation?: "vertical" | "horizontal"
+  /**
+   * One line of a FieldGroup: label at the start, control at the end, an error
+   * under both. Other div props reach the root only on a row, so it can carry
+   * a click or data attributes.
+   * @default false
+   */
+  row?: boolean
   /**
    * Allows overriding the auto-generated `id`. When provided, this becomes
    * the id set on the child control and the `htmlFor` on the label. A child's
@@ -85,7 +92,7 @@ export type FieldProps = {
    * - If a function (render prop), it is called with { id, "aria-labelledby", "aria-describedby", "aria-invalid" }.
    */
   children: React.ReactElement | ((fieldProps: FieldChildProps) => React.ReactNode)
-}
+} & Omit<React.ComponentProps<"div">, "children" | "id" | "className">
 
 export function Field({
   label,
@@ -94,12 +101,15 @@ export function Field({
   labelAction,
   size: sizeProp,
   required = false,
-  orientation = "vertical",
+  orientation: orientationProp,
+  row = false,
   opticallyAlign,
   id: idProp,
   className,
   children,
+  ...rest
 }: FieldProps) {
+  const orientation = orientationProp ?? (row ? "horizontal" : "vertical")
   const generatedId = useId()
   const fieldId = idProp || `field-${generatedId}`
   const labelId = `${fieldId}-label`
@@ -160,10 +170,12 @@ export function Field({
 
   return (
     <div
+      {...(row ? rest : undefined)}
       className={clsx(s.Field, className)}
       data-size={size}
       data-orientation={orientation}
       data-optically-align={opticallyAlign}
+      data-row={row ? "" : undefined}
     >
       <div className={s.LabelGroup}>
         {labelAction ? (

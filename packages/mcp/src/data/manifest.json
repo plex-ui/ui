@@ -2138,7 +2138,22 @@
       "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
       "importPath": "@plexui/ui/components/Field",
       "exports": [
-        "Field"
+        "Field",
+        "FieldGroup"
+      ],
+      "imports": [
+        {
+          "path": "@plexui/ui/components/Field",
+          "names": [
+            "Field"
+          ]
+        },
+        {
+          "path": "@plexui/ui/components/FieldGroup",
+          "names": [
+            "FieldGroup"
+          ]
+        }
       ],
       "props": [
         {
@@ -2176,8 +2191,14 @@
         {
           "name": "orientation",
           "type": "\"vertical\" | \"horizontal\"",
-          "default": "\"vertical\"",
+          "default": "\"horizontal\" on a row, else \"vertical\"",
           "description": "Layout direction of label and control"
+        },
+        {
+          "name": "row",
+          "type": "boolean",
+          "default": "false",
+          "description": "One line of a FieldGroup. Other div props reach the root only on a row"
         },
         {
           "name": "opticallyAlign",
@@ -2232,6 +2253,11 @@
           "details": "Use orientation=\"horizontal\" to render the label beside the control instead of above it."
         },
         {
+          "name": "Rows",
+          "code": "<FieldGroup title=\"Notifications\" description=\"How we reach you.\">\n<Field row label=\"Email updates\">\n  <Switch />\n</Field>\n<Field row label=\"Weekly summary\" description=\"Sent on Mondays.\">\n  <Switch />\n</Field>\n</FieldGroup>",
+          "details": "Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone."
+        },
+        {
           "name": "Textarea",
           "code": "<div className=\"w-[320px]\">\n<Field label=\"Bio\" description=\"Write a short bio for your profile.\">\n  <Textarea placeholder=\"Tell us about yourself...\" rows={3} />\n</Field>\n</div>"
         },
@@ -2271,7 +2297,7 @@
           "details": "Pair a Field with a Switch using orientation=\"horizontal\" for inline toggle settings."
         },
         {
-          "name": "Field group",
+          "name": "Stacked fields",
           "code": "<div className=\"w-[400px] divide-y divide-alpha/15\">\n<div className=\"pb-6\">\n  <Field\n    label=\"Responses\"\n    description=\"Get notified when the assistant responds to requests that take time, like research or image generation.\"\n  >\n    {() => (\n      <div className=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" defaultChecked />\n      </div>\n    )}\n  </Field>\n</div>\n<div className=\"py-6\">\n  <Field label=\"Tasks\" description=\"Get notified when tasks you've created have updates.\">\n    {() => (\n      <div className=\"flex flex-col gap-3 mt-1\">\n        <Checkbox label=\"Push notifications\" />\n        <Checkbox label=\"Email notifications\" />\n      </div>\n    )}\n  </Field>\n</div>\n</div>",
           "details": "Stack Field components with a divider to group related notification settings."
         },
@@ -2324,6 +2350,48 @@
           "name": "Birthday with selects",
           "code": "const [month, setMonth] = useState(\"\")\nconst [day, setDay] = useState(\"\")\nconst [year, setYear] = useState(\"\")\n\n<div className=\"w-[320px]\">\n<Field label=\"Birthday\">\n  {(fieldProps) => (\n    <div className=\"flex gap-2\">\n      <div className=\"w-[130px]\">\n        <Select\n          id={fieldProps.id}\n          value={month}\n          options={monthOptions}\n          placeholder=\"Month\"\n          onChange={(option) => setMonth(option.value)}\n        />\n      </div>\n      <div className=\"w-[84px]\">\n        <Select\n          value={day}\n          options={dayOptions}\n          placeholder=\"Day\"\n          onChange={(option) => setDay(option.value)}\n          aria-label=\"Day\"\n        />\n      </div>\n      <div className=\"w-[108px]\">\n        <Select\n          value={year}\n          options={yearOptions}\n          placeholder=\"Year\"\n          onChange={(option) => setYear(option.value)}\n          aria-label=\"Year\"\n        />\n      </div>\n    </div>\n  )}\n</Field>\n</div>",
           "details": "Dropdown birthday picker with Month/Day/Year selects inside a labeled Field group. The field id goes to the month select, and the day and year selects carry their own aria-label."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "FieldGroup",
+          "props": [
+            {
+              "name": "title",
+              "type": "ReactNode",
+              "description": "Heading over the block; it names the group"
+            },
+            {
+              "name": "description",
+              "type": "ReactNode",
+              "description": "Line under the title"
+            },
+            {
+              "name": "action",
+              "type": "ReactNode",
+              "description": "Content at the end of the header"
+            },
+            {
+              "name": "footer",
+              "type": "ReactNode",
+              "description": "Content under the block"
+            },
+            {
+              "name": "bodyClassName",
+              "type": "string",
+              "description": "Applied to the block that holds the rows"
+            },
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "description": "The rows"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "Applied to the root section"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/field"
@@ -6610,5 +6678,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T13:45:15.416Z"
+  "generatedAt": "2026-11-01T22:08:29.830Z"
 }

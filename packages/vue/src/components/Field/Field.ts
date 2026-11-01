@@ -44,7 +44,7 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 //   - content a wrapper forwards with `<slot />` counts as its own roots, as
 //     React's `children` passed on to Field are the elements themselves.
 // - As in React only `class` reaches the root element; other attributes are
-//   dropped.
+//   dropped. On a `row` they all reach it, as React's rest props do.
 
 export type FieldChildProps = {
   id: string
@@ -179,8 +179,10 @@ const FieldComponent = defineComponent({
     size: String as PropType<ControlSize>,
     /** Shows a required asterisk after the label. Visual only: no `required` attribute. @default false */
     required: { type: Boolean, default: false },
-    /** Layout direction of label and control. @default "vertical" */
-    orientation: { type: String as PropType<"vertical" | "horizontal">, default: "vertical" },
+    /** Layout direction of label and control. @default "horizontal" on a `row`, else "vertical" */
+    orientation: String as PropType<"vertical" | "horizontal">,
+    /** One line of a FieldGroup: label at the start, control at the end. @default false */
+    row: { type: Boolean, default: false },
     /** Overrides the generated id set on the control and the label's `for`. A child's own `id` wins over both. */
     id: String,
     /** Optically aligns the control's text with surrounding content; passed to the control. */
@@ -198,7 +200,8 @@ const FieldComponent = defineComponent({
     const generatedId = useId()
 
     return () => {
-      const { required, orientation, opticallyAlign } = props
+      const { required, row, opticallyAlign } = props
+      const orientation = props.orientation ?? (row ? "horizontal" : "vertical")
       const fieldId = props.id || `field-${generatedId}`
       const labelId = `${fieldId}-label`
 
@@ -247,10 +250,12 @@ const FieldComponent = defineComponent({
       return h(
         "div",
         {
+          ...(row && attrs),
           "class": clsx(s.Field, attrs.class as ClassValue),
           "data-size": size,
           "data-orientation": orientation,
           "data-optically-align": opticallyAlign,
+          "data-row": row ? "" : undefined,
         },
         [
           h("div", { class: s.LabelGroup }, [

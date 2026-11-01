@@ -381,12 +381,20 @@ Props:
   - label-action (string) — Content at the end of the label row, such as a link that acts on the field (or the labelAction slot)
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
-  - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
+  - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
+  - row (boolean) default: false — One line of a FieldGroup. Other attributes reach the root only on a row
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element
   - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
-Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
+  FieldGroup:
+    - title (string) — Heading over the block (or the title slot); it names the group
+    - description (string) — Line under the title (or the description slot)
+    - bodyClass (string) — Applied to the block that holds the rows
+    - default slot (VNode) — The rows
+    - action slot (VNode) — Content at the end of the header
+    - footer slot (VNode) — Content under the block
+Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Rows, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.

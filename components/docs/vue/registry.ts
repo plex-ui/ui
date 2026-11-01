@@ -49,6 +49,7 @@ import {
 } from '@plexui/vue/components/EmptyMessage';
 import { Field } from '@plexui/vue/components/Field';
 import { FieldError } from '@plexui/vue/components/FieldError';
+import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { FileCard, FileCardGroup, FileUpload } from '@plexui/vue/components/FileUpload';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
 import { FloatingLabelSelect } from '@plexui/vue/components/FloatingLabelSelect';
@@ -260,6 +261,7 @@ const components: Record<string, Component> = {
   EmptyMessageTitle,
   Field,
   FieldError,
+  FieldGroup,
   FileCard,
   FileCardGroup,
   FileUpload,
