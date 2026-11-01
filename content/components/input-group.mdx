@@ -184,7 +184,7 @@ return (
 | `invalid` | `boolean` | `false` | Invalid border; sets `aria-invalid` on the control |
 | `className` | `string` | | Applied to the root `<div>` |
 
-Renders a `<div role="group">`. All other `<div>` attributes are forwarded. Clicking the frame, an icon or text focuses the control.
+Renders a plain `<div>`. All other `<div>` attributes are forwarded, so pass `role="group"` with an `aria-label` when the group needs a name of its own. Clicking the frame, an icon or text focuses the control.
 
 ### InputGroup.Input
 

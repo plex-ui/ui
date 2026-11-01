@@ -27,6 +27,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Fixed
 
 - `Popover.Content` passes `data-*` attributes on to the panel. It dropped them.
+- `InputGroup` no longer sets `role="group"` on every instance: a group without a name adds nothing for assistive technology. Pass `role` yourself when you want it.
 - `Select` opens on Enter, as a combobox button does. It already opened on Space and the arrow keys.
 - A `Field` label opens the `Select` it belongs to. Its `for` reached the hidden input and only moved focus to the trigger.
 - `Field` keeps an `id` its child already has and points the label at it, instead of replacing it silently.

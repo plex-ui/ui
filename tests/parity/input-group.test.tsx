@@ -93,6 +93,11 @@ describe("InputGroup parity", () => {
     expect(vue).toBe(react)
   })
 
+  test("the group has no role of its own", async () => {
+    const { react } = await renderPair(reactSearch({}), () => vueSearch({}))
+    expect(react).not.toContain("role=")
+  })
+
   const inputCases: Array<[string, Props, Props]> = [
     ["type and attributes", {}, { type: "email", name: "email", className: "font-mono", maxLength: 40, readOnly: true }],
     ["controlled value", {}, { value: "plex", onChange: () => {} }],

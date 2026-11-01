@@ -112,7 +112,6 @@ const InputGroupComponent = defineComponent({
       return h(
         "div",
         {
-          "role": "group",
           "data-slot": "input-group",
           "data-variant": props.variant,
           "data-size": props.size,

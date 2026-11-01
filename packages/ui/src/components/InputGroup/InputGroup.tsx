@@ -106,7 +106,6 @@ const InputGroupRoot = ({
     <InputGroupContext.Provider value={{ size, pill, disabled, invalid }}>
       <div
         ref={ref}
-        role="group"
         data-slot="input-group"
         data-variant={variant}
         data-size={size}
