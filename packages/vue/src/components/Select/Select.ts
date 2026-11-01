@@ -1195,6 +1195,8 @@ const CustomSelectSearch = defineComponent({
           {
             "value": props.value,
             "size": selectProps.searchSize,
+            "variant": "ghost",
+            "pill": true,
             "placeholder": selectProps.searchPlaceholder,
             "aria-label": selectProps.searchAriaLabel,
             "onUpdate:value": (next: string) => emit("update:value", next),

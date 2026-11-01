@@ -1206,6 +1206,8 @@ const CustomSelectSearch = ({ value, onChange, hasResults }: CustomSelectSearchP
         }
         ref={searchInputRef}
         size={searchSize}
+        variant="ghost"
+        pill
         value={value}
         placeholder={searchPlaceholder}
         aria-label={searchAriaLabel}

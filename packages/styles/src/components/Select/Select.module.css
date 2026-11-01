@@ -10,6 +10,7 @@
   --menu-gutter: var(--menu-pill-gutter);
   --menu-item-padding: var(--menu-pill-item-padding);
   --menu-separator-gutter: var(--menu-pill-separator-gutter);
+  --menu-search-gutter: 12px;
 }
 
 .MenuList {
@@ -349,6 +350,12 @@
   Search
 ============================================= */
 .Search {
+  /* The search icon starts on the left edge of the option text, at any size */
+  --control-gutter-pill-scaling: 1;
+  --control-gutter-xs: var(--menu-search-gutter, 8px);
+  --control-gutter-sm: var(--menu-search-gutter, 8px);
+  --control-gutter-md: var(--menu-search-gutter, 8px);
+  --control-gutter-lg: var(--menu-search-gutter, 8px);
   position: relative;
   padding: var(--menu-gutter) var(--menu-gutter) 0;
 }
