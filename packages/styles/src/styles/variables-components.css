@@ -86,6 +86,7 @@
     --button-gap-md: 4px;
     --button-gap-lg: 6px;
     --button-font-weight: var(--font-weight-medium);
+    --button-outline-background: transparent;
 
     /* =============================================
       Card
@@ -288,6 +289,8 @@
     --dialog-container-inner-padding: spacing(5);
     --dialog-backdrop-dim-background: light-dark(rgb(0 0 0 / 30%), rgb(0 0 0 / 50%));
     --dialog-backdrop-fade-background: alpha(var(--color-surface-elevated), 60%);
+    --dialog-close-background: transparent;
+    --dialog-close-background-hover: color-mix(in srgb, var(--color-text-tertiary) 12%, transparent);
 
     /* =============================================
       Menu

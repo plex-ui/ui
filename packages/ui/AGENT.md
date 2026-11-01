@@ -113,6 +113,7 @@ Plus all standard HTML input attributes.
 | value | `string \| string[]` | required |
 | onChange | `(option: Option) => void` (`(options: Option[]) => void` with `multiple`) | required |
 | multiple | `boolean` | `false` |
+| allSelectedLabel | `string` | `"All selected"` |
 | clearable | `boolean` | `false` |
 | loading | `boolean` | `false` |
 | placeholder | `string` | `"Select..."` |

@@ -626,7 +626,7 @@
     color: var(--button-text-color);
 
     &::before {
-      background-color: transparent;
+      background-color: var(--button-outline-background);
       box-shadow:
         0 0 0 1px var(--button-border-color) inset,
         var(--button-shadow-custom, 0 0 #00000000);

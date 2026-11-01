@@ -237,13 +237,13 @@
   height: 2rem;
   border: 0;
   border-radius: 0.5rem;
-  background: transparent;
+  background: var(--dialog-close-background);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: background-color 0.2s var(--cubic-enter), color 0.2s var(--cubic-enter);
 
   &:hover {
-    background: color-mix(in srgb, var(--color-text-tertiary) 12%, transparent);
+    background: var(--dialog-close-background-hover);
     color: var(--color-text);
   }
 

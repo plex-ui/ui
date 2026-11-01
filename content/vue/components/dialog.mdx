@@ -184,4 +184,7 @@ export const placement = `<Dialog v-model:open="open">
 
 ## Styling
 
-Dialog has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Two tokens of its own restyle the close button. Override them at any scope:
+
+- `--dialog-close-background`: close button background (default `transparent`)
+- `--dialog-close-background-hover`: close button background on hover
