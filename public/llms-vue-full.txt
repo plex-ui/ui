@@ -2411,7 +2411,7 @@ Props:
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
-  - id (string) — Override the generated id used for the label's for and aria linking
+  - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element
   - default slot ((fieldProps) => VNode[]) — Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby
 

@@ -61,7 +61,8 @@ export type FieldProps = {
   orientation?: "vertical" | "horizontal"
   /**
    * Allows overriding the auto-generated `id`. When provided, this becomes
-   * the id set on the child control and the `htmlFor` on the label.
+   * the id set on the child control and the `htmlFor` on the label. A child's
+   * own `id` wins over both: it stays, and the label's `htmlFor` follows it.
    */
   id?: string
   /**
@@ -76,7 +77,8 @@ export type FieldProps = {
   className?: string
   /**
    * The form control(s) to render.
-   * - If a single ReactElement, Field clones it with { id, aria-describedby, aria-invalid }.
+   * - If a single ReactElement, Field clones it with { id, aria-describedby, aria-invalid },
+   *   keeping an `id` the child already has.
    *   A child without its own `aria-label`, `aria-labelledby` or `label` also gets
    *   `aria-labelledby` pointing at the label, which names controls the label's
    *   `for` cannot reach, such as the Select and DatePicker triggers.
@@ -101,8 +103,11 @@ export function Field({
   const generatedId = useId()
   const fieldId = idProp || `field-${generatedId}`
   const labelId = `${fieldId}-label`
-  const childSize = isValidElement<{ size?: unknown }>(children) ? children.props.size : undefined
+  const childProps = isValidElement<{ size?: unknown; id?: string }>(children) ? children.props : undefined
+  const childSize = childProps?.size
   const size = sizeProp ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
+  // The control's id, which the label's `htmlFor` has to match
+  const controlId = childProps?.id || fieldId
   const descriptionId = description ? `${fieldId}-description` : undefined
   const errorId = errorMessage ? `${fieldId}-error` : undefined
 
@@ -115,7 +120,7 @@ export function Field({
   // Props to inject into the child control (`aria-labelledby` is added below:
   // to a render prop's props, and to a cloned child without a name of its own)
   const fieldChildProps: FieldChildProps = {
-    id: fieldId,
+    id: controlId,
     "aria-describedby": ariaDescribedBy,
     "aria-invalid": invalid || undefined,
     ...(opticallyAlign && { opticallyAlign }),
@@ -143,7 +148,7 @@ export function Field({
   }
 
   const labelElement = (
-    <label className={s.Label} id={labelId} htmlFor={fieldId}>
+    <label className={s.Label} id={labelId} htmlFor={controlId}>
       {label}
       {required && (
         <span className={s.RequiredIndicator} aria-hidden="true">

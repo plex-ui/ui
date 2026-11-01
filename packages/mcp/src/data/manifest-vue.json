@@ -2204,7 +2204,7 @@
         {
           "name": "id",
           "type": "string",
-          "description": "Override the generated id used for the label's for and aria linking"
+          "description": "Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it"
         },
         {
           "name": "class",
@@ -6704,5 +6704,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:28:28.577Z"
+  "generatedAt": "2026-11-01T11:36:07.206Z"
 }

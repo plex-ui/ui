@@ -381,7 +381,7 @@ Props:
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "vertical" — Layout direction of label and control
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
-  - id (string) — Override the auto-generated id used for htmlFor/aria linking
+  - id (string) — Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it
   - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread
   - className (string) — Applied to the root wrapper
 Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Field group, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects

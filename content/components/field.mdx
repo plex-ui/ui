@@ -848,7 +848,7 @@ const [year, setYear] = useState("")
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
-  { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking" },
+  { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread" },
   { prop: "className", type: "string", description: "Applied to the root wrapper" },
 ]} />

@@ -2187,7 +2187,7 @@
         {
           "name": "id",
           "type": "string",
-          "description": "Override the auto-generated id used for htmlFor/aria linking"
+          "description": "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it"
         },
         {
           "name": "children",
@@ -6593,5 +6593,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:28:27.844Z"
+  "generatedAt": "2026-11-01T11:36:06.614Z"
 }

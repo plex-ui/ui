@@ -35,6 +35,18 @@ const roles = [
 const noop = () => {}
 
 describe("Field labels its control", () => {
+  test("the label follows a child's own id", async () => {
+    const pair = await renderPair(
+      <RField label="Email">
+        <RInput id="own" />
+      </RField>,
+      () => h(Field, { label: "Email" }, () => h(Input, { id: "own" })),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain('for="own"')
+    expect(pair.react).toContain('id="own"')
+  })
+
   test("a Select trigger is named by the label and its value", async () => {
     const pair = await renderPair(
       <RField label="Role">

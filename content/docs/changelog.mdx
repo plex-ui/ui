@@ -22,6 +22,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - The Vue `Dialog`, `Menu` and `Popover` keep their slots live during the exit. State you clear together with the close can blank that part of the panel for the length of the exit; it no longer throws.
 - `--color-text-danger-soft` in the dark theme moves from red 400 to red 200, so soft danger text reads at 4.8:1 on its tint over an elevated panel, up from 3.18:1. Soft `Button`, `Badge`, `Avatar` and `StatCard` trends pick this up.
 
+### Fixed
+
+- `Field` keeps an `id` its child already has and points the label at it, instead of replacing it silently.
+
 ---
 
 ## 0.20.8 (2026-11-01)

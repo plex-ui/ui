@@ -32,10 +32,11 @@ import s from "@plexui/styles/components/Field/Field.module.css"
 //     `v-slot="{ id }"`, `(fieldProps) => h(...)`) is the render prop: its
 //     content renders as it is.
 //   - a slot that does not read them and holds exactly one element or
-//     component gets it cloned like React's `cloneElement`: `id` and
-//     `opticallyAlign` replace the child's own, `aria-describedby` is joined
-//     after the child's own ids, and an explicit `aria-invalid` on the child
-//     wins. Template comments do not count as children (JSX comments); the
+//     component gets it cloned like React's `cloneElement`: `opticallyAlign`
+//     replaces the child's own, the child's own `id` stays and the label's
+//     `for` follows it, `aria-describedby` is joined after the child's own
+//     ids, and an explicit `aria-invalid` on the child wins. Template
+//     comments do not count as children (JSX comments); the
 //     placeholder of a `v-if` that renders nothing does, like `{false}` in a
 //     React children array, so `<A v-if="x" /><Input />` is not cloned.
 //   - anything else (text, several roots, a `v-for` list) renders as it is,
@@ -180,7 +181,7 @@ const FieldComponent = defineComponent({
     required: { type: Boolean, default: false },
     /** Layout direction of label and control. @default "vertical" */
     orientation: { type: String as PropType<"vertical" | "horizontal">, default: "vertical" },
-    /** Overrides the generated id set on the control and the label's `for`. */
+    /** Overrides the generated id set on the control and the label's `for`. A child's own `id` wins over both. */
     id: String,
     /** Optically aligns the control's text with surrounding content; passed to the control. */
     opticallyAlign: String as PropType<"start" | "end">,
@@ -224,18 +225,21 @@ const FieldComponent = defineComponent({
       // Resolve the children
       let resolvedChildren: VNodeArrayChildren | undefined
       let childSize: unknown
+      // The control's id, which the label's `for` has to match
+      let controlId = fieldId
       if (slots.default) {
         const { proxy, state } = trackUse({ ...fieldChildProps, "aria-labelledby": labelId })
         const nodes = slots.default(proxy) as VNodeArrayChildren
         const child = state.used ? undefined : singleElement(nodes)
         childSize = child?.props?.size
-        resolvedChildren = child ? [cloneWithFieldProps(child, fieldChildProps, labelId)] : nodes
+        controlId = (child?.props?.id as string | undefined) || fieldId
+        resolvedChildren = child ? [cloneWithFieldProps(child, { ...fieldChildProps, id: controlId }, labelId)] : nodes
       }
       const size = props.size ?? (CONTROL_SIZES.has(childSize) ? (childSize as ControlSize) : "md")
 
       const labelAction = slots.labelAction ? slots.labelAction() : props.labelAction
       const hasLabelAction = slots.labelAction ? hasContent(labelAction as VNodeArrayChildren) : !!labelAction
-      const labelElement = h("label", { class: s.Label, id: labelId, for: fieldId }, [
+      const labelElement = h("label", { class: s.Label, id: labelId, for: controlId }, [
         slots.label ? slots.label() : props.label,
         required ? h("span", { "class": s.RequiredIndicator, "aria-hidden": "true" }, "*") : null,
       ])

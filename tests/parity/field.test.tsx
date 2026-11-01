@@ -239,7 +239,8 @@ const cases: Array<[string, Props, Child]> = [
   ["opticallyAlign end", { label: "Name", opticallyAlign: "end" }, input],
   ["field opticallyAlign replaces the child's", { label: "Name", opticallyAlign: "start" }, { kind: "input", props: { opticallyAlign: "end" } }],
   ["child opticallyAlign kept without the field's", { label: "Name" }, { kind: "input", props: { opticallyAlign: "end" } }],
-  ["field id replaces the child's id", { label: "Email" }, { kind: "input", props: { id: "own" } }],
+  ["a child's own id stays", { label: "Email" }, { kind: "input", props: { id: "own" } }],
+  ["a child's own id wins over the field's", { label: "Email", id: "email" }, { kind: "input", props: { id: "own" } }],
   [
     "child aria-describedby is joined first",
     { label: "Email", description: "Hint", errorMessage: "Oops" },

@@ -867,7 +867,7 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction of label and control" },
   { prop: "optically-align", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
-  { prop: "id", type: "string", description: "Override the generated id used for the label's for and aria linking" },
+  { prop: "id", type: "string", description: "Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it" },
   { prop: "class", type: "string", description: "CSS classes applied to the root element" },
   { prop: "default slot", type: "(fieldProps) => VNode[]", description: "Form control; its single root element receives id, aria-describedby and aria-invalid (plus aria-labelledby unless it has its own name) unless the slot reads fieldProps, which include aria-labelledby" },
 ]} />
