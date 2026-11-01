@@ -3899,6 +3899,11 @@
               "description": "Move focus into the panel when it opens (hover popovers never take focus)"
             },
             {
+              "name": "data-*",
+              "type": "string",
+              "description": "Data attributes land on the panel"
+            },
+            {
               "name": "className",
               "type": "string",
               "description": "Applied to the panel"
@@ -6605,5 +6610,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:37:27.857Z"
+  "generatedAt": "2026-11-01T11:41:28.873Z"
 }

@@ -145,6 +145,10 @@ export const toFilterProperty = ({ blur }: { blur?: number | undefined } = {}) =
   return filters.length ? filters.join(" ") : "none"
 }
 
+/** The `data-*` attributes among a component's props, to pass on to its element. */
+export const dataAttributes = (props: Record<string, unknown>) =>
+  Object.fromEntries(Object.entries(props).filter(([key]) => key.startsWith("data-")))
+
 export const preventDefaultHandler = (evt: Event) => {
   evt.preventDefault()
 }

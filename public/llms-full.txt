@@ -4758,6 +4758,7 @@ Props:
     - avoidCollisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
     - translucent (boolean) default: false — Translucent, blurred surface
     - autoFocus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
+    - data-* (string) — Data attributes land on the panel
     - className (string) — Applied to the panel
 
 ### Overview

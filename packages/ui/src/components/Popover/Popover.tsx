@@ -16,7 +16,7 @@ import {
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { dataAttributes, focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { TransitionGroup } from "../Transition"
 import { overlayTiming } from "../Transition/shared"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent"
@@ -291,6 +291,8 @@ export type PopoverContentProps = {
    * @default true
    */
   autoFocus?: boolean
+  /** `data-*` attributes land on the popover */
+  [dataAttribute: `data-${string}`]: unknown
 }
 
 const ContentImpl = ({
@@ -306,6 +308,7 @@ const ContentImpl = ({
   translucent,
   className,
   autoFocus = true,
+  ...restProps
 }: PopoverContentProps) => {
   const { showOnHover, shake, contentRef } = usePopoverContext()
 
@@ -356,6 +359,7 @@ const ContentImpl = ({
 
   return (
     <RadixPopover.Content
+      {...dataAttributes(restProps)}
       forceMount
       ref={contentRef}
       className={clsx(s.Popover, className)}

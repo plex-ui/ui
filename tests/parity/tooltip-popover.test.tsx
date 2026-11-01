@@ -824,6 +824,7 @@ type PopoverContentCase = {
   className?: string
   avoidCollisions?: boolean
   autoFocus?: boolean
+  "data-panel"?: string
 }
 
 type PopoverCase = {
@@ -917,6 +918,8 @@ const popoverCases: Array<[string, PopoverCase]> = [
   ["panel class", { open: true, content: { className: "flex p-1.5" } }],
   ["open on hover, open", { open: true, showOnHover: true }],
   ["no auto focus", { open: true, content: { autoFocus: false } }],
+  ["data attributes", { open: true, content: { "data-panel": "details" } }],
+  ["data attributes, open on hover", { open: true, showOnHover: true, content: { "data-panel": "details" } }],
 ]
 
 describe.each([
@@ -943,6 +946,12 @@ describe("Popover markup", () => {
     expect(withoutAvailableSize(vue)).toBe(withoutAvailableSize(react))
     expect(react).toContain("--radix-popper-available-width: -80px")
     expect(vue).toContain("--radix-popper-available-width: -40px")
+  })
+
+  test("data attributes land on the panel", async () => {
+    const props = { open: true, content: { "data-panel": "details" } }
+    const { react } = await pair(reactPopover(props), () => vuePopover(props))
+    expect(react).toMatch(/<div class="Popover"[^>]*data-panel="details"/)
   })
 
   test("open: trigger controls the dialog, Radix custom properties, focus on the panel", async () => {

@@ -3935,6 +3935,11 @@
               "description": "Move focus into the panel when it opens (hover popovers never take focus)"
             },
             {
+              "name": "data-*",
+              "type": "string",
+              "description": "Data attributes land on the panel"
+            },
+            {
               "name": "class",
               "type": "string",
               "description": "Applied to the panel"
@@ -6716,5 +6721,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T11:37:28.567Z"
+  "generatedAt": "2026-11-01T11:41:29.513Z"
 }

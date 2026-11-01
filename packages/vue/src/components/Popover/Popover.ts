@@ -24,7 +24,7 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
+import { dataAttributes, focusableElements, keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { overlayTiming } from "../Transition/shared.js"
 import { withRadixVariableNames } from "../Tooltip/Tooltip.js"
@@ -397,6 +397,7 @@ const PopoverContentImpl = defineComponent({
       h(
         RekaPopoverContent,
         {
+          ...dataAttributes(attrs),
           "forceMount": true,
           "as": PopoverContentElement,
           "class": [s.Popover, attrs.class],
@@ -518,7 +519,7 @@ const PopoverContentHoverable = defineComponent({
     onMounted(() => document.addEventListener("keydown", handleKeyDown))
     onBeforeUnmount(() => document.removeEventListener("keydown", handleKeyDown))
 
-    return () => h(PopoverContentImpl, { ...props, class: attrs.class }, slots)
+    return () => h(PopoverContentImpl, { ...props, ...dataAttributes(attrs), class: attrs.class }, slots)
   },
 })
 
@@ -548,7 +549,12 @@ export const PopoverContent = defineComponent({
                 open.value
                   ? h(
                       showOnHover.value ? PopoverContentHoverable : PopoverContentImpl,
-                      { key: showOnHover.value ? "popover-hover" : "popover", ...(props as ContentProps), class: attrs.class },
+                      {
+                        key: showOnHover.value ? "popover-hover" : "popover",
+                        ...(props as ContentProps),
+                        ...dataAttributes(attrs),
+                        class: attrs.class,
+                      },
                       slots,
                     )
                   : createCommentVNode(),
