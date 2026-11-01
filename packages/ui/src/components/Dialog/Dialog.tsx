@@ -128,11 +128,13 @@ const Content = ({
 
   return (
     <RadixDialog.Portal forceMount>
+      {/* A dialog mounted open enters too, as `open` set with the mount does */}
       <TransitionGroup
         {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
         {...exitGuard.transition}
         className={s.Transition}
         overlay
+        preventInitialTransition={false}
       >
         {open && (
           <div key="dialog">

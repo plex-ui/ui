@@ -37,7 +37,7 @@ import {
 } from "reka-ui"
 import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
-import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
+import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
 import { useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
@@ -1515,7 +1515,7 @@ const CustomSelectOption = defineComponent({
           // Internal attribute for selecting DOM nodes
           [INTERNAL_DOM_SELECTION_DATA_ATTR]: value,
           // Allow options to behave like a native select, when you can open and select an item in a single click
-          "onPointerup": disabled ? undefined : handlePointerUp,
+          ...(disabled ? {} : pressHandlers(handlePointerUp)),
           // Pointer move prevents contention between keyboard presses and a still mouse
           "onPointermove": disabled ? undefined : handlePointerMove,
           "onPointerleave": disabled ? undefined : handlePointerLeave,
@@ -1626,7 +1626,7 @@ const CustomSelectAction = defineComponent({
 
     return () => {
       const { label, Icon, className } = props.action
-      return h("div", { class: s.Action, onPointerup: handlePointerUp, onKeydown: handleKeyDown, tabindex: 0 }, [
+      return h("div", { class: s.Action, ...pressHandlers(handlePointerUp), onKeydown: handleKeyDown, tabindex: 0 }, [
         h("div", { class: clsx(s.ActionInner, className) }, [Icon ? h(Icon, { role: "presentation" }) : null, label]),
       ])
     }

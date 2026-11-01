@@ -284,7 +284,13 @@ export const DialogContent = defineComponent({
         default: () => [
           h(
             TransitionGroup,
-            { class: s.Transition, ...(crossesScreen ? overlayTimingLarge : overlayTiming), overlay: true },
+            // A dialog mounted open enters too, as `v-if` and `open` together do
+            {
+              class: s.Transition,
+              ...(crossesScreen ? overlayTimingLarge : overlayTiming),
+              overlay: true,
+              preventInitialTransition: false,
+            },
             // `open && <div>` in React: closed still renders the empty wrapper
             { default: () => [open.value ? renderDialog() : createCommentVNode()] },
           ),

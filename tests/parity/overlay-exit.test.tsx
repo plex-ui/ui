@@ -404,6 +404,84 @@ describe("Select exit", () => {
   })
 })
 
+describe("Dialog mounted open", () => {
+  test("still runs its entrance", async () => {
+    const seen: boolean[] = []
+    animation.disabled = false
+    const { react, vue } = await walkPairWithState<State>(
+      { open: true },
+      (state) => overlays[0]![1](state),
+      (state) => overlays[0]![2](state),
+      async (tools) => {
+        await tools.advance(32)
+        tools.snapshot()
+        seen.push(!!document.querySelector("[data-entering-active]"))
+        await tools.advance(400)
+        seen.push(!!document.querySelector("[data-entering-active]"))
+      },
+    )
+    expect(comparable(vue)).toEqual(comparable(react))
+    expect(seen).toEqual([true, false, true, false])
+  })
+})
+
+describe("Select option under a touch", () => {
+  const OPTIONS = [
+    { value: "a", label: "Apple" },
+    { value: "b", label: "Pear" },
+  ]
+
+  test("acts on the click, so the click cannot land behind the closed list", async () => {
+    const picked: string[] = []
+    const fire = async (name: "pointerUp" | "click", init?: object) => {
+      const option = document.querySelector('[data-option-id="b"]')!
+      await act(async () => {
+        fireEvent[name](option, init)
+      })
+      await flushVue()
+    }
+    await walk(
+      () => createElement(ReactSelect, { options: OPTIONS, value: "a", onChange: ({ value }: { value: string }) => picked.push(value) }),
+      () => h(Select, { "options": OPTIONS, "value": "a", "onUpdate:value": (value: string) => picked.push(value) }),
+      async (tools) => {
+        await act(async () => {
+          fireEvent.pointerDown(document.querySelector('[role="button"]')!, { button: 0, pointerType: "mouse" })
+        })
+        await flushVue()
+        await tools.advance(400)
+        await fire("pointerUp", { pointerType: "touch" })
+        tools.snapshot()
+        picked.push(document.querySelector("[data-exiting]") ? "closed early" : "open")
+        await fire("click")
+        await tools.advance(32)
+        picked.push(document.querySelector("[data-exiting]") ? "closing" : "open")
+      },
+    )
+    expect(picked).toEqual(["open", "b", "closing", "open", "b", "closing"])
+  })
+
+  test("a mouse still acts on pointerup", async () => {
+    const picked: string[] = []
+    await walk(
+      () => createElement(ReactSelect, { options: OPTIONS, value: "a", onChange: ({ value }: { value: string }) => picked.push(value) }),
+      () => h(Select, { "options": OPTIONS, "value": "a", "onUpdate:value": (value: string) => picked.push(value) }),
+      async (tools) => {
+        await act(async () => {
+          fireEvent.pointerDown(document.querySelector('[role="button"]')!, { button: 0, pointerType: "mouse" })
+        })
+        await flushVue()
+        await tools.advance(400)
+        await act(async () => {
+          fireEvent.pointerUp(document.querySelector('[data-option-id="b"]')!, { pointerType: "mouse" })
+        })
+        await flushVue()
+        tools.snapshot()
+      },
+    )
+    expect(picked).toEqual(["b", "b"])
+  })
+})
+
 describe("Vue slots during the exit", () => {
   test("state cleared with the close does not throw", async () => {
     animation.disabled = false

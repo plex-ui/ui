@@ -164,6 +164,24 @@ export const keepMovedFocus = (evt: Event) => {
 }
 
 /*
+ * For a row that acts on pointerup, where a press can start on the trigger and
+ * end on the row. A touch acts on its click: the click comes last, and a row
+ * that closed its list at pointerup would send it to what lies behind the list.
+ */
+let touchPressed = false
+
+export const pressHandlers = (action: () => void) => ({
+  onPointerup: (evt: PointerEvent) => {
+    touchPressed = evt.pointerType === "touch" || evt.pointerType === "pen"
+    if (!touchPressed) action()
+  },
+  onClick: () => {
+    if (touchPressed) action()
+    touchPressed = false
+  },
+})
+
+/*
  * Intentionally simple selector string. Purposeful exclusions: (for now)
  * - select, because our selects are better recognized as button
  * - unused selectors like iframe, object, .etc.

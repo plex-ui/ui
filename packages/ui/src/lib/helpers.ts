@@ -1,4 +1,4 @@
-import { type CSSProperties } from "react"
+import { type CSSProperties, type PointerEvent as ReactPointerEvent } from "react"
 import { canUseDOM, hasDocument, hasWindow } from "./environment"
 import type { Pretty } from "./utilityTypes"
 
@@ -159,6 +159,24 @@ export const keepMovedFocus = (evt: Event) => {
   const movedOut = !!active && active !== document.body && !(evt.target as Node | null)?.contains(active)
   if (movedOut) evt.preventDefault()
 }
+
+/*
+ * For a row that acts on pointerup, where a press can start on the trigger and
+ * end on the row. A touch acts on its click: the click comes last, and a row
+ * that closed its list at pointerup would send it to what lies behind the list.
+ */
+let touchPressed = false
+
+export const pressHandlers = (action: () => void) => ({
+  onPointerUp: (evt: ReactPointerEvent) => {
+    touchPressed = evt.pointerType === "touch" || evt.pointerType === "pen"
+    if (!touchPressed) action()
+  },
+  onClick: () => {
+    if (touchPressed) action()
+    touchPressed = false
+  },
+})
 
 /*
  * Intentionally simple selector string. Purposeful exclusions: (for now)

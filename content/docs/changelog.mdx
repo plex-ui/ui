@@ -33,6 +33,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Select` opens on Enter, as a combobox button does. It already opened on Space and the arrow keys.
 - A `Field` label opens the `Select` it belongs to. Its `for` reached the hidden input and only moved focus to the trigger.
 - `Field` keeps an `id` its child already has and points the label at it, instead of replacing it silently.
+- A `Select` option or action under a touch acts on its click. It acted on pointerup, so the list closed first and the click landed on whatever lay behind it.
+- A `Dialog` mounted open runs its entrance, as with `v-if` and `open` set together.
 
 ---
 

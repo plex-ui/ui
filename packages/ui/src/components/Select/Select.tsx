@@ -16,7 +16,7 @@ import React, {
 } from "react"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
-import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
+import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
 import { Check, Info, Search } from "../Icon"
 import type { ControlSize } from "../../types"
 import { Input } from "../Input"
@@ -1500,7 +1500,7 @@ const CustomSelectOption = (option: Option) => {
       // Internal attribute for selecting DOM nodes
       {...{ [INTERNAL_DOM_SELECTION_DATA_ATTR]: value }}
       // Allow options to behave like a native select, when you can open and select an item in a single click
-      onPointerUp={disabled ? undefined : handlePointerUp}
+      {...(disabled ? {} : pressHandlers(handlePointerUp))}
       // Pointer move allows us to prevent contention from keyboard presses and a still mouse
       // which does trigger events like onMouseEnter, creating weird battles with mouse and keyboard focus.
       onPointerMove={disabled ? undefined : handlePointerMove}
@@ -1585,7 +1585,7 @@ const CustomSelectAction = ({ id, label, Icon, className }: Action) => {
   }
 
   return (
-    <div className={s.Action} onPointerUp={handlePointerUp} onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className={s.Action} {...pressHandlers(handlePointerUp)} onKeyDown={handleKeyDown} tabIndex={0}>
       <div className={clsx(s.ActionInner, className)}>
         {Icon && <Icon role="presentation" />}
         {label}
