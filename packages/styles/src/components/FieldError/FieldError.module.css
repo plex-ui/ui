@@ -1,7 +1,6 @@
 .FieldError {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--field-error-gap);
+  display: grid;
+  grid-template-rows: 1fr;
   padding-inline-start: var(--field-error-padding-inline);
   color: var(--field-error-color);
   font-size: var(--field-error-font-size);
@@ -17,13 +16,21 @@
   margin-bottom: var(--field-error-margin-bottom);
 }
 
+.Inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--field-error-gap);
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* The icon keeps its size and sits on the first line; the text wraps, also
    inside a long unbroken word, instead of pushing out of the field. */
-.FieldError > * {
+.Inner > * {
   flex-shrink: 0;
 }
 
-.FieldError > span {
+.Inner > span {
   flex-shrink: 1;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -35,4 +42,29 @@
   display: block;
   align-self: flex-start;
   margin-block-start: calc((var(--field-error-line-height) - var(--field-error-icon-size)) / 2);
+}
+
+/* The room opens first, so what stands below slides down instead of dropping. */
+@media (prefers-reduced-motion: no-preference) {
+  .FieldError {
+    animation: open 200ms var(--cubic-enter);
+  }
+
+  .Inner {
+    animation: fade-in var(--transition-duration-basic) var(--cubic-enter);
+  }
+}
+
+@keyframes open {
+  from {
+    grid-template-rows: 0fr;
+    margin-block: 0;
+    padding-block: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }

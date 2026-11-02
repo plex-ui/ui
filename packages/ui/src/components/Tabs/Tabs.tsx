@@ -275,17 +275,16 @@ const TabsRoot = <T extends string>({
           thumb.style.transition = currentTransition
         })
       })
+    } else if (thumb.style.transition) {
+      // Normal update (value change, etc.): the thumb leaves with the label's colour
+      applyThumbSizing(true)
     } else {
-      // Normal update (value change, etc.)
+      // First measure: apply transition after initial calculation is set
       waitForAnimationFrame(() => {
-        applyThumbSizing(!!thumb.style.transition)
-
-        // Apply transition after initial calculation is set
-        if (!thumb.style.transition) {
-          waitForAnimationFrame(() => {
-            thumb.style.transition = transitionProperty
-          })
-        }
+        applyThumbSizing(false)
+        waitForAnimationFrame(() => {
+          thumb.style.transition = transitionProperty
+        })
       })
     }
   }, [applyThumbSizing, value, size, gutterSize, pill, flush, transitionProperty])

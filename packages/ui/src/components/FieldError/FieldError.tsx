@@ -19,8 +19,10 @@ export type FieldErrorProps = {
 export function FieldError({ children, className, id, icon = true }: FieldErrorProps) {
   return (
     <div className={clsx(s.FieldError, className)} id={id} role="alert">
-      {icon && <ExclamationMarkCircle className={s.Icon} />}
-      <span>{children}</span>
+      <div className={s.Inner}>
+        {icon && <ExclamationMarkCircle className={s.Icon} />}
+        <span>{children}</span>
+      </div>
     </div>
   )
 }

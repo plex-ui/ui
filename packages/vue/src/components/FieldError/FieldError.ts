@@ -17,8 +17,10 @@ export const FieldError = defineComponent({
   setup(props, { slots, attrs }) {
     return () =>
       h("div", { class: [s.FieldError, attrs.class], id: props.id, role: "alert" }, [
-        props.icon ? h(ExclamationMarkCircle, { class: s.Icon }) : null,
-        h("span", null, slots.default?.()),
+        h("div", { class: s.Inner }, [
+          props.icon ? h(ExclamationMarkCircle, { class: s.Icon }) : null,
+          h("span", null, slots.default?.()),
+        ]),
       ])
   },
 })

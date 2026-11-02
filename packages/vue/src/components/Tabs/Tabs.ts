@@ -363,17 +363,16 @@ const TabsComponent = defineComponent({
             thumb.style.transition = currentTransition
           })
         })
+      } else if (thumb.style.transition) {
+        // Normal update (value change, etc.): the thumb leaves with the label's colour
+        applyThumbSizing(isVertical, true)
       } else {
-        // Normal update (value change, etc.)
+        // First measure: apply transition after initial calculation is set
         waitForAnimationFrame(() => {
-          applyThumbSizing(isVertical, !!thumb.style.transition)
-
-          // Apply transition after initial calculation is set
-          if (!thumb.style.transition) {
-            waitForAnimationFrame(() => {
-              thumb.style.transition = transitionProperty
-            })
-          }
+          applyThumbSizing(isVertical, false)
+          waitForAnimationFrame(() => {
+            thumb.style.transition = transitionProperty
+          })
         })
       }
     }
