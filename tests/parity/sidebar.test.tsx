@@ -466,6 +466,20 @@ describe("Sidebar markup", () => {
     expect(react).toContain('data-sidebar="collapsed"')
   })
 
+  test('variant "app": 260 wide, its own class, the default stays 240', async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () => fullSidebar({ collapsible: "icon", variant: "app" }),
+      async ({ snapshot }) => snapshot(),
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain("--sidebar-width: 260px")
+    expect(react[0]).toMatch(/class="[^"]*App/)
+    const plain = await walkSpec({}, () => fullSidebar({ collapsible: "icon" }), async ({ snapshot }) => snapshot())
+    expect(plain.react[0]).toContain("--sidebar-width: 240px")
+    expect(plain.react[0]).not.toMatch(/class="[^"]*App/)
+  })
+
   test("mobile offcanvas hides the aside, desktop keeps it", async () => {
     mobile = true
     const { react } = await pair(fullSidebar())
@@ -1121,7 +1135,72 @@ describe("Sidebar tooltips", () => {
     expect(react[0]).toMatch(/"Overview"/)
     expect(react[2]).toContain('role="tooltip"')
     expect(react[3]).not.toContain('role="tooltip"')
-    expect(react[3]).not.toContain('data-state="closed"')
+  })
+
+  test("the row stays the same element through collapse, so its label can fade", async () => {
+    const { react, vue } = await walkSpec(
+      {},
+      () =>
+        n(
+          "SidebarProvider",
+          { collapsible: "icon" },
+          n("SidebarTrigger"),
+          n("SidebarMenu", null, navItem("Overview", "Home", { "data-testid": "overview" })),
+        ),
+      async ({ snapshot, fire, advance }) => {
+        document.querySelector('[data-testid="overview"]')!.setAttribute("data-mark", "kept")
+        await fire(TRIGGER, "click")
+        await advance(300)
+        snapshot()
+        await fire(TRIGGER, "click")
+        await advance(300)
+        snapshot()
+      },
+    )
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain('data-mark="kept"')
+    expect(react[1]).toContain('data-mark="kept"')
+  })
+
+  test("a caller's pointer listeners on the row still run", async () => {
+    const reactEnter = vi.fn()
+    const reactLeave = vi.fn()
+    render(
+      <ReactSidebar.SidebarProvider collapsible="icon" defaultOpen={false}>
+        <ReactSidebar.SidebarMenuButton tooltip="Overview" onPointerEnter={reactEnter} onPointerLeave={reactLeave}>
+          Overview
+        </ReactSidebar.SidebarMenuButton>
+      </ReactSidebar.SidebarProvider>,
+    )
+    const reactRow = document.querySelector("button")!
+    fireEvent.pointerEnter(reactRow)
+    fireEvent.pointerLeave(reactRow)
+    cleanup()
+
+    const vueEnter = vi.fn()
+    const vueLeave = vi.fn()
+    const { unmount } = mountVue(() =>
+      h(
+        VueSidebar.SidebarProvider,
+        { collapsible: "icon", defaultOpen: false },
+        {
+          default: () =>
+            h(
+              VueSidebar.SidebarMenuButton,
+              { tooltip: "Overview", onPointerenter: vueEnter, onPointerleave: vueLeave } as never,
+              { default: () => "Overview" },
+            ),
+        },
+      ),
+    )
+    await flushVue()
+    const vueRow = document.querySelector("button")!
+    vueRow.dispatchEvent(new Event("pointerenter"))
+    vueRow.dispatchEvent(new Event("pointerleave"))
+    unmount()
+
+    expect([reactEnter.mock.calls.length, reactLeave.mock.calls.length]).toEqual([1, 1])
+    expect([vueEnter.mock.calls.length, vueLeave.mock.calls.length]).toEqual([1, 1])
   })
 })
 

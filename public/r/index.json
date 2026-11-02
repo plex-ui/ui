@@ -52,6 +52,12 @@
       "dependencies": ["@plexui/ui"]
     },
     {
+      "name": "page",
+      "type": "registry:ui",
+      "description": "Frame of an app page: header and content in one column, a line that follows scrolling, and a glass bar on phones.",
+      "dependencies": ["@plexui/ui"]
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "description": "Modal dialog.",

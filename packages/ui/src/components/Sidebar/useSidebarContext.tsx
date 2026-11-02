@@ -10,11 +10,14 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react"
+import clsx from "clsx"
+import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 
 // Constants
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 const SIDEBAR_WIDTH = "240px"
+const SIDEBAR_WIDTH_APP = "260px"
 const SIDEBAR_WIDTH_MOBILE = "288px"
 const SIDEBAR_WIDTH_ICON = "64px"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
@@ -25,6 +28,7 @@ export type SidebarState = "expanded" | "collapsed"
 export type SidebarCollapsible = "offcanvas" | "icon" | "none"
 export type SidebarSide = "left" | "right"
 export type SidebarVariant = "sidebar" | "docs"
+export type SidebarProviderVariant = "sidebar" | "app"
 
 export type SidebarContextValue = {
   state: SidebarState
@@ -91,6 +95,11 @@ export type SidebarProviderProps = {
    */
   collapsible?: SidebarCollapsible
   /**
+   * "app" is the shell of a product: a quiet rail, pill rows and on a phone a drawer under the page.
+   * @default "sidebar"
+   */
+  variant?: SidebarProviderVariant
+  /**
    * Custom CSS properties for the sidebar
    */
   style?: React.CSSProperties
@@ -107,6 +116,7 @@ export const SidebarProvider = ({
   open: openProp,
   onOpenChange: setOpenProp,
   collapsible = "offcanvas",
+  variant = "sidebar",
   style,
   className,
 }: SidebarProviderProps) => {
@@ -205,10 +215,10 @@ export const SidebarProvider = ({
   return (
     <SidebarContext.Provider value={contextValue}>
       <div
-        className={className}
+        className={clsx(variant === "app" && s.App, className)}
         style={
           {
-            "--sidebar-width": SIDEBAR_WIDTH,
+            "--sidebar-width": variant === "app" ? SIDEBAR_WIDTH_APP : SIDEBAR_WIDTH,
             "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
             "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             ...style,
@@ -227,6 +237,7 @@ export const SidebarProvider = ({
 // Re-export constants for external use
 export const SIDEBAR_CONSTANTS = {
   WIDTH: SIDEBAR_WIDTH,
+  WIDTH_APP: SIDEBAR_WIDTH_APP,
   WIDTH_MOBILE: SIDEBAR_WIDTH_MOBILE,
   WIDTH_ICON: SIDEBAR_WIDTH_ICON,
   KEYBOARD_SHORTCUT: SIDEBAR_KEYBOARD_SHORTCUT,

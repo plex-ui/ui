@@ -7,6 +7,7 @@ metaDescription: Composable React navigation sidebar for app shells with collaps
 import {
   SidebarBaseDemo,
   SidebarConsoleDemo,
+  SidebarAppDemo,
   SidebarNestedDemo,
   SidebarFilteredTreeDemo,
   SidebarActionTreeDemo,
@@ -102,6 +103,26 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
   </SidebarLayout>
 </SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarConsoleDemo />
+</ComponentPreview>
+
+### App
+
+<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
+  <SidebarLayout>
+    <Sidebar>
+      <SidebarHeader>
+        <span>App</span>
+        <SidebarTrigger />
+      </SidebarHeader>
+      <SidebarContent>...</SidebarContent>
+      <SidebarFooter>...</SidebarFooter>
+    </Sidebar>
+    <SidebarInset>
+      <Page>...</Page>
+    </SidebarInset>
+  </SidebarLayout>
+</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+  <SidebarAppDemo />
 </ComponentPreview>
 
 ### Basic
@@ -358,6 +379,7 @@ Handles sidebar state and provides context to all child components. Wrap your ap
 
 <PropsTable data={[
   { prop: "collapsible", type: '"offcanvas" | "icon" | "none"', default: '"offcanvas"', description: "Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none" },
+  { prop: "variant", type: '"sidebar" | "app"', default: '"sidebar"', description: 'Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page' },
   { prop: "defaultOpen", type: "boolean", default: "true", description: "Initial open state (uncontrolled)" },
   { prop: "open", type: "boolean", description: "Controlled open state" },
   { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when open state changes. Without open the provider keeps its own state and still calls it" },

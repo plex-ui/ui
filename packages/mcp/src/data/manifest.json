@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 51,
+  "componentCount": 52,
   "components": [
     {
       "slug": "accordion",
@@ -3944,6 +3944,94 @@
       "docsUrl": "https://plexui.com/components/otp-input"
     },
     {
+      "slug": "page",
+      "name": "Page",
+      "description": "\"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar.\"",
+      "importPath": "@plexui/ui/components/Page",
+      "exports": [
+        "Page"
+      ],
+      "props": [
+        {
+          "name": "width",
+          "type": "\"full\" | \"wide\" | \"column\"",
+          "default": "\"full\"",
+          "description": "Column that header and content share: edge to edge, 1280px or 768px, centred"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "default": "—",
+          "description": "Applied to the root element"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<Page>\n<Page.Header>\n  <Page.Bar>\n    <Page.Title>Orders</Page.Title>\n    <Page.Actions>\n      <Button color=\"primary\" pill size=\"md\">New order</Button>\n    </Page.Actions>\n  </Page.Bar>\n</Page.Header>\n<Page.Content>...</Page.Content>\n</Page>",
+          "details": "The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top."
+        },
+        {
+          "name": "Widths",
+          "code": "<Page width=\"column\">\n<Page.Header>...</Page.Header>\n<Page.Content>...</Page.Content>\n</Page>\n\n<Page width=\"column\" style={{ \"--page-width\": \"860px\" }}>...</Page>",
+          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page."
+        },
+        {
+          "name": "Heading",
+          "code": "<Page.Bar>\n<Page.Heading>\n  <Page.Title>Menu</Page.Title>\n  <Badge color=\"info\" size=\"sm\" variant=\"outline\">Draft</Badge>\n  <Page.Subtitle>Saved a minute ago</Page.Subtitle>\n</Page.Heading>\n<Page.Actions>...</Page.Actions>\n</Page.Bar>",
+          "details": "Page.Heading holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle."
+        },
+        {
+          "name": "Fill",
+          "code": "<Page>\n<Page.Header divider={false}>...</Page.Header>\n<Page.Content fill>\n  <div className=\"min-h-0 flex-1 overflow-auto\">...</div>\n</Page.Content>\n</Page>",
+          "details": "fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "Page.Header",
+          "props": [
+            {
+              "name": "divider",
+              "type": "boolean",
+              "default": "true",
+              "description": "Shows the line, and the glass on a phone, once the content has scrolled under the header"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "default": "—",
+              "description": "Applied to the band"
+            }
+          ]
+        },
+        {
+          "name": "Page.Content",
+          "props": [
+            {
+              "name": "fill",
+              "type": "boolean",
+              "default": "false",
+              "description": "The content fills the page and scrolls inside itself, from 768px up"
+            },
+            {
+              "name": "onScroll",
+              "type": "UIEventHandler",
+              "default": "—",
+              "description": "Called on every scroll, after the page has read the position"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "default": "—",
+              "description": "Applied to the element that scrolls"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/page"
+    },
+    {
       "slug": "popover",
       "name": "Popover",
       "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
@@ -4988,6 +5076,11 @@
           "details": "A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail."
         },
         {
+          "name": "App",
+          "code": "<SidebarProvider collapsible=\"icon\" variant=\"app\">\n<SidebarLayout>\n  <Sidebar>\n    <SidebarHeader>\n      <span>App</span>\n      <SidebarTrigger />\n    </SidebarHeader>\n    <SidebarContent>...</SidebarContent>\n    <SidebarFooter>...</SidebarFooter>\n  </Sidebar>\n  <SidebarInset>\n    <Page>...</Page>\n  </SidebarInset>\n</SidebarLayout>\n</SidebarProvider>",
+          "details": "The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold."
+        },
+        {
           "name": "Basic",
           "code": "<SidebarProvider collapsible=\"icon\">\n<SidebarLayout style={{ height: 500 }}>\n  <Sidebar>\n    <SidebarHeader>\n      <span>App</span>\n      <SidebarTrigger />\n    </SidebarHeader>\n    <SidebarContent>\n      <SidebarGroup>\n        <SidebarGroupLabel size=\"sm\">Project</SidebarGroupLabel>\n        <SidebarGroupContent>\n          <SidebarMenu>\n            <SidebarMenuItem>\n              <SidebarMenuButton isActive tooltip=\"Overview\">\n                <SidebarMenuButtonIcon><Home /></SidebarMenuButtonIcon>\n                <SidebarMenuButtonLabel>Overview</SidebarMenuButtonLabel>\n                <SidebarMenuBadge><Badge size=\"sm\" color=\"info\">3</Badge></SidebarMenuBadge>\n              </SidebarMenuButton>\n            </SidebarMenuItem>\n            ...\n          </SidebarMenu>\n        </SidebarGroupContent>\n      </SidebarGroup>\n    </SidebarContent>\n  </Sidebar>\n  <SidebarInset>...</SidebarInset>\n</SidebarLayout>\n</SidebarProvider>"
         },
@@ -5027,6 +5120,12 @@
               "type": "\"offcanvas\" | \"icon\" | \"none\"",
               "default": "\"offcanvas\"",
               "description": "Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none"
+            },
+            {
+              "name": "variant",
+              "type": "\"sidebar\" | \"app\"",
+              "default": "\"sidebar\"",
+              "description": "Look of the whole shell. \"app\" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page"
             },
             {
               "name": "defaultOpen",
@@ -6892,5 +6991,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T13:07:50.469Z"
+  "generatedAt": "2026-11-02T14:13:31.732Z"
 }

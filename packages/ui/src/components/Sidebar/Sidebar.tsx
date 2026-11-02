@@ -75,6 +75,7 @@ import {
   useLayoutEffect,
   useState,
   type ComponentProps,
+  type PointerEvent,
   type ReactNode,
 } from "react"
 
@@ -88,6 +89,7 @@ import {
   useSidebar,
   type SidebarCollapsible,
   type SidebarSide,
+  type SidebarProviderVariant,
   type SidebarVariant,
 } from "./useSidebarContext"
 
@@ -99,7 +101,7 @@ const cleanProps = <P extends object>(props: P): Omit<P, "data-toggle"> => {
 
 // Re-export provider and hook
 export { SidebarProvider, useSidebar }
-export type { SidebarCollapsible, SidebarSide, SidebarVariant }
+export type { SidebarCollapsible, SidebarProviderVariant, SidebarSide, SidebarVariant }
 
 // =============================================
 // Sidebar Root
@@ -338,9 +340,13 @@ export type SidebarMenuButtonProps = ComponentProps<"button"> & {
   asChild?: boolean
 }
 
+// Shared by every row of the rail: moving to the next one shows its label at once.
+let railLeftAt = 0
+
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  ({ isActive = false, tooltip, asChild = false, className, children, ...props }, ref) => {
+  ({ isActive = false, tooltip, asChild = false, className, children, onPointerEnter, onPointerLeave, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
+    const [openDelay, setOpenDelay] = useState<number>()
     const Comp = asChild ? Slot.Root : "button"
     // With asChild the child element is the button, so the inner wrapper
     // goes inside it. Wrapping the child instead would make Slot merge the
@@ -362,16 +368,25 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
         data-active={isActive ? "true" : "false"}
         aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuButton, className)}
+        onPointerEnter={(event: PointerEvent<HTMLButtonElement>) => {
+          onPointerEnter?.(event)
+          if (tooltip) setOpenDelay(Date.now() - railLeftAt < 300 ? 0 : undefined)
+        }}
+        onPointerLeave={(event: PointerEvent<HTMLButtonElement>) => {
+          onPointerLeave?.(event)
+          if (tooltip) railLeftAt = Date.now()
+        }}
         {...cleanProps(props)}
       >
         {content}
       </Comp>
     )
 
-    // Show tooltip when collapsed (icon mode) and not mobile
-    if (tooltip && state === "collapsed" && !isMobile) {
+    // The tooltip shows when collapsed (icon mode) and not on mobile. It wraps
+    // the row in every state, so the row stays mounted and its label can fade.
+    if (tooltip) {
       return (
-        <Tooltip content={tooltip} side="right">
+        <Tooltip content={state === "collapsed" && !isMobile ? tooltip : null} openDelay={openDelay} side="right">
           {button}
         </Tooltip>
       )

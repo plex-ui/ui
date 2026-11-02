@@ -35,6 +35,7 @@ const componentLinks: FooterLink[] = [
   { label: 'Markdown Editor', href: '/components/markdown-editor' },
   { label: 'Menu', href: '/components/menu' },
   { label: 'OTP Input', href: '/components/otp-input' },
+  { label: 'Page', href: '/components/page' },
   { label: 'Popover', href: '/components/popover' },
   { label: 'Progress', href: '/components/progress' },
   { label: 'Progress Steps', href: '/components/progress-steps' },

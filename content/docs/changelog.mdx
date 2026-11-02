@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `Page`, in React and Vue: the frame of an app page. Header and content share one column at a `full`, `wide` or `column` width, a line comes as the content scrolls, and on a phone the header is a floating glass bar.
+- `SidebarProvider` takes `variant="app"`: the sidebar of a product, 260px with pill rows on a grey ground and a page with no inset. Under 768px the page slides aside and the menu lies under it.
+
+### Changed
+
+- `SidebarMenuButton`: a row with `tooltip` stays mounted through the collapse, so its label fades instead of jumping, and along the rail the next tooltip opens at once.
+
 ## 0.22.0 (2026-11-02)
 
 ### Added

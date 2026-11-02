@@ -88,6 +88,16 @@ import {
 } from '@plexui/vue/components/Menu';
 import { OTPInput } from '@plexui/vue/components/OTPInput';
 import { PlexUIProvider } from '@plexui/vue/components/PlexUIProvider';
+import {
+  Page,
+  PageActions,
+  PageBar,
+  PageContent,
+  PageHeader,
+  PageHeading,
+  PageSubtitle,
+  PageTitle,
+} from '@plexui/vue/components/Page';
 import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
 import { Progress } from '@plexui/vue/components/Progress';
 import {
@@ -304,6 +314,14 @@ const components: Record<string, Component> = {
   // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
   PlexTransitionGroup,
   PlexUIProvider,
+  Page,
+  PageActions,
+  PageBar,
+  PageContent,
+  PageHeader,
+  PageHeading,
+  PageSubtitle,
+  PageTitle,
   Popover,
   PopoverContent,
   PopoverTrigger,

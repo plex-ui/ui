@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "page",
+  "type": "registry:ui",
+  "title": "Page",
+  "description": "\"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/page/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Page\"\n"
+    }
+  ],
+  "docs": "Import as `import { Page, PageActions, PageBar, PageContent, PageHeader, PageHeading, PageSubtitle, PageTitle } from '@/components/ui/page'`. See https://plexui.com/vue/components/page for props and examples."
+}

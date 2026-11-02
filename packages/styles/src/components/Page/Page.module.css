@@ -1,0 +1,212 @@
+.Page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--page-background);
+
+  &[data-width="wide"] {
+    --page-width: var(--page-width-wide);
+  }
+
+  &[data-width="column"] {
+    --page-width: var(--page-width-column);
+  }
+}
+
+/* Header and content read one width, so the line, the title, the buttons and the content are one column. */
+.Head,
+.Column {
+  width: 100%;
+  max-width: var(--page-width, none);
+  margin-inline: auto;
+}
+
+.Header {
+  flex: none;
+  padding: var(--page-header-padding-top) var(--page-gutter) 0;
+}
+
+.Bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--page-bar-gap);
+  min-height: var(--page-bar-height);
+}
+
+.Heading {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.Title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--page-bar-height);
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--page-title-font-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--page-title-line-height);
+}
+
+.Subtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-sm-size);
+  line-height: var(--font-text-sm-line-height);
+}
+
+.Actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.Content {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: var(--page-content-padding-top) var(--page-gutter) var(--page-content-padding-bottom);
+  overflow: auto;
+
+  &[data-fill] {
+    display: flex;
+    flex-direction: column;
+
+    & > .Column {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+    }
+  }
+}
+
+/* No line at rest: it comes when the content has scrolled under the header. An always-on scrollbar
+   narrows the scroll area only, so the band keeps the same gutter, or a centred header would stand
+   beside the content. */
+@media (min-width: 768px) {
+  .Page {
+    --page-gutter: var(--page-gutter-wide);
+    --page-content-padding-top: var(--page-gutter-wide);
+  }
+
+  .Header {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+    container-type: inline-size;
+  }
+
+  .Content {
+    scrollbar-gutter: stable;
+
+    &[data-fill] {
+      padding-bottom: 0;
+
+      & > .Column {
+        min-height: 0;
+      }
+    }
+  }
+
+  .Head {
+    padding-bottom: var(--page-header-padding-bottom);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition-duration-basic);
+  }
+
+  .Header[data-scrolled] > .Head {
+    border-color: var(--color-border);
+  }
+}
+
+/* One row, the height of Apple's bar. It floats over the page: at rest nothing shows, and content
+   scrolled under it turns it to glass with a hairline. The blur sits on `::before`: on the bar itself
+   it would hold the bar's children inside its own backdrop. The first column keeps the place of a
+   sidebar's menu button. */
+@media (max-width: 767.98px) {
+  .Page {
+    --page-top: calc(max(10px, env(safe-area-inset-top)) + var(--page-bar-height-phone) + 10px);
+  }
+
+  .Header {
+    position: absolute;
+    z-index: 5;
+    inset: 0 0 auto;
+    padding-block: max(10px, env(safe-area-inset-top)) 10px;
+
+    &::before {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      border-bottom: 0.5px solid var(--page-bar-line);
+      background: var(--page-bar-veil);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      content: "";
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &[data-scrolled]::before {
+      opacity: 1;
+    }
+  }
+
+  .Bar {
+    display: grid;
+    grid-template-columns: minmax(52px, 1fr) minmax(0, max-content) minmax(max-content, 1fr);
+    gap: 0;
+    min-height: var(--page-bar-height-phone);
+
+    & > :first-child {
+      grid-column: 2;
+      align-self: center;
+    }
+  }
+
+  .Heading {
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+  }
+
+  .Title {
+    display: block;
+    min-height: 0;
+    overflow: hidden;
+    font-size: 17px;
+    line-height: 22px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .Subtitle {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .Actions {
+    grid-column: 3;
+    justify-content: flex-end;
+    min-width: 52px;
+    padding-left: 8px;
+  }
+
+  .Content {
+    padding-top: calc(var(--page-top) + var(--page-content-padding-top));
+    scroll-padding-top: calc(var(--page-top) + var(--page-content-padding-top));
+  }
+}

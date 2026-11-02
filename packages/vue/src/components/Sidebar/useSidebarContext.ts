@@ -14,6 +14,7 @@ import {
   type SlotsType,
   type StyleValue,
 } from "vue"
+import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
 
 // Vue port of packages/ui/src/components/Sidebar/useSidebarContext.tsx.
 // - `useSidebar()` returns the context as a reactive object (read
@@ -30,6 +31,7 @@ import {
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 const SIDEBAR_WIDTH = "240px"
+const SIDEBAR_WIDTH_APP = "260px"
 const SIDEBAR_WIDTH_MOBILE = "288px"
 const SIDEBAR_WIDTH_ICON = "64px"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
@@ -40,6 +42,7 @@ export type SidebarState = "expanded" | "collapsed"
 export type SidebarCollapsible = "offcanvas" | "icon" | "none"
 export type SidebarSide = "left" | "right"
 export type SidebarVariant = "sidebar" | "docs"
+export type SidebarProviderVariant = "sidebar" | "app"
 
 type SetBoolean = (value: boolean | ((prev: boolean) => boolean)) => void
 
@@ -105,6 +108,8 @@ const SidebarProviderComponent = defineComponent({
     open: { type: Boolean, default: undefined },
     /** Collapsible mode. @default "offcanvas" */
     collapsible: { type: String as PropType<SidebarCollapsible>, default: "offcanvas" },
+    /** "app" is the shell of a product: a quiet rail, pill rows and on a phone a drawer under the page. @default "sidebar" */
+    variant: { type: String as PropType<SidebarProviderVariant>, default: "sidebar" },
   },
   emits: {
     /** The open state changes (`v-model:open`) */
@@ -207,10 +212,10 @@ const SidebarProviderComponent = defineComponent({
       h(
         "div",
         {
-          "class": attrs.class,
+          "class": [props.variant === "app" && s.App, attrs.class],
           "style": [
             {
-              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width": props.variant === "app" ? SIDEBAR_WIDTH_APP : SIDEBAR_WIDTH,
               "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             },
@@ -241,6 +246,7 @@ export const SidebarProvider = SidebarProviderComponent as typeof SidebarProvide
 // Re-export constants for external use
 export const SIDEBAR_CONSTANTS = {
   WIDTH: SIDEBAR_WIDTH,
+  WIDTH_APP: SIDEBAR_WIDTH_APP,
   WIDTH_MOBILE: SIDEBAR_WIDTH_MOBILE,
   WIDTH_ICON: SIDEBAR_WIDTH_ICON,
   KEYBOARD_SHORTCUT: SIDEBAR_KEYBOARD_SHORTCUT,

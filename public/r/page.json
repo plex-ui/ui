@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "page",
+  "type": "registry:ui",
+  "title": "Page",
+  "description": "Plex UI Page: frame of an app page with compound parts (Header/Bar/Heading/Title/Subtitle/Actions/Content), three widths, a line that follows scrolling, and a glass bar on phones.",
+  "dependencies": [
+    "@plexui/ui"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/page.tsx",
+      "type": "registry:ui",
+      "content": "export { Page } from '@plexui/ui/components/Page';\nexport type { PageContentProps, PageHeaderProps, PageProps, PageSlotProps, PageWidth } from '@plexui/ui/components/Page';\n"
+    }
+  ],
+  "docs": "Import as `import { Page } from '@/components/ui/page'`. See https://plexui.com/components/page for full prop reference."
+}

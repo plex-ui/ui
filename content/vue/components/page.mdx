@@ -1,0 +1,216 @@
+---
+title: Page
+description: "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+metaDescription: "Vue 3 app page layout: header and content in one column at a full, wide or column width, a line that follows scrolling, and an iOS style glass bar on phones."
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const STAGE = "flex w-full justify-center"
+
+export const rows = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`)
+
+export const list = `<div class="divide-y divide-default rounded-xl border border-default">
+        <div v-for="row in rows" :key="row" class="flex items-center justify-between px-4 py-3 text-sm">
+          <span>{{ row }}</span>
+          <span class="text-secondary">Paid</span>
+        </div>
+      </div>`
+
+export const frame = (body) => `<div class="h-[420px] w-full overflow-hidden rounded-xl border border-default">
+${body}
+</div>`
+
+export const overview = `<Page>
+  <PageHeader>
+    <PageBar>
+      <PageTitle>Orders</PageTitle>
+      <PageActions>
+        <Button color="primary" pill size="md">New order</Button>
+      </PageActions>
+    </PageBar>
+  </PageHeader>
+  <PageContent>...</PageContent>
+</Page>`
+
+export const widths = `<Page width="column">
+  <PageHeader>...</PageHeader>
+  <PageContent>...</PageContent>
+</Page>
+
+<Page width="column" style="--page-width: 860px">...</Page>`
+
+export const heading = `<PageBar>
+  <PageHeading>
+    <PageTitle>Menu</PageTitle>
+    <Badge color="info" size="sm" variant="outline">Draft</Badge>
+    <PageSubtitle>Saved a minute ago</PageSubtitle>
+  </PageHeading>
+  <PageActions>...</PageActions>
+</PageBar>`
+
+export const fill = `<Page>
+  <PageHeader :divider="false">...</PageHeader>
+  <PageContent fill>
+    <div class="min-h-0 flex-1 overflow-auto">...</div>
+  </PageContent>
+</Page>`
+
+<UsageBlock>{`import {
+  Page,
+  PageActions,
+  PageBar,
+  PageContent,
+  PageHeader,
+  PageHeading,
+  PageSubtitle,
+  PageTitle,
+} from "@plexui/vue/components/Page";`}</UsageBlock>
+
+## Examples
+
+<div id="first-component-page">
+### Overview
+
+<ComponentPreview language="vue" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={overview}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page>
+    <PageHeader>
+      <PageBar>
+        <PageTitle>Orders</PageTitle>
+        <PageActions>
+          <Button color="primary" pill size="md">New order</Button>
+        </PageActions>
+      </PageBar>
+    </PageHeader>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+</div>
+
+### Widths
+
+<ComponentPreview language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page.</>} code={widths}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width">
+    <PageHeader>
+      <PageBar>
+        <PageTitle>Settings</PageTitle>
+        <PageActions>
+          <Button color="primary" pill size="md">Save</Button>
+        </PageActions>
+      </PageBar>
+    </PageHeader>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Heading
+
+<ComponentPreview language="vue" details={<><code>PageHeading</code> holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.</>} code={heading}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page width="wide">
+    <PageHeader>
+      <PageBar>
+        <PageHeading>
+          <PageTitle>Menu</PageTitle>
+          <Badge color="info" size="sm" variant="outline">Draft</Badge>
+          <PageSubtitle>Saved a minute ago</PageSubtitle>
+        </PageHeading>
+        <PageActions>
+          <Button color="primary" pill size="md">Publish</Button>
+        </PageActions>
+      </PageBar>
+    </PageHeader>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Fill
+
+<ComponentPreview language="vue" details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={fill}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page>
+    <PageHeader :divider="false">
+      <PageBar>
+        <PageTitle>Orders</PageTitle>
+      </PageBar>
+    </PageHeader>
+    <PageContent fill>
+      <div class="min-h-0 flex-1 overflow-auto pb-6">
+        ${list}
+      </div>
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+## Phone
+
+Under 768px the header is one row of 44px over the page. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+
+Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `PageBar`, such as a search field, belongs at the top of `PageContent` on a phone. `useBreakpoint("md")` tells which one to render. The first column of the bar stays free for the menu button of a sidebar.
+
+Use it inside `SidebarInset` for a whole app, see the [app sidebar](/vue/components/sidebar#app).
+
+## API
+
+### Page
+
+<PropsTable data={[
+  { prop: "width", type: '"full" | "wide" | "column"', default: '"full"', description: "Column that header and content share: edge to edge, 1280px or 768px, centred" },
+  { prop: "class", type: "string", description: "Class of the root element" },
+]} />
+
+All other attributes fall through to the root.
+
+### PageHeader
+
+<PropsTable data={[
+  { prop: "divider", type: "boolean", default: "true", description: "Shows the line, and the glass on a phone, once the content has scrolled under the header" },
+  { prop: "class", type: "string", description: "Class of the band" },
+]} />
+
+The default slot stands in the shared column. All other attributes fall through to the band.
+
+### PageContent
+
+<PropsTable data={[
+  { prop: "fill", type: "boolean", default: "false", description: "The content fills the page and scrolls inside itself, from 768px up" },
+  { prop: "class", type: "string", description: "Class of the element that scrolls" },
+]} />
+
+The default slot stands in the shared column. All other attributes, listeners included, fall through to the element that scrolls. Its template ref is the component: read the element from `$el`.
+
+### Parts
+
+| Part | Element | Purpose |
+|------|---------|---------|
+| `PageBar` | `<div>` | Row of the title and the actions |
+| `PageHeading` | `<div>` | Title with what stands beside it |
+| `PageTitle` | `<h1>` | Page heading |
+| `PageSubtitle` | `<p>` | Status of the page |
+| `PageActions` | `<div>` | Buttons on the trailing side of the bar |
+
+## Styling
+
+Page reads these component tokens. Override them at any scope to restyle it:
+
+- `--page-background`: background (default `var(--color-surface)`)
+- `--page-bar-gap`: gap between title and actions (default `24px`)
+- `--page-bar-height`: bar height (default `36px`)
+- `--page-bar-height-phone`: bar height on a phone (default `44px`)
+- `--page-bar-line`: hairline of the glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
+- `--page-bar-veil`: fill of the glass bar (default `light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%))`)
+- `--page-content-padding-bottom`: bottom of the content (default `48px`)
+- `--page-content-padding-top`: top of the content on a phone (default `16px`)
+- `--page-gutter`: side gutter on a phone (default `16px`)
+- `--page-gutter-wide`: side gutter and top of the content from 768px up (default `24px`)
+- `--page-header-padding-bottom`: gap between the bar and the line (default `12px`)
+- `--page-header-padding-top`: top of the header (default `12px`)
+- `--page-title-font-size`: title font size (default `20px`)
+- `--page-title-line-height`: title line height (default `26px`)
+- `--page-width`: width of the column, any value
+- `--page-width-column`: `column` width (default `768px`)
+- `--page-width-wide`: `wide` width (default `1280px`)

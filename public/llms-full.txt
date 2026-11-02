@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 51
+Components: 52
 
 ## Setup
 
@@ -4837,6 +4837,72 @@ const [value, setValue] = useState("48803")
 <OTPInput value="488030" disabled />
 ```
 
+## Page
+"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+Import: import { Page } from "@plexui/ui/components/Page"
+Docs: https://plexui.com/components/page
+Props:
+  - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - className (string) default: — — Applied to the root element
+  Page.Header:
+    - divider (boolean) default: true — Shows the line, and the glass on a phone, once the content has scrolled under the header
+    - className (string) default: — — Applied to the band
+  Page.Content:
+    - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
+    - onScroll (UIEventHandler) default: — — Called on every scroll, after the page has read the position
+    - className (string) default: — — Applied to the element that scrolls
+
+### Overview
+The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.
+```tsx
+<Page>
+<Page.Header>
+  <Page.Bar>
+    <Page.Title>Orders</Page.Title>
+    <Page.Actions>
+      <Button color="primary" pill size="md">New order</Button>
+    </Page.Actions>
+  </Page.Bar>
+</Page.Header>
+<Page.Content>...</Page.Content>
+</Page>
+```
+
+### Widths
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page.
+```tsx
+<Page width="column">
+<Page.Header>...</Page.Header>
+<Page.Content>...</Page.Content>
+</Page>
+
+<Page width="column" style={{ "--page-width": "860px" }}>...</Page>
+```
+
+### Heading
+Page.Heading holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.
+```tsx
+<Page.Bar>
+<Page.Heading>
+  <Page.Title>Menu</Page.Title>
+  <Badge color="info" size="sm" variant="outline">Draft</Badge>
+  <Page.Subtitle>Saved a minute ago</Page.Subtitle>
+</Page.Heading>
+<Page.Actions>...</Page.Actions>
+</Page.Bar>
+```
+
+### Fill
+fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider.
+```tsx
+<Page>
+<Page.Header divider={false}>...</Page.Header>
+<Page.Content fill>
+  <div className="min-h-0 flex-1 overflow-auto">...</div>
+</Page.Content>
+</Page>
+```
+
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
 Import: import { Popover } from "@plexui/ui/components/Popover"
@@ -6005,6 +6071,7 @@ Props:
   - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
+    - variant ("sidebar" | "app") default: "sidebar" — Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page
     - defaultOpen (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state
     - onOpenChange ((open: boolean) => void) — Called when open state changes. Without open the provider keeps its own state and still calls it
@@ -6101,6 +6168,26 @@ A multi-section app shell with a workspace selector, expandable parent sections 
     </SidebarFooter>
   </Sidebar>
   <SidebarInset>...</SidebarInset>
+</SidebarLayout>
+</SidebarProvider>
+```
+
+### App
+The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
+```tsx
+<SidebarProvider collapsible="icon" variant="app">
+<SidebarLayout>
+  <Sidebar>
+    <SidebarHeader>
+      <span>App</span>
+      <SidebarTrigger />
+    </SidebarHeader>
+    <SidebarContent>...</SidebarContent>
+    <SidebarFooter>...</SidebarFooter>
+  </Sidebar>
+  <SidebarInset>
+    <Page>...</Page>
+  </SidebarInset>
 </SidebarLayout>
 </SidebarProvider>
 ```

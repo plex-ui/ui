@@ -27,6 +27,7 @@ import {
   useSidebar,
   type SidebarCollapsible,
   type SidebarSide,
+  type SidebarProviderVariant,
   type SidebarVariant,
 } from "./useSidebarContext.js"
 
@@ -51,7 +52,7 @@ import {
 
 // Re-export provider and composable
 export { SidebarProvider, useSidebar }
-export type { SidebarCollapsible, SidebarSide, SidebarVariant }
+export type { SidebarCollapsible, SidebarProviderVariant, SidebarSide, SidebarVariant }
 
 type Attrs = Record<string, unknown>
 
@@ -321,6 +322,9 @@ export const SidebarMenuItem = SidebarMenuItemComponent as typeof SidebarMenuIte
 // Menu Button
 // =============================================
 
+// Shared by every row of the rail: moving to the next one shows its label at once.
+let railLeftAt = 0
+
 const SidebarMenuButtonComponent = defineComponent({
   name: "SidebarMenuButton",
   inheritAttrs: false,
@@ -337,14 +341,24 @@ const SidebarMenuButtonComponent = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
+    const openDelay = ref<number>()
 
     return () => {
       const { className, rest } = cleanAttrs(attrs)
-      const ownProps = {
+      const hasTooltip = !!(props.tooltip || slots.tooltip)
+      const ownProps: Record<string, unknown> = {
         "data-active": props.isActive ? "true" : "false",
         "aria-current": props.isActive ? "page" : undefined,
         "class": [s.MenuButton, className],
         ...rest,
+      }
+      if (hasTooltip) {
+        ownProps.onPointerenter = composeEventHandlers(rest.onPointerenter, () => {
+          openDelay.value = Date.now() - railLeftAt < 300 ? 0 : undefined
+        })
+        ownProps.onPointerleave = composeEventHandlers(rest.onPointerleave, () => {
+          railLeftAt = Date.now()
+        })
       }
       const content = slots.default?.()
       const wrap = (children: VNodeArrayChildren | undefined) => h("span", { class: s.MenuButtonInner }, children)
@@ -361,12 +375,14 @@ const SidebarMenuButtonComponent = defineComponent({
         button = h("button", ownProps, [wrap(content)])
       }
 
-      // Show tooltip when collapsed (icon mode) and not mobile
-      if ((props.tooltip || slots.tooltip) && sidebar.state === "collapsed" && !sidebar.isMobile) {
+      // The tooltip shows when collapsed (icon mode) and not on mobile. It wraps
+      // the row in every state, so the row stays mounted and its label can fade.
+      if (hasTooltip) {
+        const shown = sidebar.state === "collapsed" && !sidebar.isMobile
         return h(
           Tooltip,
-          { content: props.tooltip, side: "right" },
-          { default: () => button, ...(slots.tooltip ? { content: slots.tooltip } : {}) },
+          { content: shown ? props.tooltip : null, openDelay: openDelay.value, side: "right" },
+          { default: () => button, ...(slots.tooltip && shown ? { content: slots.tooltip } : {}) },
         )
       }
 

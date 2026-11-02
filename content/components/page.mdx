@@ -1,0 +1,139 @@
+---
+title: Page
+description: "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+metaDescription: "React app page layout: header and content in one column at a full, wide or column width, a line that follows scrolling, and an iOS style glass bar on phones."
+---
+
+import {
+  PageOverviewDemo,
+  PageWidthsDemo,
+  PageHeadingDemo,
+  PageFillDemo,
+} from "@/components/docs/PageDemos"
+
+<UsageBlock>{`import { Page } from "@plexui/ui/components/Page";`}</UsageBlock>
+
+## Examples
+
+<div id="first-component-page">
+### Overview
+
+<ComponentPreview details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={`<Page>
+  <Page.Header>
+    <Page.Bar>
+      <Page.Title>Orders</Page.Title>
+      <Page.Actions>
+        <Button color="primary" pill size="md">New order</Button>
+      </Page.Actions>
+    </Page.Bar>
+  </Page.Header>
+  <Page.Content>...</Page.Content>
+</Page>`}>
+  <PageOverviewDemo />
+</ComponentPreview>
+</div>
+
+### Widths
+
+<ComponentPreview details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page.</>} code={`<Page width="column">
+  <Page.Header>...</Page.Header>
+  <Page.Content>...</Page.Content>
+</Page>
+
+<Page width="column" style={{ "--page-width": "860px" }}>...</Page>`}>
+  <PageWidthsDemo />
+</ComponentPreview>
+
+### Heading
+
+<ComponentPreview details={<><code>Page.Heading</code> holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.</>} code={`<Page.Bar>
+  <Page.Heading>
+    <Page.Title>Menu</Page.Title>
+    <Badge color="info" size="sm" variant="outline">Draft</Badge>
+    <Page.Subtitle>Saved a minute ago</Page.Subtitle>
+  </Page.Heading>
+  <Page.Actions>...</Page.Actions>
+</Page.Bar>`}>
+  <PageHeadingDemo />
+</ComponentPreview>
+
+### Fill
+
+<ComponentPreview details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={`<Page>
+  <Page.Header divider={false}>...</Page.Header>
+  <Page.Content fill>
+    <div className="min-h-0 flex-1 overflow-auto">...</div>
+  </Page.Content>
+</Page>`}>
+  <PageFillDemo />
+</ComponentPreview>
+
+## Phone
+
+Under 768px the header is one row of 44px over the page. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+
+Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. The first column of the bar stays free for the menu button of a sidebar.
+
+Use it inside `SidebarInset` for a whole app, see the [app sidebar](/components/sidebar#app).
+
+## API
+
+### Page
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `width` | `"full" \| "wide" \| "column"` | `"full"` | Column that header and content share: edge to edge, 1280px or 768px, centred |
+| `className` | `string` | — | Applied to the root element |
+
+All other `<div>` attributes are forwarded to the root.
+
+### Page.Header
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `divider` | `boolean` | `true` | Shows the line, and the glass on a phone, once the content has scrolled under the header |
+| `className` | `string` | — | Applied to the band |
+
+Children stand in the shared column. All other `<div>` attributes are forwarded to the band.
+
+### Page.Content
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fill` | `boolean` | `false` | The content fills the page and scrolls inside itself, from 768px up |
+| `onScroll` | `UIEventHandler` | — | Called on every scroll, after the page has read the position |
+| `className` | `string` | — | Applied to the element that scrolls |
+
+Children stand in the shared column. All other `<div>` attributes and `ref` go to the element that scrolls.
+
+### Compound parts
+
+| Part | Element | Purpose |
+|------|---------|---------|
+| `Page.Bar` | `<div>` | Row of the title and the actions |
+| `Page.Heading` | `<div>` | Title with what stands beside it |
+| `Page.Title` | `<h1>` | Page heading |
+| `Page.Subtitle` | `<p>` | Status of the page |
+| `Page.Actions` | `<div>` | Buttons on the trailing side of the bar |
+
+## Styling
+
+Page reads these component tokens. Override them at any scope to restyle it:
+
+- `--page-background`: background (default `var(--color-surface)`)
+- `--page-bar-gap`: gap between title and actions (default `24px`)
+- `--page-bar-height`: bar height (default `36px`)
+- `--page-bar-height-phone`: bar height on a phone (default `44px`)
+- `--page-bar-line`: hairline of the glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
+- `--page-bar-veil`: fill of the glass bar (default `light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%))`)
+- `--page-content-padding-bottom`: bottom of the content (default `48px`)
+- `--page-content-padding-top`: top of the content on a phone (default `16px`)
+- `--page-gutter`: side gutter on a phone (default `16px`)
+- `--page-gutter-wide`: side gutter and top of the content from 768px up (default `24px`)
+- `--page-header-padding-bottom`: gap between the bar and the line (default `12px`)
+- `--page-header-padding-top`: top of the header (default `12px`)
+- `--page-title-font-size`: title font size (default `20px`)
+- `--page-title-line-height`: title line height (default `26px`)
+- `--page-width`: width of the column, any value
+- `--page-width-column`: `column` width (default `768px`)
+- `--page-width-wide`: `wide` width (default `1280px`)

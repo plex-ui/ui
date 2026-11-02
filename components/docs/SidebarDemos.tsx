@@ -21,6 +21,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Avatar } from '@plexui/ui/components/Avatar';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
+import { Page } from '@plexui/ui/components/Page';
 import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
@@ -127,6 +128,8 @@ import {
 // =============================================
 // Shared data
 // =============================================
+
+const PREVIEW_HEIGHT_APP = 560;
 
 const mainNavItems = [
   { icon: Home, label: 'Overview' },
@@ -2578,6 +2581,64 @@ export function SidebarConsoleDemo() {
       <SidebarConsoleDemoPreview />
       <SidebarConsoleDemoControls />
     </ConsoleDemoContext.Provider>
+  );
+}
+
+export function SidebarAppDemo() {
+  const [activeItem, setActiveItem] = useState('Overview');
+
+  return (
+    <div className="flex-1 w-full !p-0 !items-stretch !justify-stretch" style={{ height: PREVIEW_HEIGHT_APP }}>
+      <SidebarProvider className="h-full" collapsible="icon" variant="app">
+        <SidebarLayout className="h-full">
+          <Sidebar>
+            <SidebarHeader>
+              <span>App</span>
+              <SidebarTrigger />
+            </SidebarHeader>
+            <SidebarContent>
+              {[mainNavItems, systemNavItems].map((items, index) => (
+                <SidebarGroup key={index}>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {items.map((item) => (
+                        <SidebarMenuItem key={item.label}>
+                          <SidebarMenuButton
+                            isActive={activeItem === item.label}
+                            tooltip={item.label}
+                            onClick={() => setActiveItem(item.label)}
+                          >
+                            <SidebarMenuButtonIcon>
+                              <item.icon />
+                            </SidebarMenuButtonIcon>
+                            <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              ))}
+            </SidebarContent>
+          </Sidebar>
+          <SidebarInset>
+            <Page>
+              <Page.Header>
+                <Page.Bar>
+                  <Page.Title>{activeItem}</Page.Title>
+                  <Page.Actions>
+                    <Button color="primary" pill size="md">New</Button>
+                  </Page.Actions>
+                </Page.Bar>
+              </Page.Header>
+              <Page.Content>
+                <p className="text-secondary">Main content area.</p>
+              </Page.Content>
+            </Page>
+          </SidebarInset>
+        </SidebarLayout>
+      </SidebarProvider>
+    </div>
   );
 }
 

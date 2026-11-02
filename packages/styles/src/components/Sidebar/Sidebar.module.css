@@ -1325,6 +1325,183 @@
 }
 
 /* =============================================
+   App: the shell of a product
+   A quiet rail on the shell's ground, pill rows, and on a phone a drawer
+   that waits still under the page while the page moves aside.
+============================================= */
+
+.App {
+  --sidebar-icon-size: 16px;
+  --sidebar-header-height: 36px;
+  --sidebar-menu-item-radius: var(--radius-full);
+  --sidebar-mobile-z-index: 40;
+  background-color: var(--color-surface-tertiary);
+}
+
+.App[data-sidebar="collapsed"] {
+  --sidebar-icon-margin: 0 4px;
+}
+
+.App .Sidebar {
+  padding-top: 12px;
+}
+
+.App .Header {
+  background: none;
+  transition: padding var(--sidebar-collapse-duration) var(--cubic-move);
+}
+
+.App[data-sidebar="expanded"] .Header {
+  gap: 4px;
+  padding-left: 12px;
+}
+
+.App .Header span {
+  transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+}
+
+.App .Trigger {
+  --sidebar-icon-margin: 0 4px;
+  flex-shrink: 0;
+  width: 40px;
+}
+
+.App .Footer {
+  --sidebar-menu-item-margin-desktop: 0;
+  position: relative;
+  min-height: 49px;
+  padding-block: 8px;
+}
+
+/* The line stays whether or not the list scrolls, and takes no room of its own */
+.App .Sidebar .Footer > .FooterSeparator {
+  position: absolute;
+  top: 0;
+  display: block;
+  margin-bottom: 0;
+}
+
+/* A group folds on its real height: set --sidebar-menu-sub-max-height on the SidebarMenuSub */
+.App .MenuSub {
+  transition:
+    max-height 200ms var(--cubic-move),
+    opacity 120ms linear;
+}
+
+.App .Inset {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: visible;
+  border-radius: 0;
+}
+
+@media (max-width: 767.98px) {
+  .App {
+    --sidebar-drawer-width: min(20.625rem, calc(100vw - 4.5rem));
+    --sidebar-mobile-gutter: 16px;
+    --sidebar-mobile-header-height: 68px;
+    --sidebar-footer-shadow: none;
+  }
+
+  .App .Inset {
+    z-index: 41;
+    transition: transform 200ms var(--cubic-exit);
+  }
+
+  .App[data-mobile-menu="visible"] .Inset {
+    box-shadow: 0 0 2rem rgb(0 0 0 / 12%);
+    transform: translateX(var(--sidebar-drawer-width));
+    transition: transform var(--motion-enter-large) var(--cubic-enter);
+  }
+
+  .App .MobileBackdrop {
+    left: var(--sidebar-drawer-width);
+    z-index: 42;
+    background: transparent;
+  }
+
+  .App .MobileSidebar {
+    --sidebar-background: var(--color-surface-secondary);
+    --sidebar-menu-item-height: 44px;
+    --sidebar-menu-item-font-size: 17px;
+    --sidebar-menu-item-margin: 0;
+    --sidebar-icon-size: 20px;
+    --sidebar-icon-margin: 0 5px 0 11px;
+    right: auto;
+    left: 0;
+    width: var(--sidebar-drawer-width);
+    padding-top: 0;
+    transition: visibility 0s 200ms;
+  }
+
+  .App[data-mobile-menu="visible"] .MobileSidebar {
+    right: auto;
+    width: var(--sidebar-drawer-width);
+    transition: visibility 0s;
+  }
+
+  .App .MobileSidebar > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* The drawer sits in the page's shadow until the page has moved off it */
+  .App .MobileSidebar::after {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 40%);
+    content: "";
+    pointer-events: none;
+    transition: opacity 200ms var(--cubic-exit);
+  }
+
+  .App[data-mobile-menu="visible"] .MobileSidebar::after {
+    opacity: 0;
+    transition: opacity var(--motion-enter-large) var(--cubic-enter);
+  }
+
+  .App .MobileSidebar .Content {
+    padding: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .App .MobileSidebar .MenuButtonInner {
+    padding-right: 8px;
+  }
+
+  .App .MobileSidebar .MenuButtonLabel {
+    line-height: 22px;
+  }
+
+  .App .MobileSidebar .MenuChevron svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .App .MobileSidebar .MenuBadge span {
+    padding-right: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .App .MobileSidebar .MenuSub .MenuSubButton.indent1 {
+    padding: 11px 8px 11px 48px;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .App .MobileFooter {
+    --sidebar-menu-item-margin: 0;
+    padding-block: 8px;
+    border-top: 1px solid var(--sidebar-border);
+  }
+}
+
+/* =============================================
    RTL Support
 ============================================= */
 

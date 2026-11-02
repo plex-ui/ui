@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 51
+Components: 52
 
 ## Setup
 
@@ -640,6 +640,21 @@ Props:
   - class (string) — Applied to the root element
 Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
 
+## Page
+"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+Import: import { Page, PageActions, PageBar, PageContent, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Docs: https://plexui.com/vue/components/page
+Props:
+  - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - class (string) — Class of the root element
+  PageHeader:
+    - divider (boolean) default: true — Shows the line, and the glass on a phone, once the content has scrolled under the header
+    - class (string) — Class of the band
+  PageContent:
+    - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
+    - class (string) — Class of the element that scrolls
+Examples: Overview, Widths, Heading, Fill
+
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
 Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
@@ -818,6 +833,7 @@ Props:
   - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
+    - variant ("sidebar" | "app") default: "sidebar" — Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
@@ -847,7 +863,7 @@ Props:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
-Examples: App Shell, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
+Examples: App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions, Mobile Menu, Search Input
 
 ## Skeleton
 Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.

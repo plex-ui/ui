@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 51
+Components: 52
 
 ## Setup
 
@@ -5176,6 +5176,71 @@ Props:
 <OTPInput value="488030" disabled />
 ```
 
+## Page
+"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+Import: import { Page, PageActions, PageBar, PageContent, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Docs: https://plexui.com/vue/components/page
+Props:
+  - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - class (string) — Class of the root element
+  PageHeader:
+    - divider (boolean) default: true — Shows the line, and the glass on a phone, once the content has scrolled under the header
+    - class (string) — Class of the band
+  PageContent:
+    - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
+    - class (string) — Class of the element that scrolls
+
+### Overview
+The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.
+```vue
+<Page>
+  <PageHeader>
+    <PageBar>
+      <PageTitle>Orders</PageTitle>
+      <PageActions>
+        <Button color="primary" pill size="md">New order</Button>
+      </PageActions>
+    </PageBar>
+  </PageHeader>
+  <PageContent>...</PageContent>
+</Page>
+```
+
+### Widths
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page.
+```vue
+<Page width="column">
+  <PageHeader>...</PageHeader>
+  <PageContent>...</PageContent>
+</Page>
+
+<Page width="column" style="--page-width: 860px">...</Page>
+```
+
+### Heading
+PageHeading holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.
+```vue
+<PageBar>
+  <PageHeading>
+    <PageTitle>Menu</PageTitle>
+    <Badge color="info" size="sm" variant="outline">Draft</Badge>
+    <PageSubtitle>Saved a minute ago</PageSubtitle>
+  </PageHeading>
+  <PageActions>...</PageActions>
+</PageBar>
+```
+
+### Fill
+fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider.
+```vue
+<Page>
+  <PageHeader :divider="false">...</PageHeader>
+  <PageContent fill>
+    <div class="min-h-0 flex-1 overflow-auto">...</div>
+  </PageContent>
+</Page>
+```
+
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.
 Import: import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover"
@@ -6389,6 +6454,7 @@ Props:
   - side ("left" | "right") default: "left" — Which side the sidebar is on
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
+    - variant ("sidebar" | "app") default: "sidebar" — Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page
     - default-open (boolean) default: true — Initial open state (uncontrolled)
     - open (boolean) — Controlled open state. Bind with v-model:open
     - @update:open ((open: boolean) => void) — Emitted when the open state changes; powers v-model:open. Without open the provider keeps its own state and still emits
@@ -6591,6 +6657,67 @@ A multi-section app shell with a workspace selector, expandable parent sections 
           Hover the icons when collapsed to reveal a flyout with the section's items.
         </p>
       </div>
+    </SidebarInset>
+  </SidebarLayout>
+</SidebarProvider>
+```
+
+### App
+The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
+```vue
+<SidebarProvider v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
+  <SidebarLayout class="h-full">
+    <Sidebar>
+      <SidebarHeader>
+        <span class="demo-sidebar-wordmark">App</span>
+        <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
+          <SidebarTrigger>
+            <SidebarCollapseRight v-if="sidebar.state === 'collapsed'" />
+            <SidebarCollapseLeft v-else />
+          </SidebarTrigger>
+          <template #content>
+            <span class="inline-flex items-center gap-1.5">
+              {{ sidebar.state === 'collapsed' ? 'Expand' : 'Collapse' }}
+              <kbd class="console-trigger-kbd">⌘B</kbd>
+            </span>
+          </template>
+        </Tooltip>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup v-for="group in navGroups" :key="group.label">
+          <SidebarGroupLabel size="sm">{{ group.label }}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="item in group.items" :key="item.label">
+                <SidebarMenuButton
+                  :is-active="activeItem === item.label"
+                  :tooltip="item.label"
+                  @click="activeItem = item.label"
+                >
+                  <SidebarMenuButtonIcon><component :is="item.icon" /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+
+    <SidebarInset>
+      <Page>
+        <PageHeader>
+          <PageBar>
+            <PageTitle>{{ activeItem }}</PageTitle>
+            <PageActions>
+              <Button color="primary" pill size="md">New</Button>
+            </PageActions>
+          </PageBar>
+        </PageHeader>
+        <PageContent>
+          <p class="text-secondary">Main content area.</p>
+        </PageContent>
+      </Page>
     </SidebarInset>
   </SidebarLayout>
 </SidebarProvider>

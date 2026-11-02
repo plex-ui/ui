@@ -98,6 +98,7 @@ export type {
   SidebarSeparatorProps,
   SidebarSide,
   SidebarTriggerProps,
+  SidebarProviderVariant,
   SidebarVariant,
 } from "./Sidebar.js"
 

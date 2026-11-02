@@ -379,6 +379,26 @@
     --modal-container-inner-padding: spacing(5);
 
     /* =============================================
+      Page
+    ============================================= */
+    --page-background: var(--color-surface);
+    --page-width-wide: 1280px;
+    --page-width-column: 768px;
+    --page-gutter: 16px;
+    --page-gutter-wide: 24px;
+    --page-header-padding-top: 12px;
+    --page-header-padding-bottom: 12px;
+    --page-bar-height: 36px;
+    --page-bar-height-phone: 44px;
+    --page-bar-gap: 24px;
+    --page-bar-veil: light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%));
+    --page-bar-line: light-dark(rgb(0 0 0 / 10%), var(--color-border));
+    --page-title-font-size: 20px;
+    --page-title-line-height: 26px;
+    --page-content-padding-top: 16px;
+    --page-content-padding-bottom: 48px;
+
+    /* =============================================
       Popover
     ============================================= */
     --popover-radius: var(--radius-xl);
