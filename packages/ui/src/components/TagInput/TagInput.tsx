@@ -147,7 +147,8 @@ export const TagInput = (props: TagInputProps) => {
     }
   }, [focused, selectedTag, showInput]) // Include showInput so we focus the container when we hide the input
 
-  const placeholderText = tags.size === 0 ? placeholder : undefined
+  // A ghost has no frame: the hint stays after the first tag to show where to type.
+  const placeholderText = tags.size === 0 || variant === "ghost" ? placeholder : undefined
 
   // Handle positioning the real input inside of the container.
   //

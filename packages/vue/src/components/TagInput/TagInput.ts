@@ -86,7 +86,10 @@ export const TagInput = defineComponent({
     const measureRef = ref<HTMLSpanElement | null>(null)
 
     const showInput = computed(() => !props.maxTags || tags.value.size < props.maxTags)
-    const placeholderText = computed(() => (tags.value.size === 0 ? props.placeholder : undefined))
+    // A ghost has no frame: the hint stays after the first tag to show where to type.
+    const placeholderText = computed(() =>
+      tags.value.size === 0 || props.variant === "ghost" ? props.placeholder : undefined,
+    )
 
     // Handle focusing the correct part of the tag input
     watch(

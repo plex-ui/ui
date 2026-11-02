@@ -126,10 +126,17 @@
   &[data-variant="ghost"],
   &[data-variant="ghost"]:not([data-disabled]),
   &[data-variant="ghost"]:not([data-disabled])[data-focused] {
+    --tag-input-tag-radius: var(--control-radius-sm);
+
     min-height: calc(var(--min-rows) * var(--tag-input-height));
     padding: 0;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  /* Chips are solid, so they stand further from a label than a line of text. */
+  &[data-variant="ghost"]:not([data-empty]) {
+    margin-block: 2px;
   }
 }
 
