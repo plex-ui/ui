@@ -49,3 +49,6 @@ const cssEscape = (value: string) => {
 if (typeof globalThis.CSS?.escape !== "function") {
   ;(globalThis as { CSS?: unknown }).CSS = { ...(globalThis.CSS ?? {}), escape: cssEscape }
 }
+
+// jsdom has no scrollIntoView, and an open Select calls it a frame later, when its test may be over.
+Element.prototype.scrollIntoView ??= () => {}
