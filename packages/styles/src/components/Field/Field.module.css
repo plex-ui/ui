@@ -333,17 +333,17 @@
 
 /* A framed field in a row: its width cannot follow what is typed, so it has one,
    wider for words than for a number. A ghost has the row for its frame, a Select
-   follows its value. */
+   follows its value, and fields set out by a wrapper of their own size themselves. */
 .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
-    [data-variant]:not([data-variant="ghost"]) > input,
-    [data-variant]:not([data-variant="ghost"]) > textarea
+    > [data-variant]:not([data-variant="ghost"]) > input,
+    > [data-variant]:not([data-variant="ghost"]) > textarea
   ) {
   width: var(--field-row-control-width);
 }
 
 .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
-    [data-variant]:not([data-variant="ghost"]) > input:not([inputmode="decimal"], [inputmode="numeric"], [type="number"]),
-    [data-variant]:not([data-variant="ghost"]) > textarea
+    > [data-variant]:not([data-variant="ghost"]) > input:not([inputmode="decimal"], [inputmode="numeric"], [type="number"]),
+    > [data-variant]:not([data-variant="ghost"]) > textarea
   ) {
   width: var(--field-row-text-width);
 }
