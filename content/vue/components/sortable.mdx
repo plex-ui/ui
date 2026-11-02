@@ -5,7 +5,7 @@ metaDescription: "Drag to reorder for Vue 3: Sortable reorders rows, table rows,
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueSortableTableDemo } from "@/components/docs/vue/VueSortableDemos"
+import { VueSortableGroupDemo, VueSortableTableDemo } from "@/components/docs/vue/VueSortableDemos"
 
 export const STAGE = "flex w-full justify-center py-10"
 
@@ -181,6 +181,16 @@ export const cardsDemo = `<Sortable v-model:value="cards" layout="grid" class="g
   </div>
 </Sortable>`
 
+export const groupDemo = `<div class="grid w-[640px] max-w-full gap-4 sm:grid-cols-3">
+  <div v-for="(tasks, name) in lists" :key="name">
+    <p class="mb-2 text-sm font-medium text-primary">{{ name }}</p>
+    <Sortable group="tasks" :name="name" :value="tasks" class="rounded-xl border border-default" @move="move">
+      <div v-for="task in tasks" :key="task" class="px-4 py-3 text-sm text-primary">{{ task }}</div>
+      <p v-if="!tasks.length" class="px-4 py-3 text-sm text-secondary" data-sortable-static>Nothing here</p>
+    </Sortable>
+  </div>
+</div>`
+
 ## Examples
 
 ### Rows
@@ -241,6 +251,12 @@ export const cardsDemo = `<Sortable v-model:value="cards" layout="grid" class="g
   <VueDemo template={cardsDemo} stageClassName={STAGE} state={{ cards }} />
 </ComponentPreview>
 
+### Between lists
+
+<ComponentPreview language="vue" details={<>Lists of one <code>group</code> trade items, and an empty list takes a drop. Each list has a <code>name</code>. <code>move</code> fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A <code>data-sortable-static</code> child, such as a head or a message, stays out of the items.</>} code={groupDemo} previewMinHeight={300}>
+  <VueSortableGroupDemo template={groupDemo} stageClassName={STAGE} />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -249,9 +265,19 @@ export const cardsDemo = `<Sortable v-model:value="cards" layout="grid" class="g
   { prop: "as", type: "string | Component", default: "div", description: "Element to render, such as TableBody for table rows" },
   { prop: "disabled", type: "boolean", default: "false", description: "Turns dragging off" },
   { prop: "handles", type: "boolean", default: "true in a table, otherwise false", description: "Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control" },
+  { prop: "group", type: "string", description: "Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name" },
+  { prop: "name", type: "string", description: "Names the list in move" },
 ]} />
 
-Events: `update:value` and `change` fire with the new order after a drop. The default slot holds the items: one direct child per entry of `value`, keyed by the entry and not by its index.
+Events: `update:value` and `change` fire with the new order after a drop inside one list. `move` fires for every move with `{ item, from, fromIndex, to, toIndex }`: out of a list the app updates both lists. `hold` fires with the name of a `SortableTarget` after a drag rests on it for half a second. The default slot holds the items: one direct child per entry of `value`, keyed by the entry and not by its index.
+
+`SortableTarget` takes a drop from outside the lists, such as a row of a side navigation that stands for a list. A drop on it moves the item with `toIndex` undefined, to the end of that list. `hold` is the moment to open the list or go to it: the lists are measured again afterwards. It sets `data-over` while a drag is over it.
+
+<PropsTable data={[
+  { prop: "group", type: "string", description: "The group of the lists whose items it takes" },
+  { prop: "name", type: "string", description: "Names the target in move and hold" },
+  { prop: "as", type: "string | Component", default: "div", description: "Element to render" },
+]} />
 
 `SortableHandle` is the grip of an item. It renders a button, takes its attributes, and shows `GripVertical` unless its slot has content.
 
@@ -259,7 +285,9 @@ Events: `update:value` and `change` fire with the new order after a drop. The de
   { prop: "aria-label", type: "string", default: "Reorder", description: "Name of the handle for assistive technology" },
 ]} />
 
-The chip takes its text from `data-sortable-label` on the item, then from an element with that attribute or a `label` inside it, then from its first text. It shows the first `img` of the item.
+The chip takes its text from `data-sortable-label` on the item, then from an element with that attribute or a `label` inside it, then from its first text. It shows the first `img` of the item, or an element with `data-sortable-image`, such as a hidden `span` with a cropped background.
+
+A control inside an item stops a drag. `data-sortable-grab` on a control that acts on a click lets a pull start one: the click still works when the pointer stays.
 
 ## Styling
 
@@ -277,6 +305,7 @@ Sortable reads these component tokens. Override them at any scope to restyle it:
 - `--sortable-handle-color-hover`: grip color on hover (default `var(--color-text-secondary)`)
 - `--sortable-line-size`: line thickness (default `2px`)
 - `--sortable-line-color`: line color (default `var(--color-background-info-solid)`)
+- `--sortable-line-inset`: line inset from the edges of a list (default `16px`)
 - `--sortable-slot-inset`: slot inset in a list (default `8px`)
 - `--sortable-slot-radius`: slot radius (default `12px`)
 - `--sortable-slot-background`: slot under the pointer (default `var(--color-background-info-soft)`)

@@ -898,8 +898,10 @@ Props:
   - as (string | Component) default: div — Element to render, such as TableBody for table rows
   - disabled (boolean) default: false — Turns dragging off
   - handles (boolean) default: true in a table, otherwise false — Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - group (string) — Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name
+  - name (string) — Names the list in move
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
-Examples: Rows, Rows with a handle, Stacked rows, Different controls, Table, Images, Tags, Cards
+Examples: Rows, Rows with a handle, Stacked rows, Different controls, Table, Images, Tags, Cards, Between lists
 
 ## Stat Card
 Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.

@@ -5,8 +5,8 @@ import { h, ref } from "vue"
 import { Sortable as RSortable } from "../../packages/ui/src/components/Sortable"
 import { TagInput as RTagInput } from "../../packages/ui/src/components/TagInput"
 import { Textarea as RTextarea } from "../../packages/ui/src/components/Textarea"
-import { moveItem, sortablePointerDown } from "../../packages/ui/src/lib/sortable"
-import { Sortable, SortableHandle } from "../../packages/vue/src/components/Sortable"
+import { moveItem, sortableKeyDown, sortablePointerDown } from "../../packages/ui/src/lib/sortable"
+import { Sortable, SortableHandle, SortableTarget } from "../../packages/vue/src/components/Sortable"
 import { TagInput } from "../../packages/vue/src/components/TagInput"
 import { Textarea } from "../../packages/vue/src/components/Textarea"
 import { flushVue, mountVue } from "./harness"
@@ -368,5 +368,244 @@ describe("Sortable components", () => {
     const list = container.querySelector("[data-sortable]") as HTMLElement
     await dragFirstBelowSecond(list.children[0])
     expect(onChange).not.toHaveBeenCalled()
+  })
+})
+
+describe("Sortable group", () => {
+  // Two lists of rows 40px high: one at the top of the page, one 200px down
+  const TOPS: Record<string, number> = { one: 0, two: 200 }
+
+  beforeEach(() => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const parent = this.parentElement
+      if (parent?.hasAttribute("data-sortable")) {
+        return rect(TOPS[parent.dataset.name as string] + [...parent.children].indexOf(this) * ROW_HEIGHT, ROW_HEIGHT)
+      }
+      if (this.hasAttribute("data-sortable")) {
+        return rect(TOPS[(this as HTMLElement).dataset.name as string], this.children.length * ROW_HEIGHT)
+      }
+      return rect(0, 0)
+    })
+    document.elementFromPoint = () => null
+  })
+
+  /** Two plain lists of one group */
+  const twoLists = (one: string, two: string, attributes = "") => {
+    document.body.innerHTML = `
+      <div data-sortable data-group="dishes" data-name="one">${one}</div>
+      <div data-sortable data-group="dishes" data-name="two" ${attributes}>${two}</div>
+    `
+    const [first, second] = document.querySelectorAll<HTMLElement>("[data-sortable]")
+    const commit = vi.fn()
+    const move = vi.fn()
+    const hold = vi.fn()
+    first.addEventListener("pointerdown", (event) => sortablePointerDown(event, first, "list", commit, { move, hold }))
+    return { first, second, commit, move, hold }
+  }
+
+  const dragTo = async (target: Element, y: number) => {
+    press(target, 20)
+    moveTo(30)
+    moveTo(y)
+    await frame()
+    lift()
+    await frame()
+  }
+
+  test("an item lands in the gap of the other list", async () => {
+    const { first, commit, move } = twoLists("<div>a</div><div>b</div>", "<div>c</div><div>d</div>")
+    await dragTo(first.children[0], 240)
+    expect(move).toHaveBeenCalledWith(0, "two", 1)
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  test("inside its own list it stays a plain reorder", async () => {
+    const { first, commit, move } = twoLists("<div>a</div><div>b</div><div>c</div>", "<div>d</div>")
+    await dragTo(first.children[0], 80)
+    expect(commit).toHaveBeenCalledWith(0, 1)
+    expect(move).not.toHaveBeenCalled()
+  })
+
+  test("a disabled list takes nothing", async () => {
+    const { first, commit, move } = twoLists("<div>a</div><div>b</div>", "<div>c</div>", "data-disabled")
+    await dragTo(first.children[0], 240)
+    expect(move).not.toHaveBeenCalled()
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  test("an empty list takes an item", async () => {
+    const { first, move } = twoLists("<div>a</div><div>b</div>", '<div data-sortable-static>No items yet</div>')
+    await dragTo(first.children[0], 220)
+    expect(move).toHaveBeenCalledWith(0, "two", 0)
+  })
+
+  test("a head row stands among the items and is not one", async () => {
+    const { first, second, move } = twoLists("<div>a</div>", "<div data-sortable-static>Head</div><div>b</div><div>c</div>")
+    expect(second.children).toHaveLength(3)
+    await dragTo(first.children[0], 240)
+    expect(move).toHaveBeenCalledWith(0, "two", 0)
+  })
+
+  test("a head row does not drag", async () => {
+    const { first, commit, move } = twoLists("<div data-sortable-static>Head</div><div>a</div><div>b</div>", "<div>c</div>")
+    await dragTo(first.children[0], 240)
+    expect(commit).not.toHaveBeenCalled()
+    expect(move).not.toHaveBeenCalled()
+    expect(document.querySelector("[data-sortable-source]")).toBeNull()
+  })
+
+  test("a control that opens its row lets a pull through", async () => {
+    const { first, commit } = twoLists("<div><button data-sortable-grab>a</button></div><div>b</div><div>c</div>", "<div>d</div>")
+    await dragTo(first.querySelector("button") as Element, 80)
+    expect(commit).toHaveBeenCalledWith(0, 1)
+  })
+
+  test("the chip takes a marked picture over the row's own", async () => {
+    const { first } = twoLists('<div><i data-sortable-image hidden style="background: red"></i>a</div><div>b</div>', "<div>c</div>")
+    press(first.children[0], 20)
+    moveTo(30)
+    const picture = document.body.querySelector(":scope > div:not([data-sortable]) i") as HTMLElement
+    expect(picture.hidden).toBe(false)
+    expect(picture.style.background).toBe("red")
+    lift()
+    await frame()
+  })
+
+  describe("target", () => {
+    const withTarget = (name: string) => {
+      const lists = twoLists("<div>a</div><div>b</div>", "<div>c</div>")
+      const target = document.createElement("button")
+      target.dataset.sortableTarget = "dishes"
+      target.dataset.name = name
+      document.body.append(target)
+      document.elementFromPoint = () => target
+      return { ...lists, target }
+    }
+
+    test("takes the item whole, with no place", async () => {
+      const { first, move } = withTarget("far")
+      await dragTo(first.children[0], 400)
+      expect(move).toHaveBeenCalledWith(0, "far")
+    })
+
+    test("marks itself while the drag is over it", async () => {
+      const { first, target } = withTarget("far")
+      press(first.children[0], 20)
+      moveTo(30)
+      await frame()
+      expect(target.hasAttribute("data-over")).toBe(true)
+      lift()
+      await frame()
+      expect(target.hasAttribute("data-over")).toBe(false)
+    })
+
+    test("a drop on the list's own target is no move", async () => {
+      const { first, move, commit } = withTarget("one")
+      await dragTo(first.children[0], 400)
+      expect(move).not.toHaveBeenCalled()
+      expect(commit).not.toHaveBeenCalled()
+    })
+
+    test("a rest on it says so once, a pass over it does not", async () => {
+      const { first, hold } = withTarget("far")
+      press(first.children[0], 20)
+      moveTo(30)
+      await frame()
+      expect(hold).not.toHaveBeenCalled()
+      await new Promise((done) => setTimeout(done, 520))
+      expect(hold).toHaveBeenCalledTimes(1)
+      expect(hold).toHaveBeenCalledWith("far")
+      lift()
+      await frame()
+    })
+  })
+
+  describe("keyboard", () => {
+    const key = (list: HTMLElement, code: string, commit: () => void, move: () => void) => {
+      const handle = list.querySelector("[data-sortable-handle]") as HTMLElement
+      const event = new KeyboardEvent("keydown", { key: code, bubbles: true, cancelable: true })
+      Object.defineProperty(event, "target", { value: handle })
+      return sortableKeyDown(event, list, commit, { move })
+    }
+
+    test("past the end of a list an arrow goes on to the next", async () => {
+      const row = "<div><button data-sortable-handle></button>a</div>"
+      const { first, move, commit } = twoLists(row, "<div>c</div>")
+      await key(first, "ArrowDown", commit, move)
+      expect(move).toHaveBeenCalledWith(0, "two", 0)
+    })
+
+    test("past the first list there is nowhere to go", async () => {
+      const row = "<div><button data-sortable-handle></button>a</div>"
+      const { first, move, commit } = twoLists(row, "<div>c</div>")
+      await key(first, "ArrowUp", commit, move)
+      expect(move).not.toHaveBeenCalled()
+    })
+  })
+
+  test.each(["react", "vue"])("%s says what moved and where", async (port) => {
+    const onMove = vi.fn()
+    if (port === "react") {
+      render(
+        createElement(
+          RSortable,
+          { value: ["a", "b"], group: "dishes", name: "one", onMove },
+          ["a", "b"].map((item) => createElement("div", { key: item }, item)),
+        ),
+      )
+      render(createElement(RSortable, { value: ["c"], group: "dishes", name: "two" }, createElement("div", null, "c")))
+    } else {
+      mountVue(() =>
+        h("div", [
+          h(Sortable, { value: ["a", "b"], group: "dishes", name: "one", onMove }, () =>
+            ["a", "b"].map((item) => h("div", { key: item }, item)),
+          ),
+          h(Sortable, { value: ["c"], group: "dishes", name: "two" }, () => h("div", "c")),
+        ]),
+      )
+      await flushVue()
+    }
+    const list = document.querySelector('[data-name="one"]') as HTMLElement
+    await act(async () => {
+      await dragTo(list.children[0], 240)
+    })
+    expect(onMove).toHaveBeenCalledWith({ item: "a", from: "one", fromIndex: 0, to: "two", toIndex: 1 })
+  })
+
+  test.each(["react", "vue"])("%s says so for a move inside one list too", async (port) => {
+    const onMove = vi.fn()
+    if (port === "react") {
+      render(
+        createElement(
+          RSortable,
+          { value: ["a", "b", "c"], group: "dishes", name: "one", onMove },
+          ["a", "b", "c"].map((item) => createElement("div", { key: item }, item)),
+        ),
+      )
+    } else {
+      mountVue(() =>
+        h(Sortable, { value: ["a", "b", "c"], group: "dishes", name: "one", onMove }, () =>
+          ["a", "b", "c"].map((item) => h("div", { key: item }, item)),
+        ),
+      )
+      await flushVue()
+    }
+    const list = document.querySelector('[data-name="one"]') as HTMLElement
+    await act(async () => {
+      await dragTo(list.children[0], 80)
+    })
+    expect(onMove).toHaveBeenCalledWith({ item: "a", from: "one", fromIndex: 0, to: "one", toIndex: 1 })
+  })
+
+  test("the target carries the same marks in both ports", async () => {
+    render(createElement(RSortable.Target, { group: "dishes", name: "far", id: "react-target" }, "Far"))
+    mountVue(() => h(SortableTarget, { group: "dishes", name: "far", id: "vue-target" }, () => "Far"))
+    await flushVue()
+    const read = (id: string) => {
+      const target = document.getElementById(id) as HTMLElement
+      return [target.tagName, target.dataset.sortableTarget, target.dataset.name, target.textContent]
+    }
+    expect(read("vue-target")).toEqual(read("react-target"))
+    expect(read("vue-target")).toEqual(["DIV", "dishes", "far", "Far"])
   })
 })

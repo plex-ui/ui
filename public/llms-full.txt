@@ -6565,6 +6565,10 @@ Props:
   - as (ElementType) default: div — Element to render, such as TableBody for table rows
   - disabled (boolean) default: false — Turns dragging off
   - handles (boolean) default: true in a table, otherwise false — Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - group (string) — Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name
+  - name (string) — Names the list in onMove
+  - onMove ((move: SortableMove<T>) => void) — An item moved, inside this list or out of it, with { item, from, fromIndex, to, toIndex }. Out of it the app updates both lists: onChange is for a move inside one
+  - onHold ((name: string) => void) — A drag rests on a Sortable.Target of the group for half a second
   - children (ReactNode) — The items: one direct child per entry of value, keyed by the entry and not by its index
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
 
@@ -6695,6 +6699,25 @@ Any element can be an item, such as a StatCard.
   </div>
 ))}
 </Sortable>
+```
+
+### Between lists
+Lists of one group trade items, and an empty list takes a drop. Each list has a name. onMove fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A data-sortable-static child, such as a head or a message, stays out of the items.
+```tsx
+const move = ({ item, from, to, toIndex }) =>
+setLists((current) => {
+  const left = { ...current, [from]: current[from].filter((task) => task !== item) }
+  const target = [...left[to]]
+  target.splice(toIndex ?? target.length, 0, item)
+  return { ...left, [to]: target }
+})
+
+{Object.entries(lists).map(([name, tasks]) => (
+<Sortable key={name} group="tasks" name={name} value={tasks} onMove={move}>
+  {tasks.map((task) => <div key={task}>{task}</div>)}
+  {!tasks.length && <p data-sortable-static>Nothing here</p>}
+</Sortable>
+))}
 ```
 
 ## Stat Card

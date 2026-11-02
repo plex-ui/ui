@@ -1,1 +1,1 @@
-export { Sortable, SortableHandle, type SortableLayout } from "./Sortable.js"
+export { Sortable, SortableHandle, SortableTarget, type SortableLayout, type SortableMove } from "./Sortable.js"

@@ -8034,6 +8034,8 @@ Props:
   - as (string | Component) default: div — Element to render, such as TableBody for table rows
   - disabled (boolean) default: false — Turns dragging off
   - handles (boolean) default: true in a table, otherwise false — Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - group (string) — Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name
+  - name (string) — Names the list in move
   - aria-label (string) default: Reorder — Name of the handle for assistive technology
 
 ### Rows
@@ -8185,6 +8187,20 @@ Any element can be an item, such as a StatCard.
     <StatCard :label="card.label" :value="card.value" />
   </div>
 </Sortable>
+```
+
+### Between lists
+Lists of one group trade items, and an empty list takes a drop. Each list has a name. move fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A data-sortable-static child, such as a head or a message, stays out of the items.
+```vue
+<div class="grid w-[640px] max-w-full gap-4 sm:grid-cols-3">
+  <div v-for="(tasks, name) in lists" :key="name">
+    <p class="mb-2 text-sm font-medium text-primary">{{ name }}</p>
+    <Sortable group="tasks" :name="name" :value="tasks" class="rounded-xl border border-default" @move="move">
+      <div v-for="task in tasks" :key="task" class="px-4 py-3 text-sm text-primary">{{ task }}</div>
+      <p v-if="!tasks.length" class="px-4 py-3 text-sm text-secondary" data-sortable-static>Nothing here</p>
+    </Sortable>
+  </div>
+</div>
 ```
 
 ## Stat Card

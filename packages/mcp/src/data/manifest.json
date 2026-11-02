@@ -5475,6 +5475,26 @@
           "description": "Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control"
         },
         {
+          "name": "group",
+          "type": "string",
+          "description": "Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Names the list in onMove"
+        },
+        {
+          "name": "onMove",
+          "type": "(move: SortableMove<T>) => void",
+          "description": "An item moved, inside this list or out of it, with { item, from, fromIndex, to, toIndex }. Out of it the app updates both lists: onChange is for a move inside one"
+        },
+        {
+          "name": "onHold",
+          "type": "(name: string) => void",
+          "description": "A drag rests on a Sortable.Target of the group for half a second"
+        },
+        {
           "name": "children",
           "type": "ReactNode",
           "description": "The items: one direct child per entry of value, keyed by the entry and not by its index"
@@ -5526,6 +5546,11 @@
           "name": "Cards",
           "code": "<Sortable value={cards} onChange={setCards} layout=\"grid\" className=\"grid grid-cols-2 gap-3\">\n{cards.map((card) => (\n  <div key={card.label} tabIndex={0} className=\"rounded-xl\">\n    <StatCard label={card.label} value={card.value} />\n  </div>\n))}\n</Sortable>",
           "details": "Any element can be an item, such as a StatCard."
+        },
+        {
+          "name": "Between lists",
+          "code": "const move = ({ item, from, to, toIndex }) =>\nsetLists((current) => {\n  const left = { ...current, [from]: current[from].filter((task) => task !== item) }\n  const target = [...left[to]]\n  target.splice(toIndex ?? target.length, 0, item)\n  return { ...left, [to]: target }\n})\n\n{Object.entries(lists).map(([name, tasks]) => (\n<Sortable key={name} group=\"tasks\" name={name} value={tasks} onMove={move}>\n  {tasks.map((task) => <div key={task}>{task}</div>)}\n  {!tasks.length && <p data-sortable-static>Nothing here</p>}\n</Sortable>\n))}",
+          "details": "Lists of one group trade items, and an empty list takes a drop. Each list has a name. onMove fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A data-sortable-static child, such as a head or a message, stays out of the items."
         }
       ],
       "docsUrl": "https://plexui.com/components/sortable"
@@ -6867,5 +6892,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T10:57:15.235Z"
+  "generatedAt": "2026-11-02T12:54:22.389Z"
 }

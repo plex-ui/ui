@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `Sortable`: lists of one `group` trade items, and an empty list takes a drop. `onMove` (Vue `move`) reports every move, and the arrow keys go on to the next list.
+- `Sortable.Target` (Vue `SortableTarget`): takes a drop from outside the lists. `onHold` (Vue `hold`) fires when a drag rests on it, to open a list or go to it.
+- `Sortable`: `data-sortable-static` keeps a head or a message out of the items, `data-sortable-grab` lets a pull on a control start a drag, `data-sortable-image` gives the chip a cropped background, `--sortable-line-inset` sets the inset of the line.
+
+### Changed
+
+- `Sortable`: items under the pointer stay still while a drag runs: no hover and no row actions.
+
+---
+
 ## 0.21.0 (2026-11-02)
 
 ### Added

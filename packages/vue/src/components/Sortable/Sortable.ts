@@ -9,14 +9,14 @@ import {
   type VNodeArrayChildren,
   type VNodeChild,
 } from "vue"
-import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout } from "../../lib/sortable.js"
+import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove } from "../../lib/sortable.js"
 import { GripVertical } from "../Icon/index.js"
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
 
 // Vue port of packages/ui/src/components/Sortable/Sortable.tsx.
 //
 // - `value` binds with `v-model:value`; `change` fires with it.
-// - React's `Sortable.Handle` is the flat `SortableHandle` here.
+// - React's `Sortable.Handle` and `Sortable.Target` are the flat `SortableHandle` and `SortableTarget` here.
 // - Attributes reach the rendered element, as React's rest props do.
 
 const preventNativeDrag = (event: Event) => event.preventDefault()
@@ -35,10 +35,18 @@ const SortableComponent = defineComponent({
     disabled: { type: Boolean, default: false },
     /** Shows the grips of `SortableHandle`. A hidden grip still takes the keyboard, and the item drags from anywhere but a control. @default true in a table, otherwise false */
     handles: { type: Boolean, default: undefined },
+    /** Lists of one group trade items, and a `SortableTarget` of that group takes them. Give each list a `name`. */
+    group: { type: String, default: undefined },
+    /** Names the list in `move`. */
+    name: { type: String, default: undefined },
   },
   emits: {
     "update:value": (_value: unknown[]) => true,
     "change": (_value: unknown[]) => true,
+    /** An item moved, inside this list or out of it. Out of it the app updates both lists: `update:value` is for a move inside one. */
+    "move": (_move: SortableMove) => true,
+    /** A drag rests on a `SortableTarget` of the group: open what it stands for or go there. */
+    "hold": (_name: string) => true,
   },
   slots: Object as SlotsType<{
     /** The items, one direct child per entry of `value`, keyed by the entry and not by its index */
@@ -49,17 +57,26 @@ const SortableComponent = defineComponent({
       const next = moveItem(props.value, from, to)
       emit("update:value", next)
       emit("change", next)
+      emit("move", { item: props.value[from], from: props.name as string, fromIndex: from, to: props.name as string, toIndex: to })
       await nextTick()
+    }
+
+    const link = {
+      move: async (fromIndex: number, to: string, toIndex?: number) => {
+        emit("move", { item: props.value[fromIndex], from: props.name as string, fromIndex, to, toIndex })
+        await nextTick()
+      },
+      hold: (name: string) => emit("hold", name),
     }
 
     const onPointerdown = (event: PointerEvent) => {
       if (!props.disabled) {
-        sortablePointerDown(event, event.currentTarget as HTMLElement, props.layout, commit)
+        sortablePointerDown(event, event.currentTarget as HTMLElement, props.layout, commit, link)
       }
     }
 
     const onKeydown = (event: KeyboardEvent) => {
-      if (!props.disabled) void sortableKeyDown(event, event.currentTarget as HTMLElement, commit)
+      if (!props.disabled) void sortableKeyDown(event, event.currentTarget as HTMLElement, commit, link)
     }
 
     return () => {
@@ -74,6 +91,8 @@ const SortableComponent = defineComponent({
           "data-layout": props.layout,
           "data-disabled": props.disabled ? "" : undefined,
           "data-handles": props.handles?.toString(),
+          "data-group": props.group,
+          "data-name": props.name,
           onPointerdown,
           onKeydown,
           "onDragstart": preventNativeDrag,
@@ -113,8 +132,43 @@ const SortableHandleComponent = defineComponent({
   },
 })
 
+const SortableTargetComponent = defineComponent({
+  name: "SortableTarget",
+  inheritAttrs: false,
+  props: {
+    /** The `group` of the lists whose items it takes */
+    group: { type: String, required: true },
+    /** Names the target in `move` and `hold` on the list */
+    name: { type: String, required: true },
+    /** Element to render. @default "div" */
+    as: { type: [String, Object] as PropType<string | Component>, default: "div" },
+  },
+  slots: Object as SlotsType<{
+    /** What the target shows */
+    default?: () => VNodeChild
+  }>,
+  setup(props, { attrs, slots }) {
+    return () => {
+      const { class: className, ...rest } = attrs
+      const isElement = typeof props.as === "string"
+      return h(
+        props.as as string,
+        {
+          ...rest,
+          "class": clsx(s.Target, className as ClassValue),
+          "data-sortable-target": props.group,
+          "data-name": props.name,
+        },
+        isElement ? (slots.default?.() as VNodeArrayChildren) : { default: () => slots.default?.() },
+      )
+    }
+  },
+})
+
 /** Reorders its direct children by dragging, from anywhere but a control, or by a `SortableHandle` where grips are shown. */
 export const Sortable = SortableComponent
 /** The grip of an item. Arrow keys move the item while the handle has focus. */
 export const SortableHandle = SortableHandleComponent
-export type { SortableLayout }
+/** A place outside the lists that takes an item whole: a folder, a category in a side list. */
+export const SortableTarget = SortableTargetComponent
+export type { SortableLayout, SortableMove }

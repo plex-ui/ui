@@ -12,8 +12,8 @@
 }
 
 /* Without a grip in sight an item drags from anywhere but a control */
-.Sortable:not([data-disabled]):not(tbody):not([data-handles="true"]) > *,
-.Sortable:not([data-disabled])[data-handles="false"] > * {
+.Sortable:not([data-disabled]):not(tbody):not([data-handles="true"]) > :not([data-sortable-static]),
+.Sortable:not([data-disabled])[data-handles="false"] > :not([data-sortable-static]) {
   cursor: grab;
 }
 
@@ -237,6 +237,14 @@
 }
 
 /* =============================================
+   Target  (a place outside the lists that takes an item whole)
+============================================= */
+.Target[data-over] {
+  border-radius: var(--sortable-slot-radius);
+  background: var(--sortable-slot-background);
+}
+
+/* =============================================
    Screen reader announcements
 ============================================= */
 .Live {
@@ -254,4 +262,13 @@
 .Dragging * {
   cursor: grabbing !important;
   user-select: none;
+}
+
+/* Items under the pointer stay still while a drag runs: no hover, no row actions */
+.Sortable[data-dragging] > * {
+  pointer-events: none;
+}
+
+.Sortable[data-dragging] .Target {
+  pointer-events: auto;
 }

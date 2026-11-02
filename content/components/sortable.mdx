@@ -13,6 +13,7 @@ import {
   SortableImagesDemo,
   SortableTagsDemo,
   SortableCardsDemo,
+  SortableGroupDemo,
 } from "@/components/docs/SortableDemos"
 
 ## Examples
@@ -146,6 +147,25 @@ import {
   <SortableCardsDemo />
 </ComponentPreview>
 
+### Between lists
+
+<ComponentPreview details={<>Lists of one <code>group</code> trade items, and an empty list takes a drop. Each list has a <code>name</code>. <code>onMove</code> fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A <code>data-sortable-static</code> child, such as a head or a message, stays out of the items.</>} code={`const move = ({ item, from, to, toIndex }) =>
+  setLists((current) => {
+    const left = { ...current, [from]: current[from].filter((task) => task !== item) }
+    const target = [...left[to]]
+    target.splice(toIndex ?? target.length, 0, item)
+    return { ...left, [to]: target }
+  })
+
+{Object.entries(lists).map(([name, tasks]) => (
+  <Sortable key={name} group="tasks" name={name} value={tasks} onMove={move}>
+    {tasks.map((task) => <div key={task}>{task}</div>)}
+    {!tasks.length && <p data-sortable-static>Nothing here</p>}
+  </Sortable>
+))}`} previewMinHeight={300}>
+  <SortableGroupDemo />
+</ComponentPreview>
+
 ## API
 
 <PropsTable data={[
@@ -155,6 +175,10 @@ import {
   { prop: "as", type: "ElementType", default: "div", description: "Element to render, such as TableBody for table rows" },
   { prop: "disabled", type: "boolean", default: "false", description: "Turns dragging off" },
   { prop: "handles", type: "boolean", default: "true in a table, otherwise false", description: "Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control" },
+  { prop: "group", type: "string", description: "Lists of one group trade items, and a Sortable.Target of that group takes them. Give each list a name" },
+  { prop: "name", type: "string", description: "Names the list in onMove" },
+  { prop: "onMove", type: "(move: SortableMove<T>) => void", description: "An item moved, inside this list or out of it, with { item, from, fromIndex, to, toIndex }. Out of it the app updates both lists: onChange is for a move inside one" },
+  { prop: "onHold", type: "(name: string) => void", description: "A drag rests on a Sortable.Target of the group for half a second" },
   { prop: "children", type: "ReactNode", description: "The items: one direct child per entry of value, keyed by the entry and not by its index" },
 ]} />
 
@@ -164,7 +188,17 @@ import {
   { prop: "aria-label", type: "string", default: "Reorder", description: "Name of the handle for assistive technology" },
 ]} />
 
-The chip takes its text from `data-sortable-label` on the item, then from an element with that attribute or a `label` inside it, then from its first text. It shows the first `img` of the item.
+`Sortable.Target` takes a drop from outside the lists, such as a row of a side navigation that stands for a list. A drop on it moves the item with `toIndex` undefined, to the end of that list. `onHold` is the moment to open the list or go to it: the lists are measured again afterwards. It sets `data-over` while a drag is over it.
+
+<PropsTable data={[
+  { prop: "group", type: "string", description: "The group of the lists whose items it takes" },
+  { prop: "name", type: "string", description: "Names the target in onMove and onHold" },
+  { prop: "as", type: "ElementType", default: "div", description: "Element to render" },
+]} />
+
+The chip takes its text from `data-sortable-label` on the item, then from an element with that attribute or a `label` inside it, then from its first text. It shows the first `img` of the item, or an element with `data-sortable-image`, such as a hidden `span` with a cropped background.
+
+A control inside an item stops a drag. `data-sortable-grab` on a control that acts on a click lets a pull start one: the click still works when the pointer stays.
 
 ## Styling
 
@@ -182,6 +216,7 @@ Sortable reads these component tokens. Override them at any scope to restyle it:
 - `--sortable-handle-color-hover`: grip color on hover (default `var(--color-text-secondary)`)
 - `--sortable-line-size`: line thickness (default `2px`)
 - `--sortable-line-color`: line color (default `var(--color-background-info-solid)`)
+- `--sortable-line-inset`: line inset from the edges of a list (default `16px`)
 - `--sortable-slot-inset`: slot inset in a list (default `8px`)
 - `--sortable-slot-radius`: slot radius (default `12px`)
 - `--sortable-slot-background`: slot under the pointer (default `var(--color-background-info-soft)`)

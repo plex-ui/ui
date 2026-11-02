@@ -5523,6 +5523,16 @@
           "description": "Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control"
         },
         {
+          "name": "group",
+          "type": "string",
+          "description": "Lists of one group trade items, and a SortableTarget of that group takes them. Give each list a name"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Names the list in move"
+        },
+        {
           "name": "aria-label",
           "type": "string",
           "default": "Reorder",
@@ -5569,6 +5579,11 @@
           "name": "Cards",
           "code": "<Sortable v-model:value=\"cards\" layout=\"grid\" class=\"grid w-[480px] max-w-full grid-cols-2 gap-3\">\n  <div v-for=\"card in cards\" :key=\"card.label\" tabindex=\"0\" class=\"rounded-xl\">\n    <StatCard :label=\"card.label\" :value=\"card.value\" />\n  </div>\n</Sortable>",
           "details": "Any element can be an item, such as a StatCard."
+        },
+        {
+          "name": "Between lists",
+          "code": "<div class=\"grid w-[640px] max-w-full gap-4 sm:grid-cols-3\">\n  <div v-for=\"(tasks, name) in lists\" :key=\"name\">\n    <p class=\"mb-2 text-sm font-medium text-primary\">{{ name }}</p>\n    <Sortable group=\"tasks\" :name=\"name\" :value=\"tasks\" class=\"rounded-xl border border-default\" @move=\"move\">\n      <div v-for=\"task in tasks\" :key=\"task\" class=\"px-4 py-3 text-sm text-primary\">{{ task }}</div>\n      <p v-if=\"!tasks.length\" class=\"px-4 py-3 text-sm text-secondary\" data-sortable-static>Nothing here</p>\n    </Sortable>\n  </div>\n</div>",
+          "details": "Lists of one group trade items, and an empty list takes a drop. Each list has a name. move fires for every move, also inside one list, and the handler updates both lists. Past the end of a list the arrow keys go on to the next one. A data-sortable-static child, such as a head or a message, stays out of the items."
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/sortable"
@@ -6948,5 +6963,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T10:57:16.330Z"
+  "generatedAt": "2026-11-02T12:54:23.081Z"
 }

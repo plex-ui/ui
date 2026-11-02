@@ -9,7 +9,7 @@ import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
-import { Sortable } from '@plexui/ui/components/Sortable';
+import { Sortable, type SortableMove } from '@plexui/ui/components/Sortable';
 import { StatCard } from '@plexui/ui/components/StatCard';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@plexui/ui/components/Table';
@@ -265,6 +265,48 @@ export function SortableCardsDemo() {
           </div>
         ))}
       </Sortable>
+    </div>
+  );
+}
+
+const TASKS = {
+  Today: ['Check the invoices', 'Call the supplier', 'Update the price list'],
+  Later: ['Plan the summer menu'],
+  Done: [],
+} as Record<string, string[]>;
+
+export function SortableGroupDemo() {
+  const [lists, setLists] = useState(TASKS);
+
+  const move = ({ item, from, to, toIndex }: SortableMove<string>) =>
+    setLists((current) => {
+      const left = { ...current, [from]: current[from].filter((task) => task !== item) };
+      const target = [...left[to]];
+      target.splice(toIndex ?? target.length, 0, item);
+      return { ...left, [to]: target };
+    });
+
+  return (
+    <div data-demo-stage className={STAGE}>
+      <div className="grid w-[640px] max-w-full gap-4 sm:grid-cols-3">
+        {Object.entries(lists).map(([name, tasks]) => (
+          <div key={name}>
+            <p className="mb-2 text-sm font-medium text-primary">{name}</p>
+            <Sortable group="tasks" name={name} value={tasks} onMove={move} className="rounded-xl border border-default">
+              {tasks.map((task) => (
+                <div key={task} className="px-4 py-3 text-sm text-primary">
+                  {task}
+                </div>
+              ))}
+              {!tasks.length && (
+                <p data-sortable-static className="px-4 py-3 text-sm text-secondary">
+                  Nothing here
+                </p>
+              )}
+            </Sortable>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

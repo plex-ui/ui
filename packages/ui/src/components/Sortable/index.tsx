@@ -1,1 +1,7 @@
-export { Sortable, type SortableHandleProps, type SortableProps } from "./Sortable"
+export {
+  Sortable,
+  type SortableHandleProps,
+  type SortableProps,
+  type SortableTargetProps,
+} from "./Sortable"
+export type { SortableMove } from "../../lib/sortable"

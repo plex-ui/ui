@@ -4,11 +4,32 @@ import s from "@plexui/styles/components/Sortable/Sortable.module.css"
 // item leaves a flat slot and shrinks to a chip at the cursor, a line marks the
 // nearest gap, and only the drop changes the order. Items that stand apart part
 // at the gap. Rows that touch hold still: their text would run over the hairlines.
+// Lists of one group trade items, and a target outside them takes an item whole.
 
 export type SortableLayout = "list" | "grid"
 
 /** Applies a move to the list. Resolves once the DOM shows the new order. */
 export type SortableCommit = (from: number, to: number) => void | Promise<void>
+
+/** A move inside a list, into another list of its group or onto a target */
+export type SortableMove<T = unknown> = {
+  /** The entry of `value` that moved */
+  item: T
+  /** The `name` of the list it left */
+  from: string
+  /** Its place there */
+  fromIndex: number
+  /** The `name` of the list or the target it reached */
+  to: string
+  /** Its place after the move. A target has no places: the app decides. */
+  toIndex?: number
+}
+
+/** What a list does when an item leaves it. Resolves once the DOM shows the move. */
+export type SortableLink = {
+  move: (fromIndex: number, to: string, toIndex?: number) => void | Promise<void>
+  hold?: (name: string) => void
+}
 
 type Slot = {
   gap: number
@@ -20,8 +41,21 @@ type Slot = {
   after?: Element
 }
 
+type Area = {
+  list: HTMLElement
+  items: HTMLElement[]
+  slots: Slot[]
+}
+
+type Found = {
+  area: Area
+  slot: Slot
+}
+
 const START_DISTANCE = 4
 const TOUCH_HOLD = 200
+// Long enough to pass over a target on the way to another
+const TARGET_HOLD = 500
 const SCROLL_EDGE = 80
 const SCROLL_SLOW = 4
 const SCROLL_FAST = 30
@@ -31,6 +65,8 @@ const PART = 4
 // --cubic-enter: an animation here cannot read a CSS variable
 const EASING = "cubic-bezier(.19,1,.22,1)"
 const HANDLE = "[data-sortable-handle]"
+const GRAB = "[data-sortable-grab]"
+const STATIC = "data-sortable-static"
 const INTERACTIVE = [
   "a[href]",
   "button",
@@ -52,7 +88,21 @@ const INTERACTIVE = [
 // Read at the moment of use: the setting can change while the page is open
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-const itemsOf = (list: HTMLElement) => [...list.children] as HTMLElement[]
+/** How far the line stands in from the sides of the list */
+const lineInset = (list: HTMLElement) => {
+  const inset = parseFloat(getComputedStyle(list).getPropertyValue("--sortable-line-inset"))
+  return Number.isNaN(inset) ? LINE_INSET : inset
+}
+
+/** A head row or an empty message stands among the items and is not one of them */
+const itemsOf = (list: HTMLElement) => ([...list.children] as HTMLElement[]).filter((item) => !item.hasAttribute(STATIC))
+
+/** The lists a drag from this one can reach, in the order of the page */
+const listsOf = (list: HTMLElement) => {
+  const { group } = list.dataset
+  if (!group) return [list]
+  return [...document.querySelectorAll<HTMLElement>(`[data-sortable][data-group="${CSS.escape(group)}"]:not([data-disabled])`)]
+}
 
 /** Grips stand in a table, elsewhere only when the list asks for them */
 const showsHandles = (list: HTMLElement) => (list.dataset.handles ?? String(list.tagName === "TBODY")) === "true"
@@ -88,12 +138,18 @@ const nameOf = (item: HTMLElement) => labelOf(item) || item.querySelector("img")
 function makeChip(item: HTMLElement) {
   const chip = document.createElement("div")
   chip.className = s.Chip
-  const image = item.querySelector("img")
-  if (image) {
+  const image = item.querySelector<HTMLElement>("[data-sortable-image], img")
+  if (image instanceof HTMLImageElement) {
     const picture = document.createElement("img")
     picture.className = s.ChipImage
     picture.src = image.currentSrc || image.src
     picture.alt = ""
+    chip.append(picture)
+  } else if (image) {
+    // A cropped background: the chip takes the element as it stands, at the chip's size
+    const picture = image.cloneNode(false) as HTMLElement
+    picture.className = s.ChipImage
+    picture.hidden = false
     chip.append(picture)
   }
   const text = labelOf(item)
@@ -119,8 +175,8 @@ function announce(text: string) {
   region.textContent = text
 }
 
-const scrollParent = (list: HTMLElement) => {
-  for (let node = list.parentElement; node && node !== document.body; node = node.parentElement) {
+const scrollParent = (start: Element | null) => {
+  for (let node = start; node && node !== document.body; node = node.parentElement) {
     if (/auto|scroll/.test(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight) return node
   }
   return undefined
@@ -132,6 +188,12 @@ const scrollStep = (depth: number) =>
 
 function listSlots(list: HTMLElement, items: HTMLElement[]) {
   const box = list.getBoundingClientRect()
+  const inset = lineInset(list)
+  if (!items.length) {
+    // Above a message or an empty row: the line must not cross its text
+    const rest = (list.lastElementChild ?? list).getBoundingClientRect()
+    return [{ gap: 0, x: inset, y: rest.top - box.top, length: box.width - inset * 2 }]
+  }
   const rects = items.map((item) => item.getBoundingClientRect())
   return Array.from({ length: items.length + 1 }, (_, gap): Slot => {
     const above = rects[gap - 1]
@@ -139,9 +201,9 @@ function listSlots(list: HTMLElement, items: HTMLElement[]) {
     const y = above && below ? (above.bottom + below.top) / 2 : (below?.top ?? above.bottom)
     return {
       gap,
-      x: LINE_INSET,
+      x: inset,
       y: y - box.top,
-      length: box.width - LINE_INSET * 2,
+      length: box.width - inset * 2,
       before: items[gap - 1],
       after: items[gap],
     }
@@ -151,6 +213,7 @@ function listSlots(list: HTMLElement, items: HTMLElement[]) {
 // One slot per gap, and two where a line wraps: the end of one line and the start of the next
 function gridSlots(list: HTMLElement, items: HTMLElement[]) {
   const box = list.getBoundingClientRect()
+  if (!items.length) return [{ gap: 0, x: 0, y: 0, length: box.height }]
   const half = (parseFloat(getComputedStyle(list).columnGap) || 8) / 2
   const rects = items.map((item) => item.getBoundingClientRect())
   const slots: Slot[] = []
@@ -190,9 +253,9 @@ function flyChip(chip: HTMLElement, to: DOMRect | undefined, layout: SortableLay
 }
 
 /** The items that changed place slide there from where they stood */
-async function commitWithFlip(items: HTMLElement[], from: number, to: number, commit: SortableCommit, skip?: HTMLElement) {
+async function flip(items: HTMLElement[], work: () => void | Promise<void>, skip?: HTMLElement) {
   const before = new Map(items.map((item) => [item, item.getBoundingClientRect()]))
-  await commit(from, to)
+  await work()
   if (reduced()) return
   items
     .filter((item) => item !== skip && item.isConnected)
@@ -210,7 +273,15 @@ const swallow = (event: Event) => {
   event.preventDefault()
 }
 
-function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, layout: SortableLayout, immediate: boolean, commit: SortableCommit) {
+function startDrag(
+  event: PointerEvent,
+  list: HTMLElement,
+  source: HTMLElement,
+  layout: SortableLayout,
+  immediate: boolean,
+  commit: SortableCommit,
+  link?: SortableLink,
+) {
   const touch = event.pointerType === "touch" && !immediate
   const origin = { x: event.clientX, y: event.clientY }
   const pointer = { ...origin }
@@ -218,16 +289,20 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
   const style = getComputedStyle(list)
   const part = parseFloat(layout === "grid" ? style.columnGap : style.rowGap) ? PART : 0
   const scroller = scrollParent(list)
+  const { group } = list.dataset
+  const targets = group ? `[data-sortable-target="${CSS.escape(group)}"]` : undefined
   let drag:
     | {
         chip: HTMLElement
         line: HTMLElement
         width: number
         height: number
-        items: HTMLElement[]
-        slots: Slot[]
+        areas: Area[]
         frame?: number
-        found?: Slot
+        found?: Found
+        under?: Element | null
+        target?: HTMLElement
+        rest?: ReturnType<typeof setTimeout>
       }
     | undefined
 
@@ -271,12 +346,18 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
     window.removeEventListener("touchmove", blockScroll)
   }
 
+  function measure() {
+    return listsOf(list).map((entry) => {
+      const items = itemsOf(entry)
+      entry.setAttribute("data-dragging", "")
+      return { list: entry, items, slots: layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items) }
+    })
+  }
+
   function begin() {
-    const items = itemsOf(list)
-    const slots = layout === "grid" ? gridSlots(list, items) : listSlots(list, items)
+    const areas = measure()
     window.getSelection()?.removeAllRanges()
     document.documentElement.classList.add(s.Dragging)
-    list.setAttribute("data-dragging", "")
     source.setAttribute("data-sortable-source", "")
     window.addEventListener("keydown", onKey, true)
     window.addEventListener("touchmove", blockScroll, { passive: false })
@@ -286,84 +367,120 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
     line.hidden = true
     document.body.append(line)
     const { width, height } = chip.getBoundingClientRect()
-    drag = { chip, line, width, height, items, slots }
+    drag = { chip, line, width, height, areas }
     tick()
   }
 
   function tick() {
     if (!drag) return
+    drag.under = targets ? document.elementFromPoint(pointer.x, pointer.y) : undefined
     autoScroll()
     update()
     drag.frame = requestAnimationFrame(tick)
   }
 
+  /** A column of targets with a scroll of its own scrolls alone, the page stays */
+  function panelUnder() {
+    const panel = targets && drag?.under ? scrollParent(drag.under) : undefined
+    return panel && panel !== scroller && panel.querySelector(targets as string) ? panel : undefined
+  }
+
   function autoScroll() {
-    const box = scroller?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight }
+    const area = panelUnder() ?? scroller
+    const box = area?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight }
     const above = box.top + SCROLL_EDGE - pointer.y
     const below = pointer.y - box.bottom + SCROLL_EDGE
     const step = above > 0 ? -scrollStep(above) : below > 0 ? scrollStep(below) : 0
     if (!step) return
-    if (scroller) scroller.scrollTop += step
+    if (area) area.scrollTop += step
     else window.scrollBy(0, step)
   }
 
   function update() {
     if (!drag) return
     drag.chip.style.transform = `translate(${pointer.x - drag.width / 2}px, ${pointer.y - drag.height / 2}px)`
+    const target = (targets && drag.under?.closest<HTMLElement>(targets)) || undefined
+    if (target !== drag.target) pointAt(target)
     const box = source.getBoundingClientRect()
     const overSource = pointer.x >= box.left && pointer.x <= box.right && pointer.y >= box.top && pointer.y <= box.bottom
     source.toggleAttribute("data-sortable-away", !overSource)
-    showGap(overSource ? undefined : nearestSlot())
+    showGap(target || overSource ? undefined : nearestSlot())
+  }
+
+  function pointAt(target: HTMLElement | undefined) {
+    if (!drag) return
+    clearTimeout(drag.rest)
+    drag.target?.removeAttribute("data-over")
+    drag.target = target
+    if (!target) return
+    target.setAttribute("data-over", "")
+    drag.rest = setTimeout(() => {
+      link?.hold?.(target.dataset.name as string)
+      // What the hold changed is drawn two frames on: a list opened, the page jumped
+      requestAnimationFrame(() => requestAnimationFrame(() => drag && (drag.areas = measure())))
+    }, TARGET_HOLD)
+  }
+
+  function distance(slot: Slot, box: DOMRect) {
+    if (layout === "list") return Math.abs(pointer.y - (box.top + slot.y))
+    const top = box.top + slot.y
+    return Math.hypot(pointer.x - (box.left + slot.x), Math.max(top - pointer.y, 0, pointer.y - top - slot.length))
   }
 
   function nearestSlot() {
     if (!drag) return undefined
-    const box = list.getBoundingClientRect()
-    const near =
-      pointer.x >= box.left - NEAR_LIST &&
-      pointer.x <= box.right + NEAR_LIST &&
-      pointer.y >= box.top - NEAR_LIST &&
-      pointer.y <= box.bottom + NEAR_LIST
-    if (!near) return undefined
-    const distance = (slot: Slot) => {
-      if (layout === "list") return Math.abs(pointer.y - (box.top + slot.y))
-      const top = box.top + slot.y
-      return Math.hypot(pointer.x - (box.left + slot.x), Math.max(top - pointer.y, 0, pointer.y - top - slot.length))
+    let best: Found | undefined
+    let closest = Infinity
+    for (const area of drag.areas) {
+      const box = area.list.getBoundingClientRect()
+      const near =
+        pointer.x >= box.left - NEAR_LIST &&
+        pointer.x <= box.right + NEAR_LIST &&
+        pointer.y >= box.top - NEAR_LIST &&
+        pointer.y <= box.bottom + NEAR_LIST
+      if (!near) continue
+      for (const slot of area.slots) {
+        const away = distance(slot, box)
+        if (away < closest) {
+          closest = away
+          best = { area, slot }
+        }
+      }
     }
-    const best = drag.slots.reduce((nearest, slot) => (distance(slot) < distance(nearest) ? slot : nearest))
-    const index = drag.items.indexOf(source)
-    return best.gap === index || best.gap === index + 1 ? undefined : best
+    if (!best) return undefined
+    const index = best.area.items.indexOf(source)
+    return index >= 0 && (best.slot.gap === index || best.slot.gap === index + 1) ? undefined : best
   }
 
-  function shift(slot: Slot | undefined, distance: number) {
-    const move = (item: Element | undefined, by: number) => {
+  function shift(slot: Slot | undefined, by: number) {
+    const move = (item: Element | undefined, offset: number) => {
       if (!item || !part) return
-      ;(item as HTMLElement).style.transform = distance
+      ;(item as HTMLElement).style.transform = by
         ? layout === "grid"
-          ? `translateX(${by}px)`
-          : `translateY(${by}px)`
+          ? `translateX(${offset}px)`
+          : `translateY(${offset}px)`
         : ""
     }
-    move(slot?.before, -distance)
-    move(slot?.after, distance)
+    move(slot?.before, -by)
+    move(slot?.after, by)
   }
 
-  function showGap(found: Slot | undefined) {
+  function showGap(found: Found | undefined) {
     if (!drag) return
-    if (found !== drag.found) {
-      shift(drag.found, 0)
-      shift(found, part)
+    if (found?.slot !== drag.found?.slot) {
+      shift(drag.found?.slot, 0)
+      shift(found?.slot, part)
     }
     drag.found = found
     drag.line.hidden = !found
     if (!found) return
-    const box = list.getBoundingClientRect()
+    const box = found.area.list.getBoundingClientRect()
     if (layout === "grid") {
-      drag.line.style.transform = `translate(${box.left + found.x - 1}px, ${box.top + found.y}px)`
-      drag.line.style.height = `${found.length}px`
+      drag.line.style.transform = `translate(${box.left + found.slot.x - 1}px, ${box.top + found.slot.y}px)`
+      drag.line.style.height = `${found.slot.length}px`
     } else {
-      drag.line.style.transform = `translate(${box.left + found.x}px, ${box.top + found.y - 1}px)`
-      drag.line.style.width = `${found.length}px`
+      drag.line.style.transform = `translate(${box.left + found.slot.x}px, ${box.top + found.slot.y - 1}px)`
+      drag.line.style.width = `${found.slot.length}px`
     }
   }
 
@@ -372,29 +489,64 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
     source.removeAttribute("data-sortable-away")
   }
 
-  function settle(chip: HTMLElement) {
-    flyChip(chip, source.isConnected ? source.getBoundingClientRect() : undefined, layout)
-    if (!reduced() && source.isConnected) source.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: EASING })
+  function settle(chip: HTMLElement, item: HTMLElement | undefined = source) {
+    const shown = item?.isConnected ? item : undefined
+    flyChip(chip, shown?.getBoundingClientRect(), layout)
+    if (!reduced() && shown) shown.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: EASING })
   }
 
-  async function land(chip: HTMLElement, items: HTMLElement[], { gap }: Slot, clear: () => void) {
-    const from = items.indexOf(source)
-    const to = gap > from ? gap - 1 : gap
+  async function land(chip: HTMLElement, areas: Area[], { area, slot: { gap } }: Found, clear: () => void) {
+    const from = itemsOf(list).indexOf(source)
     restoreSource()
-    const clearAndCommit: SortableCommit = (moved, place) => {
-      clear()
-      return commit(moved, place)
+    if (area.list === list) {
+      const to = gap > from ? gap - 1 : gap
+      await flip(
+        area.items,
+        () => {
+          clear()
+          return commit(from, to)
+        },
+        source,
+      )
+      announce(`${nameOf(source)}, ${to + 1} / ${area.items.length}`)
+      settle(chip)
+      return
     }
-    await commitWithFlip(items, from, to, clearAndCommit, source)
-    announce(`${nameOf(source)}, ${to + 1} / ${items.length}`)
-    settle(chip)
+    const name = nameOf(source)
+    await flip(
+      areas.flatMap(({ items }) => items),
+      () => {
+        clear()
+        return link?.move(from, area.list.dataset.name as string, gap)
+      },
+      source,
+    )
+    announce(`${name}, ${gap + 1} / ${area.items.length + 1}`)
+    // A framework builds the row anew under its new parent
+    settle(chip, source.isConnected ? source : itemsOf(area.list)[gap])
+  }
+
+  async function dropOn(chip: HTMLElement, areas: Area[], name: string, clear: () => void) {
+    const from = itemsOf(list).indexOf(source)
+    restoreSource()
+    await flip(
+      areas.flatMap(({ items }) => items),
+      () => {
+        clear()
+        return link?.move(from, name)
+      },
+      source,
+    )
+    flyChip(chip, undefined, layout)
   }
 
   function finish(drop: boolean) {
     stopListening()
     if (!drag) return
-    const { chip, line, found, items, frame } = drag
+    const { chip, line, found, areas, frame, target, rest } = drag
     if (frame) cancelAnimationFrame(frame)
+    clearTimeout(rest)
+    target?.removeAttribute("data-over")
     // The pointer lifts over a row: that click must not act on it
     window.addEventListener("click", swallow, { capture: true, once: true })
     setTimeout(() => window.removeEventListener("click", swallow, { capture: true }))
@@ -402,12 +554,17 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
     drag = undefined
     // On a drop this waits for the flip to read where the parted items stand
     const clear = () => {
-      list.removeAttribute("data-dragging")
+      areas.forEach((area) => area.list.removeAttribute("data-dragging"))
       document.documentElement.classList.remove(s.Dragging)
-      shift(found, 0)
+      shift(found?.slot, 0)
     }
-    if (drop && found) {
-      void land(chip, items, found, clear)
+    const targetName = target?.dataset.name
+    if (drop && targetName && targetName !== list.dataset.name) {
+      void dropOn(chip, areas, targetName, clear)
+      return
+    }
+    if (drop && found && !target) {
+      void land(chip, areas, found, clear)
       return
     }
     clear()
@@ -417,21 +574,29 @@ function startDrag(event: PointerEvent, list: HTMLElement, source: HTMLElement, 
 }
 
 /** Starts a drag from a press inside the list. Goes on the list's `pointerdown`. */
-export function sortablePointerDown(event: PointerEvent, list: HTMLElement, layout: SortableLayout, commit: SortableCommit) {
+export function sortablePointerDown(
+  event: PointerEvent,
+  list: HTMLElement,
+  layout: SortableLayout,
+  commit: SortableCommit,
+  link?: SortableLink,
+) {
   const target = event.target as Element
   if (event.button || target.closest("[data-sortable]") !== list) return
   const source = itemOf(list, target)
-  if (!source) return
+  if (!source || source.hasAttribute(STATIC)) return
   const handle = target.closest(HANDLE)
-  // A grip in sight is the only way to drag, otherwise anything but a control starts it
-  if (source.querySelector(HANDLE) && showsHandles(list) ? !handle : target.closest(INTERACTIVE)) return
-  startDrag(event, list, source, layout, !!handle, commit)
+  const control = target.closest(INTERACTIVE)
+  // A grip in sight is the only way to drag, otherwise anything but a control
+  // starts it, and a control that opens its row on a click may let a pull through
+  if (source.querySelector(HANDLE) && showsHandles(list) ? !handle : control && !control.closest(GRAB)) return
+  startDrag(event, list, source, layout, !!handle, commit, link)
 }
 
 const KEY_STEPS: Record<string, number> = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }
 
 /** Moves the focused handle's item with the arrow keys. Goes on the list's `keydown`. */
-export async function sortableKeyDown(event: KeyboardEvent, list: HTMLElement, commit: SortableCommit) {
+export async function sortableKeyDown(event: KeyboardEvent, list: HTMLElement, commit: SortableCommit, link?: SortableLink) {
   const step = KEY_STEPS[event.key]
   const target = event.target as HTMLElement
   if (!step || target.closest("[data-sortable]") !== list) return
@@ -440,9 +605,22 @@ export async function sortableKeyDown(event: KeyboardEvent, list: HTMLElement, c
   const items = itemsOf(list)
   const from = items.indexOf(source)
   const to = from + step
-  if (to < 0 || to >= items.length) return
+  if (to < 0 || to >= items.length) {
+    // Past the end of the list: on to the next list of the group
+    const lists = listsOf(list)
+    const next = lists[lists.indexOf(list) + step]
+    if (!next || !link) return
+    event.preventDefault()
+    const place = step > 0 ? 0 : itemsOf(next).length
+    const name = nameOf(source)
+    await flip(lists.flatMap(itemsOf), () => link.move(from, next.dataset.name as string, place))
+    const landed = itemsOf(next)[place]
+    ;(landed?.querySelector<HTMLElement>(HANDLE) ?? landed)?.focus()
+    announce(`${name}, ${place + 1} / ${itemsOf(next).length}`)
+    return
+  }
   event.preventDefault()
-  await commitWithFlip(items, from, to, commit)
+  await flip(items, () => commit(from, to))
   // Moving an element in the document drops its focus
   if (target.isConnected && document.activeElement !== target) target.focus()
   announce(`${nameOf(source)}, ${to + 1} / ${items.length}`)
