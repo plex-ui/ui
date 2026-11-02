@@ -3974,7 +3974,7 @@
         {
           "name": "Widths",
           "code": "<Page width=\"column\">\n<Page.Header>...</Page.Header>\n<Page.Content>...</Page.Content>\n</Page>\n\n<Page width=\"column\" style={{ \"--page-width\": \"860px\" }}>...</Page>",
-          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page."
+          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size."
         },
         {
           "name": "Heading",
@@ -6991,5 +6991,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T14:21:21.384Z"
+  "generatedAt": "2026-11-02T14:38:56.894Z"
 }

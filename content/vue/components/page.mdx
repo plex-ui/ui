@@ -91,8 +91,8 @@ export const fill = `<Page>
 
 ### Widths
 
-<ComponentPreview language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page.</>} code={widths}>
-  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width">
+<ComponentPreview language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.</>} code={widths}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width" style="--page-width-wide: 640px; --page-width-column: 384px">
     <PageHeader>
       <PageBar>
         <PageTitle>Settings</PageTitle>

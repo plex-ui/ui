@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
 import { Page, type PageWidth } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 
 const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
+
+// The frame of a preview is narrower than both widths, so at their real size all three look alike.
+const HALF_WIDTHS = { '--page-width-wide': '640px', '--page-width-column': '384px' } as CSSProperties;
 
 function Frame({ children }: { children: ReactNode }) {
   return <div className="h-[420px] w-full overflow-hidden rounded-xl border border-default">{children}</div>;
@@ -56,7 +59,7 @@ export function PageWidthsDemo() {
         <SegmentedControl.Option value="column">Column</SegmentedControl.Option>
       </SegmentedControl>
       <Frame>
-        <Page width={width}>
+        <Page style={HALF_WIDTHS} width={width}>
           <Page.Header>
             <Page.Bar>
               <Page.Title>Settings</Page.Title>

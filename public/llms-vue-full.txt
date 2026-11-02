@@ -5207,7 +5207,7 @@ The header has no line at rest. Scroll the content: the line comes after 4px and
 ```
 
 ### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page.
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.
 ```vue
 <Page width="column">
   <PageHeader>...</PageHeader>

@@ -3994,7 +3994,7 @@
         {
           "name": "Widths",
           "code": "<Page width=\"column\">\n  <PageHeader>...</PageHeader>\n  <PageContent>...</PageContent>\n</Page>\n\n<Page width=\"column\" style=\"--page-width: 860px\">...</Page>",
-          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page."
+          "details": "The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size."
         },
         {
           "name": "Heading",
@@ -7060,5 +7060,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T14:21:21.993Z"
+  "generatedAt": "2026-11-02T14:38:57.511Z"
 }
