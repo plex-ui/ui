@@ -15,7 +15,6 @@ import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
-import { TagInput, type Tag } from '@plexui/ui/components/TagInput';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 
@@ -164,10 +163,7 @@ export function FormRowsChoiceDemo() {
 
 export function FormRowsProductDemo() {
   const [category, setCategory] = useState('home');
-  const [tags, setTags] = useState<Tag[]>([
-    { value: 'New', valid: true },
-    { value: 'Sale', valid: true },
-  ]);
+  const [tags, setTags] = useState(['new', 'sale']);
 
   return (
     <div data-demo-stage className="flex justify-center py-10">
@@ -185,9 +181,7 @@ export function FormRowsProductDemo() {
           <Field row label="Category">
             <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} variant="soft" block={false} align="end" />
           </Field>
-          <Field row fill label="Tags">
-            <TagInput value={tags} onChange={setTags} variant="ghost" size="md" placeholder="Add a tag" />
-          </Field>
+          <TagRow label="Tags" one="tag" options={LABELS} value={tags} onChange={setTags} />
           <Field row label="In stock">
             <Switch defaultChecked />
           </Field>
@@ -216,13 +210,14 @@ function TagRow({
   return (
     <Field row fill label={label}>
       <div className="flex items-center gap-2">
-        <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
           {options.filter((option) => value.includes(option.value)).map((option) => (
-            <Badge key={option.value} variant="outline" size="lg" pill>
+            <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
               {option.label}
               <Button
                 uniform
                 size="3xs"
+                className="-mr-1.5"
                 pill
                 variant="ghost"
                 color="secondary"

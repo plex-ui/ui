@@ -570,7 +570,30 @@ export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6
       <Select v-model:value="category" :options="categories" variant="soft" :block="false" align="end" />
     </Field>
     <Field row fill label="Tags">
-      <TagInput v-model:value="tags" variant="ghost" size="md" placeholder="Add a tag" />
+      <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+          <Badge v-for="option in labelOptions.filter((item) => tags.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
+            {{ option.label }}
+            <Button
+              uniform
+              size="3xs"
+              class="-mr-1.5"
+              pill
+              variant="ghost"
+              color="secondary"
+              :aria-label="'Remove ' + option.label"
+              @click="tags = tags.filter((item) => item !== option.value)"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </div>
+        <Select v-model:value="tags" multiple :block="false" align="end" aria-label="Add tag" :options="labelOptions">
+          <template #trigger="{ onToggle }">
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add tag" @click="onToggle"><Plus /></Button>
+          </template>
+        </Select>
+      </div>
     </Field>
     <Field row label="In stock"><Switch default-checked /></Field>
   </FieldGroup>
@@ -622,12 +645,13 @@ export const rowGroups = `<form class="flex w-[520px] max-w-full flex-col gap-6"
   <FieldGroup>
     <Field row fill label="Materials">
       <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
             {{ option.label }}
             <Button
               uniform
               size="3xs"
+              class="-mr-1.5"
               pill
               variant="ghost"
               color="secondary"
@@ -647,12 +671,13 @@ export const rowGroups = `<form class="flex w-[520px] max-w-full flex-col gap-6"
     </Field>
     <Field row fill label="Labels">
       <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
             {{ option.label }}
             <Button
               uniform
               size="3xs"
+              class="-mr-1.5"
               pill
               variant="ghost"
               color="secondary"
@@ -678,12 +703,13 @@ export const rowTags = `<div class="w-[520px] max-w-full">
   <FieldGroup>
     <Field row fill label="Materials">
       <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
             {{ option.label }}
             <Button
               uniform
               size="3xs"
+              class="-mr-1.5"
               pill
               variant="ghost"
               color="secondary"
@@ -703,12 +729,13 @@ export const rowTags = `<div class="w-[520px] max-w-full">
     </Field>
     <Field row fill label="Labels">
       <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
             {{ option.label }}
             <Button
               uniform
               size="3xs"
+              class="-mr-1.5"
               pill
               variant="ghost"
               color="secondary"
@@ -785,12 +812,13 @@ export const rowDialog = `<Dialog v-model:open="open">
         <FieldGroup>
           <Field row fill label="Materials">
             <div class="flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-                <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+              <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+                <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
                   {{ option.label }}
                   <Button
                     uniform
                     size="3xs"
+                    class="-mr-1.5"
                     pill
                     variant="ghost"
                     color="secondary"
@@ -810,12 +838,13 @@ export const rowDialog = `<Dialog v-model:open="open">
           </Field>
           <Field row fill label="Labels">
             <div class="flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
-                <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+              <div class="flex min-w-0 flex-1 flex-wrap gap-2">
+                <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
                   {{ option.label }}
                   <Button
                     uniform
                     size="3xs"
+                    class="-mr-1.5"
                     pill
                     variant="ghost"
                     color="secondary"
@@ -888,7 +917,7 @@ export const rowState = {
   plan: "team",
   category: "home",
   categories: [{ value: "home", label: "Home" }, { value: "garden", label: "Garden" }, { value: "office", label: "Office" }],
-  tags: [{ value: "New", valid: true }, { value: "Sale", valid: true }],
+  tags: ["new", "sale"],
   unit: "kg",
   units: [{ value: "kg", label: "kg" }, { value: "lb", label: "lb" }],
   materials: ["oak", "steel"],

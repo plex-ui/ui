@@ -286,6 +286,8 @@
 /* A control that fills the row, such as a list of tags: it starts after the label
    and ends at the row's edge, on one line for all the rows of a group. */
 .Field:where([data-row][data-fill]:not([data-orientation="vertical"])) {
+  --field-row-gap: 16px;
+
   grid-template-columns: minmax(var(--field-row-label-width), auto) minmax(0, 1fr);
 }
 

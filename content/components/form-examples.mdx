@@ -311,7 +311,30 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
     <Select value={category} options={categories} onChange={onCategory} variant="soft" block={false} align="end" />
   </Field>
   <Field row fill label="Tags">
-    <TagInput value={tags} onChange={setTags} variant="ghost" size="md" placeholder="Add a tag" />
+    <div className="flex items-center gap-2">
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+        {chosen.map((option) => (
+          <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
+            {option.label}
+            <Button uniform size="3xs" pill variant="ghost" color="secondary" className="-mr-1.5" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
+              <X />
+            </Button>
+          </Badge>
+        ))}
+      </div>
+      <Select
+        multiple
+        block={false}
+        align="end"
+        aria-label="Add tag"
+        options={tagOptions}
+        value={tags}
+        onChange={(selected) => setTags(selected.map((option) => option.value))}
+        trigger={({ onToggle }) => (
+          <Button uniform pill color="secondary" variant="soft" aria-label="Add tag" onClick={onToggle}><Plus /></Button>
+        )}
+      />
+    </div>
   </Field>
   <Field row label="In stock"><Switch /></Field>
 </FieldGroup>`} previewMinHeight={620}>
@@ -359,11 +382,11 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 <ComponentPreview details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>trigger</code>, and <code>block=&#123;false&#125;</code> keeps it as wide as its options.</>} code={`<Field row fill label="Materials">
   <div className="flex items-center gap-2">
-    <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+    <div className="flex min-w-0 flex-1 flex-wrap gap-2">
       {chosen.map((option) => (
-        <Badge key={option.value} variant="outline" size="lg" pill>
+        <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
           {option.label}
-          <Button uniform size="3xs" pill variant="ghost" color="secondary" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
+          <Button uniform size="3xs" pill variant="ghost" color="secondary" className="-mr-1.5" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
             <X />
           </Button>
         </Badge>
