@@ -34,33 +34,51 @@ import {
 
 ### Types
 
-<ComponentPreview details={<>Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each.</>} code={`<div className="flex flex-col items-center gap-6 py-8">
-  <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-    <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">On the border</div>
-    <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" />
+<ComponentPreview details={<>Two things set the type: where the label rests, and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. Text fields, textareas and selects work the same in each.</>} code={`<div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
+  <div className="max-sm:hidden" />
+  <div className="text-sm text-secondary max-sm:hidden">Empty</div>
+  <div className="text-sm text-secondary max-sm:hidden">Filled</div>
+  <div className="text-sm">
+    Label on the border
+    <div className="text-secondary">Pill</div>
   </div>
-  <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-    <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Rounded box</div>
-    <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" pill={false} />
+  <FloatingLabelInput label="Email address" />
+  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
+  <div className="text-sm">
+    Label on the border
+    <div className="text-secondary">Rounded box</div>
   </div>
-  <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-    <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Inside</div>
-    <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
+  <FloatingLabelInput label="Email address" pill={false} />
+  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
+  <div className="text-sm">
+    Label inside
+    <div className="text-secondary">Rounded box</div>
   </div>
+  <FloatingLabelInput label="Email address" labelPlacement="inside" />
+  <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
 </div>`} previewMinHeight={320}>
-  <div className="flex flex-col items-center gap-6 py-8">
-    <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-      <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">On the border</div>
-      <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" />
+  <div className="grid w-[44rem] max-w-[calc(100vw-5rem)] grid-cols-1 items-center gap-x-4 gap-y-6 py-8 sm:grid-cols-[10rem_1fr_1fr]">
+    <div className="max-sm:hidden" />
+    <div className="text-sm text-secondary max-sm:hidden">Empty</div>
+    <div className="text-sm text-secondary max-sm:hidden">Filled</div>
+    <div className="text-sm">
+      Label on the border
+      <div className="text-secondary">Pill</div>
     </div>
-    <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-      <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Rounded box</div>
-      <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" pill={false} />
+    <FloatingLabelInput label="Email address" />
+    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
+    <div className="text-sm">
+      Label on the border
+      <div className="text-secondary">Rounded box</div>
     </div>
-    <div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-      <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Inside</div>
-      <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
+    <FloatingLabelInput label="Email address" pill={false} />
+    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
+    <div className="text-sm">
+      Label inside
+      <div className="text-secondary">Rounded box</div>
     </div>
+    <FloatingLabelInput label="Email address" labelPlacement="inside" />
+    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
   </div>
 </ComponentPreview>
 
