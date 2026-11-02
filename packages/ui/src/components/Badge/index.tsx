@@ -1,7 +1,8 @@
 import clsx from "clsx"
-import { type ReactNode } from "react"
+import { type MouseEventHandler, type ReactNode } from "react"
 import { wrapTextNodeSiblings } from "../../lib/renderHelpers"
 import { type SemanticColors, type Sizes, type Variants } from "../../types"
+import { X } from "../Icon"
 import s from "@plexui/styles/components/Badge/Badge.module.css"
 
 export type BadgeProps = {
@@ -17,12 +18,12 @@ export type BadgeProps = {
   /**
    * Size scale of the badge
    *
-   * | sm      | md      | lg      |
-   * | ------- | ------- | ------- |
-   * | `20px`  | `22px`  | `24px`  |
+   * | sm      | md      | lg      | xl      |
+   * | ------- | ------- | ------- | ------- |
+   * | `20px`  | `22px`  | `24px`  | `32px`  |
    * @default sm
    */
-  size?: Sizes<"sm" | "md" | "lg">
+  size?: Sizes<"sm" | "md" | "lg" | "xl">
   /**
    * Determines if the badge should be a fully rounded pill shape
    * @default false
@@ -35,6 +36,18 @@ export type BadgeProps = {
   color?: SemanticColors<
     "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"
   >
+  /** Adds a cross at the end of the badge that calls this when pressed */
+  onRemove?: MouseEventHandler<HTMLButtonElement>
+  /**
+   * Accessible name of the cross
+   * @default Remove
+   */
+  removeLabel?: string
+  /**
+   * Shows the cross as a mark, for a badge inside a control that takes the press
+   * @default false
+   */
+  removable?: boolean
 }
 
 export const Badge = ({
@@ -44,8 +57,27 @@ export const Badge = ({
   color = "secondary",
   size = "sm",
   pill,
+  onRemove,
+  removeLabel = "Remove",
+  removable = false,
   ...restMaybeAsChildProps
 }: BadgeProps) => {
+  let remove: ReactNode = null
+
+  if (onRemove) {
+    remove = (
+      <button type="button" className={s.Remove} aria-label={removeLabel} onClick={onRemove}>
+        <X />
+      </button>
+    )
+  } else if (removable) {
+    remove = (
+      <span className={s.Remove} aria-hidden="true">
+        <X />
+      </span>
+    )
+  }
+
   return (
     <div
       className={clsx(s.Badge, className)}
@@ -55,7 +87,7 @@ export const Badge = ({
       data-variant={variant}
       {...restMaybeAsChildProps}
     >
-      {wrapTextNodeSiblings(children)}
+      {wrapTextNodeSiblings(remove ? [children, remove] : children)}
     </div>
   )
 }

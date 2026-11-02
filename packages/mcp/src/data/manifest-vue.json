@@ -438,6 +438,23 @@
           "description": "Content inside the badge"
         },
         {
+          "name": "@remove",
+          "type": "(event: MouseEvent) => void",
+          "description": "Adds a cross at the end of the badge that calls this when pressed"
+        },
+        {
+          "name": "remove-label",
+          "type": "string",
+          "default": "\"Remove\"",
+          "description": "Accessible name of the cross"
+        },
+        {
+          "name": "removable",
+          "type": "boolean",
+          "default": "false",
+          "description": "Shows the cross as a mark, for a badge inside a control that takes the press"
+        },
+        {
           "name": "color",
           "type": "\"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\" | \"caution\"",
           "default": "\"secondary\"",
@@ -451,7 +468,7 @@
         },
         {
           "name": "size",
-          "type": "\"sm\" | \"md\" | \"lg\"",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
           "default": "\"sm\"",
           "description": "Badge size"
         },
@@ -487,6 +504,11 @@
           "name": "Icon",
           "code": "<Badge color=\"warning\" size=\"lg\"><Flask /> Beta</Badge>",
           "details": "Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default."
+        },
+        {
+          "name": "Remove",
+          "code": "<div class=\"flex flex-wrap justify-center gap-2\">\n  <Badge\n    v-for=\"tag in tags\"\n    :key=\"tag\"\n    size=\"xl\"\n    pill\n    variant=\"outline\"\n    :remove-label=\"'Remove ' + tag\"\n    @remove=\"tags = tags.filter((item) => item !== tag)\"\n  >\n    {{ tag }}\n  </Badge>\n  <Badge size=\"xl\" pill variant=\"solid\" color=\"discovery\" remove-label=\"Remove New\" @remove=\"() => {}\">New</Badge>\n</div>",
+          "details": "@remove adds a cross at the end, with its own hover and focus. size=\"xl\" has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays."
         },
         {
           "name": "Loading",
@@ -2209,6 +2231,11 @@
           "description": "On a row, the control takes the rest of the line after the label"
         },
         {
+          "name": "#action",
+          "type": "slot",
+          "description": "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it"
+        },
+        {
           "name": "optically-align",
           "type": "\"start\" | \"end\"",
           "description": "Applies optical alignment to the child control via negative margin using its gutter"
@@ -2268,7 +2295,7 @@
         {
           "name": "Fields in rows",
           "code": "<div class=\"w-full max-w-[480px]\">\n  <FieldGroup>\n    <Field row label=\"Price\">\n      <Input default-value=\"11\" inputmode=\"decimal\">\n        <template #endAdornment>€</template>\n      </Input>\n    </Field>\n    <Field row label=\"Weight\" description=\"Shown beside the name.\">\n      <Input default-value=\"250\" inputmode=\"decimal\" />\n    </Field>\n    <Field row label=\"Unit\">\n      <Select v-model:value=\"unit\" :block=\"false\" align=\"end\" :options=\"units\" />\n    </Field>\n  </FieldGroup>\n</div>",
-          "details": "A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block=\"false\", and every control ends on the edge of the row. On a phone use variant=\"ghost\": the row is then the frame and the value ends at its edge."
+          "details": "A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: :pill=\"false\" on the control keeps the rounded box. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block=\"false\", and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge."
         },
         {
           "name": "Textarea",
@@ -7071,5 +7098,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T18:38:50.858Z"
+  "generatedAt": "2026-11-02T20:08:01.969Z"
 }

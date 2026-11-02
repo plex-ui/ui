@@ -9,6 +9,7 @@ import {
   type Ref,
   type TextareaHTMLAttributes,
 } from "react"
+import { useFieldRowPill } from "../../lib/fieldRow"
 import { type ControlSize, type Variants } from "../../types"
 import { Button, type ButtonProps } from "../Button"
 import s from "@plexui/styles/components/InputGroup/InputGroup.module.css"
@@ -59,7 +60,7 @@ export type InputGroupProps = HTMLAttributes<HTMLDivElement> & {
   size?: ControlSize
   /**
    * Fully rounded group, with pill buttons inside
-   * @default false
+   * @default false, or true at the end of a `Field row`
    */
   pill?: boolean
   /**
@@ -78,7 +79,7 @@ export type InputGroupProps = HTMLAttributes<HTMLDivElement> & {
 const InputGroupRoot = ({
   variant = "outline",
   size = "md",
-  pill = false,
+  pill: pillProp,
   disabled = false,
   invalid = false,
   className,
@@ -86,6 +87,7 @@ const InputGroupRoot = ({
   ref,
   ...restProps
 }: InputGroupProps) => {
+  const pill = useFieldRowPill(pillProp)
   // Clicks on the frame, icons and text focus the control, as in Input
   const handleMouseDown = (evt: React.MouseEvent<HTMLDivElement>) => {
     onMouseDown?.(evt)

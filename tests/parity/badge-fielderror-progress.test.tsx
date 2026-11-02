@@ -227,3 +227,33 @@ describe("Badge and FieldError updates", () => {
     expect(new Set(react).size).toBe(3)
   })
 })
+
+describe("Badge remove", () => {
+  const onRemove = () => {}
+
+  test.each<[string, Props]>([
+    ["a cross with a name", { onRemove, removeLabel: "Remove Oak" }],
+    ["a cross with the default name", { onRemove }],
+    ["a mark inside a control", { removable: true }],
+    ["the control height", { size: "xl", pill: true, onRemove }],
+  ])("%s", async (_, props) => {
+    const pair = await renderPair(createElement(RBadge, props, "Oak"), () => h(Badge, props, () => "Oak"))
+    expect(pair.vue).toBe(pair.react)
+  })
+
+  test("a cross is a button, a mark is not", async () => {
+    const cross = await renderPair(
+      createElement(RBadge, { onRemove, removeLabel: "Remove Oak" }, "Oak"),
+      () => h(Badge, { onRemove, removeLabel: "Remove Oak" }, () => "Oak"),
+    )
+    expect(cross.vue).toContain('aria-label="Remove Oak"')
+    expect(cross.vue).toMatch(/<span>\s*"Oak"/)
+
+    const mark = await renderPair(
+      createElement(RBadge, { removable: true }, "Oak"),
+      () => h(Badge, { removable: true }, () => "Oak"),
+    )
+    expect(mark.vue).not.toContain("<button")
+    expect(mark.vue).toContain('aria-hidden="true"')
+  })
+})

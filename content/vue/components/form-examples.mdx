@@ -482,16 +482,16 @@ export const confirmPhone = `<component :is="DialogShell" :open="dialog">
 export const rowInputs = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
   <FieldGroup title="Contact details">
     <Field row label="First name">
-      <Input variant="ghost" default-value="Jane" autocomplete="given-name" />
+      <Input default-value="Jane" autocomplete="given-name" />
     </Field>
     <Field row label="Last name">
-      <Input variant="ghost" default-value="Doe" autocomplete="family-name" />
+      <Input default-value="Doe" autocomplete="family-name" />
     </Field>
     <Field row label="Email">
-      <Input variant="ghost" type="email" placeholder="name@example.com" autocomplete="email" />
+      <Input type="email" placeholder="name@example.com" autocomplete="email" />
     </Field>
     <Field row label="Phone">
-      <Input variant="ghost" type="tel" placeholder="Optional" autocomplete="tel" />
+      <Input type="tel" placeholder="Optional" autocomplete="tel" />
     </Field>
   </FieldGroup>
   <FieldGroup title="Delivery">
@@ -508,10 +508,10 @@ export const rowInputs = `<form class="flex w-[480px] max-w-full flex-col gap-6"
 export const rowMixed = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
   <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
     <Field row label="Language">
-      <Select v-model:value="language" :options="languages" variant="soft" :block="false" align="end" />
+      <Select v-model:value="language" :options="languages" :block="false" align="end" />
     </Field>
     <Field row label="Currency">
-      <Select v-model:value="currency" :options="currencies" variant="soft" :block="false" align="end" />
+      <Select v-model:value="currency" :options="currencies" :block="false" align="end" />
     </Field>
     <Field row label="Theme">
       <SegmentedControl v-model:value="theme" aria-label="Theme">
@@ -521,7 +521,7 @@ export const rowMixed = `<form class="flex w-[480px] max-w-full flex-col gap-6" 
       </SegmentedControl>
     </Field>
     <Field row label="Start date">
-      <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" placeholder="Select date" variant="soft" />
+      <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" placeholder="Select date" />
     </Field>
     <Field row label="Weekly summary" description="Sent on Mondays.">
       <Switch default-checked />
@@ -564,36 +564,40 @@ export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6
       />
     </Field>
     <Field row label="Price">
-      <Input variant="ghost" inputmode="decimal" default-value="€129.00" />
+      <Input default-value="129" inputmode="decimal">
+        <template #endAdornment><span class="text-secondary">€</span></template>
+      </Input>
     </Field>
     <Field row label="Category">
-      <Select v-model:value="category" :options="categories" variant="soft" :block="false" align="end" />
+      <Select v-model:value="category" :options="categories" :block="false" align="end" />
     </Field>
     <Field row fill label="Tags">
-      <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-          <Badge v-for="option in labelOptions.filter((item) => tags.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-            {{ option.label }}
-            <Button
-              uniform
-              size="3xs"
-              class="-mr-1.5"
-              pill
-              variant="ghost"
-              color="secondary"
-              :aria-label="'Remove ' + option.label"
-              @click="tags = tags.filter((item) => item !== option.value)"
-            >
-              <X />
-            </Button>
-          </Badge>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <Badge
+          v-for="option in labelOptions.filter((item) => tags.includes(item.value))"
+          :key="option.value"
+          size="xl"
+          pill
+          :color="option.color"
+          variant="solid"
+          :remove-label="'Remove ' + option.label"
+          @remove="tags = tags.filter((item) => item !== option.value)"
+        >
+          {{ option.label }}
+        </Badge>
+      </div>
+      <template #action>
         <Select v-model:value="tags" multiple :block="false" align="end" aria-label="Add tag" :options="labelOptions">
           <template #trigger="{ onToggle }">
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add tag" @click="onToggle"><Plus /></Button>
+            <Tooltip :content="wide ? 'Add tag' : null">
+              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add tag" @click="onToggle">
+                <Plus v-if="wide" />
+                <template v-else>Add</template>
+              </Button>
+            </Tooltip>
           </template>
         </Select>
-      </div>
+      </template>
     </Field>
     <Field row label="In stock"><Switch default-checked /></Field>
   </FieldGroup>
@@ -633,67 +637,76 @@ export const rowGroups = `<form class="flex w-[520px] max-w-full flex-col gap-6"
     </Field>
   </FieldGroup>
   <FieldGroup>
-    <Field row label="Variants">
+    <Field row fill label="Variants">
       <template #labelAction>
         <Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle class="text-tertiary" /></Tooltip>
       </template>
-      <div>
-        <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
-      </div>
+      <div />
+      <template #action>
+        <Tooltip :content="wide ? 'Add variant' : null">
+          <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add variant">
+            <Plus v-if="wide" />
+            <template v-else>Add</template>
+          </Button>
+        </Tooltip>
+      </template>
     </Field>
   </FieldGroup>
   <FieldGroup>
     <Field row fill label="Materials">
-      <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-            {{ option.label }}
-            <Button
-              uniform
-              size="3xs"
-              class="-mr-1.5"
-              pill
-              variant="ghost"
-              color="secondary"
-              :aria-label="'Remove ' + option.label"
-              @click="materials = materials.filter((item) => item !== option.value)"
-            >
-              <X />
-            </Button>
-          </Badge>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <Badge
+          v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+          :key="option.value"
+          size="xl"
+          pill
+          variant="outline"
+          :remove-label="'Remove ' + option.label"
+          @remove="materials = materials.filter((item) => item !== option.value)"
+        >
+          {{ option.label }}
+        </Badge>
+      </div>
+      <template #action>
         <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
           <template #trigger="{ onToggle }">
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+            <Tooltip :content="wide ? 'Add material' : null">
+              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle">
+                <Plus v-if="wide" />
+                <template v-else>Add</template>
+              </Button>
+            </Tooltip>
           </template>
         </Select>
-      </div>
+      </template>
     </Field>
     <Field row fill label="Labels">
-      <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-            {{ option.label }}
-            <Button
-              uniform
-              size="3xs"
-              class="-mr-1.5"
-              pill
-              variant="ghost"
-              color="secondary"
-              :aria-label="'Remove ' + option.label"
-              @click="labels = labels.filter((item) => item !== option.value)"
-            >
-              <X />
-            </Button>
-          </Badge>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <Badge
+          v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+          :key="option.value"
+          size="xl"
+          pill
+          :color="option.color"
+          variant="solid"
+          :remove-label="'Remove ' + option.label"
+          @remove="labels = labels.filter((item) => item !== option.value)"
+        >
+          {{ option.label }}
+        </Badge>
+      </div>
+      <template #action>
         <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
           <template #trigger="{ onToggle }">
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+            <Tooltip :content="wide ? 'Add label' : null">
+              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle">
+                <Plus v-if="wide" />
+                <template v-else>Add</template>
+              </Button>
+            </Tooltip>
           </template>
         </Select>
-      </div>
+      </template>
     </Field>
   </FieldGroup>
   <Button color="primary" size="3xl" pill type="submit">Save changes</Button>
@@ -702,56 +715,59 @@ export const rowGroups = `<form class="flex w-[520px] max-w-full flex-col gap-6"
 export const rowTags = `<div class="w-[520px] max-w-full">
   <FieldGroup>
     <Field row fill label="Materials">
-      <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-            {{ option.label }}
-            <Button
-              uniform
-              size="3xs"
-              class="-mr-1.5"
-              pill
-              variant="ghost"
-              color="secondary"
-              :aria-label="'Remove ' + option.label"
-              @click="materials = materials.filter((item) => item !== option.value)"
-            >
-              <X />
-            </Button>
-          </Badge>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <Badge
+          v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+          :key="option.value"
+          size="xl"
+          pill
+          variant="outline"
+          :remove-label="'Remove ' + option.label"
+          @remove="materials = materials.filter((item) => item !== option.value)"
+        >
+          {{ option.label }}
+        </Badge>
+      </div>
+      <template #action>
         <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
           <template #trigger="{ onToggle }">
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+            <Tooltip :content="wide ? 'Add material' : null">
+              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle">
+                <Plus v-if="wide" />
+                <template v-else>Add</template>
+              </Button>
+            </Tooltip>
           </template>
         </Select>
-      </div>
+      </template>
     </Field>
     <Field row fill label="Labels">
-      <div class="flex items-center gap-2">
-        <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-            {{ option.label }}
-            <Button
-              uniform
-              size="3xs"
-              class="-mr-1.5"
-              pill
-              variant="ghost"
-              color="secondary"
-              :aria-label="'Remove ' + option.label"
-              @click="labels = labels.filter((item) => item !== option.value)"
-            >
-              <X />
-            </Button>
-          </Badge>
-        </div>
+      <div class="flex flex-wrap gap-2">
+        <Badge
+          v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+          :key="option.value"
+          size="xl"
+          pill
+          :color="option.color"
+          variant="solid"
+          :remove-label="'Remove ' + option.label"
+          @remove="labels = labels.filter((item) => item !== option.value)"
+        >
+          {{ option.label }}
+        </Badge>
+      </div>
+      <template #action>
         <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
           <template #trigger="{ onToggle }">
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+            <Tooltip :content="wide ? 'Add label' : null">
+              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle">
+                <Plus v-if="wide" />
+                <template v-else>Add</template>
+              </Button>
+            </Tooltip>
           </template>
         </Select>
-      </div>
+      </template>
     </Field>
   </FieldGroup>
 </div>`
@@ -800,67 +816,76 @@ export const rowDialog = `<Dialog v-model:open="open">
           </Field>
         </FieldGroup>
         <FieldGroup>
-          <Field row label="Variants">
+          <Field row fill label="Variants">
             <template #labelAction>
               <Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle class="text-tertiary" /></Tooltip>
             </template>
-            <div>
-              <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
-            </div>
+            <div />
+            <template #action>
+              <Tooltip :content="wide ? 'Add variant' : null">
+                <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add variant">
+                  <Plus v-if="wide" />
+                  <template v-else>Add</template>
+                </Button>
+              </Tooltip>
+            </template>
           </Field>
         </FieldGroup>
         <FieldGroup>
           <Field row fill label="Materials">
-            <div class="flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-                <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-                  {{ option.label }}
-                  <Button
-                    uniform
-                    size="3xs"
-                    class="-mr-1.5"
-                    pill
-                    variant="ghost"
-                    color="secondary"
-                    :aria-label="'Remove ' + option.label"
-                    @click="materials = materials.filter((item) => item !== option.value)"
-                  >
-                    <X />
-                  </Button>
-                </Badge>
-              </div>
+            <div class="flex flex-wrap gap-2">
+              <Badge
+                v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+                :key="option.value"
+                size="xl"
+                pill
+                variant="outline"
+                :remove-label="'Remove ' + option.label"
+                @remove="materials = materials.filter((item) => item !== option.value)"
+              >
+                {{ option.label }}
+              </Badge>
+            </div>
+            <template #action>
               <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
                 <template #trigger="{ onToggle }">
-                  <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+                  <Tooltip :content="wide ? 'Add material' : null">
+                    <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle">
+                      <Plus v-if="wide" />
+                      <template v-else>Add</template>
+                    </Button>
+                  </Tooltip>
                 </template>
               </Select>
-            </div>
+            </template>
           </Field>
           <Field row fill label="Labels">
-            <div class="flex items-center gap-2">
-              <div class="flex min-w-0 flex-1 flex-wrap gap-2">
-                <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill class="[--badge-size:32px]">
-                  {{ option.label }}
-                  <Button
-                    uniform
-                    size="3xs"
-                    class="-mr-1.5"
-                    pill
-                    variant="ghost"
-                    color="secondary"
-                    :aria-label="'Remove ' + option.label"
-                    @click="labels = labels.filter((item) => item !== option.value)"
-                  >
-                    <X />
-                  </Button>
-                </Badge>
-              </div>
+            <div class="flex flex-wrap gap-2">
+              <Badge
+                v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+                :key="option.value"
+                size="xl"
+                pill
+                :color="option.color"
+                variant="solid"
+                :remove-label="'Remove ' + option.label"
+                @remove="labels = labels.filter((item) => item !== option.value)"
+              >
+                {{ option.label }}
+              </Badge>
+            </div>
+            <template #action>
               <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
                 <template #trigger="{ onToggle }">
-                  <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+                  <Tooltip :content="wide ? 'Add label' : null">
+                    <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle">
+                      <Plus v-if="wide" />
+                      <template v-else>Add</template>
+                    </Button>
+                  </Tooltip>
                 </template>
               </Select>
-            </div>
+            </template>
           </Field>
         </FieldGroup>
     </DialogBody>
@@ -876,13 +901,13 @@ export const rowDialog = `<Dialog v-model:open="open">
 export const rowActions = `<div class="flex w-[480px] max-w-full flex-col gap-6">
   <FieldGroup title="Account">
     <Field row label="Email" description="jane@example.com">
-      <div><Button color="secondary" variant="soft" size="sm">Change</Button></div>
+      <div><Button pill color="secondary" variant="soft">Change</Button></div>
     </Field>
     <Field row label="Password" description="Last changed in March.">
-      <div><Button color="secondary" variant="soft" size="sm">Reset</Button></div>
+      <div><Button pill color="secondary" variant="soft">Reset</Button></div>
     </Field>
     <Field row label="Delete account" description="This removes your data for good.">
-      <div><Button color="danger" variant="soft" size="sm">Delete</Button></div>
+      <div><Button pill color="danger" variant="soft">Delete</Button></div>
     </Field>
   </FieldGroup>
 </div>`
@@ -890,10 +915,10 @@ export const rowActions = `<div class="flex w-[480px] max-w-full flex-col gap-6"
 export const rowErrors = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
   <FieldGroup title="Payout details">
     <Field row label="Account holder">
-      <Input variant="ghost" default-value="Jane Doe" />
+      <Input default-value="Jane Doe" />
     </Field>
     <Field row label="IBAN" error-message="Enter a valid IBAN.">
-      <Input variant="ghost" default-value="ES91 2100" invalid />
+      <Input default-value="ES91 2100" invalid />
     </Field>
     <Field row orientation="vertical" label="Reference" error-message="Keep it under 140 characters.">
       <Textarea
@@ -929,7 +954,7 @@ export const rowState = {
     { value: "wool", label: "Wool" },
   ],
   labels: ["new"],
-  labelOptions: [{ value: "new", label: "New" }, { value: "sale", label: "Sale" }, { value: "limited", label: "Limited" }],
+  labelOptions: [{ value: "new", label: "New", color: "discovery" }, { value: "sale", label: "Sale", color: "danger" }, { value: "limited", label: "Limited", color: "warning" }],
   open: false,
 }
 
@@ -1016,13 +1041,13 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 ## Group of inputs
 
-<ComponentPreview language="vue" details={<>One block of rows instead of separate boxes. <code>variant="ghost"</code> takes the box off the field, so the row is its frame: a short value stands at the end of the row, a long one goes under its label with <code>orientation="vertical"</code>.</>} code={rowInputs} previewMinHeight={620}>
+<ComponentPreview language="vue" details={<>One block of rows instead of separate boxes. A short value keeps its frame at the end of the row, and on a phone the row becomes that frame with nothing to change. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={rowInputs} previewMinHeight={620}>
   <VueFormExampleDemo template={rowInputs} stageClassName={STAGE} />
 </ComponentPreview>
 
 ## Group of mixed controls
 
-<ComponentPreview language="vue" details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>.</>} code={rowMixed} previewMinHeight={420}>
+<ComponentPreview language="vue" details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>:pill="false"</code> to every control in the block.</>} code={rowMixed} previewMinHeight={420}>
   <VueFormExampleDemo template={rowMixed} stageClassName={STAGE} state={rowState} />
 </ComponentPreview>
 
@@ -1046,8 +1071,8 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 ## Tags in rows
 
-<ComponentPreview language="vue" details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>#trigger</code>, and <code>:block="false"</code> keeps it as wide as its options.</>} code={rowTags} previewMinHeight={200}>
-  <VueFormExampleDemo template={rowTags} stageClassName={STAGE} state={rowState} />
+<ComponentPreview language="vue" details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The <code>#action</code> slot holds the button at the end: it stays on the first line when the tags wrap, and on a phone it stands beside the label with the tags under it. <code>wide</code> is <code>useBreakpoint("md")</code>. A <code>Badge</code> with <code>size="xl"</code> has the height of a control and <code>@remove</code> gives it a cross. Solid colors are for labels with a meaning, outline for plain values. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>#trigger</code>, and <code>:block="false"</code> keeps it as wide as its options.</>} code={rowTags} previewMinHeight={200}>
+  <VueFormExampleDemo template={rowTags} stageClassName={STAGE} state={{ ...rowState, materials: ["oak", "steel", "linen", "glass", "wool"] }} />
 </ComponentPreview>
 
 ## Form in a dialog
@@ -1064,7 +1089,7 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 ## Errors in rows
 
-<ComponentPreview language="vue" details={<>An error is a line of words under the row. The row keeps its frame, so a group with several errors stays calm.</>} code={rowErrors} previewMinHeight={380}>
+<ComponentPreview language="vue" details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={rowErrors} previewMinHeight={380}>
   <VueFormExampleDemo template={rowErrors} stageClassName={STAGE} />
 </ComponentPreview>
 

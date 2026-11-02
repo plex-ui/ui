@@ -237,11 +237,11 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Group of inputs
 
-<ComponentPreview details={<>One block of rows instead of separate boxes. <code>variant="ghost"</code> takes the box off the field, so the row is its frame: a short value stands at the end of the row, a long one goes under its label with <code>orientation="vertical"</code>.</>} code={`<FieldGroup title="Contact details">
-  <Field row label="First name"><Input variant="ghost" defaultValue="Jane" /></Field>
-  <Field row label="Last name"><Input variant="ghost" defaultValue="Doe" /></Field>
-  <Field row label="Email"><Input variant="ghost" type="email" placeholder="name@example.com" /></Field>
-  <Field row label="Phone"><Input variant="ghost" type="tel" placeholder="Optional" /></Field>
+<ComponentPreview details={<>One block of rows instead of separate boxes. A short value keeps its frame at the end of the row, and on a phone the row becomes that frame with nothing to change. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={`<FieldGroup title="Contact details">
+  <Field row label="First name"><Input defaultValue="Jane" /></Field>
+  <Field row label="Last name"><Input defaultValue="Doe" /></Field>
+  <Field row label="Email"><Input type="email" placeholder="name@example.com" /></Field>
+  <Field row label="Phone"><Input type="tel" placeholder="Optional" /></Field>
 </FieldGroup>
 <FieldGroup title="Delivery">
   <Field row orientation="vertical" label="Address">
@@ -256,12 +256,12 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Group of mixed controls
 
-<ComponentPreview details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>.</>} code={`<FieldGroup title="Preferences" description="Saved for every device you sign in on.">
+<ComponentPreview details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>pill=&#123;false&#125;</code> to every control in the block.</>} code={`<FieldGroup title="Preferences" description="Saved for every device you sign in on.">
   <Field row label="Language">
-    <Select value={language} options={languages} onChange={onLanguage} variant="soft" block={false} align="end" />
+    <Select value={language} options={languages} onChange={onLanguage} block={false} align="end" />
   </Field>
   <Field row label="Currency">
-    <Select value={currency} options={currencies} onChange={onCurrency} variant="soft" block={false} align="end" />
+    <Select value={currency} options={currencies} onChange={onCurrency} block={false} align="end" />
   </Field>
   <Field row label="Theme">
     <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
@@ -271,7 +271,7 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
     </SegmentedControl>
   </Field>
   <Field row label="Start date">
-    <DatePicker value={start} onChange={setStart} placeholder="Select date" variant="soft" />
+    <DatePicker value={start} onChange={setStart} placeholder="Select date" />
   </Field>
   <Field row label="Weekly summary" description="Sent on Mondays."><Switch /></Field>
 </FieldGroup>`} previewMinHeight={420}>
@@ -303,25 +303,22 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Long form in one group
 
-<ComponentPreview details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={`<FieldGroup title="Product">
+<ComponentPreview details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={`const wide = useBreakpoint("md");
+
+<FieldGroup title="Product">
   <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
   <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
-  <Field row label="Price"><Input variant="ghost" inputMode="decimal" /></Field>
-  <Field row label="Category">
-    <Select value={category} options={categories} onChange={onCategory} variant="soft" block={false} align="end" />
+  <Field row label="Price">
+    <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
   </Field>
-  <Field row fill label="Tags">
-    <div className="flex items-center gap-2">
-      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-        {chosen.map((option) => (
-          <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
-            {option.label}
-            <Button uniform size="3xs" pill variant="ghost" color="secondary" className="-mr-1.5" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
-              <X />
-            </Button>
-          </Badge>
-        ))}
-      </div>
+  <Field row label="Category">
+    <Select value={category} options={categories} onChange={onCategory} block={false} align="end" />
+  </Field>
+  <Field
+    row
+    fill
+    label="Tags"
+    action={
       <Select
         multiple
         block={false}
@@ -331,9 +328,29 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
         value={tags}
         onChange={(selected) => setTags(selected.map((option) => option.value))}
         trigger={({ onToggle }) => (
-          <Button uniform pill color="secondary" variant="soft" aria-label="Add tag" onClick={onToggle}><Plus /></Button>
+          <Tooltip content={wide ? "Add tag" : null}>
+            <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add tag" onClick={onToggle}>
+              {wide ? <Plus /> : "Add"}
+            </Button>
+          </Tooltip>
         )}
       />
+    }
+  >
+    <div className="flex flex-wrap gap-2">
+      {chosen.map((option) => (
+        <Badge
+          key={option.value}
+          size="xl"
+          pill
+          variant={option.color ? "solid" : "outline"}
+          color={option.color ?? "secondary"}
+          removeLabel={\`Remove \${option.label}\`}
+          onRemove={() => remove(option.value)}
+        >
+          {option.label}
+        </Badge>
+      ))}
     </div>
   </Field>
   <Field row label="In stock"><Switch /></Field>
@@ -343,7 +360,9 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Several groups
 
-<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a ghost <code>Select</code> in the field's <code>endAdornment</code>, a hint goes in <code>labelAction</code>.</>} code={`<form className="flex flex-col gap-6">
+<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a ghost <code>Select</code> in the field's <code>endAdornment</code>, a hint goes in <code>labelAction</code>.</>} code={`const wide = useBreakpoint("md");
+
+<form className="flex flex-col gap-6">
   <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
   <FieldGroup>
     <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
@@ -366,12 +385,18 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
   <FieldGroup>
     <Field
       row
+      fill
       label="Variants"
       labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
+      action={
+        <Tooltip content={wide ? "Add variant" : null}>
+          <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add variant">
+            {wide ? <Plus /> : "Add"}
+          </Button>
+        </Tooltip>
+      }
     >
-      <div>
-        <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
-      </div>
+      <div />
     </Field>
   </FieldGroup>
 </form>`} previewMinHeight={760}>
@@ -380,18 +405,13 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Tags in rows
 
-<ComponentPreview details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>trigger</code>, and <code>block=&#123;false&#125;</code> keeps it as wide as its options.</>} code={`<Field row fill label="Materials">
-  <div className="flex items-center gap-2">
-    <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-      {chosen.map((option) => (
-        <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
-          {option.label}
-          <Button uniform size="3xs" pill variant="ghost" color="secondary" className="-mr-1.5" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
-            <X />
-          </Button>
-        </Badge>
-      ))}
-    </div>
+<ComponentPreview details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. <code>action</code> holds the button at the end: it stays on the first line when the tags wrap, and on a phone it stands beside the label with the tags under it. A <code>Badge</code> with <code>size="xl"</code> has the height of a control and <code>onRemove</code> gives it a cross. Solid colors are for labels with a meaning, outline for plain values. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>trigger</code>, and <code>block=&#123;false&#125;</code> keeps it as wide as its options.</>} code={`const wide = useBreakpoint("md");
+
+<Field
+  row
+  fill
+  label="Materials"
+  action={
     <Select
       multiple
       block={false}
@@ -401,9 +421,29 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
       value={value}
       onChange={(selected) => setValue(selected.map((option) => option.value))}
       trigger={({ onToggle }) => (
-        <Button uniform pill color="secondary" variant="soft" aria-label="Add material" onClick={onToggle}><Plus /></Button>
+        <Tooltip content={wide ? "Add material" : null}>
+          <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add material" onClick={onToggle}>
+            {wide ? <Plus /> : "Add"}
+          </Button>
+        </Tooltip>
       )}
     />
+  }
+>
+  <div className="flex flex-wrap gap-2">
+    {chosen.map((option) => (
+      <Badge
+        key={option.value}
+        size="xl"
+        pill
+        variant={option.color ? "solid" : "outline"}
+        color={option.color ?? "secondary"}
+        removeLabel={\`Remove \${option.label}\`}
+        onRemove={() => remove(option.value)}
+      >
+        {option.label}
+      </Badge>
+    ))}
   </div>
 </Field>`} previewMinHeight={200}>
   <FormRowsTagsDemo />
@@ -440,13 +480,13 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 <ComponentPreview details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={`<FieldGroup title="Account">
   <Field row label="Email" description="jane@example.com">
-    <div><Button color="secondary" variant="soft" size="sm">Change</Button></div>
+    <div><Button pill color="secondary" variant="soft">Change</Button></div>
   </Field>
   <Field row label="Password" description="Last changed in March.">
-    <div><Button color="secondary" variant="soft" size="sm">Reset</Button></div>
+    <div><Button pill color="secondary" variant="soft">Reset</Button></div>
   </Field>
   <Field row label="Delete account" description="This removes your data for good.">
-    <div><Button color="danger" variant="soft" size="sm">Delete</Button></div>
+    <div><Button pill color="danger" variant="soft">Delete</Button></div>
   </Field>
 </FieldGroup>`} previewMinHeight={340}>
   <FormRowsActionsDemo />
@@ -454,10 +494,10 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Errors in rows
 
-<ComponentPreview details={<>An error is a line of words under the row. The row keeps its frame, so a group with several errors stays calm.</>} code={`<FieldGroup title="Payout details">
-  <Field row label="Account holder"><Input variant="ghost" defaultValue="Jane Doe" /></Field>
+<ComponentPreview details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={`<FieldGroup title="Payout details">
+  <Field row label="Account holder"><Input defaultValue="Jane Doe" /></Field>
   <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
-    <Input variant="ghost" invalid />
+    <Input invalid />
   </Field>
   <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
     <Textarea variant="ghost" rows={2} autoResize invalid />

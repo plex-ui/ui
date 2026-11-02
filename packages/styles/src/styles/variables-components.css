@@ -39,6 +39,7 @@
     --badge-gutter-sm: calc(var(--control-gutter-2xs) - 1px);
     --badge-gutter-md: var(--control-gutter-2xs);
     --badge-gutter-lg: var(--control-gutter-xs);
+    --badge-gutter-xl: var(--control-gutter-xs);
     --badge-size-2xs: 1rem;
     /* 16px */
     --badge-size-xs: 1.125rem;
@@ -46,31 +47,38 @@
     --badge-size-sm: calc(var(--control-size-3xs) - 2px);
     --badge-size-md: var(--control-size-3xs);
     --badge-size-lg: var(--control-size-2xs);
+    --badge-size-xl: 2rem;
+    /* 32px */
     --badge-radius-2xs: var(--radius-2xs);
     --badge-radius-xs: var(--radius-2xs);
     --badge-radius-sm: var(--radius-xs);
     --badge-radius-md: var(--radius-xs);
     --badge-radius-lg: var(--radius-sm);
+    --badge-radius-xl: var(--radius-md);
     --badge-font-size-2xs: var(--font-text-xs-size);
     --badge-font-size-xs: var(--font-text-xs-size);
     --badge-font-size-sm: var(--font-text-xs-size);
     --badge-font-size-md: var(--font-text-sm-size);
     --badge-font-size-lg: var(--font-text-sm-size);
+    --badge-font-size-xl: var(--font-text-sm-size);
     --badge-tracking-2xs: var(--tracking-wide);
     --badge-tracking-xs: var(--tracking-wide);
     --badge-tracking-sm: var(--tracking-wide);
     --badge-tracking-md: var(--tracking-normal);
     --badge-tracking-lg: var(--tracking-normal);
+    --badge-tracking-xl: var(--tracking-normal);
     --badge-font-weight-2xs: var(--font-weight-semibold);
     --badge-font-weight-xs: var(--font-weight-semibold);
     --badge-font-weight-sm: var(--font-weight-semibold);
     --badge-font-weight-md: var(--font-weight-semibold);
     --badge-font-weight-lg: var(--font-weight-semibold);
+    --badge-font-weight-xl: var(--font-weight-semibold);
     --badge-icon-font-size-2xs: var(--font-text-xs-size);
     --badge-icon-font-size-xs: var(--font-text-xs-size);
     --badge-icon-font-size-sm: var(--font-text-xs-size);
     --badge-icon-font-size-md: var(--font-text-md-size);
     --badge-icon-font-size-lg: var(--font-text-md-size);
+    --badge-icon-font-size-xl: var(--font-text-md-size);
     --badge-indicator-size-2xs: 0.625rem;
     /* 10px */
     --badge-indicator-size-xs: 0.625rem;
@@ -78,6 +86,7 @@
     --badge-indicator-size-sm: var(--font-text-xs-size);
     --badge-indicator-size-md: var(--font-text-xs-size);
     --badge-indicator-size-lg: var(--font-text-sm-size);
+    --badge-indicator-size-xl: var(--font-text-sm-size);
 
     /* =============================================
       Button
@@ -239,6 +248,7 @@
     --field-row-padding-inline: 16px;
     --field-row-gap: 24px;
     --field-row-control-width: 160px;
+    --field-row-text-width: 240px;
     --field-row-label-width: 80px;
     --field-row-row-gap: 2px;
     --field-row-text-display: flex;
@@ -247,6 +257,21 @@
     --field-row-label-font-weight: var(--font-weight-medium);
     --field-row-description-font-size: var(--font-text-sm-size);
     --field-row-description-line-height: var(--font-text-sm-line-height);
+    --field-row-above-font-size: 0.8125rem;
+    /* 13px */
+    --field-row-above-line-height: 1.125rem;
+    /* 18px */
+    --field-row-above-font-weight: var(--font-weight-medium);
+    --field-row-above-color: var(--color-text-tertiary);
+    --field-row-above-gap: 4px;
+    --field-row-above-padding-block: 10px;
+    --field-row-list-padding-block: 10px;
+    --field-row-list-row-gap: 8px;
+    --field-row-list-label-offset: 6px;
+    --field-row-action-size: 2rem;
+    /* 32px */
+    --field-row-action-font-size: var(--font-text-sm-size);
+    --field-row-action-font-weight: var(--font-weight-medium);
 
     /* =============================================
       FieldGroup

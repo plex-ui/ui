@@ -9,7 +9,7 @@ import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { InfoCircle, Plus, X } from '@plexui/ui/components/Icon';
+import { InfoCircle, Plus } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -17,8 +17,11 @@ import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 
 const noSubmit = (event: FormEvent) => event.preventDefault();
+
+type TagOption = { value: string; label: string; color?: 'discovery' | 'danger' | 'warning' };
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
@@ -43,7 +46,7 @@ const UNITS = [
   { value: 'lb', label: 'lb' },
 ];
 
-const MATERIALS = [
+const MATERIALS: TagOption[] = [
   { value: 'oak', label: 'Oak' },
   { value: 'steel', label: 'Steel' },
   { value: 'linen', label: 'Linen' },
@@ -51,10 +54,10 @@ const MATERIALS = [
   { value: 'wool', label: 'Wool' },
 ];
 
-const LABELS = [
-  { value: 'new', label: 'New' },
-  { value: 'sale', label: 'Sale' },
-  { value: 'limited', label: 'Limited' },
+const LABELS: TagOption[] = [
+  { value: 'new', label: 'New', color: 'discovery' },
+  { value: 'sale', label: 'Sale', color: 'danger' },
+  { value: 'limited', label: 'Limited', color: 'warning' },
 ];
 
 export function FormRowsInputsDemo() {
@@ -63,16 +66,16 @@ export function FormRowsInputsDemo() {
       <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
         <FieldGroup title="Contact details">
           <Field row label="First name">
-            <Input variant="ghost" defaultValue="Jane" autoComplete="given-name" />
+            <Input defaultValue="Jane" autoComplete="given-name" />
           </Field>
           <Field row label="Last name">
-            <Input variant="ghost" defaultValue="Doe" autoComplete="family-name" />
+            <Input defaultValue="Doe" autoComplete="family-name" />
           </Field>
           <Field row label="Email">
-            <Input variant="ghost" type="email" placeholder="name@example.com" autoComplete="email" />
+            <Input type="email" placeholder="name@example.com" autoComplete="email" />
           </Field>
           <Field row label="Phone">
-            <Input variant="ghost" type="tel" placeholder="Optional" autoComplete="tel" />
+            <Input type="tel" placeholder="Optional" autoComplete="tel" />
           </Field>
         </FieldGroup>
         <FieldGroup title="Delivery">
@@ -102,10 +105,10 @@ export function FormRowsMixedDemo() {
       <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
         <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
           <Field row label="Language">
-            <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} align="end" />
+            <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} block={false} align="end" />
           </Field>
           <Field row label="Currency">
-            <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} variant="soft" block={false} align="end" />
+            <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} block={false} align="end" />
           </Field>
           <Field row label="Theme">
             <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
@@ -115,7 +118,7 @@ export function FormRowsMixedDemo() {
             </SegmentedControl>
           </Field>
           <Field row label="Start date">
-            <DatePicker value={start} onChange={setStart} triggerDateFormat="MMM d, yyyy" placeholder="Select date" variant="soft" />
+            <DatePicker value={start} onChange={setStart} triggerDateFormat="MMM d, yyyy" placeholder="Select date" />
           </Field>
           <Field row label="Weekly summary" description="Sent on Mondays.">
             <Switch defaultChecked />
@@ -176,10 +179,10 @@ export function FormRowsProductDemo() {
             <Textarea variant="ghost" rows={2} autoResize defaultValue="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools." />
           </Field>
           <Field row label="Price">
-            <Input variant="ghost" inputMode="decimal" defaultValue="€129.00" />
+            <Input defaultValue="129" inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
           </Field>
           <Field row label="Category">
-            <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} variant="soft" block={false} align="end" />
+            <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align="end" />
           </Field>
           <TagRow label="Tags" one="tag" options={LABELS} value={tags} onChange={setTags} />
           <Field row label="In stock">
@@ -194,6 +197,18 @@ export function FormRowsProductDemo() {
   );
 }
 
+function AddButton({ one, onClick }: { one: string; onClick?: () => void }) {
+  const wide = useBreakpoint('md');
+
+  return (
+    <Tooltip content={wide ? `Add ${one}` : null}>
+      <Button uniform={wide} pill color="secondary" variant="soft" aria-label={`Add ${one}`} onClick={onClick}>
+        {wide ? <Plus /> : 'Add'}
+      </Button>
+    </Tooltip>
+  );
+}
+
 function TagRow({
   label,
   one,
@@ -203,32 +218,16 @@ function TagRow({
 }: {
   label: string;
   one: string;
-  options: { value: string; label: string }[];
+  options: TagOption[];
   value: string[];
   onChange: (value: string[]) => void;
 }) {
   return (
-    <Field row fill label={label}>
-      <div className="flex items-center gap-2">
-        <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-          {options.filter((option) => value.includes(option.value)).map((option) => (
-            <Badge key={option.value} variant="outline" size="lg" pill className="[--badge-size:32px]">
-              {option.label}
-              <Button
-                uniform
-                size="3xs"
-                className="-mr-1.5"
-                pill
-                variant="ghost"
-                color="secondary"
-                aria-label={`Remove ${option.label}`}
-                onClick={() => onChange(value.filter((item) => item !== option.value))}
-              >
-                <X />
-              </Button>
-            </Badge>
-          ))}
-        </div>
+    <Field
+      row
+      fill
+      label={label}
+      action={
         <Select
           multiple
           block={false}
@@ -237,12 +236,24 @@ function TagRow({
           options={options}
           value={value}
           onChange={(selected) => onChange(selected.map((option) => option.value))}
-          trigger={({ onToggle }) => (
-            <Button uniform pill color="secondary" variant="soft" aria-label={`Add ${one}`} onClick={onToggle}>
-              <Plus />
-            </Button>
-          )}
+          trigger={({ onToggle }) => <AddButton one={one} onClick={onToggle} />}
         />
+      }
+    >
+      <div className="flex flex-wrap gap-2">
+        {options.filter((option) => value.includes(option.value)).map((option) => (
+          <Badge
+            key={option.value}
+            size="xl"
+            pill
+            variant={option.color ? 'solid' : 'outline'}
+            color={option.color ?? 'secondary'}
+            removeLabel={`Remove ${option.label}`}
+            onRemove={() => onChange(value.filter((item) => item !== option.value))}
+          >
+            {option.label}
+          </Badge>
+        ))}
       </div>
     </Field>
   );
@@ -283,12 +294,12 @@ function ProductFields() {
       <FieldGroup>
         <Field
           row
+          fill
           label="Variants"
           labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
+          action={<AddButton one="variant" />}
         >
-          <div>
-            <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
-          </div>
+          <div />
         </Field>
       </FieldGroup>
       <FieldGroup>
@@ -313,7 +324,7 @@ export function FormRowsGroupsDemo() {
 }
 
 export function FormRowsTagsDemo() {
-  const [materials, setMaterials] = useState(['oak', 'steel', 'linen']);
+  const [materials, setMaterials] = useState(['oak', 'steel', 'linen', 'glass', 'wool']);
   const [labels, setLabels] = useState(['new']);
 
   return (
@@ -366,17 +377,17 @@ export function FormRowsActionsDemo() {
         <FieldGroup title="Account">
           <Field row label="Email" description="jane@example.com">
             <div>
-              <Button color="secondary" variant="soft" size="sm">Change</Button>
+              <Button pill color="secondary" variant="soft">Change</Button>
             </div>
           </Field>
           <Field row label="Password" description="Last changed in March.">
             <div>
-              <Button color="secondary" variant="soft" size="sm">Reset</Button>
+              <Button pill color="secondary" variant="soft">Reset</Button>
             </div>
           </Field>
           <Field row label="Delete account" description="This removes your data for good.">
             <div>
-              <Button color="danger" variant="soft" size="sm">Delete</Button>
+              <Button pill color="danger" variant="soft">Delete</Button>
             </div>
           </Field>
         </FieldGroup>
@@ -391,10 +402,10 @@ export function FormRowsErrorsDemo() {
       <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
         <FieldGroup title="Payout details">
           <Field row label="Account holder">
-            <Input variant="ghost" defaultValue="Jane Doe" />
+            <Input defaultValue="Jane Doe" />
           </Field>
           <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
-            <Input variant="ghost" defaultValue="ES91 2100" invalid />
+            <Input defaultValue="ES91 2100" invalid />
           </Field>
           <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
             <Textarea variant="ghost" rows={2} autoResize defaultValue="Monthly payout for the spring collection, including the two orders that were moved from last month." invalid />

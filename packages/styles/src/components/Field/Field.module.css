@@ -272,9 +272,19 @@
   max-width: 100%;
 }
 
-/* A control that needs the width takes its own line */
+/* A control that needs the width takes its own line, the label goes quiet above it */
 .Field:where([data-row][data-orientation="vertical"]) {
+  --field-label-font-size: var(--field-row-above-font-size);
+  --field-label-line-height: var(--field-row-above-line-height);
+  --field-label-font-weight: var(--field-row-above-font-weight);
+
   grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--field-row-above-gap);
+  padding-block: var(--field-row-above-padding-block);
+}
+
+.Field:where([data-row][data-orientation="vertical"]) .Label {
+  color: var(--field-row-above-color);
 }
 
 .Field:where([data-row][data-orientation="vertical"]) .Control {
@@ -284,24 +294,67 @@
 }
 
 /* A control that fills the row, such as a list of tags: it starts after the label
-   and ends at the row's edge, on one line for all the rows of a group. */
+   and ends at the row's edge, on one line for all the rows of a group. A list can
+   wrap: the label and the action stay on its first line. */
 .Field:where([data-row][data-fill]:not([data-orientation="vertical"])) {
   --field-row-gap: 16px;
 
   grid-template-columns: minmax(var(--field-row-label-width), auto) minmax(0, 1fr);
+  align-items: start;
+}
+
+.Field:where([data-row][data-fill]:not([data-orientation="vertical"])) .LabelGroup > :is(.Label, .LabelRow) {
+  padding-block: var(--field-row-list-label-offset);
 }
 
 .Field:where([data-row][data-fill]) .Control {
   justify-self: stretch;
 }
 
-/* A framed field in a row: its width cannot follow what is typed, so it has one.
-   A ghost has the row for its frame, a Select follows its value. */
+.Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action) {
+  grid-template-columns: minmax(var(--field-row-label-width), auto) minmax(0, 1fr) auto;
+  row-gap: var(--field-row-list-row-gap);
+  padding-block: var(--field-row-list-padding-block);
+}
+
+.Field:where([data-row][data-fill]:has(> .Action)) .Control:is(:empty, :has(> :empty:only-child)) {
+  display: none;
+}
+
+.Action {
+  --control-size-md: var(--field-row-action-size);
+  --control-font-size-md: var(--field-row-action-font-size);
+  --button-font-weight: var(--field-row-action-font-weight);
+
+  display: flex;
+  grid-column: 3;
+  grid-row: 1;
+}
+
+/* A framed field in a row: its width cannot follow what is typed, so it has one,
+   wider for words than for a number. A ghost has the row for its frame, a Select
+   follows its value. */
 .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
     [data-variant]:not([data-variant="ghost"]) > input,
     [data-variant]:not([data-variant="ghost"]) > textarea
   ) {
   width: var(--field-row-control-width);
+}
+
+.Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
+    [data-variant]:not([data-variant="ghost"]) > input:not([inputmode="decimal"], [inputmode="numeric"], [type="number"]),
+    [data-variant]:not([data-variant="ghost"]) > textarea
+  ) {
+  width: var(--field-row-text-width);
+}
+
+/* An error in a row is the line of words under it: the field keeps its usual frame */
+.Field:where([data-row]) .Control {
+  --input-border-color-invalid: var(--input-outline-border-color);
+}
+
+.Field:where([data-row]) .Control:focus-within {
+  --input-border-color-invalid: var(--input-outline-border-color-focus);
 }
 
 /* A ghost field in a row: the row is its frame. Beside the label the value takes
@@ -321,6 +374,7 @@
 .Field:where([data-row]) .Control > [data-variant="ghost"]:is(:has(> input), :has(> textarea)) {
   --input-size: var(--field-row-label-line-height);
   --input-gutter: 0px;
+  --input-adornment-offset: 0px;
   --textarea-gutter-x: 0px;
   --textarea-gutter-y: 0px;
 
@@ -330,4 +384,68 @@
 
 .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="ghost"] > input {
   text-align: end;
+}
+
+/* On a phone a list takes the width of its own line under the label and the action.
+   The row is the frame of every field, as on iOS: the framed fields of the web read
+   as the ghost above, with nothing for the author to change. */
+@media (max-width: 767px) {
+  .Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .Field:where([data-row][data-fill]:has(> .Action)) .Control {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .Action {
+    grid-column: 2;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) {
+    --field-row-control-width: auto;
+    --field-row-text-width: auto;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(
+      .Control > [data-variant="outline"] > input,
+      .Control > [data-variant="outline"] > textarea
+    ) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
+      > [data-variant="outline"] > input,
+      > [data-variant="outline"] > textarea
+    ) {
+    justify-self: stretch;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"]:is(:has(> input), :has(> textarea)),
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
+    --input-outline-border-color: transparent;
+    --input-outline-border-color-hover: transparent;
+    --input-outline-border-color-focus: transparent;
+    --input-border-color-invalid: transparent;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"]:is(:has(> input), :has(> textarea)) {
+    --input-size: var(--field-row-label-line-height);
+    --input-gutter: 0px;
+    --input-adornment-offset: 0px;
+    --textarea-gutter-x: 0px;
+    --textarea-gutter-y: 0px;
+
+    border-radius: 0;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"] > input {
+    text-align: end;
+  }
+
+  /* A Select or a date: its value ends at the row's edge */
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
+    padding-inline: 0;
+  }
 }

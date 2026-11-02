@@ -17,6 +17,7 @@ import {
 import type { ControlSize, Variants } from "@plexui/styles/types"
 import { Button, type ButtonColor, type ButtonProps } from "../Button/index.js"
 import { vDefaultValue, vServerText } from "../../lib/defaultValue.js"
+import { useFieldRowPill } from "../../lib/fieldRow.js"
 import s from "@plexui/styles/components/InputGroup/InputGroup.module.css"
 
 // Vue port of packages/ui/src/components/InputGroup/InputGroup.tsx.
@@ -68,20 +69,22 @@ const InputGroupComponent = defineComponent({
     variant: { type: String as PropType<Variants<"outline" | "soft">>, default: "outline" },
     /** Controls the size of the group, on the same scale as Input: `3xs` 22px up to `3xl` 48px. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
-    /** Fully rounded group, with pill buttons inside. @default false */
-    pill: { type: Boolean, default: false },
+    /** Fully rounded group, with pill buttons inside. @default false, or true at the end of a `Field row` */
+    pill: { type: Boolean, default: undefined },
     /** Disables the control and the buttons inside the group. @default false */
     disabled: { type: Boolean, default: false },
     /** Mark the group as invalid. @default false */
     invalid: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
+    const pill = useFieldRowPill(() => props.pill)
+
     provide(InputGroupKey, {
       get size() {
         return props.size
       },
       get pill() {
-        return props.pill
+        return pill.value
       },
       get disabled() {
         return props.disabled
@@ -115,7 +118,7 @@ const InputGroupComponent = defineComponent({
           "data-slot": "input-group",
           "data-variant": props.variant,
           "data-size": props.size,
-          "data-pill": props.pill ? "" : undefined,
+          "data-pill": pill.value ? "" : undefined,
           "data-disabled": props.disabled ? "" : undefined,
           "data-invalid": props.invalid ? "" : undefined,
           "class": [s.InputGroup, className],

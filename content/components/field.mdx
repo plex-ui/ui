@@ -134,7 +134,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Fields in rows
 
-<ComponentPreview details={<>A field keeps its frame in a row. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>block={false}</code>, and every control ends on the edge of the row. On a phone use <code>variant="ghost"</code>: the row is then the frame and the value ends at its edge.</>} code={`<FieldGroup>
+<ComponentPreview details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>pill={false}</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>block={false}</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={`<FieldGroup>
   <Field row label="Price">
     <Input defaultValue="11" endAdornment="€" />
   </Field>
@@ -881,6 +881,7 @@ const [year, setYear] = useState("")
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
   { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Other div props reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
+  { prop: "action", type: "ReactNode", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread" },
@@ -914,7 +915,16 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-horizontal-control-width`: horizontal control width (default `240px`)
 - `--field-horizontal-label-width`: horizontal label width (default `120px`)
 - `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)
-- `--field-row-control-width`: width of a framed field in a row (default `160px`)
+- `--field-row-above-color`: colour of a label above its value (default `var(--color-text-tertiary)`)
+- `--field-row-above-font-size`: size of a label above its value (default `0.8125rem`)
+- `--field-row-above-font-weight`: weight of a label above its value (default `var(--font-weight-medium)`)
+- `--field-row-above-gap`: space under a label above its value (default `4px`)
+- `--field-row-above-line-height`: line height of a label above its value (default `1.125rem`)
+- `--field-row-above-padding-block`: padding of a row with a label above its value (default `10px`)
+- `--field-row-action-font-size`: text size of the action button (default `var(--font-text-sm-size)`)
+- `--field-row-action-font-weight`: text weight of the action button (default `var(--font-weight-medium)`)
+- `--field-row-action-size`: height of the action button (default `2rem`)
+- `--field-row-control-width`: width of a framed number in a row (default `160px`)
 - `--field-row-description-font-size`: description size on a row (default `var(--font-text-sm-size)`)
 - `--field-row-description-line-height`: description line height on a row (default `var(--font-text-sm-line-height)`)
 - `--field-row-gap`: space between label and control (default `24px`, `16px` on a `fill` row)
@@ -922,12 +932,16 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-row-label-font-weight`: label weight on a row (default `var(--font-weight-medium)`)
 - `--field-row-label-line-height`: label line height on a row (default `var(--font-text-sm-line-height)`)
 - `--field-row-label-width`: label column of a `fill` row (default `80px`)
+- `--field-row-list-label-offset`: moves the label to the middle of a list's first line (default `6px`)
+- `--field-row-list-padding-block`: padding of a `fill` row with an `action` (default `10px`)
+- `--field-row-list-row-gap`: space above a list on its own line (default `8px`)
 - `--field-row-min-height`: row height (default `52px`)
 - `--field-row-padding-block`: row padding (default `10px`)
 - `--field-row-padding-inline`: row padding (default `16px`)
 - `--field-row-row-gap`: space above an error (default `2px`)
 - `--field-row-text-display`: `contents` runs the description under the control (default `flex`)
 - `--field-row-text-padding-block`: row padding with a description or an error (default `10px`)
+- `--field-row-text-width`: width of a framed text field in a row (default `240px`)
 
 FieldGroup reads these:
 

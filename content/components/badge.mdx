@@ -7,7 +7,7 @@ metaDescription: React badge component for status indicators and inline labels w
 import { Badge } from "@plexui/ui/components/Badge"
 import { Flask } from "@plexui/ui/components/Icon"
 import { LoadingIndicator } from "@plexui/ui/components/Indicator"
-import { BadgeColorsDemo, BadgeSizingDemo } from "@/components/docs/BadgeDemos"
+import { BadgeColorsDemo, BadgeRemoveDemo, BadgeSizingDemo } from "@/components/docs/BadgeDemos"
 
 <UsageBlock>{`import { Badge } from "@plexui/ui/components/Badge";`}</UsageBlock>
 
@@ -75,6 +75,20 @@ const colors = ["secondary", "success", "warning", "danger", "info", "discovery"
   <Badge color="warning" size="lg"><Flask /> Beta</Badge>
 </ComponentPreview>
 
+### Remove
+
+<ComponentPreview details={<><code>onRemove</code> adds a cross at the end, with its own hover and focus. <code>size="xl"</code> has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.</>} code={`<Badge
+  size="xl"
+  pill
+  variant="outline"
+  removeLabel="Remove Oak"
+  onRemove={() => remove("oak")}
+>
+  Oak
+</Badge>`} previewMinHeight={168}>
+  <BadgeRemoveDemo />
+</ComponentPreview>
+
 ### Loading
 
 <ComponentPreview details={<>In this example, additional gap is added with a Tailwind <code>gap-1.5</code> class to provide the appropriate visual spacing.</>} code={`<Badge size="lg" color="secondary" className="gap-1.5">
@@ -89,8 +103,11 @@ const colors = ["secondary", "success", "warning", "danger", "info", "discovery"
   { prop: "children", type: "ReactNode", description: "Content inside the badge" },
   { prop: "color", type: '"secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"', default: '"secondary"', description: "Semantic color" },
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"soft"', description: "Style variant" },
-  { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "Badge size" },
+  { prop: "size", type: '"sm" | "md" | "lg" | "xl"', default: '"sm"', description: "Badge size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
+  { prop: "onRemove", type: "MouseEventHandler<HTMLButtonElement>", description: "Adds a cross at the end of the badge that calls this when pressed" },
+  { prop: "removeLabel", type: "string", default: '"Remove"', description: "Accessible name of the cross" },
+  { prop: "removable", type: "boolean", default: "false", description: "Shows the cross as a mark, for a badge inside a control that takes the press" },
   { prop: "className", type: "string", description: "Class applied to the badge" },
 ]} />
 
@@ -101,24 +118,32 @@ Badge reads these component tokens. Override them at any scope to restyle it:
 - `--badge-font-size-lg`: font size lg (default `var(--font-text-sm-size)`)
 - `--badge-font-size-md`: font size md (default `var(--font-text-sm-size)`)
 - `--badge-font-size-sm`: font size sm (default `var(--font-text-xs-size)`)
+- `--badge-font-size-xl`: font size xl (default `var(--font-text-sm-size)`)
 - `--badge-font-weight-lg`: font weight lg (default `var(--font-weight-semibold)`)
 - `--badge-font-weight-md`: font weight md (default `var(--font-weight-semibold)`)
 - `--badge-font-weight-sm`: font weight sm (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-xl`: font weight xl (default `var(--font-weight-semibold)`)
 - `--badge-gutter-lg`: gutter lg (default `var(--control-gutter-xs)`)
 - `--badge-gutter-md`: gutter md (default `var(--control-gutter-2xs)`)
 - `--badge-gutter-sm`: gutter sm (default `calc(var(--control-gutter-2xs) - 1px)`)
+- `--badge-gutter-xl`: gutter xl (default `var(--control-gutter-xs)`)
 - `--badge-icon-font-size-lg`: icon font size lg (default `var(--font-text-md-size)`)
 - `--badge-icon-font-size-md`: icon font size md (default `var(--font-text-md-size)`)
 - `--badge-icon-font-size-sm`: icon font size sm (default `var(--font-text-xs-size)`)
+- `--badge-icon-font-size-xl`: icon font size xl (default `var(--font-text-md-size)`)
 - `--badge-indicator-size-lg`: indicator size lg (default `var(--font-text-sm-size)`)
 - `--badge-indicator-size-md`: indicator size md (default `var(--font-text-xs-size)`)
 - `--badge-indicator-size-sm`: indicator size sm (default `var(--font-text-xs-size)`)
+- `--badge-indicator-size-xl`: indicator size xl (default `var(--font-text-sm-size)`)
 - `--badge-radius-lg`: radius lg (default `var(--radius-sm)`)
 - `--badge-radius-md`: radius md (default `var(--radius-xs)`)
 - `--badge-radius-sm`: radius sm (default `var(--radius-xs)`)
+- `--badge-radius-xl`: radius xl (default `var(--radius-md)`)
 - `--badge-size-lg`: size lg (default `var(--control-size-2xs)`)
 - `--badge-size-md`: size md (default `var(--control-size-3xs)`)
 - `--badge-size-sm`: size sm (default `calc(var(--control-size-3xs) - 2px)`)
+- `--badge-size-xl`: size xl (default `2rem`)
 - `--badge-tracking-lg`: tracking lg (default `var(--tracking-normal)`)
 - `--badge-tracking-md`: tracking md (default `var(--tracking-normal)`)
 - `--badge-tracking-sm`: tracking sm (default `var(--tracking-wide)`)
+- `--badge-tracking-xl`: tracking xl (default `var(--tracking-normal)`)

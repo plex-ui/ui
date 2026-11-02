@@ -7,6 +7,27 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `Badge` `size="xl"`: 32px, 36px on a phone with `touch.css`, the height of a control.
+- `Badge` `onRemove`, `removeLabel`, `removable`: a cross at the end of the badge with its own hover, focus and press area. Long text ends in an ellipsis and the cross stays.
+- `Field` `action`: on a `fill` row, a control at the end of the row. It stays on the list's first line, and on a phone it stands beside the label with the list under it.
+
+### Changed
+
+- `Field` `fill`: the label stays on the first line when the list wraps.
+- `Field` `row`: a label above its value is 13px and quiet, 15px with `touch.css`.
+- `Field` `row`: a control at the end of the row is a pill by itself, `Input`, `InputGroup` and `Select` included. `pill={false}` on the control keeps the rounded box. Rows with a label above stay as they were.
+- `Field` `row`: a framed text field is 240px, a number stays 160px.
+- `Field` `row`: an error is the line of words under the row, the field keeps its usual frame.
+- `Field` `row`: on a phone the row is the frame of every field, as on iOS: the frame goes and the value ends at the row's edge, with nothing to change in the markup.
+- `touch.css`: the input font size and gutter sit in the components layer, so a kit rule that sets them on purpose still wins.
+- Form Examples: fields keep their frame on the web, labels are solid, buttons in rows are soft pills, one shape in a block.
+
+---
+
 ## 0.24.2 (2026-11-02)
 
 ### Changed

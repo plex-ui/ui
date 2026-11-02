@@ -42,6 +42,21 @@ export const sizing = `<Badge color="info" :size="size" :pill="pill">New</Badge>
 
 export const icon = `<Badge color="warning" size="lg"><Flask /> Beta</Badge>`
 
+export const remove = `<div class="flex flex-wrap justify-center gap-2">
+  <Badge
+    v-for="tag in tags"
+    :key="tag"
+    size="xl"
+    pill
+    variant="outline"
+    :remove-label="'Remove ' + tag"
+    @remove="tags = tags.filter((item) => item !== tag)"
+  >
+    {{ tag }}
+  </Badge>
+  <Badge size="xl" pill variant="solid" color="discovery" remove-label="Remove New" @remove="() => {}">New</Badge>
+</div>`
+
 export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
   <LoadingIndicator /> In progress
 </Badge>`
@@ -65,13 +80,19 @@ export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
 ### Size & roundness
 
 <ComponentPreview language="vue" details={<>You can control the size and roundness of the badge with <code>size</code> and <code>pill</code> props. When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the badge.</>} code={sizing} previewMinHeight={120}>
-  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
+  <VueDemo template={sizing} stageClassName="py-10" controls={[{ name: "size", type: "select", options: ["sm", "md", "lg", "xl"], default: "md" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Icon
 
 <ComponentPreview language="vue" details={<>Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.</>} code={icon} previewMinHeight={168}>
   <VueDemo template={icon} />
+</ComponentPreview>
+
+### Remove
+
+<ComponentPreview language="vue" details={<><code>@remove</code> adds a cross at the end, with its own hover and focus. <code>size="xl"</code> has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.</>} code={remove} previewMinHeight={168}>
+  <VueDemo template={remove} stageClassName="py-10 flex justify-center" state={{ tags: ["Oak", "Steel", "Linen"] }} />
 </ComponentPreview>
 
 ### Loading
@@ -84,9 +105,12 @@ export const loading = `<Badge size="lg" color="secondary" class="gap-1.5">
 
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "Content inside the badge" },
+  { prop: "@remove", type: "(event: MouseEvent) => void", description: "Adds a cross at the end of the badge that calls this when pressed" },
+  { prop: "remove-label", type: "string", default: '"Remove"', description: "Accessible name of the cross" },
+  { prop: "removable", type: "boolean", default: "false", description: "Shows the cross as a mark, for a badge inside a control that takes the press" },
   { prop: "color", type: '"secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"', default: '"secondary"', description: "Semantic color" },
   { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"soft"', description: "Style variant" },
-  { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "Badge size" },
+  { prop: "size", type: '"sm" | "md" | "lg" | "xl"', default: '"sm"', description: "Badge size" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
   { prop: "class", type: "string", description: "Class applied to the badge" },
 ]} />
@@ -98,24 +122,32 @@ Badge reads these component tokens. Override them at any scope to restyle it:
 - `--badge-font-size-lg`: font size lg (default `var(--font-text-sm-size)`)
 - `--badge-font-size-md`: font size md (default `var(--font-text-sm-size)`)
 - `--badge-font-size-sm`: font size sm (default `var(--font-text-xs-size)`)
+- `--badge-font-size-xl`: font size xl (default `var(--font-text-sm-size)`)
 - `--badge-font-weight-lg`: font weight lg (default `var(--font-weight-semibold)`)
 - `--badge-font-weight-md`: font weight md (default `var(--font-weight-semibold)`)
 - `--badge-font-weight-sm`: font weight sm (default `var(--font-weight-semibold)`)
+- `--badge-font-weight-xl`: font weight xl (default `var(--font-weight-semibold)`)
 - `--badge-gutter-lg`: gutter lg (default `var(--control-gutter-xs)`)
 - `--badge-gutter-md`: gutter md (default `var(--control-gutter-2xs)`)
 - `--badge-gutter-sm`: gutter sm (default `calc(var(--control-gutter-2xs) - 1px)`)
+- `--badge-gutter-xl`: gutter xl (default `var(--control-gutter-xs)`)
 - `--badge-icon-font-size-lg`: icon font size lg (default `var(--font-text-md-size)`)
 - `--badge-icon-font-size-md`: icon font size md (default `var(--font-text-md-size)`)
 - `--badge-icon-font-size-sm`: icon font size sm (default `var(--font-text-xs-size)`)
+- `--badge-icon-font-size-xl`: icon font size xl (default `var(--font-text-md-size)`)
 - `--badge-indicator-size-lg`: indicator size lg (default `var(--font-text-sm-size)`)
 - `--badge-indicator-size-md`: indicator size md (default `var(--font-text-xs-size)`)
 - `--badge-indicator-size-sm`: indicator size sm (default `var(--font-text-xs-size)`)
+- `--badge-indicator-size-xl`: indicator size xl (default `var(--font-text-sm-size)`)
 - `--badge-radius-lg`: radius lg (default `var(--radius-sm)`)
 - `--badge-radius-md`: radius md (default `var(--radius-xs)`)
 - `--badge-radius-sm`: radius sm (default `var(--radius-xs)`)
+- `--badge-radius-xl`: radius xl (default `var(--radius-md)`)
 - `--badge-size-lg`: size lg (default `var(--control-size-2xs)`)
 - `--badge-size-md`: size md (default `var(--control-size-3xs)`)
 - `--badge-size-sm`: size sm (default `calc(var(--control-size-3xs) - 2px)`)
+- `--badge-size-xl`: size xl (default `2rem`)
 - `--badge-tracking-lg`: tracking lg (default `var(--tracking-normal)`)
 - `--badge-tracking-md`: tracking md (default `var(--tracking-normal)`)
 - `--badge-tracking-sm`: tracking sm (default `var(--tracking-wide)`)
+- `--badge-tracking-xl`: tracking xl (default `var(--tracking-normal)`)

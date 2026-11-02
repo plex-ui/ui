@@ -437,8 +437,11 @@ Props:
   - children (ReactNode) — Content inside the badge
   - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
   - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
-  - size ("sm" | "md" | "lg") default: "sm" — Badge size
+  - size ("sm" | "md" | "lg" | "xl") default: "sm" — Badge size
   - pill (boolean) default: false — Fully rounded
+  - onRemove (MouseEventHandler<HTMLButtonElement>) — Adds a cross at the end of the badge that calls this when pressed
+  - removeLabel (string) default: "Remove" — Accessible name of the cross
+  - removable (boolean) default: false — Shows the cross as a mark, for a badge inside a control that takes the press
   - className (string) — Class applied to the badge
 
 ### Overview
@@ -495,6 +498,20 @@ You can control the size and roundness of the badge with size and pill props. Wh
 Content within the badge can be composed, like showing icons. Color, sizing, and spacing adapt by default.
 ```tsx
 <Badge color="warning" size="lg"><Flask /> Beta</Badge>
+```
+
+### Remove
+onRemove adds a cross at the end, with its own hover and focus. size="xl" has the height of a control, so a row of these stands beside a button. Long text ends in an ellipsis and the cross stays.
+```tsx
+<Badge
+size="xl"
+pill
+variant="outline"
+removeLabel="Remove Oak"
+onRemove={() => remove("oak")}
+>
+Oak
+</Badge>
 ```
 
 ### Loading
@@ -2461,6 +2478,7 @@ Props:
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Other div props reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
+  - action (ReactNode) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it
   - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread
@@ -2564,7 +2582,7 @@ Use row for one line of a block: the label at the start, the control at the end,
 ```
 
 ### Fields in rows
-A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone use variant="ghost": the row is then the frame and the value ends at its edge.
+A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: pill={false} on the control keeps the rounded box. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.
 ```tsx
 <FieldGroup>
 <Field row label="Price">

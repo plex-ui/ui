@@ -16,6 +16,7 @@ import React, {
 } from "react"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
+import { useFieldRowPill } from "../../lib/fieldRow"
 import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
 import { Check, Info, Search } from "../Icon"
 import type { ControlSize } from "../../types"
@@ -151,7 +152,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   variant?: SelectControlProps["variant"]
   /**
    * Determines if the select trigger should be a fully rounded pill shape
-   * @default false
+   * @default false, or true at the end of a `Field row`
    */
   pill?: boolean
   /**
@@ -386,7 +387,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     placeholder = "Select...",
     loadingPlaceholder = "Loading...",
     allSelectedLabel = "All selected",
-    pill = false,
+    pill: pillProp,
     listMinWidth,
     options,
     actions: propActions = [],
@@ -407,6 +408,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     trigger,
     checkPosition = 'start',
   } = props
+  const pill = useFieldRowPill(pillProp)
   // Block default is dynamic, based on `variant`
   const block = props.block ?? variant !== "ghost"
   // Align default is dynamic, based on `block`

@@ -4,9 +4,13 @@ import { h } from "vue"
 import { Field as RField } from "../../packages/ui/src/components/Field"
 import { FieldGroup as RFieldGroup } from "../../packages/ui/src/components/FieldGroup"
 import { Input as RInput } from "../../packages/ui/src/components/Input"
+import { InputGroup as RInputGroup } from "../../packages/ui/src/components/InputGroup"
+import { Select as RSelect } from "../../packages/ui/src/components/Select"
 import { Field } from "../../packages/vue/src/components/Field"
 import { FieldGroup } from "../../packages/vue/src/components/FieldGroup"
 import { Input } from "../../packages/vue/src/components/Input"
+import { InputGroup } from "../../packages/vue/src/components/InputGroup"
+import { Select } from "../../packages/vue/src/components/Select"
 import { renderPair } from "./pair"
 
 // React-vs-Vue parity for a Field row and for FieldGroup.
@@ -42,6 +46,88 @@ describe("Field row", () => {
     )
     expect(off.vue).toBe(off.react)
     expect(off.vue).not.toContain("data-kind")
+  })
+})
+
+describe("Field row action", () => {
+  const reactAction = (row: boolean) =>
+    createElement(
+      RField,
+      { label: "Tags", row, fill: true, action: createElement("button", { type: "button" }, "Add") },
+      createElement("div"),
+    )
+  const vueAction = (row: boolean) =>
+    h(Field, { label: "Tags", row, fill: true }, {
+      default: () => h("div"),
+      action: () => h("button", { type: "button" }, "Add"),
+    })
+
+  test("stands in the row", async () => {
+    const pair = await renderPair(reactAction(true), () => vueAction(true))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).toMatch(/<button[^>]*>\s*"Add"/)
+  })
+
+  test("is for a row only", async () => {
+    const pair = await renderPair(reactAction(false), () => vueAction(false))
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).not.toContain("Add")
+  })
+})
+
+describe("Field row shape", () => {
+  const options = [{ value: "en", label: "English" }]
+  const render = (field: Record<string, unknown>, control: Record<string, unknown> = {}) =>
+    renderPair(
+      createElement(RField, { label: "Name", ...field }, createElement(RInput, control)),
+      () => h(Field, { label: "Name", ...field }, () => h(Input, control)),
+    )
+  const renderSelect = (field: Record<string, unknown>) =>
+    renderPair(
+      createElement(RField, { label: "Language", ...field }, createElement(RSelect, { value: "en", options, onChange: () => {} })),
+      () => h(Field, { label: "Language", ...field }, () => h(Select, { value: "en", options })),
+    )
+
+  test("the end of a row is a pill", async () => {
+    const pair = await render({ row: true })
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).toContain("data-pill")
+  })
+
+  test("a Select takes it too", async () => {
+    const row = await renderSelect({ row: true })
+    expect(row.react).toContain("data-pill")
+    expect(row.vue).toContain("data-pill")
+    const plain = await renderSelect({})
+    expect(plain.react).not.toContain("data-pill")
+    expect(plain.vue).not.toContain("data-pill")
+  })
+
+  test("an InputGroup takes it too", async () => {
+    const pair = await renderPair(
+      createElement(RField, { label: "Price", row: true }, createElement(RInputGroup, {}, createElement("input"))),
+      () => h(Field, { label: "Price", row: true }, () => h(InputGroup, {}, () => h("input"))),
+    )
+    expect(pair.react).toContain("data-pill")
+    expect(pair.vue).toContain("data-pill")
+  })
+
+  test("the control's own pill wins", async () => {
+    const pair = await render({ row: true }, { pill: false })
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).not.toContain("data-pill")
+  })
+
+  test("a label above stays rounded", async () => {
+    const pair = await render({ row: true, orientation: "vertical" })
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).not.toContain("data-pill")
+  })
+
+  test("a field outside a row stays rounded", async () => {
+    const pair = await render({})
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.vue).not.toContain("data-pill")
   })
 })
 

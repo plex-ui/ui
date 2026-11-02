@@ -38,6 +38,7 @@ import {
 } from "reka-ui"
 import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { useFieldRowPill } from "../../lib/fieldRow.js"
 import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
@@ -163,8 +164,8 @@ const selectProps = {
   loading: { type: Boolean, default: false },
   /** Style variant for the select trigger. @default "outline" */
   variant: { type: String as PropType<"soft" | "outline" | "ghost">, default: "outline" },
-  /** Fully rounded pill shape for the trigger. @default false */
-  pill: { type: Boolean, default: false },
+  /** Fully rounded pill shape for the trigger. @default false, or true at the end of a `Field row` */
+  pill: { type: Boolean, default: undefined },
   /** Size of the trigger: `3xs` 22px up to `3xl` 48px. @default "md" */
   size: { type: String as PropType<ControlSize>, default: "md" },
   /** Icon displayed in the far right of the select trigger. @default "dropdown" */
@@ -236,7 +237,7 @@ type SelectPropsValue = {
   allSelectedLabel: string
   loading: boolean
   variant: "soft" | "outline" | "ghost"
-  pill: boolean
+  pill?: boolean
   size: ControlSize
   dropdownIconType: DropdownIconType
   actions?: SelectAction[]
@@ -284,6 +285,8 @@ type SelectContextValue = {
   /** The default trigger's element (React looks it up by `triggerId`) */
   triggerEl: ShallowRef<HTMLElement | null>
   block: ComputedRef<boolean>
+  /** The prop, or else the shape of the `Field row` around the Select */
+  pill: ComputedRef<boolean>
   align: ComputedRef<PopoverAlign>
   alignOffset: ComputedRef<number>
   listWidth: ComputedRef<ListSize | undefined>
@@ -392,6 +395,7 @@ const SelectComponent = defineComponent({
   emits: ["update:value", "change"],
   setup(rawProps, { emit, slots }) {
     const props = rawProps as unknown as SelectPropsValue
+    const pill = useFieldRowPill(() => props.pill)
     // Block default is dynamic, based on `variant`
     const block = computed(() => props.block ?? props.variant !== "ghost")
     // Align default is dynamic, based on `block`
@@ -469,6 +473,7 @@ const SelectComponent = defineComponent({
       triggerId: `select-trigger-${useId()}`,
       triggerEl: shallowRef(null),
       block,
+      pill,
       align,
       alignOffset,
       listWidth,
@@ -495,7 +500,7 @@ const SelectTrigger = defineComponent({
     onOpenChange: Function as PropType<(maybeNextState?: boolean) => void>,
   },
   setup(ownProps, { attrs }) {
-    const { props, slots, slotsVersion, triggerId, triggerEl, block, onSelect } = useSelectContext()
+    const { props, slots, slotsVersion, triggerId, triggerEl, block, pill, onSelect } = useSelectContext()
     const typeahead = createTypeahead()
 
     const setTriggerEl = (instance: unknown) => {
@@ -572,7 +577,7 @@ const SelectTrigger = defineComponent({
           "class": props.triggerClassName,
           "selected": !isPlaceholder,
           "variant": props.variant,
-          "pill": props.pill,
+          "pill": pill.value,
           "block": block.value,
           "size": props.size,
           "disabled": props.disabled,
@@ -831,7 +836,7 @@ const SelectContentElement = markRaw(
 const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
-    const { props, align, alignOffset, listWidth, listMaxWidth } = useSelectContext()
+    const { props, align, alignOffset, listWidth, listMaxWidth, pill } = useSelectContext()
     const { handleRootOpenChange, popoverTriggerEl } = inject(CustomSelectContextKey)!
     // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
     const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
@@ -847,7 +852,7 @@ const SelectPopoverContent = defineComponent({
           forceMount: true,
           as: SelectContentElement,
           class: s.MenuList,
-          "data-pill": props.pill ? "" : undefined,
+          "data-pill": pill.value ? "" : undefined,
           side: props.side,
           sideOffset: 5,
           align: align.value,

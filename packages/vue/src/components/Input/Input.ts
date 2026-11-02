@@ -3,6 +3,7 @@ import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch,
 import type { ControlSize, SemanticColor, Sizes, Variants } from "@plexui/styles/types"
 import { X } from "../Icon/index.js"
 import { vDefaultValue } from "../../lib/defaultValue.js"
+import { useFieldRowPill } from "../../lib/fieldRow.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Input/Input.module.css"
 
@@ -46,7 +47,7 @@ const InputComponent = defineComponent({
     autoSelect: { type: Boolean, default: undefined },
     /** Shows the clear button while the input has a value; called when it is clicked. */
     onClear: Function as PropType<(event: MouseEvent) => void>,
-    /** Fully rounded pill shape. @default false */
+    /** Fully rounded pill shape. @default false, or true at the end of a `Field row` */
     pill: { type: Boolean, default: undefined },
     /** Applies a negative margin using the current gutter to optically align the input with surrounding content. */
     opticallyAlign: String as PropType<"start" | "end">,
@@ -70,6 +71,7 @@ const InputComponent = defineComponent({
     // Prevent 1Password from appearing: 1Password won't display if it thinks this field is for searching
     // Allow user to override this for connecting to labels.
     const onePasswordPreventionId = `search-ui-input-${useId()}`
+    const pill = useFieldRowPill(() => props.pill)
     const focused = ref(false)
 
     // Redirect clicks on the container and adornments
@@ -189,7 +191,7 @@ const InputComponent = defineComponent({
           "data-disabled": disabled ? "" : undefined,
           "data-readonly": readOnly ? "" : undefined,
           "data-invalid": props.invalid ? "" : undefined,
-          "data-pill": props.pill ? "" : undefined,
+          "data-pill": pill.value ? "" : undefined,
           "data-optically-align": props.opticallyAlign,
           "data-has-start-adornment": hasStartAdornment ? "" : undefined,
           "data-has-end-adornment": hasEndAdornment || showClearButton ? "" : undefined,

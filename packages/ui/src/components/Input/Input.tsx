@@ -3,6 +3,7 @@
 import clsx from "clsx"
 import { useEffect, useId, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
+import { useFieldRowPill } from "../../lib/fieldRow"
 import { type ControlSize, type SemanticColor, type Sizes, type Variants } from "../../types"
 import { X } from "../Icon"
 import s from "@plexui/styles/components/Input/Input.module.css"
@@ -64,7 +65,7 @@ export type InputProps = {
   onClear?: () => void
   /**
    * Determines if the button should be a fully rounded pill shape
-   * @default false
+   * @default false, or true at the end of a `Field row`
    */
   pill?: boolean
   /**
@@ -104,13 +105,14 @@ const InputRoot = (props: InputProps) => {
     startAdornment: StartAdornment,
     endAdornment: EndAdornment,
     onClear,
-    pill,
+    pill: pillProp,
     opticallyAlign,
     ref,
     value,
     defaultValue,
     ...restProps
   } = props
+  const pill = useFieldRowPill(pillProp)
 
   // Determine if clear button should be shown
   const hasValue = value !== undefined ? !!value : !!defaultValue

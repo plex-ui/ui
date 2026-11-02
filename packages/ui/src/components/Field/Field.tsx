@@ -3,6 +3,7 @@
 import clsx from "clsx"
 import { cloneElement, isValidElement, useId } from "react"
 
+import { FieldRowContext } from "../../lib/fieldRow"
 import type { ControlSize } from "../../types"
 import { FieldError } from "../FieldError"
 
@@ -41,6 +42,12 @@ export type FieldProps = {
    */
   labelAction?: React.ReactNode
   /**
+   * On a `fill` row, a control at the end of the row, such as a button that adds
+   * to a list. It stays on the list's first line, and on a phone it stands beside
+   * the label with the list on a line of its own.
+   */
+  action?: React.ReactNode
+  /**
    * Controls the font size of the label to visually match the child control's size.
    * Matches the ControlSize scale used by Input, Select, etc.
    * @default the child control's `size`, else "md"
@@ -63,6 +70,7 @@ export type FieldProps = {
    * One line of a FieldGroup: label at the start, control at the end, an error
    * under both. Other div props reach the root only on a row, so it can carry
    * a click or data attributes.
+   * A control at the end of the row is a pill unless its own `pill` says otherwise.
    * @default false
    */
   row?: boolean
@@ -105,6 +113,7 @@ export function Field({
   description,
   errorMessage,
   labelAction,
+  action,
   size: sizeProp,
   required = false,
   orientation: orientationProp,
@@ -176,36 +185,39 @@ export function Field({
   )
 
   return (
-    <div
-      {...(row ? rest : undefined)}
-      className={clsx(s.Field, className)}
-      data-size={size}
-      data-orientation={orientation}
-      data-optically-align={opticallyAlign}
-      data-row={row ? "" : undefined}
-      data-fill={fill ? "" : undefined}
-    >
-      <div className={s.LabelGroup}>
-        {labelAction ? (
-          <div className={s.LabelRow}>
-            {labelElement}
-            <div className={s.LabelAction}>{labelAction}</div>
-          </div>
-        ) : (
-          labelElement
-        )}
-        {description && (
-          <div className={s.Description} id={descriptionId}>
-            {description}
-          </div>
-        )}
+    <FieldRowContext.Provider value={row && orientation === "horizontal"}>
+      <div
+        {...(row ? rest : undefined)}
+        className={clsx(s.Field, className)}
+        data-size={size}
+        data-orientation={orientation}
+        data-optically-align={opticallyAlign}
+        data-row={row ? "" : undefined}
+        data-fill={fill ? "" : undefined}
+      >
+        <div className={s.LabelGroup}>
+          {labelAction ? (
+            <div className={s.LabelRow}>
+              {labelElement}
+              <div className={s.LabelAction}>{labelAction}</div>
+            </div>
+          ) : (
+            labelElement
+          )}
+          {description && (
+            <div className={s.Description} id={descriptionId}>
+              {description}
+            </div>
+          )}
+        </div>
+        <div className={s.Content}>
+          <div className={s.Control}>{resolvedChildren}</div>
+          {errorMessage && (
+            <FieldError id={errorId}>{errorMessage}</FieldError>
+          )}
+        </div>
+        {row && action ? <div className={s.Action}>{action}</div> : null}
       </div>
-      <div className={s.Content}>
-        <div className={s.Control}>{resolvedChildren}</div>
-        {errorMessage && (
-          <FieldError id={errorId}>{errorMessage}</FieldError>
-        )}
-      </div>
-    </div>
+    </FieldRowContext.Provider>
   )
 }

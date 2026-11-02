@@ -4,6 +4,7 @@
   display: inline-flex;
   align-items: center;
   gap: spacing(1);
+  max-width: 100%;
   height: var(--badge-size);
   padding: 0 var(--badge-gutter);
   border-radius: var(--badge-radius);
@@ -184,6 +185,17 @@
     --badge-indicator-size: var(--badge-indicator-size-lg);
   }
 
+  &:where([data-size="xl"]) {
+    --badge-size: var(--badge-size-xl);
+    --badge-gutter: var(--badge-gutter-xl);
+    --badge-font-size: var(--badge-font-size-xl);
+    --badge-font-weight: var(--badge-font-weight-xl);
+    --badge-tracking: var(--badge-tracking-xl);
+    --badge-radius: var(--badge-radius-xl);
+    --badge-icon-font-size: var(--badge-icon-font-size-xl);
+    --badge-indicator-size: var(--badge-indicator-size-xl);
+  }
+
   /* =============================================
     Pill
   ============================================= */
@@ -191,5 +203,63 @@
     --badge-radius: var(--radius-full);
 
     padding: 0 calc(var(--badge-gutter) * var(--control-gutter-pill-scaling));
+  }
+}
+
+/* =============================================
+  Remove
+============================================= */
+.Badge:has(> .Remove) > span:not(.Remove) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Remove {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-inline: 2px -6px;
+  border-radius: 50%;
+  opacity: 0.6;
+
+  svg {
+    font-size: 14px;
+  }
+
+  /* The press reaches past the mark, more where a finger does the pressing */
+  &:where(button)::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+  }
+
+  @media (hover: none) {
+    &:where(button)::after {
+      inset: -16px -8px;
+    }
+  }
+
+  &:where(button) {
+    @mixin hover {
+      background: color-mix(in srgb, var(--color-text) 8%, transparent);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-ring);
+      outline-offset: 2px;
+      opacity: 1;
+    }
+  }
+}
+
+.Badge[data-variant="solid"] .Remove:where(button) {
+  @mixin hover {
+    background: color-mix(in srgb, currentColor 20%, transparent);
   }
 }

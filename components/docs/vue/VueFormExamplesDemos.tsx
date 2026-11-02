@@ -5,6 +5,7 @@ import { defineComponent, h, markRaw, ref, type FunctionalComponent } from 'vue'
 import { Button } from '@plexui/vue/components/Button';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
 import { ChevronDown, X } from '@plexui/vue/components/Icon';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import {
   COUNTRIES,
   COUNTRY_LOOKUP,
@@ -335,7 +336,9 @@ export const formExamplesScope = {
   },
 };
 
-/** A VueDemo whose template can use the helpers above. */
+/** A VueDemo whose template can use the helpers above, and `wide` as `useBreakpoint("md")` gives it. */
 export function VueFormExampleDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
-  return <VueDemo {...props} state={{ ...formExamplesScope, ...state }} />;
+  const wide = useBreakpoint('md');
+
+  return <VueDemo key={String(wide)} {...props} state={{ ...formExamplesScope, ...state, wide }} />;
 }

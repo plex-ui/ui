@@ -28,7 +28,7 @@ const labelStyle: React.CSSProperties = {
   fontSize: '0.875rem',
 };
 
-const SIZES = ['sm', 'md', 'lg'] as const;
+const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
 const VARIANTS = ['soft', 'solid', 'outline'] as const;
 const COLORS = [
   'secondary',
@@ -140,5 +140,31 @@ export function BadgeSizingDemo() {
         </Badge>
       </div>
     </>
+  );
+}
+
+export function BadgeRemoveDemo() {
+  const [tags, setTags] = useState(['Oak', 'Steel', 'Linen']);
+
+  return (
+    <div data-demo-stage className="flex justify-center py-10">
+      <div className="flex flex-wrap justify-center gap-2">
+        {tags.map((tag) => (
+          <Badge
+            key={tag}
+            size="xl"
+            pill
+            variant="outline"
+            removeLabel={`Remove ${tag}`}
+            onRemove={() => setTags(tags.filter((item) => item !== tag))}
+          >
+            {tag}
+          </Badge>
+        ))}
+        <Badge size="xl" pill variant="solid" color="discovery" removeLabel="Remove New" onRemove={() => {}}>
+          New
+        </Badge>
+      </div>
+    </div>
   );
 }

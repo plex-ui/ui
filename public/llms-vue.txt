@@ -97,12 +97,15 @@ Import: import { Badge } from "@plexui/vue/components/Badge"
 Docs: https://plexui.com/vue/components/badge
 Props:
   - default slot (VNode[]) — Content inside the badge
+  - @remove ((event: MouseEvent) => void) — Adds a cross at the end of the badge that calls this when pressed
+  - remove-label (string) default: "Remove" — Accessible name of the cross
+  - removable (boolean) default: false — Shows the cross as a mark, for a badge inside a control that takes the press
   - color ("secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution") default: "secondary" — Semantic color
   - variant ("solid" | "soft" | "outline") default: "soft" — Style variant
-  - size ("sm" | "md" | "lg") default: "sm" — Badge size
+  - size ("sm" | "md" | "lg" | "xl") default: "sm" — Badge size
   - pill (boolean) default: false — Fully rounded
   - class (string) — Class applied to the badge
-Examples: Overview, Colors & variants, Size & roundness, Icon, Loading
+Examples: Overview, Colors & variants, Size & roundness, Icon, Remove, Loading
 
 ## Breadcrumb
 The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
@@ -384,6 +387,7 @@ Props:
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
+  - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element

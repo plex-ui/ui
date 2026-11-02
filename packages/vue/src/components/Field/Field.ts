@@ -18,6 +18,7 @@ import {
 } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
 import { FieldError } from "../FieldError/index.js"
+import { provideFieldRow } from "../../lib/fieldRow.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Field/Field.module.css"
 
@@ -195,11 +196,15 @@ const FieldComponent = defineComponent({
     default?: (fieldProps: FieldChildProps) => VNodeChild
     label?: () => VNodeChild
     labelAction?: () => VNodeChild
+    /** On a `fill` row, a control at the end of the row, such as a button that adds to a list. */
+    action?: () => VNodeChild
     description?: () => VNodeChild
     errorMessage?: () => VNodeChild
   }>,
   setup(props, { attrs, slots }) {
     const generatedId = useId()
+
+    provideFieldRow(() => !!props.row && (props.orientation ?? "horizontal") === "horizontal")
 
     return () => {
       const { required, row, opticallyAlign } = props
@@ -271,6 +276,7 @@ const FieldComponent = defineComponent({
             h("div", { class: s.Control }, resolvedChildren),
             hasError ? h(FieldError, { id: errorId }, () => [errorMessage as VNodeChild]) : null,
           ]),
+          row && slots.action ? h("div", { class: s.Action }, [slots.action()]) : null,
         ],
       )
     }

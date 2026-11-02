@@ -83,6 +83,18 @@
     --field-row-label-font-weight: var(--font-weight-normal);
     --field-row-description-font-size: 15px;
     --field-row-description-line-height: 20px;
+    --field-row-above-font-size: 15px;
+    --field-row-above-line-height: 20px;
+    --field-row-above-font-weight: var(--font-weight-normal);
+    --field-row-above-gap: 8px;
+    --field-row-above-padding-block: 12px;
+    --field-row-list-padding-block: 12px;
+    --field-row-list-row-gap: 6px;
+    --field-row-action-size: 34px;
+    --field-row-action-font-size: 15px;
+    --field-row-action-font-weight: var(--font-weight-normal);
+
+    --badge-size-xl: 36px;
 
     --field-group-radius: 26px;
     --field-group-border-width: 0;
@@ -110,13 +122,17 @@
     --segmented-control-font-size: 15px;
   }
 
-  html [data-slot="input"] {
-    --input-font-size: 17px;
-    --input-gutter: 14px;
-  }
+  /* In the kit's layer: outside it these beat every kit rule, and the bare field
+     of a form row would keep a gutter its label does not have. */
+  @layer components {
+    html [data-slot="input"] {
+      --input-font-size: 17px;
+      --input-gutter: 14px;
+    }
 
-  html [data-slot="input"][data-has-start-adornment] {
-    --input-gutter: 11px;
+    html [data-slot="input"][data-has-start-adornment] {
+      --input-gutter: 11px;
+    }
   }
 
   html [role="menu"] {
