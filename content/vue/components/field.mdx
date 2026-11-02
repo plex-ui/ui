@@ -63,6 +63,22 @@ export const orientation = `<div class="w-full max-w-[480px] flex flex-col gap-4
   </Field>
 </div>`
 
+export const rowFields = `<div class="w-full max-w-[480px]">
+  <FieldGroup>
+    <Field row label="Price">
+      <Input default-value="11" inputmode="decimal">
+        <template #endAdornment>€</template>
+      </Input>
+    </Field>
+    <Field row label="Weight" description="Shown beside the name.">
+      <Input default-value="250" inputmode="decimal" />
+    </Field>
+    <Field row label="Unit">
+      <Select v-model:value="unit" :block="false" :options="units" />
+    </Field>
+  </FieldGroup>
+</div>`
+
 export const rows = `<div class="w-full max-w-[480px]">
   <FieldGroup title="Notifications" description="How we reach you.">
     <Field row label="Email updates">
@@ -748,6 +764,12 @@ export const birthdaySelect = `<div class="w-[320px]">
   <VueDemo template={rows} stageClassName="py-10" />
 </ComponentPreview>
 
+### Fields in rows
+
+<ComponentPreview language="vue" details={<>A field keeps its frame in a row. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone use <code>variant="ghost"</code>: the row is then the frame and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
+  <VueDemo template={rowFields} state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
+</ComponentPreview>
+
 ### Textarea
 
 <ComponentPreview language="vue" code={textarea} previewMinHeight={168}>
@@ -916,6 +938,7 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-horizontal-control-width`: horizontal control width (default `240px`)
 - `--field-horizontal-label-width`: horizontal label width (default `120px`)
 - `--field-label-font-weight`: label font weight (default `var(--font-weight-medium)`)
+- `--field-row-control-width`: width of a framed field in a row (default `160px`)
 - `--field-row-description-font-size`: description size on a row (default `var(--font-text-sm-size)`)
 - `--field-row-description-line-height`: description line height on a row (default `var(--font-text-sm-line-height)`)
 - `--field-row-gap`: space between label and control (default `24px`)

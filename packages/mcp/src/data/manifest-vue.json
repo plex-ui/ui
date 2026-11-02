@@ -2260,6 +2260,11 @@
           "details": "Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone."
         },
         {
+          "name": "Fields in rows",
+          "code": "<div class=\"w-full max-w-[480px]\">\n  <FieldGroup>\n    <Field row label=\"Price\">\n      <Input default-value=\"11\" inputmode=\"decimal\">\n        <template #endAdornment>€</template>\n      </Input>\n    </Field>\n    <Field row label=\"Weight\" description=\"Shown beside the name.\">\n      <Input default-value=\"250\" inputmode=\"decimal\" />\n    </Field>\n    <Field row label=\"Unit\">\n      <Select v-model:value=\"unit\" :block=\"false\" :options=\"units\" />\n    </Field>\n  </FieldGroup>\n</div>",
+          "details": "A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block=\"false\", and every control ends on the edge of the row. On a phone use variant=\"ghost\": the row is then the frame and the value ends at its edge."
+        },
+        {
           "name": "Textarea",
           "code": "<div class=\"w-[320px]\">\n  <Field label=\"Bio\" description=\"Write a short bio for your profile.\">\n    <Textarea placeholder=\"Tell us about yourself...\" :rows=\"3\" />\n  </Field>\n</div>"
         },
@@ -7060,5 +7065,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T14:38:57.511Z"
+  "generatedAt": "2026-11-02T15:34:02.531Z"
 }

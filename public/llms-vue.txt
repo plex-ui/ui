@@ -394,7 +394,7 @@ Props:
     - default slot (VNode) — The rows
     - action slot (VNode) — Content at the end of the header
     - footer slot (VNode) — Content under the block
-Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Rows, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
+Examples: Overview, With description, With error message, Required, Sizing, Horizontal layout, Rows, Fields in rows, Textarea, Select, Label action, Slider, Fieldset, Checkbox, Radio, Switch, Stacked fields, Validation and Errors, Optical alignment, Form example, Profile settings, Create project, Field configuration, Birthday input, Birthday with validation, Birthday segmented input, Birthday with selects
 
 ## File Upload
 Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.

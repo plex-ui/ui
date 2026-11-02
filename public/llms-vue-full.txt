@@ -2518,6 +2518,26 @@ Use row for one line of a block: the label at the start, the control at the end,
 </div>
 ```
 
+### Fields in rows
+A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block="false", and every control ends on the edge of the row. On a phone use variant="ghost": the row is then the frame and the value ends at its edge.
+```vue
+<div class="w-full max-w-[480px]">
+  <FieldGroup>
+    <Field row label="Price">
+      <Input default-value="11" inputmode="decimal">
+        <template #endAdornment>€</template>
+      </Input>
+    </Field>
+    <Field row label="Weight" description="Shown beside the name.">
+      <Input default-value="250" inputmode="decimal" />
+    </Field>
+    <Field row label="Unit">
+      <Select v-model:value="unit" :block="false" :options="units" />
+    </Field>
+  </FieldGroup>
+</div>
+```
+
 ### Textarea
 ```vue
 <div class="w-[320px]">

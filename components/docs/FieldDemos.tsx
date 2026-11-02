@@ -185,6 +185,34 @@ export function FieldRowsDemo() {
   );
 }
 
+export function FieldRowFieldsDemo() {
+  const [unit, setUnit] = useState('ml');
+
+  return (
+    <div className="w-full max-w-[480px]">
+      <FieldGroup>
+        <Field row label="Price">
+          <Input defaultValue="11" endAdornment="€" inputMode="decimal" />
+        </Field>
+        <Field row label="Weight" description="Shown beside the name.">
+          <Input defaultValue="250" inputMode="decimal" />
+        </Field>
+        <Field row label="Unit">
+          <Select
+            block={false}
+            options={[
+              { value: 'ml', label: 'Millilitres' },
+              { value: 'g', label: 'Grams' },
+            ]}
+            value={unit}
+            onChange={(option) => setUnit(option.value)}
+          />
+        </Field>
+      </FieldGroup>
+    </div>
+  );
+}
+
 export function FieldOrientationDemo() {
   const [orientation, setOrientation] = useState<'vertical' | 'horizontal'>('horizontal');
   return (

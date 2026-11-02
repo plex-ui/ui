@@ -2562,6 +2562,22 @@ Use row for one line of a block: the label at the start, the control at the end,
 </FieldGroup>
 ```
 
+### Fields in rows
+A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone use variant="ghost": the row is then the frame and the value ends at its edge.
+```tsx
+<FieldGroup>
+<Field row label="Price">
+  <Input defaultValue="11" endAdornment="€" />
+</Field>
+<Field row label="Weight" description="Shown beside the name.">
+  <Input defaultValue="250" />
+</Field>
+<Field row label="Unit">
+  <Select block={false} options={units} value={unit} onChange={setUnit} />
+</Field>
+</FieldGroup>
+```
+
 ### Textarea
 ```tsx
 <div className="w-[320px]">

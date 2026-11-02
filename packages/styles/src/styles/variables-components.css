@@ -238,6 +238,7 @@
     --field-row-text-padding-block: 10px;
     --field-row-padding-inline: 16px;
     --field-row-gap: 24px;
+    --field-row-control-width: 160px;
     --field-row-row-gap: 2px;
     --field-row-text-display: flex;
     --field-row-label-font-size: var(--font-text-sm-size);

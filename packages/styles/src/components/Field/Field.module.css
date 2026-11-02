@@ -283,6 +283,15 @@
   justify-self: stretch;
 }
 
+/* A framed field in a row: its width cannot follow what is typed, so it has one.
+   A ghost has the row for its frame, a Select follows its value. */
+.Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
+    [data-variant]:not([data-variant="ghost"]) > input,
+    [data-variant]:not([data-variant="ghost"]) > textarea
+  ) {
+  width: var(--field-row-control-width);
+}
+
 /* A ghost field in a row: the row is its frame. Beside the label the value takes
    the rest of the line and ends at the row's edge, under it the value starts
    where the label does. An error is the line of words under both, not a frame. */
