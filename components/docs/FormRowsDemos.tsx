@@ -185,7 +185,7 @@ export function FormRowsProductDemo() {
           <Field row label="Category">
             <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} variant="soft" block={false} align="end" />
           </Field>
-          <Field row orientation="vertical" label="Tags">
+          <Field row fill label="Tags">
             <TagInput value={tags} onChange={setTags} variant="ghost" size="md" placeholder="Add a tag" />
           </Field>
           <Field row label="In stock">

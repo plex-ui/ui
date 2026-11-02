@@ -569,7 +569,7 @@ export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6
     <Field row label="Category">
       <Select v-model:value="category" :options="categories" variant="soft" :block="false" align="end" />
     </Field>
-    <Field row orientation="vertical" label="Tags">
+    <Field row fill label="Tags">
       <TagInput v-model:value="tags" variant="ghost" size="md" placeholder="Add a tag" />
     </Field>
     <Field row label="In stock"><Switch default-checked /></Field>
