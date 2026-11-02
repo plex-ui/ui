@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.21.0 (2026-11-02)
+
+### Added
+
+- `Sortable`: reorders a list by dragging. Rows of a `FieldGroup`, table rows, images, tags and cards. The order changes on the drop: a chip at the cursor, a line at the gap, a hold on touch, arrow keys on `Sortable.Handle`, Esc to cancel. Grips are hidden, except in a table; `handles` sets it.
+- `Textarea` and `TagInput` take `variant="ghost"`: no frame, for a field that a row of a group already frames.
+- Form Examples: groups of rows with inputs, mixed controls, choices, actions and errors.
+
+### Changed
+
+- `RadioGroup.Item` works inside a `Field`: `id` and the `aria` names reach the radio, the label is optional, and the field's label selects it.
+- `Field row` with a ghost `Input` or `Textarea`: the value ends at the row's edge and takes the rest of the line, under the label it starts where the label does, and an error is a line of words without a frame.
+
 ## 0.20.16 (2026-11-02)
 
 ### Changed

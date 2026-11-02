@@ -46,6 +46,7 @@ const componentLinks: FooterLink[] = [
   { label: 'Sidebar', href: '/components/sidebar' },
   { label: 'Skeleton', href: '/components/skeleton' },
   { label: 'Slider', href: '/components/slider' },
+  { label: 'Sortable', href: '/components/sortable' },
   { label: 'Stat Card', href: '/components/stat-card' },
   { label: 'Switch', href: '/components/switch' },
   { label: 'Table', href: '/components/table' },

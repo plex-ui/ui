@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 50,
+  "componentCount": 51,
   "components": [
     {
       "slug": "accordion",
@@ -5436,6 +5436,101 @@
       "docsUrl": "https://plexui.com/components/slider"
     },
     {
+      "slug": "sortable",
+      "name": "Sortable",
+      "description": "\"Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop.\"",
+      "props": [
+        {
+          "name": "value",
+          "type": "T[]",
+          "description": "The list, in the order of the children"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: T[]) => void",
+          "description": "Called with the new order after a drop"
+        },
+        {
+          "name": "layout",
+          "type": "'list' | 'grid'",
+          "default": "list",
+          "description": "list for rows one under another, grid for items that stand side by side"
+        },
+        {
+          "name": "as",
+          "type": "ElementType",
+          "default": "div",
+          "description": "Element to render, such as TableBody for table rows"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Turns dragging off"
+        },
+        {
+          "name": "handles",
+          "type": "boolean",
+          "default": "true in a table, otherwise false",
+          "description": "Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control"
+        },
+        {
+          "name": "children",
+          "type": "ReactNode",
+          "description": "The items: one direct child per entry of value, keyed by the entry and not by its index"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "Reorder",
+          "description": "Name of the handle for assistive technology"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Rows",
+          "code": "const [rows, setRows] = useState(sections);\n\n<FieldGroup title=\"Home screen\">\n<Sortable value={rows} onChange={setRows}>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label} description={row.description}>\n        <Switch defaultChecked />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
+          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap."
+        },
+        {
+          "name": "Rows with a handle",
+          "code": "<FieldGroup title=\"Contact details\">\n<Sortable value={rows} onChange={setRows} handles>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label}>\n        <Input variant=\"ghost\" defaultValue={row.value} />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
+          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row."
+        },
+        {
+          "name": "Stacked rows",
+          "code": "<FieldGroup title=\"Questions\">\n<Sortable value={rows} onChange={setRows}>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.question}`} />\n      <Field row orientation=\"vertical\" label={row.question}>\n        <Textarea variant=\"ghost\" rows={1} autoResize defaultValue={row.answer} />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
+          "details": "A long value under its label sorts the same way."
+        },
+        {
+          "name": "Different controls",
+          "code": "<Sortable value={rows} onChange={setRows}>\n{rows.map((row) => (\n  <div key={row.id} data-row>\n    <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n    <Field row label={row.label}>{controls[row.id]}</Field>\n  </div>\n))}\n</Sortable>",
+          "details": "The kind of control does not matter: each row keeps its state when it moves."
+        },
+        {
+          "name": "Table",
+          "code": "<Table>\n<TableHeader>\n  <TableRow>\n    <TableHead className=\"w-10\" aria-label=\"Order\" />\n    <TableHead>Product</TableHead>\n    <TableHead>SKU</TableHead>\n    <TableHead>Stock</TableHead>\n    <TableHead className=\"text-end\">Price</TableHead>\n  </TableRow>\n</TableHeader>\n<Sortable as={TableBody} value={rows} onChange={setRows}>\n  {rows.map((row) => (\n    <TableRow key={row.id}>\n      <TableCell><Sortable.Handle aria-label={`Reorder ${row.name}`} /></TableCell>\n      <TableCell>{row.name}</TableCell>\n      <TableCell>{row.sku}</TableCell>\n      <TableCell>{row.stock}</TableCell>\n      <TableCell className=\"text-end\">{row.price}</TableCell>\n    </TableRow>\n  ))}\n</Sortable>\n</Table>",
+          "details": "Pass as={\"{TableBody}\"} and the rows sort inside the table. Columns keep their width. Grips show here without handles."
+        },
+        {
+          "name": "Images",
+          "code": "<Sortable value={pictures} onChange={setPictures} layout=\"grid\" className=\"grid grid-cols-3 gap-3\">\n{pictures.map((picture) => (\n  <div key={picture.id} tabIndex={0} className=\"aspect-square overflow-hidden rounded-xl\">\n    <img src={picture.src} alt={picture.alt} className=\"block size-full object-cover\" />\n  </div>\n))}\n</Sortable>",
+          "details": "layout=\"grid\" for items side by side: the line stands between two items, and the chip shows the picture. With tabIndex an item takes the arrow keys itself."
+        },
+        {
+          "name": "Tags",
+          "code": "<Sortable value={tags} onChange={setTags} layout=\"grid\" className=\"flex flex-wrap gap-2\">\n{tags.map((tag) => (\n  <div key={tag} tabIndex={0} className=\"rounded-full\">\n    <Badge color=\"secondary\" size=\"lg\" pill>{tag}</Badge>\n  </div>\n))}\n</Sortable>",
+          "details": "The grid layout also fits a line that wraps: the end of one line and the start of the next are separate places to land."
+        },
+        {
+          "name": "Cards",
+          "code": "<Sortable value={cards} onChange={setCards} layout=\"grid\" className=\"grid grid-cols-2 gap-3\">\n{cards.map((card) => (\n  <div key={card.label} tabIndex={0} className=\"rounded-xl\">\n    <StatCard label={card.label} value={card.value} />\n  </div>\n))}\n</Sortable>",
+          "details": "Any element can be an item, such as a StatCard."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/sortable"
+    },
+    {
       "slug": "stat-card",
       "name": "Stat Card",
       "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
@@ -6772,5 +6867,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T08:42:36.562Z"
+  "generatedAt": "2026-11-02T10:57:15.235Z"
 }

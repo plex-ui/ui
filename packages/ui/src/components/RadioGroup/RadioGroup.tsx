@@ -87,7 +87,13 @@ export type RadioGroupItemProps<T extends string> = {
    * @default "left"
    */
   orientation?: "left" | "right"
-  children: React.ReactNode
+  /** Id of the radio, so a label outside the item can target it with `htmlFor` */
+  id?: string
+  "aria-label"?: string
+  "aria-labelledby"?: string
+  "aria-describedby"?: string
+  /** The option's label. Leave it out when a `Field` around the item names it. */
+  children?: React.ReactNode
   /** Optional second line below the option's label. Linked via `aria-describedby`. */
   description?: React.ReactNode
 }
@@ -101,13 +107,18 @@ const Item = <T extends string>({
   className,
   block = false,
   orientation = "left",
+  id: idProp,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
   ...restProps
 }: RadioGroupItemProps<T>) => {
   const { disabled: groupDisabled } = useRadioGroupContext()
   const disabled = groupDisabled || itemDisabled
 
   const id = useId()
-  const itemId = `${value}-${id}`
+  // These name the radio itself: a `Field` around the item labels it through them
+  const itemId = idProp ?? `${value}-${id}`
   const descriptionId = description ? `${itemId}-description` : undefined
 
   const label = (
@@ -128,7 +139,9 @@ const Item = <T extends string>({
           disabled={disabled}
           required={required}
           className={s.RadioItem}
-          aria-describedby={descriptionId}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby={[descriptionId, ariaDescribedBy].filter(Boolean).join(" ") || undefined}
         >
           <RadixRadioGroup.Indicator className={s.RadioIndicator} />
         </RadixRadioGroup.Item>

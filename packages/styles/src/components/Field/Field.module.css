@@ -282,3 +282,31 @@
   grid-row: auto;
   justify-self: stretch;
 }
+
+/* A ghost field in a row: the row is its frame. Beside the label the value takes
+   the rest of the line and ends at the row's edge, under it the value starts
+   where the label does. An error is the line of words under both, not a frame. */
+.Field:where([data-row]:not([data-orientation="vertical"])):has(
+    .Control > [data-variant="ghost"] > input,
+    .Control > [data-variant="ghost"] > textarea
+  ) {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.Field:where([data-row]) .Control:has(> [data-variant="ghost"] > input, > [data-variant="ghost"] > textarea) {
+  justify-self: stretch;
+}
+
+.Field:where([data-row]) .Control > [data-variant="ghost"]:is(:has(> input), :has(> textarea)) {
+  --input-size: var(--field-row-label-line-height);
+  --input-gutter: 0px;
+  --textarea-gutter-x: 0px;
+  --textarea-gutter-y: 0px;
+
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="ghost"] > input {
+  text-align: end;
+}

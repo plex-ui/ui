@@ -44,7 +44,7 @@ const TextareaComponent = defineComponent({
   inheritAttrs: false,
   props: {
     /** Visual style of the textarea. @default "outline" */
-    variant: { type: String as PropType<Variants<"outline" | "soft">>, default: "outline" },
+    variant: { type: String as PropType<Variants<"outline" | "soft" | "ghost">>, default: "outline" },
     /** Controls the size of the textarea. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
     /** Applies a negative margin using the current gutter to optically align the text with surrounding content. */

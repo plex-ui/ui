@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 50
+Components: 51
 
 ## Setup
 
@@ -8023,6 +8023,168 @@ Set disabled to prevent interaction with the slider.
 <div style="width: 300px">
   <Slider label="Disabled" :min="0" :max="100" :step="1" :value="50" disabled />
 </div>
+```
+
+## Sortable
+"Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."
+Docs: https://plexui.com/vue/components/sortable
+Props:
+  - value (unknown[]) — The list, in the order of the children. Bind with v-model:value
+  - layout ('list' | 'grid') default: list — list for rows one under another, grid for items that stand side by side
+  - as (string | Component) default: div — Element to render, such as TableBody for table rows
+  - disabled (boolean) default: false — Turns dragging off
+  - handles (boolean) default: true in a table, otherwise false — Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - aria-label (string) default: Reorder — Name of the handle for assistive technology
+
+### Rows
+Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap.
+```vue
+<div class="w-[480px] max-w-full">
+  <FieldGroup title="Home screen">
+    <Sortable v-model:value="rows">
+      <div v-for="row in rows" :key="row.id" data-row>
+        <SortableHandle :aria-label="'Reorder ' + row.label" />
+        <Field row :label="row.label" :description="row.description">
+          <Switch default-checked />
+        </Field>
+      </div>
+    </Sortable>
+  </FieldGroup>
+</div>
+```
+
+### Rows with a handle
+A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row.
+```vue
+<div class="w-[480px] max-w-full">
+  <FieldGroup title="Contact details">
+    <Sortable v-model:value="rows" handles>
+      <div v-for="row in rows" :key="row.id" data-row>
+        <SortableHandle :aria-label="'Reorder ' + row.label" />
+        <Field row :label="row.label">
+          <Input variant="ghost" :default-value="row.value" />
+        </Field>
+      </div>
+    </Sortable>
+  </FieldGroup>
+</div>
+```
+
+### Stacked rows
+A long value under its label sorts the same way.
+```vue
+<div class="w-[480px] max-w-full">
+  <FieldGroup title="Questions">
+    <Sortable v-model:value="rows">
+      <div v-for="row in rows" :key="row.id" data-row>
+        <SortableHandle :aria-label="'Reorder ' + row.question" />
+        <Field row orientation="vertical" :label="row.question">
+          <Textarea variant="ghost" :rows="1" auto-resize :default-value="row.answer" />
+        </Field>
+      </div>
+    </Sortable>
+  </FieldGroup>
+</div>
+```
+
+### Different controls
+The kind of control does not matter: each row keeps its state when it moves.
+```vue
+<div class="w-[480px] max-w-full">
+  <FieldGroup title="Preferences">
+    <Sortable v-model:value="rows">
+      <div v-for="row in rows" :key="row.id" data-row>
+        <SortableHandle :aria-label="'Reorder ' + row.label" />
+        <Field row :label="row.label">
+          <Select
+            v-if="row.id === 'language'"
+            v-model:value="language"
+            :options="languages"
+            variant="soft"
+            :block="false"
+            :list-min-width="180"
+            align="end"
+          />
+          <SegmentedControl v-else-if="row.id === 'theme'" v-model:value="theme" aria-label="Theme">
+            <SegmentedControlOption value="light">Light</SegmentedControlOption>
+            <SegmentedControlOption value="dark">Dark</SegmentedControlOption>
+          </SegmentedControl>
+          <DatePicker
+            v-else-if="row.id === 'start'"
+            v-model:value="start"
+            trigger-date-format="MMM d, yyyy"
+            placeholder="Select date"
+            variant="soft"
+          />
+          <Switch v-else-if="row.id === 'summary'" default-checked />
+          <Input v-else variant="ghost" default-value="Weekly report" />
+        </Field>
+      </div>
+    </Sortable>
+  </FieldGroup>
+</div>
+```
+
+### Table
+Pass :as="TableBody" and the rows sort inside the table. Columns keep their width. Grips show here without handles.
+```vue
+<div class="w-[640px] max-w-full">
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead class="w-10" aria-label="Order" />
+        <TableHead>Product</TableHead>
+        <TableHead>SKU</TableHead>
+        <TableHead>Stock</TableHead>
+        <TableHead class="text-end">Price</TableHead>
+      </TableRow>
+    </TableHeader>
+    <Sortable :as="TableBody" v-model:value="rows">
+      <TableRow v-for="row in rows" :key="row.id">
+        <TableCell><SortableHandle :aria-label="'Reorder ' + row.name" /></TableCell>
+        <TableCell>{{ row.name }}</TableCell>
+        <TableCell>{{ row.sku }}</TableCell>
+        <TableCell>{{ row.stock }}</TableCell>
+        <TableCell class="text-end">{{ row.price }}</TableCell>
+      </TableRow>
+    </Sortable>
+  </Table>
+</div>
+```
+
+### Images
+layout="grid" for items side by side: the line stands between two items, and the chip shows the picture. With tabindex an item takes the arrow keys itself.
+```vue
+<Sortable v-model:value="pictures" layout="grid" class="grid w-[420px] max-w-full grid-cols-3 gap-3">
+  <div
+    v-for="picture in pictures"
+    :key="picture.id"
+    tabindex="0"
+    class="aspect-square overflow-hidden rounded-xl"
+  >
+    <img :src="picture.src" :alt="picture.alt" class="block size-full object-cover" />
+  </div>
+</Sortable>
+```
+
+### Tags
+The grid layout also fits a line that wraps: the end of one line and the start of the next are separate places to land.
+```vue
+<Sortable v-model:value="tags" layout="grid" class="flex w-[420px] max-w-full flex-wrap gap-2">
+  <div v-for="tag in tags" :key="tag" tabindex="0" class="rounded-full">
+    <Badge color="secondary" size="lg" pill>{{ tag }}</Badge>
+  </div>
+</Sortable>
+```
+
+### Cards
+Any element can be an item, such as a StatCard.
+```vue
+<Sortable v-model:value="cards" layout="grid" class="grid w-[480px] max-w-full grid-cols-2 gap-3">
+  <div v-for="card in cards" :key="card.label" tabindex="0" class="rounded-xl">
+    <StatCard :label="card.label" :value="card.value" />
+  </div>
+</Sortable>
 ```
 
 ## Stat Card

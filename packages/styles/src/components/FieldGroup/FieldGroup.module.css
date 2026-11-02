@@ -44,6 +44,7 @@
   background: var(--field-group-background);
 }
 
-.Body > [data-row] + [data-row] {
+.Body > [data-row] + [data-row],
+.Body > [data-sortable] > [data-row] + [data-row] {
   border-top: 1px solid var(--color-border);
 }

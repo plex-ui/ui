@@ -10,7 +10,7 @@ import {
   watch,
   type PropType,
 } from "vue"
-import type { Sizes } from "@plexui/styles/types"
+import type { Sizes, Variants } from "@plexui/styles/types"
 import { toCssVariables } from "../../lib/helpers.js"
 import { X } from "../Icon/index.js"
 import s from "@plexui/styles/components/TagInput/TagInput.module.css"
@@ -45,6 +45,8 @@ export const TagInput = defineComponent({
     id: String,
     /** Corresponds with Input height when rows=1. @default "xl" */
     size: { type: String as PropType<Sizes<"sm" | "md" | "lg" | "xl" | "2xl" | "3xl">>, default: "xl" },
+    /** Visual style. `ghost` has no frame, for a field that its container already frames. @default "outline" */
+    variant: { type: String as PropType<Variants<"outline" | "ghost">>, default: "outline" },
     /** Placeholder text for the input */
     placeholder: { type: String, default: "" },
     /** Returns whether a value is a valid tag; invalid tags are highlighted. Evaluated on creation only. */
@@ -397,6 +399,7 @@ export const TagInput = defineComponent({
           "onFocusin": handleFocus,
           "onFocusout": handleBlur,
           "data-size": props.size,
+          "data-variant": props.variant,
           "data-focused": focused.value ? "" : undefined,
           "data-empty": tags.value.size === 0 ? "" : undefined,
           "data-pill": props.pill ? "" : undefined,

@@ -428,11 +428,19 @@ const RadioGroupItemComponent = defineComponent({
     }
 
     return () => {
-      const { class: className, ...restAttrs } = attrs
+      const {
+        "class": className,
+        // These name the radio itself: a `Field` around the item labels it through them
+        "id": idAttr,
+        "aria-label": ariaLabel,
+        "aria-labelledby": ariaLabelledBy,
+        "aria-describedby": ariaDescribedBy,
+        ...restAttrs
+      } = attrs
       const isChecked = checked.value
       const isDisabled = disabled.value
       const state = isChecked ? "checked" : "unchecked"
-      const itemId = `${props.value}-${id}`
+      const itemId = (idAttr as string | undefined) ?? `${props.value}-${id}`
       if (isFormControl.value) defaultChecked ??= isChecked
       else defaultChecked = undefined
 
@@ -472,7 +480,9 @@ const RadioGroupItemComponent = defineComponent({
                       "required": props.required ? "" : undefined,
                       "id": itemId,
                       "class": s.RadioItem,
-                      "aria-describedby": descriptionId,
+                      "aria-label": ariaLabel,
+                      "aria-labelledby": ariaLabelledBy,
+                      "aria-describedby": [descriptionId, ariaDescribedBy].filter(Boolean).join(" ") || undefined,
                       // Reka's RovingFocusItem marks the active item; Radix does not
                       "data-active": undefined,
                       "onClick": handleClick,

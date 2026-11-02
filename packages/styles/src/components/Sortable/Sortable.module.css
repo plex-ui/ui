@@ -1,0 +1,257 @@
+/* =============================================
+   List
+============================================= */
+.Sortable > * {
+  -webkit-touch-callout: none;
+}
+
+/* An item that takes the keyboard itself: arrow keys move it */
+.Sortable > [tabindex]:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Without a grip in sight an item drags from anywhere but a control */
+.Sortable:not([data-disabled]):not(tbody):not([data-handles="true"]) > *,
+.Sortable:not([data-disabled])[data-handles="false"] > * {
+  cursor: grab;
+}
+
+/* While a drag runs the neighbours of the gap slide apart */
+.Sortable[data-dragging] > * {
+  transition: transform 200ms var(--cubic-enter);
+}
+
+/* A row with a handle: the handle, then the row */
+.Sortable > :has(> .Handle) {
+  display: flex;
+  align-items: center;
+}
+
+.Sortable > :has(> .Handle) > :not(.Handle) {
+  flex: 1;
+  min-width: 0;
+}
+
+.Sortable > :has(> .Handle) > .Handle {
+  margin-inline-start: var(--sortable-handle-inset);
+  margin-inline-end: calc(var(--sortable-handle-inset) * -1);
+}
+
+/* =============================================
+   Slot  (the place a dragged item left, until the drop)
+============================================= */
+.Sortable > [data-sortable-source] {
+  position: relative;
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  color: transparent;
+}
+
+.Sortable > [data-sortable-source] > * {
+  visibility: hidden !important;
+}
+
+.Sortable > [data-sortable-source]::before {
+  position: absolute;
+  inset: var(--sortable-slot-inset);
+  border-radius: var(--sortable-slot-radius);
+  background: var(--sortable-slot-background);
+  content: "";
+  transition: background-color var(--transition-duration-basic);
+}
+
+.Sortable > [data-sortable-source][data-sortable-away]::before {
+  background: var(--sortable-slot-background-away);
+}
+
+.Sortable[data-layout="grid"] > [data-sortable-source]::before {
+  inset: 0;
+}
+
+/* A row of a group keeps the hairline to the next row */
+.Sortable[data-layout="list"] > [data-sortable-source] {
+  border-color: inherit;
+}
+
+/* A table row takes a pseudo element for a cell of its own and every column
+   slips: the slot hangs from the first cell, over the whole row */
+.Sortable > tr[data-sortable-source]::before {
+  content: none;
+}
+
+.Sortable > tr[data-sortable-source] > * {
+  position: static !important;
+}
+
+.Sortable > tr[data-sortable-source] > :first-child::before {
+  position: absolute;
+  inset: var(--sortable-slot-inset);
+  border-radius: var(--sortable-slot-radius);
+  background: var(--sortable-slot-background);
+  content: "";
+  transition: background-color var(--transition-duration-basic);
+  visibility: visible;
+}
+
+.Sortable > tr[data-sortable-source][data-sortable-away] > :first-child::before {
+  background: var(--sortable-slot-background-away);
+}
+
+/* =============================================
+   Handle
+============================================= */
+.Handle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--sortable-handle-size);
+  height: var(--sortable-handle-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--control-radius-md);
+  background: none;
+  color: var(--sortable-handle-color);
+  font-size: var(--sortable-handle-icon-size);
+  touch-action: none;
+  transition: color var(--transition-duration-basic);
+
+  @mixin hover {
+    color: var(--sortable-handle-color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: -2px;
+  }
+
+  & > svg {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+/* Important: a page's own rule for every button stands outside the layer of this file */
+.Handle {
+  cursor: grab !important;
+}
+
+.Sortable[data-disabled] .Handle {
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+/* Grips stand in a table and where `handles` asks for them. A hidden grip stays
+   in the tab order: the arrow keys still reach the row, and the row shows the focus */
+.Sortable:not(tbody):not([data-handles="true"]) .Handle,
+.Sortable[data-handles="false"] .Handle {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  clip-path: inset(50%);
+}
+
+.Sortable:not(tbody):not([data-handles="true"]) > :has(.Handle:focus-visible),
+.Sortable[data-handles="false"] > :has(.Handle:focus-visible) {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+
+/* =============================================
+   Chip  (what follows the pointer)
+============================================= */
+.Chip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--sortable-chip-z-index);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  max-width: var(--sortable-chip-max-width);
+  padding: 8px 12px;
+  border-radius: var(--sortable-chip-radius);
+  background: var(--color-surface);
+  box-shadow: var(--sortable-chip-shadow);
+  color: var(--color-text);
+  font-size: var(--font-text-sm-size);
+  line-height: var(--font-text-sm-line-height);
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: chip-lift 120ms var(--cubic-enter);
+  }
+
+  &:has(.ChipImage) {
+    padding: 6px 12px 6px 6px;
+  }
+
+  &:has(.ChipImage):not(:has(.ChipLabel)) {
+    padding: 6px;
+  }
+}
+
+@keyframes chip-lift {
+  from {
+    scale: 0.97;
+  }
+}
+
+.ChipImage {
+  flex: none;
+  width: var(--sortable-chip-image-size);
+  height: var(--sortable-chip-image-size);
+  border-radius: calc(var(--sortable-chip-radius) - 4px);
+  object-fit: cover;
+}
+
+.ChipLabel {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================
+   Line  (the gap the item will land in)
+============================================= */
+.Line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: calc(var(--sortable-chip-z-index) - 1);
+  width: var(--sortable-line-size);
+  height: var(--sortable-line-size);
+  border-radius: 999px;
+  background: var(--sortable-line-color);
+  pointer-events: none;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* =============================================
+   Screen reader announcements
+============================================= */
+.Live {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The whole page while a drag runs */
+.Dragging,
+.Dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}

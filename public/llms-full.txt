@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 50
+Components: 51
 
 ## Setup
 
@@ -6553,6 +6553,148 @@ value={50}
 onChange={() => {}}
 disabled
 />
+```
+
+## Sortable
+"Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."
+Docs: https://plexui.com/components/sortable
+Props:
+  - value (T[]) — The list, in the order of the children
+  - onChange ((value: T[]) => void) — Called with the new order after a drop
+  - layout ('list' | 'grid') default: list — list for rows one under another, grid for items that stand side by side
+  - as (ElementType) default: div — Element to render, such as TableBody for table rows
+  - disabled (boolean) default: false — Turns dragging off
+  - handles (boolean) default: true in a table, otherwise false — Shows the grips of Sortable.Handle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control
+  - children (ReactNode) — The items: one direct child per entry of value, keyed by the entry and not by its index
+  - aria-label (string) default: Reorder — Name of the handle for assistive technology
+
+### Rows
+Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap.
+```tsx
+const [rows, setRows] = useState(sections);
+
+<FieldGroup title="Home screen">
+<Sortable value={rows} onChange={setRows}>
+  {rows.map((row) => (
+    <div key={row.id} data-row>
+      <Sortable.Handle aria-label={`Reorder ${row.label}`} />
+      <Field row label={row.label} description={row.description}>
+        <Switch defaultChecked />
+      </Field>
+    </div>
+  ))}
+</Sortable>
+</FieldGroup>
+```
+
+### Rows with a handle
+A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row.
+```tsx
+<FieldGroup title="Contact details">
+<Sortable value={rows} onChange={setRows} handles>
+  {rows.map((row) => (
+    <div key={row.id} data-row>
+      <Sortable.Handle aria-label={`Reorder ${row.label}`} />
+      <Field row label={row.label}>
+        <Input variant="ghost" defaultValue={row.value} />
+      </Field>
+    </div>
+  ))}
+</Sortable>
+</FieldGroup>
+```
+
+### Stacked rows
+A long value under its label sorts the same way.
+```tsx
+<FieldGroup title="Questions">
+<Sortable value={rows} onChange={setRows}>
+  {rows.map((row) => (
+    <div key={row.id} data-row>
+      <Sortable.Handle aria-label={`Reorder ${row.question}`} />
+      <Field row orientation="vertical" label={row.question}>
+        <Textarea variant="ghost" rows={1} autoResize defaultValue={row.answer} />
+      </Field>
+    </div>
+  ))}
+</Sortable>
+</FieldGroup>
+```
+
+### Different controls
+The kind of control does not matter: each row keeps its state when it moves.
+```tsx
+<Sortable value={rows} onChange={setRows}>
+{rows.map((row) => (
+  <div key={row.id} data-row>
+    <Sortable.Handle aria-label={`Reorder ${row.label}`} />
+    <Field row label={row.label}>{controls[row.id]}</Field>
+  </div>
+))}
+</Sortable>
+```
+
+### Table
+Pass as={"{TableBody}"} and the rows sort inside the table. Columns keep their width. Grips show here without handles.
+```tsx
+<Table>
+<TableHeader>
+  <TableRow>
+    <TableHead className="w-10" aria-label="Order" />
+    <TableHead>Product</TableHead>
+    <TableHead>SKU</TableHead>
+    <TableHead>Stock</TableHead>
+    <TableHead className="text-end">Price</TableHead>
+  </TableRow>
+</TableHeader>
+<Sortable as={TableBody} value={rows} onChange={setRows}>
+  {rows.map((row) => (
+    <TableRow key={row.id}>
+      <TableCell><Sortable.Handle aria-label={`Reorder ${row.name}`} /></TableCell>
+      <TableCell>{row.name}</TableCell>
+      <TableCell>{row.sku}</TableCell>
+      <TableCell>{row.stock}</TableCell>
+      <TableCell className="text-end">{row.price}</TableCell>
+    </TableRow>
+  ))}
+</Sortable>
+</Table>
+```
+
+### Images
+layout="grid" for items side by side: the line stands between two items, and the chip shows the picture. With tabIndex an item takes the arrow keys itself.
+```tsx
+<Sortable value={pictures} onChange={setPictures} layout="grid" className="grid grid-cols-3 gap-3">
+{pictures.map((picture) => (
+  <div key={picture.id} tabIndex={0} className="aspect-square overflow-hidden rounded-xl">
+    <img src={picture.src} alt={picture.alt} className="block size-full object-cover" />
+  </div>
+))}
+</Sortable>
+```
+
+### Tags
+The grid layout also fits a line that wraps: the end of one line and the start of the next are separate places to land.
+```tsx
+<Sortable value={tags} onChange={setTags} layout="grid" className="flex flex-wrap gap-2">
+{tags.map((tag) => (
+  <div key={tag} tabIndex={0} className="rounded-full">
+    <Badge color="secondary" size="lg" pill>{tag}</Badge>
+  </div>
+))}
+</Sortable>
+```
+
+### Cards
+Any element can be an item, such as a StatCard.
+```tsx
+<Sortable value={cards} onChange={setCards} layout="grid" className="grid grid-cols-2 gap-3">
+{cards.map((card) => (
+  <div key={card.label} tabIndex={0} className="rounded-xl">
+    <StatCard label={card.label} value={card.value} />
+  </div>
+))}
+</Sortable>
 ```
 
 ## Stat Card

@@ -55,6 +55,7 @@ export const RELATED_COMPONENTS: Record<string, string[]> = {
   sidebar: ['menu', 'tabs', 'accordion'],
   skeleton: ['shimmer-text', 'progress', 'indicators'],
   slider: ['input', 'progress', 'select'],
+  sortable: ['field', 'table', 'stat-card'],
   'stat-card': ['card', 'badge', 'progress'],
   switch: ['checkbox', 'radio-group', 'field'],
   table: ['stat-card', 'card', 'tabs'],

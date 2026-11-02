@@ -120,6 +120,17 @@
     --tag-input-tag-spacing: 8px;
     --tag-input-radius: var(--control-radius-xl);
   }
+
+  /* Ghost: no frame, for a field that its container already frames, such as
+     a row of a group. Last in the block: it undoes hover and focus above. */
+  &[data-variant="ghost"],
+  &[data-variant="ghost"]:not([data-disabled]),
+  &[data-variant="ghost"]:not([data-disabled])[data-focused] {
+    min-height: calc(var(--min-rows) * var(--tag-input-height));
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 .TagInput {

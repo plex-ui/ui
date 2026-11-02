@@ -27,6 +27,10 @@
 
     --segmented-control-gutter: 4px;
 
+    --sortable-handle-size: 44px;
+    --sortable-handle-icon-size: 20px;
+    --sortable-handle-inset: 4px;
+
     --menu-gutter: 10px;
     --menu-radius: 32px;
     --menu-radius-pill: 32px;

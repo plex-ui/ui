@@ -4,7 +4,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { useOnClickOutside } from "usehooks-ts"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { toCssVariables } from "../../lib/helpers"
-import type { Sizes } from "../../types"
+import type { Sizes, Variants } from "../../types"
 import { X } from "../Icon"
 import s from "@plexui/styles/components/TagInput/TagInput.module.css"
 
@@ -31,6 +31,11 @@ export type TagInputProps = {
    * @default xl
    */
   size?: Sizes<"sm" | "md" | "lg" | "xl" | "2xl" | "3xl">
+  /**
+   * Visual style. `ghost` has no frame, for a field that its container already frames
+   * @default outline
+   */
+  variant?: Variants<"outline" | "ghost">
   /**
    * Callback function invoked when the tag list changes
    */
@@ -88,6 +93,7 @@ export const TagInput = (props: TagInputProps) => {
     defaultValue: defaultValueProp = [],
     value: controlledValue,
     size = "xl",
+    variant = "outline",
     onChange,
     validator,
     maxTags,
@@ -472,6 +478,7 @@ export const TagInput = (props: TagInputProps) => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         data-size={size}
+        data-variant={variant}
         data-focused={focused ? "" : undefined}
         data-empty={tags.size === 0 ? "" : undefined}
         data-pill={pill ? "" : undefined}

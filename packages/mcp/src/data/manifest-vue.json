@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 50,
+  "componentCount": 51,
   "components": [
     {
       "slug": "accordion",
@@ -5489,6 +5489,91 @@
       "docsUrl": "https://plexui.com/vue/components/slider"
     },
     {
+      "slug": "sortable",
+      "name": "Sortable",
+      "description": "\"Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop.\"",
+      "props": [
+        {
+          "name": "value",
+          "type": "unknown[]",
+          "description": "The list, in the order of the children. Bind with v-model:value"
+        },
+        {
+          "name": "layout",
+          "type": "'list' | 'grid'",
+          "default": "list",
+          "description": "list for rows one under another, grid for items that stand side by side"
+        },
+        {
+          "name": "as",
+          "type": "string | Component",
+          "default": "div",
+          "description": "Element to render, such as TableBody for table rows"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Turns dragging off"
+        },
+        {
+          "name": "handles",
+          "type": "boolean",
+          "default": "true in a table, otherwise false",
+          "description": "Shows the grips of SortableHandle. A hidden grip still takes the keyboard, and the item drags from anywhere but a control"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "Reorder",
+          "description": "Name of the handle for assistive technology"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Rows",
+          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Home screen\">\n    <Sortable v-model:value=\"rows\">\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\" :description=\"row.description\">\n          <Switch default-checked />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
+          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap."
+        },
+        {
+          "name": "Rows with a handle",
+          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Contact details\">\n    <Sortable v-model:value=\"rows\" handles>\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\">\n          <Input variant=\"ghost\" :default-value=\"row.value\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
+          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row."
+        },
+        {
+          "name": "Stacked rows",
+          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Questions\">\n    <Sortable v-model:value=\"rows\">\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.question\" />\n        <Field row orientation=\"vertical\" :label=\"row.question\">\n          <Textarea variant=\"ghost\" :rows=\"1\" auto-resize :default-value=\"row.answer\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
+          "details": "A long value under its label sorts the same way."
+        },
+        {
+          "name": "Different controls",
+          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Preferences\">\n    <Sortable v-model:value=\"rows\">\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\">\n          <Select\n            v-if=\"row.id === 'language'\"\n            v-model:value=\"language\"\n            :options=\"languages\"\n            variant=\"soft\"\n            :block=\"false\"\n            :list-min-width=\"180\"\n            align=\"end\"\n          />\n          <SegmentedControl v-else-if=\"row.id === 'theme'\" v-model:value=\"theme\" aria-label=\"Theme\">\n            <SegmentedControlOption value=\"light\">Light</SegmentedControlOption>\n            <SegmentedControlOption value=\"dark\">Dark</SegmentedControlOption>\n          </SegmentedControl>\n          <DatePicker\n            v-else-if=\"row.id === 'start'\"\n            v-model:value=\"start\"\n            trigger-date-format=\"MMM d, yyyy\"\n            placeholder=\"Select date\"\n            variant=\"soft\"\n          />\n          <Switch v-else-if=\"row.id === 'summary'\" default-checked />\n          <Input v-else variant=\"ghost\" default-value=\"Weekly report\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
+          "details": "The kind of control does not matter: each row keeps its state when it moves."
+        },
+        {
+          "name": "Table",
+          "code": "<div class=\"w-[640px] max-w-full\">\n  <Table>\n    <TableHeader>\n      <TableRow>\n        <TableHead class=\"w-10\" aria-label=\"Order\" />\n        <TableHead>Product</TableHead>\n        <TableHead>SKU</TableHead>\n        <TableHead>Stock</TableHead>\n        <TableHead class=\"text-end\">Price</TableHead>\n      </TableRow>\n    </TableHeader>\n    <Sortable :as=\"TableBody\" v-model:value=\"rows\">\n      <TableRow v-for=\"row in rows\" :key=\"row.id\">\n        <TableCell><SortableHandle :aria-label=\"'Reorder ' + row.name\" /></TableCell>\n        <TableCell>{{ row.name }}</TableCell>\n        <TableCell>{{ row.sku }}</TableCell>\n        <TableCell>{{ row.stock }}</TableCell>\n        <TableCell class=\"text-end\">{{ row.price }}</TableCell>\n      </TableRow>\n    </Sortable>\n  </Table>\n</div>",
+          "details": "Pass :as=\"TableBody\" and the rows sort inside the table. Columns keep their width. Grips show here without handles."
+        },
+        {
+          "name": "Images",
+          "code": "<Sortable v-model:value=\"pictures\" layout=\"grid\" class=\"grid w-[420px] max-w-full grid-cols-3 gap-3\">\n  <div\n    v-for=\"picture in pictures\"\n    :key=\"picture.id\"\n    tabindex=\"0\"\n    class=\"aspect-square overflow-hidden rounded-xl\"\n  >\n    <img :src=\"picture.src\" :alt=\"picture.alt\" class=\"block size-full object-cover\" />\n  </div>\n</Sortable>",
+          "details": "layout=\"grid\" for items side by side: the line stands between two items, and the chip shows the picture. With tabindex an item takes the arrow keys itself."
+        },
+        {
+          "name": "Tags",
+          "code": "<Sortable v-model:value=\"tags\" layout=\"grid\" class=\"flex w-[420px] max-w-full flex-wrap gap-2\">\n  <div v-for=\"tag in tags\" :key=\"tag\" tabindex=\"0\" class=\"rounded-full\">\n    <Badge color=\"secondary\" size=\"lg\" pill>{{ tag }}</Badge>\n  </div>\n</Sortable>",
+          "details": "The grid layout also fits a line that wraps: the end of one line and the start of the next are separate places to land."
+        },
+        {
+          "name": "Cards",
+          "code": "<Sortable v-model:value=\"cards\" layout=\"grid\" class=\"grid w-[480px] max-w-full grid-cols-2 gap-3\">\n  <div v-for=\"card in cards\" :key=\"card.label\" tabindex=\"0\" class=\"rounded-xl\">\n    <StatCard :label=\"card.label\" :value=\"card.value\" />\n  </div>\n</Sortable>",
+          "details": "Any element can be an item, such as a StatCard."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/sortable"
+    },
+    {
       "slug": "stat-card",
       "name": "Stat Card",
       "description": "Stat card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and accent border styling.",
@@ -6863,5 +6948,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T08:42:37.268Z"
+  "generatedAt": "2026-11-02T10:57:16.330Z"
 }

@@ -479,6 +479,151 @@ export const confirmPhone = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
+export const rowInputs = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
+  <FieldGroup title="Contact details">
+    <Field row label="First name">
+      <Input variant="ghost" default-value="Jane" autocomplete="given-name" />
+    </Field>
+    <Field row label="Last name">
+      <Input variant="ghost" default-value="Doe" autocomplete="family-name" />
+    </Field>
+    <Field row label="Email">
+      <Input variant="ghost" type="email" placeholder="name@example.com" autocomplete="email" />
+    </Field>
+    <Field row label="Phone">
+      <Input variant="ghost" type="tel" placeholder="Optional" autocomplete="tel" />
+    </Field>
+  </FieldGroup>
+  <FieldGroup title="Delivery">
+    <Field row orientation="vertical" label="Address">
+      <Input variant="ghost" placeholder="Street and building" autocomplete="street-address" />
+    </Field>
+    <Field row orientation="vertical" label="Note for the courier">
+      <Textarea variant="ghost" :rows="2" auto-resize placeholder="Gate code, floor, a safe place to leave it" />
+    </Field>
+  </FieldGroup>
+  <Button color="primary" size="3xl" pill type="submit">Save</Button>
+</form>`
+
+export const rowMixed = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
+  <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
+    <Field row label="Language">
+      <Select v-model:value="language" :options="languages" variant="soft" :block="false" :list-min-width="180" align="end" />
+    </Field>
+    <Field row label="Currency">
+      <Select v-model:value="currency" :options="currencies" variant="soft" :block="false" :list-min-width="180" align="end" />
+    </Field>
+    <Field row label="Theme">
+      <SegmentedControl v-model:value="theme" aria-label="Theme">
+        <SegmentedControlOption value="system">System</SegmentedControlOption>
+        <SegmentedControlOption value="light">Light</SegmentedControlOption>
+        <SegmentedControlOption value="dark">Dark</SegmentedControlOption>
+      </SegmentedControl>
+    </Field>
+    <Field row label="Start date">
+      <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" placeholder="Select date" variant="soft" />
+    </Field>
+    <Field row label="Weekly summary" description="Sent on Mondays.">
+      <Switch default-checked />
+    </Field>
+  </FieldGroup>
+</form>`
+
+export const rowChoice = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
+  <RadioGroup v-model:value="plan" direction="col" aria-label="Plan" class="w-full">
+    <FieldGroup title="Plan" class="w-full">
+      <Field row label="Starter" description="For one person.">
+        <RadioGroupItem value="starter" />
+      </Field>
+      <Field row label="Team" description="Up to 10 people.">
+        <RadioGroupItem value="team" />
+      </Field>
+      <Field row label="Business" description="No limit on people.">
+        <RadioGroupItem value="business" />
+      </Field>
+    </FieldGroup>
+  </RadioGroup>
+  <FieldGroup title="Email me about">
+    <Field row label="New sign-ins"><Checkbox default-checked /></Field>
+    <Field row label="Invoices"><Checkbox default-checked /></Field>
+    <Field row label="Product news"><Checkbox /></Field>
+  </FieldGroup>
+</form>`
+
+export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
+  <FieldGroup title="Product">
+    <Field row orientation="vertical" label="Name">
+      <Input variant="ghost" default-value="Oak side table" />
+    </Field>
+    <Field row orientation="vertical" label="Description">
+      <Textarea
+        variant="ghost"
+        :rows="2"
+        auto-resize
+        default-value="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools."
+      />
+    </Field>
+    <Field row label="Price">
+      <Input variant="ghost" inputmode="decimal" default-value="€129.00" />
+    </Field>
+    <Field row label="Category">
+      <Select v-model:value="category" :options="categories" variant="soft" :block="false" :list-min-width="180" align="end" />
+    </Field>
+    <Field row orientation="vertical" label="Tags">
+      <TagInput v-model:value="tags" variant="ghost" size="md" placeholder="Add a tag" />
+    </Field>
+    <Field row label="In stock"><Switch default-checked /></Field>
+  </FieldGroup>
+  <Button color="primary" size="3xl" pill type="submit">Save</Button>
+</form>`
+
+export const rowActions = `<div class="flex w-[480px] max-w-full flex-col gap-6">
+  <FieldGroup title="Account">
+    <Field row label="Email" description="jane@example.com">
+      <div><Button color="secondary" variant="soft" size="sm">Change</Button></div>
+    </Field>
+    <Field row label="Password" description="Last changed in March.">
+      <div><Button color="secondary" variant="soft" size="sm">Reset</Button></div>
+    </Field>
+    <Field row label="Delete account" description="This removes your data for good.">
+      <div><Button color="danger" variant="soft" size="sm">Delete</Button></div>
+    </Field>
+  </FieldGroup>
+</div>`
+
+export const rowErrors = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
+  <FieldGroup title="Payout details">
+    <Field row label="Account holder">
+      <Input variant="ghost" default-value="Jane Doe" />
+    </Field>
+    <Field row label="IBAN" error-message="Enter a valid IBAN.">
+      <Input variant="ghost" default-value="ES91 2100" invalid />
+    </Field>
+    <Field row orientation="vertical" label="Reference" error-message="Keep it under 140 characters.">
+      <Textarea
+        variant="ghost"
+        :rows="2"
+        auto-resize
+        default-value="Monthly payout for the spring collection, including the two orders that were moved from last month."
+        invalid
+      />
+    </Field>
+  </FieldGroup>
+</form>`
+
+export const rowState = {
+  language: "en",
+  languages: [{ value: "en", label: "English" }, { value: "es", label: "Spanish" }, { value: "pl", label: "Polish" }],
+  currency: "eur",
+  currencies: [{ value: "eur", label: "Euro" }, { value: "usd", label: "US dollar" }, { value: "gbp", label: "Pound sterling" }],
+  theme: "system",
+  start: null,
+  plan: "team",
+  category: "home",
+  categories: [{ value: "home", label: "Home" }, { value: "garden", label: "Garden" }, { value: "office", label: "Office" }],
+  tags: [{ value: "New", valid: true }, { value: "Sale", valid: true }],
+}
+
 export const uploadFile = `<div class="w-[360px]">
   <div class="mb-6 text-center">
     <h3 class="text-2xl font-semibold tracking-tight">Upload documents</h3>
@@ -558,6 +703,42 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 <ComponentPreview language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> for phone verification.</>} code={confirmPhone} previewMinHeight={380}>
   <VueFormExampleDemo template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
+</ComponentPreview>
+
+## Group of inputs
+
+<ComponentPreview language="vue" details={<>One block of rows instead of separate boxes. <code>variant="ghost"</code> takes the box off the field, so the row is its frame: a short value stands at the end of the row, a long one goes under its label with <code>orientation="vertical"</code>.</>} code={rowInputs} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowInputs} stageClassName={STAGE} />
+</ComponentPreview>
+
+## Group of mixed controls
+
+<ComponentPreview language="vue" details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>.</>} code={rowMixed} previewMinHeight={420}>
+  <VueFormExampleDemo template={rowMixed} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Choice in rows
+
+<ComponentPreview language="vue" details={<>One choice with <code>RadioGroup</code> around the group, several with <code>Checkbox</code>. The label of the row selects its control.</>} code={rowChoice} previewMinHeight={520}>
+  <VueFormExampleDemo template={rowChoice} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Long form in one group
+
+<ComponentPreview language="vue" details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={rowProduct} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowProduct} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Rows with actions
+
+<ComponentPreview language="vue" details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={rowActions} previewMinHeight={340}>
+  <VueFormExampleDemo template={rowActions} stageClassName={STAGE} />
+</ComponentPreview>
+
+## Errors in rows
+
+<ComponentPreview language="vue" details={<>An error is a line of words under the row. The row keeps its frame, so a group with several errors stays calm.</>} code={rowErrors} previewMinHeight={380}>
+  <VueFormExampleDemo template={rowErrors} stageClassName={STAGE} />
 </ComponentPreview>
 
 ## Upload file

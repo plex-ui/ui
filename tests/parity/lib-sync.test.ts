@@ -15,6 +15,7 @@ const COPIES = [
   "dateUtils",
   "copyToClipboard",
   "environment",
+  "sortable",
 ]
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8")

@@ -211,6 +211,26 @@
     --field-horizontal-control-width: 240px;
 
     /* =============================================
+      Sortable
+    ============================================= */
+    --sortable-chip-max-width: 18rem;
+    --sortable-chip-radius: 14px;
+    --sortable-chip-image-size: 40px;
+    --sortable-chip-shadow: 0 8px 24px rgb(0 0 0 / 16%), 0 0 0 1px var(--color-border);
+    --sortable-chip-z-index: 100000;
+    --sortable-handle-size: 32px;
+    --sortable-handle-icon-size: 16px;
+    --sortable-handle-inset: 8px;
+    --sortable-handle-color: var(--color-text-tertiary);
+    --sortable-handle-color-hover: var(--color-text-secondary);
+    --sortable-line-size: 2px;
+    --sortable-line-color: var(--color-background-info-solid);
+    --sortable-slot-inset: 8px;
+    --sortable-slot-radius: 12px;
+    --sortable-slot-background: var(--color-background-info-soft);
+    --sortable-slot-background-away: var(--color-surface-tertiary);
+
+    /* =============================================
       Field row
     ============================================= */
     --field-row-min-height: 52px;
