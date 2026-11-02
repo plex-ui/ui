@@ -142,7 +142,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
     <Input defaultValue="250" />
   </Field>
   <Field row label="Unit">
-    <Select block={false} options={units} value={unit} onChange={setUnit} />
+    <Select block={false} align="end" options={units} value={unit} onChange={setUnit} />
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
   <FieldRowFieldsDemo />
@@ -880,6 +880,7 @@ const [year, setYear] = useState("")
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
   { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Other div props reach the root only on a row" },
+  { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },
   { prop: "id", type: "string", description: "Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it" },
   { prop: "children", type: "ReactElement | (fieldProps) => ReactNode", description: "Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread" },
@@ -920,6 +921,7 @@ Field reads these component tokens. Override them at any scope to restyle it:
 - `--field-row-label-font-size`: label size on a row (default `var(--font-text-sm-size)`)
 - `--field-row-label-font-weight`: label weight on a row (default `var(--font-weight-medium)`)
 - `--field-row-label-line-height`: label line height on a row (default `var(--font-text-sm-line-height)`)
+- `--field-row-label-width`: label column of a `fill` row (default `96px`)
 - `--field-row-min-height`: row height (default `52px`)
 - `--field-row-padding-block`: row padding (default `10px`)
 - `--field-row-padding-inline`: row padding (default `16px`)

@@ -2201,6 +2201,12 @@
           "description": "One line of a FieldGroup. Other div props reach the root only on a row"
         },
         {
+          "name": "fill",
+          "type": "boolean",
+          "default": "false",
+          "description": "On a row, the control takes the rest of the line after the label"
+        },
+        {
           "name": "opticallyAlign",
           "type": "\"start\" | \"end\"",
           "description": "Applies optical alignment to the child control via negative margin using its gutter"
@@ -2259,7 +2265,7 @@
         },
         {
           "name": "Fields in rows",
-          "code": "<FieldGroup>\n<Field row label=\"Price\">\n  <Input defaultValue=\"11\" endAdornment=\"€\" />\n</Field>\n<Field row label=\"Weight\" description=\"Shown beside the name.\">\n  <Input defaultValue=\"250\" />\n</Field>\n<Field row label=\"Unit\">\n  <Select block={false} options={units} value={unit} onChange={setUnit} />\n</Field>\n</FieldGroup>",
+          "code": "<FieldGroup>\n<Field row label=\"Price\">\n  <Input defaultValue=\"11\" endAdornment=\"€\" />\n</Field>\n<Field row label=\"Weight\" description=\"Shown beside the name.\">\n  <Input defaultValue=\"250\" />\n</Field>\n<Field row label=\"Unit\">\n  <Select block={false} align=\"end\" options={units} value={unit} onChange={setUnit} />\n</Field>\n</FieldGroup>",
           "details": "A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone use variant=\"ghost\": the row is then the frame and the value ends at its edge."
         },
         {
@@ -4831,19 +4837,19 @@
         {
           "name": "listWidth",
           "type": "number | \"auto\"",
-          "default": "\"auto\"",
+          "default": "trigger width (fits the options when not block)",
           "description": "Width of the list in px"
         },
         {
           "name": "listMinWidth",
           "type": "number | \"auto\"",
-          "default": "trigger width (300 when not block)",
+          "default": "trigger width",
           "description": "Minimum width of the list in px"
         },
         {
           "name": "listMaxWidth",
           "type": "number | \"auto\"",
-          "default": "\"auto\"",
+          "default": "\"auto\" (300 when not block)",
           "description": "Maximum width of the list in px"
         },
         {
@@ -6996,5 +7002,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T15:34:43.779Z"
+  "generatedAt": "2026-11-02T17:28:18.845Z"
 }

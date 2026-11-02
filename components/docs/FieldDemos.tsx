@@ -200,6 +200,7 @@ export function FieldRowFieldsDemo() {
         <Field row label="Unit">
           <Select
             block={false}
+            align="end"
             options={[
               { value: 'ml', label: 'Millilitres' },
               { value: 'g', label: 'Grams' },

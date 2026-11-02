@@ -383,6 +383,7 @@ Props:
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Other attributes reach the root only on a row
+  - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the generated id used for the label's for and aria linking. A child's own id wins: it stays, and the label's for follows it
   - class (string) — CSS classes applied to the root element
@@ -766,9 +767,9 @@ Props:
   - dropdown-icon-type ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list
   - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - list-width (number | "auto") default: "auto" — Width of the list in px
-  - list-min-width (number | "auto") default: trigger width (300 when not block) — Minimum width of the list in px
-  - list-max-width (number | "auto") default: "auto" — Maximum width of the list in px
+  - list-width (number | "auto") default: trigger width (fits the options when not block) — Width of the list in px
+  - list-min-width (number | "auto") default: trigger width — Minimum width of the list in px
+  - list-max-width (number | "auto") default: "auto" (300 when not block) — Maximum width of the list in px
   - search-placeholder (string) — Search input placeholder
   - search-aria-label (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - #searchEmptyMessage / search-empty-message (slot | string) default: "No results found." — Shown when the search matches nothing

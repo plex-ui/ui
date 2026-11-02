@@ -508,10 +508,10 @@ export const rowInputs = `<form class="flex w-[480px] max-w-full flex-col gap-6"
 export const rowMixed = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
   <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
     <Field row label="Language">
-      <Select v-model:value="language" :options="languages" variant="soft" :block="false" :list-min-width="180" align="end" />
+      <Select v-model:value="language" :options="languages" variant="soft" :block="false" align="end" />
     </Field>
     <Field row label="Currency">
-      <Select v-model:value="currency" :options="currencies" variant="soft" :block="false" :list-min-width="180" align="end" />
+      <Select v-model:value="currency" :options="currencies" variant="soft" :block="false" align="end" />
     </Field>
     <Field row label="Theme">
       <SegmentedControl v-model:value="theme" aria-label="Theme">
@@ -567,7 +567,7 @@ export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6
       <Input variant="ghost" inputmode="decimal" default-value="€129.00" />
     </Field>
     <Field row label="Category">
-      <Select v-model:value="category" :options="categories" variant="soft" :block="false" :list-min-width="180" align="end" />
+      <Select v-model:value="category" :options="categories" variant="soft" :block="false" align="end" />
     </Field>
     <Field row orientation="vertical" label="Tags">
       <TagInput v-model:value="tags" variant="ghost" size="md" placeholder="Add a tag" />
@@ -576,6 +576,273 @@ export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6
   </FieldGroup>
   <Button color="primary" size="3xl" pill type="submit">Save</Button>
 </form>`
+
+export const rowGroups = `<form class="flex w-[520px] max-w-full flex-col gap-6" @submit.prevent>
+  <img src="/demo/picture-3.svg" alt="Product" class="mx-auto block size-28 rounded-3xl object-cover" />
+  <FieldGroup>
+    <Field row orientation="vertical" label="Name">
+      <Input variant="ghost" default-value="Oak side table" />
+    </Field>
+    <Field row orientation="vertical" label="Description">
+      <Textarea
+        variant="ghost"
+        :rows="2"
+        auto-resize
+        default-value="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools."
+      />
+    </Field>
+  </FieldGroup>
+  <FieldGroup>
+    <Field row label="Category" description="Also shown under Sale.">
+      <Select v-model:value="category" :options="categories" :block="false" align="end" />
+    </Field>
+    <Field row label="Price">
+      <Input default-value="129" inputmode="decimal">
+        <template #endAdornment><span class="text-secondary">€</span></template>
+      </Input>
+    </Field>
+    <Field row label="Weight">
+      <Input default-value="12" inputmode="decimal">
+        <template #endAdornment>
+          <Select v-model:value="unit" aria-label="Unit" :options="units" variant="ghost" align="end" />
+        </template>
+      </Input>
+    </Field>
+  </FieldGroup>
+  <FieldGroup>
+    <Field row label="Variants">
+      <template #labelAction>
+        <Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle class="text-tertiary" /></Tooltip>
+      </template>
+      <div>
+        <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
+      </div>
+    </Field>
+  </FieldGroup>
+  <FieldGroup>
+    <Field row fill label="Materials">
+      <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+            {{ option.label }}
+            <Button
+              uniform
+              size="3xs"
+              pill
+              variant="ghost"
+              color="secondary"
+              :aria-label="'Remove ' + option.label"
+              @click="materials = materials.filter((item) => item !== option.value)"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </div>
+        <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+          <template #trigger="{ onToggle }">
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+          </template>
+        </Select>
+      </div>
+    </Field>
+    <Field row fill label="Labels">
+      <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+            {{ option.label }}
+            <Button
+              uniform
+              size="3xs"
+              pill
+              variant="ghost"
+              color="secondary"
+              :aria-label="'Remove ' + option.label"
+              @click="labels = labels.filter((item) => item !== option.value)"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </div>
+        <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+          <template #trigger="{ onToggle }">
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+          </template>
+        </Select>
+      </div>
+    </Field>
+  </FieldGroup>
+  <Button color="primary" size="3xl" pill type="submit">Save changes</Button>
+</form>`
+
+export const rowTags = `<div class="w-[520px] max-w-full">
+  <FieldGroup>
+    <Field row fill label="Materials">
+      <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+          <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+            {{ option.label }}
+            <Button
+              uniform
+              size="3xs"
+              pill
+              variant="ghost"
+              color="secondary"
+              :aria-label="'Remove ' + option.label"
+              @click="materials = materials.filter((item) => item !== option.value)"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </div>
+        <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+          <template #trigger="{ onToggle }">
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+          </template>
+        </Select>
+      </div>
+    </Field>
+    <Field row fill label="Labels">
+      <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+          <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+            {{ option.label }}
+            <Button
+              uniform
+              size="3xs"
+              pill
+              variant="ghost"
+              color="secondary"
+              :aria-label="'Remove ' + option.label"
+              @click="labels = labels.filter((item) => item !== option.value)"
+            >
+              <X />
+            </Button>
+          </Badge>
+        </div>
+        <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+          <template #trigger="{ onToggle }">
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+          </template>
+        </Select>
+      </div>
+    </Field>
+  </FieldGroup>
+</div>`
+
+export const rowDialog = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline" pill>Edit product</Button>
+  </DialogTrigger>
+  <DialogContent :width="600" pill>
+    <DialogHeader>
+      <DialogTitle class="flex items-center gap-2">
+        Edit product
+        <Badge variant="outline" size="md" pill>English</Badge>
+      </DialogTitle>
+    </DialogHeader>
+    <DialogBody class="flex flex-col gap-6">
+        <img src="/demo/picture-3.svg" alt="Product" class="mx-auto block size-28 rounded-3xl object-cover" />
+        <FieldGroup>
+          <Field row orientation="vertical" label="Name">
+            <Input variant="ghost" default-value="Oak side table" />
+          </Field>
+          <Field row orientation="vertical" label="Description">
+            <Textarea
+              variant="ghost"
+              :rows="2"
+              auto-resize
+              default-value="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools."
+            />
+          </Field>
+        </FieldGroup>
+        <FieldGroup>
+          <Field row label="Category" description="Also shown under Sale.">
+            <Select v-model:value="category" :options="categories" :block="false" align="end" />
+          </Field>
+          <Field row label="Price">
+            <Input default-value="129" inputmode="decimal">
+              <template #endAdornment><span class="text-secondary">€</span></template>
+            </Input>
+          </Field>
+          <Field row label="Weight">
+            <Input default-value="12" inputmode="decimal">
+              <template #endAdornment>
+                <Select v-model:value="unit" aria-label="Unit" :options="units" variant="ghost" align="end" />
+              </template>
+            </Input>
+          </Field>
+        </FieldGroup>
+        <FieldGroup>
+          <Field row label="Variants">
+            <template #labelAction>
+              <Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle class="text-tertiary" /></Tooltip>
+            </template>
+            <div>
+              <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
+            </div>
+          </Field>
+        </FieldGroup>
+        <FieldGroup>
+          <Field row fill label="Materials">
+            <div class="flex items-center gap-2">
+              <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                <Badge v-for="option in materialOptions.filter((item) => materials.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+                  {{ option.label }}
+                  <Button
+                    uniform
+                    size="3xs"
+                    pill
+                    variant="ghost"
+                    color="secondary"
+                    :aria-label="'Remove ' + option.label"
+                    @click="materials = materials.filter((item) => item !== option.value)"
+                  >
+                    <X />
+                  </Button>
+                </Badge>
+              </div>
+              <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+                <template #trigger="{ onToggle }">
+                  <Button uniform pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle"><Plus /></Button>
+                </template>
+              </Select>
+            </div>
+          </Field>
+          <Field row fill label="Labels">
+            <div class="flex items-center gap-2">
+              <div class="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                <Badge v-for="option in labelOptions.filter((item) => labels.includes(item.value))" :key="option.value" variant="outline" size="lg" pill>
+                  {{ option.label }}
+                  <Button
+                    uniform
+                    size="3xs"
+                    pill
+                    variant="ghost"
+                    color="secondary"
+                    :aria-label="'Remove ' + option.label"
+                    @click="labels = labels.filter((item) => item !== option.value)"
+                  >
+                    <X />
+                  </Button>
+                </Badge>
+              </div>
+              <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+                <template #trigger="{ onToggle }">
+                  <Button uniform pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle"><Plus /></Button>
+                </template>
+              </Select>
+            </div>
+          </Field>
+        </FieldGroup>
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="secondary" variant="outline" pill>Cancel</Button>
+      </DialogClose>
+      <Button color="primary" pill @click="open = false">Save changes</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
 
 export const rowActions = `<div class="flex w-[480px] max-w-full flex-col gap-6">
   <FieldGroup title="Account">
@@ -622,6 +889,19 @@ export const rowState = {
   category: "home",
   categories: [{ value: "home", label: "Home" }, { value: "garden", label: "Garden" }, { value: "office", label: "Office" }],
   tags: [{ value: "New", valid: true }, { value: "Sale", valid: true }],
+  unit: "kg",
+  units: [{ value: "kg", label: "kg" }, { value: "lb", label: "lb" }],
+  materials: ["oak", "steel"],
+  materialOptions: [
+    { value: "oak", label: "Oak" },
+    { value: "steel", label: "Steel" },
+    { value: "linen", label: "Linen" },
+    { value: "glass", label: "Glass" },
+    { value: "wool", label: "Wool" },
+  ],
+  labels: ["new"],
+  labelOptions: [{ value: "new", label: "New" }, { value: "sale", label: "Sale" }, { value: "limited", label: "Limited" }],
+  open: false,
 }
 
 export const uploadFile = `<div class="w-[360px]">
@@ -727,6 +1007,24 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 <ComponentPreview language="vue" details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={rowProduct} previewMinHeight={620}>
   <VueFormExampleDemo template={rowProduct} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Several groups
+
+<ComponentPreview language="vue" details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a ghost <code>Select</code> in the field's <code>endAdornment</code> slot, a hint goes in the <code>labelAction</code> slot.</>} code={rowGroups} previewMinHeight={760}>
+  <VueFormExampleDemo template={rowGroups} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Tags in rows
+
+<ComponentPreview language="vue" details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>#trigger</code>, and <code>:block="false"</code> keeps it as wide as its options.</>} code={rowTags} previewMinHeight={200}>
+  <VueFormExampleDemo template={rowTags} stageClassName={STAGE} state={rowState} />
+</ComponentPreview>
+
+## Form in a dialog
+
+<ComponentPreview language="vue" details={<>The same groups in a <code>Dialog</code>. <code>DialogBody</code> scrolls, the header and the footer with the actions stay in view. On a phone give it <code>mobile-placement="fullscreen"</code> if the form is long.</>} code={rowDialog} previewMinHeight={120}>
+  <VueFormExampleDemo template={rowDialog} stageClassName={STAGE} state={rowState} />
 </ComponentPreview>
 
 ## Rows with actions

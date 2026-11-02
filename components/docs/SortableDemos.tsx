@@ -152,7 +152,7 @@ export function SortableControlsDemo() {
   const [start, setStart] = useState<DateTime | null>(null);
 
   const controls: Record<string, React.ReactElement> = {
-    language: <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} listMinWidth={180} align="end" />,
+    language: <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} align="end" />,
     theme: (
       <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
         <SegmentedControl.Option value="light">Light</SegmentedControl.Option>

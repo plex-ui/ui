@@ -67,6 +67,12 @@ export type FieldProps = {
    */
   row?: boolean
   /**
+   * On a `row`, the control takes the rest of the line after the label, for a
+   * list of tags and the like.
+   * @default false
+   */
+  fill?: boolean
+  /**
    * Allows overriding the auto-generated `id`. When provided, this becomes
    * the id set on the child control and the `htmlFor` on the label. A child's
    * own `id` wins over both: it stays, and the label's `htmlFor` follows it.
@@ -103,6 +109,7 @@ export function Field({
   required = false,
   orientation: orientationProp,
   row = false,
+  fill = false,
   opticallyAlign,
   id: idProp,
   className,
@@ -176,6 +183,7 @@ export function Field({
       data-orientation={orientation}
       data-optically-align={opticallyAlign}
       data-row={row ? "" : undefined}
+      data-fill={fill ? "" : undefined}
     >
       <div className={s.LabelGroup}>
         {labelAction ? (

@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `Field` takes `fill`: on a `row` the control takes the rest of the line after the label, so a list of tags starts at one edge in every row. `--field-row-label-width` sets the label column.
+- Form Examples: `Several groups`, `Tags in rows` and `Form in a dialog`, in React and Vue.
+
+### Changed
+
+- A `Select` that is not `block` opens as wide as its options, no narrower than its trigger and up to 300px, instead of a fixed 300px. A list with a search field keeps the width it opened with while the results narrow. `listWidth` stays exact, `listMaxWidth` lifts the 300px.
+
 ## 0.23.0 (2026-11-02)
 
 ### Added

@@ -183,6 +183,8 @@ const FieldComponent = defineComponent({
     orientation: String as PropType<"vertical" | "horizontal">,
     /** One line of a FieldGroup: label at the start, control at the end. @default false */
     row: { type: Boolean, default: false },
+    /** On a `row`, the control takes the rest of the line after the label. @default false */
+    fill: { type: Boolean, default: false },
     /** Overrides the generated id set on the control and the label's `for`. A child's own `id` wins over both. */
     id: String,
     /** Optically aligns the control's text with surrounding content; passed to the control. */
@@ -256,6 +258,7 @@ const FieldComponent = defineComponent({
           "data-orientation": orientation,
           "data-optically-align": opticallyAlign,
           "data-row": row ? "" : undefined,
+          "data-fill": props.fill ? "" : undefined,
         },
         [
           h("div", { class: s.LabelGroup }, [

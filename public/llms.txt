@@ -382,6 +382,7 @@ Props:
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
   - row (boolean) default: false — One line of a FieldGroup. Other div props reach the root only on a row
+  - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
   - id (string) — Override the auto-generated id used for htmlFor/aria linking. A child's own id wins: it stays, and htmlFor follows it
   - children (ReactElement | (fieldProps) => ReactNode) — Form control; receives id, aria-describedby and aria-invalid, plus aria-labelledby unless it has its own name. A render prop receives aria-labelledby to spread
@@ -784,9 +785,9 @@ Props:
   - dropdownIconType ("chevronDown" | "dropdown" | "none") default: "dropdown" — Indicator at the end of the trigger
   - side ("top" | "bottom") default: "bottom" — Preferred side of the list
   - align ("start" | "center" | "end") default: "center" when block, otherwise "start" — Alignment of the list against the trigger
-  - listWidth (number | "auto") default: "auto" — Width of the list in px
-  - listMinWidth (number | "auto") default: trigger width (300 when not block) — Minimum width of the list in px
-  - listMaxWidth (number | "auto") default: "auto" — Maximum width of the list in px
+  - listWidth (number | "auto") default: trigger width (fits the options when not block) — Width of the list in px
+  - listMinWidth (number | "auto") default: trigger width — Minimum width of the list in px
+  - listMaxWidth (number | "auto") default: "auto" (300 when not block) — Maximum width of the list in px
   - searchPlaceholder (string) — Search input placeholder
   - searchAriaLabel (string) default: "Search options" — Accessible name of the search input, independent of the trigger label
   - searchEmptyMessage (ReactNode) default: "No results found." — Shown when the search matches nothing

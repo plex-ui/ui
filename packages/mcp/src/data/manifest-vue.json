@@ -2203,6 +2203,12 @@
           "description": "One line of a FieldGroup. Other attributes reach the root only on a row"
         },
         {
+          "name": "fill",
+          "type": "boolean",
+          "default": "false",
+          "description": "On a row, the control takes the rest of the line after the label"
+        },
+        {
           "name": "optically-align",
           "type": "\"start\" | \"end\"",
           "description": "Applies optical alignment to the child control via negative margin using its gutter"
@@ -2261,7 +2267,7 @@
         },
         {
           "name": "Fields in rows",
-          "code": "<div class=\"w-full max-w-[480px]\">\n  <FieldGroup>\n    <Field row label=\"Price\">\n      <Input default-value=\"11\" inputmode=\"decimal\">\n        <template #endAdornment>€</template>\n      </Input>\n    </Field>\n    <Field row label=\"Weight\" description=\"Shown beside the name.\">\n      <Input default-value=\"250\" inputmode=\"decimal\" />\n    </Field>\n    <Field row label=\"Unit\">\n      <Select v-model:value=\"unit\" :block=\"false\" :options=\"units\" />\n    </Field>\n  </FieldGroup>\n</div>",
+          "code": "<div class=\"w-full max-w-[480px]\">\n  <FieldGroup>\n    <Field row label=\"Price\">\n      <Input default-value=\"11\" inputmode=\"decimal\">\n        <template #endAdornment>€</template>\n      </Input>\n    </Field>\n    <Field row label=\"Weight\" description=\"Shown beside the name.\">\n      <Input default-value=\"250\" inputmode=\"decimal\" />\n    </Field>\n    <Field row label=\"Unit\">\n      <Select v-model:value=\"unit\" :block=\"false\" align=\"end\" :options=\"units\" />\n    </Field>\n  </FieldGroup>\n</div>",
           "details": "A field keeps its frame in a row. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with :block=\"false\", and every control ends on the edge of the row. On a phone use variant=\"ghost\": the row is then the frame and the value ends at its edge."
         },
         {
@@ -4694,19 +4700,19 @@
         {
           "name": "list-width",
           "type": "number | \"auto\"",
-          "default": "\"auto\"",
+          "default": "trigger width (fits the options when not block)",
           "description": "Width of the list in px"
         },
         {
           "name": "list-min-width",
           "type": "number | \"auto\"",
-          "default": "trigger width (300 when not block)",
+          "default": "trigger width",
           "description": "Minimum width of the list in px"
         },
         {
           "name": "list-max-width",
           "type": "number | \"auto\"",
-          "default": "\"auto\"",
+          "default": "\"auto\" (300 when not block)",
           "description": "Maximum width of the list in px"
         },
         {
@@ -5659,7 +5665,7 @@
         },
         {
           "name": "Different controls",
-          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Preferences\">\n    <Sortable v-model:value=\"rows\">\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\">\n          <Select\n            v-if=\"row.id === 'language'\"\n            v-model:value=\"language\"\n            :options=\"languages\"\n            variant=\"soft\"\n            :block=\"false\"\n            :list-min-width=\"180\"\n            align=\"end\"\n          />\n          <SegmentedControl v-else-if=\"row.id === 'theme'\" v-model:value=\"theme\" aria-label=\"Theme\">\n            <SegmentedControlOption value=\"light\">Light</SegmentedControlOption>\n            <SegmentedControlOption value=\"dark\">Dark</SegmentedControlOption>\n          </SegmentedControl>\n          <DatePicker\n            v-else-if=\"row.id === 'start'\"\n            v-model:value=\"start\"\n            trigger-date-format=\"MMM d, yyyy\"\n            placeholder=\"Select date\"\n            variant=\"soft\"\n          />\n          <Switch v-else-if=\"row.id === 'summary'\" default-checked />\n          <Input v-else variant=\"ghost\" default-value=\"Weekly report\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
+          "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Preferences\">\n    <Sortable v-model:value=\"rows\">\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\">\n          <Select\n            v-if=\"row.id === 'language'\"\n            v-model:value=\"language\"\n            :options=\"languages\"\n            variant=\"soft\"\n            :block=\"false\"\n            align=\"end\"\n          />\n          <SegmentedControl v-else-if=\"row.id === 'theme'\" v-model:value=\"theme\" aria-label=\"Theme\">\n            <SegmentedControlOption value=\"light\">Light</SegmentedControlOption>\n            <SegmentedControlOption value=\"dark\">Dark</SegmentedControlOption>\n          </SegmentedControl>\n          <DatePicker\n            v-else-if=\"row.id === 'start'\"\n            v-model:value=\"start\"\n            trigger-date-format=\"MMM d, yyyy\"\n            placeholder=\"Select date\"\n            variant=\"soft\"\n          />\n          <Switch v-else-if=\"row.id === 'summary'\" default-checked />\n          <Input v-else variant=\"ghost\" default-value=\"Weekly report\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
           "details": "The kind of control does not matter: each row keeps its state when it moves."
         },
         {
@@ -7065,5 +7071,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T15:34:44.409Z"
+  "generatedAt": "2026-11-02T17:28:19.592Z"
 }

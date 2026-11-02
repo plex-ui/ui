@@ -26,6 +26,9 @@ import {
   FormRowsMixedDemo,
   FormRowsChoiceDemo,
   FormRowsProductDemo,
+  FormRowsGroupsDemo,
+  FormRowsTagsDemo,
+  FormRowsDialogDemo,
   FormRowsActionsDemo,
   FormRowsErrorsDemo,
 } from "@/components/docs/FormRowsDemos"
@@ -255,10 +258,10 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 <ComponentPreview details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>.</>} code={`<FieldGroup title="Preferences" description="Saved for every device you sign in on.">
   <Field row label="Language">
-    <Select value={language} options={languages} onChange={onLanguage} variant="soft" block={false} listMinWidth={180} align="end" />
+    <Select value={language} options={languages} onChange={onLanguage} variant="soft" block={false} align="end" />
   </Field>
   <Field row label="Currency">
-    <Select value={currency} options={currencies} onChange={onCurrency} variant="soft" block={false} listMinWidth={180} align="end" />
+    <Select value={currency} options={currencies} onChange={onCurrency} variant="soft" block={false} align="end" />
   </Field>
   <Field row label="Theme">
     <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
@@ -305,7 +308,7 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
   <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
   <Field row label="Price"><Input variant="ghost" inputMode="decimal" /></Field>
   <Field row label="Category">
-    <Select value={category} options={categories} onChange={onCategory} variant="soft" block={false} listMinWidth={180} align="end" />
+    <Select value={category} options={categories} onChange={onCategory} variant="soft" block={false} align="end" />
   </Field>
   <Field row orientation="vertical" label="Tags">
     <TagInput value={tags} onChange={setTags} variant="ghost" size="md" placeholder="Add a tag" />
@@ -313,6 +316,101 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
   <Field row label="In stock"><Switch /></Field>
 </FieldGroup>`} previewMinHeight={620}>
   <FormRowsProductDemo />
+</ComponentPreview>
+
+## Several groups
+
+<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a ghost <code>Select</code> in the field's <code>endAdornment</code>, a hint goes in <code>labelAction</code>.</>} code={`<form className="flex flex-col gap-6">
+  <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
+  <FieldGroup>
+    <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
+    <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
+  </FieldGroup>
+  <FieldGroup>
+    <Field row label="Category" description="Also shown under Sale.">
+      <Select value={category} options={categories} onChange={onCategory} block={false} align="end" />
+    </Field>
+    <Field row label="Price">
+      <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
+    </Field>
+    <Field row label="Weight">
+      <Input
+        inputMode="decimal"
+        endAdornment={<Select aria-label="Unit" value={unit} options={units} onChange={onUnit} variant="ghost" align="end" />}
+      />
+    </Field>
+  </FieldGroup>
+  <FieldGroup>
+    <Field
+      row
+      label="Variants"
+      labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
+    >
+      <div>
+        <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
+      </div>
+    </Field>
+  </FieldGroup>
+</form>`} previewMinHeight={760}>
+  <FormRowsGroupsDemo />
+</ComponentPreview>
+
+## Tags in rows
+
+<ComponentPreview details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>trigger</code>, and <code>block=&#123;false&#125;</code> keeps it as wide as its options.</>} code={`<Field row fill label="Materials">
+  <div className="flex items-center gap-2">
+    <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+      {chosen.map((option) => (
+        <Badge key={option.value} variant="outline" size="lg" pill>
+          {option.label}
+          <Button uniform size="3xs" pill variant="ghost" color="secondary" aria-label={\`Remove \${option.label}\`} onClick={() => remove(option.value)}>
+            <X />
+          </Button>
+        </Badge>
+      ))}
+    </div>
+    <Select
+      multiple
+      block={false}
+      align="end"
+      aria-label="Add material"
+      options={materials}
+      value={value}
+      onChange={(selected) => setValue(selected.map((option) => option.value))}
+      trigger={({ onToggle }) => (
+        <Button uniform pill color="secondary" variant="soft" aria-label="Add material" onClick={onToggle}><Plus /></Button>
+      )}
+    />
+  </div>
+</Field>`} previewMinHeight={200}>
+  <FormRowsTagsDemo />
+</ComponentPreview>
+
+## Form in a dialog
+
+<ComponentPreview details={<>The same groups in a <code>Dialog</code>. <code>Dialog.Body</code> scrolls, the header and the footer with the actions stay in view. On a phone give it <code>mobilePlacement="fullscreen"</code> if the form is long.</>} code={`<Dialog open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>
+    <Button color="secondary" variant="outline" pill>Edit product</Button>
+  </Dialog.Trigger>
+  <Dialog.Content width={600} pill>
+    <Dialog.Header>
+      <Dialog.Title className="flex items-center gap-2">
+        Edit product
+        <Badge variant="outline" size="md" pill>English</Badge>
+      </Dialog.Title>
+    </Dialog.Header>
+    <Dialog.Body className="flex flex-col gap-6">
+      {/* the groups of the form */}
+    </Dialog.Body>
+    <Dialog.Footer>
+      <Dialog.Close>
+        <Button color="secondary" variant="outline" pill>Cancel</Button>
+      </Dialog.Close>
+      <Button color="primary" pill onClick={save}>Save changes</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>`} previewMinHeight={120}>
+  <FormRowsDialogDemo />
 </ComponentPreview>
 
 ## Rows with actions

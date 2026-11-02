@@ -227,7 +227,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   avoidCollisions?: boolean
   /**
    * Set the width of the custom select menu
-   * @default auto
+   * @default the width of the trigger (fits the options when not block)
    */
   listWidth?: number | "auto"
   /**
@@ -237,7 +237,7 @@ export type SelectProps<T extends Option> = (SingleSelectProps<T> | MultiSelectP
   listMinWidth?: number | "auto"
   /**
    * Defines the `max-width` property of the custom select menu, in pixels.
-   * @default auto
+   * @default auto (300 when not block)
    */
   listMaxWidth?: number | "auto"
   /** Predicate used to filter searches */
@@ -387,7 +387,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     loadingPlaceholder = "Loading...",
     allSelectedLabel = "All selected",
     pill = false,
-    listWidth,
+    listMinWidth,
     options,
     actions: propActions = [],
     side = "bottom",
@@ -404,7 +404,6 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
     searchSize,
     searchPredicate = defaultSearchPredicate,
     searchEmptyMessage = "No results found.",
-    listMaxWidth = "auto",
     trigger,
     checkPosition = 'start',
   } = props
@@ -416,10 +415,6 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   // "start"/"end" tried to line the option labels up with the trigger's text and
   // instead left the menu hanging past the field it belongs to.
   const alignOffset = props.alignOffset ?? 0
-  // A menu is never narrower than the field it belongs to, so `listWidth="auto"`
-  // grows with the content but does not shrink below the trigger (the CSS
-  // fallback reads the trigger width). Inline selects keep their 300px floor.
-  const listMinWidth = props.listMinWidth ?? (block ? undefined : 300)
 
   // Create stable, mutable references to avoid memoization requirements from consumers
   const onSelectRef = useLatestValue((selectedOption: T, removeOption?: boolean) => {
@@ -473,6 +468,12 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
 
   // Locking down searchable count to a single value. Could make this customizable in the future, but would want guardrails.
   const searchable = optionsCount > 15
+
+  // A block menu matches its field. An inline one fits its options: no narrower than
+  // its trigger (the CSS fallback reads the trigger width), no wider than 300px.
+  const fitsOptions = !block && props.listWidth === undefined
+  const listWidth = props.listWidth ?? (fitsOptions ? "auto" : undefined)
+  const listMaxWidth = props.listMaxWidth ?? (fitsOptions ? 300 : "auto")
 
   // Narrow known values for context
   const dynamicContextProps = useMemo<
@@ -902,7 +903,7 @@ type CustomSelectMenuProps = {
 }
 
 const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
-  const { multiple, value, options, searchable, searchPredicateRef } = useSelectContext()
+  const { multiple, value, options, searchable, searchPredicateRef, listWidth } = useSelectContext()
   const requestCloseRef = useRef<() => void>(() => onOpenChange(false))
   const menuRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -1129,6 +1130,14 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     // when the hooks are re-run. It's an imperative effect that we need to manage.
     return () => {
       isMountStableRef.current = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally an onMount effect
+  }, [])
+
+  // A long list has a search field: the menu keeps the width of all its options as the results narrow.
+  useLayoutEffect(() => {
+    if (searchable && listWidth === "auto" && menuRef.current) {
+      menuRef.current.style.minWidth = `${menuRef.current.offsetWidth}px`
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally an onMount effect
   }, [])

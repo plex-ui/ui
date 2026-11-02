@@ -195,12 +195,12 @@ const selectProps = {
   alignOffset: Number,
   /** Collision detection of the menu. @default true */
   avoidCollisions: { type: Boolean, default: true },
-  /** Width of the menu. @default "auto" */
+  /** Width of the menu. @default the trigger width (fits the options when not block) */
   listWidth: [Number, String] as PropType<ListSize>,
-  /** `min-width` of the menu, in pixels. @default the trigger width (300 when not block) */
+  /** `min-width` of the menu, in pixels. @default the trigger width */
   listMinWidth: [Number, String] as PropType<ListSize>,
-  /** `max-width` of the menu, in pixels. @default "auto" */
-  listMaxWidth: { type: [Number, String] as PropType<ListSize>, default: "auto" },
+  /** `max-width` of the menu, in pixels. @default "auto" (300 when not block) */
+  listMaxWidth: [Number, String] as PropType<ListSize>,
   /** Predicate used to filter searches */
   searchPredicate: Function as PropType<SearchPredicate<Option>>,
   /** Placeholder of the search input */
@@ -254,7 +254,7 @@ type SelectPropsValue = {
   avoidCollisions: boolean
   listWidth?: ListSize
   listMinWidth?: ListSize
-  listMaxWidth: ListSize
+  listMaxWidth?: ListSize
   searchPredicate?: SearchPredicate<Option>
   searchPlaceholder: string
   searchAriaLabel: string
@@ -286,7 +286,8 @@ type SelectContextValue = {
   block: ComputedRef<boolean>
   align: ComputedRef<PopoverAlign>
   alignOffset: ComputedRef<number>
-  listMinWidth: ComputedRef<ListSize | undefined>
+  listWidth: ComputedRef<ListSize | undefined>
+  listMaxWidth: ComputedRef<ListSize>
   searchable: ComputedRef<boolean>
   actions: ShallowRef<SelectAction[]>
   onSelect: (option: Option, removeOption?: boolean) => void
@@ -397,8 +398,6 @@ const SelectComponent = defineComponent({
     const align = computed<PopoverAlign>(() => props.align ?? (block.value ? "center" : "start"))
     // Flush with the trigger's edge, as the prop documents
     const alignOffset = computed(() => props.alignOffset ?? 0)
-    // A menu is never narrower than the field it belongs to. Inline selects keep their 300px floor.
-    const listMinWidth = computed(() => props.listMinWidth ?? (block.value ? undefined : 300))
 
     const change = (selection: Option | Option[]) => {
       emit("update:value", Array.isArray(selection) ? selection.map((option) => option.value) : selection.value)
@@ -452,6 +451,12 @@ const SelectComponent = defineComponent({
     // Locking down searchable count to a single value
     const searchable = computed(() => optionsCount.value > 15)
 
+    // A block menu matches its field. An inline one fits its options: no narrower than
+    // its trigger (the CSS fallback reads the trigger width), no wider than 300px.
+    const fitsOptions = computed(() => !block.value && props.listWidth === undefined)
+    const listWidth = computed(() => props.listWidth ?? (fitsOptions.value ? "auto" : undefined))
+    const listMaxWidth = computed(() => props.listMaxWidth ?? (fitsOptions.value ? 300 : "auto"))
+
     const slotsVersion = ref(0)
     onBeforeUpdate(() => {
       slotsVersion.value++
@@ -466,7 +471,8 @@ const SelectComponent = defineComponent({
       block,
       align,
       alignOffset,
-      listMinWidth,
+      listWidth,
+      listMaxWidth,
       searchable,
       actions,
       onSelect,
@@ -825,7 +831,7 @@ const SelectContentElement = markRaw(
 const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
-    const { props, align, alignOffset, listMinWidth } = useSelectContext()
+    const { props, align, alignOffset, listWidth, listMaxWidth } = useSelectContext()
     const { handleRootOpenChange, popoverTriggerEl } = inject(CustomSelectContextKey)!
     // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
     const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
@@ -855,9 +861,9 @@ const SelectPopoverContent = defineComponent({
           onPointerDownOutside,
           onFocusOutside,
           style: toCssVariables({
-            "select-list-width": props.listWidth,
-            "select-list-min-width": listMinWidth.value,
-            "select-list-max-width": props.listMaxWidth,
+            "select-list-width": listWidth.value,
+            "select-list-min-width": props.listMinWidth,
+            "select-list-max-width": listMaxWidth.value,
           }),
         },
         { default: () => h(CustomSelectMenu) },
@@ -903,7 +909,7 @@ const focusMounted = (element: HTMLElement) => {
 const CustomSelectMenu = defineComponent({
   name: "CustomSelectMenu",
   setup() {
-    const { props, searchable, searchPredicate } = useSelectContext()
+    const { props, searchable, searchPredicate, listWidth } = useSelectContext()
     const { handleOpenChange } = inject(CustomSelectContextKey)!
     const menuRef = shallowRef<HTMLElement | null>(null)
     const listRef = shallowRef<HTMLElement | null>(null)
@@ -1108,6 +1114,11 @@ const CustomSelectMenu = defineComponent({
     // On mount behavior
     onMounted(() => {
       syncActiveDescendant()
+
+      // A long list has a search field: the menu keeps the width of all its options as the results narrow.
+      if (searchable.value && listWidth.value === "auto" && menuRef.value) {
+        menuRef.value.style.minWidth = `${menuRef.value.offsetWidth}px`
+      }
 
       // Like React's mount effect, the scroll target is the highlight at mount
       const initialHighlightedValue = highlightedValue.value

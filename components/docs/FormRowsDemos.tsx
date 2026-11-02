@@ -2,11 +2,14 @@
 
 import { useState, type FormEvent } from 'react';
 import type { DateTime } from 'luxon';
+import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
 import { Checkbox } from '@plexui/ui/components/Checkbox';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
+import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { InfoCircle, Plus, X } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -14,6 +17,7 @@ import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
 import { TagInput, type Tag } from '@plexui/ui/components/TagInput';
 import { Textarea } from '@plexui/ui/components/Textarea';
+import { Tooltip } from '@plexui/ui/components/Tooltip';
 
 const noSubmit = (event: FormEvent) => event.preventDefault();
 
@@ -33,6 +37,25 @@ const CATEGORIES = [
   { value: 'home', label: 'Home' },
   { value: 'garden', label: 'Garden' },
   { value: 'office', label: 'Office' },
+];
+
+const UNITS = [
+  { value: 'kg', label: 'kg' },
+  { value: 'lb', label: 'lb' },
+];
+
+const MATERIALS = [
+  { value: 'oak', label: 'Oak' },
+  { value: 'steel', label: 'Steel' },
+  { value: 'linen', label: 'Linen' },
+  { value: 'glass', label: 'Glass' },
+  { value: 'wool', label: 'Wool' },
+];
+
+const LABELS = [
+  { value: 'new', label: 'New' },
+  { value: 'sale', label: 'Sale' },
+  { value: 'limited', label: 'Limited' },
 ];
 
 export function FormRowsInputsDemo() {
@@ -80,10 +103,10 @@ export function FormRowsMixedDemo() {
       <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
         <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
           <Field row label="Language">
-            <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} listMinWidth={180} align="end" />
+            <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} variant="soft" block={false} align="end" />
           </Field>
           <Field row label="Currency">
-            <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} variant="soft" block={false} listMinWidth={180} align="end" />
+            <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} variant="soft" block={false} align="end" />
           </Field>
           <Field row label="Theme">
             <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
@@ -160,7 +183,7 @@ export function FormRowsProductDemo() {
             <Input variant="ghost" inputMode="decimal" defaultValue="€129.00" />
           </Field>
           <Field row label="Category">
-            <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} variant="soft" block={false} listMinWidth={180} align="end" />
+            <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} variant="soft" block={false} align="end" />
           </Field>
           <Field row orientation="vertical" label="Tags">
             <TagInput value={tags} onChange={setTags} variant="ghost" size="md" placeholder="Add a tag" />
@@ -173,6 +196,170 @@ export function FormRowsProductDemo() {
           Save
         </Button>
       </form>
+    </div>
+  );
+}
+
+function TagRow({
+  label,
+  one,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  one: string;
+  options: { value: string; label: string }[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
+  return (
+    <Field row fill label={label}>
+      <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+          {options.filter((option) => value.includes(option.value)).map((option) => (
+            <Badge key={option.value} variant="outline" size="lg" pill>
+              {option.label}
+              <Button
+                uniform
+                size="3xs"
+                pill
+                variant="ghost"
+                color="secondary"
+                aria-label={`Remove ${option.label}`}
+                onClick={() => onChange(value.filter((item) => item !== option.value))}
+              >
+                <X />
+              </Button>
+            </Badge>
+          ))}
+        </div>
+        <Select
+          multiple
+          block={false}
+          align="end"
+          aria-label={`Add ${one}`}
+          options={options}
+          value={value}
+          onChange={(selected) => onChange(selected.map((option) => option.value))}
+          trigger={({ onToggle }) => (
+            <Button uniform pill color="secondary" variant="soft" aria-label={`Add ${one}`} onClick={onToggle}>
+              <Plus />
+            </Button>
+          )}
+        />
+      </div>
+    </Field>
+  );
+}
+
+function ProductFields() {
+  const [category, setCategory] = useState('home');
+  const [unit, setUnit] = useState('kg');
+  const [materials, setMaterials] = useState(['oak', 'steel']);
+  const [labels, setLabels] = useState(['new']);
+
+  return (
+    <>
+      <img src="/demo/picture-3.svg" alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
+      <FieldGroup>
+        <Field row orientation="vertical" label="Name">
+          <Input variant="ghost" defaultValue="Oak side table" />
+        </Field>
+        <Field row orientation="vertical" label="Description">
+          <Textarea variant="ghost" rows={2} autoResize defaultValue="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools." />
+        </Field>
+      </FieldGroup>
+      <FieldGroup>
+        <Field row label="Category" description="Also shown under Sale.">
+          <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align="end" />
+        </Field>
+        <Field row label="Price">
+          <Input defaultValue="129" inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
+        </Field>
+        <Field row label="Weight">
+          <Input
+            defaultValue="12"
+            inputMode="decimal"
+            endAdornment={<Select aria-label="Unit" value={unit} options={UNITS} onChange={(option) => setUnit(option.value)} variant="ghost" align="end" />}
+          />
+        </Field>
+      </FieldGroup>
+      <FieldGroup>
+        <Field
+          row
+          label="Variants"
+          labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
+        >
+          <div>
+            <Button uniform pill color="secondary" variant="soft" aria-label="Add variant"><Plus /></Button>
+          </div>
+        </Field>
+      </FieldGroup>
+      <FieldGroup>
+        <TagRow label="Materials" one="material" options={MATERIALS} value={materials} onChange={setMaterials} />
+        <TagRow label="Labels" one="label" options={LABELS} value={labels} onChange={setLabels} />
+      </FieldGroup>
+    </>
+  );
+}
+
+export function FormRowsGroupsDemo() {
+  return (
+    <div data-demo-stage className="flex justify-center py-10">
+      <form className="flex w-[520px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
+        <ProductFields />
+        <Button color="primary" size="3xl" pill type="submit">
+          Save changes
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+export function FormRowsTagsDemo() {
+  const [materials, setMaterials] = useState(['oak', 'steel', 'linen']);
+  const [labels, setLabels] = useState(['new']);
+
+  return (
+    <div data-demo-stage className="flex justify-center py-10">
+      <div className="w-[520px] max-w-full">
+        <FieldGroup>
+          <TagRow label="Materials" one="material" options={MATERIALS} value={materials} onChange={setMaterials} />
+          <TagRow label="Labels" one="label" options={LABELS} value={labels} onChange={setLabels} />
+        </FieldGroup>
+      </div>
+    </div>
+  );
+}
+
+export function FormRowsDialogDemo() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div data-demo-stage className="flex justify-center py-10">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline" pill>Edit product</Button>
+        </Dialog.Trigger>
+        <Dialog.Content width={600} pill>
+          <Dialog.Header>
+            <Dialog.Title className="flex items-center gap-2">
+              Edit product
+              <Badge variant="outline" size="md" pill>English</Badge>
+            </Dialog.Title>
+          </Dialog.Header>
+          <Dialog.Body className="flex flex-col gap-6">
+            <ProductFields />
+          </Dialog.Body>
+          <Dialog.Footer>
+            <Dialog.Close>
+              <Button color="secondary" variant="outline" pill>Cancel</Button>
+            </Dialog.Close>
+            <Button color="primary" pill onClick={() => setOpen(false)}>Save changes</Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 }
