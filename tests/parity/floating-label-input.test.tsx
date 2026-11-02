@@ -48,6 +48,10 @@ const pair = (props: Props) => {
 const noop = () => {}
 const cases: Array<[string, Props]> = [
   ["default", { label: "Email" }],
+  ["label inside", { label: "Email", id: "e", labelPlacement: "inside", defaultValue: "x" }],
+  ["label inside, multiline", { label: "Message", id: "e", labelPlacement: "inside", multiline: true, defaultValue: "x" }],
+  ["rounded box", { label: "Email", id: "e", pill: false }],
+  ["label inside keeps the box with pill", { label: "Email", id: "e", labelPlacement: "inside", pill: true }],
   ["explicit id, name, class, attributes", { label: "Email", id: "email", name: "email", className: "w-full", placeholder: " ", autoComplete: "email" }],
   ["controlled value", { label: "Email", id: "e", value: "a@b.co", onChange: noop }],
   ["defaultValue", { label: "Email", id: "e", defaultValue: "a@b.co" }],

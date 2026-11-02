@@ -237,8 +237,8 @@
     --field-group-title-line-height: var(--font-text-md-line-height);
     --field-group-title-font-weight: var(--font-weight-medium);
     --field-group-title-padding-inline: 0;
-    --field-group-description-font-size: var(--font-text-xs-size);
-    --field-group-description-line-height: var(--font-text-xs-line-height);
+    --field-group-description-font-size: var(--font-text-sm-size);
+    --field-group-description-line-height: var(--font-text-sm-line-height);
 
     /* =============================================
       FloatingLabelInput
@@ -246,6 +246,8 @@
     --floating-input-height: 3.25rem;
     --floating-input-gutter: 1.25rem;
     --floating-input-border-radius: var(--radius-full);
+    --floating-input-box-radius: var(--control-radius-xl);
+    --floating-input-box-gutter: var(--control-gutter-lg);
     --floating-input-background: var(--color-surface);
     --floating-input-border-color: light-dark(rgb(0 0 0 / 15%), rgb(255 255 255 / 16%));
     --floating-input-border-color-hover: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 24%));
@@ -255,7 +257,14 @@
     --floating-input-label-color-focus: var(--color-text);
     --floating-input-label-color-invalid: var(--color-text-danger-outline);
     --floating-input-transition-duration: 80ms;
+    --floating-input-font-size: 1rem;
     --floating-input-label-scale: 0.88;
+    --floating-input-inside-height: 3.5rem;
+    --floating-input-inside-label-scale: 0.75;
+    --floating-input-inside-label-color: var(--color-text-secondary);
+    --floating-input-inside-label-shift: -0.75rem;
+    --floating-input-inside-value-shift: 1rem;
+    --floating-input-inside-line-height: 1.25rem;
 
     /* =============================================
       FileUpload

@@ -231,7 +231,7 @@ function* blocks(nodes) {
 }
 
 // ---------------------------------------------------------------------------
-// Extract examples from ### headings + <ComponentPreview>
+// Extract examples from ### and #### headings + <ComponentPreview>
 // ---------------------------------------------------------------------------
 
 function extractExamples(content, { tree, context }) {
@@ -240,7 +240,7 @@ function extractExamples(content, { tree, context }) {
 
   const visit = (node) => {
     if (node.type === "heading") {
-      name = node.depth === 3 ? textOf(node).trim() : null;
+      name = node.depth >= 3 ? textOf(node).trim() : null;
       return;
     }
     if ((node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement") && node.name === "ComponentPreview") {

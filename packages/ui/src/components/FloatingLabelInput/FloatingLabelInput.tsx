@@ -82,6 +82,17 @@ export type FloatingLabelInputProps = {
    * @default 2
    */
   rows?: number
+  /**
+   * Where the label rests once it floats: on the border, or inside the box
+   * with the value under it. `inside` always takes the rounded box.
+   * @default "border"
+   */
+  labelPlacement?: "border" | "inside"
+  /**
+   * Pill shape. `false` takes the rounded box of the other fields.
+   * @default true
+   */
+  pill?: boolean
 } & React.InputHTMLAttributes<HTMLInputElement>
 
 // Attributes that only mean something on <input>; everything else (required,
@@ -117,6 +128,8 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
       onRevealedChange,
       multiline = false,
       rows = 2,
+      labelPlacement = "border",
+      pill = true,
       className,
       "id": idProp,
       name,
@@ -256,7 +269,11 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
     }, [onRevealedChange])
 
     return (
-      <div className={clsx(s.Root, className)}>
+      <div
+        className={clsx(s.Root, className)}
+        data-label-placement={labelPlacement === "inside" ? "inside" : undefined}
+        data-pill={pill && labelPlacement !== "inside" ? "" : undefined}
+      >
         <div
           className={clsx(s.FieldFootprint, {
             [s.HasValue]: hasValue || !!startAdornment,

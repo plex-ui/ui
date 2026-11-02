@@ -3409,125 +3409,102 @@ const [files, setFiles] = useState<File[]>(initialFiles)
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
 Docs: https://plexui.com/components/floating-label-input
-Props:
-  - label (string) — Required. Floating label text
-  - value (string) — Controlled value, with onChange
-  - defaultValue (string) — Initial value when uncontrolled
-  - errorMessage (string) — Validation message below input; sets invalid state
-  - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
-  - description (ReactNode) — Helper text below the input
-  - disabled (boolean) default: false — Disable input interactions
-  - readOnly (boolean) default: false — Read-only input state
-  - type (string) default: "text" — Input type; password gets a reveal toggle
-  - revealable (boolean) default: true for password without an endAdornment — Built-in reveal toggle
-  - multiline (boolean) default: false — Render as an auto-growing textarea
-  - rows (number) default: 2 — Initial visible text lines when multiline is true
-  - allowAutofillExtensions (boolean) default: false — Let password-manager extensions decorate the input
-  - startAdornment (ReactNode) — Content rendered before the input, inside the field. Always shown; keeps the label floated
-  - endAdornment (ReactNode) — Content rendered after the input, before the clear button
-  - onClear (() => void) — Shows a clear button when the input has a value; focus returns to the input
-  - onRevealedChange ((revealed: boolean) => void) — Called when the reveal toggle is clicked
-  - onAutofill (() => void) — Called when the browser autofills the input
+  FloatingLabelInput:
+    - label (string) — Required. Floating label text
+    - value (string) — Controlled value, with onChange
+    - defaultValue (string) — Initial value when uncontrolled
+    - errorMessage (string) — Validation message below input; sets invalid state
+    - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
+    - description (ReactNode) — Helper text below the input
+    - disabled (boolean) default: false — Disable input interactions
+    - readOnly (boolean) default: false — Read-only input state
+    - type (string) default: "text" — Input type; password gets a reveal toggle
+    - revealable (boolean) default: true for password without an endAdornment — Built-in reveal toggle
+    - multiline (boolean) default: false — Render as an auto-growing textarea
+    - rows (number) default: 2 — Initial visible text lines when multiline is true
+    - labelPlacement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - allowAutofillExtensions (boolean) default: false — Let password-manager extensions decorate the input
+    - startAdornment (ReactNode) — Content rendered before the input, inside the field. Always shown; keeps the label floated
+    - endAdornment (ReactNode) — Content rendered after the input, before the clear button
+    - onClear (() => void) — Shows a clear button when the input has a value; focus returns to the input
+    - onRevealedChange ((revealed: boolean) => void) — Called when the reveal toggle is clicked
+    - onAutofill (() => void) — Called when the browser autofills the input
+  FloatingLabelSelect:
+    - label (string) — Required. Floating label text
+    - selected (boolean) default: false — Whether a value is selected: floats the label and shows the children
+    - open (boolean) default: false — Whether the attached list is open
+    - errorMessage (string) — Validation message below the field; sets invalid state
+    - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
+    - disabled (boolean) default: false — Disable the field
+    - labelPlacement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - onClearClick (() => void) — Shows a clear button when a value is selected
+    - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
 ```tsx
 <FloatingLabelInput label="Email address" />
 ```
 
-### Filled state
-When the input has a value, the label stays floated above the input.
+### Types
+Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each.
 ```tsx
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
+<div className="flex flex-col items-center gap-6 py-8">
+<div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+  <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">On the border</div>
+  <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" />
+</div>
+<div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+  <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Rounded box</div>
+  <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" pill={false} />
+</div>
+<div className="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+  <div className="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Inside</div>
+  <FloatingLabelInput className="flex-1" label="Email address" defaultValue="jane.doe@example.com" labelPlacement="inside" />
+</div>
+</div>
+```
+
+### Label inside
+Use labelPlacement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box.
+```tsx
+const [country, setCountry] = useState("es")
+const label = countries.find((option) => option.value === country)?.label
+const trigger = useCallback(
+({ open }: { open: boolean }) => (
+  <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
+    {label}
+  </FloatingLabelSelect>
+),
+[label],
+)
+
+<div className="flex w-[360px] flex-col gap-3">
+<FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+<Select
+  value={country}
+  options={countries}
+  onChange={(option) => setCountry(option.value)}
+  block
+  trigger={trigger}
+  checkPosition="end"
+/>
+<FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+<FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
+</div>
+```
+
+### Rounded box
+Set pill={'{false}'} to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.
+```tsx
+<FloatingLabelInput label="Email address" pill={false} />
 ```
 
 ### Textarea
 Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.
 ```tsx
 <FloatingLabelInput label="Message" multiline />
-```
-
-### With error message
-Use the errorMessage prop to display a validation error below the input. When errorMessage is provided, the input automatically enters the invalid state.
-```tsx
-<FloatingLabelInput
-label="Email address"
-defaultValue="jane.doe@example"
-invalid
-errorMessage="Email is not valid."
-/>
-```
-
-### With description
-Use the description prop to display helper text below the input.
-```tsx
-<FloatingLabelInput
-label="Email address"
-description="We'll never share your email with anyone else."
-/>
-```
-
-### With description and error
-When both description and errorMessage are provided, the error appears first (closest to the input), followed by the description.
-```tsx
-<FloatingLabelInput
-label="Email address"
-defaultValue="jane.doe@example"
-invalid
-errorMessage="Email is not valid."
-description="We'll never share your email with anyone else."
-/>
-```
-
-### Clear button
-Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
-```tsx
-const [value, setValue] = useState("clearable@example.com")
-
-<FloatingLabelInput
-label="Email address"
-value={value}
-onChange={(evt) => setValue(evt.target.value)}
-onClear={() => setValue("")}
-/>
-```
-
-### Disabled
-Use the disabled prop to disable the input, greying it out and preventing user interactions.
-```tsx
-<FloatingLabelInput label="Email address" defaultValue="disabled@example.com" disabled />
-```
-
-### Read only
-Use the readOnly prop to make the input read-only. The user can still select and copy the text.
-```tsx
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" readOnly />
-```
-
-### All states
-Overview of all input states.
-```tsx
-<div className="flex flex-col items-center gap-8 py-8">
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-  <FloatingLabelInput label="Email address" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-  <FloatingLabelInput label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-  <FloatingLabelInput invalid label="Email address" defaultValue="invalid@email" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-  <FloatingLabelInput disabled label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-  <FloatingLabelInput readOnly label="Email address" defaultValue="readonly@gmail.com" className="w-[320px]" />
-</div>
-</div>
 ```
 
 ### Password input
@@ -3602,6 +3579,42 @@ Overview of birthday input states.
   <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
   <FloatingLabelInput disabled label="Birthday" defaultValue="01 / 15 / 1995" className="w-[320px]" />
 </div>
+</div>
+```
+
+### Phone input
+A country code selector paired with a FloatingLabelInput that uses startAdornment to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, CountryOptionView, formatPhoneNumber and dialCodeOf are helpers of the example.
+```tsx
+const [country, setCountry] = useState("es")
+const [phone, setPhone] = useState("")
+const phoneInputRef = useRef<HTMLInputElement>(null)
+
+<div className="w-[360px] flex flex-col gap-3">
+<Select
+  value={country}
+  options={phoneCountryOptions}
+  onChange={(option) => {
+    setCountry(option.value)
+    setTimeout(() => phoneInputRef.current?.focus(), 0)
+  }}
+  searchPlaceholder="Search countries..."
+  OptionView={CountryOptionView}
+  searchPredicate={phoneCountrySearchPredicate}
+  listMinWidth={360}
+  block
+  size="3xl"
+  trigger={phoneCountryTrigger}
+  checkPosition="end"
+/>
+<FloatingLabelInput
+  ref={phoneInputRef}
+  label="Phone number"
+  value={phone}
+  onChange={(evt) => setPhone(formatPhoneNumber(evt.target.value.replace(/\D/g, ""), country))}
+  type="tel"
+  inputMode="tel"
+  startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCodeOf(country)}</span>}
+/>
 </div>
 ```
 
@@ -3726,39 +3739,93 @@ const trigger = useCallback(
 </div>
 ```
 
-### Phone input
-A country code selector paired with a FloatingLabelInput that uses startAdornment to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, CountryOptionView, formatPhoneNumber and dialCodeOf are helpers of the example.
+### Filled state
+When the input has a value, the label stays floated above the input.
 ```tsx
-const [country, setCountry] = useState("es")
-const [phone, setPhone] = useState("")
-const phoneInputRef = useRef<HTMLInputElement>(null)
+<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
+```
 
-<div className="w-[360px] flex flex-col gap-3">
-<Select
-  value={country}
-  options={phoneCountryOptions}
-  onChange={(option) => {
-    setCountry(option.value)
-    setTimeout(() => phoneInputRef.current?.focus(), 0)
-  }}
-  searchPlaceholder="Search countries..."
-  OptionView={CountryOptionView}
-  searchPredicate={phoneCountrySearchPredicate}
-  listMinWidth={360}
-  block
-  size="3xl"
-  trigger={phoneCountryTrigger}
-  checkPosition="end"
-/>
+### With error message
+Use the errorMessage prop to display a validation error below the input. When errorMessage is provided, the input automatically enters the invalid state.
+```tsx
 <FloatingLabelInput
-  ref={phoneInputRef}
-  label="Phone number"
-  value={phone}
-  onChange={(evt) => setPhone(formatPhoneNumber(evt.target.value.replace(/\D/g, ""), country))}
-  type="tel"
-  inputMode="tel"
-  startAdornment={<span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCodeOf(country)}</span>}
+label="Email address"
+defaultValue="jane.doe@example"
+invalid
+errorMessage="Email is not valid."
 />
+```
+
+### With description
+Use the description prop to display helper text below the input.
+```tsx
+<FloatingLabelInput
+label="Email address"
+description="We'll never share your email with anyone else."
+/>
+```
+
+### With description and error
+When both description and errorMessage are provided, the error appears first (closest to the input), followed by the description.
+```tsx
+<FloatingLabelInput
+label="Email address"
+defaultValue="jane.doe@example"
+invalid
+errorMessage="Email is not valid."
+description="We'll never share your email with anyone else."
+/>
+```
+
+### Clear button
+Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+```tsx
+const [value, setValue] = useState("clearable@example.com")
+
+<FloatingLabelInput
+label="Email address"
+value={value}
+onChange={(evt) => setValue(evt.target.value)}
+onClear={() => setValue("")}
+/>
+```
+
+### Disabled
+Use the disabled prop to disable the input, greying it out and preventing user interactions.
+```tsx
+<FloatingLabelInput label="Email address" defaultValue="disabled@example.com" disabled />
+```
+
+### Read only
+Use the readOnly prop to make the input read-only. The user can still select and copy the text.
+```tsx
+<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" readOnly />
+```
+
+### All states
+Overview of all input states.
+```tsx
+<div className="flex flex-col items-center gap-8 py-8">
+<div className="flex items-center">
+  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+  <FloatingLabelInput label="Email address" className="w-[320px]" />
+</div>
+<div className="flex items-center">
+  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+  <FloatingLabelInput label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
+</div>
+<div className="flex items-center">
+  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+  <FloatingLabelInput invalid label="Email address" defaultValue="invalid@email" className="w-[320px]" />
+</div>
+<div className="flex items-center">
+  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+  <FloatingLabelInput disabled label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
+</div>
+<div className="flex items-center">
+  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
+  <FloatingLabelInput readOnly label="Email address" defaultValue="readonly@gmail.com" className="w-[320px]" />
+</div>
 </div>
 ```
 

@@ -45,6 +45,10 @@ export const FloatingLabelSelect = defineComponent({
     onClearClick: Function as PropType<() => void>,
     /** Called on pointer down, ArrowDown, ArrowUp and Space on the field (`@interact`) */
     onInteract: Function as PropType<() => void>,
+    /** Where the label rests once it floats: on the border, or inside the box with the value under it (always the rounded box). @default "border" */
+    labelPlacement: { type: String as PropType<"border" | "inside">, default: "border" },
+    /** Pill shape. `false` takes the rounded box of the other fields. @default true */
+    pill: { type: Boolean, default: true },
   },
   setup(props, { attrs, slots, expose }) {
     const generatedId = useId()
@@ -117,7 +121,13 @@ export const FloatingLabelSelect = defineComponent({
         [ariaDescribedByAttr as string | undefined, errorMessage ? errorId : undefined].filter(Boolean).join(" ") ||
         undefined
 
-      return h("div", { class: clsx(s.Root, className as string | undefined) }, [
+      const inside = props.labelPlacement === "inside"
+
+      return h("div", {
+        "class": clsx(s.Root, className as string | undefined),
+        "data-label-placement": inside ? "inside" : undefined,
+        "data-pill": props.pill && !inside ? "" : undefined,
+      }, [
         h(
           "div",
           {

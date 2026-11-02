@@ -7,6 +7,21 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.20.15 (2026-11-02)
+
+### Added
+
+- `FloatingLabelInput` and `FloatingLabelSelect` take `labelPlacement`. `inside` keeps the label in the box with the value under it, for long forms such as an address. It works with `multiline`, adornments, errors and the clear button, and always takes the rounded box.
+- `FloatingLabelInput` and `FloatingLabelSelect` take `pill`. `pill={false}` takes the rounded box of the other fields, with its own `--floating-input-box-radius` and `--floating-input-box-gutter`.
+- `--floating-input-font-size` sets the value and the resting label. `touch.css` makes it 17px and the inside field 60px on a phone.
+- The Float Input page documents `FloatingLabelSelect`. Form Examples has a Billing details form.
+
+### Changed
+
+- The `FieldGroup` description is 14px on the desktop, as the rows under it.
+
+---
+
 ## 0.20.14 (2026-11-01)
 
 ### Added

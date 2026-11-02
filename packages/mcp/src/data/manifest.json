@@ -2575,120 +2575,80 @@
       "exports": [
         "FloatingLabelInput"
       ],
-      "props": [
-        {
-          "name": "label",
-          "type": "string",
-          "description": "Required. Floating label text"
-        },
-        {
-          "name": "value",
-          "type": "string",
-          "description": "Controlled value, with onChange"
-        },
-        {
-          "name": "defaultValue",
-          "type": "string",
-          "description": "Initial value when uncontrolled"
-        },
-        {
-          "name": "errorMessage",
-          "type": "string",
-          "description": "Validation message below input; sets invalid state"
-        },
-        {
-          "name": "invalid",
-          "type": "boolean",
-          "default": "false (true if errorMessage)",
-          "description": "Invalid visual state"
-        },
-        {
-          "name": "description",
-          "type": "ReactNode",
-          "description": "Helper text below the input"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Disable input interactions"
-        },
-        {
-          "name": "readOnly",
-          "type": "boolean",
-          "default": "false",
-          "description": "Read-only input state"
-        },
-        {
-          "name": "type",
-          "type": "string",
-          "default": "\"text\"",
-          "description": "Input type; password gets a reveal toggle"
-        },
-        {
-          "name": "revealable",
-          "type": "boolean",
-          "default": "true for password without an endAdornment",
-          "description": "Built-in reveal toggle"
-        },
-        {
-          "name": "multiline",
-          "type": "boolean",
-          "default": "false",
-          "description": "Render as an auto-growing textarea"
-        },
-        {
-          "name": "rows",
-          "type": "number",
-          "default": "2",
-          "description": "Initial visible text lines when multiline is true"
-        },
-        {
-          "name": "allowAutofillExtensions",
-          "type": "boolean",
-          "default": "false",
-          "description": "Let password-manager extensions decorate the input"
-        },
-        {
-          "name": "startAdornment",
-          "type": "ReactNode",
-          "description": "Content rendered before the input, inside the field. Always shown; keeps the label floated"
-        },
-        {
-          "name": "endAdornment",
-          "type": "ReactNode",
-          "description": "Content rendered after the input, before the clear button"
-        },
-        {
-          "name": "onClear",
-          "type": "() => void",
-          "description": "Shows a clear button when the input has a value; focus returns to the input"
-        },
-        {
-          "name": "onRevealedChange",
-          "type": "(revealed: boolean) => void",
-          "description": "Called when the reveal toggle is clicked"
-        },
-        {
-          "name": "onAutofill",
-          "type": "() => void",
-          "description": "Called when the browser autofills the input"
-        }
-      ],
       "examples": [
         {
           "name": "Overview",
           "code": "<FloatingLabelInput label=\"Email address\" />"
         },
         {
-          "name": "Filled state",
-          "code": "<FloatingLabelInput label=\"Email address\" defaultValue=\"jane.doe@example.com\" />",
-          "details": "When the input has a value, the label stays floated above the input."
+          "name": "Types",
+          "code": "<div className=\"flex flex-col items-center gap-6 py-8\">\n<div className=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n  <div className=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">On the border</div>\n  <FloatingLabelInput className=\"flex-1\" label=\"Email address\" defaultValue=\"jane.doe@example.com\" />\n</div>\n<div className=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n  <div className=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">Rounded box</div>\n  <FloatingLabelInput className=\"flex-1\" label=\"Email address\" defaultValue=\"jane.doe@example.com\" pill={false} />\n</div>\n<div className=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n  <div className=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">Inside</div>\n  <FloatingLabelInput className=\"flex-1\" label=\"Email address\" defaultValue=\"jane.doe@example.com\" labelPlacement=\"inside\" />\n</div>\n</div>",
+          "details": "Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each."
+        },
+        {
+          "name": "Label inside",
+          "code": "const [country, setCountry] = useState(\"es\")\nconst label = countries.find((option) => option.value === country)?.label\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect label=\"Country or region\" labelPlacement=\"inside\" selected={!!label} open={open}>\n    {label}\n  </FloatingLabelSelect>\n),\n[label],\n)\n\n<div className=\"flex w-[360px] flex-col gap-3\">\n<FloatingLabelInput label=\"Full name\" labelPlacement=\"inside\" defaultValue=\"Jane Doe\" />\n<Select\n  value={country}\n  options={countries}\n  onChange={(option) => setCountry(option.value)}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n<FloatingLabelInput label=\"Address line 1\" labelPlacement=\"inside\" />\n<FloatingLabelInput label=\"Delivery notes\" labelPlacement=\"inside\" multiline />\n</div>",
+          "details": "Use labelPlacement=\"inside\" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box."
+        },
+        {
+          "name": "Rounded box",
+          "code": "<FloatingLabelInput label=\"Email address\" pill={false} />",
+          "details": "Set pill={'{false}'} to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place."
         },
         {
           "name": "Textarea",
           "code": "<FloatingLabelInput label=\"Message\" multiline />",
           "details": "Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height."
+        },
+        {
+          "name": "Password input",
+          "code": "<FloatingLabelInput label=\"Password\" type=\"password\" />",
+          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
+        },
+        {
+          "name": "SSN input",
+          "code": "const [rawDigits, setRawDigits] = useState(\"\")\nconst [visible, setVisible] = useState(false)\nconst formatted = formatSSN(rawDigits)\n\n<FloatingLabelInput\nlabel=\"Social Security Number\"\nvalue={formatted}\ninputMode=\"numeric\"\nmaxLength={11}\nonChange={(evt) => setRawDigits(extractDigits(evt.target.value))}\nstyle={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\nrevealable\nonRevealedChange={setVisible}\n/>",
+          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN and extractDigits are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday input",
+          "code": "const [birthday, setBirthday] = useState(\"\")\n\n<FloatingLabelInput\nlabel=\"Birthday\"\nvalue={birthday}\nmaxLength={14}\nonChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}\n/>",
+          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). formatBirthdayValue is a plain helper function of the example."
+        },
+        {
+          "name": "Birthday with validation",
+          "code": "const [birthday, setBirthday] = useState(\"02 / 30 / 2001\")\n\n<FloatingLabelInput\nlabel=\"Birthday\"\nvalue={birthday}\nmaxLength={14}\nonChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}\nerrorMessage={birthday && !isValidBirthday(birthday) ? \"Please enter a valid date.\" : undefined}\n/>",
+          "details": "Use errorMessage to display the birthday validation state; it also marks the input invalid. formatBirthdayValue and isValidBirthday are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday states",
+          "code": "<div className=\"flex flex-col items-center gap-8 py-8\">\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n  <FloatingLabelInput label=\"Birthday\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n  <FloatingLabelInput label=\"Birthday\" defaultValue=\"01 / 15 / 1995\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n  <FloatingLabelInput invalid label=\"Birthday\" defaultValue=\"02 / 30 / 2001\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n  <FloatingLabelInput disabled label=\"Birthday\" defaultValue=\"01 / 15 / 1995\" className=\"w-[320px]\" />\n</div>\n</div>",
+          "details": "Overview of birthday input states."
+        },
+        {
+          "name": "Phone input",
+          "code": "const [country, setCountry] = useState(\"es\")\nconst [phone, setPhone] = useState(\"\")\nconst phoneInputRef = useRef<HTMLInputElement>(null)\n\n<div className=\"w-[360px] flex flex-col gap-3\">\n<Select\n  value={country}\n  options={phoneCountryOptions}\n  onChange={(option) => {\n    setCountry(option.value)\n    setTimeout(() => phoneInputRef.current?.focus(), 0)\n  }}\n  searchPlaceholder=\"Search countries...\"\n  OptionView={CountryOptionView}\n  searchPredicate={phoneCountrySearchPredicate}\n  listMinWidth={360}\n  block\n  size=\"3xl\"\n  trigger={phoneCountryTrigger}\n  checkPosition=\"end\"\n/>\n<FloatingLabelInput\n  ref={phoneInputRef}\n  label=\"Phone number\"\n  value={phone}\n  onChange={(evt) => setPhone(formatPhoneNumber(evt.target.value.replace(/\\D/g, \"\"), country))}\n  type=\"tel\"\n  inputMode=\"tel\"\n  startAdornment={<span className=\"text-tertiary whitespace-nowrap select-none mr-2\">{dialCodeOf(country)}</span>}\n/>\n</div>",
+          "details": "A country code selector paired with a FloatingLabelInput that uses startAdornment to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, CountryOptionView, formatPhoneNumber and dialCodeOf are helpers of the example."
+        },
+        {
+          "name": "Select",
+          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select } from \"@plexui/ui/components/Select\"\n\nconst [role, setRole] = useState(\"\")\nconst selected = roles.find((option) => option.value === role)\n// Select expects a stable trigger renderer\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Role\"\n    selected={!!selected}\n    open={open}\n    onClearClick={selected ? () => setRole(\"\") : undefined}\n  >\n    {selected?.label}\n  </FloatingLabelSelect>\n),\n[selected],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  value={role}\n  options={roles}\n  onChange={(option) => setRole(option.value)}\n  searchPlaceholder=\"Search roles...\"\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
+          "details": "Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling."
+        },
+        {
+          "name": "Multiple selection",
+          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select } from \"@plexui/ui/components/Select\"\n\nconst [skills, setSkills] = useState<string[]>([])\nconst hasSelection = skills.length > 0\nconst display =\nskills.length === 1\n  ? (skillOptions.find((option) => option.value === skills[0])?.label ?? \"\")\n  : skills.length > 1\n    ? `${skills.length} skills`\n    : \"\"\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Skills\"\n    selected={hasSelection}\n    open={open}\n    onClearClick={hasSelection ? () => setSkills([]) : undefined}\n  >\n    {display}\n  </FloatingLabelSelect>\n),\n[hasSelection, display],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  multiple\n  clearable\n  value={skills}\n  options={skillOptions}\n  onChange={(options) => setSkills(options.map((option) => option.value))}\n  searchPlaceholder=\"Search skills...\"\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
+          "details": "Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list."
+        },
+        {
+          "name": "Country select",
+          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select, type Option } from \"@plexui/ui/components/Select\"\n\n// Outside the component: Select needs a stable OptionView\nconst CountryOptionView = ({ value, label }: Option) => <CountryLabel code={value} label={label} />\n\nconst [country, setCountry] = useState(\"\")\nconst selected = countries.find((option) => option.value === country)\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Country\"\n    selected={!!selected}\n    open={open}\n    onClearClick={selected ? () => setCountry(\"\") : undefined}\n  >\n    {selected && <CountryLabel code={selected.value} label={selected.label} />}\n  </FloatingLabelSelect>\n),\n[selected],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  value={country}\n  options={countries}\n  onChange={(option) => setCountry(option.value)}\n  searchPlaceholder=\"Search countries...\"\n  OptionView={CountryOptionView}\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
+          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. CountryLabel is a helper of the example that shows a flag next to the name."
+        },
+        {
+          "name": "Filled state",
+          "code": "<FloatingLabelInput label=\"Email address\" defaultValue=\"jane.doe@example.com\" />",
+          "details": "When the input has a value, the label stays floated above the input."
         },
         {
           "name": "With error message",
@@ -2724,51 +2684,185 @@
           "name": "All states",
           "code": "<div className=\"flex flex-col items-center gap-8 py-8\">\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n  <FloatingLabelInput label=\"Email address\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n  <FloatingLabelInput label=\"Email address\" defaultValue=\"jane.doe@gmail.com\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n  <FloatingLabelInput invalid label=\"Email address\" defaultValue=\"invalid@email\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n  <FloatingLabelInput disabled label=\"Email address\" defaultValue=\"jane.doe@gmail.com\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Read only</div>\n  <FloatingLabelInput readOnly label=\"Email address\" defaultValue=\"readonly@gmail.com\" className=\"w-[320px]\" />\n</div>\n</div>",
           "details": "Overview of all input states."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "FloatingLabelInput",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Required. Floating label text"
+            },
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Controlled value, with onChange"
+            },
+            {
+              "name": "defaultValue",
+              "type": "string",
+              "description": "Initial value when uncontrolled"
+            },
+            {
+              "name": "errorMessage",
+              "type": "string",
+              "description": "Validation message below input; sets invalid state"
+            },
+            {
+              "name": "invalid",
+              "type": "boolean",
+              "default": "false (true if errorMessage)",
+              "description": "Invalid visual state"
+            },
+            {
+              "name": "description",
+              "type": "ReactNode",
+              "description": "Helper text below the input"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable input interactions"
+            },
+            {
+              "name": "readOnly",
+              "type": "boolean",
+              "default": "false",
+              "description": "Read-only input state"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "default": "\"text\"",
+              "description": "Input type; password gets a reveal toggle"
+            },
+            {
+              "name": "revealable",
+              "type": "boolean",
+              "default": "true for password without an endAdornment",
+              "description": "Built-in reveal toggle"
+            },
+            {
+              "name": "multiline",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render as an auto-growing textarea"
+            },
+            {
+              "name": "rows",
+              "type": "number",
+              "default": "2",
+              "description": "Initial visible text lines when multiline is true"
+            },
+            {
+              "name": "labelPlacement",
+              "type": "\"border\" | \"inside\"",
+              "default": "\"border\"",
+              "description": "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "true",
+              "description": "Pill shape; false takes the rounded box of the other fields"
+            },
+            {
+              "name": "allowAutofillExtensions",
+              "type": "boolean",
+              "default": "false",
+              "description": "Let password-manager extensions decorate the input"
+            },
+            {
+              "name": "startAdornment",
+              "type": "ReactNode",
+              "description": "Content rendered before the input, inside the field. Always shown; keeps the label floated"
+            },
+            {
+              "name": "endAdornment",
+              "type": "ReactNode",
+              "description": "Content rendered after the input, before the clear button"
+            },
+            {
+              "name": "onClear",
+              "type": "() => void",
+              "description": "Shows a clear button when the input has a value; focus returns to the input"
+            },
+            {
+              "name": "onRevealedChange",
+              "type": "(revealed: boolean) => void",
+              "description": "Called when the reveal toggle is clicked"
+            },
+            {
+              "name": "onAutofill",
+              "type": "() => void",
+              "description": "Called when the browser autofills the input"
+            }
+          ]
         },
         {
-          "name": "Password input",
-          "code": "<FloatingLabelInput label=\"Password\" type=\"password\" />",
-          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
-        },
-        {
-          "name": "SSN input",
-          "code": "const [rawDigits, setRawDigits] = useState(\"\")\nconst [visible, setVisible] = useState(false)\nconst formatted = formatSSN(rawDigits)\n\n<FloatingLabelInput\nlabel=\"Social Security Number\"\nvalue={formatted}\ninputMode=\"numeric\"\nmaxLength={11}\nonChange={(evt) => setRawDigits(extractDigits(evt.target.value))}\nstyle={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}\nrevealable\nonRevealedChange={setVisible}\n/>",
-          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN and extractDigits are plain helper functions of the example."
-        },
-        {
-          "name": "Birthday input",
-          "code": "const [birthday, setBirthday] = useState(\"\")\n\n<FloatingLabelInput\nlabel=\"Birthday\"\nvalue={birthday}\nmaxLength={14}\nonChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}\n/>",
-          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). formatBirthdayValue is a plain helper function of the example."
-        },
-        {
-          "name": "Birthday with validation",
-          "code": "const [birthday, setBirthday] = useState(\"02 / 30 / 2001\")\n\n<FloatingLabelInput\nlabel=\"Birthday\"\nvalue={birthday}\nmaxLength={14}\nonChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}\nerrorMessage={birthday && !isValidBirthday(birthday) ? \"Please enter a valid date.\" : undefined}\n/>",
-          "details": "Use errorMessage to display the birthday validation state; it also marks the input invalid. formatBirthdayValue and isValidBirthday are plain helper functions of the example."
-        },
-        {
-          "name": "Birthday states",
-          "code": "<div className=\"flex flex-col items-center gap-8 py-8\">\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n  <FloatingLabelInput label=\"Birthday\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n  <FloatingLabelInput label=\"Birthday\" defaultValue=\"01 / 15 / 1995\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n  <FloatingLabelInput invalid label=\"Birthday\" defaultValue=\"02 / 30 / 2001\" className=\"w-[320px]\" />\n</div>\n<div className=\"flex items-center\">\n  <div className=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n  <FloatingLabelInput disabled label=\"Birthday\" defaultValue=\"01 / 15 / 1995\" className=\"w-[320px]\" />\n</div>\n</div>",
-          "details": "Overview of birthday input states."
-        },
-        {
-          "name": "Select",
-          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select } from \"@plexui/ui/components/Select\"\n\nconst [role, setRole] = useState(\"\")\nconst selected = roles.find((option) => option.value === role)\n// Select expects a stable trigger renderer\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Role\"\n    selected={!!selected}\n    open={open}\n    onClearClick={selected ? () => setRole(\"\") : undefined}\n  >\n    {selected?.label}\n  </FloatingLabelSelect>\n),\n[selected],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  value={role}\n  options={roles}\n  onChange={(option) => setRole(option.value)}\n  searchPlaceholder=\"Search roles...\"\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
-          "details": "Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling."
-        },
-        {
-          "name": "Multiple selection",
-          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select } from \"@plexui/ui/components/Select\"\n\nconst [skills, setSkills] = useState<string[]>([])\nconst hasSelection = skills.length > 0\nconst display =\nskills.length === 1\n  ? (skillOptions.find((option) => option.value === skills[0])?.label ?? \"\")\n  : skills.length > 1\n    ? `${skills.length} skills`\n    : \"\"\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Skills\"\n    selected={hasSelection}\n    open={open}\n    onClearClick={hasSelection ? () => setSkills([]) : undefined}\n  >\n    {display}\n  </FloatingLabelSelect>\n),\n[hasSelection, display],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  multiple\n  clearable\n  value={skills}\n  options={skillOptions}\n  onChange={(options) => setSkills(options.map((option) => option.value))}\n  searchPlaceholder=\"Search skills...\"\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
-          "details": "Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list."
-        },
-        {
-          "name": "Country select",
-          "code": "import { FloatingLabelSelect } from \"@plexui/ui/components/FloatingLabelSelect\"\nimport { Select, type Option } from \"@plexui/ui/components/Select\"\n\n// Outside the component: Select needs a stable OptionView\nconst CountryOptionView = ({ value, label }: Option) => <CountryLabel code={value} label={label} />\n\nconst [country, setCountry] = useState(\"\")\nconst selected = countries.find((option) => option.value === country)\nconst trigger = useCallback(\n({ open }: { open: boolean }) => (\n  <FloatingLabelSelect\n    label=\"Country\"\n    selected={!!selected}\n    open={open}\n    onClearClick={selected ? () => setCountry(\"\") : undefined}\n  >\n    {selected && <CountryLabel code={selected.value} label={selected.label} />}\n  </FloatingLabelSelect>\n),\n[selected],\n)\n\n<div className=\"w-[360px]\">\n<Select\n  value={country}\n  options={countries}\n  onChange={(option) => setCountry(option.value)}\n  searchPlaceholder=\"Search countries...\"\n  OptionView={CountryOptionView}\n  listMinWidth={360}\n  block\n  trigger={trigger}\n  checkPosition=\"end\"\n/>\n</div>",
-          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. CountryLabel is a helper of the example that shows a flag next to the name."
-        },
-        {
-          "name": "Phone input",
-          "code": "const [country, setCountry] = useState(\"es\")\nconst [phone, setPhone] = useState(\"\")\nconst phoneInputRef = useRef<HTMLInputElement>(null)\n\n<div className=\"w-[360px] flex flex-col gap-3\">\n<Select\n  value={country}\n  options={phoneCountryOptions}\n  onChange={(option) => {\n    setCountry(option.value)\n    setTimeout(() => phoneInputRef.current?.focus(), 0)\n  }}\n  searchPlaceholder=\"Search countries...\"\n  OptionView={CountryOptionView}\n  searchPredicate={phoneCountrySearchPredicate}\n  listMinWidth={360}\n  block\n  size=\"3xl\"\n  trigger={phoneCountryTrigger}\n  checkPosition=\"end\"\n/>\n<FloatingLabelInput\n  ref={phoneInputRef}\n  label=\"Phone number\"\n  value={phone}\n  onChange={(evt) => setPhone(formatPhoneNumber(evt.target.value.replace(/\\D/g, \"\"), country))}\n  type=\"tel\"\n  inputMode=\"tel\"\n  startAdornment={<span className=\"text-tertiary whitespace-nowrap select-none mr-2\">{dialCodeOf(country)}</span>}\n/>\n</div>",
-          "details": "A country code selector paired with a FloatingLabelInput that uses startAdornment to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, CountryOptionView, formatPhoneNumber and dialCodeOf are helpers of the example."
+          "name": "FloatingLabelSelect",
+          "description": "The trigger of a Select or Menu, or a field of your own. Its children are the selected value.",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Required. Floating label text"
+            },
+            {
+              "name": "selected",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether a value is selected: floats the label and shows the children"
+            },
+            {
+              "name": "open",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether the attached list is open"
+            },
+            {
+              "name": "errorMessage",
+              "type": "string",
+              "description": "Validation message below the field; sets invalid state"
+            },
+            {
+              "name": "invalid",
+              "type": "boolean",
+              "default": "false (true if errorMessage)",
+              "description": "Invalid visual state"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disable the field"
+            },
+            {
+              "name": "labelPlacement",
+              "type": "\"border\" | \"inside\"",
+              "default": "\"border\"",
+              "description": "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "true",
+              "description": "Pill shape; false takes the rounded box of the other fields"
+            },
+            {
+              "name": "onClearClick",
+              "type": "() => void",
+              "description": "Shows a clear button when a value is selected"
+            },
+            {
+              "name": "onInteract",
+              "type": "() => void",
+              "description": "Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/components/floating-label-input"
@@ -6678,5 +6772,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T22:08:29.830Z"
+  "generatedAt": "2026-11-02T08:18:11.644Z"
 }

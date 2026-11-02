@@ -63,6 +63,12 @@
     --switch-thumb-width: 39px;
     --switch-thumb-offset: 2px;
 
+    --floating-input-font-size: 17px;
+    --floating-input-inside-height: 60px;
+    --floating-input-inside-label-shift: -13px;
+    --floating-input-inside-value-shift: 18px;
+    --floating-input-inside-line-height: 22px;
+
     --field-row-min-height: 60px;
     --field-row-padding-block: 8px;
     --field-row-text-padding-block: 12px;

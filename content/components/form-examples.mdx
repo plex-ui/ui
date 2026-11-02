@@ -10,6 +10,7 @@ import {
   FloatingLabelInputPhoneLoginFormDemo,
   FloatingLabelInputPasswordFormDemo,
   FloatingLabelSelectAboutYouFormDemo,
+  FloatingLabelInsideBillingFormDemo,
 } from "@/components/docs/FloatingLabelInputDemos"
 import {
   OTPInputCheckInboxErrorDemo,
@@ -172,6 +173,23 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
   <Button color="primary" size="3xl" type="submit" pill className="h-[3.25rem]">Continue</Button>
 </form>`} previewMinHeight={280}>
   <FloatingLabelSelectAboutYouFormDemo />
+</ComponentPreview>
+
+## Billing details
+
+<ComponentPreview details={<>A long form with the label inside every field: <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>, so the labels never push the form taller.</>} code={`<form className="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Billing email" labelPlacement="inside" type="email" />
+  <FloatingLabelInput label="Full name" labelPlacement="inside" />
+  <Select value={country} options={countries} onChange={onCountry} block trigger={countryTrigger} checkPosition="end" />
+  <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+  <FloatingLabelInput label="Address line 2" labelPlacement="inside" />
+  <div className="flex gap-3">
+    <FloatingLabelInput className="flex-1" label="Postal code" labelPlacement="inside" />
+    <FloatingLabelInput className="flex-1" label="City" labelPlacement="inside" />
+  </div>
+  <Button color="primary" size="3xl" type="submit" pill className="mt-3">Save</Button>
+</form>`} previewMinHeight={560}>
+  <FloatingLabelInsideBillingFormDemo />
 </ComponentPreview>
 
 ## Verify email

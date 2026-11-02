@@ -197,6 +197,50 @@ export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8
   </div>
 </div>`
 
+export const types = `<div class="flex flex-col items-center gap-6 py-8">
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">On the border</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" />
+  </div>
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Rounded box</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" :pill="false" />
+  </div>
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Inside</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" label-placement="inside" />
+  </div>
+</div>`
+
+export const inside = `<div class="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country or region"
+        label-placement="inside"
+        :selected="!!country"
+        :open="open"
+      >
+        {{ countries.find((option) => option.value === country)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+  <FloatingLabelInput label="Address line 1" label-placement="inside" />
+  <FloatingLabelInput label="Delivery notes" label-placement="inside" multiline />
+</div>`
+
+export const box = `<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" :pill="false" />
+</div>`
+
 export const select = `<div class="w-[360px]">
   <Select
     v-model:value="role"
@@ -320,85 +364,59 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
   <VueDemo template={overview} />
 </ComponentPreview>
 
-### Filled state
+### Types
 
-<ComponentPreview language="vue" details={<>When the input has a value, the label stays floated above the input.</>} code={filled} previewMinHeight={168}>
-  <VueDemo template={filled} />
+<ComponentPreview language="vue" details={<>Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each.</>} code={types} previewMinHeight={320}>
+  <VueDemo template={types} />
 </ComponentPreview>
 
-### Textarea
+#### Label inside
+
+<ComponentPreview language="vue" details={<>Use <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={inside} previewMinHeight={380}>
+  <VueFloatingLabelInputDemo template={inside} stageClassName="py-10" state={{ country: "es" }} />
+</ComponentPreview>
+
+#### Rounded box
+
+<ComponentPreview language="vue" details={<>Set <code>:pill="false"</code> to take the rounded box of <code>Input</code> and <code>Select</code>, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.</>} code={box} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={box} stageClassName="py-10" />
+</ComponentPreview>
+
+### Text fields
+
+Everything that is typed: more than one line, a password, or a value with a mask.
+
+#### Textarea
 
 <ComponentPreview language="vue" details={<>Use <code>multiline</code> to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height.</>} code={textarea}>
   <VueDemo template={textarea} stageClassName="py-10" state={{ value: "" }} controls={[{ name: "multiline", type: "select", options: [{ value: true, label: "true" }, { value: false, label: "false" }], default: true }]} />
 </ComponentPreview>
 
-### With error message
-
-<ComponentPreview language="vue" details={<>Use the <code>error-message</code> prop to display a validation error below the input. When <code>error-message</code> is provided, the input automatically enters the invalid state.</>} code={error} previewMinHeight={168}>
-  <VueDemo template={error} />
-</ComponentPreview>
-
-### With description
-
-<ComponentPreview language="vue" details={<>Use the <code>description</code> prop (or the <code>description</code> slot) to display helper text below the input.</>} code={description} previewMinHeight={168}>
-  <VueDemo template={description} />
-</ComponentPreview>
-
-### With description and error
-
-<ComponentPreview language="vue" details={<>When both <code>description</code> and <code>error-message</code> are provided, the error appears first (closest to the input), followed by the description.</>} code={descriptionError} previewMinHeight={168}>
-  <VueDemo template={descriptionError} />
-</ComponentPreview>
-
-### Clear button
-
-<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
-  <VueDemo template={clearButton} stageClassName="py-10" state={{ value: "clearable@example.com" }} controls={[{ name: "disabled", type: "boolean", default: false }, { name: "readOnly", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} stageClassName="py-10" controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Read only
-
-<ComponentPreview language="vue" details={<>Use the <code>read-only</code> prop to make the input read-only. The user can still select and copy the text.</>} code={readOnly} previewMinHeight={168}>
-  <VueDemo template={readOnly} />
-</ComponentPreview>
-
-### All states
-
-<ComponentPreview language="vue" details={<>Overview of all input states.</>} code={allStates} previewMinHeight={168}>
-  <VueDemo template={allStates} />
-</ComponentPreview>
-
-### Password input
+#### Password input
 
 <ComponentPreview language="vue" details={<>A <code>type="password"</code> field ships a built-in reveal toggle: click the eye to show or hide the value. Set <code>revealable</code> to <code>false</code> to remove it.</>} code={password} previewMinHeight={168}>
   <VueDemo template={password} />
 </ComponentPreview>
 
-### SSN input
+#### SSN input
 
 <ComponentPreview language="vue" details={<>A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (<code>XXX-XX-XXXX</code>) with highlighted segment, value masking that hides digits behind bullets (<code>•••-••-••••</code>), and a built-in <code>revealable</code> toggle to reveal the real value. <code>formatSSN</code>, <code>nextSSNDigits</code> and <code>ssnMask</code> are plain helper functions of the example.</>} code={ssn} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={ssn} stageClassName="py-10" state={{ digits: "", visible: false, focused: false }} />
 </ComponentPreview>
 
-### Birthday input
+#### Birthday input
 
 <ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). <code>nextBirthday</code> and <code>birthdayMask</code> are plain helper functions of the example.</>} code={birthday} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={birthday} stageClassName="py-10" state={{ birthday: "", focused: false }} />
 </ComponentPreview>
 
-### Birthday with validation
+#### Birthday with validation
 
 <ComponentPreview language="vue" details={<>Use <code>invalid</code> and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, <code>BirthdayMaskedInput</code>, and the error shows in a <code>FieldError</code> below it.</>} code={birthdayValidation} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
 </ComponentPreview>
 
-### Birthday states
+#### Birthday states
 
 <ComponentPreview language="vue" details={<>Overview of birthday input states.</>} code={birthdayStates} previewMinHeight={168}>
   <VueFloatingLabelInputDemo
@@ -407,31 +425,89 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
   />
 </ComponentPreview>
 
-### Select
-
-<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={select} stageClassName="py-10" state={{ role: "" }} />
-</ComponentPreview>
-
-### Multiple selection
-
-<ComponentPreview language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={multiple} stageClassName="py-10" state={{ skills: [] }} />
-</ComponentPreview>
-
-### Country select
-
-<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
-</ComponentPreview>
-
-### Phone input
+#### Phone input
 
 <ComponentPreview language="vue" details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses the <code>startAdornment</code> slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.</>} code={phone} previewMinHeight={200}>
   <VueFloatingLabelInputDemo template={phone} stageClassName="py-10" state={{ country: "es", phone: "" }} />
 </ComponentPreview>
 
+### Selects
+
+`FloatingLabelSelect` is the trigger of a `Select`, so a list reads like the fields around it.
+
+#### Select
+
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={select} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={select} stageClassName="py-10" state={{ role: "" }} />
+</ComponentPreview>
+
+#### Multiple selection
+
+<ComponentPreview language="vue" details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={multiple} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={multiple} stageClassName="py-10" state={{ skills: [] }} />
+</ComponentPreview>
+
+#### Country select
+
+<ComponentPreview language="vue" details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected.</>} code={country} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
+</ComponentPreview>
+
+### States
+
+The states every field shares, whatever its type.
+
+#### Filled state
+
+<ComponentPreview language="vue" details={<>When the input has a value, the label stays floated above the input.</>} code={filled} previewMinHeight={168}>
+  <VueDemo template={filled} />
+</ComponentPreview>
+
+#### With error message
+
+<ComponentPreview language="vue" details={<>Use the <code>error-message</code> prop to display a validation error below the input. When <code>error-message</code> is provided, the input automatically enters the invalid state.</>} code={error} previewMinHeight={168}>
+  <VueDemo template={error} />
+</ComponentPreview>
+
+#### With description
+
+<ComponentPreview language="vue" details={<>Use the <code>description</code> prop (or the <code>description</code> slot) to display helper text below the input.</>} code={description} previewMinHeight={168}>
+  <VueDemo template={description} />
+</ComponentPreview>
+
+#### With description and error
+
+<ComponentPreview language="vue" details={<>When both <code>description</code> and <code>error-message</code> are provided, the error appears first (closest to the input), followed by the description.</>} code={descriptionError} previewMinHeight={168}>
+  <VueDemo template={descriptionError} />
+</ComponentPreview>
+
+#### Clear button
+
+<ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
+  <VueDemo template={clearButton} stageClassName="py-10" state={{ value: "clearable@example.com" }} controls={[{ name: "disabled", type: "boolean", default: false }, { name: "readOnly", type: "boolean", default: false }]} />
+</ComponentPreview>
+
+#### Disabled
+
+<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
+  <VueDemo template={disabled} stageClassName="py-10" controls={[{ name: "disabled", type: "boolean", default: true }]} />
+</ComponentPreview>
+
+#### Read only
+
+<ComponentPreview language="vue" details={<>Use the <code>read-only</code> prop to make the input read-only. The user can still select and copy the text.</>} code={readOnly} previewMinHeight={168}>
+  <VueDemo template={readOnly} />
+</ComponentPreview>
+
+#### All states
+
+<ComponentPreview language="vue" details={<>Overview of all input states.</>} code={allStates} previewMinHeight={168}>
+  <VueDemo template={allStates} />
+</ComponentPreview>
+
 ## API
+
+### FloatingLabelInput
 
 <PropsTable data={[
   { prop: "label", type: "string", description: "Label text for the floating label" },
@@ -446,6 +522,8 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
   { prop: "revealable", type: "boolean", default: "true for password without an end adornment", description: "Built-in reveal toggle" },
   { prop: "multiline", type: "boolean", default: "false", description: "Render an auto-growing textarea" },
   { prop: "rows", type: "number", default: "2", description: "Visible lines when multiline" },
+  { prop: "label-placement", type: '"border" | "inside"', default: '"border"', description: "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box" },
+  { prop: "pill", type: "boolean", default: "true", description: "Pill shape; false takes the rounded box of the other fields" },
   { prop: "allow-autofill-extensions", type: "boolean", default: "false", description: "Let password-manager extensions decorate the input" },
   { prop: "#startAdornment / #endAdornment", type: "slots", description: "Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated" },
   { prop: "@clear", type: "() => void", description: "Shows the clear button and fires when it is clicked; focus returns to the input" },
@@ -454,6 +532,25 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
 ]} />
 
 Other attributes and listeners are forwarded to the `<input>` (or to the `<textarea>` with `multiline`).
+
+### FloatingLabelSelect
+
+The `#trigger` of a `Select` or `Menu`, or a field of your own. Its default slot is the selected value.
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "Label text for the floating label" },
+  { prop: "selected", type: "boolean", default: "false", description: "Whether a value is selected: floats the label and shows the default slot" },
+  { prop: "open", type: "boolean", default: "false", description: "Whether the attached list is open" },
+  { prop: "error-message", type: "string", description: "Error message to display below the field" },
+  { prop: "invalid", type: "boolean", default: "false (true if error-message)", description: "Mark the field as invalid" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the field" },
+  { prop: "label-placement", type: '"border" | "inside"', default: '"border"', description: "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box" },
+  { prop: "pill", type: "boolean", default: "true", description: "Pill shape; false takes the rounded box of the other fields" },
+  { prop: "@clear-click", type: "() => void", description: "Shows a clear button when a value is selected" },
+  { prop: "@interact", type: "() => void", description: "Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens" },
+]} />
+
+Other attributes and listeners go to the field, `class` to its root.
 
 ## Styling
 
@@ -469,8 +566,17 @@ Float Input reads these component tokens. Override them at any scope to restyle 
 - `--floating-input-border-color-hover`: border color hover
 - `--floating-input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)
 - `--floating-input-border-radius`: border radius (default `var(--radius-full)`)
+- `--floating-input-box-gutter`: gutter of the rounded box (default `var(--control-gutter-lg)`)
+- `--floating-input-box-radius`: radius of the rounded box (default `var(--control-radius-xl)`)
+- `--floating-input-font-size`: value and resting label size (default `1rem`)
 - `--floating-input-gutter`: gutter (default `1.25rem`)
 - `--floating-input-height`: height (default `3.25rem`)
+- `--floating-input-inside-height`: height with the label inside (default `3.5rem`)
+- `--floating-input-inside-label-color`: label color with the label inside (default `var(--color-text-secondary)`)
+- `--floating-input-inside-label-scale`: label scale with the label inside (default `0.75`)
+- `--floating-input-inside-label-shift`: how far the label rises inside the box (default `-0.75rem`)
+- `--floating-input-inside-line-height`: line step of the textarea, and the distance from the label to the value (default `1.25rem`)
+- `--floating-input-inside-value-shift`: how far the value drops under the label (default `1rem`)
 - `--floating-input-label-color`: label color (default `var(--color-text-tertiary)`)
 - `--floating-input-label-color-focus`: label color focus (default `var(--color-text)`)
 - `--floating-input-label-color-invalid`: label color invalid (default `var(--color-text-danger-outline)`)

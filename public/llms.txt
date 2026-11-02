@@ -430,26 +430,39 @@ Examples: Overview, With files, Error state, Disabled, Read-only, With remove, M
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
 Docs: https://plexui.com/components/floating-label-input
-Props:
-  - label (string) — Required. Floating label text
-  - value (string) — Controlled value, with onChange
-  - defaultValue (string) — Initial value when uncontrolled
-  - errorMessage (string) — Validation message below input; sets invalid state
-  - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
-  - description (ReactNode) — Helper text below the input
-  - disabled (boolean) default: false — Disable input interactions
-  - readOnly (boolean) default: false — Read-only input state
-  - type (string) default: "text" — Input type; password gets a reveal toggle
-  - revealable (boolean) default: true for password without an endAdornment — Built-in reveal toggle
-  - multiline (boolean) default: false — Render as an auto-growing textarea
-  - rows (number) default: 2 — Initial visible text lines when multiline is true
-  - allowAutofillExtensions (boolean) default: false — Let password-manager extensions decorate the input
-  - startAdornment (ReactNode) — Content rendered before the input, inside the field. Always shown; keeps the label floated
-  - endAdornment (ReactNode) — Content rendered after the input, before the clear button
-  - onClear (() => void) — Shows a clear button when the input has a value; focus returns to the input
-  - onRevealedChange ((revealed: boolean) => void) — Called when the reveal toggle is clicked
-  - onAutofill (() => void) — Called when the browser autofills the input
-Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
+  FloatingLabelInput:
+    - label (string) — Required. Floating label text
+    - value (string) — Controlled value, with onChange
+    - defaultValue (string) — Initial value when uncontrolled
+    - errorMessage (string) — Validation message below input; sets invalid state
+    - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
+    - description (ReactNode) — Helper text below the input
+    - disabled (boolean) default: false — Disable input interactions
+    - readOnly (boolean) default: false — Read-only input state
+    - type (string) default: "text" — Input type; password gets a reveal toggle
+    - revealable (boolean) default: true for password without an endAdornment — Built-in reveal toggle
+    - multiline (boolean) default: false — Render as an auto-growing textarea
+    - rows (number) default: 2 — Initial visible text lines when multiline is true
+    - labelPlacement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - allowAutofillExtensions (boolean) default: false — Let password-manager extensions decorate the input
+    - startAdornment (ReactNode) — Content rendered before the input, inside the field. Always shown; keeps the label floated
+    - endAdornment (ReactNode) — Content rendered after the input, before the clear button
+    - onClear (() => void) — Shows a clear button when the input has a value; focus returns to the input
+    - onRevealedChange ((revealed: boolean) => void) — Called when the reveal toggle is clicked
+    - onAutofill (() => void) — Called when the browser autofills the input
+  FloatingLabelSelect:
+    - label (string) — Required. Floating label text
+    - selected (boolean) default: false — Whether a value is selected: floats the label and shows the children
+    - open (boolean) default: false — Whether the attached list is open
+    - errorMessage (string) — Validation message below the field; sets invalid state
+    - invalid (boolean) default: false (true if errorMessage) — Invalid visual state
+    - disabled (boolean) default: false — Disable the field
+    - labelPlacement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - onClearClick (() => void) — Shows a clear button when a value is selected
+    - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
+Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Phone input, Select, Multiple selection, Country select, Filled state, With error message, With description, With description and error, Clear button, Disabled, Read only, All states
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.

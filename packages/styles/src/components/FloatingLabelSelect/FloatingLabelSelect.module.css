@@ -18,7 +18,7 @@
   border-radius: var(--floating-input-border-radius);
   line-height: 1.5rem;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: var(--floating-input-font-size);
   width: 100%;
   border: 1px solid var(--input-state-color, var(--floating-input-border-color));
   padding: 0 var(--floating-input-gutter);
@@ -87,7 +87,7 @@
   padding: 1px var(--horizontal-padding);
   transition: var(--placeholder-transition);
   color: var(--input-state-color, var(--floating-input-label-color));
-  font-size: 1rem;
+  font-size: var(--floating-input-font-size);
   line-height: 1;
   cursor: var(--cursor, pointer);
   transform: translate(calc(-1 * var(--horizontal-padding)));
@@ -203,6 +203,37 @@
 
 .ErrorMessage:last-child {
   margin-bottom: 0.5rem;
+}
+
+/* =============================================
+   Shape: the rounded box of the other fields
+============================================= */
+.Root:not([data-pill]) {
+  --floating-input-border-radius: var(--floating-input-box-radius);
+  --floating-input-gutter: var(--floating-input-box-gutter);
+}
+
+/* =============================================
+   Label inside the box, the value under it
+============================================= */
+.Root[data-label-placement="inside"] {
+  --floating-input-height: var(--floating-input-inside-height);
+  --floating-input-label-scale: var(--floating-input-inside-label-scale);
+  --floating-input-label-color: var(--floating-input-inside-label-color);
+  --floating-input-label-color-focus: var(--floating-input-inside-label-color);
+}
+
+.Root[data-label-placement="inside"] .LabelText {
+  --horizontal-padding: 0px;
+  background-color: transparent;
+}
+
+.Root[data-label-placement="inside"] :is(.FieldFootprint[data-open], .FieldFootprint[data-invalid], .HasValue) .LabelPositioner {
+  transform: translateY(var(--floating-input-inside-label-shift));
+}
+
+.Root[data-label-placement="inside"] .Content {
+  padding-top: var(--floating-input-inside-value-shift);
 }
 
 /* Reduced motion preference */

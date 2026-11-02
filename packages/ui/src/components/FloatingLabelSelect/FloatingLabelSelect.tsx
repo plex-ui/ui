@@ -17,6 +17,17 @@ export type FloatingLabelSelectProps = {
   open?: boolean
   onInteract?: () => void
   onClearClick?: () => void
+  /**
+   * Where the label rests once it floats: on the border, or inside the box
+   * with the value under it. `inside` always takes the rounded box.
+   * @default "border"
+   */
+  labelPlacement?: "border" | "inside"
+  /**
+   * Pill shape. `false` takes the rounded box of the other fields.
+   * @default true
+   */
+  pill?: boolean
   children?: React.ReactNode
   className?: string
   "aria-describedby"?: string
@@ -36,6 +47,8 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
       open = false,
       onInteract,
       onClearClick,
+      labelPlacement = "border",
+      pill = true,
       children,
       className,
       "aria-describedby": ariaDescribedByProp,
@@ -109,7 +122,11 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
     )
 
     return (
-      <div className={clsx(s.Root, className)}>
+      <div
+        className={clsx(s.Root, className)}
+        data-label-placement={labelPlacement === "inside" ? "inside" : undefined}
+        data-pill={pill && labelPlacement !== "inside" ? "" : undefined}
+      >
         <div
           // The ref is the focusable field: a wrapping trigger returns focus to it and anchors to it
           ref={ref}

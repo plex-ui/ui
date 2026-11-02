@@ -993,6 +993,77 @@ export function FloatingLabelSelectPlainDemo() {
 }
 
 // ---------------------------------------------------------------------------
+// Label inside the box
+// ---------------------------------------------------------------------------
+function useInsideCountryTrigger(country: string) {
+  const label = COUNTRIES.find((c) => c.value === country)?.label;
+  return useCallback(
+    ({ open }: { open: boolean; onToggle: () => void }) => (
+      <FloatingLabelSelect label="Country or region" labelPlacement="inside" selected={!!label} open={open}>
+        {label}
+      </FloatingLabelSelect>
+    ),
+    [label],
+  );
+}
+
+export function FloatingLabelInsideDemo() {
+  const [country, setCountry] = useState('es');
+  const trigger = useInsideCountryTrigger(country);
+
+  return (
+    <div data-demo-stage className="py-10">
+      <div className="flex w-[360px] flex-col gap-3">
+        <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+        <Select
+          value={country}
+          options={COUNTRIES}
+          onChange={(option) => setCountry(option.value)}
+          searchPlaceholder="Search countries..."
+          listMinWidth={360}
+          block
+          trigger={trigger}
+          checkPosition="end"
+        />
+        <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+        <FloatingLabelInput label="Delivery notes" labelPlacement="inside" multiline />
+      </div>
+    </div>
+  );
+}
+
+export function FloatingLabelInsideBillingFormDemo() {
+  const [country, setCountry] = useState('es');
+  const trigger = useInsideCountryTrigger(country);
+
+  return (
+    <div data-demo-stage className="py-10">
+      <form className="flex w-[360px] flex-col gap-3" onSubmit={(evt) => evt.preventDefault()}>
+        <FloatingLabelInput label="Billing email" labelPlacement="inside" type="email" defaultValue="jane.doe@example.com" />
+        <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+        <Select
+          value={country}
+          options={COUNTRIES}
+          onChange={(option) => setCountry(option.value)}
+          searchPlaceholder="Search countries..."
+          listMinWidth={360}
+          block
+          trigger={trigger}
+          checkPosition="end"
+        />
+        <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
+        <FloatingLabelInput label="Address line 2" labelPlacement="inside" />
+        <div className="flex gap-3">
+          <FloatingLabelInput className="flex-1" label="Postal code" labelPlacement="inside" />
+          <FloatingLabelInput className="flex-1" label="City" labelPlacement="inside" />
+        </div>
+        <Button color="primary" size="3xl" type="submit" pill className="mt-3">Save</Button>
+      </form>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Multi-select with clearable
 // ---------------------------------------------------------------------------
 const SKILLS: Option[] = [

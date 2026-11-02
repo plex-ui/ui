@@ -429,25 +429,38 @@ Examples: Overview, With files, Error state, Disabled, Read-only, With remove, M
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput"
 Docs: https://plexui.com/vue/components/floating-label-input
-Props:
-  - label (string) — Label text for the floating label
-  - value / v-model:value (string) — Controlled value; `update:value` fires on input
-  - default-value (string) — Initial value when uncontrolled
-  - error-message (string) — Error message to display below the input
-  - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
-  - description (string | slot) — Helper text below the input
-  - disabled (boolean) default: false — Disables the input
-  - read-only / readonly (boolean) default: false — Makes the input read-only (both spellings work)
-  - type (string) default: "text" — Input type; password gets a reveal toggle
-  - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
-  - multiline (boolean) default: false — Render an auto-growing textarea
-  - rows (number) default: 2 — Visible lines when multiline
-  - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
-  - #startAdornment / #endAdornment (slots) — Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated
-  - @clear (() => void) — Shows the clear button and fires when it is clicked; focus returns to the input
-  - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
-  - @autofill (() => void) — Fires when the browser autofills the input
-Examples: Overview, Filled state, Textarea, With error message, With description, With description and error, Clear button, Disabled, Read only, All states, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Select, Multiple selection, Country select, Phone input
+  FloatingLabelInput:
+    - label (string) — Label text for the floating label
+    - value / v-model:value (string) — Controlled value; `update:value` fires on input
+    - default-value (string) — Initial value when uncontrolled
+    - error-message (string) — Error message to display below the input
+    - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
+    - description (string | slot) — Helper text below the input
+    - disabled (boolean) default: false — Disables the input
+    - read-only / readonly (boolean) default: false — Makes the input read-only (both spellings work)
+    - type (string) default: "text" — Input type; password gets a reveal toggle
+    - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
+    - multiline (boolean) default: false — Render an auto-growing textarea
+    - rows (number) default: 2 — Visible lines when multiline
+    - label-placement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
+    - #startAdornment / #endAdornment (slots) — Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated
+    - @clear (() => void) — Shows the clear button and fires when it is clicked; focus returns to the input
+    - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
+    - @autofill (() => void) — Fires when the browser autofills the input
+  FloatingLabelSelect:
+    - label (string) — Label text for the floating label
+    - selected (boolean) default: false — Whether a value is selected: floats the label and shows the default slot
+    - open (boolean) default: false — Whether the attached list is open
+    - error-message (string) — Error message to display below the field
+    - invalid (boolean) default: false (true if error-message) — Mark the field as invalid
+    - disabled (boolean) default: false — Disables the field
+    - label-placement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - @clear-click (() => void) — Shows a clear button when a value is selected
+    - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
+Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Phone input, Select, Multiple selection, Country select, Filled state, With error message, With description, With description and error, Clear button, Disabled, Read only, All states
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.

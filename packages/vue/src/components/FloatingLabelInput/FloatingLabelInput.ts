@@ -58,6 +58,10 @@ const FloatingLabelInputComponent = defineComponent({
     multiline: { type: Boolean, default: false },
     /** Number of visible text lines when `multiline` is true */
     rows: { type: Number, default: 2 },
+    /** Where the label rests once it floats: on the border, or inside the box with the value under it (always the rounded box). @default "border" */
+    labelPlacement: { type: String as PropType<"border" | "inside">, default: "border" },
+    /** Pill shape. `false` takes the rounded box of the other fields. @default true */
+    pill: { type: Boolean, default: true },
     id: String,
     name: String,
     type: { type: String, default: "text" },
@@ -234,7 +238,13 @@ const FloatingLabelInputComponent = defineComponent({
       const { value: _value, ...textareaControlProps } = controlProps as typeof controlProps & { value?: unknown }
       const textContent = String(props.value ?? props.defaultValue ?? "")
 
-      return h("div", { class: clsx(s.Root, className as string | undefined) }, [
+      const inside = props.labelPlacement === "inside"
+
+      return h("div", {
+        "class": clsx(s.Root, className as string | undefined),
+        "data-label-placement": inside ? "inside" : undefined,
+        "data-pill": props.pill && !inside ? "" : undefined,
+      }, [
         h(
           "div",
           {

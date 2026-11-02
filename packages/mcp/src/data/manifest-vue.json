@@ -2567,115 +2567,80 @@
       "exports": [
         "FloatingLabelInput"
       ],
-      "props": [
-        {
-          "name": "label",
-          "type": "string",
-          "description": "Label text for the floating label"
-        },
-        {
-          "name": "value / v-model:value",
-          "type": "string",
-          "description": "Controlled value; `update:value` fires on input"
-        },
-        {
-          "name": "default-value",
-          "type": "string",
-          "description": "Initial value when uncontrolled"
-        },
-        {
-          "name": "error-message",
-          "type": "string",
-          "description": "Error message to display below the input"
-        },
-        {
-          "name": "invalid",
-          "type": "boolean",
-          "default": "false (true if error-message)",
-          "description": "Mark the input as invalid"
-        },
-        {
-          "name": "description",
-          "type": "string | slot",
-          "description": "Helper text below the input"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false",
-          "description": "Disables the input"
-        },
-        {
-          "name": "read-only / readonly",
-          "type": "boolean",
-          "default": "false",
-          "description": "Makes the input read-only (both spellings work)"
-        },
-        {
-          "name": "type",
-          "type": "string",
-          "default": "\"text\"",
-          "description": "Input type; password gets a reveal toggle"
-        },
-        {
-          "name": "revealable",
-          "type": "boolean",
-          "default": "true for password without an end adornment",
-          "description": "Built-in reveal toggle"
-        },
-        {
-          "name": "multiline",
-          "type": "boolean",
-          "default": "false",
-          "description": "Render an auto-growing textarea"
-        },
-        {
-          "name": "rows",
-          "type": "number",
-          "default": "2",
-          "description": "Visible lines when multiline"
-        },
-        {
-          "name": "allow-autofill-extensions",
-          "type": "boolean",
-          "default": "false",
-          "description": "Let password-manager extensions decorate the input"
-        },
-        {
-          "name": "#startAdornment / #endAdornment",
-          "type": "slots",
-          "description": "Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated"
-        },
-        {
-          "name": "@clear",
-          "type": "() => void",
-          "description": "Shows the clear button and fires when it is clicked; focus returns to the input"
-        },
-        {
-          "name": "@revealed-change",
-          "type": "(revealed: boolean) => void",
-          "description": "Fires when the reveal toggle is clicked"
-        },
-        {
-          "name": "@autofill",
-          "type": "() => void",
-          "description": "Fires when the browser autofills the input"
-        }
-      ],
       "examples": [
         {
           "name": "Overview",
           "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" />\n</div>"
         },
         {
-          "name": "Filled state",
-          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@example.com\" />\n</div>",
-          "details": "When the input has a value, the label stays floated above the input."
+          "name": "Types",
+          "code": "<div class=\"flex flex-col items-center gap-6 py-8\">\n  <div class=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n    <div class=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">On the border</div>\n    <FloatingLabelInput class=\"flex-1\" label=\"Email address\" default-value=\"jane.doe@example.com\" />\n  </div>\n  <div class=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n    <div class=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">Rounded box</div>\n    <FloatingLabelInput class=\"flex-1\" label=\"Email address\" default-value=\"jane.doe@example.com\" :pill=\"false\" />\n  </div>\n  <div class=\"flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6\">\n    <div class=\"shrink-0 text-sm text-secondary sm:w-24 sm:text-right\">Inside</div>\n    <FloatingLabelInput class=\"flex-1\" label=\"Email address\" default-value=\"jane.doe@example.com\" label-placement=\"inside\" />\n  </div>\n</div>",
+          "details": "Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each."
+        },
+        {
+          "name": "Label inside",
+          "code": "<div class=\"flex w-[360px] flex-col gap-3\">\n  <FloatingLabelInput label=\"Full name\" label-placement=\"inside\" default-value=\"Jane Doe\" />\n  <Select\n    v-model:value=\"country\"\n    :options=\"countries\"\n    search-placeholder=\"Search countries...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Country or region\"\n        label-placement=\"inside\"\n        :selected=\"!!country\"\n        :open=\"open\"\n      >\n        {{ countries.find((option) => option.value === country)?.label }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n  <FloatingLabelInput label=\"Address line 1\" label-placement=\"inside\" />\n  <FloatingLabelInput label=\"Delivery notes\" label-placement=\"inside\" multiline />\n</div>",
+          "details": "Use label-placement=\"inside\" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box."
+        },
+        {
+          "name": "Rounded box",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" :pill=\"false\" />\n</div>",
+          "details": "Set :pill=\"false\" to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place."
         },
         {
           "name": "Textarea",
           "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput\n    :key=\"String(multiline)\"\n    v-model:value=\"value\"\n    label=\"Message\"\n    :multiline=\"multiline\"\n  />\n</div>",
           "details": "Use multiline to render an auto-growing textarea with the same floating-label treatment. The textarea starts at 2 rows and grows automatically as content is added. The border radius adjusts to half the input height."
+        },
+        {
+          "name": "Password input",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Password\" type=\"password\" />\n</div>",
+          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
+        },
+        {
+          "name": "SSN input",
+          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Social Security Number\"\n      :value=\"formatSSN(digits)\"\n      maxlength=\"11\"\n      inputmode=\"numeric\"\n      autocomplete=\"off\"\n      :style=\"{\n        fontFamily: 'var(--font-mono, ui-monospace, monospace)',\n        ...(!visible && digits\n          ? { color: 'transparent', caretColor: 'transparent' }\n          : focused && ssnMask(digits).suffix\n            ? { caretColor: 'transparent' }\n            : {}),\n      }\"\n      revealable\n      @update:value=\"(raw) => (digits = nextSSNDigits(raw, digits))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n      @revealed-change=\"(revealed) => (visible = revealed)\"\n    />\n    <div\n      v-if=\"(!visible && digits) || (focused && ssnMask(digits).suffix)\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden\"\n    >\n      <span v-if=\"!visible && digits\" style=\"white-space: pre\">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>\n      <span v-else style=\"visibility: hidden; white-space: pre\">{{ formatSSN(digits) }}</span>\n      <template v-if=\"focused && ssnMask(digits).suffix\">\n        <span v-if=\"ssnMask(digits).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).before }}</span>\n        <span\n          v-if=\"ssnMask(digits).highlight\"\n          style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n        >{{ ssnMask(digits).highlight }}</span>\n        <span v-if=\"ssnMask(digits).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).after }}</span>\n      </template>\n    </div>\n  </div>\n</div>",
+          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN, nextSSNDigits and ssnMask are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday input",
+          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Birthday\"\n      :value=\"birthday\"\n      maxlength=\"14\"\n      inputmode=\"numeric\"\n      :style=\"focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n    />\n    <div\n      v-if=\"focused && birthdayMask(birthday).suffix\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden\"\n    >\n      <span style=\"visibility: hidden; white-space: pre\">{{ birthday }}</span>\n      <span v-if=\"birthdayMask(birthday).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).before }}</span>\n      <span\n        v-if=\"birthdayMask(birthday).highlight\"\n        style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n      >{{ birthdayMask(birthday).highlight }}</span>\n      <span v-if=\"birthdayMask(birthday).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).after }}</span>\n    </div>\n  </div>\n</div>",
+          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). nextBirthday and birthdayMask are plain helper functions of the example."
+        },
+        {
+          "name": "Birthday with validation",
+          "code": "<div class=\"w-[360px]\">\n  <div class=\"flex flex-col gap-1.5\">\n    <component\n      :is=\"BirthdayMaskedInput\"\n      v-model:value=\"birthday\"\n      :invalid=\"!!birthday && !isValidBirthday(birthday)\"\n      :aria-describedby=\"birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined\"\n    />\n    <FieldError v-if=\"birthday && !isValidBirthday(birthday)\" id=\"birthday-validation-demo-error\">\n      Please enter a valid date.\n    </FieldError>\n  </div>\n</div>",
+          "details": "Use invalid and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, BirthdayMaskedInput, and the error shows in a FieldError below it."
+        },
+        {
+          "name": "Birthday states",
+          "code": "<div class=\"flex flex-col items-center gap-8 py-8 w-full\">\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Empty</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"emptyBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Filled</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"filledBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Invalid</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"invalidBirthday\" invalid class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Disabled</div>\n    <component :is=\"BirthdayMaskedInput\" value=\"01 / 15 / 1995\" disabled class=\"flex-1 min-w-0\" />\n  </div>\n</div>",
+          "details": "Overview of birthday input states."
+        },
+        {
+          "name": "Phone input",
+          "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
+          "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated."
+        },
+        {
+          "name": "Select",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"role\"\n    :options=\"roleOptions\"\n    search-placeholder=\"Search roles...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Role\"\n        :selected=\"!!role\"\n        :open=\"open\"\n        :on-clear-click=\"role ? () => (role = '') : undefined\"\n      >\n        {{ roleOptions.find((option) => option.value === role)?.label }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling."
+        },
+        {
+          "name": "Multiple selection",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    multiple\n    clearable\n    v-model:value=\"skills\"\n    :options=\"skillOptions\"\n    search-placeholder=\"Search skills...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Skills\"\n        :selected=\"skills.length > 0\"\n        :open=\"open\"\n        :on-clear-click=\"skills.length > 0 ? () => (skills = []) : undefined\"\n      >\n        {{\n          skills.length === 1\n            ? skillOptions.find((option) => option.value === skills[0])?.label\n            : skills.length > 1\n              ? skills.length + ' skills'\n              : ''\n        }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list."
+        },
+        {
+          "name": "Country select",
+          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"countries\"\n    search-placeholder=\"Search countries...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Country\"\n        :selected=\"!!countryOf(country)\"\n        :open=\"open\"\n        :on-clear-click=\"countryOf(country) ? () => (country = '') : undefined\"\n      >\n        <span\n          v-if=\"countryOf(country)\"\n          style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"\n        ><component :is=\"FlagIcon\" :code=\"country\" />{{ countryOf(country).label }}</span>\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
+          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected."
+        },
+        {
+          "name": "Filled state",
+          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@example.com\" />\n</div>",
+          "details": "When the input has a value, the label stays floated above the input."
         },
         {
           "name": "With error message",
@@ -2711,51 +2676,180 @@
           "name": "All states",
           "code": "<div class=\"flex flex-col items-center gap-8 py-8\">\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Empty</div>\n    <FloatingLabelInput label=\"Email address\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Filled</div>\n    <FloatingLabelInput label=\"Email address\" default-value=\"jane.doe@gmail.com\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Invalid</div>\n    <FloatingLabelInput invalid label=\"Email address\" default-value=\"invalid@email\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Disabled</div>\n    <FloatingLabelInput disabled label=\"Email address\" default-value=\"jane.doe@gmail.com\" class=\"w-[320px]\" />\n  </div>\n  <div class=\"flex items-center\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem]\">Read only</div>\n    <FloatingLabelInput read-only label=\"Email address\" default-value=\"readonly@gmail.com\" class=\"w-[320px]\" />\n  </div>\n</div>",
           "details": "Overview of all input states."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "FloatingLabelInput",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Label text for the floating label"
+            },
+            {
+              "name": "value / v-model:value",
+              "type": "string",
+              "description": "Controlled value; `update:value` fires on input"
+            },
+            {
+              "name": "default-value",
+              "type": "string",
+              "description": "Initial value when uncontrolled"
+            },
+            {
+              "name": "error-message",
+              "type": "string",
+              "description": "Error message to display below the input"
+            },
+            {
+              "name": "invalid",
+              "type": "boolean",
+              "default": "false (true if error-message)",
+              "description": "Mark the input as invalid"
+            },
+            {
+              "name": "description",
+              "type": "string | slot",
+              "description": "Helper text below the input"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disables the input"
+            },
+            {
+              "name": "read-only / readonly",
+              "type": "boolean",
+              "default": "false",
+              "description": "Makes the input read-only (both spellings work)"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "default": "\"text\"",
+              "description": "Input type; password gets a reveal toggle"
+            },
+            {
+              "name": "revealable",
+              "type": "boolean",
+              "default": "true for password without an end adornment",
+              "description": "Built-in reveal toggle"
+            },
+            {
+              "name": "multiline",
+              "type": "boolean",
+              "default": "false",
+              "description": "Render an auto-growing textarea"
+            },
+            {
+              "name": "rows",
+              "type": "number",
+              "default": "2",
+              "description": "Visible lines when multiline"
+            },
+            {
+              "name": "label-placement",
+              "type": "\"border\" | \"inside\"",
+              "default": "\"border\"",
+              "description": "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "true",
+              "description": "Pill shape; false takes the rounded box of the other fields"
+            },
+            {
+              "name": "allow-autofill-extensions",
+              "type": "boolean",
+              "default": "false",
+              "description": "Let password-manager extensions decorate the input"
+            },
+            {
+              "name": "#startAdornment / #endAdornment",
+              "type": "slots",
+              "description": "Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated"
+            },
+            {
+              "name": "@clear",
+              "type": "() => void",
+              "description": "Shows the clear button and fires when it is clicked; focus returns to the input"
+            },
+            {
+              "name": "@revealed-change",
+              "type": "(revealed: boolean) => void",
+              "description": "Fires when the reveal toggle is clicked"
+            },
+            {
+              "name": "@autofill",
+              "type": "() => void",
+              "description": "Fires when the browser autofills the input"
+            }
+          ]
         },
         {
-          "name": "Password input",
-          "code": "<div class=\"w-[360px]\">\n  <FloatingLabelInput label=\"Password\" type=\"password\" />\n</div>",
-          "details": "A type=\"password\" field ships a built-in reveal toggle: click the eye to show or hide the value. Set revealable to false to remove it."
-        },
-        {
-          "name": "SSN input",
-          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Social Security Number\"\n      :value=\"formatSSN(digits)\"\n      maxlength=\"11\"\n      inputmode=\"numeric\"\n      autocomplete=\"off\"\n      :style=\"{\n        fontFamily: 'var(--font-mono, ui-monospace, monospace)',\n        ...(!visible && digits\n          ? { color: 'transparent', caretColor: 'transparent' }\n          : focused && ssnMask(digits).suffix\n            ? { caretColor: 'transparent' }\n            : {}),\n      }\"\n      revealable\n      @update:value=\"(raw) => (digits = nextSSNDigits(raw, digits))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n      @revealed-change=\"(revealed) => (visible = revealed)\"\n    />\n    <div\n      v-if=\"(!visible && digits) || (focused && ssnMask(digits).suffix)\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; font-family: var(--font-mono, ui-monospace, monospace); overflow: hidden\"\n    >\n      <span v-if=\"!visible && digits\" style=\"white-space: pre\">{{ formatSSN(digits).replace(/[0-9]/g, '•') }}</span>\n      <span v-else style=\"visibility: hidden; white-space: pre\">{{ formatSSN(digits) }}</span>\n      <template v-if=\"focused && ssnMask(digits).suffix\">\n        <span v-if=\"ssnMask(digits).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).before }}</span>\n        <span\n          v-if=\"ssnMask(digits).highlight\"\n          style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n        >{{ ssnMask(digits).highlight }}</span>\n        <span v-if=\"ssnMask(digits).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ ssnMask(digits).after }}</span>\n      </template>\n    </div>\n  </div>\n</div>",
-          "details": "A Social Security Number input combining three techniques: an input mask that auto-inserts dashes (XXX-XX-XXXX) with highlighted segment, value masking that hides digits behind bullets (•••-••-••••), and a built-in revealable toggle to reveal the real value. formatSSN, nextSSNDigits and ssnMask are plain helper functions of the example."
-        },
-        {
-          "name": "Birthday input",
-          "code": "<div class=\"w-[360px]\">\n  <div style=\"position: relative\">\n    <FloatingLabelInput\n      label=\"Birthday\"\n      :value=\"birthday\"\n      maxlength=\"14\"\n      inputmode=\"numeric\"\n      :style=\"focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined\"\n      @update:value=\"(raw) => (birthday = nextBirthday(raw, birthday))\"\n      @focus=\"focused = true\"\n      @blur=\"focused = false\"\n    />\n    <div\n      v-if=\"focused && birthdayMask(birthday).suffix\"\n      aria-hidden=\"true\"\n      style=\"position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden\"\n    >\n      <span style=\"visibility: hidden; white-space: pre\">{{ birthday }}</span>\n      <span v-if=\"birthdayMask(birthday).before\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).before }}</span>\n      <span\n        v-if=\"birthdayMask(birthday).highlight\"\n        style=\"background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px\"\n      >{{ birthdayMask(birthday).highlight }}</span>\n      <span v-if=\"birthdayMask(birthday).after\" style=\"color: var(--color-text-tertiary); white-space: pre\">{{ birthdayMask(birthday).after }}</span>\n    </div>\n  </div>\n</div>",
-          "details": "A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). nextBirthday and birthdayMask are plain helper functions of the example."
-        },
-        {
-          "name": "Birthday with validation",
-          "code": "<div class=\"w-[360px]\">\n  <div class=\"flex flex-col gap-1.5\">\n    <component\n      :is=\"BirthdayMaskedInput\"\n      v-model:value=\"birthday\"\n      :invalid=\"!!birthday && !isValidBirthday(birthday)\"\n      :aria-describedby=\"birthday && !isValidBirthday(birthday) ? 'birthday-validation-demo-error' : undefined\"\n    />\n    <FieldError v-if=\"birthday && !isValidBirthday(birthday)\" id=\"birthday-validation-demo-error\">\n      Please enter a valid date.\n    </FieldError>\n  </div>\n</div>",
-          "details": "Use invalid and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, BirthdayMaskedInput, and the error shows in a FieldError below it."
-        },
-        {
-          "name": "Birthday states",
-          "code": "<div class=\"flex flex-col items-center gap-8 py-8 w-full\">\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Empty</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"emptyBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Filled</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"filledBirthday\" class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Invalid</div>\n    <component :is=\"BirthdayMaskedInput\" v-model:value=\"invalidBirthday\" invalid class=\"flex-1 min-w-0\" />\n  </div>\n  <div class=\"flex items-center w-full max-w-[432px]\">\n    <div class=\"text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0\">Disabled</div>\n    <component :is=\"BirthdayMaskedInput\" value=\"01 / 15 / 1995\" disabled class=\"flex-1 min-w-0\" />\n  </div>\n</div>",
-          "details": "Overview of birthday input states."
-        },
-        {
-          "name": "Select",
-          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"role\"\n    :options=\"roleOptions\"\n    search-placeholder=\"Search roles...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Role\"\n        :selected=\"!!role\"\n        :open=\"open\"\n        :on-clear-click=\"role ? () => (role = '') : undefined\"\n      >\n        {{ roleOptions.find((option) => option.value === role)?.label }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
-          "details": "Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling."
-        },
-        {
-          "name": "Multiple selection",
-          "code": "<div class=\"w-[360px]\">\n  <Select\n    multiple\n    clearable\n    v-model:value=\"skills\"\n    :options=\"skillOptions\"\n    search-placeholder=\"Search skills...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Skills\"\n        :selected=\"skills.length > 0\"\n        :open=\"open\"\n        :on-clear-click=\"skills.length > 0 ? () => (skills = []) : undefined\"\n      >\n        {{\n          skills.length === 1\n            ? skillOptions.find((option) => option.value === skills[0])?.label\n            : skills.length > 1\n              ? skills.length + ' skills'\n              : ''\n        }}\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
-          "details": "Pair FloatingLabelSelect with a multiple Select to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list."
-        },
-        {
-          "name": "Country select",
-          "code": "<div class=\"w-[360px]\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"countries\"\n    search-placeholder=\"Search countries...\"\n    :list-min-width=\"360\"\n    block\n    check-position=\"end\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open }\">\n      <FloatingLabelSelect\n        label=\"Country\"\n        :selected=\"!!countryOf(country)\"\n        :open=\"open\"\n        :on-clear-click=\"countryOf(country) ? () => (country = '') : undefined\"\n      >\n        <span\n          v-if=\"countryOf(country)\"\n          style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"\n        ><component :is=\"FlagIcon\" :code=\"country\" />{{ countryOf(country).label }}</span>\n      </FloatingLabelSelect>\n    </template>\n  </Select>\n</div>",
-          "details": "Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected."
-        },
-        {
-          "name": "Phone input",
-          "code": "<div class=\"w-[360px] flex flex-col gap-3\">\n  <Select\n    v-model:value=\"country\"\n    :options=\"phoneCountryOptions\"\n    search-placeholder=\"Search countries...\"\n    :search-predicate=\"phoneCountrySearchPredicate\"\n    :list-min-width=\"360\"\n    block\n    size=\"3xl\"\n    check-position=\"end\"\n    @change=\"focusLater($refs.phoneInput)\"\n  >\n    <template #optionView=\"{ value, label }\">\n      <span style=\"display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0\"><component :is=\"FlagIcon\" :code=\"value\" />{{ label }}</span>\n    </template>\n    <template #trigger=\"{ open, onToggle }\">\n      <component :is=\"PhoneCountryTrigger\" :country=\"country\" :open=\"open\" @click=\"onToggle\" />\n    </template>\n  </Select>\n  <FloatingLabelInput\n    ref=\"phoneInput\"\n    label=\"Phone number\"\n    :value=\"phone\"\n    @update:value=\"(raw) => (phone = formatPhoneNumber(raw.replace(/\\D/g, ''), country))\"\n    type=\"tel\"\n    inputmode=\"tel\"\n  >\n    <template #startAdornment>\n      <span class=\"text-tertiary whitespace-nowrap select-none mr-2\">{{ dialCodeOf(country) }}</span>\n    </template>\n  </FloatingLabelInput>\n</div>",
-          "details": "A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated."
+          "name": "FloatingLabelSelect",
+          "description": "The #trigger of a Select or Menu, or a field of your own. Its default slot is the selected value.",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Label text for the floating label"
+            },
+            {
+              "name": "selected",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether a value is selected: floats the label and shows the default slot"
+            },
+            {
+              "name": "open",
+              "type": "boolean",
+              "default": "false",
+              "description": "Whether the attached list is open"
+            },
+            {
+              "name": "error-message",
+              "type": "string",
+              "description": "Error message to display below the field"
+            },
+            {
+              "name": "invalid",
+              "type": "boolean",
+              "default": "false (true if error-message)",
+              "description": "Mark the field as invalid"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Disables the field"
+            },
+            {
+              "name": "label-placement",
+              "type": "\"border\" | \"inside\"",
+              "default": "\"border\"",
+              "description": "Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "true",
+              "description": "Pill shape; false takes the rounded box of the other fields"
+            },
+            {
+              "name": "@clear-click",
+              "type": "() => void",
+              "description": "Shows a clear button when a value is selected"
+            },
+            {
+              "name": "@interact",
+              "type": "() => void",
+              "description": "Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens"
+            }
+          ]
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/floating-label-input"
@@ -6769,5 +6863,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-01T22:08:30.433Z"
+  "generatedAt": "2026-11-02T08:18:12.231Z"
 }

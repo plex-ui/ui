@@ -16,7 +16,7 @@
   border-radius: var(--floating-input-border-radius);
   line-height: 1.5rem;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: var(--floating-input-font-size);
   width: 100%;
   border: 1px solid var(--input-state-color, var(--floating-input-border-color));
   padding: 0 var(--floating-input-gutter);
@@ -73,7 +73,7 @@
   padding: 1px var(--horizontal-padding);
   transition: var(--placeholder-transition);
   color: var(--input-state-color, var(--floating-input-label-color));
-  font-size: 1rem;
+  font-size: var(--floating-input-font-size);
   line-height: 1;
   cursor: var(--cursor, text);
   transform: translate(calc(-1 * var(--horizontal-padding)));
@@ -284,6 +284,52 @@
 
 .Textarea:disabled {
   cursor: not-allowed;
+}
+
+/* =============================================
+   Shape: the rounded box of the other fields
+============================================= */
+.Root:not([data-pill]) {
+  --floating-input-border-radius: var(--floating-input-box-radius);
+  --floating-input-gutter: var(--floating-input-box-gutter);
+}
+
+.Root:not([data-pill]) .FieldFootprint[data-multiline] {
+  border-radius: var(--floating-input-border-radius);
+}
+
+/* =============================================
+   Label inside the box, the value under it
+============================================= */
+.Root[data-label-placement="inside"] {
+  --floating-input-height: var(--floating-input-inside-height);
+  --floating-input-label-scale: var(--floating-input-inside-label-scale);
+  --floating-input-label-color: var(--floating-input-inside-label-color);
+  --floating-input-label-color-focus: var(--floating-input-inside-label-color);
+}
+
+.Root[data-label-placement="inside"] .LabelText {
+  --horizontal-padding: 0px;
+  background-color: transparent;
+}
+
+.Root[data-label-placement="inside"] :is(.FieldFootprint[data-focused], .FieldFootprint[data-invalid], .HasValue) .LabelPositioner {
+  transform: translateY(var(--floating-input-inside-label-shift));
+}
+
+.Root[data-label-placement="inside"] :is(.Input, .StartAdornment) {
+  align-self: stretch;
+  padding-top: var(--floating-input-inside-value-shift);
+}
+
+/* One line sits as in the single-line field, and the label is one line step above it */
+.Root[data-label-placement="inside"] .Textarea {
+  --half-height: calc(var(--floating-input-height) / 2 - 1px - var(--floating-input-inside-line-height) / 2);
+
+  line-height: var(--floating-input-inside-line-height);
+  padding-block:
+    calc(var(--half-height) + var(--floating-input-inside-value-shift) / 2)
+    calc(var(--half-height) - var(--floating-input-inside-value-shift) / 2);
 }
 
 /* Reduced motion preference */

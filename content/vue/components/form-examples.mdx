@@ -315,6 +315,37 @@ export const password = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
+export const billing = `<form class="flex w-[360px] flex-col gap-3" @submit.prevent>
+  <FloatingLabelInput label="Billing email" label-placement="inside" type="email" default-value="jane.doe@example.com" />
+  <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country or region"
+        label-placement="inside"
+        :selected="!!country"
+        :open="open"
+      >
+        {{ countries.find((option) => option.value === country)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+  <FloatingLabelInput label="Address line 1" label-placement="inside" />
+  <FloatingLabelInput label="Address line 2" label-placement="inside" />
+  <div class="flex gap-3">
+    <FloatingLabelInput class="flex-1" label="Postal code" label-placement="inside" />
+    <FloatingLabelInput class="flex-1" label="City" label-placement="inside" />
+  </div>
+  <Button color="primary" size="3xl" type="submit" pill class="mt-3">Save</Button>
+</form>`
+
 export const aboutYou = `<component :is="DialogShell" :open="dialog">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
@@ -503,6 +534,12 @@ Real-world forms composed from [Float Input](/vue/components/floating-label-inpu
 
 <ComponentPreview language="vue" details={<>A signup-style composition with <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>: name, birthday with inline validation, and country selector.</>} code={aboutYou} previewMinHeight={280}>
   <VueFormExampleDemo template={aboutYou} stageClassName={STAGE} state={{ fullName: "", birthday: "", country: "", birthdayError: null, countryError: null }} controls={[dialogControl]} />
+</ComponentPreview>
+
+## Billing details
+
+<ComponentPreview language="vue" details={<>A long form with the label inside every field: <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>, so the labels never push the form taller.</>} code={billing} previewMinHeight={560}>
+  <VueFormExampleDemo template={billing} stageClassName={STAGE} state={{ country: "es" }} />
 </ComponentPreview>
 
 ## Verify email

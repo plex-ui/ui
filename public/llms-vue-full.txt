@@ -3338,24 +3338,37 @@ File list renders below the button in a bordered pill container. Each file shows
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/vue/components/FloatingLabelInput"
 Docs: https://plexui.com/vue/components/floating-label-input
-Props:
-  - label (string) — Label text for the floating label
-  - value / v-model:value (string) — Controlled value; `update:value` fires on input
-  - default-value (string) — Initial value when uncontrolled
-  - error-message (string) — Error message to display below the input
-  - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
-  - description (string | slot) — Helper text below the input
-  - disabled (boolean) default: false — Disables the input
-  - read-only / readonly (boolean) default: false — Makes the input read-only (both spellings work)
-  - type (string) default: "text" — Input type; password gets a reveal toggle
-  - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
-  - multiline (boolean) default: false — Render an auto-growing textarea
-  - rows (number) default: 2 — Visible lines when multiline
-  - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
-  - #startAdornment / #endAdornment (slots) — Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated
-  - @clear (() => void) — Shows the clear button and fires when it is clicked; focus returns to the input
-  - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
-  - @autofill (() => void) — Fires when the browser autofills the input
+  FloatingLabelInput:
+    - label (string) — Label text for the floating label
+    - value / v-model:value (string) — Controlled value; `update:value` fires on input
+    - default-value (string) — Initial value when uncontrolled
+    - error-message (string) — Error message to display below the input
+    - invalid (boolean) default: false (true if error-message) — Mark the input as invalid
+    - description (string | slot) — Helper text below the input
+    - disabled (boolean) default: false — Disables the input
+    - read-only / readonly (boolean) default: false — Makes the input read-only (both spellings work)
+    - type (string) default: "text" — Input type; password gets a reveal toggle
+    - revealable (boolean) default: true for password without an end adornment — Built-in reveal toggle
+    - multiline (boolean) default: false — Render an auto-growing textarea
+    - rows (number) default: 2 — Visible lines when multiline
+    - label-placement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - allow-autofill-extensions (boolean) default: false — Let password-manager extensions decorate the input
+    - #startAdornment / #endAdornment (slots) — Content before or after the input (camelCase slot names). A start adornment is always shown and keeps the label floated
+    - @clear (() => void) — Shows the clear button and fires when it is clicked; focus returns to the input
+    - @revealed-change ((revealed: boolean) => void) — Fires when the reveal toggle is clicked
+    - @autofill (() => void) — Fires when the browser autofills the input
+  FloatingLabelSelect:
+    - label (string) — Label text for the floating label
+    - selected (boolean) default: false — Whether a value is selected: floats the label and shows the default slot
+    - open (boolean) default: false — Whether the attached list is open
+    - error-message (string) — Error message to display below the field
+    - invalid (boolean) default: false (true if error-message) — Mark the field as invalid
+    - disabled (boolean) default: false — Disables the field
+    - label-placement ("border" | "inside") default: "border" — Where the label rests once it floats. inside keeps it in the box, with the value under it, and always takes the rounded box
+    - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
+    - @clear-click (() => void) — Shows a clear button when a value is selected
+    - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
 ```vue
@@ -3364,11 +3377,59 @@ Props:
 </div>
 ```
 
-### Filled state
-When the input has a value, the label stays floated above the input.
+### Types
+Float fields come in three types. The label sits on the border of a pill, on the border of a rounded box, or stays inside the box with the value under it. Text fields, textareas and selects work the same in each.
+```vue
+<div class="flex flex-col items-center gap-6 py-8">
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">On the border</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" />
+  </div>
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Rounded box</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" :pill="false" />
+  </div>
+  <div class="flex w-full max-w-[30rem] flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+    <div class="shrink-0 text-sm text-secondary sm:w-24 sm:text-right">Inside</div>
+    <FloatingLabelInput class="flex-1" label="Email address" default-value="jane.doe@example.com" label-placement="inside" />
+  </div>
+</div>
+```
+
+### Label inside
+Use label-placement="inside" on FloatingLabelInput and FloatingLabelSelect for long forms such as an address: the label stays inside the box, with the value under it. It works with multiline, adornments, errors and the clear button, and always takes the rounded box.
+```vue
+<div class="flex w-[360px] flex-col gap-3">
+  <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
+  <Select
+    v-model:value="country"
+    :options="countries"
+    search-placeholder="Search countries..."
+    :list-min-width="360"
+    block
+    check-position="end"
+  >
+    <template #trigger="{ open }">
+      <FloatingLabelSelect
+        label="Country or region"
+        label-placement="inside"
+        :selected="!!country"
+        :open="open"
+      >
+        {{ countries.find((option) => option.value === country)?.label }}
+      </FloatingLabelSelect>
+    </template>
+  </Select>
+  <FloatingLabelInput label="Address line 1" label-placement="inside" />
+  <FloatingLabelInput label="Delivery notes" label-placement="inside" multiline />
+</div>
+```
+
+### Rounded box
+Set :pill="false" to take the rounded box of Input and Select, with the label on the border. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place.
 ```vue
 <div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
+  <FloatingLabelInput label="Email address" :pill="false" />
 </div>
 ```
 
@@ -3382,101 +3443,6 @@ Use multiline to render an auto-growing textarea with the same floating-label tr
     label="Message"
     :multiline="multiline"
   />
-</div>
-```
-
-### With error message
-Use the error-message prop to display a validation error below the input. When error-message is provided, the input automatically enters the invalid state.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    default-value="jane.doe@example"
-    invalid
-    error-message="Email is not valid."
-  />
-</div>
-```
-
-### With description
-Use the description prop (or the description slot) to display helper text below the input.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    description="We'll never share your email with anyone else."
-  />
-</div>
-```
-
-### With description and error
-When both description and error-message are provided, the error appears first (closest to the input), followed by the description.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    default-value="jane.doe@example"
-    invalid
-    error-message="Email is not valid."
-    description="We'll never share your email with anyone else."
-  />
-</div>
-```
-
-### Clear button
-Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput
-    v-model:value="value"
-    label="Email address"
-    :disabled="disabled"
-    :read-only="readOnly"
-    @clear="value = ''"
-  />
-</div>
-```
-
-### Disabled
-Use the disabled prop to disable the input, greying it out and preventing user interactions.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="disabled@example.com" :disabled="disabled" />
-</div>
-```
-
-### Read only
-Use the read-only prop to make the input read-only. The user can still select and copy the text.
-```vue
-<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" read-only />
-</div>
-```
-
-### All states
-Overview of all input states.
-```vue
-<div class="flex flex-col items-center gap-8 py-8">
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Email address" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Email address" default-value="invalid@email" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-    <FloatingLabelInput read-only label="Email address" default-value="readonly@gmail.com" class="w-[320px]" />
-  </div>
 </div>
 ```
 
@@ -3606,6 +3572,43 @@ Overview of birthday input states.
 </div>
 ```
 
+### Phone input
+A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.
+```vue
+<div class="w-[360px] flex flex-col gap-3">
+  <Select
+    v-model:value="country"
+    :options="phoneCountryOptions"
+    search-placeholder="Search countries..."
+    :search-predicate="phoneCountrySearchPredicate"
+    :list-min-width="360"
+    block
+    size="3xl"
+    check-position="end"
+    @change="focusLater($refs.phoneInput)"
+  >
+    <template #optionView="{ value, label }">
+      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+    </template>
+    <template #trigger="{ open, onToggle }">
+      <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
+    </template>
+  </Select>
+  <FloatingLabelInput
+    ref="phoneInput"
+    label="Phone number"
+    :value="phone"
+    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\D/g, ''), country))"
+    type="tel"
+    inputmode="tel"
+  >
+    <template #startAdornment>
+      <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
+    </template>
+  </FloatingLabelInput>
+</div>
+```
+
 ### Select
 Use FloatingLabelSelect for plain text dropdowns. The label floats up when a value is selected, matching FloatingLabelInput styling.
 ```vue
@@ -3698,40 +3701,106 @@ Use FloatingLabelSelect alongside FloatingLabelInput for consistent form styling
 </div>
 ```
 
-### Phone input
-A country code selector paired with a FloatingLabelInput that uses the startAdornment slot to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated.
+### Filled state
+When the input has a value, the label stays floated above the input.
 ```vue
-<div class="w-[360px] flex flex-col gap-3">
-  <Select
-    v-model:value="country"
-    :options="phoneCountryOptions"
-    search-placeholder="Search countries..."
-    :search-predicate="phoneCountrySearchPredicate"
-    :list-min-width="360"
-    block
-    size="3xl"
-    check-position="end"
-    @change="focusLater($refs.phoneInput)"
-  >
-    <template #optionView="{ value, label }">
-      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
-    </template>
-    <template #trigger="{ open, onToggle }">
-      <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
-    </template>
-  </Select>
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
+</div>
+```
+
+### With error message
+Use the error-message prop to display a validation error below the input. When error-message is provided, the input automatically enters the invalid state.
+```vue
+<div class="w-[360px]">
   <FloatingLabelInput
-    ref="phoneInput"
-    label="Phone number"
-    :value="phone"
-    @update:value="(raw) => (phone = formatPhoneNumber(raw.replace(/\D/g, ''), country))"
-    type="tel"
-    inputmode="tel"
-  >
-    <template #startAdornment>
-      <span class="text-tertiary whitespace-nowrap select-none mr-2">{{ dialCodeOf(country) }}</span>
-    </template>
-  </FloatingLabelInput>
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+  />
+</div>
+```
+
+### With description
+Use the description prop (or the description slot) to display helper text below the input.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    description="We'll never share your email with anyone else."
+  />
+</div>
+```
+
+### With description and error
+When both description and error-message are provided, the error appears first (closest to the input), followed by the description.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    label="Email address"
+    default-value="jane.doe@example"
+    invalid
+    error-message="Email is not valid."
+    description="We'll never share your email with anyone else."
+  />
+</div>
+```
+
+### Clear button
+Listen to @clear to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :disabled="disabled"
+    :read-only="readOnly"
+    @clear="value = ''"
+  />
+</div>
+```
+
+### Disabled
+Use the disabled prop to disable the input, greying it out and preventing user interactions.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="disabled@example.com" :disabled="disabled" />
+</div>
+```
+
+### Read only
+Use the read-only prop to make the input read-only. The user can still select and copy the text.
+```vue
+<div class="w-[360px]">
+  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" read-only />
+</div>
+```
+
+### All states
+Overview of all input states.
+```vue
+<div class="flex flex-col items-center gap-8 py-8">
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
+    <FloatingLabelInput label="Email address" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
+    <FloatingLabelInput label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
+    <FloatingLabelInput invalid label="Email address" default-value="invalid@email" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
+    <FloatingLabelInput disabled label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
+  </div>
+  <div class="flex items-center">
+    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
+    <FloatingLabelInput read-only label="Email address" default-value="readonly@gmail.com" class="w-[320px]" />
+  </div>
 </div>
 ```
 

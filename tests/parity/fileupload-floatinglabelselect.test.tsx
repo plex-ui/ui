@@ -474,6 +474,9 @@ const pairSelect = (props: Props) => {
 const noop = () => {}
 const selectCases: Array<[string, Props]> = [
   ["label only", { label: "Role" }],
+  ["label inside", { label: "Role", labelPlacement: "inside", selected: true, children: "Designer" }],
+  ["rounded box", { label: "Role", pill: false }],
+  ["label inside keeps the box with pill", { label: "Role", labelPlacement: "inside", pill: true }],
   ["selected with content", { label: "Role", selected: true, children: "Designer" }],
   ["content hidden while not selected", { label: "Role", children: "Designer" }],
   ["open", { label: "Role", open: true }],
