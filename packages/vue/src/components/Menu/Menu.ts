@@ -36,7 +36,7 @@ import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import { TransitionGroup } from "../Transition/index.js"
-import { createExitGuard, overlayTiming } from "../Transition/shared.js"
+import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared.js"
 import {
   MenuLevelKey,
   MenuRootInternalsKey,
@@ -1083,6 +1083,7 @@ const MenuSubContentImpl = defineComponent({
           "collisionPadding": COLLISION_PADDING,
           "reference": subInternals.trigger.value ?? undefined,
           "class": s.MenuList,
+          "data-submenu": "",
           "data-pill": props.pill ? "" : undefined,
           "style": {
             ...toCssVariables({
@@ -1155,7 +1156,7 @@ export const MenuSubContent = defineComponent({
           default: () => [
             h(
               TransitionGroup,
-              { class: s.Menu, ...overlayTiming, overlay: true },
+              { class: s.Menu, ...overlayTimingQuick, overlay: true },
               {
                 default: () => [
                   open.value

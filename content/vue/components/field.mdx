@@ -919,6 +919,7 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
 <PropsTable data={[
   { prop: "title", type: "string", description: "Heading over the block (or the title slot); it names the group" },
   { prop: "description", type: "string", description: "Line under the title (or the description slot)" },
+  { prop: "columns", type: "boolean", default: "false", description: "Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge" },
   { prop: "bodyClass", type: "string", description: "Applied to the block that holds the rows" },
   { prop: "default slot", type: "VNode", description: "The rows" },
   { prop: "action slot", type: "VNode", description: "Content at the end of the header" },

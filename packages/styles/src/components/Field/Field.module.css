@@ -386,6 +386,39 @@
   text-align: end;
 }
 
+/* A FieldGroup with `columns`: every value starts at one column, as in an iOS form of
+   typed details. A field keeps its width, a ghost takes the rest of the line, a switch
+   and an action stay at the end. */
+[data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Action))),
+[data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Action))):has(
+    .Control > [data-variant="ghost"] > input,
+    .Control > [data-variant="ghost"] > textarea
+  ) {
+  --field-row-gap: 16px;
+
+  grid-template-columns: var(--field-row-column-width) minmax(0, 1fr);
+}
+
+[data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
+    > [data-variant]:not([data-variant="ghost"]) > input,
+    > [data-variant]:not([data-variant="ghost"]) > textarea,
+    > [data-variant][role="button"]
+  ) {
+  justify-self: start;
+}
+
+[data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="ghost"] > input {
+  text-align: start;
+}
+
+@media (min-width: 768px) {
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Action) {
+    --field-row-gap: 16px;
+
+    grid-template-columns: var(--field-row-column-width) minmax(0, 1fr) auto;
+  }
+}
+
 /* On a phone a list takes the width of its own line under the label and the action.
    The row is the frame of every field, as on iOS: the framed fields of the web read
    as the ghost above, with nothing for the author to change. */
@@ -444,8 +477,49 @@
     text-align: end;
   }
 
-  /* A Select or a date: its value ends at the row's edge */
+  /* A Select or a date: its value ends at the row's edge, its mark too, as the row has no pill to sit in */
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
+    --dropdown-icon-pill-offset: 0px;
+
     padding-inline: 0;
+  }
+
+  /* An InputGroup: its value and its unit end at the row's edge too. A button at the end
+     reads as the row's text, as a Select's value does: no gutter and no fill */
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"][data-variant="outline"] {
+    --input-group-gutter: 0px;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child {
+    --button-gutter: 0px;
+    --button-background-color: transparent;
+    --button-background-color-active: transparent;
+
+    margin-inline-end: 0;
+  }
+
+  /* With `columns` the value starts at the column and takes the rest of the row: a unit,
+     a Select's mark and an icon end at its edge, as on iOS */
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Action))):has(
+      .Control > [data-variant="outline"] > input,
+      .Control > [data-variant="outline"] > textarea
+    ) {
+    grid-template-columns: var(--field-row-column-width) minmax(0, 1fr);
+  }
+
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
+      > [data-variant]:not([data-variant="ghost"]) > input,
+      > [data-variant]:not([data-variant="ghost"]) > textarea,
+      > [data-variant][role="button"]
+    ) {
+    justify-self: stretch;
+  }
+
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"] > input {
+    text-align: start;
+  }
+
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"][role="button"] {
+    width: 100%;
   }
 }

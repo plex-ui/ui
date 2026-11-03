@@ -1,0 +1,9 @@
+/* Only the one preview shows: the rest of the page stays out of the phone view */
+.Root > :not([data-preview-embed]):not(:has([data-preview-embed])) {
+  display: none;
+}
+
+/* Its controls stay on the parent page, above the phone */
+.Root [data-demo-controls] {
+  display: none !important;
+}

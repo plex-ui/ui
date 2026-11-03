@@ -12,6 +12,52 @@
   z-index: 2;
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+/* On a phone the page is the phone view already */
+@media (max-width: 767px) {
+  .ScreenSwitch {
+    display: none !important;
+  }
+}
+
+/* ── Phone view: the preview in an iframe 375 wide, its height follows the content ── */
+
+/* The demo stays here for its controls, above the phone; its stage shows only in the iframe */
+.PreviewContent[data-phone] {
+  flex: none;
+  min-height: 0;
+}
+
+.PreviewContent[data-phone]:not(:has([data-demo-controls])) {
+  display: none;
+}
+
+.PreviewContent[data-phone] .PreviewInner > :not([data-demo-controls]):not(:has([data-demo-controls])),
+.PreviewContent[data-phone] [data-demo-stage] {
+  display: none !important;
+}
+
+.PhoneContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 16px;
+  background: var(--color-fd-background);
+}
+
+.PhoneFrame {
+  display: block;
+  max-width: 100%;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 28px;
+  background: var(--color-fd-background);
+}
+
+[data-theme='dark'] .PhoneFrame,
+html.dark .PhoneFrame {
+  border-color: rgb(255 255 255 / 10%);
 }
 
 /* Stacking context so preview content (e.g. Sidebar drawer) does not overlap mobile TOC (z-10) */

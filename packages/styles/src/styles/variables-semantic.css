@@ -480,6 +480,9 @@
     --motion-enter-large: 300ms;
     --motion-exit: 150ms;
     --motion-exit-large: 200ms;
+    /* A submenu: it opens 100 ms after the pointer arrives, then shows at once */
+    --motion-enter-quick: 100ms;
+    --motion-exit-quick: 100ms;
 
     /* =============================================
       Scrollbar
@@ -534,6 +537,8 @@
       --motion-enter-large: 0ms;
       --motion-exit: 0ms;
       --motion-exit-large: 0ms;
+      --motion-enter-quick: 0ms;
+      --motion-exit-quick: 0ms;
     }
   }
 }

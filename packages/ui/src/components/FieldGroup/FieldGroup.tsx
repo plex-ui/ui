@@ -23,6 +23,12 @@ export type FieldGroupProps = {
    */
   footer?: React.ReactNode
   /**
+   * Every value starts at one column, `--field-row-column-width` into the row, on the
+   * web and on a phone. Off, values end at the row's edge.
+   * @default false
+   */
+  columns?: boolean
+  /**
    * CSS class for the block that holds the rows.
    */
   bodyClassName?: string
@@ -38,6 +44,7 @@ export function FieldGroup({
   description,
   action,
   footer,
+  columns = false,
   bodyClassName,
   className,
   children,
@@ -46,7 +53,13 @@ export function FieldGroup({
   const titleId = `field-group-${useId()}`
 
   return (
-    <section role="group" aria-labelledby={title ? titleId : undefined} {...rest} className={clsx(s.FieldGroup, className)}>
+    <section
+      role="group"
+      aria-labelledby={title ? titleId : undefined}
+      data-field-columns={columns ? "" : undefined}
+      {...rest}
+      className={clsx(s.FieldGroup, className)}
+    >
       {(title || description || action) && (
         <div className={s.Header}>
           <div className={s.HeaderText}>

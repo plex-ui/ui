@@ -2495,4 +2495,6 @@ export const MOTION = [
   { type: "value", name: "motion-enter-large", value: "300ms" },
   { type: "value", name: "motion-exit", value: "150ms" },
   { type: "value", name: "motion-exit-large", value: "200ms" },
+  { type: "value", name: "motion-enter-quick", value: "100ms" },
+  { type: "value", name: "motion-exit-quick", value: "100ms" },
 ]

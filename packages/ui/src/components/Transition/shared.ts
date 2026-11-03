@@ -86,6 +86,8 @@ export const noop = () => {}
 export const overlayTiming = { enterDuration: 250, exitDuration: 150 }
 /** A panel that crosses the screen: a sheet or a side panel */
 export const overlayTimingLarge = { enterDuration: 300, exitDuration: 200 }
+/** A submenu: it opens after a hover delay of its own, so it shows at once */
+export const overlayTimingQuick = { enterDuration: 100, exitDuration: 100 }
 
 /**
  * An overlay stays a dismissable layer through its exit. A press on its trigger

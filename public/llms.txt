@@ -396,6 +396,7 @@ Props:
     - description (ReactNode) — Line under the title
     - action (ReactNode) — Content at the end of the header
     - footer (ReactNode) — Content under the block
+    - columns (boolean) default: false — Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge
     - bodyClassName (string) — Applied to the block that holds the rows
     - children (ReactNode) — The rows
     - className (string) — Applied to the root section

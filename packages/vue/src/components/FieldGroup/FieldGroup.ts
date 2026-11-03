@@ -17,6 +17,8 @@ const FieldGroupComponent = defineComponent({
     title: String,
     /** Line under the title (or the `description` slot) */
     description: String,
+    /** Every value starts at one column, `--field-row-column-width` into the row, on the web and on a phone. Off, values end at the row's edge */
+    columns: { type: Boolean, default: false },
     /** Class for the block that holds the rows */
     bodyClass: [String, Array, Object] as PropType<ClassValue>,
   },
@@ -46,6 +48,7 @@ const FieldGroupComponent = defineComponent({
         {
           "role": "group",
           "aria-labelledby": hasTitle ? titleId : undefined,
+          "data-field-columns": props.columns ? "" : undefined,
           ...attrs,
           "class": clsx(s.FieldGroup, attrs.class as ClassValue),
         },

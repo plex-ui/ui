@@ -360,7 +360,7 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Several groups
 
-<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a ghost <code>Select</code> in the field's <code>endAdornment</code>, a hint goes in <code>labelAction</code>.</>} code={`const wide = useBreakpoint("md");
+<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, a hint goes in <code>labelAction</code>. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={`const wide = useBreakpoint("md");
 
 <form className="flex flex-col gap-6">
   <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
@@ -368,18 +368,36 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
     <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
     <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
   </FieldGroup>
-  <FieldGroup>
-    <Field row label="Category" description="Also shown under Sale.">
-      <Select value={category} options={categories} onChange={onCategory} block={false} align="end" />
+  <FieldGroup columns={columns}>
+    <Field row label="Category" description={columns ? undefined : "Also shown under Sale."}>
+      <Select value={category} options={categories} onChange={onCategory} block={false} align={columns ? "start" : "end"} />
     </Field>
     <Field row label="Price">
       <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
     </Field>
     <Field row label="Weight">
-      <Input
-        inputMode="decimal"
-        endAdornment={<Select aria-label="Unit" value={unit} options={units} onChange={onUnit} variant="ghost" align="end" />}
-      />
+      {(control) => (
+        <InputGroup>
+          <InputGroup.Input {...control} inputMode="decimal" />
+          <InputGroup.Addon align="inline-end">
+            <Menu>
+              <Menu.Trigger>
+                <InputGroup.Button aria-label="Unit" className="text-secondary text-sm font-normal">
+                  {unit}
+                  <Dropdown data-no-autosize width={8} height={12} className="ms-1 opacity-75" />
+                </InputGroup.Button>
+              </Menu.Trigger>
+              <Menu.Content align="end" minWidth="auto">
+                {units.map((item) => (
+                  <Menu.CheckboxItem key={item.value} checked={unit === item.value} onCheckedChange={() => onUnit(item.value)} indicatorPosition="start" indicatorVariant="ghost">
+                    {item.label}
+                  </Menu.CheckboxItem>
+                ))}
+              </Menu.Content>
+            </Menu>
+          </InputGroup.Addon>
+        </InputGroup>
+      )}
     </Field>
   </FieldGroup>
   <FieldGroup>

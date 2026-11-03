@@ -2442,6 +2442,7 @@ Props:
   FieldGroup:
     - title (string) — Heading over the block (or the title slot); it names the group
     - description (string) — Line under the title (or the description slot)
+    - columns (boolean) default: false — Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge
     - bodyClass (string) — Applied to the block that holds the rows
     - default slot (VNode) — The rows
     - action slot (VNode) — Content at the end of the header

@@ -22,7 +22,7 @@ import { Button } from "../Button"
 import { Check, ChevronRight } from "../Icon"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
-import { createExitGuard, overlayTiming } from "../Transition/shared"
+import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
 type MenuContextValue = {
@@ -558,11 +558,12 @@ const SubContent = ({
 
   return (
     <DropdownMenu.Portal forceMount>
-      <TransitionGroup className={s.Menu} {...overlayTiming} overlay>
+      <TransitionGroup className={s.Menu} {...overlayTimingQuick} overlay>
         {open && (
           <DropdownMenu.SubContent
             key="submenu"
             className={s.MenuList}
+            data-submenu=""
             data-pill={pill ? "" : undefined}
             sideOffset={sideOffset}
             alignOffset={alignOffset}

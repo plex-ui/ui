@@ -2407,6 +2407,12 @@
               "description": "Line under the title (or the description slot)"
             },
             {
+              "name": "columns",
+              "type": "boolean",
+              "default": "false",
+              "description": "Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge"
+            },
+            {
               "name": "bodyClass",
               "type": "string",
               "description": "Applied to the block that holds the rows"
@@ -7098,5 +7104,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T22:16:35.345Z"
+  "generatedAt": "2026-11-03T08:01:19.652Z"
 }

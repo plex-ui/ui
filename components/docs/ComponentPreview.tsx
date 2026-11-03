@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Eye, Code, InfoCircle } from '@plexui/ui/components/Icon';
+import { Eye, Code, InfoCircle, Desktop, Mobile } from '@plexui/ui/components/Icon';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { DemoControlHostContext, previewKey, usePreviewEmbed } from './PreviewEmbed';
 import s from './ComponentPreview.module.css';
 
 type Mode = 'preview' | 'code' | 'details';
+type Viewport = 'desktop' | 'phone';
+
+/** The phone view's width: an iPhone, under the 768 where the phone styles start */
+const PHONE_WIDTH = 375;
 
 export function ComponentPreview({
   children,
@@ -26,12 +33,17 @@ export function ComponentPreview({
   resizable?: boolean;
 }) {
   const [mode, setMode] = useState<Mode>('preview');
+  const [viewport, setViewport] = useState<Viewport>('desktop');
+  // Under md the page is a phone already: no switch and no iframe
+  const wide = useBreakpoint('md');
+  const pathname = usePathname();
+  const embedTarget = usePreviewEmbed();
   const hasCode = Boolean(code);
   const hasDetails = Boolean(details);
-  const showTabs = hasCode || hasDetails;
 
   type ElementProps = Record<string, unknown>;
   const childArray = React.Children.toArray(children);
+  const key = previewKey(code, childArray);
   const hasControls = childArray.some(
     (child) => React.isValidElement(child) && (child as React.ReactElement<ElementProps>).props['data-demo-controls'] !== undefined
   );
@@ -66,28 +78,50 @@ export function ComponentPreview({
       })()
     : children;
 
+  // The phone view of one preview: only that preview, at the iframe's width
+  if (embedTarget !== null) {
+    if (embedTarget !== key) return null;
+    return (
+      <div className={`${s.PreviewContainer} not-prose`} data-preview-embed>
+        <div className={`${s.PreviewInner} ${className ?? ''}`.trim()}>{normalizedChildren}</div>
+      </div>
+    );
+  }
+
   return (
     <div className={`${s.Wrapper} not-prose`}>
       {/* Tab bar — outside the bordered block */}
-      {showTabs && (
-        <div className={s.TabBar}>
-          <SegmentedControl
-            value={mode}
-            onChange={(v) => setMode(v as Mode)}
-            size="xs"
-            pill
-            aria-label="View mode"
-          >
-            <SegmentedControl.Option value="preview" icon={<Eye />} aria-label="Preview" />
-            {hasCode && (
-              <SegmentedControl.Option value="code" icon={<Code />} aria-label="Code" />
-            )}
-            {hasDetails && (
-              <SegmentedControl.Option value="details" icon={<InfoCircle />} aria-label="Details" />
-            )}
-          </SegmentedControl>
-        </div>
-      )}
+      <div className={s.TabBar}>
+        <SegmentedControl
+          value={viewport}
+          onChange={(v) => {
+            setViewport(v as Viewport);
+            setMode('preview');
+          }}
+          size="xs"
+          pill
+          aria-label="Screen"
+          className={s.ScreenSwitch}
+        >
+          <SegmentedControl.Option value="desktop" icon={<Desktop />} aria-label="Desktop" />
+          <SegmentedControl.Option value="phone" icon={<Mobile />} aria-label="Phone" />
+        </SegmentedControl>
+        <SegmentedControl
+          value={mode}
+          onChange={(v) => setMode(v as Mode)}
+          size="xs"
+          pill
+          aria-label="View mode"
+        >
+          <SegmentedControl.Option value="preview" icon={<Eye />} aria-label="Preview" />
+          {hasCode && (
+            <SegmentedControl.Option value="code" icon={<Code />} aria-label="Code" />
+          )}
+          {hasDetails && (
+            <SegmentedControl.Option value="details" icon={<InfoCircle />} aria-label="Details" />
+          )}
+        </SegmentedControl>
+      </div>
 
       {/* Content block */}
       <div className={s.PreviewBlock}>
@@ -96,6 +130,7 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
+            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -118,6 +153,58 @@ export function ComponentPreview({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Phone view: the preview in an iframe 375 wide                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The demo stays mounted on this page, its controls above the phone and its stage
+ * hidden; the controls' values go into the iframe, so they carry across both views.
+ */
+function PhoneFrame({
+  src,
+  previewKey,
+  previewMinHeight,
+  frameRef,
+  onReady,
+}: {
+  src: string;
+  previewKey: string;
+  previewMinHeight?: number | string;
+  frameRef: React.RefObject<HTMLIFrameElement | null>;
+  onReady: () => void;
+}) {
+  const [height, setHeight] = useState<number | null>(null);
+  const onReadyRef = useRef(onReady);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
+      const data = event.data as { previewKey?: string; previewHeight?: number; demoReady?: boolean };
+      if (data?.previewKey !== previewKey) return;
+      if (typeof data.previewHeight === 'number') setHeight(data.previewHeight);
+      if (data.demoReady) onReadyRef.current();
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [previewKey, frameRef]);
+
+  return (
+    <div className={s.PhoneContainer} style={{ minHeight: previewMinHeight ?? 168 }}>
+      <iframe
+        ref={frameRef}
+        src={src}
+        title="Phone preview"
+        className={s.PhoneFrame}
+        style={{ width: PHONE_WIDTH, height: height ?? (typeof previewMinHeight === 'number' ? previewMinHeight : 480) }}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Resizable preview pane                                            */
 /* ------------------------------------------------------------------ */
 
@@ -126,15 +213,44 @@ function PreviewPane({
   className,
   previewMinHeight,
   resizable,
+  phone,
 }: {
   children: ReactNode;
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
+  phone: { src: string; previewKey: string } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
   const dragging = useRef(false);
+
+  // The controls' latest values, sent into the phone view and again once it loads
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const controlValues = useRef(new Map<string, unknown>());
+  const phoneKey = phone?.previewKey;
+  const send = useCallback(
+    (name: string, value: unknown) => {
+      frameRef.current?.contentWindow?.postMessage(
+        { previewKey: phoneKey, demoControl: { name, value } },
+        window.location.origin
+      );
+    },
+    [phoneKey]
+  );
+  const host = useMemo(
+    () =>
+      phoneKey
+        ? {
+            publish: (name: string, value: unknown) => {
+              controlValues.current.set(name, value);
+              send(name, value);
+            },
+          }
+        : null,
+    [phoneKey, send]
+  );
+  const sendAll = useCallback(() => controlValues.current.forEach((value, name) => send(name, value)), [send]);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -172,14 +288,21 @@ function PreviewPane({
     <div className={s.PreviewContainer} data-preview-zone ref={containerRef}>
       <div
         className={`${s.PreviewContent} ${className ?? ''}`.trim()}
-        style={{
-          minHeight: previewMinHeight ?? 168,
-          ...(resizable && width !== null ? { maxWidth: width } : {}),
-        }}
-        data-resizable={resizable || undefined}
+        style={
+          phone
+            ? undefined
+            : {
+                minHeight: previewMinHeight ?? 168,
+                ...(resizable && width !== null ? { maxWidth: width } : {}),
+              }
+        }
+        data-resizable={(resizable && !phone) || undefined}
+        data-phone={phone ? '' : undefined}
       >
-        <div className={s.PreviewInner}>{children}</div>
-        {resizable && (
+        <DemoControlHostContext.Provider value={host}>
+          <div className={s.PreviewInner}>{children}</div>
+        </DemoControlHostContext.Provider>
+        {resizable && !phone && (
           <div
             className={s.ResizeHandle}
             onPointerDown={onPointerDown}
@@ -190,6 +313,15 @@ function PreviewPane({
           </div>
         )}
       </div>
+      {phone && (
+        <PhoneFrame
+          src={phone.src}
+          previewKey={phone.previewKey}
+          previewMinHeight={previewMinHeight}
+          frameRef={frameRef}
+          onReady={sendAll}
+        />
+      )}
     </div>
   );
 }

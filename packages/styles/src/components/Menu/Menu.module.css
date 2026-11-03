@@ -60,6 +60,17 @@
     transition-property: opacity, transform;
     transition-timing-function: var(--cubic-exit-snappy);
   }
+
+  /* A submenu opens 100 ms after the pointer reaches its row, then shows at once */
+  .Menu[data-entering-active] &[data-submenu],
+  .Menu[data-entering][data-interrupted] &[data-submenu] {
+    transition-duration: var(--motion-enter-quick);
+  }
+
+  .Menu[data-exiting-active] &[data-submenu],
+  .Menu[data-exiting][data-interrupted] &[data-submenu] {
+    transition-duration: var(--motion-exit-quick);
+  }
 }
 
 .MenuItemContent {

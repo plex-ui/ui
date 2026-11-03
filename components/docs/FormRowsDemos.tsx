@@ -9,8 +9,10 @@ import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { InfoCircle, Plus } from '@plexui/ui/components/Icon';
+import { Dropdown, InfoCircle, Plus } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
+import { InputGroup } from '@plexui/ui/components/InputGroup';
+import { Menu } from '@plexui/ui/components/Menu';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
@@ -18,6 +20,7 @@ import { Switch } from '@plexui/ui/components/Switch';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { DemoControlBoolean, controlsTableStyle } from './ButtonDemos';
 
 const noSubmit = (event: FormEvent) => event.preventDefault();
 
@@ -259,7 +262,7 @@ function TagRow({
   );
 }
 
-function ProductFields() {
+function ProductFields({ columns = false }: { columns?: boolean }) {
   const [category, setCategory] = useState('home');
   const [unit, setUnit] = useState('kg');
   const [materials, setMaterials] = useState(['oak', 'steel']);
@@ -268,7 +271,7 @@ function ProductFields() {
   return (
     <>
       <img src="/demo/picture-3.svg" alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
-      <FieldGroup>
+      <FieldGroup columns={columns}>
         <Field row orientation="vertical" label="Name">
           <Input variant="ghost" defaultValue="Oak side table" />
         </Field>
@@ -276,22 +279,39 @@ function ProductFields() {
           <Textarea variant="ghost" rows={2} autoResize defaultValue="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools." />
         </Field>
       </FieldGroup>
-      <FieldGroup>
-        <Field row label="Category" description="Also shown under Sale.">
-          <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align="end" />
+      <FieldGroup columns={columns}>
+        <Field row label="Category" description={columns ? undefined : 'Also shown under Sale.'}>
+          <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align={columns ? 'start' : 'end'} />
         </Field>
         <Field row label="Price">
           <Input defaultValue="129" inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
         </Field>
         <Field row label="Weight">
-          <Input
-            defaultValue="12"
-            inputMode="decimal"
-            endAdornment={<Select aria-label="Unit" value={unit} options={UNITS} onChange={(option) => setUnit(option.value)} variant="ghost" align="end" />}
-          />
+          {(control) => (
+          <InputGroup>
+            <InputGroup.Input {...control} defaultValue="12" inputMode="decimal" />
+            <InputGroup.Addon align="inline-end">
+              <Menu>
+                <Menu.Trigger>
+                  <InputGroup.Button aria-label="Unit" className="text-secondary text-sm font-normal">
+                    {unit}
+                    <Dropdown data-no-autosize width={8} height={12} className="ms-1 opacity-75" />
+                  </InputGroup.Button>
+                </Menu.Trigger>
+                <Menu.Content align="end" minWidth="auto">
+                  {UNITS.map((item) => (
+                    <Menu.CheckboxItem key={item.value} checked={unit === item.value} onCheckedChange={() => setUnit(item.value)} indicatorPosition="start" indicatorVariant="ghost">
+                      {item.label}
+                    </Menu.CheckboxItem>
+                  ))}
+                </Menu.Content>
+              </Menu>
+            </InputGroup.Addon>
+          </InputGroup>
+          )}
         </Field>
       </FieldGroup>
-      <FieldGroup>
+      <FieldGroup columns={columns}>
         <Field
           row
           fill
@@ -302,7 +322,7 @@ function ProductFields() {
           <div />
         </Field>
       </FieldGroup>
-      <FieldGroup>
+      <FieldGroup columns={columns}>
         <TagRow label="Materials" one="material" options={MATERIALS} value={materials} onChange={setMaterials} />
         <TagRow label="Labels" one="label" options={LABELS} value={labels} onChange={setLabels} />
       </FieldGroup>
@@ -311,15 +331,22 @@ function ProductFields() {
 }
 
 export function FormRowsGroupsDemo() {
+  const [columns, setColumns] = useState(false);
+
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[520px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <ProductFields />
-        <Button color="primary" size="3xl" pill type="submit">
-          Save changes
-        </Button>
-      </form>
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="columns" value={columns} onChange={setColumns} />
+      </div>
+      <div data-demo-stage className="flex justify-center py-10">
+        <form className="flex w-[520px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
+          <ProductFields columns={columns} />
+          <Button color="primary" size="3xl" pill type="submit">
+            Save changes
+          </Button>
+        </form>
+      </div>
+    </>
   );
 }
 

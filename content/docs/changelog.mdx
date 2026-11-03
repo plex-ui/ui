@@ -7,6 +7,22 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `FieldGroup` `columns`: every value in the group starts at one column, `--field-row-column-width` (40%) into the row, on the web and on a phone. A framed field keeps its width, a ghost field takes the rest of the line, a switch and an action stay at the end. Off, values end at the row's edge as before.
+- `--motion-enter-quick` and `--motion-exit-quick`: 100 ms, the timing of a submenu. `prefers-reduced-motion` sets them to 0.
+
+### Changed
+
+- `Menu.SubContent`: a submenu enters and leaves in 100 ms. Radix opens it 100 ms after the pointer reaches its row, so it now shows at once instead of about 350 ms later. `Menu.Content` keeps 250 and 150 ms.
+
+### Fixed
+
+- `Field` `row` on a phone: an `InputGroup` ends at the row's edge like any value. A button at its end, such as a unit, sits by the value without a gutter and without a fill when its menu opens.
+- `Field` `row` on a phone: a `Select`'s mark ends at the row's edge, not 2px past it.
+
 ## 0.25.1 (2026-11-02)
 
 ### Fixed

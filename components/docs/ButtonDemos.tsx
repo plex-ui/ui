@@ -6,6 +6,7 @@ import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Popover } from '@plexui/ui/components/Popover';
 import { Mail, PlusLg, ArrowRight } from '@plexui/ui/components/Icon';
+import { useDemoControlSync } from './PreviewEmbed';
 
 export const controlsTableStyle: React.CSSProperties = {
   background: 'var(--docs-surface-elevated)',
@@ -37,6 +38,7 @@ export function DemoControlBoolean({
 }) {
   // Unique per instance: two demos with the same control name share a page
   const controlId = useId();
+  useDemoControlSync(name, value, onChange);
 
   return (
     <div style={controlRowStyle}>
@@ -46,7 +48,25 @@ export function DemoControlBoolean({
   );
 }
 
+/** The control in a row whose value the phone view follows: the first child with `value` and `onChange` */
+function syncedControl(children: React.ReactNode): { value: unknown; onChange: (value: never) => void } | null {
+  for (const child of React.Children.toArray(children)) {
+    if (!React.isValidElement(child)) continue;
+    const props = child.props as { value?: unknown; onChange?: unknown; children?: React.ReactNode };
+    if (child.type === React.Fragment) {
+      const inner = syncedControl(props.children);
+      if (inner) return inner;
+    } else if ('value' in props && typeof props.onChange === 'function') {
+      return { value: props.value, onChange: props.onChange as (value: never) => void };
+    }
+  }
+  return null;
+}
+
 export function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
+  const control = syncedControl(children);
+  useDemoControlSync(name, control?.value, control?.onChange);
+
   return (
     <div style={controlRowStyle}>
       <span style={controlLabelStyle}>{name}</span>

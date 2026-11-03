@@ -562,6 +562,7 @@ Families: --font-sans (system stack), --font-mono
 --transition-duration-basic: 150ms
 --motion-enter: 250ms, --motion-enter-large: 300ms
 --motion-exit: 150ms, --motion-exit-large: 200ms
+--motion-enter-quick: 100ms, --motion-exit-quick: 100ms (a submenu)
 ```
 
 ### Breakpoints

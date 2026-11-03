@@ -2415,6 +2415,12 @@
               "description": "Content under the block"
             },
             {
+              "name": "columns",
+              "type": "boolean",
+              "default": "false",
+              "description": "Every value starts at one column, --field-row-column-width into the row, on the web and on a phone. Off, values end at the row's edge"
+            },
+            {
               "name": "bodyClassName",
               "type": "string",
               "description": "Applied to the block that holds the rows"
@@ -7029,5 +7035,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-02T22:16:34.746Z"
+  "generatedAt": "2026-11-03T08:01:18.992Z"
 }

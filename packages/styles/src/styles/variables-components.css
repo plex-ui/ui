@@ -250,6 +250,7 @@
     --field-row-control-width: 160px;
     --field-row-text-width: 240px;
     --field-row-label-width: 80px;
+    --field-row-column-width: 40%;
     --field-row-row-gap: 2px;
     --field-row-text-display: flex;
     --field-row-label-font-size: var(--font-text-sm-size);
