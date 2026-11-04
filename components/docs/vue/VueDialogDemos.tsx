@@ -13,8 +13,8 @@ export function VueDialogPlacementDemo(props: ComponentProps<typeof VueDemo>) {
       controls={[{
         name: 'placement',
         type: 'select',
-        options: phone ? ['center', 'bottom', 'fullscreen'] : ['center', 'top', 'bottom', 'start', 'end', 'fullscreen'],
-        default: phone ? 'center' : 'end',
+        options: phone ? ['bottom', 'fullscreen'] : ['center', 'top', 'bottom', 'start', 'end', 'fullscreen'],
+        default: phone ? 'bottom' : 'end',
       }]}
     />
   );

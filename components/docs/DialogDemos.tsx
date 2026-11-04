@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
@@ -25,16 +26,16 @@ export function DialogOverviewDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Open dialog</Button>
         </Dialog.Trigger>
-        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
+            <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
           </Dialog.Header>
-          <p className="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
           <Dialog.Footer>
             <Dialog.Close>
               <Button color="primary" variant="soft">Cancel</Button>
             </Dialog.Close>
-            <Button color="primary" onClick={() => setOpen(false)}>Save changes</Button>
+            <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
@@ -52,15 +53,15 @@ export function DialogDeleteConfirmDemo() {
         <Dialog.Trigger>
           <Button color="danger" variant="outline">Delete</Button>
         </Dialog.Trigger>
-        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
+            <Dialog.Description>
+              This change will affect all API integrations using{' '}
+              <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+              It cannot be undone.
+            </Dialog.Description>
           </Dialog.Header>
-          <p className="text-sm text-secondary">
-            This change will affect all API integrations using{' '}
-            <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-            It cannot be undone.
-          </p>
           <Dialog.Footer>
             <Dialog.Close>
               <Button color="secondary" variant="soft">Cancel</Button>
@@ -94,7 +95,7 @@ export function DialogBodyDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Review terms</Button>
         </Dialog.Trigger>
-        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
             <Dialog.Description>Please read them before you continue.</Dialog.Description>
@@ -125,8 +126,8 @@ export function DialogPlacementDemo() {
   const heading = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('end');
   const phoneViewport = usePhoneViewport();
-  const placements = phoneViewport ? PLACEMENTS.filter((value) => value === 'center' || value === 'bottom' || value === 'fullscreen') : PLACEMENTS;
-  const activePlacement = placements.some((value) => value === placement) ? placement : 'center';
+  const placements = phoneViewport ? PLACEMENTS.filter((value) => value === 'bottom' || value === 'fullscreen') : PLACEMENTS;
+  const activePlacement = placements.some((value) => value === placement) ? placement : 'bottom';
 
   return (
     <>
@@ -146,23 +147,23 @@ export function DialogPlacementDemo() {
           <Dialog.Trigger>
             <Button color="secondary" variant="outline">Open filters</Button>
           </Dialog.Trigger>
-          <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
+          <Dialog.Content mobileVariant="sheet" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
             <Dialog.Header>
               <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
               <Dialog.Description>Narrow the list down.</Dialog.Description>
             </Dialog.Header>
             <Dialog.Body>
-              <div className="flex flex-col gap-4">
-                <Field label="Status">
+              <FieldGroup>
+                <Field row label="Status">
                   <Input placeholder="Any status" />
                 </Field>
-                <Field label="Owner">
+                <Field row label="Owner">
                   <Input placeholder="Anyone" />
                 </Field>
-                <Field label="Created after">
+                <Field row label="Created after">
                   <Input placeholder="YYYY-MM-DD" />
                 </Field>
-              </div>
+              </FieldGroup>
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.Close>

@@ -61,6 +61,7 @@ export const fill = `<Page>
   PageActions,
   PageBar,
   PageContent,
+  PageFooter,
   PageHeader,
   PageHeading,
   PageSubtitle,
@@ -182,6 +183,10 @@ The default slot stands in the shared column. All other attributes fall through 
 ]} />
 
 The default slot stands in the shared column. All other attributes, listeners included, fall through to the element that scrolls. Its template ref is the component: read the element from `$el`.
+
+### PageFooter
+
+Actions stay below the scrolling `PageContent`. The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
 
 ### Parts
 

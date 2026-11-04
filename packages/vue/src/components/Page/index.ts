@@ -3,6 +3,7 @@ export {
   PageActions,
   PageBar,
   PageContent,
+  PageFooter,
   PageHeader,
   PageHeading,
   PageSubtitle,

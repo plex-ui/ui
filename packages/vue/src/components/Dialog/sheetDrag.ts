@@ -12,6 +12,7 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
   let lastY = 0
   let lastTime = 0
   let speed = 0
+  let settleTimer: number | undefined
 
   const clear = () => {
     panel.style.transition = ""
@@ -19,10 +20,13 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
   }
 
   const onStart = (event: TouchEvent) => {
-    if (event.touches.length !== 1 || !window.matchMedia("(max-width: 767px)").matches) return
+    if (event.touches.length !== 1 || !window.matchMedia("(max-width: 640px)").matches) return
     const { clientY } = event.touches[0]
     if (clientY - panel.getBoundingClientRect().top > GRIP) return
     if ((event.target as Element | null)?.closest?.(INTERACTIVE)) return
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer)
+    settleTimer = undefined
+    panel.removeEventListener("transitionend", clear)
     startY = clientY
     lastY = clientY
     lastTime = event.timeStamp
@@ -51,11 +55,13 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
       return
     }
     if (travelled > panel.getBoundingClientRect().height * CLOSE_SHARE || flick) {
-      close()
-      // Something may keep it open, unsaved changes for one
-      window.setTimeout(() => {
+      // Something may keep it open, unsaved changes for one.
+      // Register before close, which may synchronously detach this gesture.
+      settleTimer = window.setTimeout(() => {
+        settleTimer = undefined
         if (panel.isConnected) clear()
       }, SETTLE)
+      close()
       return
     }
     panel.style.transition = "transform 250ms var(--cubic-enter)"
@@ -73,5 +79,10 @@ export const attachSheetDrag = (panel: HTMLElement, close: () => void) => {
     panel.removeEventListener("touchmove", onMove)
     panel.removeEventListener("touchend", onEnd)
     panel.removeEventListener("touchcancel", onEnd)
+    panel.removeEventListener("transitionend", clear)
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer)
+    settleTimer = undefined
+    startY = null
+    clear()
   }
 }

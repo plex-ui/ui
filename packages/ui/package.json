@@ -1,6 +1,6 @@
 {
   "name": "@plexui/ui",
-  "version": "0.27.4",
+  "version": "0.28.0",
   "description": "Modern design system for building high-quality applications",
   "type": "module",
   "license": "MIT",
@@ -99,7 +99,7 @@
     "@maskito/core": "^5.2.2",
     "@maskito/kit": "^5.2.2",
     "@maskito/react": "^5.2.2",
-    "@plexui/styles": "^0.1.30",
+    "@plexui/styles": "^0.1.31",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/table-core": "^8.21.3",
     "@tiptap/core": "^3.21.0",

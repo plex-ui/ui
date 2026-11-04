@@ -102,6 +102,8 @@ export type DialogContentProps = {
   placement?: DialogPlacement
   /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
   mobilePlacement?: Extract<DialogPlacement, "center" | "bottom" | "fullscreen">
+  /** Mobile presentation at 640px and below. Sheets default to bottom placement. */
+  mobileVariant?: "alert" | "sheet"
   /**
    * Called when focus moves into the dialog on open. Call
    * `event.preventDefault()` to focus something else yourself.
@@ -118,11 +120,16 @@ const Content = ({
   pill = false,
   className,
   placement = "center",
-  mobilePlacement,
+  mobilePlacement: requestedMobilePlacement,
+  mobileVariant,
   onOpenAutoFocus,
   onCloseAutoFocus,
 }: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
+  const mobilePlacement =
+    mobileVariant === "alert"
+      ? "center"
+      : requestedMobilePlacement ?? (mobileVariant === "sheet" ? "bottom" : undefined)
   const [exitGuard] = useState(createExitGuard)
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
   const openedAt = useRef(0)
@@ -161,6 +168,7 @@ const Content = ({
               style={toCssVariables({ "dialog-width": width })}
               data-placement={placement === "center" ? undefined : placement}
               data-mobile-placement={mobilePlacement}
+              data-mobile-variant={mobileVariant}
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
               onInteractOutside={(event) => {
@@ -212,13 +220,22 @@ const Header = ({ children, className }: DialogSlotProps) => {
   return <div className={clsx(s.Header, className)}>{children}</div>
 }
 
+const HeaderAction = ({ children, className }: DialogSlotProps) => {
+  return <div className={clsx(s.HeaderAction, className)}>{children}</div>
+}
+
 /** The scrolling part between Header and Footer: with it, only the body scrolls */
 const Body = ({ children, className }: DialogSlotProps) => {
   return <div className={clsx(s.Body, className)}>{children}</div>
 }
 
-const Footer = ({ children, className }: DialogSlotProps) => {
-  return <div className={clsx(s.Footer, className)}>{children}</div>
+type DialogFooterProps = DialogSlotProps & {
+  /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
+  mobileLayout?: "inline" | "stacked"
+}
+
+const Footer = ({ children, className, mobileLayout }: DialogFooterProps) => {
+  return <div className={clsx(s.Footer, className)} data-mobile-layout={mobileLayout}>{children}</div>
 }
 
 const Title = ({ children, className }: DialogSlotProps) => {
@@ -240,6 +257,7 @@ const Close = ({ children }: { children: ReactNode }) => {
 Dialog.Trigger = Trigger
 Dialog.Content = Content
 Dialog.Header = Header
+Dialog.HeaderAction = HeaderAction
 Dialog.Body = Body
 Dialog.Footer = Footer
 Dialog.Title = Title

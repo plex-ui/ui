@@ -106,6 +106,10 @@ Children stand in the shared column. All other `<div>` attributes are forwarded 
 
 Children stand in the shared column. All other `<div>` attributes and `ref` go to the element that scrolls.
 
+### Page.Footer
+
+Actions stay below the scrolling `Page.Content`. The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
+
 ### Compound parts
 
 | Part | Element | Purpose |

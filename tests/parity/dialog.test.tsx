@@ -17,6 +17,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogHeaderAction,
   DialogTitle,
   DialogTrigger,
 } from "../../packages/vue/src/components/Dialog"
@@ -30,6 +31,7 @@ type ContentProps = {
   className?: string
   placement?: "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
   mobilePlacement?: "center" | "bottom" | "fullscreen"
+  mobileVariant?: "alert" | "sheet"
 }
 
 // Click handlers on the Trigger and Close children; preventDefault() in one
@@ -146,6 +148,10 @@ const cases: Array<[string, { open?: boolean; content?: ContentProps }]> = [
   ["open, placement fullscreen", { open: true, content: { placement: "fullscreen" } }],
   ["open, centered with a bottom sheet on phones", { open: true, content: { mobilePlacement: "bottom" } }],
   ["open, side panel, full screen on phones", { open: true, content: { placement: "end", mobilePlacement: "fullscreen" } }],
+  ["open, mobile alert", { open: true, content: { mobileVariant: "alert" } }],
+  ["open, mobile sheet", { open: true, content: { mobileVariant: "sheet" } }],
+  ["open, mobile sheet without close", { open: true, content: { mobileVariant: "sheet", showClose: false } }],
+  ["open, mobile fullscreen sheet", { open: true, content: { mobileVariant: "sheet", mobilePlacement: "fullscreen" } }],
   ["open, explicit center", { open: true, content: { placement: "center" } }],
 ]
 
@@ -153,10 +159,40 @@ const cases: Array<[string, { open?: boolean; content?: ContentProps }]> = [
 const pastDoubleClick = () => new Promise((resolve) => setTimeout(resolve, 320))
 
 describe("Dialog parity", () => {
+  test("header action slot preserves its child in both frameworks", async () => {
+    render(<ReactDialog.HeaderAction><ReactButton color="secondary" variant="soft" uniform aria-label="More actions">More</ReactButton></ReactDialog.HeaderAction>)
+    const react = serializeDom()
+    cleanup()
+    const { unmount } = mountVue(() => h(DialogHeaderAction, null, () => h(VueButton, { color: "secondary", variant: "soft", uniform: true, "aria-label": "More actions" }, () => "More")))
+    await flushVue()
+    expect(serializeDom()).toBe(react)
+    unmount()
+  })
+
+  test.each(["inline", "stacked"] as const)("footer %s layout has identical React and Vue markup", async (mobileLayout) => {
+    render(<ReactDialog.Footer mobileLayout={mobileLayout}>Actions</ReactDialog.Footer>)
+    const react = serializeDom()
+    cleanup()
+    const { unmount } = mountVue(() => h(DialogFooter, { mobileLayout }, () => "Actions"))
+    await flushVue()
+    expect(serializeDom()).toBe(react)
+    expect(serializeDom()).toContain(`data-mobile-layout="${mobileLayout}"`)
+    unmount()
+  })
+
   test.each(cases)("%s", async (_name, props) => {
     const react = await reactDom(props)
     const vue = await vueDom(props)
     expect(vue).toBe(react)
+  })
+
+  test.each(["alert", "sheet"] as const)("%s selects its mobile presentation independently of desktop placement", async (mobileVariant) => {
+    const props = { open: true, content: { mobileVariant, placement: "end" as const } }
+    for (const dom of [await reactDom(props), await vueDom(props)]) {
+      expect(dom).toContain(`data-mobile-variant="${mobileVariant}"`)
+      expect(dom).toContain(`data-mobile-placement="${mobileVariant === "alert" ? "center" : "bottom"}"`)
+      expect(dom).toContain('data-placement="end"')
+    }
   })
 
   test("open renders the panel, labelled by its title and described by its description", async () => {

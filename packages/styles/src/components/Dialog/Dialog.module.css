@@ -298,6 +298,22 @@
   gap: 0.5rem;
 }
 
+.HeaderAction {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 3.25rem;
+  display: flex;
+
+  & > button {
+    --button-size: 2rem;
+    --button-radius: var(--radius-full);
+  }
+}
+
+.Panel:has(.HeaderAction) > .Header {
+  padding-inline-end: 4.75rem;
+}
+
 .Title {
   margin: 0;
   font-size: 1.125rem;
@@ -368,4 +384,194 @@
       --button-gutter: var(--control-gutter-xl);
     }
   }
+}
+
+/* iOS presentations are opt-in; placement and all desktop styles remain independent. */
+@media (width <= 640px) {
+  .Content[data-mobile-variant="alert"] {
+    --dialog-content-align: center;
+    --dialog-content-justify: center;
+    --dialog-content-padding: 1rem;
+    --dialog-panel-width: var(--dialog-alert-width);
+    --dialog-panel-height: auto;
+    --dialog-panel-max-height: calc(100dvh - 2rem);
+    --dialog-panel-radius: var(--dialog-alert-radius);
+  }
+
+  .Content[data-mobile-variant="alert"] .Panel {
+    gap: 10px;
+    padding: var(--dialog-alert-padding);
+  }
+
+  .Content[data-mobile-variant="alert"] .CloseButton,
+  .Content[data-mobile-variant="alert"] .HeaderAction {
+    display: none;
+  }
+
+  .Content[data-mobile-variant="alert"] .Header {
+    gap: 10px;
+    padding: 8px 8px 24px;
+  }
+
+  .Content[data-mobile-variant="alert"] .Header > :first-child {
+    padding-inline-end: 0;
+  }
+
+  .Content[data-mobile-variant="alert"] .Title,
+  .Content[data-mobile-variant="alert"] .Description,
+  .Content[data-mobile-variant="sheet"] .Title {
+    font-size: var(--dialog-mobile-type-size);
+    line-height: var(--dialog-mobile-type-leading);
+    letter-spacing: -0.43px;
+    overflow-wrap: anywhere;
+  }
+
+  .Content[data-mobile-variant="alert"] .Description {
+    color: var(--color-text);
+  }
+
+  .Content[data-mobile-variant="alert"] .Body {
+    margin-inline: 0;
+    padding: 2px 8px;
+  }
+
+  .Content[data-mobile-variant] .Footer {
+    gap: 10px;
+  }
+
+  .Content[data-mobile-variant] .Footer > * {
+    --button-size: var(--dialog-alert-action-height);
+    --button-font-size: var(--dialog-mobile-type-size);
+    --button-gutter: 16px;
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--dialog-alert-action-height);
+    height: auto;
+    padding-block: 13px;
+    line-height: var(--dialog-mobile-type-leading);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"]),
+  .Content .Footer[data-mobile-layout="inline"] {
+    flex-flow: row wrap;
+    gap: 10px 16px;
+
+    & > * {
+      flex: 1 0 auto;
+      width: auto;
+      min-width: calc(50% - 8px);
+    }
+  }
+
+  .Content .Footer[data-mobile-layout="inline"] > * {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .Content[data-mobile-variant="sheet"] {
+    --field-group-radius: 26px;
+    --dialog-panel-max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 16px);
+    --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 0 0;
+  }
+
+  .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] {
+    --dialog-panel-max-height: 100dvh;
+    --dialog-panel-radius: 0;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Panel {
+    gap: 0;
+    padding: 0;
+    overflow: auto;
+
+    &:has(> .Body) {
+      overflow: hidden;
+    }
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header {
+    position: relative;
+    gap: 0;
+    min-height: 70px;
+    padding: 16px 68px 10px;
+    text-align: center;
+
+    &::before {
+      position: absolute;
+      top: 5px;
+      left: calc(50% - 18px);
+      width: 36px;
+      height: 5px;
+      border-radius: var(--radius-full);
+      background: var(--color-background-secondary-soft-alpha);
+      content: "";
+    }
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header > :first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-inline-end: 0;
+  }
+
+  .Content[data-mobile-variant="sheet"] .CloseButton {
+    z-index: 1;
+    top: 16px;
+    inset-inline-start: 16px;
+    inset-inline-end: auto;
+    width: var(--dialog-sheet-close-size);
+    height: var(--dialog-sheet-close-size);
+
+    &::before {
+      inset: 0;
+    }
+  }
+
+  .Content[data-mobile-variant="sheet"] .HeaderAction {
+    top: 16px;
+    inset-inline-end: 16px;
+
+    & > button {
+      --button-size: var(--dialog-sheet-close-size);
+      --button-icon-size: 24px;
+    }
+  }
+
+  .Content[data-mobile-variant="sheet"] .CloseIcon {
+    width: var(--dialog-sheet-close-icon-size);
+    height: var(--dialog-sheet-close-icon-size);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Body {
+    margin-inline: 0;
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .Content[data-mobile-variant="sheet"] .Panel:has(> .Footer) > .Body {
+    padding-bottom: 16px;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer {
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .Header {
+    min-height: calc(54px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .CloseButton,
+  .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .HeaderAction {
+    top: env(safe-area-inset-top, 0px);
+  }
+
 }

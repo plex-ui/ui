@@ -84,20 +84,23 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
+            {sections && showActions && <Dialog.HeaderAction>
+              <Menu>
+                <Menu.Trigger><Button color="secondary" variant="soft" size="2xl" iconSize="2xl" uniform aria-label="Application actions"><DotsHorizontal /></Button></Menu.Trigger>
+                <Menu.Content align="end" minWidth="auto">
+                  <Menu.Item onSelect={() => setPaused(!paused)}>{paused ? 'Resume application' : 'Pause application'}</Menu.Item>
+                </Menu.Content>
+              </Menu>
+            </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
             <div className="flex flex-col gap-5 py-2">
               {sections ? <>
-                <DetailSection title="Application" action={showActions && <Menu>
-                  <Menu.Trigger><Button color="secondary" variant="ghost" size="md" uniform aria-label="Application actions"><DotsHorizontal /></Button></Menu.Trigger>
-                  <Menu.Content align="end" minWidth="auto">
-                    <Menu.Item onSelect={() => setPaused(!paused)}>{paused ? 'Resume application' : 'Pause application'}</Menu.Item>
-                  </Menu.Content>
-                </Menu>}>{metadata}</DetailSection>
+                <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
                 <DetailSection title="Web" action={showActions && <Menu>
                   <Menu.Trigger><Button color="secondary" variant="ghost" size="md" uniform aria-label="Web actions"><DotsHorizontal /></Button></Menu.Trigger>
@@ -135,6 +138,10 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
 
 <UsageBlock>{`import { Dialog } from "@plexui/ui/components/Dialog";`}</UsageBlock>
 
+At 640px and below, `mobileVariant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobileVariant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
+
+Alert actions wrap onto separate rows when their labels need more space. Set `<Dialog.Footer mobileLayout="stacked">` when the actions should always stack. Put long sheet content in `Dialog.Body` to keep the header and actions visible while the body scrolls.
+
 ## Examples
 
 ### Overview
@@ -146,16 +153,16 @@ const heading = useRef<HTMLDivElement>(null)
   <Dialog.Trigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </Dialog.Trigger>
-  <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
     <Dialog.Header>
       <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
+      <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
     </Dialog.Header>
-    <p className="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
     <Dialog.Footer>
       <Dialog.Close>
         <Button color="primary" variant="soft">Cancel</Button>
       </Dialog.Close>
-      <Button color="primary" onClick={() => setOpen(false)}>Save changes</Button>
+      <Button color="primary" onClick={() => setOpen(false)}>Save</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog>`} previewMinHeight={120}>
@@ -171,15 +178,15 @@ const heading = useRef<HTMLDivElement>(null)
   <Dialog.Trigger>
     <Button color="danger" variant="outline">Delete</Button>
   </Dialog.Trigger>
-  <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
     <Dialog.Header>
       <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
+      <Dialog.Description>
+        This change will affect all API integrations using{" "}
+        <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+        It cannot be undone.
+      </Dialog.Description>
     </Dialog.Header>
-    <p className="text-sm text-secondary">
-      This change will affect all API integrations using{" "}
-      <span className="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-      It cannot be undone.
-    </p>
     <Dialog.Footer>
       <Dialog.Close>
         <Button color="secondary" variant="soft">Cancel</Button>
@@ -199,7 +206,7 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Sections and actions
 
-<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Keep section actions beside their heading and Close in the dialog header. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
+<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Put application actions in Dialog.HeaderAction on the same row as Close. Keep Web actions beside the section heading. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
   <DetailsDialogDemo sections />
 </ComponentPreview>
 
@@ -213,7 +220,7 @@ const heading = useRef<HTMLDivElement>(null)
 
 <ComponentPreview phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
     <Dialog.Description>Please read them before you continue.</Dialog.Description>
@@ -231,13 +238,19 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Placement
 
-<ComponentPreview description="Phone offers centered dialogs, bottom sheets and fullscreen views. Desktop also includes top, start and end placements." phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement="end" width={360}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement="end" width={360}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
   </Dialog.Header>
-  <Dialog.Body>{/* fields */}</Dialog.Body>
+  <Dialog.Body>
+    <FieldGroup>
+      <Field row label="Status"><Input placeholder="Any status" /></Field>
+      <Field row label="Owner"><Input placeholder="Anyone" /></Field>
+      <Field row label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
+    </FieldGroup>
+  </Dialog.Body>
   <Dialog.Footer>
     <Dialog.Close><Button color="secondary" variant="soft">Clear filters</Button></Dialog.Close>
     <Button color="primary">Done</Button>
@@ -258,19 +271,22 @@ const heading = useRef<HTMLDivElement>(null)
 **Dialog.Content**
 
 <PropsTable data={[
-  { prop: "width", type: "number | string", default: "480", description: "Panel width" },
-  { prop: "showClose", type: "boolean", default: "true", description: "Show close button in top-right corner" },
+  { prop: "width", type: "number | string", default: "480", description: "Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width" },
+  { prop: "showClose", type: "boolean", default: "true", description: "Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder panel and a round close button, for dialogs beside pill controls" },
   { prop: "className", type: "string", description: "Additional CSS class on the panel" },
   { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
-  { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below; defaults to placement" },
+  { prop: "mobileVariant", type: '"alert" | "sheet"', description: "Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
+  { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
   { prop: "onOpenAutoFocus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: wrapper for title and description.
+**Dialog.Header**: wrapper for title, description and an optional header action.
+
+**Dialog.HeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it inside Dialog.Header and label icon-only controls. Mobile alerts hide this slot.
 
 **Dialog.Title**: accessible heading for the dialog.
 
@@ -278,7 +294,11 @@ const heading = useRef<HTMLDivElement>(null)
 
 **Dialog.Body**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `className`.
 
-**Dialog.Footer**: footer area for action buttons. At 640px and below, actions stack at full width with a 44px height and fully rounded corners.
+**Dialog.Footer**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Standard dialogs and sheets stack their mobile actions.
+
+<PropsTable data={[
+  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
+]} />
 
 **Dialog.Close**: closes the dialog when its child is activated.
 
@@ -289,6 +309,8 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 
+Standard mobile appearance uses these tokens:
+
 - `--dialog-mobile-close-size`: visible close-button circle (default `--control-size-md`, 32px)
 - `--dialog-mobile-close-icon-size`: close SVG box (default `--control-icon-size-2xl`, 24px; the glyph occupies about 12px)
 - `--dialog-mobile-close-background`: mobile close button fill (default secondary soft)
@@ -296,3 +318,15 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-mobile-action-size`: mobile footer height and close-button touch target (default `--control-size-2xl`, 44px)
 - `--dialog-mobile-action-radius`: mobile footer button radius (default `--radius-full`)
 - `--dialog-mobile-action-font-size`: mobile footer button text size (default `--control-font-size-lg`)
+
+Alert and Sheet use these additional tokens:
+
+- `--dialog-alert-width`: compact alert width (default `300px`, capped by the viewport)
+- `--dialog-alert-radius`: alert corner radius (default `34px`)
+- `--dialog-alert-padding`: alert outer padding (default `14px`)
+- `--dialog-alert-action-height`: Alert and Sheet action height (default `48px`)
+- `--dialog-sheet-radius`: sheet top corner radius (default `38px`; fullscreen stays square)
+- `--dialog-sheet-close-size`: sheet close-button circle and touch target (default `--control-size-2xl`, 44px)
+- `--dialog-sheet-close-icon-size`: sheet close SVG box (default `34px`; the visible cross is about 17px)
+- `--dialog-mobile-type-size`: Alert heading, description and actions, plus Sheet heading and actions (default `17px`)
+- `--dialog-mobile-type-leading`: Alert heading and description, and Sheet heading line height (default `22px`)

@@ -24,7 +24,7 @@ const SCROLLED_AFTER = 4
 
 const PAGE_CONTEXT: InjectionKey<Ref<boolean>> = Symbol("Page")
 
-function usePageContext(part: string): Ref<boolean> {
+function injectPageContext(part: string): Ref<boolean> {
   const scrolled = inject(PAGE_CONTEXT, null)
   if (!scrolled) {
     throw new Error(`${part} must be used within Page`)
@@ -69,7 +69,7 @@ export const PageHeader = defineComponent({
     divider: { type: Boolean, default: true },
   },
   setup(props, { slots }) {
-    const scrolled = usePageContext("PageHeader")
+    const scrolled = injectPageContext("PageHeader")
     const line = computed(() => props.divider && scrolled.value)
 
     return () =>
@@ -112,7 +112,7 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const scrolled = usePageContext("PageContent")
+    const scrolled = injectPageContext("PageContent")
 
     const onScroll = (event: Event) => {
       scrolled.value = (event.currentTarget as HTMLElement).scrollTop > SCROLLED_AFTER
@@ -127,6 +127,16 @@ export const PageContent = defineComponent({
         ),
         [h("div", { class: s.Column }, slots.default?.())],
       )
+  },
+})
+
+/** Actions that remain below the scrolling content (React `Page.Footer`). */
+export const PageFooter = defineComponent({
+  name: "PageFooter",
+  setup(_props, { slots }) {
+    return () => h("div", { class: s.Footer }, [
+      h("div", { class: s.FooterContent }, slots.default?.()),
+    ])
   },
 })
 

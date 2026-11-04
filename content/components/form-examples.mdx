@@ -360,66 +360,98 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Several groups
 
-<ComponentPreview details={<>One form in several blocks, each with one kind of row. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, a hint goes in <code>labelAction</code>. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={`const wide = useBreakpoint("md");
+<ComponentPreview details={<>One form in several blocks, each with one kind of row. On a phone, Page.Header provides the top bar and Page.Footer keeps Save changes at the bottom. Only Page.Content scrolls, with 16px side gutters and room for the bottom safe area. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, a hint goes in <code>labelAction</code>. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={`const wide = useBreakpoint("md");
+const formId = useId();
 
-<form className="flex flex-col gap-6">
-  <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
-  <FieldGroup>
-    <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
-    <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
-  </FieldGroup>
-  <FieldGroup columns={columns}>
-    <Field row label="Category" description={columns ? undefined : "Also shown under Sale."}>
-      <Select value={category} options={categories} onChange={onCategory} block={false} align={columns ? "start" : "end"} />
-    </Field>
-    <Field row label="Price">
-      <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
-    </Field>
-    <Field row label="Weight">
-      {(control) => (
-        <InputGroup>
-          <InputGroup.Input {...control} inputMode="decimal" />
-          <InputGroup.Addon align="inline-end">
-            <Menu>
-              <Menu.Trigger>
-                <InputGroup.Button aria-label="Unit" className="text-secondary text-sm font-normal">
-                  {unit}
-                  <Dropdown data-no-autosize width={8} height={12} className="ms-1 opacity-75" />
-                </InputGroup.Button>
-              </Menu.Trigger>
-              <Menu.Content align="end" minWidth="auto">
-                {units.map((item) => (
-                  <Menu.CheckboxItem key={item.value} checked={unit === item.value} onCheckedChange={() => onUnit(item.value)} indicatorPosition="start" indicatorVariant="ghost">
-                    {item.label}
-                  </Menu.CheckboxItem>
-                ))}
-              </Menu.Content>
-            </Menu>
-          </InputGroup.Addon>
-        </InputGroup>
-      )}
-    </Field>
-  </FieldGroup>
-  <FieldGroup>
-    <Field
-      row
-      fill
-      label="Variants"
-      labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
-      action={
-        <Tooltip content={wide ? "Add variant" : null}>
-          <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add variant">
-            {wide ? <Plus /> : "Add"}
-          </Button>
-        </Tooltip>
-      }
-    >
-      <div />
-    </Field>
-  </FieldGroup>
-</form>`} previewMinHeight={760}>
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Edit product</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={handleSubmit}>
+      <img src={photo} alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
+      <FieldGroup>
+        <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
+        <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
+      </FieldGroup>
+      <FieldGroup columns={columns}>
+        <Field row label="Category" description={columns ? undefined : "Also shown under Sale."}>
+          <Select value={category} options={categories} onChange={onCategory} block={false} align={columns ? "start" : "end"} />
+        </Field>
+        <Field row label="Price">
+          <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
+        </Field>
+        <Field row label="Weight">
+          {(control) => (
+            <InputGroup>
+              <InputGroup.Input {...control} inputMode="decimal" />
+              <InputGroup.Addon align="inline-end">
+                <Menu>
+                  <Menu.Trigger>
+                    <InputGroup.Button aria-label="Unit" className="text-secondary text-sm font-normal">
+                      {unit}
+                      <Dropdown data-no-autosize width={8} height={12} className="ms-1 opacity-75" />
+                    </InputGroup.Button>
+                  </Menu.Trigger>
+                  <Menu.Content align="end" minWidth="auto">
+                    {units.map((item) => (
+                      <Menu.CheckboxItem key={item.value} checked={unit === item.value} onCheckedChange={() => onUnit(item.value)} indicatorPosition="start" indicatorVariant="ghost">
+                        {item.label}
+                      </Menu.CheckboxItem>
+                    ))}
+                  </Menu.Content>
+                </Menu>
+              </InputGroup.Addon>
+            </InputGroup>
+          )}
+        </Field>
+      </FieldGroup>
+      <FieldGroup>
+        <Field
+          row
+          fill
+          label="Variants"
+          labelAction={<Tooltip content="Sizes and finishes a buyer can choose."><InfoCircle className="text-tertiary" /></Tooltip>}
+          action={
+            <Tooltip content={wide ? "Add variant" : null}>
+              <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add variant">
+                {wide ? <Plus /> : "Add"}
+              </Button>
+            </Tooltip>
+          }
+        >
+          <div />
+        </Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer>
+    <Button color="primary" size="3xl" pill block type="submit" form={formId}>Save changes</Button>
+  </Page.Footer>
+</Page>`} previewMinHeight={760}>
   <FormRowsGroupsDemo />
 </ComponentPreview>
+
+The snippet uses a full-page layout. Add these styles to reproduce the mobile spacing and group corners; the desktop preview shows the compact form.
+
+```css
+.grouped-form-screen[data-width] {
+  height: 100dvh;
+}
+
+@media (max-width: 767px) {
+  .grouped-form-screen[data-width] {
+    --field-group-radius: 26px;
+    --page-top: calc(env(safe-area-inset-top, 0px) + var(--page-bar-height-phone) + 10px);
+    --page-content-padding-top: 10px;
+    --page-content-padding-bottom: 16px;
+  }
+
+  .grouped-form-screen .grouped-form-header {
+    padding-block-start: env(safe-area-inset-top, 0px);
+  }
+}
+```
 
 ## Tags in rows
 
@@ -469,16 +501,17 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Form in a dialog
 
-<ComponentPreview details={<>The same groups in a <code>Dialog</code>. <code>Dialog.Body</code> scrolls, the header and the footer with the actions stay in view. On a phone give it <code>mobilePlacement="fullscreen"</code> if the form is long.</>} code={`<Dialog open={open} onOpenChange={setOpen}>
+<ComponentPreview phoneDialog details={<>The same groups in a <code>Dialog</code>. <code>Dialog.Body</code> scrolls, the header and the footer with the actions stay in view. Use <code>mobileVariant="sheet"</code> for the mobile form. The body scrolls between the header and actions; the footer includes the bottom safe area. Phone preview stays open for inspection.</>} code={`<Dialog open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
     <Button color="secondary" variant="outline" pill>Edit product</Button>
   </Dialog.Trigger>
-  <Dialog.Content width={600} pill>
+  <Dialog.Content mobileVariant="sheet" width={600} pill>
     <Dialog.Header>
       <Dialog.Title className="flex items-center gap-2">
         Edit product
         <Badge variant="outline" size="md" pill>English</Badge>
       </Dialog.Title>
+      <Dialog.Description className="sr-only">Edit product details and save your changes.</Dialog.Description>
     </Dialog.Header>
     <Dialog.Body className="flex flex-col gap-6">
       {/* the groups of the form */}

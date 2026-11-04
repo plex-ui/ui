@@ -71,20 +71,23 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
         {!previewOpen && (!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
+            {sections && showActions && <Dialog.HeaderAction>
+              <Menu>
+                <Menu.Trigger><Button color="secondary" variant="soft" size="2xl" iconSize="2xl" uniform aria-label="Application actions"><DotsHorizontal /></Button></Menu.Trigger>
+                <Menu.Content align="end" minWidth="auto">
+                  <Menu.Item onSelect={() => setPaused(!paused)}>{paused ? 'Resume application' : 'Pause application'}</Menu.Item>
+                </Menu.Content>
+              </Menu>
+            </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
             <div className="flex flex-col gap-5 py-2">
               {sections ? <>
-                <DetailSection title="Application" action={showActions && <Menu>
-                  <Menu.Trigger><Button color="secondary" variant="ghost" size="md" uniform aria-label="Application actions"><DotsHorizontal /></Button></Menu.Trigger>
-                  <Menu.Content align="end" minWidth="auto">
-                    <Menu.Item onSelect={() => setPaused(!paused)}>{paused ? 'Resume application' : 'Pause application'}</Menu.Item>
-                  </Menu.Content>
-                </Menu>}>{metadata}</DetailSection>
+                <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
                 <DetailSection title="Web" action={showActions && <Menu>
                   <Menu.Trigger><Button color="secondary" variant="ghost" size="md" uniform aria-label="Web actions"><DotsHorizontal /></Button></Menu.Trigger>

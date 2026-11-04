@@ -179,6 +179,8 @@ export const DialogContent = defineComponent({
     placement: { type: String as PropType<DialogPlacement>, default: "center" },
     /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
     mobilePlacement: String as PropType<Extract<DialogPlacement, "center" | "bottom" | "fullscreen">>,
+    /** Mobile presentation at 640px and below. Sheets default to bottom placement. */
+    mobileVariant: String as PropType<"alert" | "sheet">,
     /** Called when focus moves into the dialog on open; `event.preventDefault()` keeps it for you to place. */
     onOpenAutoFocus: Function as PropType<(event: Event) => void>,
     /** Called when focus returns on close; `event.preventDefault()` keeps it elsewhere. */
@@ -186,6 +188,11 @@ export const DialogContent = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
+    const mobilePlacement = computed(() =>
+      props.mobileVariant === "alert"
+        ? "center"
+        : props.mobilePlacement ?? (props.mobileVariant === "sheet" ? "bottom" : undefined),
+    )
     const rootContext = injectDialogRootContext()
     // Radix's root makes the content id; Reka's trigger does, so a dialog
     // without one would render `id=""`
@@ -245,10 +252,18 @@ export const DialogContent = defineComponent({
       detachDrag?.()
       detachDrag = undefined
       panelElement = element
-      if (element && props.mobilePlacement === "bottom") {
+      if (element && mobilePlacement.value === "bottom") {
         detachDrag = attachSheetDrag(element, () => setOpen(false))
       }
     }
+
+    watch(mobilePlacement, () => {
+      detachDrag?.()
+      detachDrag = panelElement && mobilePlacement.value === "bottom"
+        ? attachSheetDrag(panelElement, () => setOpen(false))
+        : undefined
+    })
+    onBeforeUnmount(() => detachDrag?.())
 
     let overlayElement: Element | undefined
     const setOverlayRef = (instance: unknown) => {
@@ -270,7 +285,8 @@ export const DialogContent = defineComponent({
             "class": s.Content,
             "style": toCssVariables({ "dialog-width": props.width }),
             "data-placement": props.placement === "center" ? undefined : props.placement,
-            "data-mobile-placement": props.mobilePlacement,
+            "data-mobile-placement": mobilePlacement.value,
+            "data-mobile-variant": props.mobileVariant,
             "data-pill": props.pill ? "" : undefined,
             "onOpenAutoFocus": props.onOpenAutoFocus,
             "onCloseAutoFocus": handleCloseAutoFocus,
@@ -301,9 +317,9 @@ export const DialogContent = defineComponent({
       ])
 
     return () => {
-      const { placement, mobilePlacement } = props
+      const { placement } = props
       const crossesScreen =
-        placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement === "bottom"
+        placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement.value === "bottom"
       return h(RekaDialogPortal, null, {
         default: () => [
           h(
@@ -331,6 +347,13 @@ export const DialogHeader = defineComponent({
   },
 })
 
+export const DialogHeaderAction = defineComponent({
+  name: "DialogHeaderAction",
+  setup(_props, { slots }) {
+    return () => h("div", { class: s.HeaderAction }, slots.default?.())
+  },
+})
+
 /** The scrolling part between DialogHeader and DialogFooter: with it, only the body scrolls. */
 export const DialogBody = defineComponent({
   name: "DialogBody",
@@ -342,8 +365,12 @@ export const DialogBody = defineComponent({
 
 export const DialogFooter = defineComponent({
   name: "DialogFooter",
-  setup(_props, { slots }) {
-    return () => h("div", { class: s.Footer }, slots.default?.())
+  props: {
+    /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
+    mobileLayout: String as PropType<"inline" | "stacked">,
+  },
+  setup(props, { slots }) {
+    return () => h("div", { class: s.Footer, "data-mobile-layout": props.mobileLayout }, slots.default?.())
   },
 })
 

@@ -2175,19 +2175,22 @@ Enable a stepper in the trigger with trigger-stepper-unit="month". When the sele
 
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
-Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
 Docs: https://plexui.com/vue/components/dialog
 Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
   - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
   DialogContent:
-    - width (number | string) default: 480 — Panel width
-    - show-close (boolean) default: true — Show close button in top-right corner
+    - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
+    - show-close (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
     - class (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
+    - mobile-variant ("alert" | "sheet") — Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
+    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+  DialogFooter:
+    - mobile-layout ("inline" | "stacked") — Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
 
 ### Overview
 ```vue
@@ -2195,16 +2198,16 @@ Props:
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </DialogTrigger>
-  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Unsaved changes</DialogTitle></div>
+      <DialogDescription>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</DialogDescription>
     </DialogHeader>
-    <p class="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
     <DialogFooter>
       <DialogClose>
         <Button color="primary" variant="soft">Cancel</Button>
       </DialogClose>
-      <Button color="primary" @click="open = false">Save changes</Button>
+      <Button color="primary" @click="open = false">Save</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -2217,15 +2220,15 @@ Use color="danger" on the action button for destructive operations.
   <DialogTrigger>
     <Button color="danger" variant="outline">Delete</Button>
   </DialogTrigger>
-  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Delete assistant?</DialogTitle></div>
+      <DialogDescription>
+        This change will affect all API integrations using
+        <span class="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
+        It cannot be undone.
+      </DialogDescription>
     </DialogHeader>
-    <p class="text-sm text-secondary">
-      This change will affect all API integrations using
-      <span class="font-medium text-[var(--color-text)]">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.
-      It cannot be undone.
-    </p>
     <DialogFooter>
       <DialogClose>
         <Button color="secondary" variant="soft">Cancel</Button>
@@ -2243,7 +2246,7 @@ Use a definition list and CopyTooltip with a ghost Button. The full value is cop
 import { ref } from 'vue';
 import { Badge } from '@plexui/vue/components/Badge';
 import { Button } from '@plexui/vue/components/Button';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogHeaderAction, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
 import { DotsHorizontal } from '@plexui/vue/components/Icon';
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@plexui/vue/components/Menu';
 import { Separator } from '@plexui/vue/components/Separator';
@@ -2349,10 +2352,18 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
+        <DialogHeaderAction v-if="sections && showActions">
+          <Menu>
+            <MenuTrigger><Button color="secondary" variant="soft" size="2xl" icon-size="2xl" uniform aria-label="Application actions"><DotsHorizontal /></Button></MenuTrigger>
+            <MenuContent align="end" min-width="auto">
+              <MenuItem @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
+            </MenuContent>
+          </Menu>
+        </DialogHeaderAction>
       </DialogHeader>
       <DialogBody>
         <div class="flex flex-col gap-5 py-2">
@@ -2361,12 +2372,11 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
                 <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
-                <div v-if="showActions && (group.title === 'Application' || group.title === 'Web')" class="-my-2 flex shrink-0">
+                <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
                     <MenuContent align="end" min-width="auto">
-                      <MenuItem v-if="group.title === 'Application'" @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
-                      <MenuItem v-else @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
+                      <MenuItem @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
                     </MenuContent>
                   </Menu>
                 </div>
@@ -2400,13 +2410,13 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 ```
 
 ### Sections and actions
-Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.
+Separator has the same gap on either side. DialogHeaderAction keeps application actions on the same row as Close. Web actions stay beside the section heading. The menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.
 ```vue
 <script setup>
 import { ref } from 'vue';
 import { Badge } from '@plexui/vue/components/Badge';
 import { Button } from '@plexui/vue/components/Button';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogHeaderAction, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
 import { DotsHorizontal } from '@plexui/vue/components/Icon';
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@plexui/vue/components/Menu';
 import { Separator } from '@plexui/vue/components/Separator';
@@ -2512,10 +2522,18 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
+        <DialogHeaderAction v-if="sections && showActions">
+          <Menu>
+            <MenuTrigger><Button color="secondary" variant="soft" size="2xl" icon-size="2xl" uniform aria-label="Application actions"><DotsHorizontal /></Button></MenuTrigger>
+            <MenuContent align="end" min-width="auto">
+              <MenuItem @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
+            </MenuContent>
+          </Menu>
+        </DialogHeaderAction>
       </DialogHeader>
       <DialogBody>
         <div class="flex flex-col gap-5 py-2">
@@ -2524,12 +2542,11 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
                 <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
-                <div v-if="showActions && (group.title === 'Application' || group.title === 'Web')" class="-my-2 flex shrink-0">
+                <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
                     <MenuContent align="end" min-width="auto">
-                      <MenuItem v-if="group.title === 'Application'" @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
-                      <MenuItem v-else @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
+                      <MenuItem @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
                     </MenuContent>
                   </Menu>
                 </div>
@@ -2569,7 +2586,7 @@ DialogBody scrolls while the header and Close button remain visible. Labels stac
 import { ref } from 'vue';
 import { Badge } from '@plexui/vue/components/Badge';
 import { Button } from '@plexui/vue/components/Button';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogHeaderAction, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
 import { DotsHorizontal } from '@plexui/vue/components/Icon';
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@plexui/vue/components/Menu';
 import { Separator } from '@plexui/vue/components/Separator';
@@ -2675,10 +2692,18 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
+        <DialogHeaderAction v-if="sections && showActions">
+          <Menu>
+            <MenuTrigger><Button color="secondary" variant="soft" size="2xl" icon-size="2xl" uniform aria-label="Application actions"><DotsHorizontal /></Button></MenuTrigger>
+            <MenuContent align="end" min-width="auto">
+              <MenuItem @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
+            </MenuContent>
+          </Menu>
+        </DialogHeaderAction>
       </DialogHeader>
       <DialogBody>
         <div class="flex flex-col gap-5 py-2">
@@ -2687,12 +2712,11 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
                 <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
-                <div v-if="showActions && (group.title === 'Application' || group.title === 'Web')" class="-my-2 flex shrink-0">
+                <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
                     <MenuContent align="end" min-width="auto">
-                      <MenuItem v-if="group.title === 'Application'" @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
-                      <MenuItem v-else @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
+                      <MenuItem @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
                     </MenuContent>
                   </Menu>
                 </div>
@@ -2732,7 +2756,7 @@ Put long content in DialogBody: only the body scrolls, while the header and foot
   <DialogTrigger>
     <Button color="secondary" variant="outline">Review terms</Button>
   </DialogTrigger>
-  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Terms of service</DialogTitle></div>
       <DialogDescription>Please read them before you continue.</DialogDescription>
@@ -2759,17 +2783,17 @@ Use placement to move the panel: top for search and command lists, bottom for a 
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open filters</Button>
   </DialogTrigger>
-  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
+  <DialogContent mobile-variant="sheet" :mobile-placement="placement === 'fullscreen' ? 'fullscreen' : 'bottom'" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Filters</DialogTitle></div>
       <DialogDescription>Narrow the list down.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <div class="flex flex-col gap-4">
-        <Field label="Status"><Input placeholder="Any status" /></Field>
-        <Field label="Owner"><Input placeholder="Anyone" /></Field>
-        <Field label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
-      </div>
+      <FieldGroup>
+        <Field row label="Status"><Input placeholder="Any status" /></Field>
+        <Field row label="Owner"><Input placeholder="Anyone" /></Field>
+        <Field row label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
+      </FieldGroup>
     </DialogBody>
     <DialogFooter>
       <DialogClose>
@@ -5712,7 +5736,7 @@ Props:
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
-Import: import { Page, PageActions, PageBar, PageContent, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
 Docs: https://plexui.com/vue/components/page
 Props:
   - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred

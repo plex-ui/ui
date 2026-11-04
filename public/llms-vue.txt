@@ -340,19 +340,22 @@ Examples: Overview, Limits, Shortcuts, Month stepper
 
 ## Dialog
 Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
-Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
+Import: import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogHeaderAction, DialogTitle, DialogTrigger } from "@plexui/vue/components/Dialog"
 Docs: https://plexui.com/vue/components/dialog
 Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
   - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
   DialogContent:
-    - width (number | string) default: 480 — Panel width
-    - show-close (boolean) default: true — Show close button in top-right corner
+    - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
+    - show-close (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
     - class (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
+    - mobile-variant ("alert" | "sheet") — Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
+    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
+  DialogFooter:
+    - mobile-layout ("inline" | "stacked") — Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
 Examples: Overview, Destructive confirmation, Metadata details, Sections and actions, Long details, Scrolling body, Placement
 
 ## Empty Message
@@ -648,7 +651,7 @@ Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
-Import: import { Page, PageActions, PageBar, PageContent, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
 Docs: https://plexui.com/vue/components/page
 Props:
   - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred

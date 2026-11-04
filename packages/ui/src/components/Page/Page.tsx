@@ -165,6 +165,16 @@ function PageContent({ fill = false, className, children, onScroll, ...restProps
 }
 PageContent.displayName = "Page.Content"
 
+/** Actions that remain below the scrolling content, inside the page's safe area. */
+function PageFooter({ className, children, ...restProps }: PageSlotProps) {
+  return (
+    <div className={clsx(s.Footer, className)} {...restProps}>
+      <div className={s.FooterContent}>{children}</div>
+    </div>
+  )
+}
+PageFooter.displayName = "Page.Footer"
+
 /* ------------------------------------------------------------------ */
 /*  Compound                                                           */
 /* ------------------------------------------------------------------ */
@@ -177,6 +187,7 @@ export const Page = PageRoot as typeof PageRoot & {
   Subtitle: typeof PageSubtitle
   Actions: typeof PageActions
   Content: typeof PageContent
+  Footer: typeof PageFooter
 }
 Page.Header = PageHeader
 Page.Bar = PageBar
@@ -185,3 +196,4 @@ Page.Title = PageTitle
 Page.Subtitle = PageSubtitle
 Page.Actions = PageActions
 Page.Content = PageContent
+Page.Footer = PageFooter

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import type { DateTime } from 'luxon';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
@@ -13,6 +14,7 @@ import { Dropdown, InfoCircle, Plus } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { InputGroup } from '@plexui/ui/components/InputGroup';
 import { Menu } from '@plexui/ui/components/Menu';
+import { Page } from '@plexui/ui/components/Page';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
@@ -21,6 +23,8 @@ import { Textarea } from '@plexui/ui/components/Textarea';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { DemoControlBoolean, controlsTableStyle } from './ButtonDemos';
+import { usePreviewEmbed } from './PreviewEmbed';
+import s from './FormRowsDemos.module.css';
 
 const noSubmit = (event: FormEvent) => event.preventDefault();
 
@@ -270,7 +274,7 @@ function ProductFields({ columns = false }: { columns?: boolean }) {
 
   return (
     <>
-      <img src="/demo/picture-3.svg" alt="Product" className="mx-auto block size-28 rounded-3xl object-cover" />
+      <Image src="/demo/picture-3.svg" alt="Product" width={112} height={112} className="mx-auto block size-28 rounded-3xl object-cover" />
       <FieldGroup columns={columns}>
         <Field row orientation="vertical" label="Name">
           <Input variant="ghost" defaultValue="Oak side table" />
@@ -332,19 +336,29 @@ function ProductFields({ columns = false }: { columns?: boolean }) {
 
 export function FormRowsGroupsDemo() {
   const [columns, setColumns] = useState(false);
+  const formId = useId();
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="columns" value={columns} onChange={setColumns} />
       </div>
-      <div data-demo-stage className="flex justify-center py-10">
-        <form className="flex w-[520px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-          <ProductFields columns={columns} />
-          <Button color="primary" size="3xl" pill type="submit">
-            Save changes
-          </Button>
-        </form>
+      <div data-demo-stage className={`${s.ScreenStage} flex justify-center py-10`}>
+        <Page className="h-dvh" data-form-screen>
+          <Page.Header data-form-header>
+            <Page.Bar><Page.Title>Edit product</Page.Title></Page.Bar>
+          </Page.Header>
+          <Page.Content data-form-content>
+            <form id={formId} className="flex flex-col gap-6" onSubmit={noSubmit}>
+              <ProductFields columns={columns} />
+            </form>
+          </Page.Content>
+          <Page.Footer data-form-footer>
+            <Button color="primary" size="3xl" pill block type="submit" form={formId}>
+              Save changes
+            </Button>
+          </Page.Footer>
+        </Page>
       </div>
     </>
   );
@@ -367,20 +381,25 @@ export function FormRowsTagsDemo() {
 }
 
 export function FormRowsDialogDemo() {
+  const heading = useRef<HTMLDivElement>(null);
+  const phonePreview = usePreviewEmbed() !== null;
   const [open, setOpen] = useState(false);
 
   return (
     <div data-demo-stage className="flex justify-center py-10">
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={phonePreview || open} onOpenChange={setOpen}>
         <Dialog.Trigger>
           <Button color="secondary" variant="outline" pill>Edit product</Button>
         </Dialog.Trigger>
-        <Dialog.Content width={600} pill>
+        <Dialog.Content mobileVariant="sheet" width={600} pill onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
-            <Dialog.Title className="flex items-center gap-2">
-              Edit product
-              <Badge variant="outline" size="md" pill>English</Badge>
-            </Dialog.Title>
+            <div ref={heading} tabIndex={-1} className="outline-none">
+              <Dialog.Title className="flex items-center gap-2">
+                Edit product
+                <Badge variant="outline" size="md" pill>English</Badge>
+              </Dialog.Title>
+            </div>
+            <Dialog.Description className="sr-only">Edit product details and save your changes.</Dialog.Description>
           </Dialog.Header>
           <Dialog.Body className="flex flex-col gap-6">
             <ProductFields />

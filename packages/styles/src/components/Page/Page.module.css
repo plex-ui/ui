@@ -18,10 +18,17 @@
 
 /* Header and content read one width, so the line, the title, the buttons and the content are one column. */
 .Head,
-.Column {
+.Column,
+.FooterContent {
   width: 100%;
   max-width: var(--page-width, none);
   margin-inline: auto;
+}
+
+.Footer {
+  flex: none;
+  padding: 16px var(--page-gutter) max(16px, env(safe-area-inset-bottom, 0px));
+  background: var(--page-background);
 }
 
 .Header {

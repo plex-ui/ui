@@ -8,6 +8,7 @@ import {
   PageActions,
   PageBar,
   PageContent,
+  PageFooter,
   PageHeader,
   PageHeading,
   PageSubtitle,
@@ -46,6 +47,7 @@ const reactTree = (root: Props = {}, header: Props = {}, content: Props = {}, be
       below,
     ),
     createElement(part("Content"), content, "Body"),
+    createElement(part("Footer"), { className: "actions", "aria-label": "Page actions" }, "Save"),
   )
 
 const vueTree = (root: Props = {}, header: Props = {}, content: Props = {}, below?: () => VNode) =>
@@ -58,6 +60,7 @@ const vueTree = (root: Props = {}, header: Props = {}, content: Props = {}, belo
       below?.(),
     ]),
     h(PageContent, vueProps(content), () => "Body"),
+    h(PageFooter, { class: "actions", "aria-label": "Page actions" }, () => "Save"),
   ])
 
 const scrollTo = (element: Element, top: number) => {
@@ -95,6 +98,41 @@ describe("Page parity", () => {
       () => h(PageTitle, { class: "lead" }, () => "Orders"),
     )
     expect(vue).toBe(react)
+  })
+})
+
+describe("Page footer", () => {
+  test.each(["React", "Vue"])("%s: an action outside the scrolling content submits its associated form", async (framework) => {
+    const submitted = vi.fn()
+    if (framework === "React") {
+      render(
+        <RPage>
+          <RPage.Content>
+            <form id="product-form" onSubmit={(event) => { event.preventDefault(); submitted() }}>
+              <input name="title" defaultValue="Product" />
+            </form>
+          </RPage.Content>
+          <RPage.Footer>
+            <button type="submit" form="product-form">Save</button>
+          </RPage.Footer>
+        </RPage>,
+      )
+    } else {
+      mountVue(() => h(Page, null, () => [
+        h(PageContent, null, () => h("form", {
+          id: "product-form",
+          onSubmit: (event: Event) => { event.preventDefault(); submitted() },
+        }, h("input", { name: "title", value: "Product" }))),
+        h(PageFooter, null, () => h("button", { type: "submit", form: "product-form" }, "Save")),
+      ]))
+    }
+    await flushVue()
+    const button = document.querySelector<HTMLButtonElement>('button[type="submit"]')!
+    expect(button.form).toBe(document.querySelector("#product-form"))
+    expect(document.querySelector(".Content")?.contains(button)).toBe(false)
+    expect(document.querySelector(".Footer")?.contains(button)).toBe(true)
+    await act(async () => { fireEvent.click(button) })
+    expect(submitted).toHaveBeenCalledTimes(1)
   })
 })
 
