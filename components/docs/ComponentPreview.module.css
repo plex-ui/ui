@@ -22,9 +22,14 @@
   }
 }
 
-/* ── Phone view: the preview in an iframe 375 wide, its height follows the content ── */
+/* Descriptions stay in normal flow, below the heading's toolbar. */
+.PreviewDescription {
+  margin: 0 0 16px;
+  font-size: var(--font-text-md-size);
+  line-height: 1.6;
+}
 
-/* The demo stays here for its controls, above the phone; its stage shows only in the iframe */
+/* The demo stays mounted for controls; its live stage is inside the phone. */
 .PreviewContent[data-phone] {
   flex: none;
   min-height: 0;
@@ -47,31 +52,87 @@
   background: var(--color-fd-background);
 }
 
-.PhoneFrame {
-  display: block;
-  max-width: 100%;
-  border: 1px solid rgb(0 0 0 / 8%);
-  border-radius: 28px;
+.PhoneDevice {
+  position: relative;
+  flex: none;
+  width: min(100%, 360px);
+  aspect-ratio: 450 / 920;
+}
+
+/* Hardware geometry comes from Figma node 754:48030, scaled as one unit. */
+.PhoneCanvas {
+  position: absolute;
+  width: 450px;
+  height: 920px;
+  transform-origin: top left;
+}
+
+.PhoneScreen {
+  position: absolute;
+  top: 23px;
+  left: 24px;
+  width: 402px;
+  height: 874px;
+  border-radius: 44px;
+  overflow: hidden;
   background: var(--color-fd-background);
 }
 
-[data-theme='dark'] .PhoneFrame,
-html.dark .PhoneFrame {
-  border-color: rgb(255 255 255 / 10%);
+.PhoneStatusBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 154px;
+  height: 62px;
+  padding: 21px 24px 19px;
+  color: var(--color-text);
+}
+
+.PhoneTime {
+  flex: 1;
+  padding-top: 1.5px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: center;
+}
+
+.PhoneStatusIcons {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-top: 1px;
+  padding-right: 1px;
+}
+
+html.dark .PhoneStatusIcons {
+  filter: invert(1);
+}
+
+.PhoneFrame {
+  display: block;
+  width: 402px;
+  height: 812px;
+  border: 0;
+  background: transparent;
 }
 
 .PhoneFrame[data-pending] {
   visibility: hidden;
 }
 
-/* Extend an open dialog's scrim across the preview, without a phone-shaped rim. */
-.PhoneContainer[data-dialog-open] {
-  background: linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5)), var(--color-fd-background);
+.PhoneBezel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
-.PhoneContainer[data-dialog-open] .PhoneFrame {
-  border: 0;
-  border-radius: 0;
+.PhoneContainer[data-dialog-open],
+.PhoneContainer[data-dialog-open] .PhoneScreen {
+  background: linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5)), var(--color-fd-background);
 }
 
 /* Stacking context so preview content (e.g. Sidebar drawer) does not overlap mobile TOC (z-10) */

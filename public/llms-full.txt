@@ -2390,7 +2390,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} showClose={false} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2432,9 +2432,6 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
               </> : metadata}
             </div>
           </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close><Button color="secondary" variant="outline">Close</Button></Dialog.Close>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>
@@ -2443,7 +2440,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
 ```
 
 ### Sections and actions
-Separate groups with Separator and the same gap on both sides. Keep section actions beside their heading and Close in the footer. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.
+Separate groups with Separator and the same gap on both sides. Keep section actions beside their heading and Close in the dialog header. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.
 ```tsx
 'use client';
 
@@ -2516,7 +2513,7 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} showClose={false} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2558,9 +2555,6 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
               </> : metadata}
             </div>
           </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close><Button color="secondary" variant="outline">Close</Button></Dialog.Close>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>
@@ -2642,7 +2636,7 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} showClose={false} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2684,9 +2678,6 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
               </> : metadata}
             </div>
           </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close><Button color="secondary" variant="outline">Close</Button></Dialog.Close>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>

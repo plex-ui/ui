@@ -84,7 +84,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} showClose={false} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -126,9 +126,6 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
               </> : metadata}
             </div>
           </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close><Button color="secondary" variant="outline">Close</Button></Dialog.Close>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>
@@ -142,7 +139,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
 
 ### Overview
 
-<ComponentPreview phoneHeight={360} phoneDialog code={`const [open, setOpen] = useState(false)
+<ComponentPreview phoneDialog code={`const [open, setOpen] = useState(false)
 const heading = useRef<HTMLDivElement>(null)
 
 <Dialog open={open} onOpenChange={setOpen}>
@@ -167,7 +164,7 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Destructive confirmation
 
-<ComponentPreview phoneHeight={360} phoneDialog details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`const [open, setOpen] = useState(false)
+<ComponentPreview phoneDialog details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`const [open, setOpen] = useState(false)
 const heading = useRef<HTMLDivElement>(null)
 
 <Dialog open={open} onOpenChange={setOpen}>
@@ -196,29 +193,25 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Metadata details
 
-<ComponentPreview phoneHeight={640} phoneDialog code={detailsCode} details={<>Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the actions.</>} previewMinHeight={120}>
+<ComponentPreview phoneDialog code={detailsCode} details={<>Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the actions.</>} previewMinHeight={120}>
   <DetailsDialogDemo />
 </ComponentPreview>
 
 ### Sections and actions
 
-Grouped metadata with menus for application and platform actions.
-
-<ComponentPreview phoneHeight={640} phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Keep section actions beside their heading and Close in the footer. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
+<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Keep section actions beside their heading and Close in the dialog header. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
   <DetailsDialogDemo sections />
 </ComponentPreview>
 
 ### Long details
 
-The same layout with 24 additional origins. Scroll the body while the heading and footer stay in place.
-
-<ComponentPreview phoneHeight={640} phoneDialog code={detailsCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>Dialog.Body scrolls while the title and Close button stay visible. At narrow widths the labels stack above their values. Phone preview opens the dialog immediately; long identifiers stay within the value column.</>} previewMinHeight={160}>
+<ComponentPreview description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog code={detailsCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>Dialog.Body scrolls while the title and Close button stay visible. At narrow widths the labels stack above their values. Phone preview opens the dialog immediately; long identifiers stay within the value column.</>} previewMinHeight={160}>
   <DetailsDialogDemo sections long />
 </ComponentPreview>
 
 ### Scrolling body
 
-<ComponentPreview phoneHeight={640} phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
 <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
   <Dialog.Header>
@@ -238,7 +231,7 @@ The same layout with 24 additional origins. Scroll the body while the heading an
 
 ### Placement
 
-<ComponentPreview phoneHeight={640} phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview description="Phone offers centered dialogs, bottom sheets and fullscreen views. Desktop also includes top, start and end placements." phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
 <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement="end" width={360}>
   <Dialog.Header>
@@ -296,7 +289,10 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 
+- `--dialog-mobile-close-size`: visible close-button circle (default `--control-size-md`, 32px)
+- `--dialog-mobile-close-icon-size`: close SVG box (default `--control-icon-size-2xl`, 24px; the glyph occupies about 12px)
+- `--dialog-mobile-close-background`: mobile close button fill (default secondary soft)
 - `--dialog-mobile-radius`: mobile panel corner radius (default `--radius-4xl`, 24px)
-- `--dialog-mobile-action-size`: mobile footer and close-button height (default `--control-size-2xl`, 44px)
+- `--dialog-mobile-action-size`: mobile footer height and close-button touch target (default `--control-size-2xl`, 44px)
 - `--dialog-mobile-action-radius`: mobile footer button radius (default `--radius-full`)
 - `--dialog-mobile-action-font-size`: mobile footer button text size (default `--control-font-size-lg`)

@@ -39,6 +39,7 @@ export function VueDemo({
   controls = [],
   state,
   phoneState,
+  phoneTemplate,
   loop,
   stageClassName,
 }: {
@@ -48,6 +49,8 @@ export function VueDemo({
   state?: Record<string, unknown>;
   /** Initial state overrides for the embedded phone preview, such as an open dialog. */
   phoneState?: Record<string, unknown>;
+  /** Phone-only composition, for example a permanently open presentation of a dialog. */
+  phoneTemplate?: string;
   loop?: VueDemoLoop;
   /** Classes of the demo stage; without controls the stage renders only when set */
   stageClassName?: string;
@@ -84,7 +87,7 @@ export function VueDemo({
   const preview = (
     <VuePreview
       key={run}
-      template={template}
+      template={phonePreview ? phoneTemplate ?? template : template}
       props={props}
       onPropChange={(name, value) => {
         if (controls.some((control) => control.name === name)) set(name)(value);

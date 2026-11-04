@@ -2349,7 +2349,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -2393,7 +2393,6 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
           </template>
         </div>
       </DialogBody>
-      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 </div>
@@ -2513,7 +2512,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -2557,7 +2556,6 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
           </template>
         </div>
       </DialogBody>
-      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 </div>
@@ -2677,7 +2675,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -2721,7 +2719,6 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
           </template>
         </div>
       </DialogBody>
-      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 </div>

@@ -49,7 +49,7 @@ function DetailSection({ title, action, children }: { title: string; action?: Re
   );
 }
 
-export function DetailsDialogExample({ sections = false, long = false, showActions = true, initialOpen = false }: { sections?: boolean; long?: boolean; showActions?: boolean; initialOpen?: boolean }) {
+export function DetailsDialogExample({ sections = false, long = false, showActions = true, initialOpen = false, previewOpen = false }: { sections?: boolean; long?: boolean; showActions?: boolean; initialOpen?: boolean; previewOpen?: boolean }) {
   const [open, setOpen] = useState(initialOpen);
   const [paused, setPaused] = useState(false);
   const [localhost, setLocalhost] = useState(true);
@@ -67,11 +67,11 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
 
   return (
     <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
-      <Dialog open={open} onOpenChange={setOpen}>
-        {(!initialOpen || !open) && <Dialog.Trigger>
+      <Dialog open={previewOpen || open} onOpenChange={setOpen}>
+        {!previewOpen && (!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content width={640} showClose={false} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -113,9 +113,6 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
               </> : metadata}
             </div>
           </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close><Button color="secondary" variant="outline">Close</Button></Dialog.Close>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>
@@ -130,7 +127,7 @@ export function DetailsDialogDemo({ sections = false, long = false }: { sections
       {sections && <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="showActions" value={showActions} onChange={setShowActions} />
       </div>}
-      <DetailsDialogExample sections={sections} long={long} showActions={showActions} initialOpen={phonePreview} />
+      <DetailsDialogExample sections={sections} long={long} showActions={showActions} initialOpen={phonePreview} previewOpen={phonePreview} />
     </>
   );
 }

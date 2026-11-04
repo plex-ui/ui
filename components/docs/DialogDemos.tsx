@@ -7,11 +7,12 @@ import { Field } from '@plexui/ui/components/Field';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { usePreviewEmbed } from './PreviewEmbed';
+import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
 
 function useDialogDemoState() {
   const phonePreview = usePreviewEmbed() !== null;
-  return useState(phonePreview);
+  const [open, setOpen] = useState(phonePreview);
+  return [phonePreview || open, setOpen] as const;
 }
 
 export function DialogOverviewDemo() {
@@ -123,13 +124,16 @@ export function DialogPlacementDemo() {
   const [open, setOpen] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('end');
+  const phoneViewport = usePhoneViewport();
+  const placements = phoneViewport ? PLACEMENTS.filter((value) => value === 'center' || value === 'bottom' || value === 'fullscreen') : PLACEMENTS;
+  const activePlacement = placements.some((value) => value === placement) ? placement : 'center';
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlRow name="placement">
-          <SegmentedControl<(typeof PLACEMENTS)[number]> value={placement} onChange={setPlacement} aria-label="Placement" size="xs">
-            {PLACEMENTS.map((value) => (
+          <SegmentedControl<(typeof PLACEMENTS)[number]> value={activePlacement} onChange={setPlacement} aria-label="Placement" size="xs">
+            {placements.map((value) => (
               <SegmentedControl.Option key={value} value={value}>
                 {value}
               </SegmentedControl.Option>
@@ -142,7 +146,7 @@ export function DialogPlacementDemo() {
           <Dialog.Trigger>
             <Button color="secondary" variant="outline">Open filters</Button>
           </Dialog.Trigger>
-          <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={placement} width={placement === 'start' || placement === 'end' ? 360 : 480}>
+          <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
             <Dialog.Header>
               <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
               <Dialog.Description>Narrow the list down.</Dialog.Description>

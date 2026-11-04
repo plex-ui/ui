@@ -5,6 +5,7 @@ metaDescription: Accessible Vue 3 modal dialog component for confirmations, form
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VueDialogPlacementDemo } from "@/components/docs/vue/VueDialogDemos"
 
 export const overview = `<Dialog v-model:open="open">
   <DialogTrigger>
@@ -197,7 +198,7 @@ export const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://pr
 export const detailTemplate = `<div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -241,7 +242,6 @@ export const detailTemplate = `<div class="flex flex-col items-center gap-4">
           </template>
         </div>
       </DialogBody>
-      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 </div>
@@ -357,7 +357,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -401,7 +401,6 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
           </template>
         </div>
       </DialogBody>
-      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 </div>
@@ -423,53 +422,48 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
 
 ### Overview
 
-<ComponentPreview phoneHeight={360} phoneDialog language="vue" code={overview} previewMinHeight={120}>
-  <VueDemo template={overview} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phoneDialog language="vue" code={overview} previewMinHeight={120}>
+  <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Destructive confirmation
 
-<ComponentPreview phoneHeight={360} phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
-  <VueDemo template={destructive} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
+  <VueDemo template={destructive} phoneTemplate={destructive.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Metadata details
 
-<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
+<ComponentPreview phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Sections and actions
 
-Grouped metadata with menus for application and platform actions.
-
-<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
+<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Long details
 
-The same layout with 24 additional origins. Scroll the body while the heading and footer stay in place.
-
-<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
+<ComponentPreview description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Scrolling body
 
-<ComponentPreview phoneHeight={640} phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
-  <VueDemo template={body} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
+<ComponentPreview phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
+  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
 ### Placement
 
-<ComponentPreview phoneHeight={640} phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
-  <VueDemo
-    template={placement}
+<ComponentPreview description="Phone offers centered dialogs, bottom sheets and fullscreen views. Desktop also includes top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
+  <VueDialogPlacementDemo
+    template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"')}
     phoneState={{ open: true }}
     stageClassName="py-10 flex justify-center"
     state={{ open: false }}
-    controls={[{ name: "placement", type: "select", options: ["center", "top", "bottom", "start", "end", "fullscreen"], default: "end" }]}
   />
 </ComponentPreview>
 
@@ -515,7 +509,10 @@ Dialog reads the shared semantic color, typography and spacing tokens listed in 
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 
+- `--dialog-mobile-close-size`: visible close-button circle (default `--control-size-md`, 32px)
+- `--dialog-mobile-close-icon-size`: close SVG box (default `--control-icon-size-2xl`, 24px; the glyph occupies about 12px)
+- `--dialog-mobile-close-background`: mobile close button fill (default secondary soft)
 - `--dialog-mobile-radius`: mobile panel corner radius (default `--radius-4xl`, 24px)
-- `--dialog-mobile-action-size`: mobile footer and close-button height (default `--control-size-2xl`, 44px)
+- `--dialog-mobile-action-size`: mobile footer height and close-button touch target (default `--control-size-2xl`, 44px)
 - `--dialog-mobile-action-radius`: mobile footer button radius (default `--radius-full`)
 - `--dialog-mobile-action-font-size`: mobile footer button text size (default `--control-font-size-lg`)

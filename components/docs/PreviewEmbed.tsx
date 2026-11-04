@@ -3,11 +3,10 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import s from './PreviewEmbed.module.css';
 
-// The phone view of a preview: the page renders again in an iframe 375 wide,
+// The phone view of a preview: the page renders again in an iframe 402 wide,
 // so media queries see a phone. Only the preview with the `target` key shows,
 // without its controls: they stay on the parent page, above the phone, and
-// send their values in. The preview's height goes back to the parent page,
-// which sizes the iframe to it.
+// send their values in. The device frame supplies a fixed viewport.
 
 const PreviewEmbedContext = createContext<string | null>(null);
 
@@ -22,6 +21,13 @@ export function usePreviewEmbed() {
 
 /** Set by the parent page's preview while it shows the phone view */
 export const DemoControlHostContext = createContext<{ publish: (name: string, value: unknown) => void } | null>(null);
+
+/** Whether this demo is displayed in Phone mode, including its controls outside the iframe. */
+export function usePhoneViewport() {
+  const host = useContext(DemoControlHostContext);
+  const embed = usePreviewEmbed();
+  return host !== null || embed !== null;
+}
 
 const receivedValues = new Map<string, unknown>();
 const valueListeners = new Map<string, Set<(value: unknown) => void>>();

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Eye, Code, InfoCircle, Desktop, Mobile } from '@plexui/ui/components/Icon';
@@ -12,28 +13,27 @@ import s from './ComponentPreview.module.css';
 type Mode = 'preview' | 'code' | 'details';
 type Viewport = 'desktop' | 'phone';
 
-/** The phone view's width: an iPhone, under the 768 where the phone styles start */
-const PHONE_WIDTH = 375;
+/** Original Figma iPhone 17 Pro bezel geometry: 450×920 around a 402×874 screen. */
+const PHONE_DEVICE_WIDTH = 450;
 
 export function ComponentPreview({
   children,
   code,
   details,
+  description,
   language = 'tsx',
   className,
   previewMinHeight,
-  phoneHeight,
   phoneDialog = false,
   resizable = false,
 }: {
   children: ReactNode;
   code?: string;
   details?: ReactNode;
+  description?: string;
   language?: string;
   className?: string;
   previewMinHeight?: number | string;
-  /** Fixed viewport height for overlays that do not contribute to the demo height. */
-  phoneHeight?: number;
   /** Reserve a scrim and reveal the phone only after its initial dialog has mounted. */
   phoneDialog?: boolean;
   resizable?: boolean;
@@ -129,6 +129,8 @@ export function ComponentPreview({
         </SegmentedControl>
       </div>
 
+      {description && <p className={s.PreviewDescription}>{description}</p>}
+
       {/* Content block */}
       <div className={s.PreviewBlock}>
         {mode === 'preview' ? (
@@ -136,7 +138,7 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key, height: phoneHeight, dialog: phoneDialog } : null}
+            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key, dialog: phoneDialog } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -159,7 +161,7 @@ export function ComponentPreview({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Phone view: the preview in an iframe 375 wide                     */
+/*  Phone view: a live viewport inside the original iPhone bezel       */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -170,7 +172,6 @@ function PhoneFrame({
   src,
   previewKey,
   previewMinHeight,
-  fixedHeight,
   startsWithDialog,
   frameRef,
   onReady,
@@ -178,12 +179,12 @@ function PhoneFrame({
   src: string;
   previewKey: string;
   previewMinHeight?: number | string;
-  fixedHeight?: number;
   startsWithDialog: boolean;
   frameRef: React.RefObject<HTMLIFrameElement | null>;
   onReady: () => void;
 }) {
-  const [height, setHeight] = useState<number | null>(null);
+  const deviceRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.8);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [ready, setReady] = useState(!startsWithDialog);
   const onReadyRef = useRef(onReady);
@@ -192,11 +193,20 @@ function PhoneFrame({
   }, [onReady]);
 
   useEffect(() => {
+    const device = deviceRef.current;
+    if (!device) return;
+    const update = () => setScale(device.getBoundingClientRect().width / PHONE_DEVICE_WIDTH);
+    const observer = new ResizeObserver(update);
+    observer.observe(device);
+    update();
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
-      const data = event.data as { previewKey?: string; previewHeight?: number; previewDialogOpen?: boolean; demoReady?: boolean };
+      const data = event.data as { previewKey?: string; previewDialogOpen?: boolean; demoReady?: boolean };
       if (data?.previewKey !== previewKey) return;
-      if (typeof data.previewHeight === 'number') setHeight(data.previewHeight);
       if (typeof data.previewDialogOpen === 'boolean') {
         setDialogOpen(data.previewDialogOpen);
         if (data.previewDialogOpen) setReady(true);
@@ -209,14 +219,28 @@ function PhoneFrame({
 
   return (
     <div className={s.PhoneContainer} data-dialog-open={(dialogOpen || !ready) || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
-      <iframe
-        ref={frameRef}
-        src={src}
-        title="Phone preview"
-        className={s.PhoneFrame}
-        data-pending={!ready || undefined}
-        style={{ width: PHONE_WIDTH, height: (startsWithDialog && ready && !dialogOpen ? height : fixedHeight) ?? height ?? (typeof previewMinHeight === 'number' ? previewMinHeight : 480) }}
-      />
+      <div ref={deviceRef} className={s.PhoneDevice}>
+        <div className={s.PhoneCanvas} style={{ transform: `scale(${scale})` }}>
+          <div className={s.PhoneScreen}>
+            <div className={s.PhoneStatusBar} aria-hidden="true">
+              <span className={s.PhoneTime}>9:41</span>
+              <span className={s.PhoneStatusIcons}>
+                <Image src="/images/devices/iphone-17-pro/cellular.svg" alt="" width={19.2} height={12.2264} unoptimized />
+                <Image src="/images/devices/iphone-17-pro/wifi.svg" alt="" width={17.1417} height={12.3283} unoptimized />
+                <Image src="/images/devices/iphone-17-pro/battery.svg" alt="" width={27.328} height={13} unoptimized />
+              </span>
+            </div>
+            <iframe
+              ref={frameRef}
+              src={src}
+              title="Phone preview"
+              className={s.PhoneFrame}
+              data-pending={!ready || undefined}
+            />
+          </div>
+          <Image className={s.PhoneBezel} src="/images/devices/iphone-17-pro/silver-portrait.png" alt="" width={450} height={920} unoptimized loading="eager" aria-hidden="true" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -236,7 +260,7 @@ function PreviewPane({
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
-  phone: { src: string; previewKey: string; height?: number; dialog: boolean } | null;
+  phone: { src: string; previewKey: string; dialog: boolean } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -334,7 +358,6 @@ function PreviewPane({
         <PhoneFrame
           src={phone.src}
           previewKey={phone.previewKey}
-          fixedHeight={phone.height}
           startsWithDialog={phone.dialog}
           previewMinHeight={previewMinHeight}
           frameRef={frameRef}

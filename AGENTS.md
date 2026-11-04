@@ -376,7 +376,7 @@ Spot-check before committing a new demo:
 
 Full record: [`.memory/decisions/0001-pill-consistency-in-cards.md`](.memory/decisions/0001-pill-consistency-in-cards.md)
 
-**Mobile Dialog exception (2026-11-04):** at 640px and below, `Dialog.Footer` supplies full-width, fully rounded 44px action buttons through shared styles. The built-in close button is circular with a 44px target. Mobile panels use 24px corners (only the top corners on bottom sheets; fullscreen stays square). Do not reset those to rectangular controls to match the desktop form rule.
+**Mobile Dialog exception (2026-11-04):** at 640px and below, `Dialog.Footer` supplies full-width, fully rounded 44px action buttons through shared styles. The built-in close button has a 32px visible circle inside a 44px transparent target; hover must not paint a second circle. Mobile panels use 24px corners (only the top corners on bottom sheets; fullscreen stays square). Do not reset those to rectangular controls to match the desktop form rule. Phone demos keep their dialogs open for inspection, including after Close/backdrop presses; no empty phone frame or replay trigger. Desktop demos retain their regular open/close behavior.
 
 ---
 

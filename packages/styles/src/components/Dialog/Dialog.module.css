@@ -320,6 +320,37 @@
     width: var(--dialog-mobile-action-size);
     height: var(--dialog-mobile-action-size);
     border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+
+    /* Keep the visible control compact inside its full touch target. */
+    &::before {
+      position: absolute;
+      inset: calc((var(--dialog-mobile-action-size) - var(--dialog-mobile-close-size)) / 2);
+      border-radius: inherit;
+      background: var(--dialog-mobile-close-background);
+      content: "";
+      pointer-events: none;
+      transition: background-color 0.2s var(--cubic-enter);
+    }
+
+    &:hover {
+      background: transparent;
+    }
+
+    &:hover::before {
+      background: var(--color-background-secondary-soft-alpha-hover);
+    }
+
+    &:focus-visible {
+      outline-offset: -4px;
+    }
+  }
+
+  .CloseIcon {
+    position: relative;
+    width: var(--dialog-mobile-close-icon-size);
+    height: var(--dialog-mobile-close-icon-size);
   }
 
   .Panel:has(> .CloseButton) > .Header > :first-child {

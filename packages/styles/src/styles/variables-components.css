@@ -376,6 +376,9 @@
     --dialog-container-inner-padding: spacing(5);
     --dialog-backdrop-dim-background: light-dark(rgb(0 0 0 / 30%), rgb(0 0 0 / 50%));
     --dialog-backdrop-fade-background: alpha(var(--color-surface-elevated), 60%);
+    --dialog-mobile-close-size: var(--control-size-md);
+    --dialog-mobile-close-icon-size: var(--control-icon-size-2xl);
+    --dialog-mobile-close-background: var(--color-background-secondary-soft-alpha);
     --dialog-mobile-radius: var(--radius-4xl);
     --dialog-mobile-action-size: var(--control-size-2xl);
     --dialog-mobile-action-radius: var(--radius-full);
