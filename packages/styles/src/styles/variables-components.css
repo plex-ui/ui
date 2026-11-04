@@ -591,6 +591,8 @@
     --sidebar-menu-item-radius: 8px;
     --sidebar-menu-item-font-size: 14px;
     --sidebar-menu-item-line-height: 20px;
+    --sidebar-menu-item-trailing-padding: 12px;
+    --sidebar-menu-badge-dot-size: 6px;
 
     /* Icon */
     --sidebar-icon-size: 20px;

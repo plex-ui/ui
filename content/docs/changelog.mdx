@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- `SidebarMenuBadge` in a collapsed sidebar: a `Badge` becomes a dot of its color at the top right of the row's icon, clear of the glyph, so new items stay visible on the rail. Plain text, such as a count, fades with the label as before. `--sidebar-menu-badge-dot-size` sets the dot (6px).
+- `SidebarMenuBadge` with plain text reads as a count: small secondary tabular figures, without classes of your own. In a `SidebarMenuSubButton` it goes to the end of the row.
+- Sidebar docs: the App example is a whole product sidebar, with an alert badge, counts, a group with counted items, Settings as the last row and a person menu, and an `open` control to see it folded. The App Shell example has an Inbox with a count.
+
+### Changed
+
+- `SidebarMenuBadge`: a `Badge` sits as far from the row's right edge as from its top and bottom (6px on a 32px row), in step with the highlight's rounded end, and its digits end where plain counts end. It sat 12px in, further left than a count beside it.
+- `SidebarMenuChevron`: the glyph, not its box, ends where counts end, 3px nearer the edge, so a chevron, a count and a badge's digits stand on one line. `--sidebar-menu-item-trailing-padding` (12px) sets that line.
+
 ## 0.26.0 (2026-11-03)
 
 ### Added

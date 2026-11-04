@@ -6138,7 +6138,7 @@ Props:
     - onDismiss (() => void) — Callback when dismissed
 
 ### App Shell
-A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
+A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count Badge, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
 ```tsx
 <SidebarProvider collapsible="icon">
 <SidebarLayout style={{ height: 600 }}>
@@ -6209,7 +6209,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
 ```
 
 ### App
-The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
+The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A Badge in SidebarMenuBadge sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a Menu beside the icon when folded. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
 ```tsx
 <SidebarProvider collapsible="icon" variant="app">
 <SidebarLayout>
@@ -6218,7 +6218,42 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
       <span>App</span>
       <SidebarTrigger />
     </SidebarHeader>
-    <SidebarContent>...</SidebarContent>
+    <SidebarContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton isActive tooltip="Notifications">
+            <SidebarMenuButtonIcon><Bell /></SidebarMenuButtonIcon>
+            <SidebarMenuButtonLabel>Notifications</SidebarMenuButtonLabel>
+            <SidebarMenuBadge>
+              <Badge color="danger" variant="solid" pill>4</Badge>
+            </SidebarMenuBadge>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton tooltip="Favorites">
+            <SidebarMenuButtonIcon><Bookmark /></SidebarMenuButtonIcon>
+            <SidebarMenuButtonLabel>Favorites</SidebarMenuButtonLabel>
+            <SidebarMenuBadge>3</SidebarMenuBadge>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem expanded={open}>
+          <SidebarMenuButton aria-expanded={open} onClick={toggle}>
+            <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
+            <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
+            <SidebarMenuChevron />
+          </SidebarMenuButton>
+          <SidebarMenuSub open={open} hasIcons>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton indent={1}>
+                All documents
+                <SidebarMenuBadge>156</SidebarMenuBadge>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+        {/* ...Shared with me, Archive, Settings */}
+      </SidebarMenu>
+    </SidebarContent>
     <SidebarFooter>...</SidebarFooter>
   </Sidebar>
   <SidebarInset>

@@ -332,18 +332,22 @@
 
 /* Inner container - controls height like reference .abr-y */
 .MenuButtonInner {
+  /* The row's height: a badge keeps an even inset inside it */
+  --sidebar-menu-row-height: var(--sidebar-menu-item-height);
+
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  height: var(--sidebar-menu-item-height);
-  padding-right: 12px; /* Space for chevron from edge */
+  height: var(--sidebar-menu-row-height);
+  /* Counts and the chevron end here */
+  padding-right: var(--sidebar-menu-item-trailing-padding);
   overflow: hidden;
 }
 
 @media (min-width: 768px) {
   .MenuButtonInner {
-    height: var(--sidebar-menu-item-height-desktop);
+    --sidebar-menu-row-height: var(--sidebar-menu-item-height-desktop);
   }
 
   .MenuButton {
@@ -425,11 +429,11 @@
 
 /* Menu button sizes */
 .MenuButton[data-size="sm"] .MenuButtonInner {
-  height: 28px;
+  --sidebar-menu-row-height: 28px;
 }
 
 .MenuButton[data-size="lg"] .MenuButtonInner {
-  height: var(--sidebar-menu-item-height);
+  --sidebar-menu-row-height: var(--sidebar-menu-item-height);
 }
 
 /* =============================================
@@ -439,15 +443,95 @@
 .MenuBadge {
   position: relative;
   z-index: 1;
+  /* Trailing, also in a SidebarMenuSubButton that has no label to push it */
+  margin-left: auto;
   padding-left: spacing(2);
+  /* Plain text, such as a count, reads quieter than the label */
+  color: var(--color-text-secondary);
+  font-size: var(--font-text-xs-size);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--font-text-xs-line-height);
   transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
   transition-delay: 0.2s;
+}
+
+/* A Badge sits as far from the row's edge as from its top and bottom, in
+   step with the highlight's rounded end. Its own padding reaches past the
+   trailing padding, so its digits end where plain counts and the chevron end.
+   A badge before a chevron keeps its place. */
+.MenuBadge:last-child:has(> [data-size]) {
+  --sidebar-menu-badge-height: var(--badge-size-sm);
+
+  margin-right: calc(
+    (var(--sidebar-menu-row-height, var(--sidebar-menu-item-height-desktop)) - var(--sidebar-menu-badge-height)) / 2 -
+      var(--sidebar-menu-item-trailing-padding)
+  );
+}
+
+.MenuBadge:last-child:has(> [data-size="md"]) {
+  --sidebar-menu-badge-height: var(--badge-size-md);
 }
 
 :global([data-sidebar="collapsed"]) .MenuBadge:not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) {
   opacity: 0;
   pointer-events: none;
   transition-delay: 0s;
+}
+
+/* In the collapsed rail a Badge becomes a dot of its color at the top right
+   of the row's icon, just clear of the glyph. Plain text, such as a count,
+   only fades. */
+.MenuButtonInner:has(> .MenuBadge > [data-color]) {
+  /* A grey solid is too dark on a dark rail: secondary text reads in both themes */
+  --sidebar-menu-badge-dot-color: var(--color-text-secondary);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="success"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-success-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="warning"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-warning-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="danger"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-danger-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="info"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-info-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="discovery"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-discovery-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color="caution"]) {
+  --sidebar-menu-badge-dot-color: var(--color-background-caution-solid);
+}
+
+.MenuButtonInner:has(> .MenuBadge > [data-color]) > .MenuButtonIcon::after {
+  --sidebar-menu-badge-dot-offset: calc(
+    (var(--sidebar-icon-wrapper-size) - var(--sidebar-icon-size)) / 2 - var(--sidebar-menu-badge-dot-size) + 1px
+  );
+
+  position: absolute;
+  top: var(--sidebar-menu-badge-dot-offset);
+  right: var(--sidebar-menu-badge-dot-offset);
+  width: var(--sidebar-menu-badge-dot-size);
+  height: var(--sidebar-menu-badge-dot-size);
+  border-radius: var(--radius-full);
+  background: var(--sidebar-menu-badge-dot-color);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
+}
+
+:global([data-sidebar="collapsed"]) .MenuButtonInner:has(> .MenuBadge > [data-color]):not(:where([data-sidebar="collapsed"] [data-sidebar="expanded"] *)) > .MenuButtonIcon::after {
+  opacity: 1;
+  transition-delay: 0.1s;
 }
 
 .MenuAction {
@@ -484,12 +568,17 @@
 }
 
 .MenuSubButton {
+  /* The row's height: a badge keeps an even inset inside it */
+  --sidebar-menu-row-height: calc(
+    2 * var(--sidebar-menu-sub-item-padding-y, 8px) + var(--sidebar-menu-sub-item-line-height, 20px)
+  );
+
   /* Inherits MenuButton base styles (replaced composes for Turbopack compatibility) */
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--sidebar-menu-sub-item-padding-y, 8px) 12px;
+  padding: var(--sidebar-menu-sub-item-padding-y, 8px) var(--sidebar-menu-item-trailing-padding);
   margin: var(--sidebar-menu-item-margin);
   border: none;
   border-radius: 0;
@@ -556,7 +645,9 @@
 
 @media (min-width: 768px) {
   .MenuSubButton {
-    padding: 6px 12px;
+    --sidebar-menu-row-height: calc(12px + var(--sidebar-menu-sub-item-line-height, 20px));
+
+    padding: 6px var(--sidebar-menu-item-trailing-padding);
   }
 }
 
@@ -603,6 +694,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* The glyph has 3px of air in its box: pulled into the trailing padding,
+     it ends where counts end, and turns about the same axis */
+  margin-right: -3px;
   margin-left: auto;
   color: inherit; /* Inherit from parent item */
   transition: transform 0.15s;
@@ -1470,7 +1564,7 @@
   }
 
   .App .MobileSidebar .MenuButtonInner {
-    padding-right: 8px;
+    --sidebar-menu-item-trailing-padding: 8px;
   }
 
   .App .MobileSidebar .MenuButtonLabel {
@@ -1480,6 +1574,11 @@
   .App .MobileSidebar .MenuChevron svg {
     width: 18px;
     height: 18px;
+  }
+
+  .App .MobileSidebar .MenuBadge {
+    font-size: 17px;
+    line-height: 22px;
   }
 
   .App .MobileSidebar .MenuBadge span {

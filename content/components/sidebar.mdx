@@ -36,7 +36,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### App Shell
 
-<ComponentPreview details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={`<SidebarProvider collapsible="icon">
+<ComponentPreview details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={`<SidebarProvider collapsible="icon">
   <SidebarLayout style={{ height: 600 }}>
     <Sidebar>
       <SidebarHeader>
@@ -107,14 +107,49 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### App
 
-<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
+<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
   <SidebarLayout>
     <Sidebar>
       <SidebarHeader>
         <span>App</span>
         <SidebarTrigger />
       </SidebarHeader>
-      <SidebarContent>...</SidebarContent>
+      <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton isActive tooltip="Notifications">
+              <SidebarMenuButtonIcon><Bell /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Notifications</SidebarMenuButtonLabel>
+              <SidebarMenuBadge>
+                <Badge color="danger" variant="solid" pill>4</Badge>
+              </SidebarMenuBadge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Favorites">
+              <SidebarMenuButtonIcon><Bookmark /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Favorites</SidebarMenuButtonLabel>
+              <SidebarMenuBadge>3</SidebarMenuBadge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem expanded={open}>
+            <SidebarMenuButton aria-expanded={open} onClick={toggle}>
+              <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
+              <SidebarMenuChevron />
+            </SidebarMenuButton>
+            <SidebarMenuSub open={open} hasIcons>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton indent={1}>
+                  All documents
+                  <SidebarMenuBadge>156</SidebarMenuBadge>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
+          {/* ...Shared with me, Archive, Settings */}
+        </SidebarMenu>
+      </SidebarContent>
       <SidebarFooter>...</SidebarFooter>
     </Sidebar>
     <SidebarInset>
@@ -430,6 +465,10 @@ Renders a menu item button. Use `isActive` to highlight the current page.
   { prop: "asChild", type: "boolean", default: "false", description: "Render the single child element (e.g. a router link) as the button. The button attributes go on the child and its content is wrapped like the button's" },
 ]} />
 
+### SidebarMenuBadge
+
+Trailing content of a row: a `Badge`, or plain text such as a count, which reads as small secondary figures. A `Badge` sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end. When the sidebar collapses to icons, a `Badge` becomes a dot of its color at the top right of the row's icon, clear of the glyph; plain text fades with the label.
+
 ### SidebarMenuSub
 
 Renders a collapsible submenu container for nested navigation.
@@ -494,6 +533,7 @@ Sidebar reads these component tokens. Override them at any scope to restyle it. 
 - `--sidebar-icon-size`: icon size (default `20px`)
 - `--sidebar-icon-wrapper-size`: icon wrapper size (default `32px`)
 - `--sidebar-inset-shadow`: inset shadow (default `none`)
+- `--sidebar-menu-badge-dot-size`: size of the dot a `Badge` becomes above the icon in the collapsed rail (default `6px`)
 - `--sidebar-menu-item-font-size`: menu item font size (default `14px`)
 - `--sidebar-menu-item-height`: menu item height (default `38px`)
 - `--sidebar-menu-item-height-desktop`: menu item height desktop (default `32px`)
@@ -502,6 +542,7 @@ Sidebar reads these component tokens. Override them at any scope to restyle it. 
 - `--sidebar-menu-item-margin-desktop`: menu item margin desktop (default `0 0 2px`)
 - `--sidebar-menu-item-padding`: menu item padding (default `0`)
 - `--sidebar-menu-item-radius`: menu item radius (default `8px`)
+- `--sidebar-menu-item-trailing-padding`: where counts and the chevron end, from the row's right edge (default `12px`)
 - `--sidebar-menu-sub-max-height`: height an open submenu animates to (default `1000px`); raise it for long lists, or set `none` to skip the animation
 - `--sidebar-menu-text`: menu text (default `light-dark(var(--gray-750), var(--gray-850))`)
 - `--sidebar-menu-text-active`: menu text active (default `var(--gray-900)`)

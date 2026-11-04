@@ -30,8 +30,11 @@ import {
    Abc,
    AllProductsExplore,
    Analytics,
+   Archive,
+   Bell,
    Bolt,
    Book,
+   Bookmark,
    Branch,
    BuildingWorkspace,
    ButtonMousePointer,
@@ -128,8 +131,6 @@ import {
 // =============================================
 // Shared data
 // =============================================
-
-const PREVIEW_HEIGHT_APP = 560;
 
 const mainNavItems = [
   { icon: Home, label: 'Overview' },
@@ -2186,10 +2187,18 @@ type ConsoleSection = {
   label: string;
   icon: React.ComponentType;
   badge?: string;
+  /** Unread items: a quiet Badge, a dot when the rail folds */
+  count?: number;
   items?: { id: string; label: string }[];
 };
 
 const consoleSections: ConsoleSection[] = [
+  {
+    id: 'inbox',
+    label: 'Inbox',
+    icon: Bell,
+    count: 12,
+  },
   {
     id: 'build',
     label: 'Build',
@@ -2290,6 +2299,13 @@ function ConsoleSectionItem({
         <SidebarMenuBadge>
           <Badge size="sm" color="info">
             {section.badge}
+          </Badge>
+        </SidebarMenuBadge>
+      )}
+      {section.count != null && (
+        <SidebarMenuBadge>
+          <Badge size="sm" color="secondary">
+            {section.count}
           </Badge>
         </SidebarMenuBadge>
       )}
@@ -2584,61 +2600,211 @@ export function SidebarConsoleDemo() {
   );
 }
 
-export function SidebarAppDemo() {
-  const [activeItem, setActiveItem] = useState('Overview');
+// =============================================
+// App: a product's sidebar with badges and counts
+// =============================================
+
+type AppRow = {
+  id: string;
+  label: string;
+  icon: React.ComponentType;
+  /** New items that need attention: a Badge, a dot when the rail folds */
+  alert?: number;
+  /** How many there are: plain text, it fades with the label */
+  count?: number;
+};
+
+const appTopRows: AppRow[] = [
+  { id: 'notifications', label: 'Notifications', icon: Bell, alert: 4 },
+  { id: 'timeline', label: 'Timeline', icon: Calendar },
+  { id: 'favorites', label: 'Favorites', icon: Bookmark, count: 3 },
+];
+
+const appDocumentItems = [
+  { id: 'all-documents', label: 'All documents', count: 156 },
+  { id: 'ids', label: 'IDs', count: 15 },
+  { id: 'payments', label: 'Payments', count: 3 },
+  { id: 'passes', label: 'Passes', count: 112 },
+];
+
+const appBottomRows: AppRow[] = [
+  { id: 'shared', label: 'Shared with me', icon: Members },
+  { id: 'archive', label: 'Archive', icon: Archive, count: 8 },
+  { id: 'settings', label: 'Settings', icon: SettingsCog },
+];
+
+const appLabels = [...appTopRows, ...appDocumentItems, ...appBottomRows];
+
+function AppSidebarRow({ row, activeId, onSelect }: { row: AppRow; activeId: string; onSelect: (id: string) => void }) {
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton isActive={activeId === row.id} tooltip={row.label} onClick={() => onSelect(row.id)}>
+        <SidebarMenuButtonIcon>
+          <row.icon />
+        </SidebarMenuButtonIcon>
+        <SidebarMenuButtonLabel>{row.label}</SidebarMenuButtonLabel>
+        {row.alert != null && (
+          <SidebarMenuBadge>
+            <Badge color="danger" variant="solid" pill>
+              {row.alert}
+            </Badge>
+          </SidebarMenuBadge>
+        )}
+        {row.count != null && <SidebarMenuBadge>{row.count}</SidebarMenuBadge>}
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function AppSidebarDocuments({
+  open,
+  onToggle,
+  activeId,
+  onSelect,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  const { state, isMobile } = useSidebar();
+  const collapsed = state === 'collapsed' && !isMobile;
+  const active = appDocumentItems.some((item) => item.id === activeId);
+
+  // The rail lists the group's items in a menu beside its icon
+  if (collapsed) {
+    return (
+      <SidebarMenuItem>
+        <Menu>
+          <Menu.Trigger>
+            <SidebarMenuButton isActive={active} aria-label="Documents">
+              <SidebarMenuButtonIcon>
+                <FileDocument />
+              </SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
+            </SidebarMenuButton>
+          </Menu.Trigger>
+          <Menu.Content side="right" align="start" minWidth={220}>
+            {appDocumentItems.map((item) => (
+              <Menu.CheckboxItem
+                key={item.id}
+                checked={item.id === activeId}
+                indicatorPosition="start"
+                indicatorVariant="ghost"
+                onSelect={() => onSelect(item.id)}
+              >
+                {item.label}
+                <span className="ml-auto text-xs text-secondary tabular-nums">{item.count}</span>
+              </Menu.CheckboxItem>
+            ))}
+          </Menu.Content>
+        </Menu>
+      </SidebarMenuItem>
+    );
+  }
 
   return (
-    <div className="flex-1 w-full !p-0 !items-stretch !justify-stretch" style={{ height: PREVIEW_HEIGHT_APP }}>
-      <SidebarProvider className="h-full" collapsible="icon" variant="app">
-        <SidebarLayout className="h-full">
-          <Sidebar>
-            <SidebarHeader>
-              <span>App</span>
-              <SidebarTrigger />
-            </SidebarHeader>
-            <SidebarContent>
-              {[mainNavItems, systemNavItems].map((items, index) => (
-                <SidebarGroup key={index}>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {items.map((item) => (
-                        <SidebarMenuItem key={item.label}>
-                          <SidebarMenuButton
-                            isActive={activeItem === item.label}
-                            tooltip={item.label}
-                            onClick={() => setActiveItem(item.label)}
-                          >
-                            <SidebarMenuButtonIcon>
-                              <item.icon />
-                            </SidebarMenuButtonIcon>
-                            <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              ))}
-            </SidebarContent>
-          </Sidebar>
-          <SidebarInset>
-            <Page>
-              <Page.Header>
-                <Page.Bar>
-                  <Page.Title>{activeItem}</Page.Title>
-                  <Page.Actions>
-                    <Button color="primary" pill size="md">New</Button>
-                  </Page.Actions>
-                </Page.Bar>
-              </Page.Header>
-              <Page.Content>
-                <p className="text-secondary">Main content area.</p>
-              </Page.Content>
-            </Page>
-          </SidebarInset>
-        </SidebarLayout>
-      </SidebarProvider>
-    </div>
+    <SidebarMenuItem expanded={open}>
+      <SidebarMenuButton isActive={active && !open} aria-expanded={open} onClick={onToggle}>
+        <SidebarMenuButtonIcon>
+          <FileDocument />
+        </SidebarMenuButtonIcon>
+        <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
+        <SidebarMenuChevron />
+      </SidebarMenuButton>
+      <SidebarMenuSub open={open} hasIcons>
+        {appDocumentItems.map((item) => (
+          <SidebarMenuSubItem key={item.id}>
+            <SidebarMenuSubButton indent={1} isActive={activeId === item.id} onClick={() => onSelect(item.id)}>
+              {item.label}
+              <SidebarMenuBadge>{item.count}</SidebarMenuBadge>
+            </SidebarMenuSubButton>
+          </SidebarMenuSubItem>
+        ))}
+      </SidebarMenuSub>
+    </SidebarMenuItem>
+  );
+}
+
+export function SidebarAppDemo() {
+  const [open, setOpen] = useState(true);
+  const [activeId, setActiveId] = useState('notifications');
+  const [documentsOpen, setDocumentsOpen] = useState(true);
+  const activeLabel = appLabels.find((item) => item.id === activeId)?.label ?? 'Notifications';
+
+  return (
+    <>
+      <div data-demo-stage className="flex-1 w-full !p-0 !items-stretch !justify-stretch [&>*]:!m-0">
+        <SidebarProvider className="h-full" collapsible="icon" variant="app" open={open} onOpenChange={setOpen}>
+          <SidebarLayout className="h-full">
+            <Sidebar>
+              <SidebarHeader>
+                <span>App</span>
+                <SidebarTrigger />
+              </SidebarHeader>
+              <SidebarContent>
+                <SidebarMenu>
+                  {appTopRows.map((row) => (
+                    <AppSidebarRow key={row.id} row={row} activeId={activeId} onSelect={setActiveId} />
+                  ))}
+                  <AppSidebarDocuments
+                    open={documentsOpen}
+                    onToggle={() => setDocumentsOpen((value) => !value)}
+                    activeId={activeId}
+                    onSelect={setActiveId}
+                  />
+                  {appBottomRows.map((row) => (
+                    <AppSidebarRow key={row.id} row={row} activeId={activeId} onSelect={setActiveId} />
+                  ))}
+                </SidebarMenu>
+              </SidebarContent>
+              <SidebarFooter>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <Menu>
+                      <Menu.Trigger>
+                        <SidebarMenuButton tooltip="Sam Lee">
+                          <SidebarMenuButtonIcon>
+                            <Avatar name="Sam Lee" size={24} color="secondary" variant="solid" />
+                          </SidebarMenuButtonIcon>
+                          <SidebarMenuButtonLabel>Sam Lee</SidebarMenuButtonLabel>
+                        </SidebarMenuButton>
+                      </Menu.Trigger>
+                      <Menu.Content side="top" align="start" minWidth={220}>
+                        <Menu.Item onSelect={() => {}}>
+                          <Members /> Account
+                        </Menu.Item>
+                        <Menu.Separator />
+                        <Menu.Item onSelect={() => {}}>
+                          <Logout /> Sign out
+                        </Menu.Item>
+                      </Menu.Content>
+                    </Menu>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarFooter>
+            </Sidebar>
+            <SidebarInset>
+              <Page>
+                <Page.Header>
+                  <Page.Bar>
+                    <Page.Title>{activeLabel}</Page.Title>
+                  </Page.Bar>
+                </Page.Header>
+                <Page.Content>
+                  <p className="text-secondary">
+                    Fold the sidebar: the Notifications badge turns into a dot above its icon, the counts fade.
+                  </p>
+                </Page.Content>
+              </Page>
+            </SidebarInset>
+          </SidebarLayout>
+        </SidebarProvider>
+      </div>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="open" value={open} onChange={setOpen} />
+      </div>
+    </>
   );
 }
 

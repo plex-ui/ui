@@ -7,7 +7,10 @@ import {
   Abc,
   AllProductsExplore,
   Analytics,
+  Archive,
+  Bell,
   Bolt,
+  Bookmark,
   Branch,
   ButtonMousePointer,
   Calendar,
@@ -60,7 +63,7 @@ import { VueDemo } from './VueDemo';
 // data-bordered="false"; a Vue template cannot set attributes on the stage,
 // so the provider gets the `demo-sidebar-flat` class instead.
 
-type NavItem = { id: string; label: string; icon?: unknown; badge?: string; items?: NavItem[] };
+type NavItem = { id: string; label: string; icon?: unknown; badge?: string; count?: number; items?: NavItem[] };
 
 const mainNavItems = [
   { icon: Home, label: 'Overview' },
@@ -243,6 +246,12 @@ const iconSections: NavItem[] = [
 
 const consoleSections: NavItem[] = [
   {
+    id: 'inbox',
+    label: 'Inbox',
+    icon: Bell,
+    count: 12,
+  },
+  {
     id: 'build',
     label: 'Build',
     icon: SettingsWrench,
@@ -411,8 +420,35 @@ const searchSections = [
   { label: 'Agents', items: ['Overview', 'Build agents'] },
 ];
 
+// App: a product's sidebar. `alert` is new items that need attention (a Badge,
+// a dot when the rail folds); `count` is how many there are (plain text).
+type AppRow = { id: string; label: string; icon: unknown; alert?: number; count?: number };
+
+const appTopRows: AppRow[] = [
+  { id: 'notifications', label: 'Notifications', icon: Bell, alert: 4 },
+  { id: 'timeline', label: 'Timeline', icon: Calendar },
+  { id: 'favorites', label: 'Favorites', icon: Bookmark, count: 3 },
+];
+
+const appDocumentItems = [
+  { id: 'all-documents', label: 'All documents', count: 156 },
+  { id: 'ids', label: 'IDs', count: 15 },
+  { id: 'payments', label: 'Payments', count: 3 },
+  { id: 'passes', label: 'Passes', count: 112 },
+];
+
+const appBottomRows: AppRow[] = [
+  { id: 'shared', label: 'Shared with me', icon: Members },
+  { id: 'archive', label: 'Archive', icon: Archive, count: 8 },
+  { id: 'settings', label: 'Settings', icon: SettingsCog },
+];
+
 // Static data stays out of Vue's reactivity
 const scope = {
+  appTopRows: markRaw(appTopRows),
+  appDocumentItems: markRaw(appDocumentItems),
+  appBottomRows: markRaw(appBottomRows),
+  appLabels: markRaw([...appTopRows, ...appDocumentItems, ...appBottomRows]),
   navGroups: markRaw(navGroups),
   docsSections: markRaw(docsSections),
   iconSections: markRaw(iconSections),
