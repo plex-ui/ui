@@ -165,6 +165,7 @@ const Content = ({
             <RadixDialog.Content
               forceMount
               className={s.Content}
+              data-plex-dialog=""
               style={toCssVariables({ "dialog-width": width })}
               data-placement={placement === "center" ? undefined : placement}
               data-mobile-placement={mobilePlacement}

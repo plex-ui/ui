@@ -73,11 +73,11 @@
     --floating-input-inside-value-shift: 18px;
     --floating-input-inside-line-height: 22px;
 
-    --field-row-min-height: 60px;
-    --field-row-padding-block: 8px;
+    --field-row-min-height: 52px;
+    --field-row-padding-block: 4px;
     --field-row-text-padding-block: 12px;
     --field-row-gap: 16px;
-    --field-row-text-display: contents;
+    --field-row-text-display: flex;
     --field-row-label-font-size: 17px;
     --field-row-label-line-height: 22px;
     --field-row-label-font-weight: var(--font-weight-normal);
@@ -86,7 +86,7 @@
     --field-row-above-font-size: 15px;
     --field-row-above-line-height: 20px;
     --field-row-above-font-weight: var(--font-weight-normal);
-    --field-row-above-gap: 8px;
+    --field-row-above-gap: 4px;
     --field-row-above-padding-block: 12px;
     --field-row-list-padding-block: 12px;
     --field-row-list-row-gap: 6px;
@@ -97,7 +97,8 @@
     --badge-size-xl: 36px;
 
     --field-group-radius: 26px;
-    --field-group-border-width: 0;
+    --field-group-separator-inset: 16px;
+    --field-group-border-width: 1px;
     --field-group-background: var(--color-surface);
     --field-group-title-color: var(--color-text-secondary);
     --field-group-title-font-size: 17px;
@@ -108,14 +109,23 @@
     --field-group-description-line-height: 18px;
   }
 
-  html [data-mobile-placement="bottom"] {
+  html [data-mobile-placement="bottom"]:not([data-mobile-variant]) {
     --dialog-panel-radius: 38px 38px 0 0;
     --dialog-panel-max-height: calc(100dvh - 10px);
   }
 
-  html [data-mobile-placement="center"] {
+  html [data-mobile-placement="center"]:not([data-mobile-variant]) {
     --dialog-panel-width: 300px;
     --dialog-panel-radius: 34px;
+  }
+
+  /* List choices keep their radio semantics and keyboard behavior, with the
+     trailing checkmark used by iOS lists instead of the desktop radio dot. */
+  html [data-row] {
+    --radio-group-indicator-size: 22px;
+    --radio-group-ring: none;
+    --radio-group-dot-display: none;
+    --radio-group-checkmark-display: block;
   }
 
   html [role="radiogroup"] {

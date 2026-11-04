@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 import { Button } from '@plexui/ui/components/Button';
+import { AuthFormStage } from './AuthFormStage';
 
 // ---------------------------------------------------------------------------
 // Brand logos — canonical SVGs from OpenAI's platform login page (viewBox
@@ -165,7 +166,7 @@ export function OAuthLoginFormDemo() {
   };
 
   return (
-    <div data-demo-stage className="py-10 flex justify-center">
+    <AuthFormStage title="Welcome back">
       <div className="w-[360px]">
         <div className="mb-8 text-center">
           <h3 className="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
@@ -201,7 +202,7 @@ export function OAuthLoginFormDemo() {
 
         <FooterLinks />
       </div>
-    </div>
+    </AuthFormStage>
   );
 }
 
@@ -224,7 +225,7 @@ export function OAuthSignupFormDemo() {
   };
 
   return (
-    <div data-demo-stage className="py-10 flex justify-center">
+    <AuthFormStage title="Create an account">
       <div className="w-[360px]">
         <div className="mb-8 text-center">
           <h3 className="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
@@ -259,6 +260,6 @@ export function OAuthSignupFormDemo() {
 
         <FooterLinks />
       </div>
-    </div>
+    </AuthFormStage>
   );
 }

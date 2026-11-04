@@ -419,10 +419,11 @@
 
   .Content[data-mobile-variant="alert"] .Title,
   .Content[data-mobile-variant="alert"] .Description,
-  .Content[data-mobile-variant="sheet"] .Title {
+  .Content[data-mobile-variant="sheet"] .Title,
+  .Content[data-mobile-variant="sheet"] .Description {
     font-size: var(--dialog-mobile-type-size);
     line-height: var(--dialog-mobile-type-leading);
-    letter-spacing: -0.43px;
+    /* System SF already applies optical tracking. Do not double the Figma adjustment. */
     overflow-wrap: anywhere;
   }
 
@@ -519,6 +520,11 @@
     padding-inline-end: 0;
   }
 
+  /* The reference title sits 13px into the 44px toolbar, 2px below its geometric center. */
+  .Content[data-mobile-variant="sheet"] .Title {
+    transform: translateY(2px);
+  }
+
   .Content[data-mobile-variant="sheet"] .CloseButton {
     z-index: 1;
     top: 16px;
@@ -557,7 +563,13 @@
   }
 
   .Content[data-mobile-variant="sheet"] .Footer {
-    padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
+    padding: 16px 24px max(24px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer > * {
+    --button-size: var(--dialog-sheet-action-height);
+    min-height: var(--dialog-sheet-action-height);
+    padding-block: 14px;
   }
 
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .Header {

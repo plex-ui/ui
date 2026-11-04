@@ -90,7 +90,7 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
       el && window.parent.postMessage({
         previewKey: target,
         previewHeight: Math.ceil(el.getBoundingClientRect().height),
-        previewDialogOpen: Boolean(document.querySelector('[role="dialog"][data-state="open"]')),
+        previewDialogOpen: Boolean(document.querySelector('[data-plex-dialog][data-state="open"]')),
       }, origin);
     const ro = el ? new ResizeObserver(post) : null;
     if (el) ro?.observe(el);
@@ -111,19 +111,4 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
       <div className={s.Root}>{children}</div>
     </PreviewEmbedContext.Provider>
   );
-}
-
-/** A stable key for a preview: the same on the docs page and on its phone view */
-export function previewKey(code: string | undefined, children: ReactNode[]) {
-  const parts = children.map((child) => {
-    if (!child || typeof child !== 'object' || !('type' in child)) return '';
-    const type = child.type as string | { displayName?: string; name?: string };
-    const name = typeof type === 'string' ? type : type.displayName || type.name || '';
-    const template = (child.props as { template?: unknown }).template;
-    return typeof template === 'string' ? `${name}:${template}` : name;
-  });
-  const text = `${code ?? ''}|${parts.join('|')}`;
-  let hash = 5381;
-  for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
-  return (hash >>> 0).toString(36);
 }

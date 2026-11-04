@@ -19,7 +19,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
   return (
     <CopyTooltip copyValue={value}>
       <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 font-mono text-xs">
+        <span className="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -41,7 +41,7 @@ function DetailSection({ title, action, children }: { title: string; action?: Re
   return (
     <section className="flex flex-col gap-4" aria-label={title}>
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary">{title}</h3>
+        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{title}</h3>
         {action && <div className="-my-2 flex shrink-0">{action}</div>}
       </div>
       {children}
@@ -56,7 +56,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
   const heading = useRef<HTMLDivElement>(null);
   const origins = ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? EXTRA_ORIGINS : [])];
   const metadata = (
-    <dl className="space-y-4 text-sm">
+    <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
       <DetailRow label="Name">Plex application</DetailRow>
       <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
       <DetailRow label="Status"><Badge color={paused ? 'secondary' : 'success'} size="sm">{paused ? 'Paused' : 'Active'}</Badge></DetailRow>
@@ -95,20 +95,20 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
                     <Menu.Item onSelect={() => setLocalhost(!localhost)}>{localhost ? 'Remove localhost' : 'Allow localhost'}</Menu.Item>
                   </Menu.Content>
                 </Menu>}>
-                  <dl className="space-y-4 text-sm"><DetailRow label="Origins">
+                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><DetailRow label="Origins">
                     <div className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
                   </DetailRow></dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="iOS">
-                  <dl className="space-y-4 text-sm">
+                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
                     <DetailRow label="Team ID"><CopyValue value="AB12CD34EF" label="Copy team ID" /></DetailRow>
                     <DetailRow label="Bundle ID"><CopyValue value="com.plexui.application" label="Copy bundle ID" /></DetailRow>
                   </dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="Android">
-                  <dl className="space-y-4 text-sm">
+                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
                     <DetailRow label="Package name"><CopyValue value="com.plexui.application" label="Copy package name" /></DetailRow>
                     <DetailRow label="SHA-256"><CopyValue value={FINGERPRINT} label="Copy certificate fingerprint" /></DetailRow>
                   </dl>

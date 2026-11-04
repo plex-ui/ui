@@ -1,5 +1,7 @@
-/* Only the one preview shows: the rest of the page stays out of the phone view */
-.Root > :not([data-preview-embed]):not(:has([data-preview-embed])) {
+/* Keep only the ancestor path to the selected preview. MDX may group several
+   examples in a wrapper, so filter its prose siblings at every level. */
+.Root > :not([data-preview-embed]):not(:has([data-preview-embed])),
+.Root :has([data-preview-embed]) > :not([data-preview-embed]):not(:has([data-preview-embed])) {
   display: none;
 }
 
@@ -9,6 +11,6 @@
 }
 
 /* An initially open modal should not show its trigger through the scrim. */
-:global(body:has([role="dialog"][data-state="open"])) .Root [data-demo-stage] [aria-haspopup="dialog"] {
+:global(body:has([data-plex-dialog][data-state="open"])) .Root [data-demo-stage] [aria-haspopup="dialog"] {
   visibility: hidden;
 }

@@ -7,8 +7,9 @@ import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Eye, Code, InfoCircle, Desktop, Mobile } from '@plexui/ui/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { DemoControlHostContext, previewKey, usePreviewEmbed } from './PreviewEmbed';
+import { DemoControlHostContext, usePreviewEmbed } from './PreviewEmbed';
 import s from './ComponentPreview.module.css';
+import { usePreviewViewport } from './PreviewViewport';
 
 type Mode = 'preview' | 'code' | 'details';
 type Viewport = 'desktop' | 'phone';
@@ -17,6 +18,7 @@ type Viewport = 'desktop' | 'phone';
 const PHONE_DEVICE_WIDTH = 450;
 
 export function ComponentPreview({
+  previewId,
   children,
   code,
   details,
@@ -27,6 +29,8 @@ export function ComponentPreview({
   phoneDialog = false,
   resizable = false,
 }: {
+  /** Assigned by remarkPreviewId, shared by the docs page and its Phone iframe. */
+  previewId: string;
   children: ReactNode;
   code?: string;
   details?: ReactNode;
@@ -39,7 +43,10 @@ export function ComponentPreview({
   resizable?: boolean;
 }) {
   const [mode, setMode] = useState<Mode>('preview');
-  const [viewport, setViewport] = useState<Viewport>('desktop');
+  const pageViewport = usePreviewViewport();
+  const [override, setOverride] = useState<{ viewport: Viewport; revision: number } | null>(null);
+  const viewport = override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
+  const setViewport = (next: Viewport) => setOverride({ viewport: next, revision: pageViewport.revision });
   // Under md the page is a phone already: no switch and no iframe
   const wide = useBreakpoint('md');
   const pathname = usePathname();
@@ -49,7 +56,6 @@ export function ComponentPreview({
 
   type ElementProps = Record<string, unknown>;
   const childArray = React.Children.toArray(children);
-  const key = previewKey(code, childArray);
   const hasControls = childArray.some(
     (child) => React.isValidElement(child) && (child as React.ReactElement<ElementProps>).props['data-demo-controls'] !== undefined
   );
@@ -86,7 +92,7 @@ export function ComponentPreview({
 
   // The phone view of one preview: only that preview, at the iframe's width
   if (embedTarget !== null) {
-    if (embedTarget !== key) return null;
+    if (embedTarget !== previewId) return null;
     return (
       <div className={`${s.PreviewContainer} not-prose`} data-preview-embed>
         <div className={`${s.PreviewInner} ${className ?? ''}`.trim()}>{normalizedChildren}</div>
@@ -138,7 +144,7 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key, dialog: phoneDialog } : null}
+            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -234,6 +240,7 @@ function PhoneFrame({
               ref={frameRef}
               src={src}
               title="Phone preview"
+              loading="lazy"
               className={s.PhoneFrame}
               data-pending={!ready || undefined}
             />

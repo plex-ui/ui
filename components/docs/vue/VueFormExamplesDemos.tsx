@@ -6,6 +6,10 @@ import { Button } from '@plexui/vue/components/Button';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
 import { ChevronDown, X } from '@plexui/vue/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@plexui/vue/components/Dialog';
+import { Page, PageBar, PageContent, PageHeader } from '@plexui/vue/components/Page';
+import { usePreviewEmbed } from '../PreviewEmbed';
+import authStyles from '../AuthFormStage.module.css';
 import {
   COUNTRIES,
   COUNTRY_LOOKUP,
@@ -25,73 +29,73 @@ import { inputDemoScope } from './VueInputDemos';
 // (FloatingLabelInputDemos.tsx, OTPInputDemos.tsx, OAuthFormDemos.tsx); the
 // country and phone data is the same list, exported by PhoneInputDemos.tsx.
 
-/** The demos' modal frame (`open`), or just its content when closed */
-const DialogShell = markRaw(defineComponent({
-  name: 'DialogShell',
+/** Vue counterpart of AuthFormStage; both use the same layout styles. */
+const AuthFormStage = markRaw(defineComponent({
+  name: 'AuthFormStage',
   props: {
-    open: { type: Boolean, default: false },
-    width: { type: Number, default: 420 },
+    title: { type: String, required: true },
+    dialog: { type: Boolean, default: false },
+    mobile: { type: Boolean, default: false },
+    phonePreview: { type: Boolean, default: false },
   },
-  setup(props, { slots }) {
-    return () =>
-      props.open
-        ? h(
-            'div',
-            {
-              style: {
-                background: 'rgb(0 0 0 / 0.4)',
-                margin: '-48px -24px',
-                padding: '48px 24px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '300px',
-                width: 'calc(100% + 48px)',
-                marginLeft: '-24px',
-                marginRight: '-24px',
-                marginTop: '-48px',
-                marginBottom: '-48px',
-              },
+  emits: ['update:dialog'],
+  setup(props, { slots, emit }) {
+    const heading = ref<HTMLElement | null>(null);
+    return () => {
+      if (props.dialog) {
+        if (props.mobile) {
+          return h(Dialog, {
+            'open': true,
+            'onUpdate:open': (open: boolean) => {
+              if (!props.phonePreview) emit('update:dialog', open);
             },
-            [
-              h(
-                'div',
-                {
-                  style: {
-                    borderRadius: 'var(--radius-xl)',
-                    background: 'var(--color-surface-elevated)',
-                    boxShadow: 'var(--shadow-lg), var(--shadow-hairline)',
-                    width: `${props.width}px`,
-                    maxWidth: 'calc(100% - 48px)',
-                    overflow: 'hidden',
-                  },
-                },
-                [
-                  h('div', { style: { display: 'flex', justifyContent: 'flex-end', padding: '10px 10px 0 16px' } }, [
-                    h(
-                      Button,
-                      { 'color': 'secondary', 'variant': 'ghost', 'size': 'lg', 'uniform': true, 'aria-label': 'Close' },
-                      () => h(X),
-                    ),
-                  ]),
-                  h(
-                    'div',
-                    {
-                      style: {
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '20px',
-                        padding: '0 24px 40px',
-                      },
-                    },
-                    slots.default?.(),
-                  ),
-                ],
-              ),
-            ],
-          )
-        : slots.default?.();
+          }, {
+            default: () => h(DialogContent, {
+              mobileVariant: 'sheet',
+              onOpenAutoFocus: (event: Event) => {
+                event.preventDefault();
+                heading.value?.focus();
+              },
+            }, {
+              default: () => [
+                h(DialogHeader, null, {
+                  default: () => [
+                    h('div', { ref: heading, tabindex: -1 }, [
+                      h(DialogTitle, { class: 'sr-only' }, () => props.title),
+                    ]),
+                    h(DialogDescription, { class: 'sr-only' }, () => 'Review and submit this form.'),
+                  ],
+                }),
+                h(DialogBody, null, {
+                  default: () => h('div', { class: authStyles.Form }, slots.default?.()),
+                }),
+              ],
+            }),
+          });
+        }
+        return h('div', { class: authStyles.DesktopOverlay }, [
+          h('div', { class: authStyles.DesktopPanel }, [
+            h('div', { class: authStyles.DesktopToolbar }, [
+              h(Button, {
+                'color': 'secondary', 'variant': 'ghost', 'size': 'lg', 'uniform': true,
+                'aria-label': 'Close', 'onClick': () => emit('update:dialog', false),
+              }, () => h(X)),
+            ]),
+            h('div', { class: authStyles.DesktopBody }, slots.default?.()),
+          ]),
+        ]);
+      }
+      return h(Page, { class: authStyles.Screen }, {
+        default: () => [
+          h(PageHeader, { 'class': authStyles.Header, 'aria-hidden': true, 'divider': false }, {
+            default: () => h(PageBar),
+          }),
+          h(PageContent, { class: authStyles.Content }, {
+            default: () => h('div', { class: authStyles.Form }, slots.default?.()),
+          }),
+        ],
+      });
+    };
   },
 }));
 
@@ -233,7 +237,7 @@ const BirthdayMaskedInput = markRaw(defineComponent({
     invalid: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
   },
-  emits: { 'update:value': (_value: string) => true },
+  emits: { 'update:value': (value: string) => typeof value === 'string' },
   setup(props, { attrs, emit }) {
     const focused = ref(false);
     return () => {
@@ -309,7 +313,7 @@ const BirthdayMaskedInput = markRaw(defineComponent({
 }));
 
 export const formExamplesScope = {
-  DialogShell,
+  AuthFormStage,
   GoogleLogo,
   AppleLogo,
   MicrosoftLogo,
@@ -337,8 +341,21 @@ export const formExamplesScope = {
 };
 
 /** A VueDemo whose template can use the helpers above, and `wide` as `useBreakpoint("md")` gives it. */
-export function VueFormExampleDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
+export function VueFormExampleDemo({
+  state,
+  auth = false,
+  stageClassName,
+  ...props
+}: ComponentProps<typeof VueDemo> & { auth?: boolean }) {
   const wide = useBreakpoint('md');
+  const phonePreview = usePreviewEmbed() !== null;
 
-  return <VueDemo key={String(wide)} {...props} state={{ ...formExamplesScope, ...state, wide }} />;
+  return (
+    <VueDemo
+      key={String(wide)}
+      {...props}
+      stageClassName={auth ? `${authStyles.Stage} ${stageClassName ?? ''}` : stageClassName}
+      state={{ ...formExamplesScope, ...state, wide, phonePreview }}
+    />
+  );
 }

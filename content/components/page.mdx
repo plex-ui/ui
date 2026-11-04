@@ -141,3 +141,14 @@ Page reads these component tokens. Override them at any scope to restyle it:
 - `--page-width`: width of the column, any value
 - `--page-width-column`: `column` width (default `768px`)
 - `--page-width-wide`: `wide` width (default `1280px`)
+
+### Footer spacing
+
+`Page.Footer` stays below the scrolling content. Set `--page-footer-gutter` when its primary action needs a larger horizontal inset than the fields. `--page-footer-padding-bottom` controls the space below it, including the safe area.
+
+```css
+.mobile-form {
+  --page-footer-gutter: 24px;
+  --page-footer-padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+}
+```

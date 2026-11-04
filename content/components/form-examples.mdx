@@ -37,6 +37,8 @@ import { FileUploadFormDemo } from "@/components/docs/FileUploadDemos"
 
 Real-world forms composed from [Float Input](/components/floating-label-input), [File Upload](/components/file-upload), [OTP Input](/components/otp-input), [Select](/components/select), and [Button](/components/button).
 
+Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a mobile Sheet with its own toolbar. Individual input examples keep their component-only layout.
+
 ## Log in (email)
 
 <ComponentPreview details={<>The classic email + password log-in: two <code>FloatingLabelInput</code> fields, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link.</>} code={`<form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
@@ -237,130 +239,198 @@ Real-world forms composed from [Float Input](/components/floating-label-input), 
 
 ## Group of inputs
 
-<ComponentPreview details={<>One block of rows instead of separate boxes. A short value keeps its frame at the end of the row, and on a phone the row becomes that frame with nothing to change. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={`<FieldGroup title="Contact details">
-  <Field row label="First name"><Input defaultValue="Jane" /></Field>
-  <Field row label="Last name"><Input defaultValue="Doe" /></Field>
-  <Field row label="Email"><Input type="email" placeholder="name@example.com" /></Field>
-  <Field row label="Phone"><Input type="tel" placeholder="Optional" /></Field>
-</FieldGroup>
-<FieldGroup title="Delivery">
-  <Field row orientation="vertical" label="Address">
-    <Input variant="ghost" placeholder="Street and building" />
-  </Field>
-  <Field row orientation="vertical" label="Note for the courier">
-    <Textarea variant="ghost" rows={2} autoResize />
-  </Field>
-</FieldGroup>`} previewMinHeight={620}>
+<ComponentPreview details={<>One block of rows instead of separate boxes. Use <code>columns</code> so every short value starts at the same column. The phone screen has a top bar and a fixed Save action; only its content scrolls. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={`const formId = useId();
+
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Edit contact</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Contact details" columns>
+        <Field row label="First name"><Input defaultValue="Jane" /></Field>
+        <Field row label="Last name"><Input defaultValue="Doe" /></Field>
+        <Field row label="Email"><Input type="email" placeholder="name@example.com" /></Field>
+        <Field row label="Phone"><Input type="tel" placeholder="Optional" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Delivery">
+        <Field row orientation="vertical" label="Address">
+          <Input variant="ghost" placeholder="Street and building" />
+        </Field>
+        <Field row orientation="vertical" label="Note for the courier">
+          <Textarea variant="ghost" rows={2} autoResize />
+        </Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer>
+    <Button color="primary" size="3xl" pill block type="submit" form={formId}>Save</Button>
+  </Page.Footer>
+</Page>`} previewMinHeight={620}>
   <FormRowsInputsDemo />
 </ComponentPreview>
 
 ## Group of mixed controls
 
-<ComponentPreview details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>pill=&#123;false&#125;</code> to every control in the block.</>} code={`<FieldGroup title="Preferences" description="Saved for every device you sign in on.">
-  <Field row label="Language">
-    <Select value={language} options={languages} onChange={onLanguage} block={false} align="end" />
-  </Field>
-  <Field row label="Currency">
-    <Select value={currency} options={currencies} onChange={onCurrency} block={false} align="end" />
-  </Field>
-  <Field row label="Theme">
-    <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
-      <SegmentedControl.Option value="system">System</SegmentedControl.Option>
-      <SegmentedControl.Option value="light">Light</SegmentedControl.Option>
-      <SegmentedControl.Option value="dark">Dark</SegmentedControl.Option>
-    </SegmentedControl>
-  </Field>
-  <Field row label="Start date">
-    <DatePicker value={start} onChange={setStart} placeholder="Select date" />
-  </Field>
-  <Field row label="Weekly summary" description="Sent on Mondays."><Switch /></Field>
-</FieldGroup>`} previewMinHeight={420}>
+<ComponentPreview details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>pill=&#123;false&#125;</code> to every control in the block.</>} code={`const formId = useId();
+
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Settings</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
+        <Field row label="Language">
+          <Select value={language} options={languages} onChange={onLanguage} block={false} align="end" />
+        </Field>
+        <Field row label="Currency">
+          <Select value={currency} options={currencies} onChange={onCurrency} block={false} align="end" />
+        </Field>
+        <Field row label="Theme">
+          <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
+            <SegmentedControl.Option value="system">System</SegmentedControl.Option>
+            <SegmentedControl.Option value="light">Light</SegmentedControl.Option>
+            <SegmentedControl.Option value="dark">Dark</SegmentedControl.Option>
+          </SegmentedControl>
+        </Field>
+        <Field row label="Start date">
+          <DatePicker value={start} onChange={setStart} placeholder="Select date" />
+        </Field>
+        <Field row label="Weekly summary" description="Sent on Mondays."><Switch /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+</Page>`} previewMinHeight={420}>
   <FormRowsMixedDemo />
 </ComponentPreview>
 
 ## Choice in rows
 
-<ComponentPreview details={<>One choice with <code>RadioGroup</code> around the group, several with <code>Checkbox</code>. The label of the row selects its control.</>} code={`<RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
-  <FieldGroup title="Plan" className="w-full">
-    <Field row label="Starter" description="For one person.">
-      <RadioGroup.Item value="starter" />
-    </Field>
-    <Field row label="Team" description="Up to 10 people.">
-      <RadioGroup.Item value="team" />
-    </Field>
-    <Field row label="Business" description="No limit on people.">
-      <RadioGroup.Item value="business" />
-    </Field>
-  </FieldGroup>
-</RadioGroup>
-<FieldGroup title="Email me about">
-  <Field row label="New sign-ins"><Checkbox /></Field>
-  <Field row label="Invoices"><Checkbox /></Field>
-  <Field row label="Product news"><Checkbox /></Field>
-</FieldGroup>`} previewMinHeight={520}>
+<ComponentPreview details={<>Use <code>RadioGroup</code> for one plan. Independent email preferences use <code>Switch</code> on phones and <code>Checkbox</code> on desktop. The row label operates its control, and values survive a viewport change.</>} code={`const wide = useBreakpoint("md");
+const formId = useId();
+
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Preferences</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
+        <FieldGroup title="Plan" className="w-full">
+          <Field row label="Starter" description="For one person.">
+            <RadioGroup.Item value="starter" />
+          </Field>
+          <Field row label="Team" description="Up to 10 people.">
+            <RadioGroup.Item value="team" />
+          </Field>
+          <Field row label="Business" description="No limit on people.">
+            <RadioGroup.Item value="business" />
+          </Field>
+        </FieldGroup>
+      </RadioGroup>
+      <FieldGroup title="Email me about">
+        <Field row label="New sign-ins">
+          {wide ? (
+            <Checkbox checked={signIns} onCheckedChange={(value) => setSignIns(value === true)} />
+          ) : (
+            <Switch checked={signIns} onCheckedChange={setSignIns} />
+          )}
+        </Field>
+        <Field row label="Invoices">
+          {wide ? (
+            <Checkbox checked={invoices} onCheckedChange={(value) => setInvoices(value === true)} />
+          ) : (
+            <Switch checked={invoices} onCheckedChange={setInvoices} />
+          )}
+        </Field>
+        <Field row label="Product news">
+          {wide ? (
+            <Checkbox checked={news} onCheckedChange={(value) => setNews(value === true)} />
+          ) : (
+            <Switch checked={news} onCheckedChange={setNews} />
+          )}
+        </Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+</Page>`} previewMinHeight={520}>
   <FormRowsChoiceDemo />
 </ComponentPreview>
 
 ## Long form in one group
 
 <ComponentPreview details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={`const wide = useBreakpoint("md");
+const formId = useId();
 
-<FieldGroup title="Product">
-  <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
-  <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
-  <Field row label="Price">
-    <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
-  </Field>
-  <Field row label="Category">
-    <Select value={category} options={categories} onChange={onCategory} block={false} align="end" />
-  </Field>
-  <Field
-    row
-    fill
-    label="Tags"
-    action={
-      <Select
-        multiple
-        block={false}
-        align="end"
-        aria-label="Add tag"
-        options={tagOptions}
-        value={tags}
-        onChange={(selected) => setTags(selected.map((option) => option.value))}
-        trigger={({ onToggle }) => (
-          <Tooltip content={wide ? "Add tag" : null}>
-            <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add tag" onClick={onToggle}>
-              {wide ? <Plus /> : "Add"}
-            </Button>
-          </Tooltip>
-        )}
-      />
-    }
-  >
-    <div className="flex flex-wrap gap-2">
-      {chosen.map((option) => (
-        <Badge
-          key={option.value}
-          size="xl"
-          pill
-          variant={option.color ? "solid" : "outline"}
-          color={option.color ?? "secondary"}
-          removeLabel={\`Remove \${option.label}\`}
-          onRemove={() => remove(option.value)}
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Edit product</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Product">
+        <Field row orientation="vertical" label="Name"><Input variant="ghost" /></Field>
+        <Field row orientation="vertical" label="Description"><Textarea variant="ghost" rows={2} autoResize /></Field>
+        <Field row label="Price">
+          <Input inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
+        </Field>
+        <Field row label="Category">
+          <Select value={category} options={categories} onChange={onCategory} block={false} align="end" />
+        </Field>
+        <Field
+          row
+          fill
+          label="Tags"
+          action={
+            <Select
+              multiple
+              block={false}
+              align="end"
+              aria-label="Add tag"
+              options={tagOptions}
+              value={tags}
+              onChange={(selected) => setTags(selected.map((option) => option.value))}
+              trigger={({ onToggle }) => (
+                <Tooltip content={wide ? "Add tag" : null}>
+                  <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add tag" onClick={onToggle}>
+                    {wide ? <Plus /> : "Add"}
+                  </Button>
+                </Tooltip>
+              )}
+            />
+          }
         >
-          {option.label}
-        </Badge>
-      ))}
-    </div>
-  </Field>
-  <Field row label="In stock"><Switch /></Field>
-</FieldGroup>`} previewMinHeight={620}>
+          <div className="flex flex-wrap gap-2">
+            {chosen.map((option) => (
+              <Badge
+                key={option.value}
+                size="xl"
+                pill
+                variant={option.color ? "solid" : "outline"}
+                color={option.color ?? "secondary"}
+                removeLabel={\`Remove \${option.label}\`}
+                onRemove={() => remove(option.value)}
+              >
+                {option.label}
+              </Badge>
+            ))}
+          </div>
+        </Field>
+        <Field row label="In stock"><Switch /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer>
+    <Button color="primary" size="3xl" pill block type="submit" form={formId}>Save</Button>
+  </Page.Footer>
+</Page>`} previewMinHeight={620}>
   <FormRowsProductDemo />
 </ComponentPreview>
 
 ## Several groups
 
-<ComponentPreview details={<>One form in several blocks, each with one kind of row. On a phone, Page.Header provides the top bar and Page.Footer keeps Save changes at the bottom. Only Page.Content scrolls, with 16px side gutters and room for the bottom safe area. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, a hint goes in <code>labelAction</code>. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={`const wide = useBreakpoint("md");
+<ComponentPreview details={<>One form in several blocks, each with one kind of row. On a phone, Page.Header provides the top bar and Page.Footer keeps Save changes at the bottom. Only Page.Content scrolls, with 16px side gutters. The footer uses 24px side and bottom insets, plus room for the bottom safe area. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroup.Button</code>, as in <a href="/components/input-group#dropdown">Input Group</a>, a hint goes in <code>labelAction</code>. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={`const wide = useBreakpoint("md");
 const formId = useId();
 
 <Page className="grouped-form-screen">
@@ -432,7 +502,7 @@ const formId = useId();
   <FormRowsGroupsDemo />
 </ComponentPreview>
 
-The snippet uses a full-page layout. Add these styles to reproduce the mobile spacing and group corners; the desktop preview shows the compact form.
+The row examples share this full-page layout. Add these styles to reproduce the mobile top bar, spacing and group corners. A Page.Footer stays below the scrolling content; the desktop previews show compact forms.
 
 ```css
 .grouped-form-screen[data-width] {
@@ -445,6 +515,8 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
     --page-top: calc(env(safe-area-inset-top, 0px) + var(--page-bar-height-phone) + 10px);
     --page-content-padding-top: 10px;
     --page-content-padding-bottom: 16px;
+    --page-footer-gutter: 24px;
+    --page-footer-padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
   }
 
   .grouped-form-screen .grouped-form-header {
@@ -456,46 +528,56 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
 ## Tags in rows
 
 <ComponentPreview details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. <code>action</code> holds the button at the end: it stays on the first line when the tags wrap, and on a phone it stands beside the label with the tags under it. A <code>Badge</code> with <code>size="xl"</code> has the height of a control and <code>onRemove</code> gives it a cross. Solid colors are for labels with a meaning, outline for plain values. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>trigger</code>, and <code>block=&#123;false&#125;</code> keeps it as wide as its options.</>} code={`const wide = useBreakpoint("md");
+const formId = useId();
 
-<Field
-  row
-  fill
-  label="Materials"
-  action={
-    <Select
-      multiple
-      block={false}
-      align="end"
-      aria-label="Add material"
-      options={materials}
-      value={value}
-      onChange={(selected) => setValue(selected.map((option) => option.value))}
-      trigger={({ onToggle }) => (
-        <Tooltip content={wide ? "Add material" : null}>
-          <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add material" onClick={onToggle}>
-            {wide ? <Plus /> : "Add"}
-          </Button>
-        </Tooltip>
-      )}
-    />
-  }
->
-  <div className="flex flex-wrap gap-2">
-    {chosen.map((option) => (
-      <Badge
-        key={option.value}
-        size="xl"
-        pill
-        variant={option.color ? "solid" : "outline"}
-        color={option.color ?? "secondary"}
-        removeLabel={\`Remove \${option.label}\`}
-        onRemove={() => remove(option.value)}
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Product tags</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <Field
+        row
+        fill
+        label="Materials"
+        action={
+          <Select
+            multiple
+            block={false}
+            align="end"
+            aria-label="Add material"
+            options={materials}
+            value={value}
+            onChange={(selected) => setValue(selected.map((option) => option.value))}
+            trigger={({ onToggle }) => (
+              <Tooltip content={wide ? "Add material" : null}>
+                <Button uniform={wide} pill color="secondary" variant="soft" aria-label="Add material" onClick={onToggle}>
+                  {wide ? <Plus /> : "Add"}
+                </Button>
+              </Tooltip>
+            )}
+          />
+        }
       >
-        {option.label}
-      </Badge>
-    ))}
-  </div>
-</Field>`} previewMinHeight={200}>
+        <div className="flex flex-wrap gap-2">
+          {chosen.map((option) => (
+            <Badge
+              key={option.value}
+              size="xl"
+              pill
+              variant={option.color ? "solid" : "outline"}
+              color={option.color ?? "secondary"}
+              removeLabel={\`Remove \${option.label}\`}
+              onRemove={() => remove(option.value)}
+            >
+              {option.label}
+            </Badge>
+          ))}
+        </div>
+      </Field>
+    </form>
+  </Page.Content>
+</Page>`} previewMinHeight={200}>
   <FormRowsTagsDemo />
 </ComponentPreview>
 
@@ -529,31 +611,53 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
 
 ## Rows with actions
 
-<ComponentPreview details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={`<FieldGroup title="Account">
-  <Field row label="Email" description="jane@example.com">
-    <div><Button pill color="secondary" variant="soft">Change</Button></div>
-  </Field>
-  <Field row label="Password" description="Last changed in March.">
-    <div><Button pill color="secondary" variant="soft">Reset</Button></div>
-  </Field>
-  <Field row label="Delete account" description="This removes your data for good.">
-    <div><Button pill color="danger" variant="soft">Delete</Button></div>
-  </Field>
-</FieldGroup>`} previewMinHeight={340}>
+<ComponentPreview details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={`const formId = useId();
+
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Account settings</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Account">
+        <Field row label="Email" description="jane@example.com">
+          <div><Button pill color="secondary" variant="soft">Change</Button></div>
+        </Field>
+        <Field row label="Password" description="Last changed in March.">
+          <div><Button pill color="secondary" variant="soft">Reset</Button></div>
+        </Field>
+        <Field row label="Delete account" description="This removes your data for good.">
+          <div><Button pill color="danger" variant="soft">Delete</Button></div>
+        </Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+</Page>`} previewMinHeight={340}>
   <FormRowsActionsDemo />
 </ComponentPreview>
 
 ## Errors in rows
 
-<ComponentPreview details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={`<FieldGroup title="Payout details">
-  <Field row label="Account holder"><Input defaultValue="Jane Doe" /></Field>
-  <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
-    <Input invalid />
-  </Field>
-  <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
-    <Textarea variant="ghost" rows={2} autoResize invalid />
-  </Field>
-</FieldGroup>`} previewMinHeight={380}>
+<ComponentPreview details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={`const formId = useId();
+
+<Page className="grouped-form-screen">
+  <Page.Header className="grouped-form-header">
+    <Page.Bar><Page.Title>Edit payout details</Page.Title></Page.Bar>
+  </Page.Header>
+  <Page.Content>
+    <form id={formId} className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Payout details">
+        <Field row label="Account holder"><Input defaultValue="Jane Doe" /></Field>
+        <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
+          <Input invalid />
+        </Field>
+        <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
+          <Textarea variant="ghost" rows={2} autoResize invalid />
+        </Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+</Page>`} previewMinHeight={380}>
   <FormRowsErrorsDemo />
 </ComponentPreview>
 

@@ -4,7 +4,8 @@ import React, { useId, useState } from 'react';
 import { OTPInput } from '@plexui/ui/components/OTPInput';
 import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 import { Button } from '@plexui/ui/components/Button';
-import { X } from '@plexui/ui/components/Icon';
+import { AuthFormStage } from './AuthFormStage';
+import { useDemoControlSync } from './PreviewEmbed';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
 
@@ -46,28 +47,12 @@ function DemoControlBoolean({
   onChange: (v: boolean) => void;
 }) {
   const controlId = useId();
+  useDemoControlSync(name, value, onChange);
 
   return (
     <div style={controlRowStyle}>
       <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
       <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DialogShell({ children, width = 420 }: { children: React.ReactNode; width?: number }) {
-  return (
-    <div style={{ background: 'rgb(0 0 0 / 0.4)', margin: '-48px -24px', padding: '48px 24px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300, width: 'calc(100% + 48px)', marginLeft: '-24px', marginRight: '-24px', marginTop: '-48px', marginBottom: '-48px' }}>
-      <div style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface-elevated)', boxShadow: 'var(--shadow-lg), var(--shadow-hairline)', width, maxWidth: 'calc(100% - 48px)', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 10px 0 16px' }}>
-          <Button color="secondary" variant="ghost" size="lg" uniform aria-label="Close">
-            <X />
-          </Button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '0 24px 40px' }}>
-          {children}
-        </div>
-      </div>
     </div>
   );
 }
@@ -159,9 +144,9 @@ export function OTPInputCheckInboxErrorDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Check your inbox" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -169,6 +154,7 @@ export function OTPInputCheckInboxErrorDemo() {
 export function OTPInputVerifyEmailDemo() {
   const [inDialog, setInDialog] = useState(false);
   const [mode, setMode] = useState<InputMode>('per-digit');
+  useDemoControlSync('input', mode, setMode);
   const [otpValue, setOtpValue] = useState('');
   const [code, setCode] = useState('');
 
@@ -222,9 +208,9 @@ export function OTPInputVerifyEmailDemo() {
         </DemoControlRow>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Verify your email address" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -232,6 +218,7 @@ export function OTPInputVerifyEmailDemo() {
 export function OTPInputConfirmPhoneDemo() {
   const [inDialog, setInDialog] = useState(false);
   const [mode, setMode] = useState<InputMode>('per-digit');
+  useDemoControlSync('input', mode, setMode);
   const [otpValue, setOtpValue] = useState('');
   const [code, setCode] = useState('');
 
@@ -285,9 +272,9 @@ export function OTPInputConfirmPhoneDemo() {
         </DemoControlRow>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Confirm phone" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }

@@ -380,6 +380,7 @@
     --dialog-alert-radius: 34px;
     --dialog-alert-padding: 14px;
     --dialog-alert-action-height: 48px;
+    --dialog-sheet-action-height: 50px;
     --dialog-sheet-radius: 38px;
     --dialog-sheet-close-size: var(--control-size-2xl);
     --dialog-sheet-close-icon-size: 34px;

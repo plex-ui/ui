@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import Image from 'next/image';
 import type { DateTime } from 'luxon';
 import { Badge } from '@plexui/ui/components/Badge';
@@ -67,37 +67,69 @@ const LABELS: TagOption[] = [
   { value: 'limited', label: 'Limited', color: 'warning' },
 ];
 
+/** A compact desktop form and a complete phone screen share the same fields. */
+function FormScreen({
+  title,
+  children,
+  submitLabel,
+  wide = false,
+}: {
+  title: string;
+  children: ReactNode;
+  submitLabel?: string;
+  wide?: boolean;
+}) {
+  const formId = useId();
+
+  return (
+    <div data-demo-stage className={`${s.ScreenStage} flex justify-center py-10`}>
+      <Page className="h-dvh" data-form-screen data-form-width={wide ? 'wide' : undefined}>
+        <Page.Header data-form-header>
+          <Page.Bar><Page.Title>{title}</Page.Title></Page.Bar>
+        </Page.Header>
+        <Page.Content data-form-content>
+          <form id={formId} className="flex flex-col gap-6" onSubmit={noSubmit}>
+            {children}
+          </form>
+        </Page.Content>
+        {submitLabel && (
+          <Page.Footer data-form-footer>
+            <Button color="primary" size="3xl" pill block type="submit" form={formId}>
+              {submitLabel}
+            </Button>
+          </Page.Footer>
+        )}
+      </Page>
+    </div>
+  );
+}
+
 export function FormRowsInputsDemo() {
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <FieldGroup title="Contact details">
-          <Field row label="First name">
-            <Input defaultValue="Jane" autoComplete="given-name" />
-          </Field>
-          <Field row label="Last name">
-            <Input defaultValue="Doe" autoComplete="family-name" />
-          </Field>
-          <Field row label="Email">
-            <Input type="email" placeholder="name@example.com" autoComplete="email" />
-          </Field>
-          <Field row label="Phone">
-            <Input type="tel" placeholder="Optional" autoComplete="tel" />
-          </Field>
-        </FieldGroup>
-        <FieldGroup title="Delivery">
-          <Field row orientation="vertical" label="Address">
-            <Input variant="ghost" placeholder="Street and building" autoComplete="street-address" />
-          </Field>
-          <Field row orientation="vertical" label="Note for the courier">
-            <Textarea variant="ghost" rows={2} autoResize placeholder="Gate code, floor, a safe place to leave it" />
-          </Field>
-        </FieldGroup>
-        <Button color="primary" size="3xl" pill type="submit">
-          Save
-        </Button>
-      </form>
-    </div>
+    <FormScreen title="Edit contact" submitLabel="Save">
+      <FieldGroup title="Contact details" columns>
+        <Field row label="First name">
+          <Input defaultValue="Jane" autoComplete="given-name" />
+        </Field>
+        <Field row label="Last name">
+          <Input defaultValue="Doe" autoComplete="family-name" />
+        </Field>
+        <Field row label="Email">
+          <Input type="email" placeholder="name@example.com" autoComplete="email" />
+        </Field>
+        <Field row label="Phone">
+          <Input type="tel" placeholder="Optional" autoComplete="tel" />
+        </Field>
+      </FieldGroup>
+      <FieldGroup title="Delivery">
+        <Field row orientation="vertical" label="Address">
+          <Input variant="ghost" placeholder="Street and building" autoComplete="street-address" />
+        </Field>
+        <Field row orientation="vertical" label="Note for the courier">
+          <Textarea variant="ghost" rows={2} autoResize placeholder="Gate code, floor, a safe place to leave it" />
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
@@ -108,66 +140,78 @@ export function FormRowsMixedDemo() {
   const [start, setStart] = useState<DateTime | null>(null);
 
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
-          <Field row label="Language">
-            <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} block={false} align="end" />
-          </Field>
-          <Field row label="Currency">
-            <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} block={false} align="end" />
-          </Field>
-          <Field row label="Theme">
-            <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
-              <SegmentedControl.Option value="system">System</SegmentedControl.Option>
-              <SegmentedControl.Option value="light">Light</SegmentedControl.Option>
-              <SegmentedControl.Option value="dark">Dark</SegmentedControl.Option>
-            </SegmentedControl>
-          </Field>
-          <Field row label="Start date">
-            <DatePicker value={start} onChange={setStart} triggerDateFormat="MMM d, yyyy" placeholder="Select date" />
-          </Field>
-          <Field row label="Weekly summary" description="Sent on Mondays.">
-            <Switch defaultChecked />
-          </Field>
-        </FieldGroup>
-      </form>
-    </div>
+    <FormScreen title="Settings">
+      <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
+        <Field row label="Language">
+          <Select value={language} options={LANGUAGES} onChange={(option) => setLanguage(option.value)} block={false} align="end" />
+        </Field>
+        <Field row label="Currency">
+          <Select value={currency} options={CURRENCIES} onChange={(option) => setCurrency(option.value)} block={false} align="end" />
+        </Field>
+        <Field row label="Theme">
+          <SegmentedControl value={theme} onChange={setTheme} aria-label="Theme">
+            <SegmentedControl.Option value="system">System</SegmentedControl.Option>
+            <SegmentedControl.Option value="light">Light</SegmentedControl.Option>
+            <SegmentedControl.Option value="dark">Dark</SegmentedControl.Option>
+          </SegmentedControl>
+        </Field>
+        <Field row label="Start date">
+          <DatePicker value={start} onChange={setStart} triggerDateFormat="MMM d, yyyy" placeholder="Select date" />
+        </Field>
+        <Field row label="Weekly summary" description="Sent on Mondays.">
+          <Switch defaultChecked />
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
 export function FormRowsChoiceDemo() {
   const [plan, setPlan] = useState('team');
+  const wide = useBreakpoint('md');
+  const [signIns, setSignIns] = useState(true);
+  const [invoices, setInvoices] = useState(true);
+  const [news, setNews] = useState(false);
 
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
-          <FieldGroup title="Plan" className="w-full">
-            <Field row label="Starter" description="For one person.">
-              <RadioGroup.Item value="starter" />
-            </Field>
-            <Field row label="Team" description="Up to 10 people.">
-              <RadioGroup.Item value="team" />
-            </Field>
-            <Field row label="Business" description="No limit on people.">
-              <RadioGroup.Item value="business" />
-            </Field>
-          </FieldGroup>
-        </RadioGroup>
-        <FieldGroup title="Email me about">
-          <Field row label="New sign-ins">
-            <Checkbox defaultChecked />
+    <FormScreen title="Preferences">
+      <RadioGroup value={plan} onChange={setPlan} direction="col" aria-label="Plan" className="w-full">
+        <FieldGroup title="Plan" className="w-full">
+          <Field row label="Starter" description="For one person.">
+            <RadioGroup.Item value="starter" />
           </Field>
-          <Field row label="Invoices">
-            <Checkbox defaultChecked />
+          <Field row label="Team" description="Up to 10 people.">
+            <RadioGroup.Item value="team" />
           </Field>
-          <Field row label="Product news">
-            <Checkbox />
+          <Field row label="Business" description="No limit on people.">
+            <RadioGroup.Item value="business" />
           </Field>
         </FieldGroup>
-      </form>
-    </div>
+      </RadioGroup>
+      <FieldGroup title="Email me about">
+        <Field row label="New sign-ins">
+          {wide ? (
+            <Checkbox checked={signIns} onCheckedChange={(value) => setSignIns(value === true)} />
+          ) : (
+            <Switch checked={signIns} onCheckedChange={setSignIns} />
+          )}
+        </Field>
+        <Field row label="Invoices">
+          {wide ? (
+            <Checkbox checked={invoices} onCheckedChange={(value) => setInvoices(value === true)} />
+          ) : (
+            <Switch checked={invoices} onCheckedChange={setInvoices} />
+          )}
+        </Field>
+        <Field row label="Product news">
+          {wide ? (
+            <Checkbox checked={news} onCheckedChange={(value) => setNews(value === true)} />
+          ) : (
+            <Switch checked={news} onCheckedChange={setNews} />
+          )}
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
@@ -176,31 +220,26 @@ export function FormRowsProductDemo() {
   const [tags, setTags] = useState(['new', 'sale']);
 
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <FieldGroup title="Product">
-          <Field row orientation="vertical" label="Name">
-            <Input variant="ghost" defaultValue="Oak side table" />
-          </Field>
-          <Field row orientation="vertical" label="Description">
-            <Textarea variant="ghost" rows={2} autoResize defaultValue="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools." />
-          </Field>
-          <Field row label="Price">
-            <Input defaultValue="129" inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
-          </Field>
-          <Field row label="Category">
-            <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align="end" />
-          </Field>
-          <TagRow label="Tags" one="tag" options={LABELS} value={tags} onChange={setTags} />
-          <Field row label="In stock">
-            <Switch defaultChecked />
-          </Field>
-        </FieldGroup>
-        <Button color="primary" size="3xl" pill type="submit">
-          Save
-        </Button>
-      </form>
-    </div>
+    <FormScreen title="Edit product" submitLabel="Save">
+      <FieldGroup title="Product">
+        <Field row orientation="vertical" label="Name">
+          <Input variant="ghost" defaultValue="Oak side table" />
+        </Field>
+        <Field row orientation="vertical" label="Description">
+          <Textarea variant="ghost" rows={2} autoResize defaultValue="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools." />
+        </Field>
+        <Field row label="Price">
+          <Input defaultValue="129" inputMode="decimal" endAdornment={<span className="text-secondary">€</span>} />
+        </Field>
+        <Field row label="Category">
+          <Select value={category} options={CATEGORIES} onChange={(option) => setCategory(option.value)} block={false} align="end" />
+        </Field>
+        <TagRow label="Tags" one="tag" options={LABELS} value={tags} onChange={setTags} />
+        <Field row label="In stock">
+          <Switch defaultChecked />
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
@@ -336,30 +375,15 @@ function ProductFields({ columns = false }: { columns?: boolean }) {
 
 export function FormRowsGroupsDemo() {
   const [columns, setColumns] = useState(false);
-  const formId = useId();
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="columns" value={columns} onChange={setColumns} />
       </div>
-      <div data-demo-stage className={`${s.ScreenStage} flex justify-center py-10`}>
-        <Page className="h-dvh" data-form-screen>
-          <Page.Header data-form-header>
-            <Page.Bar><Page.Title>Edit product</Page.Title></Page.Bar>
-          </Page.Header>
-          <Page.Content data-form-content>
-            <form id={formId} className="flex flex-col gap-6" onSubmit={noSubmit}>
-              <ProductFields columns={columns} />
-            </form>
-          </Page.Content>
-          <Page.Footer data-form-footer>
-            <Button color="primary" size="3xl" pill block type="submit" form={formId}>
-              Save changes
-            </Button>
-          </Page.Footer>
-        </Page>
-      </div>
+      <FormScreen title="Edit product" submitLabel="Save changes" wide>
+        <ProductFields columns={columns} />
+      </FormScreen>
     </>
   );
 }
@@ -369,14 +393,12 @@ export function FormRowsTagsDemo() {
   const [labels, setLabels] = useState(['new']);
 
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <div className="w-[520px] max-w-full">
-        <FieldGroup>
-          <TagRow label="Materials" one="material" options={MATERIALS} value={materials} onChange={setMaterials} />
-          <TagRow label="Labels" one="label" options={LABELS} value={labels} onChange={setLabels} />
-        </FieldGroup>
-      </div>
-    </div>
+    <FormScreen title="Product tags" wide>
+      <FieldGroup>
+        <TagRow label="Materials" one="material" options={MATERIALS} value={materials} onChange={setMaterials} />
+        <TagRow label="Labels" one="label" options={LABELS} value={labels} onChange={setLabels} />
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
@@ -418,46 +440,42 @@ export function FormRowsDialogDemo() {
 
 export function FormRowsActionsDemo() {
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <div className="flex w-[480px] max-w-full flex-col gap-6">
-        <FieldGroup title="Account">
-          <Field row label="Email" description="jane@example.com">
-            <div>
-              <Button pill color="secondary" variant="soft">Change</Button>
-            </div>
-          </Field>
-          <Field row label="Password" description="Last changed in March.">
-            <div>
-              <Button pill color="secondary" variant="soft">Reset</Button>
-            </div>
-          </Field>
-          <Field row label="Delete account" description="This removes your data for good.">
-            <div>
-              <Button pill color="danger" variant="soft">Delete</Button>
-            </div>
-          </Field>
-        </FieldGroup>
-      </div>
-    </div>
+    <FormScreen title="Account settings">
+      <FieldGroup title="Account">
+        <Field row label="Email" description="jane@example.com">
+          <div>
+            <Button pill color="secondary" variant="soft">Change</Button>
+          </div>
+        </Field>
+        <Field row label="Password" description="Last changed in March.">
+          <div>
+            <Button pill color="secondary" variant="soft">Reset</Button>
+          </div>
+        </Field>
+        <Field row label="Delete account" description="This removes your data for good.">
+          <div>
+            <Button pill color="danger" variant="soft">Delete</Button>
+          </div>
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }
 
 export function FormRowsErrorsDemo() {
   return (
-    <div data-demo-stage className="flex justify-center py-10">
-      <form className="flex w-[480px] max-w-full flex-col gap-6" onSubmit={noSubmit}>
-        <FieldGroup title="Payout details">
-          <Field row label="Account holder">
-            <Input defaultValue="Jane Doe" />
-          </Field>
-          <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
-            <Input defaultValue="ES91 2100" invalid />
-          </Field>
-          <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
-            <Textarea variant="ghost" rows={2} autoResize defaultValue="Monthly payout for the spring collection, including the two orders that were moved from last month." invalid />
-          </Field>
-        </FieldGroup>
-      </form>
-    </div>
+    <FormScreen title="Edit payout details">
+      <FieldGroup title="Payout details">
+        <Field row label="Account holder">
+          <Input defaultValue="Jane Doe" />
+        </Field>
+        <Field row label="IBAN" errorMessage="Enter a valid IBAN.">
+          <Input defaultValue="ES91 2100" invalid />
+        </Field>
+        <Field row orientation="vertical" label="Reference" errorMessage="Keep it under 140 characters.">
+          <Textarea variant="ghost" rows={2} autoResize defaultValue="Monthly payout for the spring collection, including the two orders that were moved from last month." invalid />
+        </Field>
+      </FieldGroup>
+    </FormScreen>
   );
 }

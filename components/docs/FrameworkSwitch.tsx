@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { PreviewViewportControl } from './PreviewViewport';
 import { Tabs } from '@plexui/ui/components/Tabs';
 
 const FRAMEWORKS = [
@@ -25,7 +26,7 @@ export function FrameworkSwitch({ framework, slug }: { framework: Framework; slu
   }, [framework, slug, router]);
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex items-center justify-between gap-4">
       <Tabs<Framework>
         value={framework}
         onChange={(next) => router.push(hrefFor(next, slug))}
@@ -39,6 +40,7 @@ export function FrameworkSwitch({ framework, slug }: { framework: Framework; slu
           </Tabs.Tab>
         ))}
       </Tabs>
+      <PreviewViewportControl />
     </div>
   );
 }

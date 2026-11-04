@@ -1367,7 +1367,7 @@ Loading state built with EmptyMessage and a LoadingIndicator as the visual ancho
 ### Pricing
 Mix variant="outline" and variant="solid" to emphasize a highlighted plan.
 ```vue
-<div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: 720px">
+<div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: min(100%, 720px)">
   <Card
     v-for="plan in [
       { name: 'Starter', price: '$0', highlighted: false, features: ['1 project', 'Community support', 'Plex UI core'] },
@@ -2371,7 +2371,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <Separator v-if="index > 0" />
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
-                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
+                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{{ group.title }}</h3>
                 <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
@@ -2381,7 +2381,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                   </Menu>
                 </div>
               </div>
-              <dl class="space-y-4 text-sm">
+              <dl class="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
                 <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
                   <dt class="text-secondary">{{ row.label }}</dt>
                   <dd class="min-w-0 sm:col-span-3">
@@ -2390,7 +2390,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                       <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
                         <CopyTooltip :copy-value="value">
                           <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
-                            <span class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                            <span class="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
                           </Button>
                         </CopyTooltip>
                       </div>
@@ -2541,7 +2541,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <Separator v-if="index > 0" />
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
-                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
+                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{{ group.title }}</h3>
                 <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
@@ -2551,7 +2551,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                   </Menu>
                 </div>
               </div>
-              <dl class="space-y-4 text-sm">
+              <dl class="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
                 <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
                   <dt class="text-secondary">{{ row.label }}</dt>
                   <dd class="min-w-0 sm:col-span-3">
@@ -2560,7 +2560,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                       <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
                         <CopyTooltip :copy-value="value">
                           <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
-                            <span class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                            <span class="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
                           </Button>
                         </CopyTooltip>
                       </div>
@@ -2711,7 +2711,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
             <Separator v-if="index > 0" />
             <section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
-                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
+                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{{ group.title }}</h3>
                 <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
@@ -2721,7 +2721,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                   </Menu>
                 </div>
               </div>
-              <dl class="space-y-4 text-sm">
+              <dl class="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
                 <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
                   <dt class="text-secondary">{{ row.label }}</dt>
                   <dd class="min-w-0 sm:col-span-3">
@@ -2730,7 +2730,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
                       <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
                         <CopyTooltip :copy-value="value">
                           <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
-                            <span class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                            <span class="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
                           </Button>
                         </CopyTooltip>
                       </div>
@@ -2762,7 +2762,7 @@ Put long content in DialogBody: only the body scrolls, while the header and foot
       <DialogDescription>Please read them before you continue.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <div class="flex flex-col gap-4 text-sm text-secondary">
+      <div class="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
         <p v-for="(term, index) in [...terms, ...terms]" :key="index">{{ term }}</p>
       </div>
     </DialogBody>
@@ -2789,7 +2789,7 @@ Use placement to move the panel: top for search and command lists, bottom for a 
       <DialogDescription>Narrow the list down.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <FieldGroup>
+      <FieldGroup columns>
         <Field row label="Status"><Input placeholder="Any status" /></Field>
         <Field row label="Owner"><Input placeholder="Anyone" /></Field>
         <Field row label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>

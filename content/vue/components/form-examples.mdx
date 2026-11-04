@@ -12,7 +12,7 @@ export const STAGE = "py-10 flex justify-center"
 export const dialogControl = { name: "dialog", type: "boolean", default: false }
 export const inputControl = { name: "input", type: "select", options: [{ value: "per-digit", label: "Per-digit" }, { value: "text-field", label: "Text field" }], default: "per-digit" }
 
-export const emailLogin = `<component :is="DialogShell" :open="dialog">
+export const emailLogin = `<component :is="AuthFormStage" title="Welcome back" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Welcome back</h3>
@@ -59,7 +59,8 @@ export const emailLogin = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const oauthLogin = `<div class="w-[360px]">
+export const oauthLogin = `<component :is="AuthFormStage" title="Welcome back" :mobile="!wide">
+<div class="w-[360px]">
   <div class="mb-8 text-center">
     <h3 class="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
   </div>
@@ -119,9 +120,11 @@ export const oauthLogin = `<div class="w-[360px]">
       Privacy Policy
     </button>
   </p>
-</div>`
+</div>
+</component>`
 
-export const oauthSignup = `<div class="w-[360px]">
+export const oauthSignup = `<component :is="AuthFormStage" title="Create an account" :mobile="!wide">
+<div class="w-[360px]">
   <div class="mb-8 text-center">
     <h3 class="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
   </div>
@@ -180,7 +183,8 @@ export const oauthSignup = `<div class="w-[360px]">
       Privacy Policy
     </button>
   </p>
-</div>`
+</div>
+</component>`
 
 export const countrySelect = `<Select
         v-model:value="country"
@@ -215,7 +219,7 @@ export const countrySelect = `<Select
         </template>
       </FloatingLabelInput>`
 
-export const phoneSignup = `<component :is="DialogShell" :open="dialog">
+export const phoneSignup = `<component :is="AuthFormStage" title="Create an account" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Create your account</h3>
@@ -244,7 +248,7 @@ export const phoneSignup = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const phoneLogin = `<component :is="DialogShell" :open="dialog">
+export const phoneLogin = `<component :is="AuthFormStage" title="Log in with phone" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Welcome back</h3>
@@ -267,7 +271,7 @@ export const phoneLogin = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const password = `<component :is="DialogShell" :open="dialog">
+export const password = `<component :is="AuthFormStage" title="Enter your password" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Enter your password</h3>
@@ -316,7 +320,8 @@ export const password = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const billing = `<form class="flex w-[360px] flex-col gap-3" @submit.prevent>
+export const billing = `<component :is="AuthFormStage" title="Billing details" :mobile="!wide">
+<form class="flex w-[360px] flex-col gap-3" @submit.prevent>
   <FloatingLabelInput label="Billing email" label-placement="inside" type="email" default-value="jane.doe@example.com" />
   <FloatingLabelInput label="Full name" label-placement="inside" default-value="Jane Doe" />
   <Select
@@ -345,9 +350,10 @@ export const billing = `<form class="flex w-[360px] flex-col gap-3" @submit.prev
     <FloatingLabelInput class="flex-1" label="City" label-placement="inside" />
   </div>
   <Button color="primary" size="3xl" type="submit" pill class="mt-3">Save</Button>
-</form>`
+</form>
+</component>`
 
-export const aboutYou = `<component :is="DialogShell" :open="dialog">
+export const aboutYou = `<component :is="AuthFormStage" title="Tell us about you" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Tell us about you</h3>
@@ -412,7 +418,7 @@ export const aboutYou = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const verifyEmail = `<component :is="DialogShell" :open="dialog">
+export const verifyEmail = `<component :is="AuthFormStage" title="Verify your email address" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Verify your email address</h3>
@@ -434,7 +440,7 @@ export const verifyEmail = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const checkInboxError = `<component :is="DialogShell" :open="dialog">
+export const checkInboxError = `<component :is="AuthFormStage" title="Check your inbox" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Check your inbox</h3>
@@ -458,7 +464,7 @@ export const checkInboxError = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const confirmPhone = `<component :is="DialogShell" :open="dialog">
+export const confirmPhone = `<component :is="AuthFormStage" title="Confirm phone" v-model:dialog="dialog" :mobile="!wide" :phone-preview="phonePreview">
   <div class="w-[360px]">
     <div class="mb-6 text-center">
       <h3 class="text-2xl font-semibold tracking-tight">Confirm phone</h3>
@@ -480,132 +486,152 @@ export const confirmPhone = `<component :is="DialogShell" :open="dialog">
   </div>
 </component>`
 
-export const rowInputs = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
-  <FieldGroup title="Contact details">
-    <Field row label="First name">
-      <Input default-value="Jane" autocomplete="given-name" />
-    </Field>
-    <Field row label="Last name">
-      <Input default-value="Doe" autocomplete="family-name" />
-    </Field>
-    <Field row label="Email">
-      <Input type="email" placeholder="name@example.com" autocomplete="email" />
-    </Field>
-    <Field row label="Phone">
-      <Input type="tel" placeholder="Optional" autocomplete="tel" />
-    </Field>
-  </FieldGroup>
-  <FieldGroup title="Delivery">
-    <Field row orientation="vertical" label="Address">
-      <Input variant="ghost" placeholder="Street and building" autocomplete="street-address" />
-    </Field>
-    <Field row orientation="vertical" label="Note for the courier">
-      <Textarea variant="ghost" :rows="2" auto-resize placeholder="Gate code, floor, a safe place to leave it" />
-    </Field>
-  </FieldGroup>
-  <Button color="primary" size="3xl" pill type="submit">Save</Button>
-</form>`
+export const formScreen = (title, fields, action, id, wide = false) => `<Page class="h-dvh" data-form-screen${wide ? ' data-form-width="wide"' : ''}>
+  <PageHeader data-form-header>
+    <PageBar><PageTitle>${title}</PageTitle></PageBar>
+  </PageHeader>
+  <PageContent data-form-content>
+    <form id="${id}" class="flex flex-col gap-6" @submit.prevent>
+${fields.split('\n').map((line) => '      ' + line).join('\n')}
+    </form>
+  </PageContent>${action ? `
+  <PageFooter data-form-footer>
+    <Button color="primary" size="3xl" pill block type="submit" form="${id}">${action}</Button>
+  </PageFooter>` : ''}
+</Page>`
 
-export const rowMixed = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
-  <FieldGroup title="Preferences" description="Saved for every device you sign in on.">
-    <Field row label="Language">
-      <Select v-model:value="language" :options="languages" :block="false" align="end" />
+export const formScreenCode = (template) => template
+  .replace('class="h-dvh" data-form-screen', 'class="grouped-form-screen"')
+  .replace(' data-form-width="wide"', '')
+  .replace('data-form-header', 'class="grouped-form-header"')
+  .replace(' data-form-content', '')
+  .replace(' data-form-footer', '')
+
+export const rowInputs = formScreen("Edit contact", `<FieldGroup title="Contact details" columns>
+  <Field row label="First name">
+    <Input default-value="Jane" autocomplete="given-name" />
+  </Field>
+  <Field row label="Last name">
+    <Input default-value="Doe" autocomplete="family-name" />
+  </Field>
+  <Field row label="Email">
+    <Input type="email" placeholder="name@example.com" autocomplete="email" />
+  </Field>
+  <Field row label="Phone">
+    <Input type="tel" placeholder="Optional" autocomplete="tel" />
+  </Field>
+</FieldGroup>
+<FieldGroup title="Delivery">
+  <Field row orientation="vertical" label="Address">
+    <Input variant="ghost" placeholder="Street and building" autocomplete="street-address" />
+  </Field>
+  <Field row orientation="vertical" label="Note for the courier">
+    <Textarea variant="ghost" :rows="2" auto-resize placeholder="Gate code, floor, a safe place to leave it" />
+  </Field>
+</FieldGroup>`, "Save", "inputs-form")
+
+export const rowMixed = formScreen("Settings", `<FieldGroup title="Preferences" description="Saved for every device you sign in on.">
+  <Field row label="Language">
+    <Select v-model:value="language" :options="languages" :block="false" align="end" />
+  </Field>
+  <Field row label="Currency">
+    <Select v-model:value="currency" :options="currencies" :block="false" align="end" />
+  </Field>
+  <Field row label="Theme">
+    <SegmentedControl v-model:value="theme" aria-label="Theme">
+      <SegmentedControlOption value="system">System</SegmentedControlOption>
+      <SegmentedControlOption value="light">Light</SegmentedControlOption>
+      <SegmentedControlOption value="dark">Dark</SegmentedControlOption>
+    </SegmentedControl>
+  </Field>
+  <Field row label="Start date">
+    <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" placeholder="Select date" />
+  </Field>
+  <Field row label="Weekly summary" description="Sent on Mondays.">
+    <Switch default-checked />
+  </Field>
+</FieldGroup>`, "", "mixed-form")
+
+export const rowChoice = formScreen("Preferences", `<RadioGroup v-model:value="plan" direction="col" aria-label="Plan" class="w-full">
+  <FieldGroup title="Plan" class="w-full">
+    <Field row label="Starter" description="For one person.">
+      <RadioGroupItem value="starter" />
     </Field>
-    <Field row label="Currency">
-      <Select v-model:value="currency" :options="currencies" :block="false" align="end" />
+    <Field row label="Team" description="Up to 10 people.">
+      <RadioGroupItem value="team" />
     </Field>
-    <Field row label="Theme">
-      <SegmentedControl v-model:value="theme" aria-label="Theme">
-        <SegmentedControlOption value="system">System</SegmentedControlOption>
-        <SegmentedControlOption value="light">Light</SegmentedControlOption>
-        <SegmentedControlOption value="dark">Dark</SegmentedControlOption>
-      </SegmentedControl>
-    </Field>
-    <Field row label="Start date">
-      <DatePicker v-model:value="start" trigger-date-format="MMM d, yyyy" placeholder="Select date" />
-    </Field>
-    <Field row label="Weekly summary" description="Sent on Mondays.">
-      <Switch default-checked />
+    <Field row label="Business" description="No limit on people.">
+      <RadioGroupItem value="business" />
     </Field>
   </FieldGroup>
-</form>`
+</RadioGroup>
+<FieldGroup title="Email me about">
+  <Field row label="New sign-ins">
+    <Checkbox v-if="wide" v-model:checked="signIns" />
+    <Switch v-else v-model:checked="signIns" />
+  </Field>
+  <Field row label="Invoices">
+    <Checkbox v-if="wide" v-model:checked="invoices" />
+    <Switch v-else v-model:checked="invoices" />
+  </Field>
+  <Field row label="Product news">
+    <Checkbox v-if="wide" v-model:checked="news" />
+    <Switch v-else v-model:checked="news" />
+  </Field>
+</FieldGroup>`, "", "choice-form")
 
-export const rowChoice = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
-  <RadioGroup v-model:value="plan" direction="col" aria-label="Plan" class="w-full">
-    <FieldGroup title="Plan" class="w-full">
-      <Field row label="Starter" description="For one person.">
-        <RadioGroupItem value="starter" />
-      </Field>
-      <Field row label="Team" description="Up to 10 people.">
-        <RadioGroupItem value="team" />
-      </Field>
-      <Field row label="Business" description="No limit on people.">
-        <RadioGroupItem value="business" />
-      </Field>
-    </FieldGroup>
-  </RadioGroup>
-  <FieldGroup title="Email me about">
-    <Field row label="New sign-ins"><Checkbox default-checked /></Field>
-    <Field row label="Invoices"><Checkbox default-checked /></Field>
-    <Field row label="Product news"><Checkbox /></Field>
-  </FieldGroup>
-</form>`
+export const rowProduct = formScreen("Edit product", `<FieldGroup title="Product">
+  <Field row orientation="vertical" label="Name">
+    <Input variant="ghost" default-value="Oak side table" />
+  </Field>
+  <Field row orientation="vertical" label="Description">
+    <Textarea
+      variant="ghost"
+      :rows="2"
+      auto-resize
+      default-value="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools."
+    />
+  </Field>
+  <Field row label="Price">
+    <Input default-value="129" inputmode="decimal">
+      <template #endAdornment><span class="text-secondary">€</span></template>
+    </Input>
+  </Field>
+  <Field row label="Category">
+    <Select v-model:value="category" :options="categories" :block="false" align="end" />
+  </Field>
+  <Field row fill label="Tags">
+    <div class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in labelOptions.filter((item) => tags.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        :color="option.color"
+        variant="solid"
+        :remove-label="'Remove ' + option.label"
+        @remove="tags = tags.filter((item) => item !== option.value)"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="tags" multiple :block="false" align="end" aria-label="Add tag" :options="labelOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add tag' : null">
+            <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add tag" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+  <Field row label="In stock"><Switch default-checked /></Field>
+</FieldGroup>`, "Save", "product-form")
 
-export const rowProduct = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
-  <FieldGroup title="Product">
-    <Field row orientation="vertical" label="Name">
-      <Input variant="ghost" default-value="Oak side table" />
-    </Field>
-    <Field row orientation="vertical" label="Description">
-      <Textarea
-        variant="ghost"
-        :rows="2"
-        auto-resize
-        default-value="Solid oak with a matte finish. Ships flat, assembles in ten minutes without tools."
-      />
-    </Field>
-    <Field row label="Price">
-      <Input default-value="129" inputmode="decimal">
-        <template #endAdornment><span class="text-secondary">€</span></template>
-      </Input>
-    </Field>
-    <Field row label="Category">
-      <Select v-model:value="category" :options="categories" :block="false" align="end" />
-    </Field>
-    <Field row fill label="Tags">
-      <div class="flex flex-wrap gap-2">
-        <Badge
-          v-for="option in labelOptions.filter((item) => tags.includes(item.value))"
-          :key="option.value"
-          size="xl"
-          pill
-          :color="option.color"
-          variant="solid"
-          :remove-label="'Remove ' + option.label"
-          @remove="tags = tags.filter((item) => item !== option.value)"
-        >
-          {{ option.label }}
-        </Badge>
-      </div>
-      <template #action>
-        <Select v-model:value="tags" multiple :block="false" align="end" aria-label="Add tag" :options="labelOptions">
-          <template #trigger="{ onToggle }">
-            <Tooltip :content="wide ? 'Add tag' : null">
-              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add tag" @click="onToggle">
-                <Plus v-if="wide" />
-                <template v-else>Add</template>
-              </Button>
-            </Tooltip>
-          </template>
-        </Select>
-      </template>
-    </Field>
-    <Field row label="In stock"><Switch default-checked /></Field>
-  </FieldGroup>
-  <Button color="primary" size="3xl" pill type="submit">Save</Button>
-</form>`
-
-export const rowGroups = `<Page class="h-dvh" data-form-screen>
+export const rowGroups = `<Page class="h-dvh" data-form-screen data-form-width="wide">
   <PageHeader data-form-header>
     <PageBar><PageTitle>Edit product</PageTitle></PageBar>
   </PageHeader>
@@ -743,71 +769,65 @@ export const rowGroups = `<Page class="h-dvh" data-form-screen>
   </PageFooter>
 </Page>`
 
-export const rowGroupsCode = rowGroups
-  .replace('class="h-dvh" data-form-screen', 'class="grouped-form-screen"')
-  .replace('data-form-header', 'class="grouped-form-header"')
-  .replace(' data-form-content', '')
-  .replace(' data-form-footer', '')
+export const rowGroupsCode = formScreenCode(rowGroups)
 
-export const rowTags = `<div class="w-[520px] max-w-full">
-  <FieldGroup>
-    <Field row fill label="Materials">
-      <div class="flex flex-wrap gap-2">
-        <Badge
-          v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
-          :key="option.value"
-          size="xl"
-          pill
-          variant="outline"
-          :remove-label="'Remove ' + option.label"
-          @remove="materials = materials.filter((item) => item !== option.value)"
-        >
-          {{ option.label }}
-        </Badge>
-      </div>
-      <template #action>
-        <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
-          <template #trigger="{ onToggle }">
-            <Tooltip :content="wide ? 'Add material' : null">
-              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle">
-                <Plus v-if="wide" />
-                <template v-else>Add</template>
-              </Button>
-            </Tooltip>
-          </template>
-        </Select>
-      </template>
-    </Field>
-    <Field row fill label="Labels">
-      <div class="flex flex-wrap gap-2">
-        <Badge
-          v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
-          :key="option.value"
-          size="xl"
-          pill
-          :color="option.color"
-          variant="solid"
-          :remove-label="'Remove ' + option.label"
-          @remove="labels = labels.filter((item) => item !== option.value)"
-        >
-          {{ option.label }}
-        </Badge>
-      </div>
-      <template #action>
-        <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
-          <template #trigger="{ onToggle }">
-            <Tooltip :content="wide ? 'Add label' : null">
-              <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle">
-                <Plus v-if="wide" />
-                <template v-else>Add</template>
-              </Button>
-            </Tooltip>
-          </template>
-        </Select>
-      </template>
-    </Field>
-  </FieldGroup>
-</div>`
+export const rowTags = formScreen("Product tags", `<FieldGroup>
+  <Field row fill label="Materials">
+    <div class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in materialOptions.filter((item) => materials.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        variant="outline"
+        :remove-label="'Remove ' + option.label"
+        @remove="materials = materials.filter((item) => item !== option.value)"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="materials" multiple :block="false" align="end" aria-label="Add material" :options="materialOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add material' : null">
+            <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add material" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+  <Field row fill label="Labels">
+    <div class="flex flex-wrap gap-2">
+      <Badge
+        v-for="option in labelOptions.filter((item) => labels.includes(item.value))"
+        :key="option.value"
+        size="xl"
+        pill
+        :color="option.color"
+        variant="solid"
+        :remove-label="'Remove ' + option.label"
+        @remove="labels = labels.filter((item) => item !== option.value)"
+      >
+        {{ option.label }}
+      </Badge>
+    </div>
+    <template #action>
+      <Select v-model:value="labels" multiple :block="false" align="end" aria-label="Add label" :options="labelOptions">
+        <template #trigger="{ onToggle }">
+          <Tooltip :content="wide ? 'Add label' : null">
+            <Button :uniform="wide" pill color="secondary" variant="soft" aria-label="Add label" @click="onToggle">
+              <Plus v-if="wide" />
+              <template v-else>Add</template>
+            </Button>
+          </Tooltip>
+        </template>
+      </Select>
+    </template>
+  </Field>
+</FieldGroup>`, "", "tags-form", true)
 
 export const rowDialog = `<Dialog v-model:open="open">
   <DialogTrigger>
@@ -959,39 +979,35 @@ export const rowDialog = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
-export const rowActions = `<div class="flex w-[480px] max-w-full flex-col gap-6">
-  <FieldGroup title="Account">
-    <Field row label="Email" description="jane@example.com">
-      <div><Button pill color="secondary" variant="soft">Change</Button></div>
-    </Field>
-    <Field row label="Password" description="Last changed in March.">
-      <div><Button pill color="secondary" variant="soft">Reset</Button></div>
-    </Field>
-    <Field row label="Delete account" description="This removes your data for good.">
-      <div><Button pill color="danger" variant="soft">Delete</Button></div>
-    </Field>
-  </FieldGroup>
-</div>`
+export const rowActions = formScreen("Account settings", `<FieldGroup title="Account">
+  <Field row label="Email" description="jane@example.com">
+    <div><Button pill color="secondary" variant="soft">Change</Button></div>
+  </Field>
+  <Field row label="Password" description="Last changed in March.">
+    <div><Button pill color="secondary" variant="soft">Reset</Button></div>
+  </Field>
+  <Field row label="Delete account" description="This removes your data for good.">
+    <div><Button pill color="danger" variant="soft">Delete</Button></div>
+  </Field>
+</FieldGroup>`, "", "actions-form")
 
-export const rowErrors = `<form class="flex w-[480px] max-w-full flex-col gap-6" @submit.prevent>
-  <FieldGroup title="Payout details">
-    <Field row label="Account holder">
-      <Input default-value="Jane Doe" />
-    </Field>
-    <Field row label="IBAN" error-message="Enter a valid IBAN.">
-      <Input default-value="ES91 2100" invalid />
-    </Field>
-    <Field row orientation="vertical" label="Reference" error-message="Keep it under 140 characters.">
-      <Textarea
-        variant="ghost"
-        :rows="2"
-        auto-resize
-        default-value="Monthly payout for the spring collection, including the two orders that were moved from last month."
-        invalid
-      />
-    </Field>
-  </FieldGroup>
-</form>`
+export const rowErrors = formScreen("Edit payout details", `<FieldGroup title="Payout details">
+  <Field row label="Account holder">
+    <Input default-value="Jane Doe" />
+  </Field>
+  <Field row label="IBAN" error-message="Enter a valid IBAN.">
+    <Input default-value="ES91 2100" invalid />
+  </Field>
+  <Field row orientation="vertical" label="Reference" error-message="Keep it under 140 characters.">
+    <Textarea
+      variant="ghost"
+      :rows="2"
+      auto-resize
+      default-value="Monthly payout for the spring collection, including the two orders that were moved from last month."
+      invalid
+    />
+  </Field>
+</FieldGroup>`, "", "errors-form")
 
 export const rowState = {
   language: "en",
@@ -1001,6 +1017,9 @@ export const rowState = {
   theme: "system",
   start: null,
   plan: "team",
+  signIns: true,
+  invoices: true,
+  news: false,
   category: "home",
   categories: [{ value: "home", label: "Home" }, { value: "garden", label: "Garden" }, { value: "office", label: "Office" }],
   tags: ["new", "sale"],
@@ -1019,7 +1038,7 @@ export const rowState = {
   open: false,
 }
 
-export const uploadFile = `<div class="w-[360px]">
+export const uploadFile = `<div class="w-full">
   <div class="mb-6 text-center">
     <h3 class="text-2xl font-semibold tracking-tight">Upload documents</h3>
     <p class="text-secondary text-sm mt-1">Please provide the required files to continue.</p>
@@ -1032,101 +1051,103 @@ export const uploadFile = `<div class="w-[360px]">
   </div>
 </div>`
 
-Real-world forms composed from [Float Input](/vue/components/floating-label-input), [File Upload](/vue/components/file-upload), [OTP Input](/vue/components/otp-input), [Select](/vue/components/select), and [Button](/vue/components/button). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>: <code>DialogShell</code> (the modal frame of the <code>dialog</code> control), the brand logos, <code>FlagIcon</code>, <code>PhoneCountryTrigger</code> and <code>BirthdayMaskedInput</code>.
+Real-world forms composed from [Float Input](/vue/components/floating-label-input), [File Upload](/vue/components/file-upload), [OTP Input](/vue/components/otp-input), [Select](/vue/components/select), and [Button](/vue/components/button). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>: <code>AuthFormStage</code> (the shared Page or Sheet shell), the brand logos, <code>FlagIcon</code>, <code>PhoneCountryTrigger</code> and <code>BirthdayMaskedInput</code>.
+
+Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a mobile Sheet with its own toolbar. Individual input examples keep their component-only layout.
 
 ## Log in (email)
 
 <ComponentPreview language="vue" details={<>The classic email + password log-in: two <code>FloatingLabelInput</code> fields, a visibility toggle on the password, a <code>Forgot password?</code> link, and a <code>Sign up</code> cross-link.</>} code={emailLogin} previewMinHeight={480}>
-  <VueFormExampleDemo template={emailLogin} stageClassName={STAGE} state={{ email: "", password: "", submitted: false }} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={emailLogin} stageClassName={STAGE} state={{ email: "", password: "", submitted: false }} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## Log in (OAuth)
 
 <ComponentPreview language="vue" details={<>OpenAI-style log-in: <code>Welcome back</code> heading, email + <code>Continue</code>, a <code>Don&apos;t have an account? Sign up</code> cross-link, an <code>OR</code> divider, then Google, Apple, Microsoft, and phone, all with 20×20 brand glyphs. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={oauthLogin} previewMinHeight={760}>
-  <VueFormExampleDemo template={oauthLogin} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+  <VueFormExampleDemo auth template={oauthLogin} stageClassName={STAGE} state={{ email: "", submitted: false }} />
 </ComponentPreview>
 
 ## Sign up (OAuth)
 
 <ComponentPreview language="vue" details={<>OpenAI-style sign-up: <code>Create an account</code> heading, email + <code>Continue</code>, an <code>Already have an account? Log in</code> cross-link, an <code>OR</code> divider, then Google, Apple, and Microsoft (no phone). Same 20×20 brand-glyph alignment as the log-in variant.</>} code={oauthSignup} previewMinHeight={680}>
-  <VueFormExampleDemo template={oauthSignup} stageClassName={STAGE} state={{ email: "", submitted: false }} />
+  <VueFormExampleDemo auth template={oauthSignup} stageClassName={STAGE} state={{ email: "", submitted: false }} />
 </ComponentPreview>
 
 ## Sign up (phone)
 
 <ComponentPreview language="vue" details={<>A complete signup form with floating-label text inputs, a country code selector, and a phone input, all at 52px height. Includes form validation and terms text.</>} code={phoneSignup} previewMinHeight={580}>
-  <VueFormExampleDemo template={phoneSignup} stageClassName={STAGE} state={{ fullName: "", email: "", country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={phoneSignup} stageClassName={STAGE} state={{ fullName: "", email: "", country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## Log in (phone)
 
 <ComponentPreview language="vue" details={<>A phone login form with a country code selector and phone input. Minimal layout matching the OpenAI login pattern.</>} code={phoneLogin} previewMinHeight={420}>
-  <VueFormExampleDemo template={phoneLogin} stageClassName={STAGE} state={{ country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={phoneLogin} stageClassName={STAGE} state={{ country: "es", phone: "", submitted: false }} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## Enter password
 
 <ComponentPreview language="vue" details={<>A password entry step with a read-only phone field (with "Edit" button), a password input with a visibility toggle, and a "Forgot password?" link.</>} code={password} previewMinHeight={420}>
-  <VueFormExampleDemo template={password} stageClassName={STAGE} state={{ password: "", submitted: false }} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={password} stageClassName={STAGE} state={{ password: "", submitted: false }} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## About You
 
 <ComponentPreview language="vue" details={<>A signup-style composition with <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>: name, birthday with inline validation, and country selector.</>} code={aboutYou} previewMinHeight={280}>
-  <VueFormExampleDemo template={aboutYou} stageClassName={STAGE} state={{ fullName: "", birthday: "", country: "", birthdayError: null, countryError: null }} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={aboutYou} stageClassName={STAGE} state={{ fullName: "", birthday: "", country: "", birthdayError: null, countryError: null }} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## Billing details
 
 <ComponentPreview language="vue" details={<>A long form with the label inside every field: <code>label-placement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code>, so the labels never push the form taller.</>} code={billing} previewMinHeight={560}>
-  <VueFormExampleDemo template={billing} stageClassName={STAGE} state={{ country: "es" }} />
+  <VueFormExampleDemo auth template={billing} stageClassName={STAGE} state={{ country: "es" }} />
 </ComponentPreview>
 
 ## Verify email
 
 <ComponentPreview language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> (for alphanumeric or variable-length codes).</>} code={verifyEmail} previewMinHeight={380}>
-  <VueFormExampleDemo template={verifyEmail} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
+  <VueFormExampleDemo auth template={verifyEmail} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
 </ComponentPreview>
 
 ## Verify email (error)
 
 <ComponentPreview language="vue" details={<>Error state when an incorrect verification code is submitted.</>} code={checkInboxError} previewMinHeight={380}>
-  <VueFormExampleDemo template={checkInboxError} stageClassName={STAGE} controls={[dialogControl]} />
+  <VueFormExampleDemo auth template={checkInboxError} stageClassName={STAGE} controls={[dialogControl]} />
 </ComponentPreview>
 
 ## Confirm phone
 
 <ComponentPreview language="vue" details={<>Toggle between a per-digit <code>OTPInput</code> and a standard <code>FloatingLabelInput</code> for phone verification.</>} code={confirmPhone} previewMinHeight={380}>
-  <VueFormExampleDemo template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
+  <VueFormExampleDemo auth template={confirmPhone} stageClassName={STAGE} state={{ otpValue: "", code: "" }} controls={[inputControl, dialogControl]} />
 </ComponentPreview>
 
 ## Group of inputs
 
-<ComponentPreview language="vue" details={<>One block of rows instead of separate boxes. A short value keeps its frame at the end of the row, and on a phone the row becomes that frame with nothing to change. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={rowInputs} previewMinHeight={620}>
-  <VueFormExampleDemo template={rowInputs} stageClassName={STAGE} />
+<ComponentPreview language="vue" details={<>One block of rows instead of separate boxes. Use <code>columns</code> so every short value starts at the same column. The phone screen has a top bar and a fixed Save action; only its content scrolls. A long value goes under its label with <code>orientation="vertical"</code> and <code>variant="ghost"</code>, so its row is the frame at every width.</>} code={formScreenCode(rowInputs)} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowInputs} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} />
 </ComponentPreview>
 
 ## Group of mixed controls
 
-<ComponentPreview language="vue" details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>:pill="false"</code> to every control in the block.</>} code={rowMixed} previewMinHeight={420}>
-  <VueFormExampleDemo template={rowMixed} stageClassName={STAGE} state={rowState} />
+<ComponentPreview language="vue" details={<>Any control sits at the end of a row: <code>Select</code>, <code>SegmentedControl</code>, <code>DatePicker</code>, <code>Switch</code>. One block has one shape: a control at the end of a row is a pill by itself, as the buttons and tags beside it. For rounded fields pass <code>:pill="false"</code> to every control in the block.</>} code={formScreenCode(rowMixed)} previewMinHeight={420}>
+  <VueFormExampleDemo template={rowMixed} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
 </ComponentPreview>
 
 ## Choice in rows
 
-<ComponentPreview language="vue" details={<>One choice with <code>RadioGroup</code> around the group, several with <code>Checkbox</code>. The label of the row selects its control.</>} code={rowChoice} previewMinHeight={520}>
-  <VueFormExampleDemo template={rowChoice} stageClassName={STAGE} state={rowState} />
+<ComponentPreview language="vue" details={<>Use <code>RadioGroup</code> for one plan. Independent email preferences use <code>Switch</code> on phones and <code>Checkbox</code> on desktop. The row label operates its control, and values survive a viewport change.</>} code={formScreenCode(rowChoice)} previewMinHeight={520}>
+  <VueFormExampleDemo template={rowChoice} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
 </ComponentPreview>
 
 ## Long form in one group
 
-<ComponentPreview language="vue" details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={rowProduct} previewMinHeight={620}>
-  <VueFormExampleDemo template={rowProduct} stageClassName={STAGE} state={rowState} />
+<ComponentPreview language="vue" details={<>Short and long values in one block: the name and the description under their labels, the price and the switch at the end of the row.</>} code={formScreenCode(rowProduct)} previewMinHeight={620}>
+  <VueFormExampleDemo template={rowProduct} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} />
 </ComponentPreview>
 
 ## Several groups
 
-<ComponentPreview language="vue" details={<>One form in several blocks, each with one kind of row. On a phone, PageHeader provides the top bar and PageFooter keeps Save changes at the bottom. Only PageContent scrolls, with 16px side gutters and room for the bottom safe area. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroupButton</code>, as in <a href="/vue/components/input-group#dropdown">Input Group</a>, a hint goes in the <code>labelAction</code> slot. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={rowGroupsCode} previewMinHeight={760}>
+<ComponentPreview language="vue" details={<>One form in several blocks, each with one kind of row. On a phone, PageHeader provides the top bar and PageFooter keeps Save changes at the bottom. Only PageContent scrolls, with 16px side gutters. The footer uses 24px side and bottom insets, plus room for the bottom safe area. Text stands under its label, a short value keeps its frame at the end of the row, a list opens from a round button. A unit is a <code>Menu</code> on an <code>InputGroupButton</code>, as in <a href="/vue/components/input-group#dropdown">Input Group</a>, a hint goes in the <code>labelAction</code> slot. With <code>columns</code> on a <code>FieldGroup</code> every value starts at one column, <code>--field-row-column-width</code> into the row, as in an iOS form of typed details; without it every value ends at the row's edge, as in iOS Settings. On the web a field keeps its frame and width, on a phone the value takes the rest of the row and its unit or mark ends at the edge; a switch and an action stay at the end. Pick one way for a whole form, and keep descriptions out of a group in columns: under the label they narrow the column.</>} code={rowGroupsCode} previewMinHeight={760}>
   <VueFormExampleDemo template={rowGroups} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={rowState} controls={[{ name: "columns", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -1143,6 +1164,8 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
     --page-top: calc(env(safe-area-inset-top, 0px) + var(--page-bar-height-phone) + 10px);
     --page-content-padding-top: 10px;
     --page-content-padding-bottom: 16px;
+    --page-footer-gutter: 24px;
+    --page-footer-padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
   }
 
   .grouped-form-screen .grouped-form-header {
@@ -1153,8 +1176,8 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
 
 ## Tags in rows
 
-<ComponentPreview language="vue" details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The <code>#action</code> slot holds the button at the end: it stays on the first line when the tags wrap, and on a phone it stands beside the label with the tags under it. <code>wide</code> is <code>useBreakpoint("md")</code>. A <code>Badge</code> with <code>size="xl"</code> has the height of a control and <code>@remove</code> gives it a cross. Solid colors are for labels with a meaning, outline for plain values. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>#trigger</code>, and <code>:block="false"</code> keeps it as wide as its options.</>} code={rowTags} previewMinHeight={200}>
-  <VueFormExampleDemo template={rowTags} stageClassName={STAGE} state={{ ...rowState, materials: ["oak", "steel", "linen", "glass", "wool"] }} />
+<ComponentPreview language="vue" details={<>With <code>fill</code> the control takes the rest of the line, so the tags of every row start at one edge. The <code>#action</code> slot holds the button at the end: it stays on the first line when the tags wrap, and on a phone it stands beside the label with the tags under it. <code>wide</code> is <code>useBreakpoint("md")</code>. A <code>Badge</code> with <code>size="xl"</code> has the height of a control and <code>@remove</code> gives it a cross. Solid colors are for labels with a meaning, outline for plain values. The list is a <code>Select</code> with <code>multiple</code> and a custom <code>#trigger</code>, and <code>:block="false"</code> keeps it as wide as its options.</>} code={formScreenCode(rowTags)} previewMinHeight={200}>
+  <VueFormExampleDemo template={rowTags} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} state={{ ...rowState, materials: ["oak", "steel", "linen", "glass", "wool"] }} />
 </ComponentPreview>
 
 ## Form in a dialog
@@ -1165,18 +1188,18 @@ The snippet uses a full-page layout. Add these styles to reproduce the mobile sp
 
 ## Rows with actions
 
-<ComponentPreview language="vue" details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={rowActions} previewMinHeight={340}>
-  <VueFormExampleDemo template={rowActions} stageClassName={STAGE} />
+<ComponentPreview language="vue" details={<>The value stands in the description, the action at the end. The <code>div</code> around the button keeps the row's label from pressing it.</>} code={formScreenCode(rowActions)} previewMinHeight={340}>
+  <VueFormExampleDemo template={rowActions} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} />
 </ComponentPreview>
 
 ## Errors in rows
 
-<ComponentPreview language="vue" details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={rowErrors} previewMinHeight={380}>
-  <VueFormExampleDemo template={rowErrors} stageClassName={STAGE} />
+<ComponentPreview language="vue" details={<>An error is a line of words under the row. The field keeps its usual frame, so a group with several errors stays calm.</>} code={formScreenCode(rowErrors)} previewMinHeight={380}>
+  <VueFormExampleDemo template={rowErrors} stageClassName={`${formStyles.ScreenStage} ${STAGE}`} />
 </ComponentPreview>
 
 ## Upload file
 
 <ComponentPreview language="vue" details={<>A document upload form with <code>FileUpload</code>. The file list grows dynamically as files are added. Button and file list share the same 52px pill shape.</>} code={uploadFile}>
-  <VueFileUploadDemo template={uploadFile} files="all" />
+  <VueFileUploadDemo auth template={uploadFile} files="all" />
 </ComponentPreview>

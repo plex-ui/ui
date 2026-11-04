@@ -6,6 +6,7 @@ import {
 } from 'fumadocs-mdx/config';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
 import { z } from 'zod';
+import { remarkPreviewId } from './lib/remark-preview-id';
 
 export const docs = defineDocs({
   dir: 'content/docs',
@@ -57,6 +58,7 @@ export default defineConfig({
   // every code block on the docs site one consistent palette and copy
   // button instead of the Shiki/Plex split we had before.
   mdxOptions: {
+    remarkPlugins: [remarkPreviewId],
     rehypeCodeOptions: false,
   },
 });

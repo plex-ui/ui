@@ -20,6 +20,7 @@ import {
 } from "vue"
 import { Presence, RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import { bubbleInputStyle, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
+import { CheckMd } from "../Icon/index.js"
 import s from "@plexui/styles/components/RadioGroup/RadioGroup.module.css"
 
 // Vue port of packages/ui/src/components/RadioGroup/RadioGroup.tsx. Props,
@@ -501,7 +502,7 @@ const RadioGroupItemComponent = defineComponent({
                               "data-state": state,
                               "data-disabled": isDisabled ? "" : undefined,
                               "class": s.RadioIndicator,
-                            }),
+                            }, [h(CheckMd, { class: s.Checkmark })]),
                           ]),
                         },
                       ),

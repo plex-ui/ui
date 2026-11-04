@@ -3,6 +3,7 @@
 import clsx from "clsx"
 import { RadioGroup as RadixRadioGroup } from "radix-ui"
 import React, { createContext, use, useId, useMemo } from "react"
+import { CheckMd } from "../Icon"
 import s from "@plexui/styles/components/RadioGroup/RadioGroup.module.css"
 
 type Direction = "col" | "row"
@@ -143,7 +144,9 @@ const Item = <T extends string>({
           aria-labelledby={ariaLabelledBy}
           aria-describedby={[descriptionId, ariaDescribedBy].filter(Boolean).join(" ") || undefined}
         >
-          <RadixRadioGroup.Indicator className={s.RadioIndicator} />
+          <RadixRadioGroup.Indicator className={s.RadioIndicator}>
+            <CheckMd className={s.Checkmark} />
+          </RadixRadioGroup.Indicator>
         </RadixRadioGroup.Item>
       </div>
       {children}

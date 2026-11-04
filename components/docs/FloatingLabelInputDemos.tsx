@@ -1,5 +1,6 @@
 'use client';
 import React, { useCallback, useId, useRef, useState } from 'react';
+import Image from 'next/image';
 import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 import { FloatingLabelSelect } from '@plexui/ui/components/FloatingLabelSelect';
 
@@ -8,7 +9,9 @@ import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldError } from '@plexui/ui/components/FieldError';
-import { ChevronDown, X } from '@plexui/ui/components/Icon';
+import { ChevronDown } from '@plexui/ui/components/Icon';
+import { AuthFormStage } from './AuthFormStage';
+import { useDemoControlSync } from './PreviewEmbed';
 // ---------------------------------------------------------------------------
 // Birthday mask utilities
 // ---------------------------------------------------------------------------
@@ -379,28 +382,12 @@ function DemoControlBoolean({
   onChange: (v: boolean) => void;
 }) {
   const controlId = useId();
+  useDemoControlSync(name, value, onChange);
 
   return (
     <div style={controlRowStyle}>
       <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
       <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DialogShell({ children, width = 420 }: { children: React.ReactNode; width?: number }) {
-  return (
-    <div style={{ background: 'rgb(0 0 0 / 0.4)', margin: '-48px -24px', padding: '48px 24px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300, width: 'calc(100% + 48px)', marginLeft: '-24px', marginRight: '-24px', marginTop: '-48px', marginBottom: '-48px' }}>
-      <div style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface-elevated)', boxShadow: 'var(--shadow-lg), var(--shadow-hairline)', width, maxWidth: 'calc(100% - 48px)', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 10px 0 16px' }}>
-          <Button color="secondary" variant="ghost" size="lg" uniform aria-label="Close">
-            <X />
-          </Button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '0 24px 40px' }}>
-          {children}
-        </div>
-      </div>
     </div>
   );
 }
@@ -628,9 +615,12 @@ function FlagIcon({ code }: { code: string }) {
         flexShrink: 0,
       }}
     >
-      <img
+      <Image
         src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${code}.svg`}
         alt=""
+        width={64}
+        height={48}
+        unoptimized
         loading="lazy"
         style={{
           display: 'block',
@@ -1037,7 +1027,7 @@ export function FloatingLabelInsideBillingFormDemo() {
   const trigger = useInsideCountryTrigger(country);
 
   return (
-    <div data-demo-stage className="py-10">
+    <AuthFormStage title="Billing details">
       <form className="flex w-[360px] flex-col gap-3" onSubmit={(evt) => evt.preventDefault()}>
         <FloatingLabelInput label="Billing email" labelPlacement="inside" type="email" defaultValue="jane.doe@example.com" />
         <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
@@ -1059,7 +1049,7 @@ export function FloatingLabelInsideBillingFormDemo() {
         </div>
         <Button color="primary" size="3xl" type="submit" pill className="mt-3">Save</Button>
       </form>
-    </div>
+    </AuthFormStage>
   );
 }
 
@@ -1218,9 +1208,9 @@ export function FloatingLabelSelectAboutYouFormDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Tell us about you" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -1507,9 +1497,9 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Log in with phone" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -1611,9 +1601,9 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Create an account" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -1678,9 +1668,9 @@ export function FloatingLabelInputPasswordFormDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Enter your password" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }
@@ -1751,9 +1741,9 @@ export function FloatingLabelInputEmailLoginFormDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
       </div>
-      <div data-demo-stage className="py-10 flex justify-center">
-        {inDialog ? <DialogShell>{formContent}</DialogShell> : formContent}
-      </div>
+      <AuthFormStage title="Welcome back" dialog={inDialog} onDialogChange={setInDialog}>
+        {formContent}
+      </AuthFormStage>
     </>
   );
 }

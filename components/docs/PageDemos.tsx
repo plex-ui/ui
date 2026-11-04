@@ -5,6 +5,7 @@ import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
 import { Page, type PageWidth } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
 
@@ -52,28 +53,34 @@ export function PageWidthsDemo() {
   const [width, setWidth] = useState<PageWidth>('column');
 
   return (
-    <div className="flex w-full flex-col items-center gap-4">
-      <SegmentedControl<PageWidth> aria-label="Page width" value={width} onChange={setWidth}>
-        <SegmentedControl.Option value="full">Full</SegmentedControl.Option>
-        <SegmentedControl.Option value="wide">Wide</SegmentedControl.Option>
-        <SegmentedControl.Option value="column">Column</SegmentedControl.Option>
-      </SegmentedControl>
-      <Frame>
-        <Page style={HALF_WIDTHS} width={width}>
-          <Page.Header>
-            <Page.Bar>
-              <Page.Title>Settings</Page.Title>
-              <Page.Actions>
-                <Button color="primary" pill size="md">Save</Button>
-              </Page.Actions>
-            </Page.Bar>
-          </Page.Header>
-          <Page.Content>
-            <Rows />
-          </Page.Content>
-        </Page>
-      </Frame>
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="width">
+          <SegmentedControl<PageWidth> aria-label="Page width" size="xs" value={width} onChange={setWidth}>
+            <SegmentedControl.Option value="full">Full</SegmentedControl.Option>
+            <SegmentedControl.Option value="wide">Wide</SegmentedControl.Option>
+            <SegmentedControl.Option value="column">Column</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      <div data-demo-stage>
+        <Frame>
+          <Page style={HALF_WIDTHS} width={width}>
+            <Page.Header>
+              <Page.Bar>
+                <Page.Title>Settings</Page.Title>
+                <Page.Actions>
+                  <Button color="primary" pill size="md">Save</Button>
+                </Page.Actions>
+              </Page.Bar>
+            </Page.Header>
+            <Page.Content>
+              <Rows />
+            </Page.Content>
+          </Page>
+        </Frame>
+      </div>
+    </>
   );
 }
 

@@ -1,7 +1,11 @@
 /* These full-screen demos own their phone viewport; other preview stages keep their gutters. */
 .ScreenStage [data-form-screen] {
-  width: 520px;
+  width: 480px;
   max-width: 100%;
+}
+
+.ScreenStage [data-form-width="wide"] {
+  width: 520px;
 }
 
 @media (min-width: 768px) {
@@ -38,6 +42,8 @@
     --page-top: calc(env(safe-area-inset-top, 0px) + 54px);
     --page-content-padding-top: 10px;
     --page-content-padding-bottom: 16px;
+    --page-footer-gutter: 24px;
+    --page-footer-padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     width: 100%;
     height: 100dvh;
   }

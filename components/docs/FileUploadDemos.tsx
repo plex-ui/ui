@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FileUpload, FileCard, FileCardGroup } from '@plexui/ui/components/FileUpload';
 import { Button } from '@plexui/ui/components/Button';
+import { AuthFormStage } from './AuthFormStage';
 
 function createMockFile(name: string, sizeKB: number, type: string): File {
   const bytes = new Uint8Array(sizeKB * 1024);
@@ -156,7 +157,7 @@ export function FileUploadFormDemo() {
   const [files, setFiles] = useState<File[]>(MOCK_FILES);
 
   return (
-    <div data-demo-stage className="py-10">
+    <AuthFormStage title="Upload documents">
       <div className="w-[360px]">
         <div className="mb-6 text-center">
           <h3 className="text-2xl font-semibold tracking-tight">Upload documents</h3>
@@ -175,6 +176,6 @@ export function FileUploadFormDemo() {
           </Button>
         </div>
       </div>
-    </div>
+    </AuthFormStage>
   );
 }

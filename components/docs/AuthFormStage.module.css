@@ -1,0 +1,88 @@
+/* Shared by the React auth demos and their Vue templates. */
+.Stage {
+  display: flex;
+  justify-content: center;
+  padding-block: 40px;
+}
+
+.Screen {
+  width: 360px;
+  max-width: 100%;
+}
+
+.DesktopOverlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% + 48px);
+  min-height: 300px;
+  margin: -48px -24px;
+  padding: 48px 24px;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.DesktopPanel {
+  width: 420px;
+  max-width: calc(100% - 48px);
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg), var(--shadow-hairline);
+}
+
+.DesktopToolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 10px 0 16px;
+}
+
+.DesktopBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px 40px;
+}
+
+@media (min-width: 768px) {
+  .Screen {
+    height: auto;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .Header {
+    display: none;
+  }
+
+  .Content {
+    flex: none;
+    padding: 0;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .Stage[data-demo-stage] {
+    padding: 0 !important;
+  }
+
+  .Screen {
+    --page-top: calc(env(safe-area-inset-top, 0px) + 54px);
+    --page-content-padding-top: 10px;
+    --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    height: 100dvh;
+  }
+
+  .Header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .Form,
+  .Form > * {
+    width: 100%;
+    max-width: 100%;
+  }
+}

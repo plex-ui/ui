@@ -97,7 +97,7 @@
   border: none;
   border-radius: var(--radius-full);
   background-color: transparent;
-  box-shadow: 0 0 0 1px var(--radio-group-indicator-border-color) inset;
+  box-shadow: var(--radio-group-ring, 0 0 0 1px var(--radio-group-indicator-border-color) inset);
   cursor: pointer;
   transition-duration: var(--transition-duration-basic);
   transition-property: box-shadow;
@@ -105,7 +105,7 @@
 
   &:where(:not([data-disabled])) {
     @mixin hover {
-      box-shadow: 0 0 0 1px var(--radio-group-indicator-border-color-hover) inset;
+      box-shadow: var(--radio-group-ring, 0 0 0 1px var(--radio-group-indicator-border-color-hover) inset);
     }
   }
 
@@ -133,7 +133,7 @@
 
   &::before,
   &::after {
-    display: block;
+    display: var(--radio-group-dot-display, block);
     content: "";
     grid-column-start: 1;
     grid-row-start: 1;
@@ -178,4 +178,13 @@
   100% {
     opacity: 1;
   }
+}
+
+/* The touch stylesheet reveals this only in grouped Field rows. */
+.Checkmark {
+  display: var(--radio-group-checkmark-display, none);
+  grid-area: 1 / 1;
+  width: 22px;
+  height: 22px;
+  color: var(--color-text);
 }

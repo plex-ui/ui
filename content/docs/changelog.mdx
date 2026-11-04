@@ -7,6 +7,25 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.28.1 (2026-11-04)
+
+### Changed
+
+- Phone previews load the mobile control scale, including 52px grouped rows, iOS-sized switches and checkmarks for single-choice rows. React and Vue share the same styling.
+- Form examples reserve a mobile top bar, use consistent grouped fields and keep save actions in a pinned footer with 24px side gutters. Contact values align in columns.
+- Mobile Sheet footers use 24px side and bottom spacing, including the safe area, and 50px pill actions. Alert actions remain 48px.
+- The Desktop / Phone control above the examples changes the preview mode for the whole page; each example can still be switched independently.
+
+### Fixed
+
+- Mobile verification examples render only the selected email or phone form. Preview identity no longer depends on duplicated code snippets.
+- Opening a menu no longer dims the preview outside the phone. Only a modal dialog activates the backdrop treatment.
+- Mobile dialog text uses the system font's own optical spacing. Sheet descriptions and the details/terms examples use 17px text with 22px line height; placement form values share one column.
+- Grouped mobile fields draw 16px-inset separators inside the rows, including sortable rows, so regular rows stay exactly 52px tall. Desktop separators are unchanged.
+- Phone previews hide surrounding documentation, keep Page width controls outside the device and fit Vue pricing cards within its viewport.
+
+---
+
 ## 0.28.0 (2026-11-04)
 
 ### Added

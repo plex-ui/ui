@@ -101,7 +101,7 @@ export function DialogBodyDemo() {
             <Dialog.Description>Please read them before you continue.</Dialog.Description>
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-4 text-sm text-secondary">
+            <div className="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
               {[...TERMS, ...TERMS].map((term, index) => (
                 <p key={index}>{term}</p>
               ))}
@@ -153,7 +153,7 @@ export function DialogPlacementDemo() {
               <Dialog.Description>Narrow the list down.</Dialog.Description>
             </Dialog.Header>
             <Dialog.Body>
-              <FieldGroup>
+              <FieldGroup columns>
                 <Field row label="Status">
                   <Input placeholder="Any status" />
                 </Field>

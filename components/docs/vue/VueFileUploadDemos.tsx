@@ -2,6 +2,7 @@
 
 import { useState, type ComponentProps } from 'react';
 import { VueDemo } from './VueDemo';
+import { AuthFormStage } from '../AuthFormStage';
 
 // MDX cannot pass File objects to a client component, so the files the
 // templates read (`files`, `file`) are created here: the same mock files as
@@ -22,10 +23,12 @@ const createMockFiles = () => [
 type VueFileUploadDemoProps = Omit<ComponentProps<typeof VueDemo>, 'stageClassName'> & {
   /** Initial `files`: none, the three mock files, or only the first one. @default "none" */
   files?: 'none' | 'all' | 'first';
+  /** Full form screen, leaving isolated upload examples unchanged. */
+  auth?: boolean;
 };
 
 /** A VueDemo whose template can read `files` (File[]) and `file` (one File). */
-export function VueFileUploadDemo({ files = 'none', state, ...props }: VueFileUploadDemoProps) {
+export function VueFileUploadDemo({ files = 'none', auth = false, state, ...props }: VueFileUploadDemoProps) {
   const [scope] = useState(() => {
     const mockFiles = createMockFiles();
     return {
@@ -34,9 +37,10 @@ export function VueFileUploadDemo({ files = 'none', state, ...props }: VueFileUp
     };
   });
 
-  return (
-    <div data-demo-stage className="py-10">
-      <VueDemo {...props} state={{ ...scope, ...state }} />
-    </div>
+  const preview = <VueDemo {...props} state={{ ...scope, ...state }} />;
+  return auth ? (
+    <AuthFormStage title="Upload documents">{preview}</AuthFormStage>
+  ) : (
+    <div data-demo-stage className="py-10">{preview}</div>
   );
 }

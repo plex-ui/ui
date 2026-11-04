@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useSyncExternalStore, type ReactNode } from 'react';
 import {
   DocsPage,
   DocsBody,
   DocsDescription,
   DocsTitle,
 } from 'fumadocs-ui/page';
+import { PreviewViewportProvider } from './PreviewViewport';
 import type { TOCItemType } from 'fumadocs-core/toc';
+
+const subscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 /**
  * Wraps DocsPage and enables tableOfContentPopover only after mount.
@@ -28,12 +33,10 @@ export function DocsPageWithMobileTOC({
   footer?: { enabled: boolean };
   children: ReactNode;
 }) {
-  const [popoverEnabled, setPopoverEnabled] = useState(false);
-  useEffect(() => {
-    setPopoverEnabled(true);
-  }, []);
+  const popoverEnabled = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
 
   return (
+    <PreviewViewportProvider>
     <DocsPage
       toc={showRightToc ? toc : []}
       tableOfContent={{ enabled: showRightToc }}
@@ -44,6 +47,7 @@ export function DocsPageWithMobileTOC({
     >
       {children}
     </DocsPage>
+    </PreviewViewportProvider>
   );
 }
 

@@ -283,6 +283,7 @@ export const DialogContent = defineComponent({
           {
             "forceMount": true,
             "class": s.Content,
+            "data-plex-dialog": "",
             "style": toCssVariables({ "dialog-width": props.width }),
             "data-placement": props.placement === "center" ? undefined : props.placement,
             "data-mobile-placement": mobilePlacement.value,

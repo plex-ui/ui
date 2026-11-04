@@ -44,7 +44,29 @@
   background: var(--field-group-background);
 }
 
+/* Desktop separators remain part of the row border. */
 .Body > [data-row] + [data-row],
 .Body > [data-sortable] > [data-row] + [data-row] {
   border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 767px) {
+  .Body > [data-row] + [data-row],
+  .Body > [data-sortable] > [data-row] + [data-row] {
+    position: relative;
+    border-top-width: 0;
+  }
+
+  /* Draw inside the row: 44px controls + 4px padding on each side stay 52px.
+     Sortable owns ::before for its drag placeholder, so use ::after here. */
+  .Body > [data-row] + [data-row]::after,
+  .Body > [data-sortable] > [data-row] + [data-row]::after {
+    content: "";
+    position: absolute;
+    inset-inline: var(--field-group-separator-inset, 0px);
+    top: 0;
+    height: 1px;
+    background: var(--color-border);
+    pointer-events: none;
+  }
 }
