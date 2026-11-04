@@ -5,6 +5,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../ButtonDemos';
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
+import { usePreviewEmbed } from '../PreviewEmbed';
 
 /** A select option: the value itself, or a value shown under another label (`Per-digit`). */
 export type VueDemoOption = string | { value: string | boolean; label: string };
@@ -37,6 +38,7 @@ export function VueDemo({
   template,
   controls = [],
   state,
+  phoneState,
   loop,
   stageClassName,
 }: {
@@ -44,14 +46,18 @@ export function VueDemo({
   controls?: VueDemoControl[];
   /** Initial values the template reads and may change (`v-model:value="value"`) */
   state?: Record<string, unknown>;
+  /** Initial state overrides for the embedded phone preview, such as an open dialog. */
+  phoneState?: Record<string, unknown>;
   loop?: VueDemoLoop;
   /** Classes of the demo stage; without controls the stage renders only when set */
   stageClassName?: string;
 }) {
+  const phonePreview = usePreviewEmbed() !== null;
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
     ...state,
     ...Object.fromEntries(controls.map((control) => [control.name, control.default])),
     ...(loop ? { [loop.name]: false } : {}),
+    ...(phonePreview ? phoneState : {}),
   }));
   const [run, setRun] = useState(0);
   const props = useMemo(() => values, [values]);

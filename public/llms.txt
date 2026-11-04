@@ -352,7 +352,7 @@ Props:
     - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 640px and below; defaults to placement
     - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
-Examples: Overview, Destructive confirmation, Scrolling body, Placement
+Examples: Overview, Destructive confirmation, Metadata details, Sections and actions, Long details, Scrolling body, Placement
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.

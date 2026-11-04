@@ -81,14 +81,22 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
 
     const el = document.querySelector<HTMLElement>('[data-preview-embed]');
     const post = () =>
-      el && window.parent.postMessage({ previewKey: target, previewHeight: Math.ceil(el.getBoundingClientRect().height) }, origin);
+      el && window.parent.postMessage({
+        previewKey: target,
+        previewHeight: Math.ceil(el.getBoundingClientRect().height),
+        previewDialogOpen: Boolean(document.querySelector('[role="dialog"][data-state="open"]')),
+      }, origin);
     const ro = el ? new ResizeObserver(post) : null;
     if (el) ro?.observe(el);
+    // Dialog portals are outside the measured stage, so their state needs its own observer.
+    const overlays = new MutationObserver(post);
+    overlays.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-state'] });
     post();
 
     return () => {
       window.removeEventListener('message', onMessage);
       ro?.disconnect();
+      overlays.disconnect();
     };
   }, [target]);
 

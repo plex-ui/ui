@@ -105,6 +105,309 @@ export const placement = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
+export const detailGroups = [
+  {
+    "title": "Application",
+    "rows": [
+      {
+        "label": "Name",
+        "values": [
+          "Plex application"
+        ]
+      },
+      {
+        "label": "Client ID",
+        "copy": true,
+        "values": [
+          "client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1"
+        ]
+      },
+      {
+        "label": "Status",
+        "values": [
+          "Active"
+        ]
+      },
+      {
+        "label": "Created",
+        "values": [
+          "Nov 3, 2026"
+        ]
+      },
+      {
+        "label": "Last used",
+        "values": [
+          "Nov 4, 2026"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Web",
+    "rows": [
+      {
+        "label": "Origins",
+        "copy": true,
+        "values": []
+      }
+    ]
+  },
+  {
+    "title": "iOS",
+    "rows": [
+      {
+        "label": "Team ID",
+        "copy": true,
+        "values": [
+          "AB12CD34EF"
+        ]
+      },
+      {
+        "label": "Bundle ID",
+        "copy": true,
+        "values": [
+          "com.plexui.application"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Android",
+    "rows": [
+      {
+        "label": "Package name",
+        "copy": true,
+        "values": [
+          "com.plexui.application"
+        ]
+      },
+      {
+        "label": "SHA-256",
+        "copy": true,
+        "values": [
+          "144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B"
+        ]
+      }
+    ]
+  }
+]
+
+export const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-${index + 1}.plexui.com`)
+
+export const detailTemplate = `<div class="flex flex-col items-center gap-4">
+  <Dialog v-model:open="open">
+    <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
+    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+      <DialogHeader>
+        <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
+        <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
+      </DialogHeader>
+      <DialogBody>
+        <div class="flex flex-col gap-5 py-2">
+          <template v-for="(group, index) in (sections ? groups : groups.slice(0, 1))" :key="group.title">
+            <Separator v-if="index > 0" />
+            <section class="flex flex-col gap-4" :aria-label="group.title">
+              <div v-if="sections" class="flex items-center justify-between gap-4">
+                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
+                <div v-if="showActions && (group.title === 'Application' || group.title === 'Web')" class="-my-2 flex shrink-0">
+                  <Menu>
+                    <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
+                    <MenuContent align="end" min-width="auto">
+                      <MenuItem v-if="group.title === 'Application'" @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
+                      <MenuItem v-else @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
+                    </MenuContent>
+                  </Menu>
+                </div>
+              </div>
+              <dl class="space-y-4 text-sm">
+                <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+                  <dt class="text-secondary">{{ row.label }}</dt>
+                  <dd class="min-w-0 sm:col-span-3">
+                    <Badge v-if="row.label === 'Status'" :color="paused ? 'secondary' : 'success'" size="sm">{{ paused ? 'Paused' : 'Active' }}</Badge>
+                    <div v-else-if="row.copy" class="space-y-4">
+                      <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
+                        <CopyTooltip :copy-value="value">
+                          <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
+                            <span class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                          </Button>
+                        </CopyTooltip>
+                      </div>
+                    </div>
+                    <template v-else>{{ row.values[0] }}</template>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          </template>
+        </div>
+      </DialogBody>
+      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
+    </DialogContent>
+  </Dialog>
+</div>
+`
+
+export const detailCode = `<script setup>
+import { ref } from 'vue';
+import { Badge } from '@plexui/vue/components/Badge';
+import { Button } from '@plexui/vue/components/Button';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogClose } from '@plexui/vue/components/Dialog';
+import { DotsHorizontal } from '@plexui/vue/components/Icon';
+import { Menu, MenuTrigger, MenuContent, MenuItem } from '@plexui/vue/components/Menu';
+import { Separator } from '@plexui/vue/components/Separator';
+import { CopyTooltip } from '@plexui/vue/components/Tooltip';
+
+const initialOpen = false;
+const open = ref(initialOpen);
+const showActions = ref(true);
+const paused = ref(false);
+const localhost = ref(true);
+const sections = false;
+const long = false;
+const groups = [
+  {
+    "title": "Application",
+    "rows": [
+      {
+        "label": "Name",
+        "values": [
+          "Plex application"
+        ]
+      },
+      {
+        "label": "Client ID",
+        "copy": true,
+        "values": [
+          "client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1"
+        ]
+      },
+      {
+        "label": "Status",
+        "values": [
+          "Active"
+        ]
+      },
+      {
+        "label": "Created",
+        "values": [
+          "Nov 3, 2026"
+        ]
+      },
+      {
+        "label": "Last used",
+        "values": [
+          "Nov 4, 2026"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Web",
+    "rows": [
+      {
+        "label": "Origins",
+        "copy": true,
+        "values": []
+      }
+    ]
+  },
+  {
+    "title": "iOS",
+    "rows": [
+      {
+        "label": "Team ID",
+        "copy": true,
+        "values": [
+          "AB12CD34EF"
+        ]
+      },
+      {
+        "label": "Bundle ID",
+        "copy": true,
+        "values": [
+          "com.plexui.application"
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Android",
+    "rows": [
+      {
+        "label": "Package name",
+        "copy": true,
+        "values": [
+          "com.plexui.application"
+        ]
+      },
+      {
+        "label": "SHA-256",
+        "copy": true,
+        "values": [
+          "144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B"
+        ]
+      }
+    ]
+  }
+];
+const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-\${index + 1}.plexui.com\`);
+</script>
+
+<template>
+<div class="flex flex-col items-center gap-4">
+  <Dialog v-model:open="open">
+    <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
+    <DialogContent :width="640" :show-close="false" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+      <DialogHeader>
+        <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
+        <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
+      </DialogHeader>
+      <DialogBody>
+        <div class="flex flex-col gap-5 py-2">
+          <template v-for="(group, index) in (sections ? groups : groups.slice(0, 1))" :key="group.title">
+            <Separator v-if="index > 0" />
+            <section class="flex flex-col gap-4" :aria-label="group.title">
+              <div v-if="sections" class="flex items-center justify-between gap-4">
+                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
+                <div v-if="showActions && (group.title === 'Application' || group.title === 'Web')" class="-my-2 flex shrink-0">
+                  <Menu>
+                    <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
+                    <MenuContent align="end" min-width="auto">
+                      <MenuItem v-if="group.title === 'Application'" @select="paused = !paused">{{ paused ? 'Resume application' : 'Pause application' }}</MenuItem>
+                      <MenuItem v-else @select="localhost = !localhost">{{ localhost ? 'Remove localhost' : 'Allow localhost' }}</MenuItem>
+                    </MenuContent>
+                  </Menu>
+                </div>
+              </div>
+              <dl class="space-y-4 text-sm">
+                <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+                  <dt class="text-secondary">{{ row.label }}</dt>
+                  <dd class="min-w-0 sm:col-span-3">
+                    <Badge v-if="row.label === 'Status'" :color="paused ? 'secondary' : 'success'" size="sm">{{ paused ? 'Paused' : 'Active' }}</Badge>
+                    <div v-else-if="row.copy" class="space-y-4">
+                      <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
+                        <CopyTooltip :copy-value="value">
+                          <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
+                            <span class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                          </Button>
+                        </CopyTooltip>
+                      </div>
+                    </div>
+                    <template v-else>{{ row.values[0] }}</template>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          </template>
+        </div>
+      </DialogBody>
+      <DialogFooter><DialogClose><Button color="secondary" variant="outline">Close</Button></DialogClose></DialogFooter>
+    </DialogContent>
+  </Dialog>
+</div>
+</template>
+`
+
 <UsageBlock>{`import {
   Dialog,
   DialogBody,
@@ -128,6 +431,24 @@ export const placement = `<Dialog v-model:open="open">
 
 <ComponentPreview language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
   <VueDemo template={destructive} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+</ComponentPreview>
+
+### Metadata details
+
+<ComponentPreview phoneHeight={640} language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
+</ComponentPreview>
+
+### Sections and actions
+
+<ComponentPreview phoneHeight={640} language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
+</ComponentPreview>
+
+### Long details
+
+<ComponentPreview phoneHeight={640} language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
+  <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Scrolling body

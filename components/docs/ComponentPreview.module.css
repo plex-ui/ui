@@ -60,6 +60,16 @@ html.dark .PhoneFrame {
   border-color: rgb(255 255 255 / 10%);
 }
 
+/* Extend an open dialog's scrim across the preview, without a phone-shaped rim. */
+.PhoneContainer[data-dialog-open] {
+  background: linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5)), var(--color-fd-background);
+}
+
+.PhoneContainer[data-dialog-open] .PhoneFrame {
+  border: 0;
+  border-radius: 0;
+}
+
 /* Stacking context so preview content (e.g. Sidebar drawer) does not overlap mobile TOC (z-10) */
 .PreviewBlock {
   position: relative;

@@ -22,6 +22,7 @@ export function ComponentPreview({
   language = 'tsx',
   className,
   previewMinHeight,
+  phoneHeight,
   resizable = false,
 }: {
   children: ReactNode;
@@ -30,6 +31,8 @@ export function ComponentPreview({
   language?: string;
   className?: string;
   previewMinHeight?: number | string;
+  /** Fixed viewport height for overlays that do not contribute to the demo height. */
+  phoneHeight?: number;
   resizable?: boolean;
 }) {
   const [mode, setMode] = useState<Mode>('preview');
@@ -130,7 +133,7 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key } : null}
+            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${key}`, previewKey: key, height: phoneHeight } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -164,16 +167,19 @@ function PhoneFrame({
   src,
   previewKey,
   previewMinHeight,
+  fixedHeight,
   frameRef,
   onReady,
 }: {
   src: string;
   previewKey: string;
   previewMinHeight?: number | string;
+  fixedHeight?: number;
   frameRef: React.RefObject<HTMLIFrameElement | null>;
   onReady: () => void;
 }) {
   const [height, setHeight] = useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const onReadyRef = useRef(onReady);
   useEffect(() => {
     onReadyRef.current = onReady;
@@ -182,9 +188,10 @@ function PhoneFrame({
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
-      const data = event.data as { previewKey?: string; previewHeight?: number; demoReady?: boolean };
+      const data = event.data as { previewKey?: string; previewHeight?: number; previewDialogOpen?: boolean; demoReady?: boolean };
       if (data?.previewKey !== previewKey) return;
       if (typeof data.previewHeight === 'number') setHeight(data.previewHeight);
+      if (typeof data.previewDialogOpen === 'boolean') setDialogOpen(data.previewDialogOpen);
       if (data.demoReady) onReadyRef.current();
     };
     window.addEventListener('message', onMessage);
@@ -192,13 +199,13 @@ function PhoneFrame({
   }, [previewKey, frameRef]);
 
   return (
-    <div className={s.PhoneContainer} style={{ minHeight: previewMinHeight ?? 168 }}>
+    <div className={s.PhoneContainer} data-dialog-open={dialogOpen || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
       <iframe
         ref={frameRef}
         src={src}
         title="Phone preview"
         className={s.PhoneFrame}
-        style={{ width: PHONE_WIDTH, height: height ?? (typeof previewMinHeight === 'number' ? previewMinHeight : 480) }}
+        style={{ width: PHONE_WIDTH, height: fixedHeight ?? height ?? (typeof previewMinHeight === 'number' ? previewMinHeight : 480) }}
       />
     </div>
   );
@@ -219,7 +226,7 @@ function PreviewPane({
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
-  phone: { src: string; previewKey: string } | null;
+  phone: { src: string; previewKey: string; height?: number } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -317,6 +324,7 @@ function PreviewPane({
         <PhoneFrame
           src={phone.src}
           previewKey={phone.previewKey}
+          fixedHeight={phone.height}
           previewMinHeight={previewMinHeight}
           frameRef={frameRef}
           onReady={sendAll}
