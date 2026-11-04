@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.27.1 (2026-11-04)
+
+### Changed
+
+- `SidebarTrigger`: the default icon is `Sidebar`, one icon for both states, as GitHub and Linear do; a tooltip says what a press does. It was `SidebarLeft`. The docs headers use the default instead of a pair of collapse arrows.
+- App variant: the person row in `SidebarFooter` is 40px tall (`--sidebar-menu-item-height-desktop`), so the round end of its highlight is concentric with a 24px avatar on the icons' axis: 8px around the avatar, a 40px circle on the rail.
+
+### Fixed
+
+- A collapsed `SidebarHeader` with a title beside the trigger: the hidden title kept its width, so the trigger stood off the icons' axis. The title now gives up its width.
+
+---
+
 ## 0.27.0 (2026-11-04)
 
 ### Added
