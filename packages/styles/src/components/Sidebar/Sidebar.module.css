@@ -50,7 +50,9 @@
   flex-shrink: 0;
   min-height: var(--sidebar-header-height);
   padding: 0;
-  background: var(--color-surface-tertiary);
+  /* The sidebar's own ground: a fixed surface drew a square patch on a
+     sidebar of another color */
+  background: inherit;
 }
 
 /* Hide header text when collapsed, keep only icon/logo */
