@@ -107,7 +107,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### App
 
-<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
+<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
   <SidebarLayout>
     <Sidebar>
       <SidebarHeader>
@@ -488,7 +488,7 @@ Renders a collapsible submenu container for nested navigation.
 
 ### SidebarTrigger
 
-Collapse button. Renders nothing when `collapsible="none"`. Children replace the default icon. An `onClick` runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the animated hamburger for the mobile menu, handles `onClick` the same way.
+Collapse button. Renders nothing when `collapsible="none"`. The default icon is `Sidebar` in both states, and a tooltip can say what a press does; children replace it. An `onClick` runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the animated hamburger for the mobile menu, handles `onClick` the same way.
 
 ### SidebarInput
 

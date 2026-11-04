@@ -80,8 +80,6 @@ import {
    Plus,
 
    SettingsCog,
-   SidebarCollapseLeft,
-   SidebarCollapseRight,
    SettingsWrench,
    SpacingVertical,
    SquareAsterisk,
@@ -167,9 +165,7 @@ function DemoSidebarHeader({ title = 'App' }: { title?: string } = {}) {
         </span>
       }
     >
-      <SidebarTrigger>
-        {isCollapsed ? <SidebarCollapseRight /> : <SidebarCollapseLeft />}
-      </SidebarTrigger>
+      <SidebarTrigger />
     </Tooltip>
   );
   return (
@@ -2738,10 +2734,7 @@ export function SidebarAppDemo() {
         <SidebarProvider className="h-full" collapsible="icon" variant="app" open={open} onOpenChange={setOpen}>
           <SidebarLayout className="h-full">
             <Sidebar>
-              <SidebarHeader>
-                <span>App</span>
-                <SidebarTrigger />
-              </SidebarHeader>
+              <DemoSidebarHeader title="App" />
               <SidebarContent>
                 <SidebarMenu>
                   {appTopRows.map((row) => (

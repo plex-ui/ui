@@ -17,7 +17,7 @@ import {
   type VNodeArrayChildren,
 } from "vue"
 import { Button } from "../Button/index.js"
-import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon/index.js"
+import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { composeEventHandlers, firstElementChild, flattenSlot, mergeSlotProps } from "../Tooltip/slot.js"
@@ -737,8 +737,8 @@ export const SidebarTrigger = defineComponent({
         },
         [
           h("span", { class: s.TriggerInner }, [
-            // Default icon (same for both states, as per reference)
-            h("span", { class: s.TriggerIcon }, slots.default ? slots.default() : [h(SidebarLeft)]),
+            // One icon for both states: the tooltip, not the icon, says what a press does
+            h("span", { class: s.TriggerIcon }, slots.default ? slots.default() : [h(SidebarIcon)]),
           ]),
         ],
       )

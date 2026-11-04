@@ -80,7 +80,7 @@ import {
 } from "react"
 
 import { Button } from "../Button"
-import { ChevronRightMd, Search as SearchIcon, SidebarLeft, X } from "../Icon"
+import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
@@ -702,8 +702,8 @@ export const SidebarTrigger = forwardRef<HTMLButtonElement, SidebarTriggerProps>
       return null
     }
 
-    // Default icon (same for both states, as per reference)
-    const defaultIcon = <SidebarLeft />
+    // One icon for both states: the tooltip, not the icon, says what a press does
+    const defaultIcon = <SidebarIcon />
 
     return (
       <button

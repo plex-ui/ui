@@ -66,6 +66,14 @@
   pointer-events: none;
 }
 
+/* A title beside the trigger also gives up its width, so the trigger stands
+   on the icons' axis rather than half a title to the right */
+:global([data-sidebar="collapsed"]) .Header > span:not(:where(.Trigger, .Trigger *)) {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* Keep only the logo icon visible (first element with fixed size). A wrapper
    around the trigger (a Tooltip, say) keeps its own size. */
 :global([data-sidebar="collapsed"]) .Header > div:not(:has(.Trigger)) {
@@ -1461,6 +1469,9 @@
 }
 
 .App .Footer {
+  /* The person row is twice as tall as the icon axis is far from its edge
+     (40px): the round end of its highlight is then concentric with an avatar */
+  --sidebar-menu-item-height-desktop: 40px;
   --sidebar-menu-item-margin-desktop: 0;
   position: relative;
   min-height: 49px;
