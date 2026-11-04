@@ -1983,11 +1983,11 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [open, setOpen] = useState(false)\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Open dialog</Button>\n</Dialog.Trigger>\n<Dialog.Content>\n  <Dialog.Header>\n    <Dialog.Title>Unsaved changes</Dialog.Title>\n  </Dialog.Header>\n  <p className=\"text-sm text-secondary\">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"primary\" onClick={() => setOpen(false)}>Save changes</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>"
+          "code": "const [open, setOpen] = useState(false)\nconst heading = useRef<HTMLDivElement>(null)\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"secondary\" variant=\"outline\">Open dialog</Button>\n</Dialog.Trigger>\n<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>\n  <Dialog.Header>\n    <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Unsaved changes</Dialog.Title></div>\n  </Dialog.Header>\n  <p className=\"text-sm text-secondary\">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"primary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"primary\" onClick={() => setOpen(false)}>Save changes</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>"
         },
         {
           "name": "Destructive confirmation",
-          "code": "const [open, setOpen] = useState(false)\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"danger\" variant=\"outline\">Delete</Button>\n</Dialog.Trigger>\n<Dialog.Content>\n  <Dialog.Header>\n    <Dialog.Title>Delete assistant?</Dialog.Title>\n  </Dialog.Header>\n  <p className=\"text-sm text-secondary\">\n    This change will affect all API integrations using{\" \"}\n    <span className=\"font-medium text-[var(--color-text)]\">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.\n    It cannot be undone.\n  </p>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"secondary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"danger\" onClick={() => setOpen(false)}>Delete</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
+          "code": "const [open, setOpen] = useState(false)\nconst heading = useRef<HTMLDivElement>(null)\n\n<Dialog open={open} onOpenChange={setOpen}>\n<Dialog.Trigger>\n  <Button color=\"danger\" variant=\"outline\">Delete</Button>\n</Dialog.Trigger>\n<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>\n  <Dialog.Header>\n    <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Delete assistant?</Dialog.Title></div>\n  </Dialog.Header>\n  <p className=\"text-sm text-secondary\">\n    This change will affect all API integrations using{\" \"}\n    <span className=\"font-medium text-[var(--color-text)]\">asst_NAM5K9a7loKZay9W8gtQVQ3H</span>.\n    It cannot be undone.\n  </p>\n  <Dialog.Footer>\n    <Dialog.Close>\n      <Button color=\"secondary\" variant=\"soft\">Cancel</Button>\n    </Dialog.Close>\n    <Button color=\"danger\" onClick={() => setOpen(false)}>Delete</Button>\n  </Dialog.Footer>\n</Dialog.Content>\n</Dialog>",
           "details": "Use color=\"danger\" on the action button for destructive operations."
         },
         {
@@ -2007,12 +2007,12 @@
         },
         {
           "name": "Scrolling body",
-          "code": "<Dialog.Content>\n<Dialog.Header>\n  <Dialog.Title>Terms of service</Dialog.Title>\n  <Dialog.Description>Please read them before you continue.</Dialog.Description>\n</Dialog.Header>\n<Dialog.Body>\n  {terms.map((term) => <p key={term}>{term}</p>)}\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Decline</Button></Dialog.Close>\n  <Button color=\"primary\">Accept</Button>\n</Dialog.Footer>\n</Dialog.Content>",
+          "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Terms of service</Dialog.Title></div>\n  <Dialog.Description>Please read them before you continue.</Dialog.Description>\n</Dialog.Header>\n<Dialog.Body>\n  {terms.map((term) => <p key={term}>{term}</p>)}\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Decline</Button></Dialog.Close>\n  <Button color=\"primary\">Accept</Button>\n</Dialog.Footer>\n</Dialog.Content>",
           "details": "Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls."
         },
         {
           "name": "Placement",
-          "code": "<Dialog.Content placement=\"end\" width={360}>\n<Dialog.Header>\n  <Dialog.Title>Filters</Dialog.Title>\n</Dialog.Header>\n<Dialog.Body>{/* fields */}</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Clear filters</Button></Dialog.Close>\n  <Button color=\"primary\">Done</Button>\n</Dialog.Footer>\n</Dialog.Content>",
+          "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement=\"end\" width={360}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Filters</Dialog.Title></div>\n</Dialog.Header>\n<Dialog.Body>{/* fields */}</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Clear filters</Button></Dialog.Close>\n  <Button color=\"primary\">Done</Button>\n</Dialog.Footer>\n</Dialog.Content>",
           "details": "Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 640px and below, so a centered dialog can become a bottom sheet on phones: {''}."
         }
       ],
@@ -7050,5 +7050,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-04T11:29:25.526Z"
+  "generatedAt": "2026-11-04T11:55:35.332Z"
 }

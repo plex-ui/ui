@@ -2195,9 +2195,9 @@ Props:
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Unsaved changes</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Unsaved changes</DialogTitle></div>
     </DialogHeader>
     <p class="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
     <DialogFooter>
@@ -2217,9 +2217,9 @@ Use color="danger" on the action button for destructive operations.
   <DialogTrigger>
     <Button color="danger" variant="outline">Delete</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Delete assistant?</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Delete assistant?</DialogTitle></div>
     </DialogHeader>
     <p class="text-sm text-secondary">
       This change will affect all API integrations using
@@ -2735,9 +2735,9 @@ Put long content in DialogBody: only the body scrolls, while the header and foot
   <DialogTrigger>
     <Button color="secondary" variant="outline">Review terms</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Terms of service</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Terms of service</DialogTitle></div>
       <DialogDescription>Please read them before you continue.</DialogDescription>
     </DialogHeader>
     <DialogBody>
@@ -2762,9 +2762,9 @@ Use placement to move the panel: top for search and command lists, bottom for a 
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open filters</Button>
   </DialogTrigger>
-  <DialogContent :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
     <DialogHeader>
-      <DialogTitle>Filters</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Filters</DialogTitle></div>
       <DialogDescription>Narrow the list down.</DialogDescription>
     </DialogHeader>
     <DialogBody>

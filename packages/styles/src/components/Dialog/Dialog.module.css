@@ -116,6 +116,13 @@
   }
 }
 
+/* Keep the native scroll indicator consistent even without the global stylesheet. */
+.Panel,
+.Body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) transparent;
+}
+
 /* =============================================
    Placement: `placement` everywhere, `mobilePlacement` at 640px and below
 ============================================= */
@@ -180,6 +187,11 @@
 }
 
 @media (width <= 640px) {
+  .Content,
+  .Content[data-pill] {
+    --dialog-panel-corner: var(--dialog-mobile-radius);
+  }
+
   .Content:where([data-mobile-placement="center"]) {
     --dialog-content-align: center;
     --dialog-content-justify: center;
@@ -302,12 +314,27 @@
 }
 
 @media (width <= 640px) {
+  .CloseButton {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: var(--dialog-mobile-action-size);
+    height: var(--dialog-mobile-action-size);
+    border-radius: var(--radius-full);
+  }
+
+  .Panel:has(> .CloseButton) > .Header > :first-child {
+    padding-inline-end: calc(var(--dialog-mobile-action-size) - 0.75rem);
+  }
+
   .Footer {
     flex-direction: column;
 
     & > * {
       width: 100%;
-      --button-size: var(--control-size-lg);
+      --button-size: var(--dialog-mobile-action-size);
+      --button-radius: var(--dialog-mobile-action-radius);
+      --button-font-size: var(--dialog-mobile-action-font-size);
+      --button-gutter: var(--control-gutter-xl);
     }
   }
 }

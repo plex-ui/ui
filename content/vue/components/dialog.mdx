@@ -10,9 +10,9 @@ export const overview = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Unsaved changes</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Unsaved changes</DialogTitle></div>
     </DialogHeader>
     <p class="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
     <DialogFooter>
@@ -28,9 +28,9 @@ export const destructive = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="danger" variant="outline">Delete</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Delete assistant?</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Delete assistant?</DialogTitle></div>
     </DialogHeader>
     <p class="text-sm text-secondary">
       This change will affect all API integrations using
@@ -61,9 +61,9 @@ export const body = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Review terms</Button>
   </DialogTrigger>
-  <DialogContent>
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
     <DialogHeader>
-      <DialogTitle>Terms of service</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Terms of service</DialogTitle></div>
       <DialogDescription>Please read them before you continue.</DialogDescription>
     </DialogHeader>
     <DialogBody>
@@ -84,9 +84,9 @@ export const placement = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open filters</Button>
   </DialogTrigger>
-  <DialogContent :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
+  <DialogContent @open-auto-focus="$event.preventDefault(); $refs.heading.focus()" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
     <DialogHeader>
-      <DialogTitle>Filters</DialogTitle>
+      <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Filters</DialogTitle></div>
       <DialogDescription>Narrow the list down.</DialogDescription>
     </DialogHeader>
     <DialogBody>
@@ -423,45 +423,50 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={120}>
-  <VueDemo template={overview} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phoneHeight={360} phoneDialog language="vue" code={overview} previewMinHeight={120}>
+  <VueDemo template={overview} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Destructive confirmation
 
-<ComponentPreview language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
-  <VueDemo template={destructive} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phoneHeight={360} phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
+  <VueDemo template={destructive} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Metadata details
 
-<ComponentPreview phoneHeight={640} language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
+<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
   <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Sections and actions
 
-<ComponentPreview phoneHeight={640} language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
+Grouped metadata with menus for application and platform actions.
+
+<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. Section menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
   <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Long details
 
-<ComponentPreview phoneHeight={640} language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
+The same layout with 24 additional origins. Scroll the body while the heading and footer stay in place.
+
+<ComponentPreview phoneHeight={640} phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
   <VueDemo template={detailTemplate} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Scrolling body
 
-<ComponentPreview language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
-  <VueDemo template={body} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
+<ComponentPreview phoneHeight={640} phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
+  <VueDemo template={body} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
 ### Placement
 
-<ComponentPreview language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
+<ComponentPreview phoneHeight={640} phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
   <VueDemo
     template={placement}
+    phoneState={{ open: true }}
     stageClassName="py-10 flex justify-center"
     state={{ open: false }}
     controls={[{ name: "placement", type: "select", options: ["center", "top", "bottom", "start", "end", "fullscreen"], default: "end" }]}
@@ -499,13 +504,18 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
 
 **DialogBody**: the scrolling part between the header and the footer. With it, only the body scrolls. Accepts `class`.
 
-**DialogFooter**: footer area for action buttons.
+**DialogFooter**: footer area for action buttons. At 640px and below, actions stack at full width with a 44px height and fully rounded corners.
 
 **DialogClose**: closes the dialog when its child is activated.
 
 ## Styling
 
-Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Two tokens of its own restyle the close button. Override them at any scope:
+Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
+
+- `--dialog-mobile-radius`: mobile panel corner radius (default `--radius-4xl`, 24px)
+- `--dialog-mobile-action-size`: mobile footer and close-button height (default `--control-size-2xl`, 44px)
+- `--dialog-mobile-action-radius`: mobile footer button radius (default `--radius-full`)
+- `--dialog-mobile-action-font-size`: mobile footer button text size (default `--control-font-size-lg`)

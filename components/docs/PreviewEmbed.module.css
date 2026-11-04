@@ -7,3 +7,8 @@
 .Root [data-demo-controls] {
   display: none !important;
 }
+
+/* An initially open modal should not show its trigger through the scrim. */
+:global(body:has([role="dialog"][data-state="open"])) .Root [data-demo-stage] [aria-haspopup="dialog"] {
+  visibility: hidden;
+}

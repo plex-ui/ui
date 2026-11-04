@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.27.3 (2026-11-04)
+
+### Changed
+
+- `Dialog` on phones: panels use 24px corners (top corners for bottom sheets); footer actions are 44px tall, fully rounded and full width. The close button has a circular 44px target, with space reserved beside the heading. Shared styles apply to React and Vue; desktop controls keep their existing sizes and shapes.
+- `--dialog-mobile-radius`, `--dialog-mobile-action-size`, `--dialog-mobile-action-radius` and `--dialog-mobile-action-font-size` customize the mobile footer controls.
+
+### Fixed
+
+- All seven React and Vue Dialog examples open immediately in Phone preview, reserve the dimmed background while loading and collapse to a compact replay button when closed. Initial focus goes to the heading instead of drawing a focus ring around the close button.
+- Dialog scroll indicators use the shared thin scrollbar style, including when the optional global stylesheet is not imported.
+
+---
+
 ## 0.27.2 (2026-11-04)
 
 ### Fixed

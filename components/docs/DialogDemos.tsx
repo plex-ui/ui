@@ -1,14 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { Field } from '@plexui/ui/components/Field';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePreviewEmbed } from './PreviewEmbed';
+
+function useDialogDemoState() {
+  const phonePreview = usePreviewEmbed() !== null;
+  return useState(phonePreview);
+}
 
 export function DialogOverviewDemo() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useDialogDemoState();
+  const heading = useRef<HTMLDivElement>(null);
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
@@ -16,9 +24,9 @@ export function DialogOverviewDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Open dialog</Button>
         </Dialog.Trigger>
-        <Dialog.Content>
+        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
-            <Dialog.Title>Unsaved changes</Dialog.Title>
+            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
           </Dialog.Header>
           <p className="text-sm text-secondary">You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</p>
           <Dialog.Footer>
@@ -34,7 +42,8 @@ export function DialogOverviewDemo() {
 }
 
 export function DialogDeleteConfirmDemo() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useDialogDemoState();
+  const heading = useRef<HTMLDivElement>(null);
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
@@ -42,9 +51,9 @@ export function DialogDeleteConfirmDemo() {
         <Dialog.Trigger>
           <Button color="danger" variant="outline">Delete</Button>
         </Dialog.Trigger>
-        <Dialog.Content>
+        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
-            <Dialog.Title>Delete assistant?</Dialog.Title>
+            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
           </Dialog.Header>
           <p className="text-sm text-secondary">
             This change will affect all API integrations using{' '}
@@ -75,7 +84,8 @@ const TERMS = [
 ];
 
 export function DialogBodyDemo() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useDialogDemoState();
+  const heading = useRef<HTMLDivElement>(null);
 
   return (
     <div data-demo-stage className="py-10 flex justify-center">
@@ -83,9 +93,9 @@ export function DialogBodyDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Review terms</Button>
         </Dialog.Trigger>
-        <Dialog.Content>
+        <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
           <Dialog.Header>
-            <Dialog.Title>Terms of service</Dialog.Title>
+            <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
             <Dialog.Description>Please read them before you continue.</Dialog.Description>
           </Dialog.Header>
           <Dialog.Body>
@@ -110,48 +120,55 @@ export function DialogBodyDemo() {
 const PLACEMENTS = ['center', 'top', 'bottom', 'start', 'end', 'fullscreen'] as const;
 
 export function DialogPlacementDemo() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useDialogDemoState();
+  const heading = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('end');
 
   return (
-    <div data-demo-stage className="py-10 flex flex-col items-center gap-4">
-      <SegmentedControl<(typeof PLACEMENTS)[number]> value={placement} onChange={setPlacement} aria-label="Placement" size="sm">
-        {PLACEMENTS.map((value) => (
-          <SegmentedControl.Option key={value} value={value}>
-            {value}
-          </SegmentedControl.Option>
-        ))}
-      </SegmentedControl>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger>
-          <Button color="secondary" variant="outline">Open filters</Button>
-        </Dialog.Trigger>
-        <Dialog.Content placement={placement} width={placement === 'start' || placement === 'end' ? 360 : 480}>
-          <Dialog.Header>
-            <Dialog.Title>Filters</Dialog.Title>
-            <Dialog.Description>Narrow the list down.</Dialog.Description>
-          </Dialog.Header>
-          <Dialog.Body>
-            <div className="flex flex-col gap-4">
-              <Field label="Status">
-                <Input placeholder="Any status" />
-              </Field>
-              <Field label="Owner">
-                <Input placeholder="Anyone" />
-              </Field>
-              <Field label="Created after">
-                <Input placeholder="YYYY-MM-DD" />
-              </Field>
-            </div>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.Close>
-              <Button color="secondary" variant="soft">Clear filters</Button>
-            </Dialog.Close>
-            <Button color="primary" onClick={() => setOpen(false)}>Done</Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="placement">
+          <SegmentedControl<(typeof PLACEMENTS)[number]> value={placement} onChange={setPlacement} aria-label="Placement" size="xs">
+            {PLACEMENTS.map((value) => (
+              <SegmentedControl.Option key={value} value={value}>
+                {value}
+              </SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      <div data-demo-stage className="py-10 flex justify-center">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Trigger>
+            <Button color="secondary" variant="outline">Open filters</Button>
+          </Dialog.Trigger>
+          <Dialog.Content onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={placement} width={placement === 'start' || placement === 'end' ? 360 : 480}>
+            <Dialog.Header>
+              <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
+              <Dialog.Description>Narrow the list down.</Dialog.Description>
+            </Dialog.Header>
+            <Dialog.Body>
+              <div className="flex flex-col gap-4">
+                <Field label="Status">
+                  <Input placeholder="Any status" />
+                </Field>
+                <Field label="Owner">
+                  <Input placeholder="Anyone" />
+                </Field>
+                <Field label="Created after">
+                  <Input placeholder="YYYY-MM-DD" />
+                </Field>
+              </div>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.Close>
+                <Button color="secondary" variant="soft">Clear filters</Button>
+              </Dialog.Close>
+              <Button color="primary" onClick={() => setOpen(false)}>Done</Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog>
+      </div>
+    </>
   );
 }
