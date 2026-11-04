@@ -6531,7 +6531,7 @@ Props:
     - @dismiss ((event: MouseEvent) => void) — Emitted when the dismiss button is clicked
 
 ### App Shell
-A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
+A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count Badge, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
 ```vue
 <SidebarProvider
   v-model:open="open"
@@ -6589,7 +6589,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
             <SidebarMenu>
               <template v-for="section in consoleSections" :key="section.id">
                 <!-- Collapsed rail: hovering a parent opens a flyout with its items -->
-                <SidebarMenuItem v-if="sidebar.state === 'collapsed' && !sidebar.isMobile">
+                <SidebarMenuItem v-if="section.items && sidebar.state === 'collapsed' && !sidebar.isMobile">
                   <Popover show-on-hover :hover-open-delay="80">
                     <PopoverTrigger>
                       <SidebarMenuButton class="console-menu-button">
@@ -6617,20 +6617,29 @@ A multi-section app shell with a workspace selector, expandable parent sections 
                   </Popover>
                 </SidebarMenuItem>
 
-                <!-- Expanded: the parent toggles its sub items -->
+                <!-- Expanded: the parent toggles its sub items; a row without items opens its page -->
                 <SidebarMenuItem v-else :expanded="!!expanded[section.id]">
-                  <SidebarMenuButton class="console-menu-button" @click="expanded[section.id] = !expanded[section.id]">
+                  <SidebarMenuButton
+                    class="console-menu-button"
+                    :is-active="!section.items && active === section.id"
+                    :tooltip="section.items ? undefined : section.label"
+                    @click="section.items ? (expanded[section.id] = !expanded[section.id]) : (active = section.id)"
+                  >
                     <SidebarMenuButtonIcon><component :is="section.icon" /></SidebarMenuButtonIcon>
                     <SidebarMenuButtonLabel>{{ section.label }}</SidebarMenuButtonLabel>
                     <SidebarMenuBadge v-if="section.badge">
                       <Badge size="sm" color="info">{{ section.badge }}</Badge>
                     </SidebarMenuBadge>
+                    <SidebarMenuBadge v-if="section.count">
+                      <Badge size="sm" color="secondary">{{ section.count }}</Badge>
+                    </SidebarMenuBadge>
                     <SidebarMenuChevron
+                      v-if="section.items"
                       class="ml-auto transition-transform"
                       :style="{ transform: expanded[section.id] ? 'rotate(90deg)' : undefined }"
                     />
                   </SidebarMenuButton>
-                  <SidebarMenuSub :open="!!expanded[section.id]" has-icons>
+                  <SidebarMenuSub v-if="section.items" :open="!!expanded[section.id]" has-icons>
                     <SidebarMenuSubItem v-for="item in section.items" :key="item.id">
                       <SidebarMenuSubButton :indent="1" :is-active="active === item.id" @click="active = item.id">{{ item.label }}</SidebarMenuSubButton>
                     </SidebarMenuSubItem>
@@ -6696,7 +6705,7 @@ A multi-section app shell with a workspace selector, expandable parent sections 
     <SidebarInset>
       <div class="p-6">
         <h1 class="text-2xl font-semibold mb-2">
-          {{ consoleSections.flatMap((s) => [s, ...s.items]).find((i) => i.id === active)?.label ?? 'Workbench' }}
+          {{ consoleSections.flatMap((s) => [s, ...(s.items ?? [])]).find((i) => i.id === active)?.label ?? 'Workbench' }}
         </h1>
         <p class="text-secondary">
           Hover the icons when collapsed to reveal a flyout with the section's items.
@@ -6708,9 +6717,9 @@ A multi-section app shell with a workspace selector, expandable parent sections 
 ```
 
 ### App
-The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
+The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A Badge in SidebarMenuBadge sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a Menu beside the icon when folded. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
 ```vue
-<SidebarProvider v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
+<SidebarProvider v-model:open="open" v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
   <SidebarLayout class="h-full">
     <Sidebar>
       <SidebarHeader>
@@ -6729,38 +6738,107 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
         </Tooltip>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup v-for="group in navGroups" :key="group.label">
-          <SidebarGroupLabel size="sm">{{ group.label }}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem v-for="item in group.items" :key="item.label">
-                <SidebarMenuButton
-                  :is-active="activeItem === item.label"
-                  :tooltip="item.label"
-                  @click="activeItem = item.label"
-                >
-                  <SidebarMenuButtonIcon><component :is="item.icon" /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
+        <SidebarMenu>
+          <SidebarMenuItem v-for="row in appTopRows" :key="row.id">
+            <SidebarMenuButton :is-active="active === row.id" :tooltip="row.label" @click="active = row.id">
+              <SidebarMenuButtonIcon><component :is="row.icon" /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>{{ row.label }}</SidebarMenuButtonLabel>
+              <SidebarMenuBadge v-if="row.alert">
+                <Badge color="danger" variant="solid" pill>{{ row.alert }}</Badge>
+              </SidebarMenuBadge>
+              <SidebarMenuBadge v-if="row.count">{{ row.count }}</SidebarMenuBadge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <!-- Collapsed rail: the group's items in a menu beside its icon -->
+          <SidebarMenuItem v-if="sidebar.state === 'collapsed' && !sidebar.isMobile">
+            <Menu>
+              <MenuTrigger>
+                <SidebarMenuButton :is-active="appDocumentItems.some((item) => item.id === active)" aria-label="Documents">
+                  <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+              </MenuTrigger>
+              <MenuContent side="right" align="start" :min-width="220">
+                <MenuCheckboxItem
+                  v-for="item in appDocumentItems"
+                  :key="item.id"
+                  :checked="item.id === active"
+                  indicator-position="start"
+                  indicator-variant="ghost"
+                  @select="active = item.id"
+                >
+                  {{ item.label }}
+                  <span class="ml-auto text-xs text-secondary tabular-nums">{{ item.count }}</span>
+                </MenuCheckboxItem>
+              </MenuContent>
+            </Menu>
+          </SidebarMenuItem>
+
+          <!-- Expanded: the group opens in place, each item with its count -->
+          <SidebarMenuItem v-else :expanded="documentsOpen">
+            <SidebarMenuButton
+              :is-active="!documentsOpen && appDocumentItems.some((item) => item.id === active)"
+              :aria-expanded="documentsOpen"
+              @click="documentsOpen = !documentsOpen"
+            >
+              <SidebarMenuButtonIcon><FileDocument /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>Documents</SidebarMenuButtonLabel>
+              <SidebarMenuChevron />
+            </SidebarMenuButton>
+            <SidebarMenuSub :open="documentsOpen" has-icons>
+              <SidebarMenuSubItem v-for="item in appDocumentItems" :key="item.id">
+                <SidebarMenuSubButton :indent="1" :is-active="active === item.id" @click="active = item.id">
+                  {{ item.label }}
+                  <SidebarMenuBadge>{{ item.count }}</SidebarMenuBadge>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem v-for="row in appBottomRows" :key="row.id">
+            <SidebarMenuButton :is-active="active === row.id" :tooltip="row.label" @click="active = row.id">
+              <SidebarMenuButtonIcon><component :is="row.icon" /></SidebarMenuButtonIcon>
+              <SidebarMenuButtonLabel>{{ row.label }}</SidebarMenuButtonLabel>
+              <SidebarMenuBadge v-if="row.alert">
+                <Badge color="danger" variant="solid" pill>{{ row.alert }}</Badge>
+              </SidebarMenuBadge>
+              <SidebarMenuBadge v-if="row.count">{{ row.count }}</SidebarMenuBadge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <Menu>
+              <MenuTrigger>
+                <SidebarMenuButton tooltip="Sam Lee">
+                  <SidebarMenuButtonIcon><Avatar name="Sam Lee" :size="24" color="secondary" variant="solid" /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>Sam Lee</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+              </MenuTrigger>
+              <MenuContent side="top" align="start" :min-width="220">
+                <MenuItem @select="() => {}"><Members /> Account</MenuItem>
+                <MenuSeparator />
+                <MenuItem @select="() => {}"><Logout /> Sign out</MenuItem>
+              </MenuContent>
+            </Menu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
 
     <SidebarInset>
       <Page>
         <PageHeader>
           <PageBar>
-            <PageTitle>{{ activeItem }}</PageTitle>
-            <PageActions>
-              <Button color="primary" pill size="md">New</Button>
-            </PageActions>
+            <PageTitle>{{ appLabels.find((item) => item.id === active)?.label }}</PageTitle>
           </PageBar>
         </PageHeader>
         <PageContent>
-          <p class="text-secondary">Main content area.</p>
+          <p class="text-secondary">Fold the sidebar: the Notifications badge turns into a dot above its icon, the counts fade.</p>
         </PageContent>
       </Page>
     </SidebarInset>
