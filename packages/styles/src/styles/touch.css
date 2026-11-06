@@ -20,6 +20,13 @@
   }
 
   html:root {
+    /* iOS layout margin: 16pt up to 402pt wide (the iOS 26 kit's toolbar and row insets at 402), 20pt from
+       414pt (IMG_5470/5508/5512/5514/5515 at 430pt put bar buttons, list groups and row text at 20). Page
+       and Toolbar gutters, sheet bodies and actions, rows, separators and group titles share it. */
+    --mobile-layout-margin: 16px;
+    --page-gutter: var(--mobile-layout-margin);
+    --toolbar-gutter: var(--mobile-layout-margin);
+    --field-row-padding-inline: var(--mobile-layout-margin);
     --control-size-sm: 44px;
     --control-size-md: 44px;
     --control-size-lg: 44px;
@@ -293,7 +300,7 @@
     --badge-size-xl: 36px;
 
     --field-group-radius: 26px;
-    --field-group-separator-inset: 16px;
+    --field-group-separator-inset: var(--mobile-layout-margin);
     --field-group-border-width: 0px;
     --field-group-background: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
     --field-group-title-color: var(--color-text-secondary);
@@ -305,8 +312,8 @@
     --field-group-header-padding-bottom: 9px;
     --field-group-footer-font-size: 13px;
     --field-group-footer-line-height: 16px;
-    --field-group-footer-padding: 8px 16px 6px;
-    --field-group-title-padding-inline: 16px;
+    --field-group-footer-padding: 8px var(--mobile-layout-margin) 6px;
+    --field-group-title-padding-inline: var(--mobile-layout-margin);
     --field-group-description-font-size: 13px;
     --field-group-description-line-height: 18px;
   }
@@ -375,6 +382,12 @@
     margin-block: calc((var(--menu-horizontal-icon-slot) - var(--menu-horizontal-icon-size)) / 2);
   }
 
+}
+
+@media (min-width: 414px) and (max-width: 767px) {
+  html:root {
+    --mobile-layout-margin: 20px;
+  }
 }
 
 /* One calendar on a phone: a whole cell to the finger, narrower only where

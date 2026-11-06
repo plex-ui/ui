@@ -258,7 +258,8 @@
     }
   }
 
-  /* Title: SF text ink sits 2px below the geometric center of the 44px row. */
+  /* Title: centered in the 44px row. Native iOS 26 bars put its cap middle on the buttons' center
+     (IMG_5508/5511/5512/5514/5515, within 1px); the kit's text frame sits 2px lower. */
   .Heading {
     display: flex;
     grid-area: heading;
@@ -268,7 +269,6 @@
     min-width: 0;
     min-height: var(--toolbar-item-size);
     text-align: center;
-    transform: translateY(2px);
   }
 
   .Title {

@@ -12,12 +12,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Changed
 
 - `Checkbox` (solid and pill) marks a choice with the PlexUI `Check` icon, and `Minus` when indeterminate, in React and Vue instead of drawn arms, the same icons as the ghost variant. The icon fills the indicator (`--checkbox-check-icon-size`, the indicator size by default) and keeps `--checkbox-checkmark-color`; a new mark is revealed from the left and a cleared one fades out.
+- Phone layout margin: Page and Toolbar gutters, Sheet bodies and header actions, row insets, separators, and group titles and footers share `--mobile-layout-margin`, 16px up to 413px wide and 20px from 414px, as native iOS 26 screens at 430pt put bar buttons, groups and row text at 20. The 402px phone preview keeps 16, and the Settings, sign-in and New Album examples use the same margin as every other form instead of their own 20.
+- Page, Toolbar and Sheet titles are centered on their 44px bar, so the title sits on the buttons' center as in native iOS 26 bars, 2px higher than before.
+- `SidebarMobileMenuButton` (React and Vue) shows the PlexUI `SidebarMenuMobile` icon, which turns into `X` while the menu is open, instead of drawn lines. Its tokens are `--sidebar-mobile-icon-size` (now `24px`, the icon canvas), `--sidebar-mobile-icon-color` and `--sidebar-mobile-icon-transition-duration`; `--sidebar-mobile-line-*` are removed.
 
 ### Fixed
 
 - `Dialog.Content` and `Menu.Content` (React) call the owner's latest `onCloseAutoFocus` when the close and an owner state change render together. The closing content is frozen for its exit, so the handler from before the close ran and focus went to the wrong place. Vue already read the current handler.
 - Rows with actions example: after Delete account, focus moves to Restore sample account; after restoring, it moves to the first action of the restored account instead of falling to the page.
 - Settings with selection pages example: on a phone a disabled row (Weekly digest) draws its label, value and disclosure in the iOS tertiary label color, as a disabled Menu item does, so it no longer reads like an enabled row's secondary value.
+- Floating view options example (Dialog): the page under the sheet showed only the top edge of its Current view group on both Desktop and Phone, because the preview stage took the height set on it. The screen now carries its height, as in the Settings example, and its title fits on a phone.
+- The password eye in sign-in and account rows is drawn on a 19px canvas, within 1px of the iOS row accessory, instead of 20px.
 
 ## 0.29.0 (2026-11-06)
 

@@ -1025,12 +1025,13 @@
 }
 
 /* =============================================
-   Mobile Menu Button (Hamburger → X)
+   Mobile Menu Button (PlexUI SidebarMenuMobile → X)
 ============================================= */
 
 .MobileMenuButton {
   position: relative;
-  display: block;
+  display: grid;
+  place-items: center;
   width: var(--sidebar-mobile-button-size);
   height: var(--sidebar-mobile-button-size);
   padding: 0;
@@ -1068,92 +1069,39 @@
   outline: 0;
 }
 
-/* Icon wrapper */
+/* The glyphs are PlexUI icons, not drawn lines: the menu glyph turns away as the X turns in. */
 .MobileMenuIcon {
   position: relative;
-  top: 0;
-  left: 7px;
-  overflow: hidden;
   display: block;
   width: var(--sidebar-mobile-icon-size);
   height: var(--sidebar-mobile-icon-size);
+  color: var(--sidebar-mobile-icon-color);
 }
 
-/* Line bars */
-.MobileMenuLine {
+.MobileMenuGlyph {
   position: absolute;
-  top: 4px;
-  left: 0;
+  inset: 0;
   display: block;
-  width: var(--sidebar-mobile-icon-size);
-  height: var(--sidebar-mobile-line-height);
-  transition: transform var(--sidebar-mobile-line-transition-duration) var(--cubic-move) 0.2s;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity var(--sidebar-mobile-icon-transition-duration) var(--cubic-move),
+    transform var(--sidebar-mobile-icon-transition-duration) var(--cubic-move);
 }
 
-.MobileMenuLine::before {
-  display: block;
-  width: var(--sidebar-mobile-icon-size);
-  height: var(--sidebar-mobile-line-height);
-  background: var(--sidebar-mobile-line-color);
-  content: "";
-  transform-origin: center;
-  transition: transform var(--sidebar-mobile-line-transition-duration) var(--cubic-move);
-  will-change: transform;
+.MobileMenuGlyph[data-glyph="close"],
+.MobileMenuButton[data-expanded] .MobileMenuGlyph[data-glyph="menu"] {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.8);
 }
 
-/* Top line - closed state */
-.MobileMenuLine[data-top] {
-  transform: translateY(0);
-  transition-delay: 0.2s;
+.MobileMenuButton[data-expanded] .MobileMenuGlyph[data-glyph="menu"] {
+  transform: rotate(45deg) scale(0.8);
 }
 
-.MobileMenuLine[data-top]::before {
-  transform: rotate(0);
-  transition-delay: 0s;
-}
-
-/* Bottom line - closed state */
-.MobileMenuLine[data-bottom] {
-  top: 12px;
-  transform: translateY(0);
-  transition-delay: 0.2s;
-}
-
-.MobileMenuLine[data-bottom]::before {
-  transform: rotate(0);
-  transition-delay: 0s;
-}
-
-/* Middle wrapper */
-.MobileMenuMiddle {
-  display: block;
-  transform: translateX(-6px);
-  transition: transform 0s var(--cubic-move) 0.2s;
-}
-
-/* Open state (X) */
-.MobileMenuButton[data-expanded] .MobileMenuLine[data-top] {
-  transform: translateY(4px);
-  transition-delay: 0s;
-}
-
-.MobileMenuButton[data-expanded] .MobileMenuLine[data-top]::before {
-  transform: rotate(45deg);
-  transition-delay: 0.2s;
-}
-
-.MobileMenuButton[data-expanded] .MobileMenuLine[data-bottom] {
-  transform: translateY(-4px);
-  transition-delay: 0s;
-}
-
-.MobileMenuButton[data-expanded] .MobileMenuLine[data-bottom]::before {
-  transform: rotate(-45deg);
-  transition-delay: 0.2s;
-}
-
-.MobileMenuButton[data-expanded] .MobileMenuMiddle {
-  transform: translateX(0);
+.MobileMenuButton[data-expanded] .MobileMenuGlyph[data-glyph="close"] {
+  opacity: 1;
+  transform: none;
 }
 
 /* =============================================
@@ -1696,8 +1644,7 @@
   .Card,
   .CardTitleChevron,
   .MobileMenuButton,
-  .MobileMenuLine,
-  .MobileMenuMiddle,
+  .MobileMenuGlyph,
   .MobileBackdrop,
   .MobileSidebar,
   .MobileSidebar > *,
@@ -1706,7 +1653,7 @@
   .App .Header,
   .App .Header span,
   .App .Inset,
-  :is(.MenuButton, .MenuSubButton, .Trigger, .MobileMenuButton, .MobileMenuLine)::before,
+  :is(.MenuButton, .MenuSubButton, .Trigger, .MobileMenuButton)::before,
   .MenuButtonIcon::after,
   .MobileSidebar::after {
     /* Preference overrides every state/variant's duration and delay, including

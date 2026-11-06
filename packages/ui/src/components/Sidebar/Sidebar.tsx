@@ -59,7 +59,7 @@
  *   - Returns null when collapsible="none"
  *
  * SidebarMobileMenuButton
- *   - Hamburger → X animated icon button for mobile
+ *   - Mobile menu button: the SidebarMenuMobile icon turns into X
  *
  * SidebarInput
  *   - shortcut?: string (keyboard shortcut display)
@@ -80,7 +80,7 @@ import {
 } from "react"
 
 import { Button } from "../Button"
-import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, X } from "../Icon"
+import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
@@ -730,7 +730,7 @@ export const SidebarTrigger = forwardRef<HTMLButtonElement, SidebarTriggerProps>
 SidebarTrigger.displayName = "SidebarTrigger"
 
 // =============================================
-// Mobile Menu Button (Hamburger → X)
+// Mobile Menu Button (SidebarMenuMobile icon → X)
 // =============================================
 
 export type SidebarMobileMenuButtonProps = ComponentProps<"button">
@@ -754,10 +754,8 @@ export const SidebarMobileMenuButton = forwardRef<HTMLButtonElement, SidebarMobi
         {...cleanProps(props)}
       >
         <span className={s.MobileMenuIcon}>
-          <span className={s.MobileMenuLine} data-top />
-          <span className={s.MobileMenuMiddle}>
-            <span className={s.MobileMenuLine} data-bottom />
-          </span>
+          <SidebarMenuMobile className={s.MobileMenuGlyph} data-glyph="menu" />
+          <X className={s.MobileMenuGlyph} data-glyph="close" />
         </span>
       </button>
     )

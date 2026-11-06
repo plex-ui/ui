@@ -3,8 +3,6 @@
   .Group {
     --field-group-background: var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary));
     --field-group-radius: 26px;
-    --field-group-separator-inset: 20px;
-    --field-group-footer-padding: 8px 20px 6px;
     --control-size-3xl: var(--field-row-min-height, 52px);
     min-width: 0;
     width: 100%;
@@ -21,7 +19,7 @@
   }
 
   .Control[data-slot="input"] {
-    --input-gutter: 20px;
+    --input-gutter: var(--mobile-layout-margin, 16px);
     width: 100%;
     border-radius: 0;
   }
@@ -30,7 +28,8 @@
     box-shadow: none;
   }
 
-  /* The 20px password accessory keeps a separate 44px touch target. */
+  /* The password eye keeps a separate 44px touch target. Its 19px canvas puts the PlexUI Eye/EyeOff ink
+     within 1px of the Apps 2.4 row accessory (38679:310818) in both states; 20px drew it larger. */
   .Control[data-slot="input"] > .Reveal {
     --input-adornment-background: transparent;
     width: 44px;
@@ -41,8 +40,8 @@
   }
 
   .Control .Reveal > svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
   }
 
   .Control[data-slot="input"] > button:not([aria-label]) {
@@ -84,7 +83,7 @@
 
   .Note {
     margin: 0;
-    padding: 0 20px 12px;
+    padding: 0 var(--mobile-layout-margin, 16px) 12px;
   }
 
   .Note[role="alert"] {
@@ -99,7 +98,6 @@
 
   /* The Field owns the full two-line hit area and its persistent label. */
   .CountryField[data-row] {
-    --field-row-padding-inline: 20px;
     cursor: pointer;
   }
 
@@ -130,7 +128,7 @@
   .Country {
     width: 100%;
     min-height: var(--field-row-min-height, 52px);
-    padding: 0 20px;
+    padding: 0 var(--mobile-layout-margin, 16px);
     border: 0;
     border-radius: 0;
     background: transparent;

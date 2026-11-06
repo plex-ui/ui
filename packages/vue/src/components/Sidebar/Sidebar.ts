@@ -17,7 +17,7 @@ import {
   type VNodeArrayChildren,
 } from "vue"
 import { Button } from "../Button/index.js"
-import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, X } from "../Icon/index.js"
+import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { composeEventHandlers, firstElementChild, flattenSlot, mergeSlotProps } from "../Tooltip/slot.js"
@@ -747,7 +747,7 @@ export const SidebarTrigger = defineComponent({
 }) as unknown as ReturnType<typeof part<SidebarTriggerProps>>
 
 // =============================================
-// Mobile Menu Button (Hamburger → X)
+// Mobile Menu Button (SidebarMenuMobile icon → X)
 // =============================================
 
 export type SidebarMobileMenuButtonProps = ButtonHTMLAttributes
@@ -774,8 +774,8 @@ export const SidebarMobileMenuButton = defineComponent({
         },
         [
           h("span", { class: s.MobileMenuIcon }, [
-            h("span", { "class": s.MobileMenuLine, "data-top": "true" }),
-            h("span", { class: s.MobileMenuMiddle }, [h("span", { "class": s.MobileMenuLine, "data-bottom": "true" })]),
+            h(SidebarMenuMobile, { "class": s.MobileMenuGlyph, "data-glyph": "menu" }),
+            h(X, { "class": s.MobileMenuGlyph, "data-glyph": "close" }),
           ]),
         ],
       )

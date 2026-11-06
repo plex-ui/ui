@@ -88,7 +88,7 @@
     }
 
     .Name {
-        --input-gutter: 20px;
+        --input-gutter: var(--mobile-layout-margin, 16px);
         width: 100%;
     }
 
@@ -128,8 +128,8 @@
     }
 
     .NameError {
-        --field-error-padding-inline: 20px;
-        padding-inline-end: 20px;
+        --field-error-padding-inline: var(--mobile-layout-margin, 16px);
+        padding-inline-end: var(--mobile-layout-margin, 16px);
         padding-bottom: 12px;
     }
 }

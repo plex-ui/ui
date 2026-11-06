@@ -683,10 +683,9 @@
     /* Mobile menu button (hamburger icon) */
     --sidebar-mobile-button-size: 32px;
     --sidebar-mobile-button-radius: 8px;
-    --sidebar-mobile-icon-size: 18px;
-    --sidebar-mobile-line-height: 2px;
-    --sidebar-mobile-line-color: var(--gray-900);
-    --sidebar-mobile-line-transition-duration: 0.2s;
+    --sidebar-mobile-icon-size: 24px;
+    --sidebar-mobile-icon-color: var(--gray-900);
+    --sidebar-mobile-icon-transition-duration: 0.2s;
 
     /* Mobile drawer */
     --sidebar-mobile-gutter: 12px;

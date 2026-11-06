@@ -74,10 +74,10 @@ export function ViewOptionsSheetDemo({ initialOpen = false }: { initialOpen?: bo
   const [value, setValue] = useState(initialViewOptions);
 
   return (
-    <div data-demo-stage className={s.Demo}>
+    <div data-demo-stage>
       <Page surface="grouped" className={s.Screen}>
         <Page.Header><Page.Bar>
-          <Page.Title>View preferences</Page.Title>
+          <Page.Title>Files</Page.Title>
           <Page.Actions><ViewOptionsSheet open={open} onOpenChange={setOpen} value={value} onValueChange={setValue} /></Page.Actions>
         </Page.Bar></Page.Header>
         <Page.Content>

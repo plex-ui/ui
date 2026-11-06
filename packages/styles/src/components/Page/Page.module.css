@@ -233,8 +233,8 @@
       grid-row: 1;
       align-self: center;
       min-width: 0;
-      /* SF text ink sits 2px below the geometric center in Apple's 44px bar. */
-      transform: translateY(2px);
+      /* Centered in the 44px bar: native iOS 26 bars put the title's cap middle on the buttons' center
+         (IMG_5508/5511/5512/5514/5515, within 1px). The kit's text frame sits 2px lower than that. */
     }
   }
 

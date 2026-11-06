@@ -570,7 +570,8 @@
     z-index: 2;
     gap: 0;
     min-height: 70px;
-    padding: 16px 68px 10px;
+    /* Clear of the 44px actions at the layout margin, with 8px between them and the title. */
+    padding: 16px calc(var(--mobile-layout-margin, 16px) + 52px) 10px;
     text-align: center;
 
     &::before {
@@ -593,20 +594,18 @@
     padding-inline-end: 0;
   }
 
-  /* The reference title sits 13px into the 44px toolbar, 2px below its geometric center. */
   .Content[data-mobile-variant="alert"] .Title,
   .Content[data-mobile-variant="sheet"] .Title {
     font-weight: 590;
   }
 
-  .Content[data-mobile-variant="sheet"] .Title {
-    transform: translateY(2px);
-  }
+  /* The sheet title stays centered on its 44px row, so its cap middle meets the Close and confirm
+     centers as in native iOS 26 sheets (IMG_5470, IMG_5514). */
 
   .Content[data-mobile-variant="sheet"] .CloseButton {
     z-index: 3;
     top: var(--dialog-sheet-action-inset-block, 16px);
-    inset-inline-start: var(--dialog-sheet-action-inset-inline, 16px);
+    inset-inline-start: var(--dialog-sheet-action-inset-inline, var(--mobile-layout-margin, 16px));
     inset-inline-end: auto;
     width: var(--dialog-sheet-close-size);
     height: var(--dialog-sheet-close-size);
@@ -627,7 +626,7 @@
   .Content[data-mobile-variant="sheet"] .HeaderAction {
     z-index: 3;
     top: var(--dialog-sheet-action-inset-block, 16px);
-    inset-inline-end: var(--dialog-sheet-action-inset-inline, 16px);
+    inset-inline-end: var(--dialog-sheet-action-inset-inline, var(--mobile-layout-margin, 16px));
 
     & > button {
       --button-size: var(--dialog-sheet-close-size);
@@ -652,7 +651,7 @@
 
   .Content[data-mobile-variant="sheet"] .Body {
     margin-inline: 0;
-    padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
+    padding: 16px var(--mobile-layout-margin, 16px) max(16px, env(safe-area-inset-bottom, 0px));
   }
 
   /* A phone Toolbar takes the place of the Sheet's bar. The header keeps naming the dialog. */

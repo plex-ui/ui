@@ -75,10 +75,10 @@ export const ViewOptionsSheetDemo = defineComponent({
   setup(props) {
     const open = ref(props.initialOpen);
     const value = ref(initialViewOptions());
-    return () => h('div', { 'data-demo-stage': '', class: s.Demo }, [
+    return () => h('div', { 'data-demo-stage': '' }, [
       h(Page, { surface: 'grouped', class: s.Screen }, () => [
         h(PageHeader, null, () => h(PageBar, null, () => [
-          h(PageTitle, null, () => 'View preferences'),
+          h(PageTitle, null, () => 'Files'),
           h(PageActions, null, () => h(ViewOptionsSheet, {
             open: open.value, value: value.value,
             'onUpdate:open': (next: boolean) => { open.value = next; },

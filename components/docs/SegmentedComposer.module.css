@@ -32,13 +32,13 @@
 
   .Composer {
     --dialog-sheet-action-inset-block: 20px;
-    --dialog-sheet-action-inset-inline: 20px;
+    --dialog-sheet-action-inset-inline: var(--mobile-layout-margin, 16px);
     height: var(--dialog-panel-max-height);
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header {
     min-height: 80px;
-    padding: 18px 76px 14px;
+    padding: 18px calc(var(--mobile-layout-margin, 16px) + 56px) 14px;
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header::before {
@@ -68,7 +68,7 @@
   }
 
   :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Body {
-    padding-inline: 20px;
+    padding-inline: var(--mobile-layout-margin, 16px);
     padding-top: calc(12px + var(--dialog-header-height, 0px));
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
     scroll-padding-top: calc(12px + var(--dialog-header-height, 0px));

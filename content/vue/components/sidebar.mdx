@@ -913,7 +913,7 @@ Renders a collapsible submenu container for nested navigation.
 
 ### SidebarTrigger
 
-Collapse button. Renders nothing when `collapsible="none"`. The default icon is `Sidebar` in both states, and a tooltip can say what a press does; the default slot replaces it. A `@click` listener runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the animated hamburger for the mobile menu, handles `@click` the same way.
+Collapse button. Renders nothing when `collapsible="none"`. The default icon is `Sidebar` in both states, and a tooltip can say what a press does; the default slot replaces it. A `@click` listener runs before the toggle; call `event.preventDefault()` in it to cancel the toggle. `SidebarMobileMenuButton`, the mobile menu button (the PlexUI `SidebarMenuMobile` icon, which turns into `X` while the menu is open), handles `@click` the same way.
 
 ### SidebarInput
 
@@ -979,10 +979,9 @@ Sidebar reads these component tokens. Override them at any scope to restyle it. 
 - `--sidebar-mobile-exit-duration`: mobile exit duration (default `0.3s`)
 - `--sidebar-mobile-gutter`: mobile gutter (default `12px`)
 - `--sidebar-mobile-header-height`: mobile header height (default `48px`)
-- `--sidebar-mobile-icon-size`: mobile icon size (default `18px`)
-- `--sidebar-mobile-line-color`: mobile line color (default `var(--gray-900)`)
-- `--sidebar-mobile-line-height`: mobile line height (default `2px`)
-- `--sidebar-mobile-line-transition-duration`: mobile line transition duration (default `0.2s`)
+- `--sidebar-mobile-icon-size`: mobile menu icon size (default `24px`)
+- `--sidebar-mobile-icon-color`: mobile menu icon color (default `var(--gray-900)`)
+- `--sidebar-mobile-icon-transition-duration`: duration of the menu icon turning into the close icon (default `0.2s`)
 - `--sidebar-mobile-z-index`: mobile z index (default `301`)
 - `--sidebar-transition-duration`: transition duration (default `0.3s`)
 - `--sidebar-width`: width (`SidebarProvider` sets `240px`)

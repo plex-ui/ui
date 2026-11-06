@@ -149,19 +149,21 @@
     padding: 0;
   }
 
+  /* Gutters, row insets and separators follow the shared phone layout margin like every other form:
+     16 at 402pt, 20 from 414pt (IMG_5512 is a 430pt frame). */
   .Screen,
   .Dialog {
     --field-group-radius: 26px;
-    --field-group-separator-inset: 20px;
-    --field-group-footer-padding: 8px 20px 6px;
-    --field-row-padding-inline: 20px;
   }
 
   .Screen {
-    --page-gutter: 20px;
     --page-content-padding-top: 10px;
     width: 100%;
     height: 100dvh;
+  }
+
+  .DialogContent {
+    padding-inline: var(--mobile-layout-margin, 16px);
   }
 
   .RowButton:focus-visible::after {

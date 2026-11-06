@@ -1,7 +1,8 @@
 /* A separate, copyable floating composition. The public tall Sheet stays flush. */
-.Demo {
-  width: 100%;
-  max-width: 480px;
+/* The stage is a flex item, so the screen itself carries the height, as in the Settings example. */
+.Screen {
+  width: 480px;
+  max-width: 100%;
   height: 480px;
 }
 
@@ -16,14 +17,11 @@
 }
 
 @media (max-width: 767px) {
-  .Demo {
-    max-width: none;
-    height: 100dvh;
-  }
-
   .Screen {
     --page-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 54px);
     --page-content-padding-top: 16px;
+    width: 100%;
+    height: 100dvh;
   }
 
   .FloatingSheet {
@@ -41,7 +39,7 @@
 
   .FloatingHeader {
     min-height: 84px;
-    padding: 20px 68px;
+    padding: 20px calc(var(--mobile-layout-margin, 16px) + 48px);
   }
 
   /* The floating panel owns one glass surface, including its header. */
@@ -52,11 +50,11 @@
 
   .FloatingAction {
     top: 20px;
-    inset-inline-end: 20px;
+    inset-inline-end: var(--mobile-layout-margin, 16px);
   }
 
   .FloatingBody {
-    padding-inline: 20px;
+    padding-inline: var(--mobile-layout-margin, 16px);
     padding-top: calc(20px + var(--dialog-header-height, 0px));
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
     scroll-padding-top: calc(20px + var(--dialog-header-height, 0px));
