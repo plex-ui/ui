@@ -11,7 +11,7 @@ export const overview = `<Popover>
   <PopoverTrigger>
     <Button color="primary" :pill="false">Generate</Button>
   </PopoverTrigger>
-  <PopoverContent side="right">
+  <PopoverContent :side="wide ? 'right' : 'bottom'">
     <div class="p-4">
       <p class="text-sm text-secondary">Popover content. Use with any floating UI.</p>
     </div>
@@ -48,7 +48,7 @@ export const hover = `<div class="flex flex-col gap-4">
     <PopoverTrigger>
       <Button color="primary" :pill="false">Static content</Button>
     </PopoverTrigger>
-    <PopoverContent :width="320" side="right">
+    <PopoverContent :width="320" :side="wide ? 'right' : 'bottom'">
       <div class="p-3">
         <h3 class="mb-0.5 font-semibold">Popover Title</h3>
         <p class="text-sm text-secondary">
@@ -62,7 +62,7 @@ export const hover = `<div class="flex flex-col gap-4">
     <PopoverTrigger>
       <Button color="primary" :pill="false">Interactive content</Button>
     </PopoverTrigger>
-    <PopoverContent :min-width="230" side="right" v-slot="{ close }">
+    <PopoverContent :min-width="230" :side="wide ? 'right' : 'bottom'" v-slot="{ close }">
       <div class="p-3">
         <h3 class="mb-0.5 text-sm font-semibold">Popover with actions</h3>
         <p class="text-sm text-secondary">Try using tab to navigate</p>
@@ -79,24 +79,21 @@ export const hover = `<div class="flex flex-col gap-4">
   </Popover>
 </div>`
 
-export const controller = `<Popover>
+export const controller = `<Popover :open="open" @update:open="setOpen">
   <PopoverTrigger>
     <Button color="primary" :pill="false">Generate</Button>
   </PopoverTrigger>
-  <PopoverContent side="right" v-slot="{ close, shake }">
-    <form
-      @submit.prevent="
-        if (!prompt) shake();
-        else {
-          submitting = true;
-          submitPrompt().then(() => { submitting = false; prompt = ''; close(); });
-        }
-      "
-    >
-      <textarea
-        v-model="prompt"
+  <PopoverContent :side="wide ? 'right' : 'bottom'" v-slot="{ close, shake }">
+    <form class="pt-2" @submit.prevent="submitPrompt(close, shake)">
+      <Textarea
+        :value="prompt"
+        @update:value="setPrompt"
+        aria-label="Prompt"
+        variant="ghost"
+        gutter-size="xl"
+        :rows="3"
+        class="w-full"
         placeholder="Describe what you're using the model for, and we'll generate system instructions."
-        style="width: 100%; height: 80px; background: none; padding: 12px 16px 8px; border: 0; font-size: 14px; line-height: 20px; resize: none; outline: 0"
       />
       <div class="px-3 pb-3 flex items-center justify-between">
         <div class="flex gap-1.5 items-center font-normal text-sm text-tertiary">
@@ -111,14 +108,83 @@ export const controller = `<Popover>
   </PopoverContent>
 </Popover>`
 
+export const responsiveCode = (template) => `<script setup lang="ts">
+import { Button } from '@plexui/vue/components/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+
+const wide = useBreakpoint('md');
+</script>
+
+<template>
+${template}
+</template>`
+
+export const controllerCode = `<script setup lang="ts">
+import { onBeforeUnmount, ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+import { Sparkles } from '@plexui/vue/components/Icon';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { Textarea } from '@plexui/vue/components/Textarea';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+
+const wide = useBreakpoint('md');
+const open = ref(false);
+const prompt = ref('');
+const submitting = ref(false);
+let timer: ReturnType<typeof setTimeout> | undefined;
+let session = 0;
+
+onBeforeUnmount(() => {
+  session++;
+  clearTimeout(timer);
+});
+
+function setOpen(next: boolean) {
+  session++;
+  clearTimeout(timer);
+  timer = undefined;
+  if (next) {
+    submitting.value = false;
+    prompt.value = '';
+  }
+  open.value = next;
+}
+
+function setPrompt(value: string) {
+  prompt.value = value;
+}
+
+function submitPrompt(close: () => void, shake: () => void) {
+  if (!prompt.value) {
+    shake();
+    return;
+  }
+  if (timer !== undefined) return;
+  submitting.value = true;
+  const currentSession = session;
+  timer = setTimeout(() => {
+    if (session !== currentSession) return;
+    timer = undefined;
+    close();
+  }, 2000);
+}
+</script>
+
+<template>
+${controller}
+</template>`
+
 <UsageBlock>{`import { Popover, PopoverContent, PopoverTrigger } from "@plexui/vue/components/Popover";`}</UsageBlock>
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} />
+These examples keep the panel beside the trigger on desktop and below it on phones, where space beside the trigger is limited.
+
+<ComponentPreview language="vue" code={responsiveCode(overview)} previewMinHeight={168}>
+  <VuePopoverDemo template={overview} />
 </ComponentPreview>
 
 ### Sizing the popover
@@ -129,14 +195,14 @@ export const controller = `<Popover>
 
 ### Open on hover
 
-<ComponentPreview language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={hover} previewMinHeight={168}>
-  <VueDemo template={hover} />
+<ComponentPreview language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
+  <VuePopoverDemo template={hover} />
 </ComponentPreview>
 
 ### Using the controller
 
-<ComponentPreview language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After async submission occurs (<code>submitPrompt()</code> fakes a two-second request), the <code>close()</code> method is called to close the popup imperatively.</li></ul></>} code={controller} previewMinHeight={168}>
-  <VuePopoverDemo template={controller} state={{ prompt: "", submitting: false }} />
+<ComponentPreview language="vue" details={<>The default slot of <code>PopoverContent</code> receives <code>{"{ close, shake }"}</code>. Components rendered inside it can get the same two methods from <code>usePopoverController()</code> in their <code>setup()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
+  <VuePopoverDemo template={controller} />
 </ComponentPreview>
 
 ### Nesting
@@ -169,6 +235,7 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
   { prop: "side-offset", type: "number", default: "8", description: "Offset from trigger (px)" },
   { prop: "align-offset", type: "number", default: "-5", description: "Offset from the start or end alignment (px)" },
   { prop: "avoid-collisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
+  { prop: "collision-padding", type: "number", default: "20", description: "Space in px to keep from viewport and scroll container boundaries" },
   { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
   { prop: "auto-focus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
   { prop: "data-*", type: "string", description: "Data attributes land on the panel" },

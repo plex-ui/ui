@@ -170,6 +170,15 @@ describe("FieldGroup", () => {
     expect(pair.vue).toBe(pair.react)
   })
 
+  test.each([undefined, null, false, ""])("empty footer %s adds no spacing wrapper", async (footer) => {
+    const pair = await renderPair(
+      createElement(RFieldGroup, { title: "Payment", footer }),
+      () => h(FieldGroup, { title: "Payment" }, { footer: () => footer }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).not.toContain("Footer")
+  })
+
   test("the title names the group", async () => {
     const pair = await renderPair(createElement(RFieldGroup, { title: "Payment" }), () => h(FieldGroup, { title: "Payment" }))
     expect(pair.vue).toContain('role="group"')

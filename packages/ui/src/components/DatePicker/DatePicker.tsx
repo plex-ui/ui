@@ -1,13 +1,16 @@
 "use client"
 
+import s from "@plexui/styles/components/DatePicker/Calendar.module.css"
 import { DateTime } from "luxon"
 import { useId, useMemo } from "react"
+import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { isAfter } from "../../lib/dateUtils"
 import { Calendar } from "../Icon"
 import { Popover, type PopoverContentProps } from "../Popover"
 import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { DateCalendar } from "./Calendar"
+import { useCalendarGutter } from "./useCalendarGutter"
 import { DateContext, type DateContextValue } from "./context"
 
 export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid"> & {
@@ -33,6 +36,7 @@ export type DatePickerProps = Pick<SelectControlProps, "aria-label" | "aria-labe
   max?: DateTime
   /**
    * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
+   * On phones, left and right prefer bottom so all seven 44px day targets fit.
    * @default bottom
    */
   side?: PopoverContentProps["side"]
@@ -167,6 +171,8 @@ export const DatePicker = (props: DatePickerProps) => {
 
   // The value text needs an id for aria-labelledby, also when `id` is not set
   const generatedId = useId()
+  const wide = useBreakpoint("md")
+  const calendarGutter = useCalendarGutter()
   const valueId = `${id ?? generatedId}-value`
 
   // Create stable, mutable references to avoid memoization requirements from consumers
@@ -236,6 +242,7 @@ export const DatePicker = (props: DatePickerProps) => {
             block={block}
             size={size}
             disabled={disabled}
+            interactOnEnter
             StartIcon={triggerShowIcon ? Calendar : undefined}
             dropdownIconType={dropdownIconType}
             onClearClick={clearable ? handleClearClick : undefined}
@@ -246,8 +253,10 @@ export const DatePicker = (props: DatePickerProps) => {
           </SelectControl>
         </Popover.Trigger>
         <Popover.Content
+          className={s.Popover}
           minWidth={230}
-          side={side}
+          collisionPadding={wide ? 20 : calendarGutter}
+          side={wide || side === "top" ? side : "bottom"}
           sideOffset={sideOffset}
           align={align}
           alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}

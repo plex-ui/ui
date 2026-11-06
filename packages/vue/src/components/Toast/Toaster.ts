@@ -1,5 +1,6 @@
 import { defineComponent, h, onBeforeUnmount, onMounted, ref, type Component, type PropType } from "vue"
-import { Toaster as SonnerToaster, type ToasterProps as SonnerToasterProps } from "vue-sonner"
+import { type ToasterProps as SonnerToasterProps } from "vue-sonner"
+import { ToastRenderer as SonnerToaster } from "./ToastRenderer.js"
 // sonner (React) injects its stylesheet on import; vue-sonner 2 ships it as a file
 import "vue-sonner/style.css"
 import { CheckCircle, InfoCircle, Warning, XCircle } from "../Icon/index.js"
@@ -24,6 +25,26 @@ type ToastIcons = NonNullable<SonnerToasterProps["icons"]>
 
 const readTheme = (): PlexTheme =>
   document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light"
+
+// Keep a gutter outside the safe area; explicit offsets override each supplied
+// edge, while omitted edges retain the safe default. Sonner applies these only
+// at its mobile breakpoint, so desktop positioning is unchanged.
+const safeMobileOffset = {
+  top: "calc(16px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))",
+  right: "calc(16px + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)))",
+  bottom: "calc(16px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))",
+  left: "calc(16px + var(--safe-area-inset-left, env(safe-area-inset-left, 0px)))",
+}
+
+const resolveMobileOffset = (offset: SonnerToasterProps["mobileOffset"]) =>
+  typeof offset === "number" || typeof offset === "string"
+    ? offset
+    : {
+        top: offset?.top ?? safeMobileOffset.top,
+        right: offset?.right ?? safeMobileOffset.right,
+        bottom: offset?.bottom ?? safeMobileOffset.bottom,
+        left: offset?.left ?? safeMobileOffset.left,
+      }
 
 /* Maps PlexUI semantic tokens onto sonner's CSS-variable hooks. Sonner's own
    stylesheet reads these for every toast, so the base look stays aligned with
@@ -66,6 +87,7 @@ const CloseIcon = () =>
     "svg",
     {
       "xmlns": "http://www.w3.org/2000/svg",
+      "aria-hidden": "true",
       "width": "12",
       "height": "12",
       "viewBox": "0 0 24 24",
@@ -88,6 +110,8 @@ const ToasterComponent = defineComponent({
     duration: { type: Number, default: 3000 },
     /** Distance from the viewport edge */
     offset: [String, Number, Object] as PropType<SonnerToasterProps["offset"]>,
+    /** Mobile distance from each safe viewport edge; explicit values override the default. */
+    mobileOffset: [String, Number, Object] as PropType<SonnerToasterProps["mobileOffset"]>,
     /** Gap between stacked toasts in px */
     gap: Number,
   },
@@ -147,6 +171,7 @@ const ToasterComponent = defineComponent({
           "position": props.position,
           "duration": props.duration,
           "offset": props.offset,
+          "mobileOffset": resolveMobileOffset(props.mobileOffset),
           "gap": props.gap,
           "class": s.Toaster,
           "style": toasterStyle,
@@ -175,7 +200,7 @@ type ToasterOwnProps = InstanceType<typeof ToasterComponent>["$props"]
 export type ToasterProps = ToasterOwnProps &
   Omit<
     SonnerToasterProps,
-    "position" | "duration" | "closeButton" | "offset" | "gap" | "theme" | "richColors" | "toastOptions" | "style"
+    "position" | "duration" | "closeButton" | "offset" | "mobileOffset" | "gap" | "theme" | "richColors" | "toastOptions" | "style"
   >
 
 /**

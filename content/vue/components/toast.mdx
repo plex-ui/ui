@@ -82,7 +82,7 @@ export const persistent = `<Button
 
 <UsageBlock>{`import { Toaster, toast } from "@plexui/vue/components/Toast";`}</UsageBlock>
 
-Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. Toast is built on [vue-sonner](https://vue-sonner.vercel.app/), the Vue port of sonner. Its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is. The examples call `toast` from the template; in an app, import it in `<script setup>`.
+Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. PlexUI renders toasts and manages their interaction while [vue-sonner](https://vue-sonner.vercel.app/) supplies the toast store. It retains vue-sonner’s toast API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`). The examples call `toast` from the template; in an app, import it in `<script setup>`.
 
 ## Examples
 
@@ -143,28 +143,17 @@ Render `<Toaster />` once near the root of your app, then call `toast(...)` from
   { prop: "position", type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"', default: '"top-center"', description: "Where toasts anchor on the viewport" },
   { prop: "duration", type: "number", default: "3000", description: "Default auto-dismiss duration in ms" },
   { prop: "offset", type: "string | number | { top?; right?; bottom?; left? }", description: "Distance from the viewport edge" },
+  { prop: "mobile-offset", type: "string | number | { top?; right?; bottom?; left? }", default: "16px + safe area per edge", description: "Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them." },
   { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
 ]} />
 
-Remaining vue-sonner `Toaster` props (`expand`, `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, etc.) are forwarded untouched. `theme`, `rich-colors`, `toast-options`, `style` and `close-button` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync. The `success-icon`, `error-icon`, `warning-icon`, `info-icon`, `loading-icon` and `close-icon` slots replace the default icons.
+PlexUI implements the compatible vue-sonner `Toaster` options (`expand`, `visible-toasts`, `hotkey`, `dir`, `swipe-directions`, etc.) in its renderer. `theme`, `rich-colors`, `toast-options`, `style` and `close-button` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync. The `success-icon`, `error-icon`, `warning-icon`, `info-icon`, `loading-icon` and `close-icon` slots replace the default icons.
 
 ### toast
 
 vue-sonner's `toast`, wrapped so a per-toast `descriptionClass` reaches the description as in React. The full surface (`toast()`, `.success`, `.error`, `.warning`, `.info`, `.message`, `.loading`, `.promise`, `.dismiss`, `.custom`) is available with full TypeScript inference. vue-sonner spells a few options the Vue way: `class` (sonner's `className`), `classes` (`classNames`) and `descriptionClass` (`descriptionClassName`), and `toast.custom` takes a component.
 
-The Vue Toaster wraps [vue-sonner](https://vue-sonner.vercel.app/) 2.0.9, the Vue port of the sonner library the React Toaster uses. Plex styles, icons, defaults and theme sync are the same, and the wrapper aligns the markup it can reach. A few differences come from vue-sonner itself:
-
-- With no toasts on screen, an empty `<ol data-sonner-toaster>` stays in the page; React renders no list.
-- When a promise toast settles, its spinner is removed at once instead of fading out.
-- When several toasts are created in the same tick, their stack offsets can come out in a different order until the next toast arrives. Toasts created one after another stack the same way.
-- A plain `toast()` or `toast.message()` carries `data-type="default"`, which React leaves unset. Nothing visible changes.
-- Each toast's `--z-index` counts down from 0 instead of from the number of toasts. The stacking order is the same.
-- Action and cancel buttons print `data-button`, `data-action` and `data-cancel` as empty strings rather than `"true"`.
-- A per-toast `closeButton` adds `data-close-button-position`, which vue-sonner's stylesheet uses to place it.
-- Attributes passed to `<Toaster>` that are not props land on the `<ol>`; React drops them.
-- Updating a toast with a new `duration`, such as turning a `toast.loading()` with `duration: Infinity` into a success with `duration: 3000`, keeps its old timer, where React starts over with the new duration.
-- An `action` or `cancel` label given as a component prints as text, so pass a string label; React renders the element.
-- A per-toast `descriptionClass` comes after the Plex description class in the class list; React puts it first.
+PlexUI renders and manages toast interaction in both frameworks while retaining [vue-sonner](https://vue-sonner.vercel.app/) as the Vue toast store. Timers, swipe cancellation, focus restoration and hidden-toast accessibility follow the same behavior. Vue-specific option names and custom components follow vue-sonner’s API.
 
 ### Types
 

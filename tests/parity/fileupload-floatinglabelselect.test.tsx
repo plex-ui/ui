@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, createRef, useState, type ReactNode } from "react"
-import { describe, expect, test } from "vitest"
-import { defineComponent, h, ref } from "vue"
+import { describe, expect, test, vi } from "vitest"
+import { defineComponent, h, ref, shallowRef } from "vue"
 import {
   FileCard as RFileCard,
   FileCardGroup as RFileCardGroup,
@@ -13,7 +13,6 @@ import { FileCard, FileCardGroup, FileUpload } from "../../packages/vue/src/comp
 import { FloatingLabelSelect } from "../../packages/vue/src/components/FloatingLabelSelect"
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "../../packages/vue/src/components/Menu"
 import { animation, flushVue, mountVue } from "./harness"
-import { serializeDom } from "./normalize"
 import { interact, renderPair, walkPair } from "./pair"
 
 type Props = Record<string, unknown>
@@ -89,12 +88,12 @@ const fileUploadCases: Array<[string, Props]> = [
   ["controlled files, compact", { value: [PDF, PNG, LONG] }],
   ["controlled files, area", { variant: "area", value: [PDF, PNG] }],
   ["controlled empty list", { value: [] }],
-  ["at maxFiles the trigger disables", { maxFiles: 2, value: [PDF, PNG] }],
-  ["at maxFiles, area", { variant: "area", maxFiles: 1, value: [PDF] }],
+  ["at maxFiles the multiple trigger disables", { multiple: true, maxFiles: 2, value: [PDF, PNG] }],
+  ["at maxFiles, multiple area", { variant: "area", multiple: true, maxFiles: 1, value: [PDF] }],
   ["maxFiles 0 means no limit", { maxFiles: 0, value: [PDF] }],
   ["disabled with files disables remove buttons", { disabled: true, value: [PDF, PNG] }],
   ["value null falls back to the internal list", { value: null }],
-  ["explicit aria-invalid reaches the compact trigger", { "aria-invalid": true }],
+  ["explicit aria-invalid reaches the compact file input", { "aria-invalid": true }],
   ["explicit aria-invalid false wins over the error", { "variant": "area", "id": "docs", "aria-invalid": false, "errorMessage": "Required" }],
   ["other attributes are dropped", { "data-testid": "upload", "style": { color: "red" }, "title": "t" }],
 ]
@@ -107,15 +106,24 @@ describe("FileUpload parity", () => {
     expect(vue).toBe(react)
   })
 
-  test("the visible trigger carries aria-describedby and aria-invalid, in both variants", async () => {
+  test("the action announces the error while invalid belongs to the file input, in both variants", async () => {
     for (const variant of ["compact", "area"]) {
-      const props = { variant, "id": "docs", "aria-describedby": "hint", "errorMessage": "Required" }
-      const { react, vue } = await renderPair(createElement(RFileUpload, props as never), () =>
-        h(FileUpload, toVueFileUpload(props) as never),
-      )
-      expect(vue).toBe(react)
-      // "hint" is not in the document, so the serializer prints it as [missing]
-      expect(react).toMatch(/<button aria-describedby="\[missing\] docs-error" aria-invalid="true" /)
+      for (const framework of ["react", "vue"] as const) {
+        const props = { variant, "id": "docs", "aria-describedby": "hint", "errorMessage": "Required" }
+        if (framework === "react") render(createElement(RFileUpload, props as never))
+        else mountVue(() => h(FileUpload, toVueFileUpload(props) as never))
+        await interact(() => {})
+        const trigger = document.querySelector("button")
+        const group = document.querySelector('[role="group"]')
+        expect(trigger?.getAttribute("aria-describedby")).toBe("hint docs-error")
+        expect(trigger?.hasAttribute("aria-invalid")).toBe(false)
+        expect(group?.getAttribute("aria-describedby")).toBe("hint docs-error")
+        expect(fileInput().getAttribute("aria-invalid")).toBe("true")
+        expect(fileInput().getAttribute("aria-describedby")).toBe("hint docs-error")
+        expect(document.getElementById("docs-error")?.getAttribute("role")).toBe("alert")
+        cleanup()
+        document.body.innerHTML = ""
+      }
     }
   })
 
@@ -175,7 +183,7 @@ describe("FileCard parity", () => {
   })
 
   test("empty group", async () => {
-    const { react, vue } = await renderPair(createElement(RFileCardGroup, { children: null }), () => h(FileCardGroup))
+    const { react, vue } = await renderPair(<RFileCardGroup>{null}</RFileCardGroup>, () => h(FileCardGroup))
     expect(vue).toBe(react)
   })
 })
@@ -278,14 +286,30 @@ describe("FileUpload behaviour parity", () => {
     ])
   })
 
-  test("without multiple, maxFiles 1 still takes a replacement", async () => {
-    const { react, vue, reactLog, vueLog } = await walkUpload({ maxFiles: 1, value: [PDF] }, async (snap) => {
+  test.each(["compact", "area"])("%s: single-file trigger stays usable for replacement at maxFiles 1", async (variant) => {
+    const { react, vue, reactLog, vueLog } = await walkUpload({ variant, maxFiles: 1 }, async (snap) => {
+      let pickerClicks = 0
+      fileInput().addEventListener("click", () => pickerClicks++)
+      const openPicker = async () => {
+        const trigger = document.querySelector("button")
+        if (!trigger) throw new Error("File upload trigger is missing")
+        await interact(() => { fireEvent.click(trigger) })
+      }
+
+      await openPicker()
+      expect(pickerClicks).toBe(1)
+      await selectFiles([PDF])
+      snap()
+      await openPicker()
+      expect(pickerClicks).toBe(2)
       await selectFiles([PNG])
       snap()
     })
     expect(vue).toEqual(react)
+    expect(react[1]).not.toContain(PDF.name)
+    expect(react[1]).toContain(PNG.name)
     expect(vueLog).toEqual(reactLog)
-    expect(reactLog).toEqual([["valueChange", [PNG.name]]])
+    expect(reactLog).toEqual([["valueChange", [PDF.name]], ["valueChange", [PNG.name]]])
   })
 
   test("controlled without updates reports changes but keeps its list", async () => {
@@ -363,9 +387,9 @@ describe("FileUpload behaviour parity", () => {
       { variant: "area" },
       { disabled: true },
       { variant: "area", disabled: true },
-      { maxFiles: 1, value: [PDF] },
-      // The input stays enabled at the limit: only the trigger's disabled state stops the click
-      { variant: "area", maxFiles: 1, value: [PDF] },
+      { multiple: true, maxFiles: 1, value: [PDF] },
+      // The input stays enabled at the multiple-file limit: only the trigger stops the click.
+      { variant: "area", multiple: true, maxFiles: 1, value: [PDF] },
     ]
     for (const framework of ["react", "vue"] as const) {
       for (const props of scenarios) {
@@ -536,7 +560,7 @@ const selectApps = (log: string[], extra: Props = {}) => {
         {open && (
           <ul role="listbox">
             {ROLES.map((r) => (
-              <li key={r} role="option" onClick={() => (setValue(r), setOpen(false))}>
+              <li key={r} role="option" aria-selected={value === r} onClick={() => (setValue(r), setOpen(false))}>
                 {r}
               </li>
             ))}
@@ -570,7 +594,7 @@ const selectApps = (log: string[], extra: Props = {}) => {
             ? h(
                 "ul",
                 { role: "listbox" },
-                ROLES.map((r) => h("li", { key: r, role: "option", onClick: () => ((value.value = r), (open.value = false)) }, r)),
+                ROLES.map((r) => h("li", { "key": r, "role": "option", "aria-selected": value.value === r, "onClick": () => ((value.value = r), (open.value = false)) }, r)),
               )
             : null,
         ])
@@ -914,5 +938,95 @@ describe("FloatingLabelSelect in a Menu trigger parity", () => {
     expect(runs.vue).toEqual(runs.react)
     const field = 'div.FieldFootprint "Role"'
     expect(runs.react).toEqual(['div.MenuItem "Designer"', field, "select", field])
+  })
+})
+
+
+describe.each(["React", "Vue"])("%s FileUpload removal focus", (framework) => {
+  const removeButton = (file: File) => {
+    const button = Array.from(document.querySelectorAll<HTMLButtonElement>("button"))
+      .find((element) => element.getAttribute("aria-label") === `Remove ${file.name}`)
+    if (!button) throw new Error(`Missing remove button for ${file.name}`)
+    return button
+  }
+
+  const mountControlled = (variant: "compact" | "area", accept: boolean) => {
+    const initial = [PDF, PNG, LONG]
+    const requests = vi.fn()
+    let update: (files: File[]) => void = () => { throw new Error("Upload fixture is not mounted") }
+    const onChange = (files: File[]) => {
+      requests(files)
+      if (accept) update(files)
+    }
+    if (framework === "React") {
+      const example = (value: File[]) => <RFileUpload variant={variant} multiple maxFiles={3} value={value} onValueChange={onChange} />
+      const view = render(example(initial))
+      update = (files) => view.rerender(example(files))
+    } else {
+      const value = shallowRef(initial)
+      update = (files) => { value.value = files }
+      mountVue(() => h(FileUpload, { variant, multiple: true, maxFiles: 3, value: value.value, "onUpdate:value": onChange }))
+    }
+    return { requests, update: (files: File[]) => interact(() => update(files)) }
+  }
+
+  test.each(["compact", "area"] as const)("%s accepted removal focuses next, previous, then Upload without scrolling", async (variant) => {
+    const { requests } = mountControlled(variant, true)
+    await interact(() => {})
+    const upload = document.querySelector<HTMLButtonElement>("button")!
+    expect(upload.disabled).toBe(true)
+    for (const [removed, target] of [[PNG, removeButton(LONG)], [LONG, removeButton(PDF)], [PDF, upload]] as const) {
+      const button = removeButton(removed)
+      const focus = vi.spyOn(target, "focus")
+      await interact(() => button.focus())
+      // Enter/Space activates the focused native button with a click.
+      await interact(() => fireEvent.click(button))
+      expect(document.activeElement).toBe(target)
+      expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    }
+    expect(upload.disabled).toBe(false)
+    expect(requests.mock.calls.map(([files]) => names(files))).toEqual([[PDF.name, LONG.name], [PDF.name], []])
+  })
+
+  test("uncontrolled removal also restores focus after its own list commits", async () => {
+    if (framework === "React") render(<RFileUpload multiple />)
+    else mountVue(() => h(FileUpload, { multiple: true }))
+    await selectFiles([PDF, PNG])
+    const next = removeButton(PNG)
+    await interact(() => removeButton(PDF).focus())
+    await interact(() => fireEvent.click(removeButton(PDF)))
+    expect(document.activeElement).toBe(next)
+  })
+
+  test("controlled refusal keeps focus; later acceptance restores it while the owner still has focus", async () => {
+    const { requests, update } = mountControlled("compact", false)
+    await interact(() => {})
+    const button = removeButton(PNG)
+    const next = removeButton(LONG)
+    await interact(() => button.focus())
+    await interact(() => fireEvent.click(button))
+    expect(requests).toHaveBeenCalledExactlyOnceWith([PDF, LONG])
+    expect(document.activeElement).toBe(button)
+    await update([PDF, LONG])
+    expect(document.activeElement).toBe(next)
+  })
+
+  test.each(["focus", "pointer"])("delayed acceptance does not steal focus after an outside %s interaction", async (interaction) => {
+    const { update } = mountControlled("area", false)
+    await interact(() => {})
+    const button = removeButton(PNG)
+    await interact(() => button.focus())
+    await interact(() => fireEvent.click(button))
+    const outside = document.createElement("button")
+    document.body.append(outside)
+    await interact(() => {
+      if (interaction === "focus") outside.focus()
+      else fireEvent.pointerDown(outside)
+      // Returning to body must not revive the stale removal request.
+      ;(document.activeElement as HTMLElement).blur()
+    })
+    expect(document.activeElement).toBe(document.body)
+    await update([PDF, LONG])
+    expect(document.activeElement).toBe(document.body)
   })
 })

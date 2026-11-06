@@ -39,13 +39,13 @@ const [invertTrend, setInvertTrend] = useState(false)
 
 <ComponentPreview details={<>Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography. The small size also pairs well with the <code>tooltip</code> prop for info icons.</>} code={`<div className="flex flex-col gap-6">
   {/* Default size */}
-  <div className="grid grid-cols-3 gap-4">
+  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4">
     <StatCard label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
     <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
     <StatCard label="Conversion Rate" value="3.24%" trend={{ value: -1.8 }} />
   </div>
   {/* Small size */}
-  <div className="grid grid-cols-3 gap-3">
+  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
     <StatCard size="sm" label="Total Inquiries" value="3,544" trend={{ value: -2.6 }} tooltip="Total inquiries in period" />
     <StatCard size="sm" label="Completion Rate" value="89.2%" trend={{ value: 0.5 }} tooltip="Average across templates" />
     <StatCard size="sm" label="Approval Rate" value="84.6%" trend={{ value: 1.8 }} tooltip="Average across templates" />
@@ -56,11 +56,11 @@ const [invertTrend, setInvertTrend] = useState(false)
 
 ### Trend position
 
-<ComponentPreview details={<>Control where the trend appears: next to the value (default) or right-aligned in the header row.</>} code={`<div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+<ComponentPreview details={<>Control where the trend appears: next to the value (default) or right-aligned in the header row.</>} code={`<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
   <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="value" />
   <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="header" />
 </div>`} previewMinHeight={120}>
-  <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
     <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="value" />
     <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="header" />
   </div>
@@ -68,11 +68,11 @@ const [invertTrend, setInvertTrend] = useState(false)
 
 ### Trend variant
 
-<ComponentPreview details={<>Display the trend as plain text or wrapped in a badge.</>} code={`<div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+<ComponentPreview details={<>Display the trend as plain text or wrapped in a badge.</>} code={`<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
   <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="text" />
   <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
 </div>`} previewMinHeight={120}>
-  <div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+  <div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
     <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="text" />
     <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
   </div>
@@ -91,13 +91,13 @@ const [invertTrend, setInvertTrend] = useState(false)
 <ComponentPreview details={<>Pass an <code>icon</code> to display it on the left side with a soft background. The layout automatically switches to a horizontal icon + content arrangement. Works with both default and <code>sm</code> sizes.</>} code={`import { DollarCircle, Users, ShoppingBag } from "@plexui/ui/components/Icon"
 
 {/* Default size */}
-<div className="grid grid-cols-2 gap-4">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
   <StatCard icon={<DollarCircle />} label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
   <StatCard icon={<Users />} label="Active Users" value="2,847" trend={{ value: 8.2 }} />
 </div>
 
 {/* Small size */}
-<div className="grid grid-cols-3 gap-3">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
   <StatCard size="sm" icon={<DollarCircle />} label="Revenue" value="$45,231" trend={{ value: 12.5 }} />
   <StatCard size="sm" icon={<Users />} label="Users" value="2,847" trend={{ value: 8.2 }} />
   <StatCard size="sm" icon={<ShoppingBag />} label="Orders" value="1,234" trend={{ value: -3.1 }} />

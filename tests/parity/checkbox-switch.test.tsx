@@ -79,6 +79,10 @@ const checkboxCases: Case[] = [
 ]
 
 const switchCases: Case[] = [
+  ["accent off", { color: "accent" }],
+  ["accent on", { color: "accent", defaultChecked: true }],
+  ["accent disabled off", { color: "accent", disabled: true }],
+  ["accent disabled on", { color: "accent", disabled: true, defaultChecked: true }],
   ["no props", {}],
   ["label", { label: "Notifications" }],
   ["label + description", { label: "Disable user API keys", description: "Across your organization." }],
@@ -147,6 +151,19 @@ describe("Checkbox parity", () => {
 })
 
 describe("Switch parity", () => {
+  test("accent remains presentation-only and does not leak onto the switch button", async () => {
+    for (const disabled of [false, true]) {
+      const { react, vue } = await parity(RSwitch as never, Switch, {
+        color: "accent", defaultChecked: true, disabled, name: "notifications",
+      }, true)
+      expect(vue).toBe(react)
+      expect(react).toContain('data-color="accent"')
+      expect(react.match(/<button [^>]*>/)?.[0]).not.toContain('color="accent"')
+      expect(react).toContain('aria-checked="true"')
+      expect(react).toContain('name="notifications"')
+    }
+  })
+
   test.each(switchCases)("%s", async (_name, props, form) => {
     const { react, vue } = await parity(RSwitch as never, Switch, props, form)
     expect(vue).toBe(react)

@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
+import postcss from "postcss"
 import { DateTime } from "luxon"
 import { createElement, useSyncExternalStore, type ComponentType, type ReactElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
@@ -50,14 +52,33 @@ const describeFocus = () => {
 let events: string[] = []
 let vueUpdates: string[] = []
 let vueChanges: string[] = []
+let width = 1024
+const mediaQueries = new Set<{ min: number; listeners: Set<() => void> }>()
 
 beforeEach(() => {
   events = []
   Element.prototype.scrollIntoView = function () {}
+  document.documentElement.style.setProperty("--breakpoint-md", "768px")
+  width = 1024
+  vi.stubGlobal("innerWidth", width)
+  mediaQueries.clear()
+  vi.stubGlobal("matchMedia", (query: string) => {
+    const entry = { min: Number(/min-width: (\d+)px/.exec(query)?.[1]), listeners: new Set<() => void>() }
+    mediaQueries.add(entry)
+    return {
+      get matches() { return width >= entry.min },
+      media: query,
+      addEventListener: (_: string, listener: () => void) => entry.listeners.add(listener),
+      removeEventListener: (_: string, listener: () => void) => entry.listeners.delete(listener),
+      addListener: (listener: () => void) => entry.listeners.add(listener),
+      removeListener: (listener: () => void) => entry.listeners.delete(listener),
+    }
+  })
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 const snapshotDom = () => {
@@ -145,6 +166,7 @@ type Tools = {
   blur: (target: Target) => Promise<void>
   advance: (ms: number) => Promise<void>
   set: (patch: Partial<Case>) => Promise<void>
+  resize: (next: number) => Promise<void>
   open: () => Promise<void>
 }
 
@@ -243,6 +265,16 @@ const walk = async (initial: Case, steps: (tools: Tools) => Promise<void>) => {
       blur: (target) => dispatch(() => (resolve(target) as HTMLElement).blur()),
       advance: (ms) => run(() => vi.advanceTimersByTime(ms)),
       set: (patch) => run(() => update(patch)),
+      resize: async (next) => {
+        // Commit the media-query change before the layout resize notification.
+        // jsdom has no resized boxes to notify Floating UI's ResizeObserver.
+        await run(() => {
+          width = next
+          vi.stubGlobal("innerWidth", next)
+          for (const entry of mediaQueries) for (const listener of entry.listeners) listener()
+        })
+        await run(() => window.dispatchEvent(new Event("resize")))
+      },
       open: async () => {
         await fire(TRIGGER, "pointerDown", { button: 0, ...mouse })
         await run(() => vi.advanceTimersByTime(100))
@@ -357,6 +389,44 @@ const openCases: Array<[string, Case]> = [
 ]
 
 describe("DatePicker parity: markup", () => {
+  test("an open calendar updates collision space across the mobile breakpoint", async () => {
+    expectSame(await walk({}, async (tools) => {
+      await tools.resize(1024)
+      await tools.open()
+      const availableWidth = () => Number(/--radix-popper-available-width: (-?[\d.]+)px/.exec(snapshotDom())?.[1])
+      const desktop = availableWidth()
+      expect(Number.isFinite(desktop)).toBe(true)
+      await tools.resize(375)
+      expect(availableWidth()).toBe(desktop + 8)
+      await tools.resize(360)
+      expect(availableWidth()).toBe(desktop + 14)
+      await tools.resize(320)
+      expect(availableWidth()).toBe(desktop + 34)
+      await tools.resize(375)
+      expect(availableWidth()).toBe(desktop + 8)
+      await tools.resize(1024)
+      expect(availableWidth()).toBe(desktop)
+      tools.snapshot()
+    }))
+  })
+
+  test.each(["top", "right", "bottom", "left"] as const)("respects preferred side %s across desktop and phone fit", async (side) => {
+    const phoneSide = { top: "top", right: "bottom", bottom: "bottom", left: "bottom" }[side]
+    expectSame(await walk({ props: { side } }, async (tools) => {
+      await tools.resize(1024)
+      await tools.open()
+      const placement = () => resolve('[role="dialog"]').getAttribute("data-side")
+      expect(placement()).toBe(side)
+      await tools.resize(320)
+      expect(placement()).toBe(phoneSide)
+      await tools.resize(375)
+      expect(placement()).toBe(phoneSide)
+      await tools.resize(1024)
+      expect(placement()).toBe(side)
+      tools.snapshot()
+    }))
+  })
+
   test.each(closedCases)("closed: %s", async (_name, c) => {
     expectSame(await pair(c))
   })
@@ -934,5 +1004,210 @@ describe("DatePicker parity: behaviour", () => {
     )
     await flushVue()
     expect(container.querySelector(".TriggerText")?.textContent).toBe("10/20/26")
+  })
+})
+
+
+describe("DatePicker live state regressions", () => {
+  test("disabling an open calendar blocks days, navigation, captions and time", async () => {
+    await walk({ value: oct20, props: { showTime: true, captionLayout: "dropdown" } }, async (tools) => {
+      await tools.open()
+      await tools.set({ props: { showTime: true, captionLayout: "dropdown", disabled: true } })
+      expect((resolve(day(21)) as HTMLButtonElement).disabled).toBe(true)
+      expect((resolve(button("Next month")) as HTMLButtonElement).disabled).toBe(true)
+      expect((resolve(button("Previous month")) as HTMLButtonElement).disabled).toBe(true)
+      expect(resolve(button("Month")).getAttribute("aria-disabled")).toBe("true")
+      expect(resolve(button("Year")).getAttribute("aria-disabled")).toBe("true")
+      expect((resolve(button("Hour")) as HTMLInputElement).disabled).toBe(true)
+      expect((resolve(button("Minute")) as HTMLInputElement).disabled).toBe(true)
+      await tools.click(day(21))
+      await tools.key("PageDown", day(21))
+      await tools.type(button("Hour"), "13")
+      await tools.fire(button("Minute"), "blur")
+      expect(events).toEqual([])
+      await tools.set({ props: { showTime: true, captionLayout: "dropdown" } })
+      await tools.click(day(21))
+      expect(events).toHaveLength(1)
+    })
+  })
+
+  test.each([
+    ["Hour", "1", false],
+    ["Minute", "4", false],
+    ["Hour", "1", true],
+    ["Minute", "4", true],
+  ] as const)("disabling discards partial %s=%s draft (owner changes: %s)", async (field, draft, updateOwner) => {
+    const initial = DateTime.local(2026, 10, 20, 12, 5)
+    const next = DateTime.local(2026, 10, 20, 14, 45)
+    await walk({ value: initial, props: { showTime: true } }, async (tools) => {
+      await tools.open()
+      await tools.focus(button(field))
+      await tools.type(button(field), draft)
+      expect((resolve(button(field)) as HTMLInputElement).value).toBe(draft)
+      expect(events).toEqual([])
+
+      // Native disabling does not guarantee a blur event. Cancel the edit now.
+      await tools.set({ props: { showTime: true, disabled: true } })
+      expect((resolve(button("Hour")) as HTMLInputElement).value).toBe("12")
+      expect((resolve(button("Minute")) as HTMLInputElement).value).toBe("05")
+      await tools.fire(button(field), "blur")
+      if (updateOwner) await tools.set({ value: next })
+      await tools.set({ props: { showTime: true, disabled: false } })
+      expect((resolve(button("Hour")) as HTMLInputElement).value).toBe(updateOwner ? "14" : "12")
+      expect((resolve(button("Minute")) as HTMLInputElement).value).toBe(updateOwner ? "45" : "05")
+      expect(events).toEqual([])
+
+      // A later edit/blur must commit the owner's value, never the cancelled draft.
+      await tools.focus(button(field))
+      await tools.blur(button(field))
+      expect(events).toEqual([`change ${formatValue(updateOwner ? next : initial)}`])
+    })
+  })
+
+  test("time keeps the owner value when a change is refused", async () => {
+    await walk({ value: DateTime.local(2026, 10, 20, 12, 5), props: { showTime: true } }, async (tools) => {
+      await tools.open()
+      await tools.focus(button("Hour"))
+      await tools.key("ArrowUp")
+      expect((resolve(button("Hour")) as HTMLInputElement).value).toBe("12")
+      await tools.type(button("Hour"), "13")
+      await tools.blur(button("Hour"))
+      expect((resolve(button("Hour")) as HTMLInputElement).value).toBe("12")
+      await tools.type(button("Minute"), "30")
+      expect((resolve(button("Minute")) as HTMLInputElement).value).toBe("05")
+      await tools.set({ value: DateTime.local(2026, 10, 20, 14, 45) })
+      expect((resolve(button("Hour")) as HTMLInputElement).value).toBe("14")
+      expect((resolve(button("Minute")) as HTMLInputElement).value).toBe("45")
+    })
+  })
+
+  test.each([true, false])("time fields keep separate targets without enlarging the painted pill (Phone: %s)", async (phone) => {
+    // jsdom does not evaluate media queries or lay out flex items. Apply the
+    // actual declarations for one viewport, then check their size/flow contract
+    // on both frameworks' native inputs. Browser hit rectangles remain a
+    // separate runtime check after the shared stylesheet is rebuilt.
+    const source = postcss.parse(readFileSync("packages/styles/src/components/DatePicker/Calendar.module.css", "utf8"))
+    const stylesheet = document.createElement("style")
+    const selected = postcss.root()
+    const selectors = new Set([".TimeFooter", ".TimeInputGroup", ".TimeField", ".TimeSeparator"])
+    source.walkRules((rule) => {
+      if (!selectors.has(rule.selector)) return
+      const parent = rule.parent
+      if (parent?.type === "atrule" && (!phone || parent.name !== "media" || parent.params !== "(max-width: 767px)")) return
+      const flat = postcss.rule({ selector: rule.selector })
+      rule.each((node) => { if (node.type === "decl") flat.append(node.clone()) })
+      selected.append(flat)
+    })
+    stylesheet.textContent = selected.toString()
+    document.head.append(stylesheet)
+    try {
+      await walk({ value: DateTime.local(2026, 10, 20, 9, 5), props: { showTime: true } }, async (tools) => {
+        await tools.open()
+        const hour = resolve(button("Hour")) as HTMLInputElement
+        const minute = resolve(button("Minute")) as HTMLInputElement
+        const group = hour.parentElement!
+        const groupStyle = getComputedStyle(group)
+        expect(Array.from(group.querySelectorAll("input"))).toEqual([hour, minute])
+        for (const input of [hour, minute]) {
+          const style = getComputedStyle(input)
+          expect(style.width).toBe(phone ? "44px" : "32px")
+          expect(style.height).toBe(phone ? "44px" : "28px")
+          if (phone) {
+            expect(style.boxSizing).toBe("border-box")
+            expect(style.flexShrink).toBe("0")
+            expect(style.fontSize).toBe("17px")
+            expect(style.lineHeight).toBe("22px")
+          }
+        }
+        if (phone) {
+          expect(groupStyle.width).toBe("88px")
+          expect(groupStyle.height).toBe("44px")
+          expect(groupStyle.padding).toBe("0px")
+          expect(groupStyle.gap).toBe("0px")
+          expect(getComputedStyle(group.querySelector("span")!).position).toBe("absolute")
+          expect(getComputedStyle(group.querySelector("span")!).pointerEvents).toBe("none")
+          expect(getComputedStyle(group.parentElement!).height).toBe("52px")
+          let paint: Record<string, string> = {}
+          source.walkRules((rule) => {
+            if (rule.selector !== "&::before" || rule.parent?.type !== "rule" || rule.parent.selector !== ".TimeInputGroup") return
+            paint = Object.fromEntries(rule.nodes.filter((node) => node.type === "decl").map((node) => [node.prop, node.value]))
+          })
+          expect(paint).toMatchObject({ width: "86px", height: "34px", "pointer-events": "none" })
+          // Two adjacent44px inputs fill the88px group. No negative margins,
+          // absolute inputs or shrinking targets can make their hit areas overlap.
+          expect(parseFloat(getComputedStyle(hour).width) + parseFloat(getComputedStyle(minute).width)).toBe(parseFloat(groupStyle.width))
+        }
+      })
+    } finally {
+      stylesheet.remove()
+    }
+  })
+
+  test("calendar geometry is remeasured after a responsive resize", async () => {
+    let height = 224
+    const originalObserver = globalThis.ResizeObserver
+    const observers: CalendarObserver[] = []
+    class CalendarObserver implements ResizeObserver {
+      readonly targets = new Set<Element>()
+      constructor(private readonly callback: ResizeObserverCallback) { observers.push(this) }
+      observe(target: Element) { this.targets.add(target) }
+      unobserve(target: Element) { this.targets.delete(target) }
+      disconnect() { this.targets.clear() }
+      notify() { this.callback([], this) }
+    }
+    vi.stubGlobal("ResizeObserver", CalendarObserver)
+    const dimensions = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (this: HTMLElement) {
+      return this.hasAttribute("data-calendar") ? height : 0
+    })
+    try {
+      await walk({ value: oct20 }, async (tools) => {
+        height = 224
+        await tools.open()
+        const container = resolve(".CalendarContainer") as HTMLElement
+        expect(container.style.height).toBe("224px")
+        height = 329
+        for (const observer of observers) {
+          if ([...observer.targets].some((target) => target.hasAttribute("data-calendar"))) observer.notify()
+        }
+        await tools.advance(50)
+        expect(container.style.height).toBe("329px")
+        height = 224
+        for (const observer of observers) {
+          if ([...observer.targets].some((target) => target.hasAttribute("data-calendar"))) observer.notify()
+        }
+        await tools.advance(50)
+        expect(container.style.height).toBe("224px")
+      })
+      expect(observers.every((observer) => observer.targets.size === 0)).toBe(true)
+    } finally {
+      dimensions.mockRestore()
+      vi.stubGlobal("ResizeObserver", originalObserver)
+    }
+  })
+})
+
+
+test("SelectControl date trigger waits for committed touch and accepts click-only activation", async () => {
+  await walk({}, async ({ fire, advance }) => {
+    const trigger = () => document.querySelector('.SelectControl')
+    await fire(trigger, "pointerDown", { button: 0, pointerType: "touch", pointerId: 7 })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "pointerCancel", { pointerType: "touch", pointerId: 7 })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "click", { detail: 0 })
+    await advance(1)
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+  })
+})
+
+
+test("Enter opens the date trigger without synthesizing a pointer event", async () => {
+  await walk({}, async ({ fire, advance }) => {
+    const trigger = () => document.querySelector(".SelectControl")
+    await fire(trigger, "keyDown", { key: "Enter", isComposing: true })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "keyDown", { key: "Enter" })
+    await advance(1)
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   })
 })

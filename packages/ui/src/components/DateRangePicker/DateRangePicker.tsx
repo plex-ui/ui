@@ -1,10 +1,13 @@
 "use client"
 
+import s from "@plexui/styles/components/DateRangePicker/Calendar.module.css"
 import { DateTime } from "luxon"
 import { useMemo } from "react"
+import { useBreakpoint } from "../../hooks/useBreakpoints"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { isAfter } from "../../lib/dateUtils"
 import { Popover, type PopoverContentProps } from "../Popover"
+import { useCalendarGutter } from "../DatePicker/useCalendarGutter"
 import type { SelectControlProps } from "../SelectControl"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar"
 import { DateRangeContext, type DateRangeContextValue } from "./context"
@@ -44,6 +47,7 @@ export type DateRangePickerProps = {
   shortcuts?: DateRangeShortcut[]
   /**
    * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
+   * On phones, left and right prefer bottom so all seven 44px day targets fit.
    * @default bottom
    */
   side?: PopoverContentProps["side"]
@@ -161,6 +165,8 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   }
 
   // Create stable, mutable references to avoid memoization requirements from consumers
+  const wide = useBreakpoint("md")
+  const calendarGutter = useCalendarGutter()
   const onChangeRef = useLatestValue(onChange)
 
   const store = useMemo<DateRangeContextValue>(
@@ -215,8 +221,10 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           <DateRangeTrigger />
         </Popover.Trigger>
         <Popover.Content
+          className={s.Popover}
           minWidth={230}
-          side={side}
+          collisionPadding={wide ? 20 : calendarGutter}
+          side={wide || side === "top" ? side : "bottom"}
           sideOffset={sideOffset}
           align={align}
           alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}

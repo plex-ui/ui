@@ -1,11 +1,14 @@
-import type { DateTime } from "luxon"
+import s from "@plexui/styles/components/DatePicker/Calendar.module.css"
+import { DateTime } from "luxon"
 import { defineComponent, h, provide, toRaw, useId, type PropType } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
+import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { isAfter } from "../../lib/dateUtils.js"
 import { Calendar } from "../Icon/index.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
 import { SelectControl, type DropdownIconType } from "../SelectControl/index.js"
 import { DateCalendar } from "./Calendar.js"
+import { useCalendarGutter } from "./useCalendarGutter.js"
 import { DateContextKey, type DateContextValue } from "./context.js"
 
 // Vue port of packages/ui/src/components/DatePicker/DatePicker.tsx.
@@ -37,7 +40,7 @@ const DatePickerComponent = defineComponent({
     min: Object as PropType<DateTime>,
     /** Defines the latest selectable date (inclusive). */
     max: Object as PropType<DateTime>,
-    /** The preferred side of the trigger to render against when open. @default "bottom" */
+    /** Preferred side; collisions can flip it. On phones, left and right prefer bottom so seven 44px day targets fit. @default "bottom" */
     side: { type: String as PropType<PopoverSide>, default: "bottom" },
     /** The distance in pixels from the trigger. @default 8 */
     sideOffset: { type: Number, default: 8 },
@@ -75,10 +78,12 @@ const DatePickerComponent = defineComponent({
     yearRange: Array as unknown as PropType<[number, number]>,
   },
   emits: {
-    "update:value": (_nextValue: DateTime | null) => true,
-    "change": (_nextValue: DateTime | null) => true,
+    "update:value": (nextValue: DateTime | null) => nextValue === null || DateTime.isDateTime(nextValue),
+    "change": (nextValue: DateTime | null) => nextValue === null || DateTime.isDateTime(nextValue),
   },
   setup(props, { emit }) {
+    const wide = useBreakpoint("md")
+    const calendarGutter = useCalendarGutter()
     const unwrap = <T>(value: T): T => (value ? toRaw(value) : value)
 
     const onChange = (nextValue: DateTime | null) => {
@@ -95,6 +100,9 @@ const DatePickerComponent = defineComponent({
       },
       get max() {
         return unwrap(props.max)
+      },
+      get disabled() {
+        return props.disabled
       },
       get captionLayout() {
         return props.captionLayout
@@ -150,6 +158,7 @@ const DatePickerComponent = defineComponent({
                   "block": props.block,
                   "size": props.size,
                   "disabled": props.disabled,
+                  "interactOnEnter": true,
                   "StartIcon": props.triggerShowIcon ? Calendar : undefined,
                   "dropdownIconType": props.dropdownIconType,
                   "onClearClick": props.clearable ? handleClearClick : undefined,
@@ -161,8 +170,10 @@ const DatePickerComponent = defineComponent({
           h(
             PopoverContent,
             {
+              class: s.Popover,
               minWidth: 230,
-              side: props.side,
+              collisionPadding: wide.value ? 20 : calendarGutter.value,
+              side: wide.value || props.side === "top" ? props.side : "bottom",
               sideOffset: props.sideOffset,
               align,
               alignOffset: props.alignOffset ?? (align === "center" ? 0 : -5),

@@ -131,6 +131,7 @@ export const DateRangeTrigger = defineComponent({
           block: context.block,
           size: context.size,
           disabled: context.disabled,
+          interactOnEnter: true,
           StartIcon: context.triggerShowIcon && !stepper ? Calendar : undefined,
           dropdownIconType: !stepper ? context.dropdownIconType : "none",
           onClearClick: context.clearable && !stepper ? handleClearClick : undefined,

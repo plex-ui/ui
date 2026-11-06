@@ -5,6 +5,14 @@ metaDescription: Vue 3 file upload component with MIME-type and size validation,
 ---
 
 import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
+import { fileRemovalFocusCode } from "@/components/docs/fileRemovalFocus"
+
+export const withFileRemoval = (template, state) => `<script setup>\nimport { ref } from 'vue';\n\n${fileRemovalFocusCode}\n\n${state}\n</script>\n\n<template>\n${template}\n</template>`
+
+export const overviewControls = [
+  { name: "errorMessage", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
 
 export const overview = `<div class="w-[360px]">
   <FileUpload
@@ -13,8 +21,31 @@ export const overview = `<div class="w-[360px]">
     multiple
     :max-files="5"
     :max-size="10 * 1024 * 1024"
+    :error-message="errorMessage ? 'Please upload at least 2 documents.' : undefined"
+    :disabled="disabled"
   />
 </div>`
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FileUpload } from '@plexui/vue/components/FileUpload';
+
+const files = ref<File[]>([]);
+const errorMessage = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+  <FileUpload
+    v-model:value="files"
+    accept=".pdf,.png,.jpg,.jpeg"
+    multiple
+    :max-files="5"
+    :max-size="10 * 1024 * 1024"
+    :error-message="errorMessage ? 'Please upload at least 2 documents.' : undefined"
+    :disabled="disabled"
+  />
+</template>`
 
 export const withFiles = `<div class="w-[360px]">
   <FileUpload
@@ -25,41 +56,33 @@ export const withFiles = `<div class="w-[360px]">
   />
 </div>`
 
-export const error = `<div class="w-[360px]">
-  <FileUpload
-    v-model:value="files"
-    accept=".pdf"
-    multiple
-    error-message="Please upload at least 2 documents."
-  />
-</div>`
-
-export const disabled = `<div class="w-[360px]">
-  <FileUpload disabled />
-</div>`
-
 export const readOnly = `<div class="w-[360px]">
   <FileCardGroup>
     <FileCard :file="file" />
   </FileCardGroup>
 </div>`
 
-export const withRemove = `<div v-if="file" class="w-[360px]">
-  <FileCardGroup>
-    <FileCard :file="file" @remove="file = null" />
+export const withRemove = `<div ref="fileCards" class="w-[360px]">
+  <FileCardGroup v-if="file">
+    <FileCard :file="file" @remove="removeFileWithFocus($refs.fileCards, 0, () => { file = null })" />
   </FileCardGroup>
-</div>
-<div v-else class="w-[360px] text-center text-sm text-tertiary">File removed</div>`
+  <div role="status" tabindex="-1" data-file-removal-status :class="file ? 'sr-only' : 'text-center text-sm text-tertiary'">
+    {{ file ? '' : 'File removed' }}
+  </div>
+</div>`
 
-export const multipleFiles = `<div class="w-[360px]">
-  <FileCardGroup>
+export const multipleFiles = `<div ref="fileCards" class="w-[360px]">
+  <FileCardGroup v-if="files.length > 0">
     <FileCard
       v-for="(file, index) in files"
       :key="file.name + '-' + file.size"
       :file="file"
-      @remove="files = files.filter((_, i) => i !== index)"
+      @remove="removeFileWithFocus($refs.fileCards, index, () => { files = files.filter((_, i) => i !== index) })"
     />
   </FileCardGroup>
+  <div role="status" tabindex="-1" data-file-removal-status :class="files.length > 0 ? 'sr-only' : 'text-center text-sm text-tertiary'">
+    {{ files.length > 0 ? '' : 'Files removed' }}
+  </div>
 </div>`
 
 export const readOnlyList = `<div class="w-[360px]">
@@ -72,28 +95,19 @@ export const readOnlyList = `<div class="w-[360px]">
 
 ## Examples
 
+<span id="error-state" />
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview}>
-  <VueFileUploadDemo template={overview} />
+<ComponentPreview language="vue" details={<>Toggle <code>errorMessage</code> and <code>disabled</code> while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.</>} code={overviewCode}>
+  <VueFileUploadDemo template={overview} controls={overviewControls} />
 </ComponentPreview>
 
 ### With files
 
 <ComponentPreview language="vue" details={<>File list renders below the button in a bordered pill container. Each file shows a type icon, name with middle truncation, size, and a remove button. <code>files</code> starts with three <code>File</code> objects.</>} code={withFiles}>
   <VueFileUploadDemo template={withFiles} files="all" />
-</ComponentPreview>
-
-### Error state
-
-<ComponentPreview language="vue" code={error}>
-  <VueFileUploadDemo template={error} files="first" />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" code={disabled}>
-  <VueFileUploadDemo template={disabled} />
 </ComponentPreview>
 
 ## File Card
@@ -108,13 +122,13 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
 
 ### With remove
 
-<ComponentPreview language="vue" code={withRemove}>
+<ComponentPreview language="vue" details={<>Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.</>} code={withFileRemoval(withRemove, "const file = ref(initialFile);")}>
   <VueFileUploadDemo template={withRemove} />
 </ComponentPreview>
 
 ### Multiple files
 
-<ComponentPreview language="vue" code={multipleFiles}>
+<ComponentPreview language="vue" details={<>After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.</>} code={withFileRemoval(multipleFiles, "const files = ref(initialFiles);")}>
   <VueFileUploadDemo template={multipleFiles} files="all" />
 </ComponentPreview>
 
@@ -132,7 +146,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "description", type: "string", description: "Helper text below the icon (area variant only)" },
   { prop: "accept", type: "string", description: 'Accepted file types (e.g. ".pdf,.png,image/*")' },
   { prop: "multiple", type: "boolean", default: "false", description: "Allow selecting multiple files. Without it, a new pick replaces the current file" },
-  { prop: "max-files", type: "number", description: "Maximum number of files. Button disables at limit." },
+  { prop: "max-files", type: "number", description: "Maximum number of files. In multiple mode, the button disables at the limit. Single-file mode keeps the button available for replacement." },
   { prop: "max-size", type: "number", description: "Maximum file size in bytes" },
   { prop: "value / v-model:value", type: "File[]", description: "Controlled file list; `update:value` fires when files are added or removed" },
   { prop: "@file-reject", type: "(file: File, reason: string) => void", description: "Fires when a file is rejected (wrong type, too large, over limit)" },

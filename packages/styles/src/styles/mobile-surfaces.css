@@ -1,0 +1,21 @@
+/* Contextual iOS background roles. Import with touch.css; no global body color is changed. */
+@media (max-width: 767px) {
+  :root {
+    --mobile-label-secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.7));
+    --mobile-label-tertiary: light-dark(rgb(60 60 67 / 0.3), rgb(235 235 245 / 0.3));
+    --mobile-label-quaternary: light-dark(rgb(60 60 67 / 0.18), rgb(235 235 245 / 0.18));
+    --mobile-accessory-secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.6));
+    --mobile-surface-plain-primary: light-dark(#ffffff, #000000);
+    --mobile-surface-plain-secondary: light-dark(#f2f2f7, #1c1c1e);
+    --mobile-surface-plain-tertiary: light-dark(#ffffff, #2c2c2e);
+    --mobile-surface-grouped-primary: light-dark(#f2f2f7, #000000);
+    --mobile-surface-grouped-secondary: light-dark(#ffffff, #1c1c1e);
+    --mobile-surface-grouped-tertiary: light-dark(#f2f2f7, #2c2c2e);
+    --mobile-surface-elevated-plain-primary: light-dark(#ffffff, #1c1c1e);
+    --mobile-surface-elevated-plain-secondary: light-dark(#f2f2f7, #2c2c2e);
+    --mobile-surface-elevated-plain-tertiary: light-dark(#ffffff, #3a3a3c);
+    --mobile-surface-elevated-grouped-primary: light-dark(#f2f2f7, #1c1c1e);
+    --mobile-surface-elevated-grouped-secondary: light-dark(#ffffff, #2c2c2e);
+    --mobile-surface-elevated-grouped-tertiary: light-dark(#f2f2f7, #3a3a3c);
+  }
+}

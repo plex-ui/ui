@@ -12,7 +12,7 @@ import { serializeDom } from "./normalize"
 // and reports the outcome through `onCopy` (Vue: the `copy` event). A failed
 // write used to show the check mark anyway.
 
-const writeText = vi.fn(async (_text: string) => {})
+const writeText = vi.fn<(text: string) => Promise<void>>(async () => {})
 
 beforeEach(() => {
   Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
@@ -108,7 +108,7 @@ describe("CopyTooltip after unmount", () => {
         <button type="button">Copy</button>
       </ReactCopyTooltip>,
     )
-    fireEvent.pointerDown(document.querySelector("button")!)
+    fireEvent.click(document.querySelector("button")!)
     unmount()
     await act(async () => resolveWrite())
 
@@ -117,7 +117,7 @@ describe("CopyTooltip after unmount", () => {
       h(VueCopyTooltip, { copyValue: "secret", onCopy: onVueCopy }, () => h("button", { type: "button" }, "Copy")),
     )
     await flushVue()
-    fireEvent.pointerDown(document.querySelector("button")!)
+    fireEvent.click(document.querySelector("button")!)
     vue.unmount()
     resolveWrite()
     await flushVue()

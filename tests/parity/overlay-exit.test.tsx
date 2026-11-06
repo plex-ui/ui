@@ -259,7 +259,7 @@ describe("a press on the trigger during the exit", () => {
     vi.setSystemTime(Date.now() + 1)
     await act(async () => {
       fireEvent.pointerUp(element, { button: 0, pointerType: "mouse" })
-      fireEvent.click(element, { button: 0 })
+      fireEvent.click(element, { button: 0, detail: 1 })
     })
     await flushVue()
   }

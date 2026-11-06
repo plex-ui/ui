@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
   height: 100%;
   overflow: hidden;
   background: var(--page-background);
@@ -27,7 +29,7 @@
 
 .Footer {
   flex: none;
-  padding: 16px var(--page-footer-gutter, var(--page-gutter)) var(--page-footer-padding-bottom, max(16px, env(safe-area-inset-bottom, 0px)));
+  padding: var(--page-footer-padding-top, 16px) var(--page-footer-gutter, var(--page-gutter)) var(--page-footer-padding-bottom, max(16px, env(safe-area-inset-bottom, 0px)));
   background: var(--page-background);
 }
 
@@ -64,12 +66,16 @@
 }
 
 .Subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   color: var(--color-text-secondary);
   font-size: var(--font-text-sm-size);
   line-height: var(--font-text-sm-line-height);
 }
 
+.Leading,
 .Actions {
   display: flex;
   align-items: center;
@@ -128,7 +134,7 @@
     transition: border-color var(--transition-duration-basic);
   }
 
-  .Header[data-scrolled] > .Head {
+  .Header[data-scrolled][data-divider] > .Head {
     border-color: var(--color-border);
   }
 }
@@ -139,20 +145,52 @@
    sidebar's menu button. */
 @media (max-width: 767.98px) {
   .Page {
-    --page-top: calc(max(10px, env(safe-area-inset-top)) + var(--page-bar-height-phone) + 10px);
+    --page-top: var(--page-toolbar-height, var(--page-header-height, calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + var(--page-bar-height-phone) + 10px)));
+    --page-bottom: var(--page-toolbar-bottom-height, var(--page-footer-height, 0px));
+    --mobile-surface-primary: var(--mobile-surface-plain-primary, var(--color-surface));
+    --mobile-surface-secondary: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
+    --mobile-surface-tertiary: var(--mobile-surface-plain-tertiary, var(--color-surface));
+    --page-background: var(--mobile-surface-primary);
+    --page-footer-padding-top: 12px;
+    --page-footer-gutter: 16px;
+    --page-footer-padding-bottom: max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    --field-group-background: var(--mobile-surface-secondary);
+    --file-upload-list-background: transparent;
+    --file-upload-list-border-width: 1px;
+    --mobile-neutral-outline-background: initial;
+    --mobile-neutral-outline-hover: initial;
+    --mobile-neutral-outline-active: initial;
+    --page-bar-veil: color-mix(in srgb, var(--page-background) var(--page-bar-veil-opacity), transparent);
+
+    &[data-surface="grouped"] {
+      --mobile-surface-primary: var(--mobile-surface-grouped-primary, var(--color-surface-secondary));
+      --mobile-surface-secondary: var(--mobile-surface-grouped-secondary, var(--color-surface));
+      --mobile-surface-tertiary: var(--mobile-surface-grouped-tertiary, var(--color-surface-secondary));
+      --file-upload-list-background: var(--mobile-surface-secondary);
+      --file-upload-list-border-width: 0px;
+      --mobile-neutral-outline-background: var(--mobile-surface-secondary);
+      --mobile-neutral-outline-hover: color-mix(in srgb, var(--mobile-surface-secondary) 96%, var(--color-text));
+      --mobile-neutral-outline-active: color-mix(in srgb, var(--mobile-surface-secondary) 94%, var(--color-text));
+    }
+  }
+
+  /* A phone Toolbar takes the place of the bar on its side. */
+  .Page:has(> [data-toolbar][data-placement="top"]) > .Header,
+  .Page:has(> [data-toolbar][data-placement="bottom"]) > .Footer {
+    display: none;
   }
 
   .Header {
     position: absolute;
     z-index: 5;
     inset: 0 0 auto;
-    padding-block: max(10px, env(safe-area-inset-top)) 10px;
+    padding-block: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) 10px;
 
     &::before {
       position: absolute;
       z-index: -1;
       inset: 0;
-      border-bottom: 0.5px solid var(--page-bar-line);
+      border-bottom: 0.5px solid transparent;
       background: var(--page-bar-veil);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       backdrop-filter: blur(20px) saturate(180%);
@@ -162,20 +200,41 @@
       transition: opacity var(--transition-duration-basic);
     }
 
+    &[data-background="solid"]::before {
+      background: var(--page-background);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      opacity: 1;
+    }
+
     &[data-scrolled]::before {
       opacity: 1;
+    }
+
+    /* The bar's glass buttons cast a shadow only over content scrolled under them. */
+    &[data-scrolled] {
+      --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
+    }
+
+    &[data-scrolled][data-divider]::before {
+      border-bottom-color: var(--page-bar-line);
     }
   }
 
   .Bar {
     display: grid;
-    grid-template-columns: minmax(52px, 1fr) minmax(0, max-content) minmax(max-content, 1fr);
+    grid-template-columns: var(--page-bar-side-width, 44px) minmax(0, 1fr) var(--page-bar-side-width, 44px);
     gap: 0;
     min-height: var(--page-bar-height-phone);
 
-    & > :first-child {
+    & > .Heading,
+    & > .Title {
       grid-column: 2;
+      grid-row: 1;
       align-self: center;
+      min-width: 0;
+      /* SF text ink sits 2px below the geometric center in Apple's 44px bar. */
+      transform: translateY(2px);
     }
   }
 
@@ -183,6 +242,10 @@
     flex-direction: column;
     gap: 0;
     min-width: 0;
+
+    &:has(> .Subtitle > *) {
+      gap: 2px;
+    }
   }
 
   .Title {
@@ -190,6 +253,7 @@
     min-height: 0;
     overflow: hidden;
     font-size: 17px;
+    font-weight: 590;
     line-height: 22px;
     text-align: center;
     text-overflow: ellipsis;
@@ -197,22 +261,86 @@
   }
 
   .Subtitle {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 4px;
     max-width: 100%;
     overflow: hidden;
     font-size: 13px;
     line-height: 18px;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+  }
+
+  .Leading,
+  .Actions {
+    width: max-content;
+  }
+
+  .Leading {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .Leading > :is(button, a),
+  .Actions > :is(button, a) {
+    --button-size: 44px;
+    --button-font-size: 17px;
+    --button-line-height: 22px;
+    --button-radius: var(--radius-full);
+  }
+
+  .Leading > :is(button, a):not([data-navigation-action]),
+  .Actions > :is(button, a):not([data-navigation-action]) {
+    --button-icon-size: 17px;
+  }
+
+  :is(.Leading, .Actions) > :where(button, a)[data-uniform]:where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-mobile-material-background: var(--mobile-glass-background);
+    --button-mobile-material-sheen: var(--mobile-glass-sheen);
+    --button-mobile-material-shadow: var(--mobile-glass-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+    --button-mobile-material-hover: var(--mobile-glass-background-hover);
+    --button-mobile-material-active: var(--mobile-glass-background-active);
   }
 
   .Actions {
     grid-column: 3;
+    grid-row: 1;
     justify-content: flex-end;
-    min-width: 52px;
+    justify-self: end;
+    min-width: 0;
     padding-left: 8px;
   }
 
+  .Footer {
+    position: relative;
+    z-index: 5;
+    background: var(--page-bar-veil);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+
+    &[data-background="solid"] {
+      background: var(--page-background);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
   .Content {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    margin-bottom: calc(-1 * var(--page-bottom));
+    padding-bottom: calc(var(--page-content-padding-bottom) + var(--page-bottom));
+    scroll-padding-bottom: calc(var(--page-content-padding-bottom) + var(--page-bottom));
     padding-top: calc(var(--page-top) + var(--page-content-padding-top));
     scroll-padding-top: calc(var(--page-top) + var(--page-content-padding-top));
   }

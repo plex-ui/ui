@@ -17,7 +17,6 @@ import {
   TabsVerticalSegmentedDemo,
   TabsVerticalUnderlineDemo,
   TabsVerticalUnderlineIconsDemo,
-  TabsDisabledDemo,
   TabsSizingDemo,
   TabsScrollableDemo,
   TabsOverflowMenuDemo,
@@ -28,15 +27,19 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ## Examples
 
+<span id="disabled-tab" />
+
 ### Overview
 
-<ComponentPreview details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations.</>} code={`const [tab, setTab] = useState("overview")
+<ComponentPreview details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.</>} code={`const [tab, setTab] = useState("overview")
+const [disabled, setDisabled] = useState(false)
+const [reportsDisabled, setReportsDisabled] = useState(false)
 
 return (
-  <Tabs value={tab} onChange={setTab} aria-label="Demo tabs">
+  <Tabs value={tab} onChange={setTab} disabled={disabled} aria-label="Demo tabs">
     <Tabs.Tab value="overview">Overview</Tabs.Tab>
     <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-    <Tabs.Tab value="reports">Reports</Tabs.Tab>
+    <Tabs.Tab value="reports" disabled={reportsDisabled}>Reports</Tabs.Tab>
     <Tabs.Tab value="settings">Settings</Tabs.Tab>
   </Tabs>
 )`} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
@@ -157,17 +160,6 @@ return (
   <TabsVerticalUnderlineIconsDemo />
 </ComponentPreview>
 
-### Disabled tab
-
-<ComponentPreview details={<>Use <code>disabled</code> on individual <code>Tabs.Tab</code> elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected.</>} code={`<Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
-  <Tabs.Tab value="overview">Overview</Tabs.Tab>
-  <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-  <Tabs.Tab value="reports" disabled>Reports</Tabs.Tab>
-  <Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <TabsDisabledDemo />
-</ComponentPreview>
-
 ### Sizing
 
 <ComponentPreview details={<>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</>} code={`<Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
@@ -180,7 +172,7 @@ return (
 
 ### Scrollable
 
-<ComponentPreview details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={`<div className="max-w-[400px] flex">
+<ComponentPreview details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={`<div className="flex w-full min-w-0 max-w-[400px]">
   <Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
     <Tabs.Tab value="1">Overview</Tabs.Tab>
     <Tabs.Tab value="2">Analytics</Tabs.Tab>
@@ -197,7 +189,7 @@ return (
 
 ### Overflow menu
 
-<ComponentPreview details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflowLabel</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={`<div className="flex w-[360px]">
+<ComponentPreview details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflowLabel</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={`<div className="flex min-w-0 max-w-full w-[360px]">
   <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
     <Tabs.Tab value="code">Code</Tabs.Tab>
     <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>

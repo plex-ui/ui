@@ -8,7 +8,7 @@ import { Button as ReactButton } from "../../packages/ui/src/components/Button"
 import { Popover as ReactPopover, usePopoverController as useReactPopoverController } from "../../packages/ui/src/components/Popover"
 import { CopyTooltip as ReactCopyTooltip, Tooltip as ReactTooltip } from "../../packages/ui/src/components/Tooltip"
 import { Button as VueButton } from "../../packages/vue/src/components/Button"
-import { Popover, PopoverContent, PopoverTrigger, usePopoverController } from "../../packages/vue/src/components/Popover"
+import { Popover, PopoverContent, PopoverTrigger, usePopoverController as vuePopoverController } from "../../packages/vue/src/components/Popover"
 import {
   CopyTooltip,
   Tooltip,
@@ -496,6 +496,27 @@ describe("Tooltip behaviour parity", () => {
       steps,
     )
 
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name skips hover tooltips but retains keyboard focus", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await tooltipWalk({}, async ({ fire, advance, focus, snapshot }) => {
+        await fire(TRIGGER, "pointerMove", { pointerType })
+        await advance(500)
+        snapshot()
+        await focus(TRIGGER)
+        snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[0]).not.toContain('role="tooltip"')
+      expect(result.react[1]).toContain('role="tooltip"')
+    } finally {
+      delete document.documentElement.dataset.input
+    }
+  })
+
   test("hover opens after the delay, leaving closes", async () => {
     const result = await tooltipWalk({}, async ({ fire, advance, snapshot }) => {
       await fire(TRIGGER, "pointerMove", mouse)
@@ -732,13 +753,13 @@ describe("CopyTooltip parity", () => {
 
   beforeEach(() => {
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
-    writeText.mockClear()
+    writeText.mockReset().mockResolvedValue(undefined)
   })
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  const copyWalk = (steps: (tools: Tools<object>) => Promise<void>, props: { side?: "bottom"; align?: "start" } = {}) =>
+  const copyWalk = (steps: (tools: Tools<object>) => Promise<void>, props: { side?: "bottom"; align?: "start"; onCopy?: (copied: boolean) => void } = {}) =>
     walk(
       {},
       () => (
@@ -758,7 +779,7 @@ describe("CopyTooltip parity", () => {
     expect(result.vue).toEqual(result.react)
   })
 
-  test("hover, copy, copied, auto close, instant reopen", async () => {
+  test("hover, copy, copied, auto close, delayed reopen", async () => {
     const result = await copyWalk(async ({ fire, advance, snapshot }) => {
       await fire(TRIGGER, "pointerMove", mouse)
       await advance(150)
@@ -774,7 +795,8 @@ describe("CopyTooltip parity", () => {
       await fire(TRIGGER, "pointerLeave", mouse)
       await advance(1000)
       await fire(TRIGGER, "pointerMove", mouse)
-      snapshot() // the provider never heard of that close: instant reopen with "Copy"
+      await advance(150)
+      snapshot() // hover opens the normal copy hint again
     })
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toContain('data-clickable="true"')
@@ -783,10 +805,69 @@ describe("CopyTooltip parity", () => {
     expect(result.react[1]).toContain('" Copied!"')
     expect(result.react[2]).toContain('" Copied!"')
     expect(result.react[3]).not.toContain('role="tooltip"')
-    expect(result.react[4]).toContain('data-state="instant-open"')
+    expect(result.react[4]).toContain('data-state="delayed-open"')
     expect(result.react[4]).toContain('" Copy"')
     expect(writeText).toHaveBeenCalledTimes(2)
     expect(writeText).toHaveBeenLastCalledWith("sess_12345abcdefg")
+  })
+
+  test("touch activation without hover opens successful feedback for one second", async () => {
+    const onCopy = vi.fn()
+    const touch = { pointerType: "touch" }
+    const result = await copyWalk(async ({ fire, advance, snapshot }) => {
+      const writesBefore = writeText.mock.calls.length
+      await fire(TRIGGER, "pointerDown", touch)
+      snapshot()
+      expect(writeText).toHaveBeenCalledTimes(writesBefore)
+      await fire(TRIGGER, "pointerUp", touch)
+      await fire(TRIGGER, "click")
+      snapshot()
+      expect(writeText).toHaveBeenCalledTimes(writesBefore + 1)
+      await fire(TRIGGER, "pointerLeave", touch)
+      await fire(() => document.body, "pointerMove", { ...touch, clientX: 900, clientY: 900 })
+      await advance(999)
+      snapshot()
+      await advance(1)
+      snapshot()
+    }, { onCopy })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).not.toContain('role="tooltip"')
+    expect(result.react[1]).toContain('" Copied!"')
+    expect(result.react[2]).toContain('" Copied!"')
+    expect(result.react[3]).not.toContain('role="tooltip"')
+    expect(onCopy.mock.calls).toEqual([[true], [true]])
+  })
+
+  test("a cancelled touch gesture never writes to the clipboard", async () => {
+    const touch = { pointerType: "touch" }
+    const result = await copyWalk(async ({ fire, advance, snapshot }) => {
+      await fire(TRIGGER, "pointerDown", touch)
+      await fire(TRIGGER, "pointerMove", { ...touch, clientY: 80 })
+      await fire(TRIGGER, "pointerCancel", touch)
+      await fire(TRIGGER, "pointerLeave", touch)
+      await advance(1000)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react[0]).not.toContain('role="tooltip"')
+    expect(writeText).not.toHaveBeenCalled()
+  })
+
+  test("a failed touch copy without hover does not announce success", async () => {
+    writeText.mockRejectedValue(new Error("denied"))
+    const onCopy = vi.fn()
+    const touch = { pointerType: "touch" }
+    const result = await copyWalk(async ({ fire, advance, snapshot }) => {
+      await fire(TRIGGER, "pointerDown", touch)
+      await fire(TRIGGER, "pointerUp", touch)
+      await fire(TRIGGER, "click")
+      snapshot()
+      await advance(1000)
+      snapshot()
+    }, { onCopy })
+    expect(result.vue).toEqual(result.react)
+    expect(result.react.join("\n")).not.toContain('" Copied!"')
+    expect(onCopy.mock.calls).toEqual([[false], [false]])
   })
 
   test("pressing the tooltip copies too; Escape closes", async () => {
@@ -794,6 +875,8 @@ describe("CopyTooltip parity", () => {
       async ({ fire, focus, advance, snapshot }) => {
         await focus(TRIGGER)
         await fire(".Tooltip", "pointerDown", mouse)
+        await fire(".Tooltip", "pointerUp", mouse)
+        await fire(".Tooltip", "click")
         snapshot()
         await fire(() => document.activeElement, "keyDown", { key: "Escape" })
         snapshot()
@@ -823,6 +906,7 @@ type PopoverContentCase = {
   translucent?: boolean
   className?: string
   avoidCollisions?: boolean
+  collisionPadding?: number
   autoFocus?: boolean
   "data-panel"?: string
 }
@@ -858,7 +942,7 @@ const ReactControls = () => {
 
 const VueControls = defineComponent({
   setup() {
-    const { close, shake } = usePopoverController()
+    const { close, shake } = vuePopoverController()
     return () =>
       h("div", { class: "mt-3 flex gap-2" }, [
         h("button", { class: "shake", onClick: shake }, "Shake"),
@@ -914,6 +998,8 @@ const popoverCases: Array<[string, PopoverCase]> = [
   ["align start (default alignOffset -5)", { open: true, content: { align: "start" } }],
   ["align end, alignOffset 10", { open: true, content: { align: "end", alignOffset: 10 } }],
   ["align center", { open: true, content: { align: "center" } }],
+  ["collision padding 16", { open: true, content: { collisionPadding: 16 } }],
+  ["collision padding 0", { open: true, content: { collisionPadding: 0 } }],
   ["translucent", { open: true, content: { translucent: true } }],
   ["panel class", { open: true, content: { className: "flex p-1.5" } }],
   ["open on hover, open", { open: true, showOnHover: true }],
@@ -935,6 +1021,21 @@ describe.each([
 })
 
 describe("Popover markup", () => {
+  test("collision padding controls available width and defaults to 20px", async () => {
+    const sizes = new Map<number | undefined, number>()
+    for (const collisionPadding of [undefined, 20, 16, 0]) {
+      const props = { open: true, content: { collisionPadding } }
+      const { react, vue } = await pair(reactPopover(props), () => vuePopover(props))
+      expect(vue).toBe(react)
+      const width = /--radix-popper-available-width: (-?[\d.]+)px/.exec(react)
+      expect(width).not.toBeNull()
+      sizes.set(collisionPadding, Number(width?.[1]))
+    }
+    expect(sizes.get(undefined)).toBe(sizes.get(20))
+    expect(sizes.get(16)).toBe(Number(sizes.get(20)) + 8)
+    expect(sizes.get(0)).toBe(Number(sizes.get(20)) + 40)
+  })
+
   // Known gap: Reka resolves @floating-ui/dom 1.8 and Radix 1.7, whose `size`
   // middleware computes the available width differently when there is no
   // `shift` middleware (avoidCollisions false): -80px vs -40px here for the
@@ -1228,6 +1329,51 @@ describe("Popover behaviour parity", () => {
     expect(reactChanges).toEqual([true, false])
     expect(result.react[0]).not.toContain('role="dialog"')
     expect(result.react[2]).toContain('role="dialog"')
+  })
+
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name skips hover popover opening but retains keyboard focus", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await popoverWalk({ showOnHover: true }, async ({ fire, advance, focus, snapshot }) => {
+        await fire(TRIGGER, "pointerMove", { pointerType })
+        await advance(500)
+        snapshot()
+        await focus(TRIGGER)
+        snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[0]).not.toContain('role="dialog"')
+      expect(result.react[1]).toContain('role="dialog"')
+    } finally {
+      delete document.documentElement.dataset.input
+    }
+  })
+
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name click opens a popover that pointer transit does not dismiss", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await popoverWalk({ showOnHover: true }, async ({ fire, advance, snapshot }) => {
+        await fire(TRIGGER, "click")
+        await advance(1)
+        snapshot()
+        await fire(TRIGGER, "pointerLeave", { pointerType, clientX: 10, clientY: 10 })
+        await fire('[role="dialog"]', "pointerLeave", { pointerType, clientX: 20, clientY: 20 })
+        await fire(() => document.body, "pointerMove", { pointerType, clientX: 900, clientY: 900 })
+        await advance(500)
+        snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[0]).toContain('role="dialog"')
+      expect(result.react[1]).toContain('role="dialog"')
+    } finally {
+      delete document.documentElement.dataset.input
+    }
   })
 
   test("hover: opens after the delay without taking focus, ignores clicks for 500ms", async () => {

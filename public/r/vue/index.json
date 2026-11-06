@@ -415,6 +415,14 @@
       ]
     },
     {
+      "name": "toolbar",
+      "type": "registry:ui",
+      "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "tooltip",
       "type": "registry:ui",
       "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.",

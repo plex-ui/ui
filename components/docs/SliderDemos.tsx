@@ -1,58 +1,22 @@
 'use client';
 
-import React, { useEffect, useId, useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import dynamic from 'next/dynamic';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
-import { Switch } from '@plexui/ui/components/Switch';
+
+import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
 
 const Slider = dynamic(
   () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
   { ssr: false }
 );
 
+const subscribeMounted = () => () => {};
+const getMountedSnapshot = () => true;
+const getServerMountedSnapshot = () => false;
+
 function useMounted() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
-}
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
+  return useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
 }
 
 export function SliderBaseDemo({ disabled = false }: { disabled?: boolean }) {
@@ -204,27 +168,6 @@ export function SliderVerticalDemo() {
         onChange={setValue}
         orientation="vertical"
       />
-    </div>
-  );
-}
-
-export function SliderDisabledDemo() {
-  const mounted = useMounted();
-  const [value] = useState(50);
-  if (!mounted) return <div style={{ width: 300, height: 48 }} />;
-  return (
-    <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-      <div style={{ width: 300 }}>
-        <Slider
-          label="Disabled"
-          min={0}
-          max={100}
-          step={1}
-          value={value}
-          onChange={() => {}}
-          disabled
-        />
-      </div>
     </div>
   );
 }

@@ -302,13 +302,13 @@ const SliderComponent = defineComponent({
   },
   emits: {
     /** The value changed (`v-model:value`): a number, or an array with `range` */
-    "update:value": (_value: number | number[]) => true,
+    "update:value": (_value: number | number[]) => { void _value; return true },
     /** Same payload as `update:value`, named after React's `onChange` */
-    "change": (_value: number | number[]) => true,
+    "change": (_value: number | number[]) => { void _value; return true },
     /** The value input or a thumb gained focus */
-    "focus": (_event: FocusEvent) => true,
+    "focus": (_event: FocusEvent) => { void _event; return true },
     /** The value input or a thumb lost focus */
-    "blur": (_event: FocusEvent) => true,
+    "blur": (_event: FocusEvent) => { void _event; return true },
   },
   setup(props, { attrs, slots, emit, expose }) {
     const id = useId()
@@ -329,12 +329,26 @@ const SliderComponent = defineComponent({
 
     // prevents input from jumping around while the user is typing; an
     // immediate change (a key, blur) cancels the pending typed one
-    const debouncedOnChange = debounce((value: number) => reportChange(value), 250)
-    // React's useDebounceCallback means to cancel on unmount (and misses);
-    // Vue drops emits after unmount anyway
+    const debouncedOnChange = debounce((value: number) => {
+      if (!props.disabled && !isRange()) reportChange(value)
+    }, 250)
+    // Cancel pending input when its owner unmounts.
     onBeforeUnmount(() => debouncedOnChange.cancel())
 
     const pointerDown = ref(false)
+    const resetPending = ref(false)
+    // Read the controlled owner after a reset request, including a refused request.
+    watch([resetPending, () => props.value, isRange], () => {
+      if (!resetPending.value) return
+      resetPending.value = false
+      if (!isRange()) setInputValueNumber(props.value as number)
+    }, { flush: "post" })
+    watch([() => props.disabled, isRange, () => props.value, precision], () => {
+      if (!props.disabled) return
+      debouncedOnChange.cancel()
+      pointerDown.value = false
+      if (!isRange()) setInputValueNumber(props.value as number)
+    }, { flush: "sync" })
     const isMounted = ref(false)
 
     // Used to position the input over the thumb
@@ -428,7 +442,7 @@ const SliderComponent = defineComponent({
 
     // Single-mode keyboard handler: a key's change replaces a pending typed one
     const handleKeyDown = (evt: KeyboardEvent) => {
-      if (isRange()) return
+      if (props.disabled || isRange()) return
       const singleValue = props.value as number
       const { min, max, step } = props
       if (evt.key === "Home") {
@@ -466,10 +480,11 @@ const SliderComponent = defineComponent({
     }
 
     const handleInputChange = (evt: Event) => {
-      if (isRange()) return
+      if (props.disabled || isRange()) return
       const target = evt.currentTarget as HTMLInputElement
-      // Digits and dots, plus a leading minus when the slider goes below zero
-      const nextValue = target.value.replace(props.min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "").trim()
+      // Mobile decimal keyboards may use a comma. A minus is valid only below zero.
+      const nextValue = target.value.trim().replace(/,/g, ".").replace(props.min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "")
+      debouncedOnChange.cancel()
       let parsed = parseFloat(nextValue || "0")
       if (Number.isNaN(parsed)) {
         // A lone "-" or "." is a number still being typed: nothing to report yet
@@ -491,7 +506,12 @@ const SliderComponent = defineComponent({
       if (isRange()) return
       // Blur commits the typed text, so its pending debounced change is dropped
       debouncedOnChange.cancel()
-      let parsed = parseFloat((evt.target as HTMLInputElement).value.trim()) || 0
+      if (props.disabled) {
+        setInputValueNumber(props.value as number)
+        emit("blur", evt)
+        return
+      }
+      let parsed = parseFloat((evt.target as HTMLInputElement).value.trim().replace(/,/g, ".")) || 0
       if (props.step >= 1) {
         parsed = Math.floor(parsed)
       } else {
@@ -512,7 +532,11 @@ const SliderComponent = defineComponent({
     }
 
     // Radix value/onChange wiring
-    const handleValueChange = (values: number[]) => reportChange(isRange() ? values : values[0]!)
+    const handleValueChange = (values: number[]) => {
+      if (props.disabled) return
+      debouncedOnChange.cancel()
+      reportChange(isRange() ? values : values[0]!)
+    }
 
     return () => {
       // Read every piece of state, as a React render depends on all of them
@@ -577,8 +601,14 @@ const SliderComponent = defineComponent({
                             "color": "secondary",
                             "class": s.Reset,
                             "aria-label": resetTooltip,
+                            "disabled": disabled,
                             "data-hide": disabled || (resetValue === singleValue && !isPointerDown),
-                            "onClick": () => reportChange(resetValue),
+                            "onClick": () => {
+                              if (disabled) return
+                              debouncedOnChange.cancel()
+                              reportChange(resetValue)
+                              resetPending.value = true
+                            },
                           },
                           { default: () => h(Reload) },
                         ),
@@ -587,7 +617,7 @@ const SliderComponent = defineComponent({
                 : null,
               range
                 ? h("span", { class: s.RangeDisplay }, rangeDisplayText)
-                : h("div", { class: s.SliderValue, onClick: () => inputRef.value?.focus() }, [
+                : h("div", { class: s.SliderValue, onClick: () => { if (!disabled) inputRef.value?.focus() } }, [
                     prefixUnit ? h("span", { class: s.ValueUnit }, prefixUnit) : null,
                     h("input", {
                       "id": id,
@@ -599,6 +629,7 @@ const SliderComponent = defineComponent({
                       "^value": currentInputValue,
                       "value": currentInputValue,
                       "type": "text",
+                      "inputmode": min < 0 ? "text" : Number.isInteger(min) && Number.isInteger(max) && Number.isInteger(props.step) ? "numeric" : "decimal",
                       "onClick": (e: MouseEvent) => e.stopPropagation(),
                       "onBlur": handleInputBlur,
                       "onFocus": handleInputFocus,
@@ -627,7 +658,7 @@ const SliderComponent = defineComponent({
               "onFocusin": (evt: FocusEvent) => emit("focus", evt),
               "onFocusout": (evt: FocusEvent) => emit("blur", evt),
               "onPointerdown": () => {
-                pointerDown.value = true
+                if (!disabled) pointerDown.value = true
               },
               "onPointerup": () => {
                 pointerDown.value = false

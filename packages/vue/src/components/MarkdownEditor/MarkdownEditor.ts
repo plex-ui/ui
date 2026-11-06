@@ -1,5 +1,4 @@
 import {
-  Teleport,
   defineComponent,
   h,
   reactive,
@@ -9,7 +8,7 @@ import {
   type PropType,
 } from "vue"
 import { EditorContent, useEditor } from "@tiptap/vue-3"
-import type { Editor as CoreEditor } from "@tiptap/core"
+import { getMarkRange, type Editor as CoreEditor } from "@tiptap/core"
 import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
@@ -24,6 +23,7 @@ import Placeholder from "@tiptap/extension-placeholder"
 import HardBreak from "@tiptap/extension-hard-break"
 import { Markdown as MarkdownExtension } from "tiptap-markdown"
 import type { Variants } from "@plexui/styles/types"
+import { keepMovedFocus } from "../../lib/helpers.js"
 import {
   Bold as BoldIcon,
   Italic as ItalicIcon,
@@ -32,6 +32,10 @@ import {
   ListNumbers as ListNumbersIcon,
 } from "../Icon/index.js"
 import { Tooltip } from "../Tooltip/index.js"
+import { Button } from "../Button/index.js"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from "../Dialog/index.js"
+import { Field } from "../Field/index.js"
+import { Input } from "../Input/index.js"
 import { flattenSlot } from "../Tooltip/slot.js"
 import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.css"
 
@@ -53,9 +57,8 @@ import s from "@plexui/styles/components/MarkdownEditor/MarkdownEditor.module.cs
 //   props, as React re-applies them on render.
 // - `toolbarEnd` is the `#toolbarEnd` slot. Like React, only `class` is
 //   applied (to the container); other attributes are not forwarded.
-// - The link dialog is teleported to <body>. React portal events bubble
-//   through the component tree, so a mousedown inside the dialog reaches the
-//   container's handler; the dialog's two root elements call it here.
+// - The shared Dialog owns focus trapping and closing. Its portal is not part
+//   of the editor's click area, so editing a link preserves its selection.
 
 type EditorLike = Pick<CoreEditor, "isActive" | "state">
 
@@ -74,6 +77,8 @@ export const markdownEditorStyles = {
   toolbarButton: s.ToolbarButton,
 }
 
+type LinkSelection = { from: number; to: number; doc: CoreEditor["state"]["doc"] }
+
 const LinkDialog = defineComponent({
   name: "MarkdownEditorLinkDialog",
   props: {
@@ -81,120 +86,51 @@ const LinkDialog = defineComponent({
     initialUrl: { type: String, required: true },
     initialTitle: { type: String, required: true },
     isEditing: { type: Boolean, required: true },
+    disabled: { type: Boolean, required: true },
     onSave: { type: Function as PropType<(url: string, title: string) => void>, required: true },
     onRemove: { type: Function as PropType<() => void>, required: true },
     onCancel: { type: Function as PropType<() => void>, required: true },
-    /** Receives mousedown events from inside the dialog, as React's tree bubbling does */
-    onTreeMousedown: { type: Function as PropType<(evt: MouseEvent) => void>, required: true },
+    onRestoreFocus: { type: Function as PropType<(event: Event) => void>, required: true },
   },
   setup(props) {
     const url = ref(props.initialUrl)
     const title = ref(props.initialTitle)
-    const urlRef = ref<HTMLInputElement | null>(null)
-
-    watch(
-      () => [props.open, props.initialUrl, props.initialTitle] as const,
-      ([open, initialUrl, initialTitle]) => {
-        if (open) {
-          url.value = initialUrl
-          title.value = initialTitle
-          requestAnimationFrame(() => urlRef.value?.focus())
-        }
-      },
-    )
-
-    const handleKeyDown = (evt: KeyboardEvent) => {
-      // Enter in a field saves; on a button it is that button's own click
-      if (evt.key === "Enter" && evt.target instanceof HTMLInputElement) {
-        evt.preventDefault()
-        props.onSave(url.value, title.value)
-      }
-      if (evt.key === "Escape") {
-        evt.preventDefault()
-        props.onCancel()
-      }
-      // The dialog is modal: Tab from the last control wraps to the first, and
-      // Shift+Tab from the first to the last
-      if (evt.key === "Tab") {
-        const controls = Array.from((evt.currentTarget as HTMLElement).querySelectorAll<HTMLElement>("input, button"))
-        const first = controls[0]
-        const last = controls[controls.length - 1]
-        if (evt.target === (evt.shiftKey ? first : last)) {
-          evt.preventDefault()
-          ;(evt.shiftKey ? last : first)?.focus()
-        }
-      }
-    }
-
-    return () => {
-      if (!props.open || typeof document === "undefined") return null
-
-      return h(Teleport, { to: "body" }, [
-        h("div", {
-          class: s.LinkDialogOverlay,
-          onClick: () => props.onCancel(),
-          onMousedown: props.onTreeMousedown,
-        }),
-        h(
-          "div",
-          {
-            "class": s.LinkDialogContent,
-            "role": "dialog",
-            "aria-modal": "true",
-            "aria-label": "Link",
-            "onKeydown": handleKeyDown,
-            "onMousedown": props.onTreeMousedown,
-          },
-          [
-            h("div", { class: s.LinkDialogBody }, [
-              h("h3", { class: s.LinkDialogTitle }, "Link"),
-              h("div", { class: s.LinkDialogFields }, [
-                h("div", { class: s.LinkDialogField }, [
-                  h("label", { class: s.LinkDialogLabel, for: "md-editor-link-url" }, "URL"),
-                  h("input", {
-                    ref: urlRef,
-                    id: "md-editor-link-url",
-                    class: s.LinkDialogInput,
-                    type: "url",
-                    placeholder: "Enter URL",
-                    value: url.value,
-                    onInput: (e: Event) => {
-                      url.value = (e.target as HTMLInputElement).value
-                    },
-                  }),
-                ]),
-                h("div", { class: s.LinkDialogField }, [
-                  h("label", { class: s.LinkDialogLabel, for: "md-editor-link-title" }, "Link title"),
-                  h("input", {
-                    id: "md-editor-link-title",
-                    class: s.LinkDialogInput,
-                    type: "text",
-                    placeholder: "Enter link title",
-                    value: title.value,
-                    onInput: (e: Event) => {
-                      title.value = (e.target as HTMLInputElement).value
-                    },
-                  }),
-                ]),
-              ]),
-            ]),
-            h("div", { class: s.LinkDialogFooter }, [
-              props.isEditing
-                ? h("button", { type: "button", class: s.LinkDialogButtonRemove, onClick: () => props.onRemove() }, "Remove")
-                : null,
-              h("div", { class: s.LinkDialogFooterTrailing }, [
-                h("button", { type: "button", class: s.LinkDialogButtonCancel, onClick: () => props.onCancel() }, "Cancel"),
-                h(
-                  "button",
-                  { type: "button", class: s.LinkDialogButtonSave, onClick: () => props.onSave(url.value, title.value) },
-                  "Save",
-                ),
-              ]),
-            ]),
-          ],
-        ),
-      ])
-    }
+    watch(() => [props.open, props.initialUrl, props.initialTitle] as const, ([open, initialUrl, initialTitle]) => {
+      if (open) { url.value = initialUrl; title.value = initialTitle }
+    })
+    return () => h(Dialog, {
+      "open": props.open,
+      "onUpdate:open": (next: boolean) => { if (!next) props.onCancel() },
+    }, { default: () => h(DialogContent, {
+      width: 450, mobileVariant: "sheet", showClose: false,
+      onCloseAutoFocus: props.onRestoreFocus,
+    }, { default: () => [
+      h(DialogHeader, null, { default: () => h(DialogTitle, null, { default: () => "Link" }) }),
+      h(DialogBody, null, { default: () => h("div", {
+        class: s.LinkDialogFields,
+        onKeydown: (event: KeyboardEvent) => {
+          if (event.key === "Enter" && !event.isComposing && event.target instanceof HTMLInputElement) {
+            event.preventDefault()
+            if (!props.disabled) props.onSave(url.value, title.value)
+          }
+        },
+      }, [
+        h(Field, { label: "URL" }, { default: () => h(Input, {
+          type: "url", inputmode: "url", autocapitalize: "none", autocorrect: "off", spellcheck: false,
+          placeholder: "Enter URL", value: url.value, disabled: props.disabled,
+          "onUpdate:value": (value: string) => { url.value = value },
+        }) }),
+        h(Field, { label: "Link title" }, { default: () => h(Input, {
+          placeholder: "Enter link title", value: title.value, disabled: props.disabled,
+          "onUpdate:value": (value: string) => { title.value = value },
+        }) }),
+      ]) }),
+      h(DialogFooter, null, { default: () => [
+        props.isEditing ? h(Button, { color: "danger", variant: "soft", disabled: props.disabled, onClick: () => { if (!props.disabled) props.onRemove() } }, { default: () => "Remove" }) : null,
+        h(Button, { color: "secondary", variant: "soft", onClick: () => props.onCancel() }, { default: () => "Cancel" }),
+        h(Button, { color: "primary", disabled: props.disabled, onClick: () => { if (!props.disabled) props.onSave(url.value, title.value) } }, { default: () => "Save" }),
+      ] }),
+    ] }) })
   },
 })
 
@@ -215,13 +151,14 @@ const ToolbarButton = defineComponent({
         {
           default: () =>
             h(
-              "button",
+              Button,
               {
-                "type": "button",
+                "color": "secondary", "variant": "ghost", "size": "2xs", "iconSize": "sm", "uniform": true, "mobileMaterial": "flat",
                 "class": s.ToolbarButton,
                 "data-active": props.active || undefined,
+                "selected": props.active,
                 // Formatting buttons are toggles: announce their on/off state
-                "aria-pressed": String(props.active),
+                "aria-pressed": props.active,
                 // React DOM never calls onClick on a disabled button, even
                 // for a dispatched event; Vue's listener would run
                 "onClick": () => {
@@ -230,7 +167,7 @@ const ToolbarButton = defineComponent({
                 "disabled": props.disabled,
                 "aria-label": props.tooltip,
               },
-              [h(props.icon)],
+              { default: () => h(props.icon) },
             ),
         },
       )
@@ -268,9 +205,9 @@ const MarkdownEditorComponent = defineComponent({
   },
   emits: {
     /** The editor's markdown after a change (`v-model:value`) */
-    "update:value": (_markdown: string) => true,
+    "update:value": (markdown: string) => typeof markdown === "string",
     /** Same as `update:value` (React's `onChange`) */
-    "change": (_markdown: string) => true,
+    "change": (markdown: string) => typeof markdown === "string",
   },
   setup(props, { slots, attrs, emit }) {
     const focused = ref(false)
@@ -286,6 +223,8 @@ const MarkdownEditorComponent = defineComponent({
     const linkCanEnable = ref(false)
     const isControlled = () => props.value !== undefined
     let suppressChange = false
+    let linkSelection: LinkSelection | null = null
+    let restoreEditorFocus = false
 
     const syncToolbar = (e: EditorLike) => {
       Object.assign(activeMarks, {
@@ -350,7 +289,14 @@ const MarkdownEditorComponent = defineComponent({
         emit("change", md)
       },
       onSelectionUpdate: ({ editor: e }) => syncToolbar(e),
-      onTransaction: ({ editor: e }) => syncToolbar(e),
+      onTransaction: ({ editor: e }) => {
+        syncToolbar(e)
+        if (linkSelection && linkSelection.doc !== e.state.doc) {
+          linkSelection = null
+          restoreEditorFocus = false
+          linkDialogOpen.value = false
+        }
+      },
     })
 
     // React re-applies the editor props on every render
@@ -375,13 +321,19 @@ const MarkdownEditorComponent = defineComponent({
       () => [editor.value, props.disabled] as const,
       ([instance, disabled]) => {
         if (instance) instance.setEditable(!disabled)
+        if (disabled) {
+          linkSelection = null
+          restoreEditorFocus = false
+          linkDialogOpen.value = false
+        }
       },
     )
 
     const handleContainerMouseDown = (evt: MouseEvent) => {
       const instance = editor.value
       if (props.disabled || !instance) return
-      const target = evt.target as Element
+      const target = evt.target
+      if (!(target instanceof Element) || !(evt.currentTarget instanceof Element) || !evt.currentTarget.contains(target)) return
       if (target.closest("button, [type='button'], [role='button'], a, input, label")) return
       // A press in the text places the caret there itself
       if (instance.view.dom.contains(target)) return
@@ -392,75 +344,61 @@ const MarkdownEditorComponent = defineComponent({
 
     const openLinkDialog = () => {
       const instance = editor.value
-      if (!instance) return
+      if (!instance || props.disabled) return
       const url = instance.getAttributes("link").href ?? ""
-      let title = ""
-      if (!instance.state.selection.empty) {
-        title = instance.state.doc.textBetween(instance.state.selection.from, instance.state.selection.to, "")
-      } else if (instance.isActive("link")) {
-        const { $from } = instance.state.selection
-        const linkMark = $from.marks().find((m) => m.type === instance.schema.marks.link)
-        if (linkMark) {
-          let start = $from.pos
-          let end = $from.pos
-          instance.state.doc.nodesBetween($from.start(), $from.end(), (node, pos) => {
-            if (node.isText && node.marks.some((m) => m.eq(linkMark))) {
-              start = Math.min(start, pos)
-              end = Math.max(end, pos + node.nodeSize)
-            }
-          })
-          title = instance.state.doc.textBetween(start, end, "")
-        }
-      }
-      linkDialogInitial.value = { url, title }
+      const selection = instance.state.selection
+      const range = selection.empty && instance.isActive("link")
+        ? getMarkRange(selection.$from, instance.schema.marks.link, { href: url })
+        : selection
+      if (!range) return
+      linkSelection = { from: range.from, to: range.to, doc: instance.state.doc }
+      restoreEditorFocus = true
+      linkDialogInitial.value = { url, title: instance.state.doc.textBetween(range.from, range.to, "") }
       linkDialogOpen.value = true
     }
-
     const handleLinkSave = (url: string, title: string) => {
       const instance = editor.value
-      if (!instance) return
+      const range = linkSelection
+      if (!instance || props.disabled || !range) return
       linkDialogOpen.value = false
-
-      if (!url) {
-        instance.chain().focus().extendMarkRange("link").unsetLink().run()
-        return
-      }
-
-      const { from, to, empty } = instance.state.selection
-      const selectedText = empty ? "" : instance.state.doc.textBetween(from, to, "")
-      const isOnExistingLink = instance.isActive("link")
-
-      if (empty && !isOnExistingLink) {
-        instance.chain().focus().insertContent(linkText(title || url, url)).run()
-      } else if (isOnExistingLink) {
-        instance.chain().focus().extendMarkRange("link").run()
-        const linkRange = instance.state.selection
-        if (title && title !== instance.state.doc.textBetween(linkRange.from, linkRange.to, "")) {
-          instance
-            .chain()
-            .focus()
-            .insertContentAt({ from: linkRange.from, to: linkRange.to }, linkText(title, url))
-            .run()
-        } else {
-          instance.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
-        }
-      } else if (title && title !== selectedText) {
-        instance.chain().focus().deleteSelection().insertContent(linkText(title, url)).run()
-      } else {
-        instance.chain().focus().setLink({ href: url }).run()
-      }
+      if (range.doc !== instance.state.doc) { restoreEditorFocus = false; return }
+      linkSelection = null
+      const selectedText = instance.state.doc.textBetween(range.from, range.to, "")
+      const chain = instance.chain().setTextSelection({ from: range.from, to: range.to })
+      if (!url) chain.unsetLink().run()
+      else if (title && title !== selectedText) chain.insertContent(linkText(title, url)).run()
+      else chain.setLink({ href: url }).run()
     }
-
     const handleLinkRemove = () => {
       const instance = editor.value
-      if (!instance) return
+      const range = linkSelection
+      if (!instance || props.disabled || !range) return
       linkDialogOpen.value = false
-      instance.chain().focus().extendMarkRange("link").unsetLink().run()
+      if (range.doc !== instance.state.doc) { restoreEditorFocus = false; return }
+      linkSelection = null
+      instance.chain().setTextSelection({ from: range.from, to: range.to }).unsetLink().run()
     }
-
-    const handleLinkCancel = () => {
-      linkDialogOpen.value = false
-      editor.value?.commands.focus()
+    const handleLinkCancel = () => { linkDialogOpen.value = false }
+    const handleRestoreFocus = (event: Event) => {
+      keepMovedFocus(event)
+      const shouldRestore = restoreEditorFocus && !event.defaultPrevented
+      event.preventDefault()
+      restoreEditorFocus = false
+      linkSelection = null
+      const instance = editor.value
+      if (shouldRestore && instance && !instance.isDestroyed && !props.disabled) {
+        const closingScope = event.target
+        requestAnimationFrame(() => {
+          if (instance.isDestroyed || !instance.isEditable) return
+          const doc = instance.view.dom.ownerDocument
+          const active = doc.activeElement
+          if (active && active !== doc.body && !instance.view.dom.contains(active)
+            && !(closingScope instanceof Node && closingScope.contains(active))) return
+          // Check at the actual restore, then focus synchronously: Tiptap's
+          // focus command queues another frame that could steal moved focus.
+          instance.view.focus()
+        })
+      }
     }
 
     return () => {
@@ -544,10 +482,11 @@ const MarkdownEditorComponent = defineComponent({
             initialUrl: linkDialogInitial.value.url,
             initialTitle: linkDialogInitial.value.title,
             isEditing: !!linkDialogInitial.value.url,
+            disabled,
+            onRestoreFocus: handleRestoreFocus,
             onSave: handleLinkSave,
             onRemove: handleLinkRemove,
             onCancel: handleLinkCancel,
-            onTreeMousedown: handleContainerMouseDown,
           }),
         ],
       )

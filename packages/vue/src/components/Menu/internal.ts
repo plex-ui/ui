@@ -1,5 +1,7 @@
 import { inject, onBeforeUnmount, provide, ref, shallowRef, type ComputedRef, type InjectionKey, type Ref, type ShallowRef } from "vue"
 
+import { isHoverPointer } from "../../lib/inputMode.js"
+
 // Radix Menu behaviour (radix-ui DropdownMenu / Menu / RovingFocusGroup) that
 // Reka UI implements differently. Reka keeps the root contexts, the popper,
 // the dismissable layer, the focus scope and the portal; the items, their
@@ -300,7 +302,7 @@ export const provideMenuContentContext = (getContent: () => HTMLElement | null) 
 export const whenMouse =
   <E extends PointerEvent>(handler: (event: E) => void) =>
   (event: E) =>
-    event.pointerType === "mouse" ? handler(event) : undefined
+    event.pointerType === "mouse" && isHoverPointer(event) ? handler(event) : undefined
 
 export const focusFirst = (candidates: HTMLElement[]) => {
   const PREVIOUSLY_FOCUSED_ELEMENT = document.activeElement

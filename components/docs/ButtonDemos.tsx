@@ -31,17 +31,19 @@ export function DemoControlBoolean({
   name,
   value,
   onChange,
+  phoneOnly = false,
 }: {
   name: string;
   value: boolean;
   onChange: (v: boolean) => void;
+  phoneOnly?: boolean;
 }) {
   // Unique per instance: two demos with the same control name share a page
   const controlId = useId();
   useDemoControlSync(name, value, onChange);
 
   return (
-    <div style={controlRowStyle}>
+    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined}>
       <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
       <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
     </div>
@@ -63,12 +65,12 @@ function syncedControl(children: React.ReactNode): { value: unknown; onChange: (
   return null;
 }
 
-export function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
+export function DemoControlRow({ name, children, phoneOnly = false }: { name: string; children: React.ReactNode; phoneOnly?: boolean }) {
   const control = syncedControl(children);
   useDemoControlSync(name, control?.value, control?.onChange);
 
   return (
-    <div style={controlRowStyle}>
+    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined}>
       <span style={controlLabelStyle}>{name}</span>
       <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
     </div>
@@ -96,7 +98,7 @@ const COLOR_OPTIONS = [
 export function ButtonColorsDemo() {
   return (
     <div
-      className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       <div className="pt-1 pb-6 px-8 w-max mx-auto">
@@ -324,15 +326,17 @@ export function ButtonBlockDemo() {
   );
 }
 
-export function ButtonDisabledDemo() {
-  const [disabled, setDisabled] = useState(true);
+export function ButtonStatesDemo() {
+  const [disabled, setDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        <DemoControlBoolean name="loading" value={loading} onChange={setLoading} />
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <Button color="primary" disabled={disabled}>Submit</Button>
+        <Button color="primary" disabled={disabled} loading={loading}>Submit</Button>
       </div>
     </>
   );

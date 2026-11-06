@@ -1,12 +1,12 @@
 "use client"
 
 import clsx from "clsx"
-import type { ComponentProps, DragEvent, ElementType, KeyboardEvent, PointerEvent, ReactNode } from "react"
+import { useEffect, useRef, type ComponentProps, type DragEvent, type ElementType, type KeyboardEvent, type PointerEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
 
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove } from "../../lib/sortable"
-import { GripVertical } from "../Icon"
+import { GripVertical, Hamburger } from "../Icon"
 
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
 
@@ -82,6 +82,14 @@ export function Sortable<T>({
   ...rest
 }: SortableProps<T>) {
   const latest = useLatestValue({ value, onChange, onMove, onHold, name })
+  const cancelDrag = useRef<ReturnType<typeof sortablePointerDown>>(undefined)
+  useEffect(() => () => cancelDrag.current?.(), [])
+  useEffect(() => {
+    if (disabled) {
+      cancelDrag.current?.()
+      cancelDrag.current = undefined
+    }
+  }, [disabled])
 
   const commit = (from: number, to: number) => {
     const { value: items, onChange: change, onMove: move, name: list } = latest.current
@@ -101,12 +109,14 @@ export function Sortable<T>({
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     onPointerDown?.(event)
-    if (!disabled) sortablePointerDown(event.nativeEvent, event.currentTarget, layout, commit, link)
+    if (!disabled && !event.defaultPrevented) {
+      cancelDrag.current = sortablePointerDown(event.nativeEvent, event.currentTarget, layout, commit, link) ?? cancelDrag.current
+    }
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     onKeyDown?.(event)
-    if (!disabled) void sortableKeyDown(event.nativeEvent, event.currentTarget, commit, link)
+    if (!disabled && !event.defaultPrevented) void sortableKeyDown(event.nativeEvent, event.currentTarget, commit, link)
   }
 
   return (
@@ -140,7 +150,7 @@ export type SortableHandleProps = {
 function SortableHandle({ "aria-label": ariaLabel = "Reorder", className, children, ...rest }: SortableHandleProps) {
   return (
     <button {...rest} type="button" className={clsx(s.Handle, className)} data-sortable-handle="" aria-label={ariaLabel}>
-      {children ?? <GripVertical aria-hidden />}
+      {children ?? <><GripVertical className={s.DesktopGrip} aria-hidden /><Hamburger className={s.PhoneGrip} aria-hidden /></>}
     </button>
   )
 }

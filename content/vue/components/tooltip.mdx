@@ -33,27 +33,29 @@ export const compact = `<Tooltip content="Copy to clipboard" compact>
 
 ## Examples
 
+Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/vue/components/popover). These examples use pointer and keyboard interactions, so they do not have a separate Phone preview. For copying, [Copy Tooltip](/vue/components/copy-tooltip) confirms the action after a successful tap.
+
 ### Overview
 
-<ComponentPreview language="vue" code={base} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" code={base} previewMinHeight={168}>
   <VueDemo template={base} />
 </ComponentPreview>
 
 ### Different triggers
 
-<ComponentPreview language="vue" details={<><code>Tooltip</code> provides an optional component, <code>TooltipTriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={triggers} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<><code>Tooltip</code> provides an optional component, <code>TooltipTriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={triggers} previewMinHeight={168}>
   <VueDemo template={triggers} />
 </ComponentPreview>
 
 ### Conditionally enabled
 
-<ComponentPreview language="vue" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={conditional} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={conditional} previewMinHeight={168}>
   <VueDemo template={conditional} controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Compact tooltips
 
-<ComponentPreview language="vue" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>compact</code> for brief status messages.</>} code={compact} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>compact</code> for brief status messages.</>} code={compact} previewMinHeight={168}>
   <VueDemo template={compact} />
 </ComponentPreview>
 

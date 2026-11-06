@@ -1,11 +1,11 @@
 'use client';
 
 import type React from 'react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { ArrowRight, ArrowUpRight } from '@plexui/ui/components/Icon';
 import { TextLink } from '@plexui/ui/components/TextLink';
-import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const preventDefault = (e: React.MouseEvent) => e.preventDefault();
 
@@ -21,54 +21,6 @@ const COLOR_CLASS_OPTIONS = [
   'text-warning',
   'text-caution',
 ] as const;
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
 
 export function TextLinkBaseDemo() {
   return (

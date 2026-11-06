@@ -1,8 +1,11 @@
-import type { DateTime } from "luxon"
+import s from "@plexui/styles/components/DateRangePicker/Calendar.module.css"
+import { DateTime } from "luxon"
 import { computed, defineComponent, h, provide, toRaw, type PropType } from "vue"
 import type { ControlSize } from "@plexui/styles/types"
+import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { isAfter } from "../../lib/dateUtils.js"
 import { Popover, PopoverContent, PopoverTrigger, type PopoverAlign, type PopoverSide } from "../Popover/index.js"
+import { useCalendarGutter } from "../DatePicker/useCalendarGutter.js"
 import type { DropdownIconType } from "../SelectControl/index.js"
 import { DateRangeCalendar, DateRangeShortcuts } from "./Calendar.js"
 import { DateRangeContextKey, type DateRangeContextValue } from "./context.js"
@@ -33,7 +36,7 @@ const DateRangePickerComponent = defineComponent({
     weekStartsOn: { type: Number as PropType<WeekStart>, default: 0 },
     /** Date range shortcuts for quick selection, shown to the left of the calendar. */
     shortcuts: Array as PropType<DateRangeShortcut[]>,
-    /** The preferred side of the trigger to render against when open. @default "bottom" */
+    /** Preferred side; collisions can flip it. On phones, left and right prefer bottom so seven 44px day targets fit. @default "bottom" */
     side: { type: String as PropType<PopoverSide>, default: "bottom" },
     /** The distance in pixels from the trigger. @default 8 */
     sideOffset: { type: Number, default: 8 },
@@ -67,10 +70,14 @@ const DateRangePickerComponent = defineComponent({
     block: { type: Boolean, default: false },
   },
   emits: {
-    "update:value": (_nextValue: DateRange | null) => true,
-    "change": (_nextValue: DateRange | null, _shortcut?: DateRangeShortcut) => true,
+    "update:value": (nextValue: DateRange | null) => nextValue === null || nextValue.every(DateTime.isDateTime),
+    "change": (nextValue: DateRange | null, shortcut?: DateRangeShortcut) =>
+      (nextValue === null || nextValue.every(DateTime.isDateTime)) &&
+      (shortcut === undefined || typeof shortcut.getDateRange === "function"),
   },
   setup(props, { emit }) {
+    const wide = useBreakpoint("md")
+    const calendarGutter = useCalendarGutter()
     const unwrap = <T>(value: T): T => (value ? toRaw(value) : value)
 
     // A new range only when `value` or one of its endpoints changes, as the
@@ -159,8 +166,10 @@ const DateRangePickerComponent = defineComponent({
           h(
             PopoverContent,
             {
+              class: s.Popover,
               minWidth: 230,
-              side: props.side,
+              collisionPadding: wide.value ? 20 : calendarGutter.value,
+              side: wide.value || props.side === "top" ? props.side : "bottom",
               sideOffset: props.sideOffset,
               align,
               alignOffset: props.alignOffset ?? (align === "center" ? 0 : -5),

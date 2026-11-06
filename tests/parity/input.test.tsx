@@ -1,9 +1,9 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useState, type ComponentType, type ReactElement, type ReactNode } from "react"
+import { createElement, useLayoutEffect, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from "react"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
-import { createCommentVNode, createSSRApp, createTextVNode, defineComponent, Fragment, h, ref, type VNode } from "vue"
+import { createCommentVNode, createSSRApp, createTextVNode, defineComponent, Fragment, h, onMounted, ref, type VNode } from "vue"
 import { renderToString as vueRenderToString } from "vue/server-renderer"
 import { Input as RInput } from "../../packages/ui/src/components/Input"
 import RSearch from "../../packages/ui/src/components/Icon/svg/Search"
@@ -157,6 +157,31 @@ const fireAnimationStart = (element: Element, animationName: string) => {
 }
 
 describe("Input behaviour parity", () => {
+  test.each([false, true])("mount focus state matches the actual input (focus=%s)", async (focusOnMount) => {
+    function ReactMountFocus() {
+      const root = useRef<HTMLDivElement>(null)
+      useLayoutEffect(() => {
+        if (focusOnMount) root.current?.querySelector("input")?.focus({ preventScroll: true })
+      }, [])
+      return <div ref={root}><RInput placeholder="Name" /></div>
+    }
+    const VueMountFocus = defineComponent({
+      setup() {
+        const root = ref<HTMLDivElement | null>(null)
+        onMounted(() => {
+          if (focusOnMount) root.value?.querySelector("input")?.focus({ preventScroll: true })
+        })
+        return () => h("div", { ref: root }, [h(Input, { placeholder: "Name" })])
+      },
+    })
+    const { react, vue } = await walk(() => render(<ReactMountFocus />), () => h(VueMountFocus), async (snap, input) => {
+      expect(document.activeElement === input()).toBe(focusOnMount)
+      expect(input().parentElement?.getAttribute("data-focused")).toBe(String(focusOnMount))
+      snap()
+    })
+    expect(vue).toEqual(react)
+  })
+
   test("focus and blur toggle data-focused", async () => {
     const { react, vue } = await walk(
       () => render(reactInput({ placeholder: "Name" })),
@@ -641,4 +666,27 @@ describe("Input SSR and default-value parity", () => {
     expect(react[0]).toContain('value="changed"')
     expect(shown).toEqual(["original", "original"])
   })
+})
+
+test("Input numeric zero is a clearable value in controlled and default-value use", async () => {
+  const defaults = await renderPair(
+    <RInput defaultValue={0} onClear={noop} />,
+    () => h(Input, { defaultValue: 0, onClear: noop }),
+  )
+  expect(defaults.vue).toBe(defaults.react)
+  expect(defaults.react).toContain('aria-label="Clear input"')
+  await walkPairWithState(
+    { value: 0 as string | number },
+    (state) => <RInput value={state.value} onChange={noop} onClear={noop} />,
+    (state) => h(Input, { value: state.value, onClear: noop }),
+    async ({ set }) => {
+      const clear = () => document.querySelector('button[aria-label="Clear input"]')
+      expect(clear()).not.toBeNull()
+      await set({ value: "" })
+      expect(clear()).toBeNull()
+      await set({ value: 0 })
+      expect(clear()).not.toBeNull()
+      expect(document.querySelector("input")?.value).toBe("0")
+    },
+  )
 })

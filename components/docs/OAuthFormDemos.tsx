@@ -1,8 +1,12 @@
 'use client';
 import React, { useState } from 'react';
-import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
+import { AuthInput } from './AuthInput';
+import { AuthLegalNotice } from './AuthLegalNotice';
 import { Button } from '@plexui/ui/components/Button';
 import { AuthFormStage } from './AuthFormStage';
+import authFieldsStyles from './AuthFields.module.css';
+import { controlsTableStyle } from './ButtonDemos';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 
 // ---------------------------------------------------------------------------
 // Brand logos — canonical SVGs from OpenAI's platform login page (viewBox
@@ -102,26 +106,7 @@ function OrDivider() {
 }
 
 function FooterLinks() {
-  // Terms of Use | Privacy Policy footer, underlined like OpenAI.
-  return (
-    <p className="text-xs text-center mt-8">
-      <button
-        type="button"
-        className="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        Terms of Use
-      </button>
-      <span className="mx-2 text-tertiary">|</span>
-      <button
-        type="button"
-        className="cursor-pointer hover:underline bg-transparent border-0 p-0 underline"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        Privacy Policy
-      </button>
-    </p>
-  );
+  return <div className="mt-8"><AuthLegalNotice /></div>;
 }
 
 function CrossLink({
@@ -134,15 +119,12 @@ function CrossLink({
   // The "Don't have an account? Sign up" / "Already have an account? Log in"
   // link that sits between the Continue button and the OR divider.
   return (
-    <p className="text-base text-center mt-6">
+    <p className={["text-base text-center mt-6", authFieldsStyles.CrossActionRow, authFieldsStyles.StandaloneCrossActionRow].join(" ")}>
       {prompt}{' '}
-      <button
-        type="button"
-        className="cursor-pointer hover:underline bg-transparent border-0 p-0 font-medium"
-        style={{ color: 'var(--link-primary-text-color)' }}
-      >
+      <Button type="button" color="info" variant="ghost"
+        className={[authFieldsStyles.TextAction, authFieldsStyles.OAuthTextAction].join(" ")}>
         {label}
-      </button>
+      </Button>
     </p>
   );
 }
@@ -155,6 +137,7 @@ function CrossLink({
 // ---------------------------------------------------------------------------
 
 export function OAuthLoginFormDemo() {
+  const presentation = useScreenPresentation();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const isEmailValid = /.+@.+\..+/.test(email);
@@ -166,14 +149,16 @@ export function OAuthLoginFormDemo() {
   };
 
   return (
-    <AuthFormStage title="Welcome back">
+    <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <AuthFormStage title="Welcome back" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
       <div className="w-[360px]">
         <div className="mb-8 text-center">
-          <h3 className="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
+          <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">Welcome back</h3>
         </div>
 
         <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-          <FloatingLabelInput
+          <AuthInput
             label="Email address"
             type="email"
             value={email}
@@ -203,6 +188,7 @@ export function OAuthLoginFormDemo() {
         <FooterLinks />
       </div>
     </AuthFormStage>
+    </>
   );
 }
 
@@ -214,6 +200,7 @@ export function OAuthLoginFormDemo() {
 // ---------------------------------------------------------------------------
 
 export function OAuthSignupFormDemo() {
+  const presentation = useScreenPresentation();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const isEmailValid = /.+@.+\..+/.test(email);
@@ -225,14 +212,16 @@ export function OAuthSignupFormDemo() {
   };
 
   return (
-    <AuthFormStage title="Create an account">
+    <>
+    <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+    <AuthFormStage title="Create an account" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
       <div className="w-[360px]">
         <div className="mb-8 text-center">
-          <h3 className="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
+          <h3 data-auth-title className="text-3xl font-semibold tracking-tight leading-[1.1]">Create an account</h3>
         </div>
 
         <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-          <FloatingLabelInput
+          <AuthInput
             label="Email address"
             type="email"
             value={email}
@@ -261,5 +250,6 @@ export function OAuthSignupFormDemo() {
         <FooterLinks />
       </div>
     </AuthFormStage>
+    </>
   );
 }

@@ -156,6 +156,9 @@ const markdown = () =>
 const describeFocus = () => {
   const element = document.activeElement
   if (!element || element === document.body) return "focus: body"
+  if (element instanceof HTMLInputElement && element.closest('[role="dialog"]')) {
+    return `focus: ${element.labels?.[0]?.textContent ?? "unnamed"} input`
+  }
   return `focus: <${element.tagName.toLowerCase()} class="${element.getAttribute("class") ?? ""}"${element.id ? ` id="${element.id}"` : ""}>`
 }
 
@@ -596,8 +599,8 @@ describe("MarkdownEditor parity: focus", () => {
 /*  Links                                                              */
 /* ------------------------------------------------------------------ */
 
-const URL_INPUT = "#md-editor-link-url"
-const TITLE_INPUT = "#md-editor-link-title"
+const URL_INPUT = '[role="dialog"] input[type="url"]'
+const TITLE_INPUT = '[role="dialog"] input[type="text"]'
 
 describe("MarkdownEditor parity: link dialog", () => {
   test("link button is disabled without a selection", async () => {
@@ -605,7 +608,7 @@ describe("MarkdownEditor parity: link dialog", () => {
       await walkEditor({ defaultValue: "Read the docs" }, async ({ snapshot, command, fire, advance }) => {
         await command((e) => e.commands.setTextSelection(3))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
       }),
     )
@@ -617,31 +620,31 @@ describe("MarkdownEditor parity: link dialog", () => {
         await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
         await fire(button("Link"), "click")
         snapshot()
-        await advance(20)
+        await advance(500)
         snapshot()
         await fire(URL_INPUT, "input", { target: { value: "https://example.com/docs" } })
         snapshot()
         await fire(dialogButton("Save"), "click")
         snapshot()
-        await advance(20)
+        await advance(500)
         snapshot()
 
         // Cursor inside the link: the dialog edits it
         await command((e) => e.commands.setTextSelection(12))
         snapshot()
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
         await fire(URL_INPUT, "input", { target: { value: "https://example.com/guide" } })
         await fire(dialogButton("Save"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
 
         await command((e) => e.commands.setTextSelection(12))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         await fire(dialogButton("Remove"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
       }),
     )
@@ -651,12 +654,12 @@ describe("MarkdownEditor parity: link dialog", () => {
     const result = await walkEditor({ defaultValue: "Read the docs today" }, async ({ snapshot, command, fire, advance }) => {
       await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
       await fire(button("Link"), "click")
-      await advance(20)
+      await advance(500)
       await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
       await fire(TITLE_INPUT, "input", { target: { value: "the guide" } })
       snapshot()
       await fire(dialogButton("Save"), "click")
-      await advance(20)
+      await advance(500)
       snapshot()
     })
     expectSame(result)
@@ -667,11 +670,11 @@ describe("MarkdownEditor parity: link dialog", () => {
     const result = await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, advance }) => {
       await command((e) => e.commands.setTextSelection(7))
       await fire(button("Link"), "click")
-      await advance(20)
+      await advance(500)
       snapshot()
       await fire(TITLE_INPUT, "input", { target: { value: "documentation" } })
       await fire(dialogButton("Save"), "click")
-      await advance(20)
+      await advance(500)
       snapshot()
     })
     expectSame(result)
@@ -682,11 +685,11 @@ describe("MarkdownEditor parity: link dialog", () => {
     const result = await walkEditor({ defaultValue: "Read the docs today" }, async ({ snapshot, command, fire, advance }) => {
       await command((e) => e.commands.setTextSelection({ from: 10, to: 14 }))
       await fire(button("Link"), "click")
-      await advance(20)
+      await advance(500)
       await fire(URL_INPUT, "input", { target: { value: 'https://example.com/?q="x"' } })
       await fire(TITLE_INPUT, "input", { target: { value: "a <b>bold</b> guide" } })
       await fire(dialogButton("Save"), "click")
-      await advance(20)
+      await advance(500)
       snapshot()
     })
     expectSame(result)
@@ -699,10 +702,10 @@ describe("MarkdownEditor parity: link dialog", () => {
       await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, advance }) => {
         await command((e) => e.commands.setTextSelection(7))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         await fire(URL_INPUT, "input", { target: { value: "" } })
         await fire(dialogButton("Save"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
       }),
     )
@@ -713,72 +716,164 @@ describe("MarkdownEditor parity: link dialog", () => {
       await walkEditor({ defaultValue: "One two three" }, async ({ snapshot, command, fire, advance }) => {
         await command((e) => e.commands.setTextSelection({ from: 1, to: 4 }))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         await fire(URL_INPUT, "input", { target: { value: "https://one.com" } })
         await fire(URL_INPUT, "keyDown", { key: "Enter" }, "Enter in the dialog")
-        await advance(20)
+        await advance(500)
         snapshot()
 
         await command((e) => e.commands.setTextSelection({ from: 5, to: 8 }))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         await fire(TITLE_INPUT, "keyDown", { key: "Escape" }, "Escape in the dialog")
-        await advance(20)
+        await advance(500)
         snapshot()
 
         await command((e) => e.commands.setTextSelection({ from: 5, to: 8 }))
         await fire(button("Link"), "click")
-        await advance(20)
+        await advance(500)
         await fire(dialogButton("Cancel"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
 
         await command((e) => e.commands.setTextSelection({ from: 5, to: 8 }))
         await fire(button("Link"), "click")
-        await advance(20)
-        await fire("[class='LinkDialogOverlay']", "mouseDown", {}, "overlay mousedown")
-        await fire("[class='LinkDialogOverlay']", "click")
-        await advance(20)
+        await advance(500)
+        await fire(".Overlay", "pointerDown", { button: 0, pointerType: "mouse" })
+        await fire(".Overlay", "click")
+        await advance(500)
+        expect(document.querySelector('[role="dialog"]')).toBeNull()
+        expect(markdown()).toBe("[One](https://one.com) two three")
         snapshot()
       }),
     )
   })
 
-  // React portal events bubble through the component tree to the
-  // container's mousedown handler, which focuses the end of the editor and
-  // collapses the selection while the dialog stays open; saving then
-  // inserts a new link at the end. The port reproduces it.
-  test("mousedown inside the dialog reaches the container (React portal bubbling)", async () => {
+  test("dialog presses preserve the selected text instead of focusing the editor end", async () => {
     expectSame(
       await walkEditor({ defaultValue: "Pick a word here" }, async ({ snapshot, command, fire, advance }) => {
-        await command((e) => e.commands.setTextSelection({ from: 6, to: 10 }))
+        await command((e) => e.commands.setTextSelection({ from: 8, to: 12 }))
         await fire(button("Link"), "click")
-        await advance(20)
-        await fire(URL_INPUT, "mouseDown", {}, "URL input mousedown")
-        await fire("[class='LinkDialogTitle']", "mouseDown", {}, "dialog title mousedown")
-        snapshot()
-        await advance(20)
-        snapshot()
-        await fire(URL_INPUT, "input", { target: { value: "https://end.com" } })
+        await advance(500)
+        await fire(URL_INPUT, "mouseDown")
+        await fire('[role="dialog"] .Title', "mouseDown")
+        await advance(500)
+        expect(editorOf().state.selection.from).toBe(8)
+        expect(editorOf().state.selection.to).toBe(12)
+        await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
         await fire(dialogButton("Save"), "click")
-        await advance(20)
+        await advance(500)
         snapshot()
-        expect(markdown()).toBe("Pick a word here[a wo](https://end.com)")
+        expect(markdown()).toBe("Pick a [word](https://example.com) here")
+        expect(document.activeElement).toBe(resolve(PM))
       }),
     )
+  })
+
+  test.each(["Save", "Cancel", "Remove"])("%s preserves focus moved outside while the link dialog closes", async (action) => {
+    const finalFocus: string[] = []
+    const result = await walk(
+      { defaultValue: "See [docs](https://example.com)" },
+      (state) => <div>{reactEditor(state)}<input id="external-field" aria-label="Next field" /></div>,
+      (state) => h("div", [vueEditor(state), h("input", { id: "external-field", "aria-label": "Next field" })]),
+      async ({ command, fire, focus, advance, snapshot }) => {
+        await command((e) => e.commands.setTextSelection(7))
+        await fire(button("Link"), "click")
+        await advance(500)
+        await fire(dialogButton(action), "click")
+        // A consumer or the user moves on while the dialog exit transition runs.
+        await focus("#external-field")
+        expect(document.activeElement).toBe(resolve("#external-field"))
+        await advance(500)
+        expect(document.querySelector('[role="dialog"]')).toBeNull()
+        finalFocus.push(document.activeElement?.id ?? "")
+        snapshot()
+
+        // Skipping one restore must not suppress a later ordinary dismissal.
+        await command((e) => e.commands.setTextSelection({ from: 5, to: 9 }))
+        await fire(button("Link"), "click")
+        await advance(500)
+        await fire(dialogButton("Cancel"), "click")
+        await advance(500)
+        expect(document.activeElement).toBe(resolve(PM))
+        snapshot()
+      },
+    )
+    expectSame(result)
+    expect(finalFocus).toEqual(["external-field", "external-field"])
+  })
+
+  test("IME confirmation does not submit the link dialog", async () => {
+    expectSame(await walkEditor({ defaultValue: "word" }, async ({ command, fire, advance, snapshot }) => {
+      await command((e) => e.commands.setTextSelection({ from: 1, to: 5 }))
+      await fire(button("Link"), "click")
+      await advance(500)
+      await fire(URL_INPUT, "input", { target: { value: "https://example.com" } })
+      await fire(TITLE_INPUT, "keyDown", { key: "Enter", isComposing: true })
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+      expect(markdown()).toBe("word")
+      await fire(TITLE_INPUT, "keyDown", { key: "Enter", isComposing: false })
+      await advance(500)
+      expect(markdown()).toBe("[word](https://example.com)")
+      snapshot()
+    }))
+  })
+
+  test("disabling an open link dialog blocks saving and removing", async () => {
+    expectSame(await walkEditor({ defaultValue: "See [docs](https://example.com)", disabled: false }, async ({ command, fire, set, advance, snapshot }) => {
+      await command((e) => e.commands.setTextSelection(7))
+      await fire(button("Link"), "click")
+      await advance(500)
+      await set({ disabled: true })
+      const save = dialogButton("Save")()
+      if (save) {
+        expect(save).toHaveProperty("disabled", true)
+        await fire(() => save, "click")
+      }
+      await advance(500)
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+      expect(markdown()).toBe("See [docs](https://example.com)")
+      snapshot()
+    }))
+  })
+
+  test("external controlled content invalidates an open link selection", async () => {
+    expectSame(await walkEditor({ value: "Old word" }, async ({ command, fire, set, advance, snapshot }) => {
+      await command((e) => e.commands.setTextSelection({ from: 5, to: 9 }))
+      await fire(button("Link"), "click")
+      await advance(500)
+      await set({ value: "Replacement text" })
+      await advance(500)
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+      expect(markdown()).toBe("Replacement text")
+      snapshot()
+    }))
+  })
+
+  test("editing one of two separate links with the same URL keeps its own title", async () => {
+    expectSame(await walkEditor({ defaultValue: "[First](https://example.com) and [Second](https://example.com)" }, async ({ command, fire, advance, snapshot }) => {
+      await command((e) => e.commands.setTextSelection(3))
+      await fire(button("Link"), "click")
+      await advance(500)
+      expect(resolve(TITLE_INPUT)).toHaveProperty("value", "First")
+      await fire(dialogButton("Save"), "click")
+      await advance(500)
+      expect(markdown()).toBe("[First](https://example.com) and [Second](https://example.com)")
+      snapshot()
+    }))
   })
 
   test("Enter on a dialog button is that button's: Enter on Cancel does not save", async () => {
     const result = await walkEditor({ defaultValue: "One two three" }, async ({ snapshot, command, fire, advance }) => {
       await command((e) => e.commands.setTextSelection({ from: 1, to: 4 }))
       await fire(button("Link"), "click")
-      await advance(20)
+      await advance(500)
       await fire(URL_INPUT, "input", { target: { value: "https://one.com" } })
       await fire(dialogButton("Cancel"), "keyDown", { key: "Enter" }, "Enter on Cancel")
-      await advance(20)
+      await advance(500)
       snapshot() // still open, nothing saved
       await fire(dialogButton("Cancel"), "click")
-      await advance(20)
+      await advance(500)
       snapshot()
     })
     expectSame(result)
@@ -791,7 +886,9 @@ describe("MarkdownEditor parity: link dialog", () => {
     const result = await walkEditor({ defaultValue: "See [docs](https://a.com) now" }, async ({ snapshot, command, fire, focus, advance }) => {
       await command((e) => e.commands.setTextSelection(7))
       await fire(button("Link"), "click")
-      await advance(20)
+      await advance(500)
+      expect(document.activeElement).toBe(resolve(URL_INPUT))
+      expect(resolve(URL_INPUT).parentElement?.getAttribute("data-focused")).toBe("true")
       snapshot() // the URL field has focus
       await focus(dialogButton("Save"))
       await fire(dialogButton("Save"), "keyDown", { key: "Tab" }, "Tab on Save")
@@ -799,13 +896,15 @@ describe("MarkdownEditor parity: link dialog", () => {
       await fire(URL_INPUT, "keyDown", { key: "Tab", shiftKey: true }, "Shift+Tab on the URL field")
       snapshot() // on Save
       await fire(dialogButton("Save"), "keyDown", { key: "Tab", shiftKey: true }, "Shift+Tab on Save")
+      await focus(TITLE_INPUT)
       await fire(TITLE_INPUT, "keyDown", { key: "Tab" }, "Tab on the title field")
       snapshot() // left to the browser
     })
     expectSame(result)
-    expect(result.react[0]).toContain('aria-modal="true"')
-    expect(result.react[1]).toContain('focus: <input class="LinkDialogInput" id="md-editor-link-url">')
-    expect(result.react[2]).toContain('focus: <button class="LinkDialogButtonSave">')
+    expect(result.react[0]).toContain('role="dialog"')
+    expect(result.react[0]).toContain('aria-hidden="true" data-aria-hidden="true"')
+    expect(result.react[1]).toContain('focus: URL input')
+    expect(result.react[2]).toContain('focus: <button class="Button">')
     expect(result.react[3]).toContain(
       '["Tab on Save: prevented","Shift+Tab on the URL field: prevented","Shift+Tab on Save: not prevented","Tab on the title field: not prevented"]',
     )

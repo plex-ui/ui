@@ -185,7 +185,7 @@ export const choiceCard = `<RadioGroup class="flex-col w-[320px] gap-3" v-model:
   </div>
 </RadioGroup>`
 
-export const cardSelection = `<RadioGroup class="flex-col w-[390px] gap-4" aria-label="Sample options">
+export const cardSelection = `<RadioGroup class="flex-col w-full min-w-0 max-w-[390px] gap-4" aria-label="Sample options">
   <RadioGroupItem class="gap-2.5" value="basic">
     <div>
       <h4 class="font-semibold mb-1">Basic Plan</h4>
@@ -237,7 +237,26 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   </div>
 </div>`
 
+import { VueFormScreenDemo } from "@/components/docs/vue/VueFormScreenDemo"
+import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
+
 <UsageBlock>{`import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup";`}</UsageBlock>
+
+export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Control who can see project resources.">
+          <Field row label="Hidden"><RadioGroupItem value="hidden" /></Field>
+          <Field row label="Visible to organization owners"><RadioGroupItem value="owners" /></Field>
+          <Field row label="Visible to everyone"><RadioGroupItem value="everyone" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <RadioGroup direction="col" class="w-full" v-model:value="frequency" aria-label="Digest frequency">
+        <FieldGroup title="Digest frequency" description="How often you receive summary emails.">
+          <Field row label="Daily"><RadioGroupItem value="daily" /></Field>
+          <Field row label="Weekly"><RadioGroupItem value="weekly" /></Field>
+          <Field row label="Monthly"><RadioGroupItem value="monthly" /></Field>
+          <Field row label="Never"><RadioGroupItem value="never" /></Field>
+        </FieldGroup>
+      </RadioGroup>`)
 
 ## Examples
 
@@ -333,8 +352,8 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### Grouped sections
 
-<ComponentPreview language="vue" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSections} previewMinHeight={380}>
-  <VueDemo template={groupedSections} state={{ visibility: "owners", frequency: "weekly" }} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSectionsMobile} previewMinHeight={380}>
+  <VueFormScreenDemo template={`<template v-if="!wide">${groupedSectionsMobile}</template><template v-else>${groupedSections}</template>`} state={{ visibility: "owners", frequency: "weekly" }} />
 </ComponentPreview>
 
 ## API

@@ -116,7 +116,7 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
     const clampedIndex = Math.max(0, Math.min(index, length - 1))
     const input = inputRefs.current[clampedIndex]
     if (!input) return
-    input.focus()
+    input.focus({ preventScroll: true })
     input.setSelectionRange(1, 1)
   }, [length])
 
@@ -201,6 +201,8 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
 
   const handleKeyDown = useCallback(
     (index: number, evt: React.KeyboardEvent<HTMLInputElement>) => {
+      // Candidate editing belongs to the IME, including Safari's 229 key.
+      if (evt.nativeEvent.isComposing || evt.nativeEvent.keyCode === 229) return
       if (disabled) return
 
       if (evt.key === "Backspace") {

@@ -1,5 +1,5 @@
 import { act, cleanup, render } from "@testing-library/react"
-import { createElement, useState, type ReactElement } from "react"
+import { createElement, useEffect, useState, type ReactElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h, ref } from "vue"
 import { Sortable as RSortable } from "../../packages/ui/src/components/Sortable"
@@ -7,6 +7,7 @@ import { TagInput as RTagInput } from "../../packages/ui/src/components/TagInput
 import { Textarea as RTextarea } from "../../packages/ui/src/components/Textarea"
 import { moveItem, sortableKeyDown, sortablePointerDown } from "../../packages/ui/src/lib/sortable"
 import { Sortable, SortableHandle, SortableTarget } from "../../packages/vue/src/components/Sortable"
+import { sortablePointerDown as vueSortablePointerDown, sortableKeyDown as vueSortableKeyDown } from "../../packages/vue/src/lib/sortable"
 import { TagInput } from "../../packages/vue/src/components/TagInput"
 import { Textarea } from "../../packages/vue/src/components/Textarea"
 import { flushVue, mountVue } from "./harness"
@@ -34,7 +35,9 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  for (const pointerId of [0, 11, 12]) window.dispatchEvent(new PointerEvent("pointercancel", { pointerId }))
   cleanup()
+  vi.useRealTimers()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   document.body.replaceChildren()
@@ -89,6 +92,8 @@ describe("Sortable markup", () => {
         ),
     )
     expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toContain('class="DesktopGrip"')
+    expect(pair.react).toContain('class="PhoneGrip"')
   })
 
   test("grid, element, disabled", async () => {
@@ -119,6 +124,8 @@ describe("Sortable markup", () => {
       () => h(SortableHandle, { "aria-label": "Move row" }, () => "="),
     )
     expect(pair.vue).toBe(pair.react)
+    expect(pair.react).not.toContain("DesktopGrip")
+    expect(pair.react).not.toContain("PhoneGrip")
   })
 })
 
@@ -340,7 +347,7 @@ describe("Sortable components", () => {
     )
     const Demo = () => {
       const [order, setOrder] = useState(ITEMS)
-      seen.react = order
+      useEffect(() => { seen.react = order }, [order])
       return createElement(
         RSortable,
         { value: order, onChange: setOrder, "data-react": "" },
@@ -607,5 +614,272 @@ describe("Sortable group", () => {
     }
     expect(read("vue-target")).toEqual(read("react-target"))
     expect(read("vue-target")).toEqual(["DIV", "dishes", "far", "Far"])
+  })
+})
+
+// The same engine is shipped by both ports; exercise actual pointer ownership,
+// cancellation and scroll destinations rather than only comparing their markup.
+describe.each([
+  ["react", sortablePointerDown, sortableKeyDown],
+  ["vue", vueSortablePointerDown, vueSortableKeyDown],
+] as const)("%s Sortable gesture guards", (_port, pointerDown, keyDown) => {
+  const setup = (html = "<div>a</div><div>b</div><div>c</div>") => {
+    document.body.innerHTML = `<div data-sortable>${html}</div>`
+    const list = document.body.firstElementChild as HTMLElement
+    const commit = vi.fn()
+    list.addEventListener("pointerdown", (event) => pointerDown(event, list, "list", commit))
+    return { list, commit }
+  }
+  const pointer = (type: string, pointerId: number, y: number, target: EventTarget = window) =>
+    target.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId, pointerType: "touch", button: 0, clientX: 10, clientY: y,
+    }))
+
+  test("only the initiating pointer can move or finish a drag", async () => {
+    const { list, commit } = setup('<div><button data-sortable-handle>a</button></div><div><button data-sortable-handle>b</button></div><div>c</div>')
+    list.dataset.handles = "true"
+    pointer("pointerdown", 11, 20, list.querySelector("button") as Element)
+    pointer("pointermove", 12, 80)
+    expect(list.hasAttribute("data-dragging")).toBe(false)
+    pointer("pointermove", 11, 30)
+    pointer("pointerdown", 12, 60, list.children[1].querySelector("button") as Element)
+    pointer("pointermove", 11, 80)
+    await frame()
+    pointer("pointerup", 12, 80)
+    pointer("pointercancel", 12, 80)
+    expect(list.hasAttribute("data-dragging")).toBe(true)
+    expect(document.querySelectorAll(".Chip")).toHaveLength(1)
+    expect(commit).not.toHaveBeenCalled()
+    pointer("pointerup", 11, 80)
+    await frame()
+    expect(commit).toHaveBeenCalledExactlyOnceWith(0, 1)
+    expect(list.hasAttribute("data-dragging")).toBe(false)
+  })
+
+  test.each([false, true])("pointercancel cleans up a %s active hold/drag and permits the next gesture", async (active) => {
+    vi.useFakeTimers()
+    const { list, commit } = setup()
+    pointer("pointerdown", 11, 20, list.children[0])
+    if (active) vi.advanceTimersByTime(210)
+    pointer("pointercancel", 11, 20)
+    vi.advanceTimersByTime(300)
+    expect(document.querySelector(".Chip, .Line, [data-sortable-source], [data-dragging]")).toBeNull()
+    expect(document.documentElement.classList.contains("Dragging")).toBe(false)
+    expect(commit).not.toHaveBeenCalled()
+    pointer("pointerdown", 11, 20, list.children[0])
+    vi.advanceTimersByTime(210)
+    expect(list.hasAttribute("data-dragging")).toBe(true)
+    pointer("pointercancel", 11, 20)
+  })
+
+  test("a removed source cannot turn index -1 into a move of the last item", async () => {
+    const { list, commit } = setup()
+    press(list.children[0], 20)
+    moveTo(30)
+    list.children[0].remove()
+    moveTo(80)
+    await frame()
+    lift()
+    await frame()
+    expect(commit).not.toHaveBeenCalled()
+    expect(document.querySelector(".Chip, .Line, [data-dragging]")).toBeNull()
+  })
+
+  test("preventDefault cancels both pointer and keyboard reordering", async () => {
+    const { list, commit } = setup('<div><button data-sortable-handle>a</button></div><div>b</div>')
+    list.dataset.handles = "true"
+    const handle = list.querySelector("button") as HTMLElement
+    handle.addEventListener("pointerdown", (event) => event.preventDefault())
+    pointer("pointerdown", 11, 20, handle)
+    pointer("pointermove", 11, 80)
+    await frame()
+    pointer("pointerup", 11, 80)
+    const event = new KeyboardEvent("keydown", { key: "ArrowDown", cancelable: true })
+    Object.defineProperty(event, "target", { value: handle })
+    event.preventDefault()
+    await keyDown(event, list, commit)
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  test("a focused static row cannot reorder an item", async () => {
+    const { list, commit } = setup('<div data-sortable-static tabindex="0">Heading</div><div>a</div><div>b</div>')
+    const event = new KeyboardEvent("keydown", { key: "ArrowDown", cancelable: true })
+    Object.defineProperty(event, "target", { value: list.children[0] })
+    await keyDown(event, list, commit)
+    expect(commit).not.toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(false)
+  })
+
+  test("autoscroll follows another accepted list's scroll pane", async () => {
+    document.body.innerHTML = `
+      <div id="left" style="overflow-y:auto"><div data-sortable data-group="g" data-name="one"><div>a</div><div>b</div></div></div>
+      <div id="right" style="overflow-y:auto"><div data-sortable data-group="g" data-name="two"><div>c</div><div>d</div></div></div>`
+    const left = document.getElementById("left") as HTMLElement
+    const right = document.getElementById("right") as HTMLElement
+    const first = left.firstElementChild as HTMLElement
+    const second = right.firstElementChild as HTMLElement
+    for (const pane of [left, right]) {
+      Object.defineProperties(pane, { scrollHeight: { value: 600 }, clientHeight: { value: 200 } })
+    }
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const top = right.contains(this) || this === right ? 200 : 0
+      if (this === left || this === right) return rect(top, 200)
+      if (this.hasAttribute("data-sortable")) return rect(top, 400)
+      if (this.parentElement?.hasAttribute("data-sortable")) return rect(top + [...this.parentElement.children].indexOf(this) * ROW_HEIGHT, ROW_HEIGHT)
+      return rect(top, 0)
+    })
+    document.elementFromPoint = (_x, y) => y >= 200 ? second : first
+    first.addEventListener("pointerdown", (event) => pointerDown(event, first, "list", vi.fn(), { move: vi.fn() }))
+    press(first.children[0], 20)
+    moveTo(30)
+    left.scrollTop = 100
+    moveTo(390)
+    await frame()
+    expect(right.scrollTop).toBeGreaterThan(0)
+    expect(left.scrollTop).toBe(100)
+    window.dispatchEvent(new PointerEvent("pointercancel"))
+  })
+
+  test.each(["list", "grid"] as const)("a self-scrolling %s destination keeps its insertion coordinates", async (layout) => {
+    document.body.innerHTML = `<div data-sortable data-group="g" data-name="one"><div>a</div><div>b</div></div><div data-sortable data-group="g" data-name="two" style="overflow:auto">${Array.from({ length: 20 }, (_, index) => `<div>${index}</div>`).join("")}</div>`
+    const [first, second] = document.querySelectorAll<HTMLElement>("[data-sortable]")
+    const move = vi.fn()
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this === second) return rect(200, 200, 0, 200)
+      if (this.parentElement === second) {
+        const index = [...second.children].indexOf(this)
+        return layout === "list"
+          ? rect(200 + index * ROW_HEIGHT - second.scrollTop, ROW_HEIGHT, -second.scrollLeft, 200)
+          : rect(200 - second.scrollTop, 200, index * 80 - second.scrollLeft, 80)
+      }
+      if (this === first) return rect(0, 80)
+      if (this.parentElement === first) return rect([...first.children].indexOf(this) * ROW_HEIGHT, ROW_HEIGHT)
+      return rect(0, 0)
+    })
+    document.elementFromPoint = () => second
+    first.addEventListener("pointerdown", (event) => pointerDown(event, first, layout, vi.fn(), { move }))
+    press(first.children[0], 20)
+    moveTo(30)
+    second.scrollTop = layout === "list" ? 120 : 0
+    second.scrollLeft = layout === "grid" ? 120 : 0
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 40, clientY: 320 }))
+    await frame()
+    const line = document.querySelector<HTMLElement>(".Line")
+    expect(line?.hidden).toBe(false)
+    expect(line?.style.transform).toBe(layout === "list" ? "translate(16px, 319px)" : "translate(39px, 200px)")
+    lift()
+    await frame()
+    expect(move).toHaveBeenCalledExactlyOnceWith(0, "two", layout === "list" ? 6 : 2)
+  })
+
+  test("a destination disabled after measuring cannot receive the drop", async () => {
+    document.body.innerHTML = '<div data-sortable data-group="g" data-name="one"><div>a</div><div>b</div></div><div data-sortable data-group="g" data-name="two"><div>c</div><div>d</div></div>'
+    const [first, second] = document.querySelectorAll<HTMLElement>("[data-sortable]")
+    const move = vi.fn()
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const top = second.contains(this) ? 200 : 0
+      if (this.hasAttribute("data-sortable")) return rect(top, 80)
+      if (this.parentElement?.hasAttribute("data-sortable")) {
+        return rect(top + [...this.parentElement.children].indexOf(this) * ROW_HEIGHT, ROW_HEIGHT)
+      }
+      return rect(0, 0)
+    })
+    document.elementFromPoint = () => second
+    first.addEventListener("pointerdown", (event) => pointerDown(event, first, "list", vi.fn(), { move }))
+    press(first.children[0], 20)
+    moveTo(30)
+    moveTo(240)
+    await frame()
+    expect(document.querySelector<HTMLElement>(".Line")?.hidden).toBe(false)
+    lift()
+    await frame()
+    expect(move).toHaveBeenCalledExactlyOnceWith(0, "two", 1)
+    move.mockClear()
+    press(first.children[0], 20)
+    moveTo(30)
+    moveTo(240)
+    await frame()
+    expect(document.querySelector<HTMLElement>(".Line")?.hidden).toBe(false)
+    second.setAttribute("data-disabled", "")
+    lift()
+    await frame()
+    expect(move).not.toHaveBeenCalled()
+  })
+})
+
+describe.each(["react", "vue"] as const)("%s Sortable lifecycle", (port) => {
+  const mount = async (handlers: { pointer?: (event: Event) => void; key?: (event: Event) => void } = {}) => {
+    const change = vi.fn()
+    let list: HTMLElement
+    let disable: () => Promise<void>
+    let unmount: () => void
+    if (port === "react") {
+      const tree = (disabled = false) => createElement(RSortable, {
+        value: ITEMS, disabled, handles: true, onChange: change,
+        onPointerDown: handlers.pointer ? (event) => handlers.pointer?.(event.nativeEvent) : undefined,
+        onKeyDown: handlers.key ? (event) => handlers.key?.(event.nativeEvent) : undefined,
+      }, ITEMS.map((item) => createElement("div", { key: item }, createElement(RSortable.Handle), item)))
+      const app = render(tree())
+      list = app.container.querySelector("[data-sortable]") as HTMLElement
+      disable = async () => { await interact(() => app.rerender(tree(true))) }
+      unmount = app.unmount
+    } else {
+      const disabled = ref(false)
+      const app = mountVue(() => h(Sortable, {
+        value: ITEMS, disabled: disabled.value, handles: true, onChange: change,
+        onPointerdown: handlers.pointer, onKeydown: handlers.key,
+      }, () => ITEMS.map((item) => h("div", { key: item }, [h(SortableHandle), item]))))
+      await flushVue()
+      list = app.container.querySelector("[data-sortable]") as HTMLElement
+      disable = async () => { await interact(() => { disabled.value = true }) }
+      unmount = app.unmount
+    }
+    return { list, change, disable, unmount }
+  }
+
+  test.each(["disable", "unmount"] as const)("%s cancels a pending touch hold and releases scroll", async (action) => {
+    vi.useFakeTimers()
+    const app = await mount()
+    // Whole-row holds are used when handles are hidden.
+    app.list.dataset.handles = "false"
+    press(app.list.children[0], 20, "touch")
+    await interact(() => app[action]())
+    vi.advanceTimersByTime(300)
+    const touch = new Event("touchmove", { cancelable: true })
+    window.dispatchEvent(touch)
+    expect(touch.defaultPrevented).toBe(false)
+    expect(document.querySelector(".Chip, .Line, [data-dragging]")).toBeNull()
+    expect(app.change).not.toHaveBeenCalled()
+  })
+
+  test.each(["disable", "unmount"] as const)("%s cancels an active drag without committing", async (action) => {
+    const app = await mount()
+    press(app.list.querySelector("button") as Element, 20)
+    moveTo(30)
+    moveTo(80)
+    await frame()
+    await interact(() => app[action]())
+    lift()
+    await frame()
+    expect(app.change).not.toHaveBeenCalled()
+    expect(document.querySelector(".Chip, .Line, [data-dragging]")).toBeNull()
+    expect(document.documentElement.classList.contains("Dragging")).toBe(false)
+  })
+
+  test("consumer event handlers run first and may prevent reordering", async () => {
+    const pointer = vi.fn((event: Event) => event.preventDefault())
+    const key = vi.fn((event: Event) => event.preventDefault())
+    const app = await mount({ pointer, key })
+    const handle = app.list.querySelector("button") as HTMLElement
+    handle.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, clientX: 10, clientY: 20 }))
+    moveTo(80)
+    await frame()
+    lift()
+    await interact(() => {
+      handle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }))
+    })
+    expect(pointer).toHaveBeenCalledTimes(1)
+    expect(key).toHaveBeenCalledTimes(1)
+    expect(app.change).not.toHaveBeenCalled()
   })
 })

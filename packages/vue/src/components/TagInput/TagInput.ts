@@ -65,8 +65,8 @@ export const TagInput = defineComponent({
     pill: { type: Boolean, default: false },
   },
   emits: {
-    "update:value": (_tags: Tag[]) => true,
-    "change": (_tags: Tag[]) => true,
+    "update:value": (tags: Tag[]) => { void tags; return true },
+    "change": (tags: Tag[]) => { void tags; return true },
   },
   setup(props, { emit }) {
     // Shallow, like React state: emitted lists hold the caller's tag objects, not proxies
@@ -84,6 +84,7 @@ export const TagInput = defineComponent({
     const inputRef = ref<HTMLInputElement | null>(null)
     const containerRef = ref<HTMLDivElement | null>(null)
     const measureRef = ref<HTMLSpanElement | null>(null)
+    let pendingRemovalFocus: { tag: string; source: HTMLElement } | null = null
 
     const showInput = computed(() => !props.maxTags || tags.value.size < props.maxTags)
     // A ghost has no frame: the hint stays after the first tag to show where to type.
@@ -114,6 +115,32 @@ export const TagInput = defineComponent({
       },
       { flush: "post" },
     )
+
+    // Restore only after the controlled/uncontrolled list actually removes the
+    // focused chip, without stealing focus from another control.
+    watch(tags, () => {
+      const pending = pendingRemovalFocus
+      if (!pending || tags.value.has(pending.tag)) return
+      pendingRemovalFocus = null
+      const doc = pending.source.ownerDocument
+      if (doc.activeElement !== doc.body && !pending.source.contains(doc.activeElement)) return
+      ;(inputRef.value ?? containerRef.value)?.focus({ preventScroll: true })
+    }, { flush: "post" })
+
+    // A touch drag need not blur or emit mousedown. Cancel restoration only.
+    let stopTrackingRemovalPointer: (() => void) | undefined
+    onMounted(() => {
+      const doc = containerRef.value?.ownerDocument
+      if (!doc) return
+      const cancelAfterPointer = (event: Event) => {
+        if (pendingRemovalFocus && event.target instanceof Node && !pendingRemovalFocus.source.contains(event.target)) {
+          pendingRemovalFocus = null
+        }
+      }
+      doc.addEventListener("pointerdown", cancelAfterPointer, true)
+      stopTrackingRemovalPointer = () => doc.removeEventListener("pointerdown", cancelAfterPointer, true)
+    })
+    onBeforeUnmount(() => stopTrackingRemovalPointer?.())
 
     // Position the real input inside the container (see the React source for the reasoning)
     let observer: ResizeObserver | undefined
@@ -204,12 +231,11 @@ export const TagInput = defineComponent({
       if (props.disabled) {
         return
       }
+      const source = containerRef.value?.querySelector<HTMLElement>(`[data-tag="${CSS.escape(tag)}"]`)
+      if (source?.contains(source.ownerDocument.activeElement)) pendingRemovalFocus = { tag, source }
       const next = new Map(tags.value)
       next.delete(tag)
       setTags(Array.from(next.values()))
-      if (selectedTag.value === tag) {
-        selectedTag.value = null
-      }
     }
 
     const selectPreviousTag = () => {
@@ -243,6 +269,7 @@ export const TagInput = defineComponent({
     }
 
     const handleContainerBlur = () => {
+      pendingRemovalFocus = null
       focused.value = false
       selectedTag.value = null
       // A disabled tag input keeps the pending text instead of committing it
@@ -253,6 +280,8 @@ export const TagInput = defineComponent({
     }
 
     const handleContainerKeyDown = (e: KeyboardEvent) => {
+      // IME candidate navigation belongs to the input, including Safari's 229 key.
+      if (e.isComposing || e.keyCode === 229) return
       // A tag can keep focus while the input turns disabled: no selecting or removing then
       if (props.disabled) {
         return
@@ -277,6 +306,8 @@ export const TagInput = defineComponent({
     }
 
     const handleInputKeyDown = (e: KeyboardEvent) => {
+      // Confirming an IME candidate must not commit or clear the pre-edit buffer.
+      if (e.isComposing || e.keyCode === 229) return
       if (e.key === "Enter" || props.delimiters.includes(e.key)) {
         e.preventDefault()
         if (currentInput.value) {
@@ -356,6 +387,7 @@ export const TagInput = defineComponent({
         return
       }
       focused.value = true
+      selectedTag.value = null
     }
 
     const handleBlur = (e: FocusEvent) => {
@@ -431,8 +463,12 @@ export const TagInput = defineComponent({
                     h("span", { class: s.TagValue }, tag.value),
                   ]),
                   h(
-                    "div",
-                    { "class": s.TagRemove, "onClick": () => removeTag(tag.value), "role": "button", "aria-label": "Remove item" },
+                    "button",
+                    {
+                      "type": "button", "class": s.TagRemove, "disabled": props.disabled,
+                      "onClick": (event: MouseEvent) => { event.stopPropagation(); removeTag(tag.value) },
+                      "aria-label": `Remove ${tag.value}`,
+                    },
                     [h(X)],
                   ),
                 ],

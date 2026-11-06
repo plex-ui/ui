@@ -32,7 +32,7 @@ import { PlexUIProvider as VuePlexUIProvider } from "../../packages/vue/src/comp
 import { Tooltip as VueTooltip } from "../../packages/vue/src/components/Tooltip"
 import { animation, flushVue, mountVue } from "./harness"
 import { serializeDom } from "./normalize"
-import { interact } from "./pair"
+import { interact, walkPairWithState } from "./pair"
 
 // Reka positions content through `--reka-popper-*` custom properties on its
 // wrapper, Radix through `--radix-popper-*` (same values). The content's own
@@ -716,6 +716,37 @@ const leave = async (element: Element) => {
 }
 
 describe("Menu behaviour parity", () => {
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name does not hover-focus items or open submenus", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await walk({}, async (snap) => {
+        await pointerDown(trigger(), { pointerType })
+        await interact(() => { fireEvent.click(trigger(), { detail: 1 }) })
+        await settle()
+        snap()
+        for (const label of ["Edit", "Show grid", "Beta", "Settings", "More"]) {
+          await interact(() => fireEvent.pointerMove(item(label), { pointerType, clientX: 10, clientY: 10 }))
+          await settle(150)
+        }
+        snap()
+        await press("ArrowDown")
+        snap()
+        await click(item("More"))
+        snap()
+      })
+      expectSame(result)
+      expect(result.react[1]!.active).toBe(result.react[0]!.active)
+      expect(result.react[1]!.dom).not.toContain('data-submenu=""')
+      expect(result.react[2]!.active).toBe('div[role=menuitem] "Edit"')
+      expect(result.react[3]!.dom).toContain('data-submenu=""')
+    } finally {
+      delete document.documentElement.dataset.input
+    }
+  })
+
   test.each([true, false])("pointerdown on the trigger opens; again closes (animations off: %s)", async (disabled) => {
     animation.disabled = disabled
     const result = await walk({}, async (snap) => {
@@ -1059,13 +1090,14 @@ describe("Menu behaviour parity", () => {
       await click(item("Beta"))
       snap()
       await pointerDown(trigger())
+      expect(item("Beta").getAttribute("aria-checked")).toBe("true")
+      expect(item("Alpha").getAttribute("aria-checked")).toBe("false")
       snap()
       await click(item("Gamma"))
       snap()
     })
     expectSame(result)
     expect(result.react.map((s) => s.log)).toEqual([["open", "select:Beta", "radio:b", "close", "closeAutoFocus"], ["open"], []])
-    expect(result.react[1]!.dom).toMatch(/aria-checked="true" class="MenuItem RadioItem"[^>]*>\n.*\n.*\n.*\n\s*"Beta"/)
   })
 
   test("submenu: ArrowRight opens and focuses its first item, ArrowLeft returns", async () => {
@@ -1211,6 +1243,89 @@ describe("Menu behaviour parity", () => {
     expect(result.react[0]!.active).toBe("body")
   })
 
+  test.each([
+    ["mouse", true],
+    ["touch", true],
+    ["mouse", false],
+    ["touch", false],
+  ] as const)("%s selection restores focus without a pointer ring (animations off: %s)", async (pointerType, disabled) => {
+    animation.disabled = disabled
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger(), { pointerType })
+      if (pointerType === "touch") {
+        await interact(() => { fireEvent.click(trigger(), { detail: 1 }) })
+        await settle()
+      }
+      await pointerDown(item("Edit"), { pointerType })
+      await click(item("Edit"))
+      if (!disabled) await settle(200)
+      await settle()
+      expect(document.activeElement).toBe(trigger())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(true)
+      snap()
+      await press("Shift", trigger())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      expect(document.activeElement).toBe(trigger())
+      snap()
+    })
+    expectSame(result)
+  })
+
+  test("keyboard selection after pointer opening preserves the trigger's keyboard ring", async () => {
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger(), { pointerType: "touch" })
+      await interact(() => { fireEvent.click(trigger(), { detail: 1 }) })
+      await settle()
+      await press("ArrowDown")
+      await press("Enter")
+      expect(document.activeElement).toBe(trigger())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snap()
+    })
+    expectSame(result)
+  })
+
+  test("pointer restore suppression clears on blur and does not survive the next focus", async () => {
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger())
+      await click(item("Edit"))
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(true)
+      await interact(() => document.querySelector<HTMLElement>("[data-outside]")?.focus())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      await interact(() => trigger().focus())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snap()
+    })
+    expectSame(result)
+  })
+
+  test("prevented pointer auto-focus adds no suppression to the trigger", async () => {
+    const result = await walk({ preventCloseAutoFocus: true }, async (snap) => {
+      await pointerDown(trigger())
+      await click(item("Edit"))
+      expect(document.activeElement).not.toBe(trigger())
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snap()
+    })
+    expectSame(result)
+  })
+
+  test("focus moved during pointer exit stays outside without a stale trigger marker", async () => {
+    animation.disabled = false
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger())
+      await click(item("Edit"))
+      const outside = document.querySelector<HTMLElement>("[data-outside]")
+      await interact(() => outside?.focus())
+      await settle(200)
+      await settle()
+      expect(document.activeElement).toBe(outside)
+      expect(trigger().hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snap()
+    })
+    expectSame(result)
+  })
+
   test("forceOpen: the trigger reports a close but the menu stays open", async () => {
     const result = await walk({ forceOpen: true }, async (snap) => {
       snap()
@@ -1327,7 +1442,7 @@ describe("Menu selection after a canceled click", () => {
     },
   })
 
-  const prevent = (event: Event) => event.preventDefault()
+  const prevent = (event: { preventDefault(): void }) => event.preventDefault()
 
   // A click canceled before the item's own listener (a capture-phase
   // preventDefault on the link or on an element around the item) is not
@@ -1350,7 +1465,9 @@ describe("Menu selection after a canceled click", () => {
       return { log, open: !!document.querySelector('[role="menu"]') }
     }
     const capture = canceledBy === "own" ? { onClickCapture: prevent } : {}
-    const wrapper = canceledBy === "wrapper" ? { onClickCapture: prevent } : {}
+    // Cancel browser navigation after the item's selection handler has run.
+    // Capture-phase cancellation above still determines whether the item selects.
+    const wrapper = { onClick: prevent, ...(canceledBy === "wrapper" ? { onClickCapture: prevent } : {}) }
 
     const react = await run(async (log) => {
       await act(async () => {
@@ -1677,5 +1794,55 @@ describe("Menu trigger through a forwarded slot", () => {
 
     expect(vue).toEqual(react)
     expect(react[1]).toContain('role="menu"')
+  })
+})
+
+
+describe("Menu.Item disabled click ownership", () => {
+  test.each(["initial disabled", "disabled after pointerdown", "re-enabled", "enabled preventDefault"] as const)("%s", async (scenario) => {
+    animation.disabled = true
+    const log: string[] = []
+    const cancel = scenario === "enabled preventDefault"
+    const onClick = (event: { preventDefault(): void }) => {
+      log.push("click")
+      if (cancel) event.preventDefault()
+    }
+    await walkPairWithState(
+      { disabled: scenario === "initial disabled" || scenario === "re-enabled" },
+      (state) => <ReactMenu forceOpen onClose={() => log.push("close")}>
+        <ReactMenu.Trigger><button type="button">Open</button></ReactMenu.Trigger>
+        <ReactMenu.Content><ReactMenu.Item disabled={state.disabled} onClick={onClick} onSelect={() => log.push("select")}>Edit</ReactMenu.Item></ReactMenu.Content>
+      </ReactMenu>,
+      (state) => h(Menu, { forceOpen: true, onClose: () => log.push("close") }, () => [
+        h(MenuTrigger, null, () => h("button", { type: "button" }, "Open")),
+        h(MenuContent, null, () => h(MenuItem, { disabled: state.disabled, onClick, onSelect: () => log.push("select") }, () => "Edit")),
+      ]),
+      async ({ set, advance }) => {
+        log.length = 0
+        await advance(16)
+        const item = document.querySelector<HTMLElement>('[role="menuitem"]')!
+        await interact(() => { fireEvent.pointerDown(item, { pointerType: "touch", button: 0 }) })
+        if (scenario === "disabled after pointerdown") await set({ disabled: true })
+        if (scenario !== "enabled preventDefault") {
+          expect(item.getAttribute("aria-disabled")).toBe("true")
+          await advance(1)
+          await interact(() => { fireEvent.click(item) })
+          expect(log).toEqual([])
+          expect(document.querySelector('[role="menu"]')).not.toBeNull()
+        }
+        if (scenario === "re-enabled") {
+          await set({ disabled: false })
+          expect(document.querySelector('[role="menuitem"]')).toBe(item)
+          await advance(1)
+          await interact(() => { fireEvent.click(item) })
+          expect(log).toEqual(["click", "select", "close"])
+        } else if (cancel) {
+          await advance(1)
+          await interact(() => { fireEvent.click(item) })
+          expect(log).toEqual(["click"])
+          expect(document.querySelector('[role="menu"]')).not.toBeNull()
+        }
+      },
+    )
   })
 })

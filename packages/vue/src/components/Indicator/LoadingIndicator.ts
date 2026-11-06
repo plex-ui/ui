@@ -5,7 +5,7 @@ import s from "@plexui/styles/components/Indicator/LoadingIndicator.module.css"
 const LoadingIndicatorComponent = defineComponent({
   name: "LoadingIndicator",
   props: {
-    /** Size of the indicator, in pixels. Defaults to 1em. */
+    /** Size of the indicator, in pixels. Defaults to 1em, or 30px with the touch stylesheet. */
     size: [Number, String] as PropType<number | string>,
     /** Stroke width of the indicator, in pixels. Defaults to 2. */
     strokeWidth: Number,
@@ -21,7 +21,7 @@ const LoadingIndicatorComponent = defineComponent({
               "indicator-size": props.size,
               "indicator-stroke": props.strokeWidth,
             }),
-      })
+      }, Array.from({ length: 8 }, (_, index) => h("span", { key: index, class: s.Spoke, "aria-hidden": "true" })))
   },
 })
 

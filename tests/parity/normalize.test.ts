@@ -60,3 +60,18 @@ describe("serializeDom inline styles", () => {
     expect(serializeDom(a)).toContain('style="color: red; pointer-events: auto"')
   })
 })
+
+describe("serializeDom Dialog focus boundary", () => {
+  test("only the direct Panel's negative fallback tabindex is normalized", () => {
+    const root = mount('<div data-plex-dialog tabindex="-1"><div class="Panel" tabindex="-1"><button tabindex="-1">Inside</button><div class="Panel" tabindex="-1"></div></div><div class="Panel" tabindex="0"></div></div><div class="Panel" tabindex="-1"></div>')
+    expect(serializeDom(root)).toBe([
+      '<div data-plex-dialog="" tabindex="-1">',
+      '  <div class="Panel">',
+      '    <button tabindex="-1">',
+      '      "Inside"',
+      '    <div class="Panel" tabindex="-1">',
+      '  <div class="Panel" tabindex="0">',
+      '<div class="Panel" tabindex="-1">',
+    ].join("\n"))
+  })
+})

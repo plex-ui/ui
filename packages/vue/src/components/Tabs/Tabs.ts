@@ -25,11 +25,11 @@ import {
 } from "vue"
 import { RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import type { ControlSize, SemanticColors, Sizes, Variants } from "@plexui/styles/types"
-import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers.js"
+import { handlePressableMouseEnter, prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers.js"
 import ChevronDownMd from "../Icon/svg/ChevronDownMd.js"
 import { LoadingIndicator } from "../Indicator/index.js"
 import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "../Menu/index.js"
-import { fitCount, visibleTabCount } from "./overflow.js"
+import { visibleTabCount } from "./overflow.js"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 // Vue port of packages/ui/src/components/Tabs/Tabs.tsx. Props, defaults,
@@ -208,11 +208,11 @@ const tabsProps = {
 
 const tabsEmits = {
   /** A new value was selected (`v-model:value`) */
-  "update:value": (_value: string) => true,
+  "update:value": (value: string) => typeof value === "string",
   /** Same payload as `update:value`, named after React's `onChange` */
-  "change": (_value: string) => true,
+  "change": (value: string) => typeof value === "string",
   /** Any click on the control, even if a new value was not selected */
-  "click": (_event: MouseEvent) => true,
+  "click": (event: MouseEvent) => event.type === "click",
 }
 
 // The group itself. `Tabs` renders it as it is, or measures and splits it
@@ -297,7 +297,7 @@ const TabsComponent = defineComponent({
           const bottom = top + targetHeight
           if (top < scrollTop + buffer || bottom > scrollTop + rootHeight - buffer) {
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" })
+              activeNode.scrollIntoView({ block: "center", inline: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }
@@ -326,7 +326,7 @@ const TabsComponent = defineComponent({
           if (left < scrollLeft + buffer || right > scrollLeft + rootWidth - buffer) {
             // Cheap trick to avoid unintentional scroll on mount - transition is set after mounting
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" })
+              activeNode.scrollIntoView({ block: "nearest", inline: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }
@@ -346,8 +346,8 @@ const TabsComponent = defineComponent({
 
       const isVertical = props.orientation === "vertical"
       const transitionProperty = isVertical
-        ? "height 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
-        : "width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
+        ? "height var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
+        : "width var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
 
       const sizeChanged = prevSize !== props.size
       prevSize = props.size
@@ -611,7 +611,7 @@ const TabComponent = defineComponent({
                 default: () => [
                   h("span", { class: s.TabContent }, [
                     hasContent(iconSlot) ? iconSlot : renderIcon(props.icon),
-                    hasContent(children) ? h("span", null, children) : null,
+                    hasContent(children) ? h("span", { class: s.TabLabel }, children) : null,
                     badgeProps
                       ? h(
                           "span",
@@ -734,7 +734,8 @@ const MoreTab = defineComponent({
   inheritAttrs: false,
   setup(_props, { attrs, slots }) {
     return () => {
-      const { "data-state": _menuState, ...rest } = attrs
+      const rest = { ...attrs }
+      delete rest["data-state"]
       return h(TabComponent, rest as TabProps, slots)
     }
   },

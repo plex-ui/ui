@@ -310,6 +310,7 @@
 
 .Input {
   display: block;
+  min-width: var(--input-control-min-width, auto);
   width: 100%;
   height: var(--input-size);
   /* `padding` is intrinsic to `.Input` when no adornments are present, for a few reasons. Autofill extensions are one such reason. */
@@ -387,39 +388,55 @@
 }
 
 .Clear {
+  --input-clear-background: var(--color-background-primary-soft-alpha);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--input-clear-size);
-  height: var(--input-clear-size);
+  width: var(--input-clear-target-size, var(--input-clear-size));
+  height: var(--input-clear-target-size, var(--input-clear-size));
   padding: 0;
   border: 0;
   border-radius: var(--radius-full);
-  margin-right: var(--input-clear-offset);
-  background-color: var(--color-background-primary-soft-alpha);
+  margin-right: var(--input-clear-target-offset, var(--input-clear-offset));
+  background-color: transparent;
   color: var(--color-text-primary-soft);
   cursor: pointer;
-  transition-duration: var(--transition-duration-basic);
-  transition-property: background-color;
-  transition-timing-function: var(--transition-ease-basic);
 
-  &:hover {
-    background-color: var(--color-background-primary-soft-alpha-hover);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      --input-clear-background: var(--color-background-primary-soft-alpha-hover);
+    }
   }
 
   &:active {
-    background-color: var(--color-background-primary-soft-alpha-active);
+    --input-clear-background: var(--color-background-primary-soft-alpha-active);
   }
 
   :where(.Container[data-pill]) & {
-    margin-right: var(--input-clear-pill-offset);
+    margin-right: var(--input-clear-target-offset, var(--input-clear-pill-offset));
   }
 
   > svg {
+    position: relative;
     width: var(--input-clear-icon-size);
     height: var(--input-clear-icon-size);
   }
+}
+
+/* Keep the visible circle compact while the touch target has its own flex slot. */
+.Clear::before {
+  content: "";
+  position: absolute;
+  width: var(--input-clear-size);
+  height: var(--input-clear-size);
+  border-radius: inherit;
+  background-color: var(--input-clear-background);
+  pointer-events: none;
+  transition-duration: var(--transition-duration-basic);
+  transition-property: background-color;
+  transition-timing-function: var(--transition-ease-basic);
 }
 
 /* AdornmentButton — public sibling of .Clear for in-input action buttons
@@ -429,12 +446,17 @@
    gets 28px, etc. Radius is --radius-full so a pill input stays
    concentric with the button. Icon fills half the button. */
 .AdornmentButton {
+  --input-adornment-face-size: calc(var(--input-size) - spacing(2));
+  --input-adornment-background: transparent;
+
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: calc(var(--input-size) - spacing(2));
-  height: calc(var(--input-size) - spacing(2));
+  width: var(--input-adornment-face-size);
+  height: var(--input-adornment-face-size);
   padding: 0;
   border: 0;
   border-radius: var(--radius-full);
@@ -450,38 +472,40 @@
   transition-property: background-color, color;
   transition-timing-function: var(--transition-ease-basic);
 
-  &:hover {
-    background-color: var(--color-background-secondary-soft-alpha);
-    color: var(--color-text);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      --input-adornment-background: var(--color-background-secondary-soft-alpha);
+      color: var(--color-text);
+    }
   }
 
   &[aria-pressed="true"] {
-    background-color: var(--color-background-primary-soft);
+    --input-adornment-background: var(--color-background-primary-soft);
     color: var(--color-text);
   }
 
   &[data-color="caution"][aria-pressed="true"] {
-    background-color: var(--color-background-caution-soft);
+    --input-adornment-background: var(--color-background-caution-soft);
     color: var(--color-text-caution-soft);
   }
 
   &[data-color="danger"][aria-pressed="true"] {
-    background-color: var(--color-background-danger-soft);
+    --input-adornment-background: var(--color-background-danger-soft);
     color: var(--color-text-danger-soft);
   }
 
   &[data-color="success"][aria-pressed="true"] {
-    background-color: var(--color-background-success-soft);
+    --input-adornment-background: var(--color-background-success-soft);
     color: var(--color-text-success-soft);
   }
 
   &[data-color="info"][aria-pressed="true"] {
-    background-color: var(--color-background-info-soft);
+    --input-adornment-background: var(--color-background-info-soft);
     color: var(--color-text-info-soft);
   }
 
   &[data-color="discovery"][aria-pressed="true"] {
-    background-color: var(--color-background-discovery-soft);
+    --input-adornment-background: var(--color-background-discovery-soft);
     color: var(--color-text-discovery-soft);
   }
 
@@ -497,6 +521,91 @@
   > svg {
     width: calc(var(--input-size) / 2);
     height: calc(var(--input-size) / 2);
+  }
+}
+
+/* The painted face keeps its size when the action reserves a larger touch slot. */
+.AdornmentButton::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: var(--input-adornment-face-size);
+  height: var(--input-adornment-face-size);
+  margin: auto;
+  border-radius: inherit;
+  background-color: var(--input-adornment-background);
+  pointer-events: none;
+  transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
+}
+
+@media (max-width: 767px) {
+  /* Reserve the target in flow; only the outer four-pixel breathing space
+     is reclaimed. The remainder comes out of the input's available width. */
+  .Container:where(:has(> .AdornmentButton)) {
+    --input-adornment-gutter: var(--input-gutter);
+
+    padding-inline: 0;
+
+    &[data-pill] {
+      --input-adornment-gutter: calc(var(--input-gutter) * var(--control-gutter-pill-scaling));
+    }
+
+    &[data-has-start-adornment] {
+      padding-inline-start: var(--input-adornment-gutter);
+    }
+
+    &[data-has-end-adornment] {
+      padding-inline-end: var(--input-adornment-gutter);
+    }
+
+    > .Input {
+      padding-inline: var(--input-adornment-gutter);
+    }
+
+    &[data-has-start-adornment] > .Input {
+      padding-inline-start: 0;
+    }
+
+    &[data-has-end-adornment] > .Input {
+      padding-inline-end: 0;
+    }
+  }
+
+  .Container > .AdornmentButton {
+    --input-adornment-hit-size: max(44px, var(--input-adornment-face-size));
+    --input-adornment-outer-delta: min(4px, calc((var(--input-adornment-hit-size) - var(--input-adornment-face-size)) / 2));
+    --input-adornment-content-inset: calc(var(--input-adornment-outer-delta) + (var(--input-adornment-face-size) - var(--input-size) / 2) / 2);
+
+    box-sizing: border-box;
+    width: var(--input-adornment-hit-size);
+    height: var(--input-adornment-hit-size);
+    margin-inline: 0;
+    padding-inline-end: var(--input-adornment-content-inset);
+    justify-content: flex-end;
+
+    &::before {
+      inset-inline-start: auto;
+      inset-inline-end: var(--input-adornment-outer-delta);
+      margin-inline: 0;
+    }
+
+    &:last-child {
+      margin-inline-end: calc(spacing(1) - var(--input-adornment-gutter) - var(--input-adornment-outer-delta));
+    }
+
+    &:first-child {
+      margin-inline-start: calc(var(--input-adornment-offset, -2px) - var(--input-adornment-outer-delta));
+      margin-inline-end: max(calc(var(--input-gap) * -1), calc(spacing(1) - var(--input-adornment-gutter)));
+      padding-inline-start: var(--input-adornment-content-inset);
+      padding-inline-end: 0;
+      justify-content: flex-start;
+
+      &::before {
+        inset-inline-start: var(--input-adornment-outer-delta);
+        inset-inline-end: auto;
+      }
+    }
   }
 }
 

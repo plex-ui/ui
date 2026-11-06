@@ -16,12 +16,12 @@ import {
   type ReactNode,
 } from "react"
 import { useResizeObserver } from "usehooks-ts"
-import { handlePressableMouseEnter, waitForAnimationFrame } from "../../lib/helpers"
+import { handlePressableMouseEnter, prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers"
 import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
 import { ChevronDownMd } from "../Icon"
 import { LoadingIndicator } from "../Indicator"
 import { Menu } from "../Menu"
-import { fitCount, visibleTabCount } from "./overflow"
+import { visibleTabCount } from "./overflow"
 import s from "@plexui/styles/components/Tabs/Tabs.module.css"
 
 export type SizeVariant = "2xs" | "xs" | "sm" | "md" | "lg" | "xl"
@@ -176,7 +176,7 @@ const TabsRoot = <T extends string>({
           const bottom = top + targetHeight
           if (top < scrollTop + buffer || bottom > scrollTop + rootHeight - buffer) {
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" })
+              activeNode.scrollIntoView({ block: "center", inline: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }
@@ -205,7 +205,7 @@ const TabsRoot = <T extends string>({
           if (left < scrollLeft + buffer || right > scrollLeft + rootWidth - buffer) {
             // Cheap trick to avoid unintentional scroll on mount - transition is set after mounting
             if (attemptScroll) {
-              activeNode.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" })
+              activeNode.scrollIntoView({ block: "nearest", inline: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" })
             }
           }
         }
@@ -250,8 +250,8 @@ const TabsRoot = <T extends string>({
   }, [applyThumbSizing])
 
   const transitionProperty = isVertical
-    ? "height 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
-    : "width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)"
+    ? "height var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
+    : "width var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)"
 
   useLayoutEffect(() => {
     const root = rootRef.current
@@ -388,7 +388,7 @@ const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
     >
       <span className={s.TabContent}>
         {icon}
-        {children && <span>{children}</span>}
+        {children && <span className={s.TabLabel}>{children}</span>}
         {badgeProps && (
           <span
             className={s.TabBadge}
@@ -447,9 +447,11 @@ const tabsSignature = (items: TabElement[]) =>
  * by it. The menu's value does not reach the tab; its handlers and
  * `aria-haspopup` / `aria-expanded` do.
  */
-const MoreTab = ({ "data-state": _menuState, ...restProps }: TabProps & { "data-state"?: string }) => (
-  <Tab {...restProps} />
-)
+const MoreTab = (props: TabProps & { "data-state"?: string }) => {
+  const restProps = { ...props }
+  delete restProps["data-state"]
+  return <Tab {...restProps} />
+}
 
 const OverflowTabs = <T extends string>({
   children,
@@ -507,6 +509,9 @@ const OverflowTabs = <T extends string>({
     // A hidden strip has no width to decide by: show every tab, and measure
     // when it appears (the observer sees the width change)
     if (available <= 0) {
+      // Resolve the zero-width measuring pass before paint; the resize observer
+      // restarts measurement when this hidden strip becomes visible.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisibleCount(items.length)
       return
     }
@@ -517,6 +522,8 @@ const OverflowTabs = <T extends string>({
     const labelGap = chevron?.parentElement ? Number.parseFloat(getComputedStyle(chevron.parentElement).columnGap) || 0 : 0
     const activeWidth = activeIndex < 0 ? 0 : (widths[activeIndex] ?? 0) + chevronWidth + labelGap
 
+    // This result depends on committed DOM widths. Apply it before first paint
+    // so the temporary full strip never flashes before overflowing tabs move.
     setVisibleCount(visibleTabCount(widths, moreWidth, activeWidth, activeIndex, gap, available))
   }, [visibleCount, items.length, activeIndex])
 

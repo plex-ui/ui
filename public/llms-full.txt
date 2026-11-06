@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 52
+Components: 53
 
 ## Setup
 
@@ -45,15 +45,19 @@ Props:
     - className (string) default: — — Applied to the item wrapper
 
 ### Overview
+The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.
 ```tsx
-<Accordion type="single" collapsible defaultValue="shipping">
+const [value, setValue] = useState("shipping")
+const [returnsDisabled, setReturnsDisabled] = useState(false)
+
+<Accordion type="single" collapsible value={value} onValueChange={setValue}>
 <Accordion.Item value="shipping">
   <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>
   <Accordion.Content>
     We offer standard (5–7 business days), express (2–3 days), and overnight shipping…
   </Accordion.Content>
 </Accordion.Item>
-<Accordion.Item value="returns">
+<Accordion.Item value="returns" disabled={returnsDisabled}>
   <Accordion.Trigger>What is your return policy?</Accordion.Trigger>
   <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>
 </Accordion.Item>
@@ -87,25 +91,6 @@ Use type="multiple" when readers can keep several sections open at once: setting
     <Accordion.Content>{item.content}</Accordion.Content>
   </Accordion.Item>
 ))}
-</Accordion>
-```
-
-### Disabled
-Pass disabled to an Accordion.Item to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.
-```tsx
-<Accordion type="single" collapsible defaultValue="history">
-<Accordion.Item value="history">
-  <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>
-  <Accordion.Content>…</Accordion.Content>
-</Accordion.Item>
-<Accordion.Item value="audit" disabled>
-  <Accordion.Trigger>Audit log export (Enterprise only)</Accordion.Trigger>
-  <Accordion.Content>…</Accordion.Content>
-</Accordion.Item>
-<Accordion.Item value="two-factor">
-  <Accordion.Trigger>How do I enable two-factor auth?</Accordion.Trigger>
-  <Accordion.Content>…</Accordion.Content>
-</Accordion.Item>
 </Accordion>
 ```
 
@@ -825,6 +810,7 @@ Props:
   - external (boolean) — Force external-link behavior
   - opticallyAlign ("start" | "end") — Apply optical negative margin alignment
   - block (boolean) default: false — Full width
+  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
   - pill (boolean) default: false — Fully rounded
   - disabled (boolean) default: false — Disable link
   - disabledTone ("relaxed") — Use relaxed visual tone for disabled state
@@ -858,7 +844,7 @@ Stylize the link with color and variant props.
 const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
 const variants = ["soft", "solid", "outline", "ghost"] as const
 
-<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 <div className="pt-1 pb-6 px-8 w-fit min-w-full">
   <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
     <div />
@@ -927,6 +913,7 @@ Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
   - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and default gutter/icon size
+  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
   - pill (boolean) default: false — Fully rounded corners
   - block (boolean) default: false — Full width
   - uniform (boolean) default: false — Square icon button (width equals height)
@@ -959,7 +946,7 @@ You can stylize the display of the button using the color and variant props.
 const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
 const variants = ["soft", "solid", "outline", "ghost"] as const
 
-<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+<div className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 <div className="pt-1 pb-6 px-8 w-max mx-auto">
   <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
     <div />
@@ -1012,22 +999,25 @@ Create full-width buttons with the block prop.
 </div>
 ```
 
-### Disabled
-Use disabled to both visually and accessibly disable a button. Clicks do not call onClick.
+### States
 ```tsx
-<Button color="primary" disabled>Submit</Button>
+import { useState } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+
+export default function ButtonStatesExample() {
+  const [disabled] = useState(false);
+  const [loading] = useState(false);
+
+  return (
+    <Button color="primary" disabled={disabled} loading={loading}>Submit</Button>
+  );
+}
 ```
 
 ### Inert
 Use inert to accessibly disable a button without any visual changes. Note: For accessibility reasons, disabled is used instead of applying inert directly to the button. Visual disablement in the disabled prop is applied via [data-disabled].
 ```tsx
 <Button color="primary" inert>Submit</Button>
-```
-
-### Loading
-Use loading to display a loading indicator in the button, fading out the current content. Interactions are prevented during this state, because inert defaults to loading. Override it with inert, or use disabled to add visual disablement.
-```tsx
-<Button loading size="xl" pill><ArrowUp /> Click to load</Button>
 ```
 
 ### Selected
@@ -1449,26 +1439,28 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 ```
 
 ### Variants
-The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill.
+The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states.
 ```tsx
+const [disabled, setDisabled] = useState(false)
+
 <div className="flex flex-wrap gap-x-12 gap-y-6">
 <div className="flex flex-col gap-3 items-start">
   <span className="text-xs text-secondary font-mono mb-1">solid</span>
-  <Checkbox label="Unchecked" />
-  <Checkbox label="Checked" defaultChecked />
-  <Checkbox label="Indeterminate" checked="indeterminate" />
+  <Checkbox disabled={disabled} label="Unchecked" />
+  <Checkbox disabled={disabled} label="Checked" defaultChecked />
+  <Checkbox disabled={disabled} label="Indeterminate" checked="indeterminate" />
 </div>
 <div className="flex flex-col gap-3 items-start">
   <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-  <Checkbox label="Unchecked" pill />
-  <Checkbox label="Checked" pill defaultChecked />
-  <Checkbox label="Indeterminate" pill checked="indeterminate" />
+  <Checkbox disabled={disabled} label="Unchecked" pill />
+  <Checkbox disabled={disabled} label="Checked" pill defaultChecked />
+  <Checkbox disabled={disabled} label="Indeterminate" pill checked="indeterminate" />
 </div>
 <div className="flex flex-col gap-3 items-start">
   <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-  <Checkbox label="Unchecked" variant="ghost" />
-  <Checkbox label="Checked" variant="ghost" defaultChecked />
-  <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
+  <Checkbox disabled={disabled} label="Unchecked" variant="ghost" />
+  <Checkbox disabled={disabled} label="Checked" variant="ghost" defaultChecked />
+  <Checkbox disabled={disabled} label="Indeterminate" variant="ghost" checked="indeterminate" />
 </div>
 </div>
 ```
@@ -1521,31 +1513,6 @@ onCheckedChange={() =>
 }
 label="Select all"
 />
-```
-
-### Disabled
-When disabled is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.
-```tsx
-<div className="flex flex-wrap gap-x-12 gap-y-6">
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">solid</span>
-  <Checkbox label="Unchecked" disabled />
-  <Checkbox label="Checked" disabled defaultChecked />
-  <Checkbox label="Indeterminate" disabled checked="indeterminate" />
-</div>
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-  <Checkbox label="Unchecked" pill disabled />
-  <Checkbox label="Checked" pill disabled defaultChecked />
-  <Checkbox label="Indeterminate" pill disabled checked="indeterminate" />
-</div>
-<div className="flex flex-col gap-3 items-start">
-  <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-  <Checkbox label="Unchecked" variant="ghost" disabled />
-  <Checkbox label="Checked" variant="ghost" disabled defaultChecked />
-  <Checkbox label="Indeterminate" variant="ghost" disabled checked="indeterminate" />
-</div>
-</div>
 ```
 
 ### Label orientation
@@ -1652,47 +1619,23 @@ pushNothing: false,
 const toggle = (key: keyof typeof settings) => () =>
 setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 
-<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-<div className="pb-5">
-  <Field label="Email notifications" description="Configure which emails you receive.">
-    {() => (
-      <div className="flex flex-col gap-4">
-        <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Marketing</span>
-              <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
-            </div>
-          }
-          checked={settings.emailMarketing}
-          onCheckedChange={toggle("emailMarketing")}
-        />
-        <Checkbox
-          label={
-            <div className="flex flex-col">
-              <span className="font-medium">Security</span>
-              <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
-            </div>
-          }
-          checked={settings.emailSecurity}
-          onCheckedChange={toggle("emailSecurity")}
-        />
-      </div>
-    )}
-  </Field>
-</div>
-<div className="pt-5">
-  <Field label="Push notifications" description="Configure which push notifications you receive.">
-    {() => (
-      <div className="flex flex-col gap-3">
-        <Checkbox label="Everything" checked={settings.pushEverything} onCheckedChange={toggle("pushEverything")} />
-        <Checkbox label="Direct messages and mentions" checked={settings.pushMentions} onCheckedChange={toggle("pushMentions")} />
-        <Checkbox label="Nothing" checked={settings.pushNothing} onCheckedChange={toggle("pushNothing")} />
-      </div>
-    )}
-  </Field>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Notifications</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <div className="flex flex-col gap-6">
+    <FieldGroup title="Email notifications" description="Configure which emails you receive.">
+      <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox checked={settings.emailMarketing} onCheckedChange={toggle('emailMarketing')} /></Field>
+      <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
+    </FieldGroup>
+    <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
+      <Field row label="Everything"><Checkbox checked={settings.pushEverything} onCheckedChange={toggle('pushEverything')} /></Field>
+      <Field row label="Direct messages and mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
+      <Field row label="Nothing"><Checkbox checked={settings.pushNothing} onCheckedChange={toggle('pushNothing')} /></Field>
+    </FieldGroup>
+  </div>
+</Page.Content>
+</Page>
 ```
 
 ## Code Block
@@ -1751,7 +1694,8 @@ A pragmatic set of Prism grammars are pre-registered out of the box.
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip"
+Import: import { CopyTooltip } from "@plexui/ui/components/Tooltip"
+Import: import { Button } from "@plexui/ui/components/Button"
 Docs: https://plexui.com/components/copy-tooltip
 Props:
   - children (ReactNode) — Trigger element (for example Tooltip.TriggerDecorator)
@@ -1765,8 +1709,10 @@ Props:
 
 ### Overview
 ```tsx
-<CopyTooltip copyValue="Very cool content to copy">
-<Tooltip.TriggerDecorator>sess_12345abcdefg</Tooltip.TriggerDecorator>
+<CopyTooltip copyValue="sess_12345abcdefg">
+<Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+  sess_12345abcdefg
+</Button>
 </CopyTooltip>
 ```
 
@@ -1795,11 +1741,21 @@ Props:
 ### Overview
 Pass a Luxon DateTime (or null) as value with onChange. onChange fires once a complete, valid date is typed, and with null when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again.
 ```tsx
-const [date, setDate] = useState<DateTime | null>(null)
+import { useState } from 'react';
+import { DateTime } from 'luxon';
+import { DateInput } from '@plexui/ui/components/DateInput';
 
-<div className="w-[200px]">
-<DateInput value={date} onChange={setDate} size="md" variant="outline" clearable />
-</div>
+export default function DateInputExample() {
+  const [date, setDate] = useState<DateTime | null>(null);
+  const [disabled] = useState(false);
+
+  return (
+    <div className="w-[200px]">
+      <DateInput value={date} onChange={setDate} size="md" variant="outline"
+        clearable disabled={disabled} />
+    </div>
+  );
+}
 ```
 
 ### With time
@@ -1871,15 +1827,6 @@ Pass errorMessage to Field to display a validation error.
 </div>
 ```
 
-### Disabled
-```tsx
-const [date, setDate] = useState<DateTime | null>(DateTime.local(2025, 1, 1))
-
-<div className="w-[200px]">
-<DateInput value={date} onChange={setDate} disabled />
-</div>
-```
-
 ## Date Picker
 Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
 Import: import { DatePicker } from "@plexui/ui/components/DatePicker"
@@ -1904,7 +1851,7 @@ Props:
   - dropdownIconType ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
   - placeholder (string) default: "Select date..." — Trigger placeholder
   - disabled (boolean) default: false — Disable picker
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - sideOffset (number) default: 8 — Distance from the trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
   - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
@@ -1912,17 +1859,27 @@ Props:
 ### Overview
 Pass the date (a luxon DateTime, or null) as value and update it in onChange.
 ```tsx
-const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
+import { useState } from 'react';
+import { DateTime } from 'luxon';
+import { DatePicker } from '@plexui/ui/components/DatePicker';
 
-<DatePicker
-id="date-picker-base"
-triggerDateFormat="MM/dd/yy"
-size="lg"
-pill
-clearable
-value={selectedDate}
-onChange={setSelectedDate}
-/>
+export default function DatePickerExample() {
+  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
+  const [disabled] = useState(false);
+
+  return (
+    <DatePicker
+      id="date-picker-base"
+      triggerDateFormat="MM/dd/yy"
+      size="lg"
+      pill
+      clearable
+      disabled={disabled}
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  );
+}
 ```
 
 ### Limits
@@ -2094,21 +2051,6 @@ onChange={setSelectedDate}
 />
 ```
 
-### Disabled
-Disable the picker to prevent user interaction.
-```tsx
-const [selectedDate, setSelectedDate] = useState<DateTime | null>(DateTime.local())
-
-<DatePicker
-id="date-picker-disabled"
-triggerDateFormat="MM/dd/yy"
-size="lg"
-disabled
-value={selectedDate}
-onChange={setSelectedDate}
-/>
-```
-
 ## Date Range Picker
 Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
 Import: import { DateRangePicker } from "@plexui/ui/components/DateRangePicker"
@@ -2121,7 +2063,7 @@ Props:
   - maxRangeDays (number) — Max length of range in days (inclusive)
   - weekStartsOn (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
   - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - sideOffset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
   - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
@@ -2254,17 +2196,19 @@ Props:
   - open (boolean) — Controlled open state; uncontrolled when omitted
   - onOpenChange ((open: boolean) => void) — Called when the dialog opens or closes
   Dialog.Content:
+    - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
     - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
     - showClose (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
     - pill (boolean) default: false — Rounder panel and a round close button, for dialogs beside pill controls
     - className (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobileVariant ("alert" | "sheet") — Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
-    - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
+    - mobileVariant ("alert" | "sheet") — Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
+    - mobilePlacement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - onOpenAutoFocus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - onCloseAutoFocus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
   Dialog.Footer:
-    - mobileLayout ("inline" | "stacked") — Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
+    - background ("glass" | "solid") default: "glass" — Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged
+    - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
 
 ### Overview
 ```tsx
@@ -2275,7 +2219,7 @@ const heading = useRef<HTMLDivElement>(null)
 <Dialog.Trigger>
   <Button color="secondary" variant="outline">Open dialog</Button>
 </Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
     <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
@@ -2300,7 +2244,7 @@ const heading = useRef<HTMLDivElement>(null)
 <Dialog.Trigger>
   <Button color="danger" variant="outline">Delete</Button>
 </Dialog.Trigger>
-<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
     <Dialog.Description>
@@ -2332,16 +2276,101 @@ import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Separator } from '@plexui/ui/components/Separator';
 import { CopyTooltip } from '@plexui/ui/components/Tooltip';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+const detailsStyles = `/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .details-content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .details-content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .details-content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .details-content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .details-content [data-detail-row]:has([data-detail-copy]),
+  .details-content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .details-content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .details-content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .details-content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .details-content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .details-content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .details-content [data-detail-copy]::before,
+  .details-content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .details-content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}
+`;
 
 const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 const FINGERPRINT = '144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B';
 const EXTRA_ORIGINS = Array.from({ length: 24 }, (_, index) => `https://preview-${index + 1}.plexui.com`);
 
 function CopyValue({ value, label }: { value: string; label: string }) {
+  const wide = useBreakpoint('md');
   return (
-    <CopyTooltip copyValue={value}>
-      <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+      <Button data-detail-copy color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
+        <span data-detail-value className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -2352,7 +2381,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+    <div data-detail-row className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
       <dt className="text-secondary">{label}</dt>
       <dd className="min-w-0 sm:col-span-3">{children}</dd>
     </div>
@@ -2361,9 +2390,9 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
 
 function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4" aria-label={title}>
+    <section data-detail-section className="flex flex-col gap-4" aria-label={title}>
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{title}</h3>
+        <h3 data-detail-heading className="text-xs font-medium uppercase tracking-wide text-tertiary">{title}</h3>
         {action && <div className="-my-2 flex shrink-0">{action}</div>}
       </div>
       {children}
@@ -2378,7 +2407,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
   const heading = useRef<HTMLDivElement>(null);
   const origins = ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? EXTRA_ORIGINS : [])];
   const metadata = (
-    <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <dl data-detail-list className="space-y-4 text-sm">
       <DetailRow label="Name">Plex application</DetailRow>
       <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
       <DetailRow label="Status"><Badge color={paused ? 'secondary' : 'success'} size="sm">{paused ? 'Paused' : 'Active'}</Badge></DetailRow>
@@ -2388,12 +2417,13 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
   );
 
   return (
-    <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
+    <div className="flex flex-col items-center gap-4 py-10">
+      <style>{detailsStyles}</style>
       <Dialog open={open} onOpenChange={setOpen}>
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2407,7 +2437,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
             </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-5 py-2">
+            <div className="details-content flex flex-col gap-5 py-2">
               {sections ? <>
                 <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
@@ -2417,20 +2447,20 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
                     <Menu.Item onSelect={() => setLocalhost(!localhost)}>{localhost ? 'Remove localhost' : 'Allow localhost'}</Menu.Item>
                   </Menu.Content>
                 </Menu>}>
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><DetailRow label="Origins">
-                    <div className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
+                  <dl data-detail-list className="space-y-4 text-sm"><DetailRow label="Origins">
+                    <div data-detail-values className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
                   </DetailRow></dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="iOS">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Team ID"><CopyValue value="AB12CD34EF" label="Copy team ID" /></DetailRow>
                     <DetailRow label="Bundle ID"><CopyValue value="com.plexui.application" label="Copy bundle ID" /></DetailRow>
                   </dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="Android">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Package name"><CopyValue value="com.plexui.application" label="Copy package name" /></DetailRow>
                     <DetailRow label="SHA-256"><CopyValue value={FINGERPRINT} label="Copy certificate fingerprint" /></DetailRow>
                   </dl>
@@ -2458,16 +2488,101 @@ import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Separator } from '@plexui/ui/components/Separator';
 import { CopyTooltip } from '@plexui/ui/components/Tooltip';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+const detailsStyles = `/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .details-content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .details-content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .details-content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .details-content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .details-content [data-detail-row]:has([data-detail-copy]),
+  .details-content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .details-content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .details-content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .details-content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .details-content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .details-content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .details-content [data-detail-copy]::before,
+  .details-content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .details-content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}
+`;
 
 const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 const FINGERPRINT = '144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B';
 const EXTRA_ORIGINS = Array.from({ length: 24 }, (_, index) => `https://preview-${index + 1}.plexui.com`);
 
 function CopyValue({ value, label }: { value: string; label: string }) {
+  const wide = useBreakpoint('md');
   return (
-    <CopyTooltip copyValue={value}>
-      <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+      <Button data-detail-copy color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
+        <span data-detail-value className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -2478,7 +2593,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+    <div data-detail-row className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
       <dt className="text-secondary">{label}</dt>
       <dd className="min-w-0 sm:col-span-3">{children}</dd>
     </div>
@@ -2487,9 +2602,9 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
 
 function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4" aria-label={title}>
+    <section data-detail-section className="flex flex-col gap-4" aria-label={title}>
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{title}</h3>
+        <h3 data-detail-heading className="text-xs font-medium uppercase tracking-wide text-tertiary">{title}</h3>
         {action && <div className="-my-2 flex shrink-0">{action}</div>}
       </div>
       {children}
@@ -2504,7 +2619,7 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
   const heading = useRef<HTMLDivElement>(null);
   const origins = ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? EXTRA_ORIGINS : [])];
   const metadata = (
-    <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <dl data-detail-list className="space-y-4 text-sm">
       <DetailRow label="Name">Plex application</DetailRow>
       <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
       <DetailRow label="Status"><Badge color={paused ? 'secondary' : 'success'} size="sm">{paused ? 'Paused' : 'Active'}</Badge></DetailRow>
@@ -2514,12 +2629,13 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
   );
 
   return (
-    <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
+    <div className="flex flex-col items-center gap-4 py-10">
+      <style>{detailsStyles}</style>
       <Dialog open={open} onOpenChange={setOpen}>
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2533,7 +2649,7 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
             </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-5 py-2">
+            <div className="details-content flex flex-col gap-5 py-2">
               {sections ? <>
                 <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
@@ -2543,20 +2659,20 @@ export function DetailsDialogExample({ sections = true, long = false, showAction
                     <Menu.Item onSelect={() => setLocalhost(!localhost)}>{localhost ? 'Remove localhost' : 'Allow localhost'}</Menu.Item>
                   </Menu.Content>
                 </Menu>}>
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><DetailRow label="Origins">
-                    <div className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
+                  <dl data-detail-list className="space-y-4 text-sm"><DetailRow label="Origins">
+                    <div data-detail-values className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
                   </DetailRow></dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="iOS">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Team ID"><CopyValue value="AB12CD34EF" label="Copy team ID" /></DetailRow>
                     <DetailRow label="Bundle ID"><CopyValue value="com.plexui.application" label="Copy bundle ID" /></DetailRow>
                   </dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="Android">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Package name"><CopyValue value="com.plexui.application" label="Copy package name" /></DetailRow>
                     <DetailRow label="SHA-256"><CopyValue value={FINGERPRINT} label="Copy certificate fingerprint" /></DetailRow>
                   </dl>
@@ -2584,16 +2700,101 @@ import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Separator } from '@plexui/ui/components/Separator';
 import { CopyTooltip } from '@plexui/ui/components/Tooltip';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+const detailsStyles = `/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .details-content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .details-content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .details-content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .details-content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .details-content [data-detail-row]:has([data-detail-copy]),
+  .details-content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .details-content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .details-content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .details-content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .details-content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .details-content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .details-content [data-detail-copy]::before,
+  .details-content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .details-content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}
+`;
 
 const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 const FINGERPRINT = '144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B';
 const EXTRA_ORIGINS = Array.from({ length: 24 }, (_, index) => `https://preview-${index + 1}.plexui.com`);
 
 function CopyValue({ value, label }: { value: string; label: string }) {
+  const wide = useBreakpoint('md');
   return (
-    <CopyTooltip copyValue={value}>
-      <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+      <Button data-detail-copy color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
+        <span data-detail-value className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -2604,7 +2805,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+    <div data-detail-row className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
       <dt className="text-secondary">{label}</dt>
       <dd className="min-w-0 sm:col-span-3">{children}</dd>
     </div>
@@ -2613,9 +2814,9 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
 
 function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4" aria-label={title}>
+    <section data-detail-section className="flex flex-col gap-4" aria-label={title}>
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{title}</h3>
+        <h3 data-detail-heading className="text-xs font-medium uppercase tracking-wide text-tertiary">{title}</h3>
         {action && <div className="-my-2 flex shrink-0">{action}</div>}
       </div>
       {children}
@@ -2630,7 +2831,7 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
   const heading = useRef<HTMLDivElement>(null);
   const origins = ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? EXTRA_ORIGINS : [])];
   const metadata = (
-    <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <dl data-detail-list className="space-y-4 text-sm">
       <DetailRow label="Name">Plex application</DetailRow>
       <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
       <DetailRow label="Status"><Badge color={paused ? 'secondary' : 'success'} size="sm">{paused ? 'Paused' : 'Active'}</Badge></DetailRow>
@@ -2640,12 +2841,13 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
   );
 
   return (
-    <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
+    <div className="flex flex-col items-center gap-4 py-10">
+      <style>{detailsStyles}</style>
       <Dialog open={open} onOpenChange={setOpen}>
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -2659,7 +2861,7 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
             </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-5 py-2">
+            <div className="details-content flex flex-col gap-5 py-2">
               {sections ? <>
                 <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
@@ -2669,20 +2871,20 @@ export function DetailsDialogExample({ sections = true, long = true, showActions
                     <Menu.Item onSelect={() => setLocalhost(!localhost)}>{localhost ? 'Remove localhost' : 'Allow localhost'}</Menu.Item>
                   </Menu.Content>
                 </Menu>}>
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><DetailRow label="Origins">
-                    <div className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
+                  <dl data-detail-list className="space-y-4 text-sm"><DetailRow label="Origins">
+                    <div data-detail-values className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={`Copy origin ${origin}`} /></div>)}</div>
                   </DetailRow></dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="iOS">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Team ID"><CopyValue value="AB12CD34EF" label="Copy team ID" /></DetailRow>
                     <DetailRow label="Bundle ID"><CopyValue value="com.plexui.application" label="Copy bundle ID" /></DetailRow>
                   </dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="Android">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Package name"><CopyValue value="com.plexui.application" label="Copy package name" /></DetailRow>
                     <DetailRow label="SHA-256"><CopyValue value={FINGERPRINT} label="Copy certificate fingerprint" /></DetailRow>
                   </dl>
@@ -2702,13 +2904,13 @@ Put long content in Dialog.Body: only the body scrolls, while the header and foo
 ```tsx
 const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
 <Dialog.Header>
   <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
   <Dialog.Description>Please read them before you continue.</Dialog.Description>
 </Dialog.Header>
 <Dialog.Body>
-  <div className="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+  <div className="flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
     {terms.map((term) => <p key={term}>{term}</p>)}
   </div>
 </Dialog.Body>
@@ -2720,11 +2922,11 @@ const heading = useRef<HTMLDivElement>(null)
 ```
 
 ### Placement
-Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 640px and below, so a centered dialog can become a bottom sheet on phones: {''}.
+Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 767px and below, so a centered dialog can become a bottom sheet on phones: {''}.
 ```tsx
 const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement="end" width={360}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement="end" width={360}>
 <Dialog.Header>
   <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
 </Dialog.Header>
@@ -2740,6 +2942,24 @@ const heading = useRef<HTMLDivElement>(null)
   <Button color="primary">Done</Button>
 </Dialog.Footer>
 </Dialog.Content>
+```
+
+### Floating view options
+```tsx
+import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
+
+export default function ViewPreferences() {
+return <ViewOptionsSheetDemo />;
+}
+```
+
+### Segmented composer header
+```tsx
+import { SegmentedComposer } from './SegmentedComposer';
+
+export default function Example() {
+return <SegmentedComposer surface="grouped" />;
+}
 ```
 
 ## Empty Message
@@ -2767,7 +2987,7 @@ Props:
 <EmptyMessage.Title>No projects yet</EmptyMessage.Title>
 <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>
 <EmptyMessage.ActionRow>
-  <Button color="primary" size="lg">
+  <Button color="primary" size="xl">
     <Plus className="mr-[-2px]" />
     New project
   </Button>
@@ -2871,7 +3091,7 @@ Props:
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
-  - row (boolean) default: false — One line of a FieldGroup. Other div props reach the root only on a row
+  - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other div props reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - action (ReactNode) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
   - opticallyAlign ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
@@ -3039,7 +3259,7 @@ Field works with any form control. Use the description to display the current sl
 ```tsx
 const [price, setPrice] = useState([200, 800])
 
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Field
   label="Price Range"
   description={`Set your budget range ($${price[0].toLocaleString()} – ${price[1].toLocaleString()}).`}
@@ -3052,7 +3272,7 @@ const [price, setPrice] = useState([200, 800])
 ### Fieldset
 Group related fields under a heading and description to create a logical fieldset.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <div className="mb-3">
   <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
   <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
@@ -3062,10 +3282,10 @@ Group related fields under a heading and description to create a logical fieldse
     <Input placeholder="123 Main St" />
   </Field>
   <div className="flex gap-3">
-    <Field label="City" className="flex-1">
+    <Field label="City" className="min-w-0 flex-1">
       <Input placeholder="New York" />
     </Field>
-    <Field label="Postal Code" className="flex-1">
+    <Field label="Postal Code" className="min-w-0 flex-1">
       <Input placeholder="90502" />
     </Field>
   </div>
@@ -3122,7 +3342,7 @@ const [enabled, setEnabled] = useState(false)
 ### Stacked fields
 Stack Field components with a divider to group related notification settings.
 ```tsx
-<div className="w-[400px] divide-y divide-alpha/15">
+<div className="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
 <div className="pb-6">
   <Field
     label="Responses"
@@ -3169,7 +3389,7 @@ const emailError = showErrors && !email.includes("@") ? "Please enter a valid em
 ### Optical alignment
 Use opticallyAlign="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
   <div className="mb-5 text-secondary text-sm">opticallyAlign="start"</div>
   <div className="flex flex-col gap-5">
@@ -3192,7 +3412,7 @@ Use opticallyAlign="start" to apply a negative margin on the child control, alig
 ```
 
 ### Form example
-A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.
+A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.
 ```tsx
 const months = Array.from({ length: 12 }, (_, i) => {
 const value = String(i + 1).padStart(2, "0")
@@ -3205,358 +3425,139 @@ return { label: value, value }
 const [month, setMonth] = useState("")
 const [year, setYear] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
-    <p className="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
-  </div>
-
-  <Field label="Name on Card">
-    <Input placeholder="Evil Rabbit" autoComplete="off" />
-  </Field>
-
-  <Field label="Card Number">
-    <Input placeholder="1234 5678 9012 3456" autoComplete="off" />
-  </Field>
-
-  <div className="grid grid-cols-3 gap-3">
-    <Field label="Month">
-      {(fieldProps) => (
-        <Select id={fieldProps.id} placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} />
-      )}
-    </Field>
-    <Field label="Year">
-      {(fieldProps) => (
-        <Select id={fieldProps.id} placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} />
-      )}
-    </Field>
-    <Field label="CVV">
-      <Input placeholder="123" />
-    </Field>
-  </div>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
-    <p className="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
-  </div>
-
-  <Checkbox label="Same as shipping address" defaultChecked />
-
-  <Field label="Comments">
-    <Textarea placeholder="Add any additional comments" />
-  </Field>
-</fieldset>
-
-<div className="flex gap-2">
-  <Button color="primary">Submit</Button>
-  <Button color="secondary" variant="outline">Cancel</Button>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Payment details</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
+      <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
+      <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
+      <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
+      <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
+      <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
+    </FieldGroup>
+    <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
+      <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
+      <Field row label="Comments" orientation="vertical"><Textarea rows={3} autoResize placeholder="Add any additional comments" /></Field>
+    </FieldGroup>
+  </form>
+</Page.Content>
+<Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Submit</Button></Page.Footer>
+</Page>
 ```
 
 ### Profile settings
-A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields.
+Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.
 ```tsx
 const [language, setLanguage] = useState("en")
 const [theme, setTheme] = useState("system")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
-    <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
-  </div>
+const languages = [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }, { label: 'German', value: 'de' }, { label: 'Japanese', value: 'ja' }];
+const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }];
 
-  <div className="grid grid-cols-2 gap-3">
-    <Field label="First name">
-      <Input placeholder="Jane" defaultValue="Jane" />
-    </Field>
-    <Field label="Last name">
-      <Input placeholder="Doe" defaultValue="Doe" />
-    </Field>
-  </div>
-
-  <Field label="Email" description="This is the email associated with your account.">
-    <Input placeholder="jane@example.com" defaultValue="jane@example.com" />
-  </Field>
-
-  <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
-    <Textarea placeholder="Tell us about yourself..." rows={3} />
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
-    <p className="text-xs text-tertiary mt-0.5">Customize your experience</p>
-  </div>
-
-  <Field label="Language">
-    {(fieldProps) => (
-      <Select
-        id={fieldProps.id}
-        value={language}
-        onChange={(option) => setLanguage(option.value)}
-        options={[
-          { label: "English", value: "en" },
-          { label: "Spanish", value: "es" },
-          { label: "French", value: "fr" },
-          { label: "German", value: "de" },
-          { label: "Japanese", value: "ja" },
-        ]}
-      />
-    )}
-  </Field>
-
-  <Field label="Theme" description="Select your preferred appearance.">
-    {() => (
-      <RadioGroup aria-label="Theme" value={theme} onChange={setTheme} direction="col">
-        <RadioGroup.Item value="system">System</RadioGroup.Item>
-        <RadioGroup.Item value="light">Light</RadioGroup.Item>
-        <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-      </RadioGroup>
-    )}
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
-    <p className="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
-  </div>
-
-  <Field label="Email notifications" description="Receive weekly digests and important updates." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
-  </Field>
-
-  <Field label="Push notifications" description="Get real-time alerts in your browser." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} />}
-  </Field>
-
-  <Field label="Marketing emails" description="Tips, product updates, and promotions." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} />}
-  </Field>
-</fieldset>
-
-<div className="flex gap-2">
-  <Button color="primary">Save changes</Button>
-  <Button color="secondary" variant="outline">Cancel</Button>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Profile settings</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <FieldGroup title="Personal information" description="Your public profile details." columns>
+      <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
+      <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
+      <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
+      <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
+    </FieldGroup>
+    <FieldGroup title="Preferences" description="Customize your experience." columns>
+      <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
+      <Field row label="Theme"><Select value={theme} onChange={(option) => setTheme(option.value)} options={themes} /></Field>
+    </FieldGroup>
+    <FieldGroup title="Notifications" description="Manage how you receive updates.">
+      <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch defaultChecked /></Field>
+      <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
+      <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
+    </FieldGroup>
+  </form>
+</Page.Content>
+<Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save changes</Button></Page.Footer>
+</Page>
 ```
 
 ### Create project
-A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.
+Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.
 ```tsx
 const [visibility, setVisibility] = useState("private")
 const [region, setRegion] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
-    <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
-  </div>
+const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label: 'US West (Oregon)', value: 'us-west-2' }, { label: 'Europe (Frankfurt)', value: 'eu-central-1' }, { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' }];
 
-  <Field label="Project name" required>
-    <Input placeholder="my-project" />
-  </Field>
-
-  <Field label="Description" description="A short summary shown in project listings.">
-    <Textarea placeholder="What does this project do?" rows={3} />
-  </Field>
-
-  <Field label="Visibility" description="Controls who can see this project.">
-    {() => (
-      <RadioGroup aria-label="Visibility" value={visibility} onChange={setVisibility} direction="col">
-        <RadioGroup.Item value="private">Private, only invited members</RadioGroup.Item>
-        <RadioGroup.Item value="internal">Internal, anyone in your organization</RadioGroup.Item>
-        <RadioGroup.Item value="public">Public, visible to everyone</RadioGroup.Item>
-      </RadioGroup>
-    )}
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
-    <p className="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
-  </div>
-
-  <Field label="Team members" description="Add people by email address.">
-    {(fieldProps) => (
-      <TagInput
-        id={fieldProps.id}
-        placeholder="Add email..."
-        defaultValue={[
-          { value: "alice@team.com", valid: true },
-          { value: "bob@team.com", valid: true },
-        ]}
-        validator={(value) => value.includes("@")}
-      />
-    )}
-  </Field>
-
-  <Field label="Permissions" description="Default permissions for new members.">
-    {() => (
-      <div className="flex flex-col gap-3 mt-1">
-        <Checkbox label="Can view project" defaultChecked />
-        <Checkbox label="Can edit resources" defaultChecked />
-        <Checkbox label="Can manage members" />
-        <Checkbox label="Can delete project" />
-      </div>
-    )}
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
-    <p className="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
-  </div>
-
-  <Field label="Region">
-    {(fieldProps) => (
-      <Select
-        id={fieldProps.id}
-        placeholder="Select region..."
-        value={region}
-        onChange={(option) => setRegion(option.value)}
-        options={[
-          { label: "US East (N. Virginia)", value: "us-east-1" },
-          { label: "US West (Oregon)", value: "us-west-2" },
-          { label: "Europe (Frankfurt)", value: "eu-central-1" },
-          { label: "Asia Pacific (Tokyo)", value: "ap-northeast-1" },
-        ]}
-      />
-    )}
-  </Field>
-
-  <Field label="Auto-deploy" description="Automatically deploy on push to main branch." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
-  </Field>
-</fieldset>
-
-<div className="flex gap-2">
-  <Button color="primary">Create project</Button>
-  <Button color="secondary" variant="outline">Cancel</Button>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Create project</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <FieldGroup title="General" description="Basic information about your project." columns>
+      <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
+      <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" rows={3} autoResize /></Field>
+    </FieldGroup>
+    <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+      <FieldGroup title="Visibility" description="Controls who can see this project.">
+        <Field row label="Private" description="Only invited members."><RadioGroup.Item value="private" /></Field>
+        <Field row label="Internal" description="Anyone in your organization."><RadioGroup.Item value="internal" /></Field>
+        <Field row label="Public" description="Visible to everyone."><RadioGroup.Item value="public" /></Field>
+      </FieldGroup>
+    </RadioGroup>
+    <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
+      <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
+    </FieldGroup>
+    <FieldGroup title="Permissions" description="Default permissions for new members.">
+      <Field row label="Can view project"><Switch defaultChecked /></Field>
+      <Field row label="Can edit resources"><Switch defaultChecked /></Field>
+      <Field row label="Can manage members"><Switch /></Field>
+      <Field row label="Can delete project"><Switch /></Field>
+    </FieldGroup>
+    <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
+      <Field row label="Region"><Select placeholder="Select region" value={region} onChange={(option) => setRegion(option.value)} options={regions} /></Field>
+      <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch defaultChecked /></Field>
+    </FieldGroup>
+  </form>
+</Page.Content>
+<Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Create project</Button></Page.Footer>
+</Page>
 ```
 
 ### Field configuration
-A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.
+Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.
 ```tsx
 const [type, setType] = useState("string")
 const [expiresIn, setExpiresIn] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
-    <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
-  </div>
+const fieldTypes = [{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }, { label: 'Rich text', value: 'richtext' }];
+const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', value: '30d' }, { label: '90 days', value: '90d' }, { label: '1 year', value: '1y' }];
 
-  <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
-    <Input placeholder="registration_method" defaultValue="registration_method" />
-  </Field>
-
-  <Field label="Label" description="Human-readable name displayed in the UI.">
-    <Input placeholder="Registration method" defaultValue="Registration method" />
-  </Field>
-
-  <Field label="Type">
-    {(fieldProps) => (
-      <Select
-        id={fieldProps.id}
-        value={type}
-        onChange={(option) => setType(option.value)}
-        options={[
-          { label: "String", value: "string" },
-          { label: "Number", value: "number" },
-          { label: "Boolean", value: "boolean" },
-          { label: "Date", value: "date" },
-          { label: "JSON", value: "json" },
-          { label: "Rich text", value: "richtext" },
-        ]}
-      />
-    )}
-  </Field>
-
-  <Field label="Default value" description="Value assigned when the field is empty.">
-    <Input placeholder="Set default value (optional)" />
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
-    <p className="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
-  </div>
-
-  <Field label="Max length" description="Max length cannot exceed 4096.">
-    <Input placeholder="256" inputMode="numeric" />
-  </Field>
-
-  <Field label="HTML sanitization" description="Strip potentially unsafe HTML tags from input." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} />}
-  </Field>
-</fieldset>
-
-<hr className="border-default" />
-
-<fieldset className="flex flex-col gap-5">
-  <div className="mb-1">
-    <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
-    <p className="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
-  </div>
-
-  <Field label="Not redactable" description="Prevent this field from being redacted." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} />}
-  </Field>
-
-  <Field label="Write once" description="Value can only be set once and cannot be changed." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-    {(fieldProps) => <Switch id={fieldProps.id} />}
-  </Field>
-
-  <Field label="Expires in" description="Automatically delete the field value after the specified period.">
-    {(fieldProps) => (
-      <Select
-        id={fieldProps.id}
-        placeholder="Never"
-        value={expiresIn}
-        onChange={(option) => setExpiresIn(option.value)}
-        options={[
-          { label: "Never", value: "never" },
-          { label: "30 days", value: "30d" },
-          { label: "90 days", value: "90d" },
-          { label: "1 year", value: "1y" },
-        ]}
-      />
-    )}
-  </Field>
-</fieldset>
-
-<div className="flex gap-2">
-  <Button color="primary">Save field</Button>
-  <Button color="secondary" variant="outline">Cancel</Button>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Field configuration</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+    <FieldGroup title="Setup" description="Define the basic field properties." columns>
+      <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input defaultValue="registration_method" /></Field>
+      <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input defaultValue="Registration method" /></Field>
+      <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
+      <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+    </FieldGroup>
+    <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+      <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
+      <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
+    </FieldGroup>
+    <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+      <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
+      <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
+      <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
+    </FieldGroup>
+  </form>
+</Page.Content>
+<Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save field</Button></Page.Footer>
+</Page>
 ```
 
 ### Birthday input
@@ -3713,7 +3714,7 @@ Props:
   - description (string) — Helper text below the icon (area variant only)
   - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
   - multiple (boolean) default: false — Allow selecting multiple files. Without it, a new pick replaces the current file
-  - maxFiles (number) — Maximum number of files. Button disables at limit.
+  - maxFiles (number) — Maximum number of files. In multiple mode, the button disables at the limit. Single-file mode keeps the button available for replacement.
   - maxSize (number) — Maximum file size in bytes
   - value (File[]) — Controlled file list
   - onValueChange ((files: File[]) => void) — Callback when files are added or removed
@@ -3733,19 +3734,26 @@ Props:
     - className (string) — Additional CSS class
 
 ### Overview
+Toggle errorMessage and disabled while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.
 ```tsx
-const [files, setFiles] = useState<File[]>([])
+function Example({ errorMessage = false, disabled = false }) {
+const [files, setFiles] = useState<File[]>([]);
 
-<div className="w-[360px]">
-<FileUpload
-  accept=".pdf,.png,.jpg,.jpeg"
-  multiple
-  maxFiles={5}
-  maxSize={10 * 1024 * 1024}
-  value={files}
-  onValueChange={setFiles}
-/>
-</div>
+return (
+  <div className="w-[360px]">
+    <FileUpload
+      accept=".pdf,.png,.jpg,.jpeg"
+      multiple
+      maxFiles={5}
+      maxSize={10 * 1024 * 1024}
+      value={files}
+      onValueChange={setFiles}
+      errorMessage={errorMessage ? "Please upload at least 2 documents." : undefined}
+      disabled={disabled}
+    />
+  </div>
+);
+}
 ```
 
 ### With files
@@ -3764,26 +3772,6 @@ const [files, setFiles] = useState<File[]>(initialFiles)
 </div>
 ```
 
-### Error state
-```tsx
-<div className="w-[360px]">
-<FileUpload
-  accept=".pdf"
-  multiple
-  value={files}
-  onValueChange={setFiles}
-  errorMessage="Please upload at least 2 documents."
-/>
-</div>
-```
-
-### Disabled
-```tsx
-<div className="w-[360px]">
-<FileUpload disabled />
-</div>
-```
-
 ### Read-only
 ```tsx
 <div className="w-[360px]">
@@ -3794,34 +3782,70 @@ const [files, setFiles] = useState<File[]>(initialFiles)
 ```
 
 ### With remove
+Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.
 ```tsx
+function removeFileWithFocus(root, index, remove) {
+  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);
+  const source = buttons[index];
+  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');
+  const doc = source?.ownerDocument;
+  const restore = source !== undefined && doc?.activeElement === source;
+  remove();
+  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;
+  queueMicrotask(() => {
+    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {
+      target.focus({ preventScroll: true });
+    }
+  });
+}
+
+const cards = useRef<HTMLDivElement>(null)
 const [file, setFile] = useState<File | null>(initialFile)
 
-{file ? (
-<div className="w-[360px]">
-  <FileCardGroup>
-    <FileCard file={file} onRemove={() => setFile(null)} />
-  </FileCardGroup>
+<div ref={cards} className="w-[360px]">
+{file && <FileCardGroup>
+  <FileCard file={file} onRemove={() => removeFileWithFocus(cards.current, 0, () => setFile(null))} />
+</FileCardGroup>}
+<div role="status" tabIndex={-1} data-file-removal-status className={file ? "sr-only" : "text-center text-sm text-tertiary"}>
+  {file ? "" : "File removed"}
 </div>
-) : (
-<div className="w-[360px] text-center text-sm text-tertiary">File removed</div>
-)}
+</div>
 ```
 
 ### Multiple files
+After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.
 ```tsx
+function removeFileWithFocus(root, index, remove) {
+  const buttons = Array.from(root?.querySelectorAll('button:not(:disabled)') ?? []);
+  const source = buttons[index];
+  const target = buttons[index + 1] ?? buttons[index - 1] ?? root?.querySelector('[data-file-removal-status]');
+  const doc = source?.ownerDocument;
+  const restore = source !== undefined && doc?.activeElement === source;
+  remove();
+  if (!restore || !source || !doc || !(target instanceof HTMLElement)) return;
+  queueMicrotask(() => {
+    if (!source.isConnected && target.isConnected && (doc.activeElement === doc.body || doc.activeElement === source)) {
+      target.focus({ preventScroll: true });
+    }
+  });
+}
+
+const cards = useRef<HTMLDivElement>(null)
 const [files, setFiles] = useState<File[]>(initialFiles)
 
-<div className="w-[360px]">
-<FileCardGroup>
+<div ref={cards} className="w-[360px]">
+{files.length > 0 && <FileCardGroup>
   {files.map((file, index) => (
     <FileCard
       key={`${file.name}-${file.size}`}
       file={file}
-      onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
+      onRemove={() => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index)))}
     />
   ))}
-</FileCardGroup>
+</FileCardGroup>}
+<div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? "sr-only" : "text-center text-sm text-tertiary"}>
+  {files.length > 0 ? "" : "Files removed"}
+</div>
 </div>
 ```
 
@@ -3886,19 +3910,19 @@ Two things set the type: where the label rests, and the shape of the field. An e
 <div className="text-sm text-secondary max-sm:hidden">Empty</div>
 <div className="text-sm text-secondary max-sm:hidden">Filled</div>
 <div className="text-sm">
-  Label on the border
+  <div>Label on the border</div>
   <div className="text-secondary">Pill</div>
 </div>
 <FloatingLabelInput label="Email address" />
 <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
 <div className="text-sm">
-  Label on the border
+  <div>Label on the border</div>
   <div className="text-secondary">Rounded box</div>
 </div>
 <FloatingLabelInput label="Email address" pill={false} />
 <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
 <div className="text-sm">
-  Label inside
+  <div>Label inside</div>
   <div className="text-secondary">Rounded box</div>
 </div>
 <FloatingLabelInput label="Email address" labelPlacement="inside" />
@@ -3973,16 +3997,193 @@ onRevealedChange={setVisible}
 ```
 
 ### Birthday input
-A date-of-birth input with inline formatting that inserts separators as you type (MM / DD / YYYY). formatBirthdayValue is a plain helper function of the example.
+A date-of-birth input with an inline MM / DD / YYYY mask. The copied example includes its formatting and mask helpers.
 ```tsx
-const [birthday, setBirthday] = useState("")
+import React, { useCallback, useRef, useState } from 'react';
+import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 
-<FloatingLabelInput
-label="Birthday"
-value={birthday}
-maxLength={14}
-onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
-/>
+const MASK = 'MM / DD / YYYY';
+
+/**
+ * Extract raw digits from a formatted birthday string.
+ */
+function getDigits(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 8);
+}
+
+/**
+ * Format raw digits into "MM / DD / YYYY" with partial support.
+ * When a segment is complete (2 digits for month, 4 for month+day),
+ * the trailing separator is included so the cursor advances past it.
+ */
+function formatBirthdayValue(rawValue: string): string {
+  const digits = getDigits(rawValue);
+  const month = digits.slice(0, 2);
+  const day = digits.slice(2, 4);
+  const year = digits.slice(4, 8);
+  if (digits.length < 2) return month;
+  if (digits.length === 2) return `${month} / `;
+  if (digits.length < 4) return `${month} / ${day}`;
+  if (digits.length === 4) return `${month} / ${day} / `;
+  return `${month} / ${day} / ${year}`;
+}
+
+/**
+ * Build the visible mask suffix that appears after the typed text.
+ * E.g. typed "12" -> value is "12 / " -> mask suffix is "DD / YYYY"
+ *      typed "1"  -> value is "1"     -> mask suffix is "M / DD / YYYY"
+ */
+function getMaskSuffix(formattedValue: string): string {
+  if (formattedValue.length >= MASK.length) return '';
+  return MASK.slice(formattedValue.length);
+}
+
+
+/**
+ * Split mask suffix into three parts for segment-based highlighting:
+ * - before: separator text before the active segment (gray)
+ * - highlight: the active/next segment placeholder chars (blue bg)
+ * - after: remaining mask text after the active segment (gray)
+ *
+ * E.g. suffix " / DD / YYYY" => { before: " / ", highlight: "DD", after: " / YYYY" }
+ *      suffix "M / DD / YYYY"  => { before: "", highlight: "M", after: " / DD / YYYY" }
+ *      suffix "YYY"            => { before: "", highlight: "YYY", after: "" }
+ */
+function splitMaskSuffix(suffix: string): { before: string; highlight: string; after: string } {
+  if (!suffix) return { before: '', highlight: '', after: '' };
+  const match = suffix.match(/^(\s*\/\s*)?([A-Z]+)([\s\S]*)/);
+  if (!match) return { before: suffix, highlight: '', after: '' };
+  return {
+    before: match[1] || '',
+    highlight: match[2],
+    after: match[3] || '',
+  };
+}
+
+function BirthdayMaskedInput({
+  value,
+  onChange,
+  invalid,
+  disabled,
+  className,
+  ...rest
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  invalid?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  className?: string;
+  'aria-describedby'?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [focused, setFocused] = useState(false);
+
+  const handleChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = evt.target.value;
+      const newDigits = getDigits(raw);
+      const oldDigits = getDigits(value);
+      // Backspace through a separator: raw got shorter but digit count unchanged
+      if (raw.length < value.length && newDigits.length === oldDigits.length) {
+        const trimmed = newDigits.slice(0, -1);
+        onChange(formatBirthdayValue(trimmed));
+      } else {
+        onChange(formatBirthdayValue(raw));
+      }
+    },
+    [onChange, value],
+  );
+
+  const maskSuffix = getMaskSuffix(value);
+  const showMask = focused && maskSuffix.length > 0;
+  const maskParts = splitMaskSuffix(maskSuffix);
+  return (
+    <div style={{ position: 'relative' }}>
+      <FloatingLabelInput
+        ref={inputRef}
+        label="Birthday"
+        value={value}
+        className={className}
+        disabled={disabled}
+        maxLength={14}
+        inputMode="numeric"
+        invalid={invalid}
+        onChange={handleChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={showMask ? { caretColor: 'transparent' } : undefined}
+        {...rest}
+      />
+      {showMask && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 calc(var(--floating-input-gutter) + 1px)',
+            pointerEvents: 'none',
+            font: 'inherit',
+            fontSize: '1rem',
+            lineHeight: '1.5rem',
+            zIndex: 2,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Invisible spacer matching width of typed text */}
+          <span style={{ visibility: 'hidden', whiteSpace: 'pre' }}>
+            {value}
+          </span>
+          {/* Separator before the active segment (gray) */}
+          {maskParts.before && (
+            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
+              {maskParts.before}
+            </span>
+          )}
+          {/* Active segment placeholder (accent highlight) */}
+          {maskParts.highlight && (
+            <span
+              style={{
+                backgroundColor: 'var(--color-background-primary-solid)',
+                color: 'white',
+                whiteSpace: 'pre',
+                borderRadius: '3px',
+                padding: '1px 1px',
+              }}
+            >
+              {maskParts.highlight}
+            </span>
+          )}
+          {/* Remaining mask text after active segment (gray) */}
+          {maskParts.after && (
+            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
+              {maskParts.after}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function BirthdayExample() {
+  const [birthday, setBirthday] = useState('');
+  const [invalid] = useState(false);
+  const [disabled] = useState(false);
+  const [readOnly] = useState(false);
+
+  return (
+    <div className="w-full min-w-0 max-w-[360px]">
+      <BirthdayMaskedInput value={birthday} onChange={setBirthday}
+        invalid={invalid} disabled={disabled} readOnly={readOnly} />
+    </div>
+  );
+}
 ```
 
 ### Birthday with validation
@@ -3997,29 +4198,6 @@ maxLength={14}
 onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
 errorMessage={birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined}
 />
-```
-
-### Birthday states
-Overview of birthday input states.
-```tsx
-<div className="flex flex-col items-center gap-8 py-8">
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-  <FloatingLabelInput label="Birthday" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-  <FloatingLabelInput label="Birthday" defaultValue="01 / 15 / 1995" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-  <FloatingLabelInput invalid label="Birthday" defaultValue="02 / 30 / 2001" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-  <FloatingLabelInput disabled label="Birthday" defaultValue="01 / 15 / 1995" className="w-[320px]" />
-</div>
-</div>
 ```
 
 ### Phone input
@@ -4179,42 +4357,34 @@ const trigger = useCallback(
 </div>
 ```
 
-### Filled state
-When the input has a value, the label stays floated above the input.
+### States
 ```tsx
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
-```
+import { useState } from 'react';
+import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 
-### With error message
-Use the errorMessage prop to display a validation error below the input. When errorMessage is provided, the input automatically enters the invalid state.
-```tsx
-<FloatingLabelInput
-label="Email address"
-defaultValue="jane.doe@example"
-invalid
-errorMessage="Email is not valid."
-/>
-```
+export default function InputStatesExample() {
+  const [value, setValue] = useState('');
+  const [invalid] = useState(false);
+  const [errorMessage] = useState(false);
+  const [description] = useState(false);
+  const [disabled] = useState(false);
+  const [readOnly] = useState(false);
 
-### With description
-Use the description prop to display helper text below the input.
-```tsx
-<FloatingLabelInput
-label="Email address"
-description="We'll never share your email with anyone else."
-/>
-```
-
-### With description and error
-When both description and errorMessage are provided, the error appears first (closest to the input), followed by the description.
-```tsx
-<FloatingLabelInput
-label="Email address"
-defaultValue="jane.doe@example"
-invalid
-errorMessage="Email is not valid."
-description="We'll never share your email with anyone else."
-/>
+  return (
+    <div className="w-full min-w-0 max-w-[360px]">
+      <FloatingLabelInput
+        label="Email address"
+        value={value}
+        onChange={(evt) => setValue(evt.target.value)}
+        invalid={invalid || errorMessage}
+        errorMessage={errorMessage ? 'Email is not valid.' : undefined}
+        description={description ? "We'll never share your email with anyone else." : undefined}
+        disabled={disabled}
+        readOnly={readOnly}
+      />
+    </div>
+  );
+}
 ```
 
 ### Clear button
@@ -4230,52 +4400,13 @@ onClear={() => setValue("")}
 />
 ```
 
-### Disabled
-Use the disabled prop to disable the input, greying it out and preventing user interactions.
-```tsx
-<FloatingLabelInput label="Email address" defaultValue="disabled@example.com" disabled />
-```
-
-### Read only
-Use the readOnly prop to make the input read-only. The user can still select and copy the text.
-```tsx
-<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" readOnly />
-```
-
-### All states
-Overview of all input states.
-```tsx
-<div className="flex flex-col items-center gap-8 py-8">
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-  <FloatingLabelInput label="Email address" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-  <FloatingLabelInput label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-  <FloatingLabelInput invalid label="Email address" defaultValue="invalid@email" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-  <FloatingLabelInput disabled label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-</div>
-<div className="flex items-center">
-  <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-  <FloatingLabelInput readOnly label="Email address" defaultValue="readonly@gmail.com" className="w-[320px]" />
-</div>
-</div>
-```
-
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
 Docs: https://plexui.com/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length (or use the --indicator-size CSS variable)
-    - strokeWidth (number) default: 2 — Stroke width in px
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size.
+    - strokeWidth (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)
     - done (boolean) default: false — Fills the ring and ends the simulated progress
@@ -4358,6 +4489,14 @@ The indicator defaults to currentcolor, inheriting the surrounding text color. Y
 ```tsx
 <div className="text-danger">
 <LoadingDots />
+</div>
+```
+
+### Phone spinner
+```tsx
+<div className="flex items-center gap-6">
+<LoadingIndicator />
+<LoadingIndicator size={22} />
 </div>
 ```
 
@@ -4840,9 +4979,16 @@ Props:
   - className (string) — Applied to the container
 
 ### Placeholder
-Use placeholder to display hint text when the editor is empty.
+Use placeholder for empty content. Toggle invalid and disabled without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.
 ```tsx
-<MarkdownEditor placeholder="Enter text..." />
+function Example({ invalid = false, disabled = false }) {
+const [value, setValue] = useState("");
+
+return (
+  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
+    value={value} onChange={setValue} invalid={invalid} aria-invalid={invalid} disabled={disabled} />
+);
+}
 ```
 
 ### All formatting
@@ -4852,11 +4998,19 @@ Example with all supported formatting: bold, italic, links, ordered lists, and u
 ```
 
 ### With Field
-Wrap with Field to add label, description, and error handling. The editor receives id and aria-describedby automatically.
+Wrap with Field to add a description and a linked error message. The editor receives id, aria-describedby and aria-invalid automatically. Set an accessible name with aria-label. The errorMessage control demonstrates the error state without validating or replacing the content.
 ```tsx
-<Field label="Description" description="Supports bold, italic, lists, and links.">
-<MarkdownEditor placeholder="Enter description..." />
-</Field>
+function Example({ errorMessage = false }) {
+const [value, setValue] = useState("");
+
+return (
+  <Field label="Description" description="Supports bold, italic, lists, and links."
+    errorMessage={errorMessage ? "This field is required." : undefined}>
+    <MarkdownEditor aria-label="Description" placeholder="Enter description..."
+      value={value} onChange={setValue} />
+  </Field>
+);
+}
 ```
 
 ### Toolbar end slot
@@ -4890,20 +5044,6 @@ Use variant to switch between outline (default) and soft styles.
 </Field>
 <Field label="Soft">
 <MarkdownEditor placeholder="Soft variant..." variant="soft" />
-</Field>
-```
-
-### Disabled
-Use disabled to prevent editing and grey out the component.
-```tsx
-<MarkdownEditor disabled defaultValue="This content is **read-only**." />
-```
-
-### Invalid
-Use invalid or wrap with Field and pass errorMessage to show an error state.
-```tsx
-<Field label="Bio" errorMessage="This field is required.">
-<MarkdownEditor placeholder="Tell us about yourself..." invalid />
 </Field>
 ```
 
@@ -5240,32 +5380,21 @@ Props:
 ### Overview
 ```tsx
 const [value, setValue] = useState("")
+const [error, setError] = useState(false)
+const [disabled, setDisabled] = useState(false)
 
-<OTPInput value={value} onChange={setValue} />
-```
-
-### Filled state
-```tsx
-const [value, setValue] = useState("488030")
-
-<OTPInput value={value} onChange={setValue} />
+<OTPInput
+value={value}
+onChange={setValue}
+invalid={error}
+errorMessage={error ? "Invalid verification code." : undefined}
+disabled={disabled}
+/>
 ```
 
 ### Grouped (3+3)
 ```tsx
 <OTPInput grouping={[3, 3]} />
-```
-
-### With error
-```tsx
-const [value, setValue] = useState("48803")
-
-<OTPInput value={value} onChange={setValue} invalid errorMessage="Invalid verification code." />
-```
-
-### Disabled
-```tsx
-<OTPInput value="488030" disabled />
 ```
 
 ## Page
@@ -5274,9 +5403,11 @@ Import: import { Page } from "@plexui/ui/components/Page"
 Docs: https://plexui.com/components/page
 Props:
   - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - className (string) default: — — Applied to the root element
   Page.Header:
-    - divider (boolean) default: true — Shows the line, and the glass on a phone, once the content has scrolled under the header
+    - background ("glass" | "solid") default: "glass" — Mobile toolbar background
+    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header
     - className (string) default: — — Applied to the band
   Page.Content:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
@@ -5311,13 +5442,15 @@ The width belongs to the page, so the line, the title, the buttons and the conte
 ```
 
 ### Heading
-Page.Heading holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.
+Page.Heading groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.
 ```tsx
 <Page.Bar>
 <Page.Heading>
   <Page.Title>Menu</Page.Title>
-  <Badge color="info" size="sm" variant="outline">Draft</Badge>
-  <Page.Subtitle>Saved a minute ago</Page.Subtitle>
+  <Page.Subtitle>
+    <Badge color="info" size="sm" variant="outline">Draft</Badge>
+    <span>Saved a minute ago</span>
+  </Page.Subtitle>
 </Page.Heading>
 <Page.Actions>...</Page.Actions>
 </Page.Bar>
@@ -5352,6 +5485,7 @@ Props:
     - sideOffset (number) default: 8 — Offset from trigger (px)
     - alignOffset (number) default: -5 — Offset from the start or end alignment (px)
     - avoidCollisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
+    - collisionPadding (number) default: 20 — Space in px to keep from viewport and scroll container boundaries
     - translucent (boolean) default: false — Translucent, blurred surface
     - autoFocus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
@@ -5359,10 +5493,17 @@ Props:
 
 ### Overview
 ```tsx
-<Popover>
-<Popover.Trigger><Button color="primary">Generate</Button></Popover.Trigger>
-<Popover.Content side="right">...</Popover.Content>
-</Popover>
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+const wide = useBreakpoint('md');
+return (
+  <Popover>
+    <Popover.Trigger><Button color="primary">Generate</Button></Popover.Trigger>
+    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+  </Popover>
+);
+}
 ```
 
 ### Sizing the popover
@@ -5377,17 +5518,135 @@ The popover can be sized with any combination of width, minWidth, or maxWidth. A
 ### Open on hover
 Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
 ```tsx
-<Popover showOnHover>
-<Popover.Trigger>...</Popover.Trigger>
-<Popover.Content>...</Popover.Content>
-</Popover>
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+const wide = useBreakpoint('md');
+return (
+  <Popover showOnHover>
+    <Popover.Trigger>...</Popover.Trigger>
+    <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+  </Popover>
+);
+}
 ```
 
 ### Using the controller
-You can access usePopoverController() controller context from components within Popover.Content. The hook exposes two methods, close() and shake(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter async submission occurs (faked loading state), the close() method is called to close the popup imperatively.
+You can access usePopoverController() controller context from components within Popover.Content. The hook exposes two methods, close() and shake(). They do exactly what you think they do.Attempting to submit an empty form calls the shake() methodAfter the simulated two-second request, close() dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.
 ```tsx
-const { close, shake } = usePopoverController()
-// e.g. close after form submit, shake on validation error
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { Sparkles } from '@plexui/ui/components/Icon';
+import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
+import { Textarea } from '@plexui/ui/components/Textarea';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function PopoverTextarea({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange?: (next: string) => void;
+}) {
+  return (
+    <Textarea
+      value={value}
+      onChange={(evt) => onChange?.(evt.target.value)}
+      aria-label="Prompt"
+      variant="ghost"
+      gutterSize="xl"
+      rows={3}
+      className="w-full"
+      placeholder="Describe what you're using the model for, and we'll generate system instructions."
+    />
+  );
+}
+
+function PopoverActionBar({ loading }: { loading?: boolean }) {
+  return (
+    <div className="px-3 pb-3 flex items-center justify-between">
+      <div className="flex gap-1.5 items-center font-normal text-sm text-tertiary">
+        <Sparkles width={16} height={16} />
+        Free beta
+      </div>
+      <Button color="primary" size="xs" pill={false} loading={loading} type="submit">
+        Create
+      </Button>
+    </div>
+  );
+}
+
+function PopoverControllerForm({ value, onChange, submitting, onSubmit }: {
+  value: string;
+  onChange: (value: string) => void;
+  submitting: boolean;
+  onSubmit: (close: () => void, shake: () => void) => void;
+}) {
+  const { shake, close } = usePopoverController();
+
+  const handleSubmit = (evt: FormEvent) => {
+    evt.preventDefault();
+    onSubmit(close, shake);
+  };
+
+  return (
+    <form className="pt-2" onSubmit={handleSubmit}>
+      <PopoverTextarea value={value} onChange={onChange} />
+      <PopoverActionBar loading={submitting} />
+    </form>
+  );
+}
+
+export function PopoverControllerDemo() {
+  const wide = useBreakpoint('md');
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const session = useRef(0);
+
+  useEffect(() => () => {
+    session.current++;
+    clearTimeout(timer.current);
+  }, []);
+
+  const changeOpen = (next: boolean) => {
+    session.current++;
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    if (next) {
+      setSubmitting(false);
+      setValue('');
+    }
+    setOpen(next);
+  };
+
+  const submitPrompt = (close: () => void, shake: () => void) => {
+    if (!value) {
+      shake();
+      return;
+    }
+    if (timer.current !== undefined) return;
+    setSubmitting(true);
+    const currentSession = session.current;
+    timer.current = setTimeout(() => {
+      if (session.current !== currentSession) return;
+      timer.current = undefined;
+      close();
+    }, 2000);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={changeOpen}>
+      <Popover.Trigger>
+        <Button color="primary" pill={false}>Generate</Button>
+      </Popover.Trigger>
+      <Popover.Content side={wide ? 'right' : 'bottom'}>
+        <PopoverControllerForm value={value} onChange={setValue} submitting={submitting} onSubmit={submitPrompt} />
+      </Popover.Content>
+    </Popover>
+  );
+}
 ```
 
 ## Progress Steps
@@ -5773,7 +6032,7 @@ Style each radio option as a bordered card with visual selection state. The sele
 ### Card selection
 Leverage component composition and className overrides to build card-style radio selections with rich content per option.
 ```tsx
-<RadioGroup className="flex-col w-[390px] gap-4">
+<RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4">
 <RadioGroup.Item className="gap-2.5" value="basic">
   <div><h4>Basic Plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
 </RadioGroup.Item>
@@ -5784,31 +6043,29 @@ Leverage component composition and className overrides to build card-style radio
 ### Grouped sections
 Use dividers to separate radio groups into logical sections. Each section can be wrapped in a Field with its own label and description.
 ```tsx
-<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-<div className="pb-5">
-  <Field label="Visibility" description="Control who can see project resources.">
-    {() => (
-      <RadioGroup direction="col" value={visibility} onChange={setVisibility} aria-label="Visibility">
-        <RadioGroup.Item value="hidden">Hidden</RadioGroup.Item>
-        <RadioGroup.Item value="owners">Visible to organization owners</RadioGroup.Item>
-        <RadioGroup.Item value="everyone">Visible to everyone</RadioGroup.Item>
-      </RadioGroup>
-    )}
-  </Field>
-</div>
-<div className="pt-5">
-  <Field label="Digest frequency" description="How often you receive summary emails.">
-    {() => (
-      <RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Digest frequency">
-        <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-        <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-        <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-        <RadioGroup.Item value="never">Never</RadioGroup.Item>
-      </RadioGroup>
-    )}
-  </Field>
-</div>
-</div>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+<Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
+<Page.Content>
+  <div className="flex flex-col gap-6">
+    <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+      <FieldGroup title="Visibility" description="Control who can see project resources.">
+        <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
+        <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
+        <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
+      </FieldGroup>
+    </RadioGroup>
+    <RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Digest frequency">
+      <FieldGroup title="Digest frequency" description="How often you receive summary emails.">
+        <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
+        <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
+        <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
+        <Field row label="Never"><RadioGroup.Item value="never" /></Field>
+      </FieldGroup>
+    </RadioGroup>
+  </div>
+</Page.Content>
+</Page>
 ```
 
 ## Select Control
@@ -5859,9 +6116,11 @@ return (
 ### Variants
 Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments.
 ```tsx
-<SelectControl variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
+<SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+<SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+<SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+</div>
 ```
 
 ### Sizing & roundness
@@ -5995,7 +6254,10 @@ import { useState, useCallback, useRef } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Button } from '@plexui/ui/components/Button';
-import { FieldError } from '@plexui/ui/components/FieldError';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Page } from '@plexui/ui/components/Page';
+// BackButton is your app's navigation action.
 
 // Country data: include all 245 countries in production
 type Country = { value: string; label: string; dialCode: string; flag: string };
@@ -6130,46 +6392,26 @@ const handlePhoneChange = useCallback(
 );
 
 return (
-  <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} noValidate>
-    <div className="flex flex-col gap-2">
-      <Select
-        value={country}
-        options={COUNTRY_OPTIONS}
-        onChange={handleCountryChange}
-        placeholder="Select country..."
-        size="lg"
-        block
-        searchPlaceholder="Search countries..."
-        searchPredicate={searchPredicate}
-        TriggerView={CountryTriggerView}
-        OptionView={CountryOptionView}
-        listMinWidth={300}
-      />
-      <div>
-        <Input
-          ref={phoneRef}
-          value={phone}
-          onChange={handlePhoneChange}
-          placeholder="Phone number"
-          type="tel"
-          inputMode="tel"
-          size="lg"
-          invalid={showError}
-          startAdornment={
-            <span className="text-tertiary whitespace-nowrap select-none">
-              {dialCode}
-            </span>
-          }
-        />
-        {showError && (
-          <FieldError className="mt-1.5">Phone number is not valid.</FieldError>
-        )}
-      </div>
-    </div>
-    <Button type="submit" color="primary" variant="solid" size="lg" className="w-full mt-3">
-      Continue
-    </Button>
-  </form>
+  <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+    <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Phone number</Page.Title></Page.Bar></Page.Header>
+    <Page.Content>
+      <form id="phone-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} noValidate>
+        <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
+      <Field row label="Country">
+        <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}
+          searchPlaceholder="Search countries..." searchPredicate={searchPredicate}
+          OptionView={CountryOptionView} listMinWidth={300} />
+      </Field>
+      <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
+        <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}
+          placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
+          startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+      </Field>
+    </FieldGroup>
+      </form>
+    </Page.Content>
+    <Page.Footer><Button color="primary" size="3xl" pill block form="phone-form" type="submit">Continue</Button></Page.Footer>
+  </Page>
 );
 }
 ```
@@ -6535,9 +6777,9 @@ Props:
 ### App Shell
 A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count Badge, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a Popover flyout listing the section&apos;s items so users keep one-click access without expanding the rail.
 ```tsx
-<SidebarProvider collapsible="icon">
+<ResponsiveSidebarProvider collapsible="icon">
 <SidebarLayout style={{ height: 600 }}>
-  <Sidebar>
+  <ResponsiveSidebar>
     <SidebarHeader>
       <span>Console</span>
       <SidebarTrigger />
@@ -6597,18 +6839,18 @@ A multi-section app shell with a workspace selector, expandable parent sections 
         <Menu.Content>...</Menu.Content>
       </Menu>
     </SidebarFooter>
-  </Sidebar>
-  <SidebarInset>...</SidebarInset>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ### App
-The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A Badge in SidebarMenuBadge sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a Menu beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. Under 768px the page slides aside and the menu lies under it, as on iOS. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
+The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A Badge in SidebarMenuBadge sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a Menu beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set --sidebar-menu-sub-max-height to a group's real height for an even fold.
 ```tsx
-<SidebarProvider collapsible="icon" variant="app">
+<ResponsiveSidebarProvider collapsible="icon" variant="app">
 <SidebarLayout>
-  <Sidebar>
+  <ResponsiveSidebar>
     <SidebarHeader>
       <span>App</span>
       <SidebarTrigger />
@@ -6650,19 +6892,17 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
       </SidebarMenu>
     </SidebarContent>
     <SidebarFooter>...</SidebarFooter>
-  </Sidebar>
-  <SidebarInset>
-    <Page>...</Page>
-  </SidebarInset>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ### Basic
 ```tsx
-<SidebarProvider collapsible="icon">
+<ResponsiveSidebarProvider collapsible="icon">
 <SidebarLayout style={{ height: 500 }}>
-  <Sidebar>
+  <ResponsiveSidebar>
     <SidebarHeader>
       <span>App</span>
       <SidebarTrigger />
@@ -6684,10 +6924,10 @@ The sidebar of a product: 260px, pill rows on a grey ground and a page with no i
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
-  </Sidebar>
-  <SidebarInset>...</SidebarInset>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ### Collapsible Sections
@@ -6698,9 +6938,9 @@ const toggle = (id: string) =>
 setExpanded((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 
 return (
-<SidebarProvider collapsible="none">
+<ResponsiveSidebarProvider collapsible="none">
   <SidebarLayout style={{ height: 500 }}>
-    <Sidebar variant="docs">
+    <ResponsiveSidebar variant="docs">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>API Reference</SidebarGroupLabel>
@@ -6723,19 +6963,21 @@ return (
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 );
 ```
 
 ### Search and Filter
 Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A Menu with checkbox items filters items by type.
 ```tsx
-<SidebarProvider collapsible="none">
+const subMenuId = useId();
+
+<ResponsiveSidebarProvider collapsible="none">
 <SidebarLayout style={{ height: 650 }}>
-  <Sidebar>
+  <ResponsiveSidebar>
     <SidebarHeader>
       <div className="flex items-center gap-2 w-full">
         <div className="flex-1">
@@ -6778,48 +7020,55 @@ Combine search and type-based filtering with nested tree navigation. Each item h
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton isActive>
-                <SidebarMenuButtonIcon><Desktop /></SidebarMenuButtonIcon>
-                <SidebarMenuButtonLabel>Start</SidebarMenuButtonLabel>
-              </SidebarMenuButton>
+            <SidebarMenuItem expanded={expanded}>
+              <div className="flex items-center">
+                <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
+                  <SidebarMenuButtonIcon><Desktop /></SidebarMenuButtonIcon>
+                  <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
+                </SidebarMenuButton>
+                <Button variant="ghost" color="secondary" size="xs" uniform
+                  className="!size-[26px] max-md:!size-11 [&_svg]:!size-4"
+                  aria-label={(expanded ? "Collapse " : "Expand ") + label}
+                  aria-expanded={expanded} aria-controls={subMenuId} onClick={() => setExpanded(!expanded)}>
+                  <ChevronDownMd aria-hidden="true" style={{ transform: expanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
+                </Button>
+              </div>
+              <SidebarMenuSub id={subMenuId} open={expanded}>...</SidebarMenuSub>
             </SidebarMenuItem>
             ...
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
-  </Sidebar>
-  <SidebarInset>...</SidebarInset>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ### Tree with Hover Actions
-Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a + menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.
+Tree navigation with independent selection, disclosure and action buttons. Tab reaches each control; Enter and Space activate it. Actions appear on hover or keyboard focus on desktop and stay visible on Phone. The controls occupy separate columns, with 44px touch targets on Phone.
 ```tsx
+const treeId = useId();
+const subMenuId = treeId + "-" + id;
+
 <SidebarMenuItem expanded={isExpanded}>
-<div className="group/row relative">
-  <SidebarMenuButton isActive={activeItem === id} onClick={() => setActiveItem(id)}>
-    <span
-      role="none"
-      className="transition-transform"
-      style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}
-      onClick={(e) => {
-        e.stopPropagation();
-        toggleExpanded(id);
-      }}
-    >
-      <ChevronDownMd />
-    </span>
+<div className="group/row flex items-center">
+  <Button variant="ghost" color="secondary" size="xs" uniform
+    className="!size-6 max-md:!size-11 [&_svg]:!size-4"
+    aria-label={(isExpanded ? "Collapse " : "Expand ") + label}
+    aria-expanded={isExpanded} aria-controls={subMenuId}
+    onClick={() => toggleExpanded(id)}>
+    <ChevronDownMd aria-hidden="true" style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
+  </Button>
+  <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
     <SidebarMenuButtonIcon><Icon /></SidebarMenuButtonIcon>
-    <SidebarMenuButtonLabel>Label</SidebarMenuButtonLabel>
+    <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
   </SidebarMenuButton>
-  {/* A sibling of the row button, shown on hover */}
-  <span className="absolute right-1 top-0 bottom-0 flex items-center opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto">
+  <span className="flex shrink-0 opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto group-focus-within/row:opacity-100 group-focus-within/row:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto">
     <Menu>
       <Menu.Trigger>
-        <Button variant="ghost" color="secondary" size="xs" uniform aria-label="Add">
+        <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11" aria-label={"Add to " + label}>
           <Plus />
         </Button>
       </Menu.Trigger>
@@ -6827,36 +7076,29 @@ Tree navigation with chevrons on the left and actions on the right. Clicking a r
     </Menu>
   </span>
 </div>
-<SidebarMenuSub open={isExpanded} hasIcons>...</SidebarMenuSub>
+<SidebarMenuSub id={subMenuId} open={isExpanded} hasIcons>...</SidebarMenuSub>
 </SidebarMenuItem>
 ```
 
 ### Mobile Menu
-Mobile behavior is handled automatically when using SidebarProvider. The SidebarMobileMenuButton provides a standard animated hamburger trigger.
+Use Phone preview, then open the menu in the page toolbar. The same navigation tree renders in a desktop rail or a full-screen mobile drawer. Selecting a leaf closes the drawer; expanding a group keeps it open.
 ```tsx
-// Desktop: standard sidebar with icon collapse
-<SidebarProvider collapsible="icon">
-<SidebarLayout style={{ height: 500 }}>
-  <Sidebar>...</Sidebar>
-  <SidebarInset>...</SidebarInset>
+<ResponsiveSidebarProvider collapsible="icon">
+<SidebarLayout>
+  <ResponsiveSidebar>
+    <SidebarContent>{/* The same navigation tree in both layouts */}</SidebarContent>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
-
-// Mobile: phone-sized container with hamburger menu
-<SidebarProvider collapsible="offcanvas">
-<header>
-  <SidebarMobileMenuButton />
-</header>
-{openMobile ? <SidebarContent>...</SidebarContent> : <div>Page content</div>}
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ### Search Input
 The sidebar provides a dedicated SidebarInput component for search functionality. It forwards everything to Input, so control it with value and onChange and clear it with onClear.
 ```tsx
-<SidebarProvider collapsible="none">
+<ResponsiveSidebarProvider collapsible="none">
 <SidebarLayout style={{ height: 500 }}>
-  <Sidebar variant="docs">
+  <ResponsiveSidebar variant="docs">
     <SidebarHeader>
       <SidebarInput
         variant="soft"
@@ -6879,10 +7121,10 @@ The sidebar provides a dedicated SidebarInput component for search functionality
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
-  </Sidebar>
-  <SidebarInset>...</SidebarInset>
+  </ResponsiveSidebar>
+  <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
 </SidebarLayout>
-</SidebarProvider>
+</ResponsiveSidebarProvider>
 ```
 
 ## Skeleton
@@ -6944,7 +7186,7 @@ Form skeletons use Plex UI control sizing (32px height for inputs and buttons).
 ### Table
 Table skeletons show header and row structure while data loads.
 ```tsx
-<div className="flex flex-col gap-2 w-[400px]">
+<div className="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
 <div className="flex gap-4 pb-2 border-b border-default">
   <Skeleton className="h-4 w-[100px]" />
   <Skeleton className="h-4 w-[150px]" />
@@ -6990,17 +7232,27 @@ Props:
 
 ### Overview
 ```tsx
-const [value, setValue] = useState(1000)
-<Slider
-label="Example field"
-min={0}
-max={2000}
-resetValue={1000}
-step={10}
-unit="ms"
-value={value}
-onChange={setValue}
-/>
+import { useState } from 'react';
+import { Slider } from '@plexui/ui/components/Slider';
+
+export default function SliderExample() {
+  const [value, setValue] = useState(1000);
+  const [disabled] = useState(false);
+
+  return (
+    <Slider
+      label="Example field"
+      min={0}
+      max={2000}
+      resetValue={1000}
+      step={10}
+      unit="ms"
+      value={value}
+      onChange={setValue}
+      disabled={disabled}
+    />
+  );
+}
 ```
 
 ### Adding a tooltip
@@ -7091,20 +7343,6 @@ step={1}
 value={value}
 onChange={setValue}
 orientation="vertical"
-/>
-```
-
-### Disabled
-Set disabled to prevent interaction with the slider.
-```tsx
-<Slider
-label="Disabled"
-min={0}
-max={100}
-step={1}
-value={50}
-onChange={() => {}}
-disabled
 />
 ```
 
@@ -7324,13 +7562,13 @@ Use size="sm" for compact analytics rows with denser spacing and smaller typogra
 ```tsx
 <div className="flex flex-col gap-6">
 {/* Default size */}
-<div className="grid grid-cols-3 gap-4">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4">
   <StatCard label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
   <StatCard label="Active Users" value="2,847" trend={{ value: 8.2 }} />
   <StatCard label="Conversion Rate" value="3.24%" trend={{ value: -1.8 }} />
 </div>
 {/* Small size */}
-<div className="grid grid-cols-3 gap-3">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
   <StatCard size="sm" label="Total Inquiries" value="3,544" trend={{ value: -2.6 }} tooltip="Total inquiries in period" />
   <StatCard size="sm" label="Completion Rate" value="89.2%" trend={{ value: 0.5 }} tooltip="Average across templates" />
   <StatCard size="sm" label="Approval Rate" value="84.6%" trend={{ value: 1.8 }} tooltip="Average across templates" />
@@ -7341,7 +7579,7 @@ Use size="sm" for compact analytics rows with denser spacing and smaller typogra
 ### Trend position
 Control where the trend appears: next to the value (default) or right-aligned in the header row.
 ```tsx
-<div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
 <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="value" />
 <StatCard label="Revenue" value="$45,231" trend={{ value: 12.5 }} trendPosition="header" />
 </div>
@@ -7350,7 +7588,7 @@ Control where the trend appears: next to the value (default) or right-aligned in
 ### Trend variant
 Display the trend as plain text or wrapped in a badge.
 ```tsx
-<div className="grid grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style={{ maxWidth: 480 }}>
 <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="text" />
 <StatCard label="Users" value="2,847" trend={{ value: 8.2 }} trendVariant="badge" />
 </div>
@@ -7368,13 +7606,13 @@ Pass an icon to display it on the left side with a soft background. The layout a
 import { DollarCircle, Users, ShoppingBag } from "@plexui/ui/components/Icon"
 
 {/* Default size */}
-<div className="grid grid-cols-2 gap-4">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
 <StatCard icon={<DollarCircle />} label="Total Revenue" value="$45,231" trend={{ value: 12.5 }} />
 <StatCard icon={<Users />} label="Active Users" value="2,847" trend={{ value: 8.2 }} />
 </div>
 
 {/* Small size */}
-<div className="grid grid-cols-3 gap-3">
+<div className="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
 <StatCard size="sm" icon={<DollarCircle />} label="Revenue" value="$45,231" trend={{ value: 12.5 }} />
 <StatCard size="sm" icon={<Users />} label="Users" value="2,847" trend={{ value: 8.2 }} />
 <StatCard size="sm" icon={<ShoppingBag />} label="Orders" value="1,234" trend={{ value: -3.1 }} />
@@ -7425,6 +7663,7 @@ Props:
   - label (ReactNode) — Accessible label rendered next to the switch
   - description (ReactNode) — Secondary text below the label, linked via aria-describedby
   - labelPosition ("start" | "end") default: "end" — Label on left (start) or right (end)
+  - color ("primary" | "accent") default: "primary" — Checked track color. Accent reads --switch-accent-color, with platform green as its fallback. Disabled checked controls retain a muted accent.
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
@@ -7435,176 +7674,64 @@ Props:
   - onBlur (FocusEventHandler<HTMLButtonElement>) — Called when the switch loses focus
 
 ### Overview
+Compare off and on across enabled and disabled states. Enabled controls are interactive. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. Disabled on retains a muted accent; disabled off uses the neutral track.
 ```tsx
-<Switch aria-label="Notifications" />
+// Desktop: four states, shown together.
+<Switch color="accent" aria-label="Enabled, initially off" />
+<Switch color="accent" defaultChecked aria-label="Enabled, initially on" />
+<Switch color="accent" disabled aria-label="Disabled, off" />
+<Switch color="accent" disabled defaultChecked aria-label="Disabled, on" />
+
+// Phone: keep each switch inside a labelled row.
+{[false, true].map((disabled) => (
+<FieldGroup key={String(disabled)} title={disabled ? "Disabled" : "Enabled"}>
+  <Field row label="Initially off"><Switch color="accent" disabled={disabled} /></Field>
+  <Field row label="Initially on"><Switch color="accent" disabled={disabled} defaultChecked /></Field>
+</FieldGroup>
+))}
 ```
 
-### With label
-Add a label using the label prop. The label is automatically connected to the switch via id.
+### Label and description
+Click either the label or the control. Descriptions are linked with aria-describedby. Desktop supports both label positions; Phone keeps the label on the left. Use defaultChecked for an initial value and name for form submission.
 ```tsx
-<Switch label="Notifications" />
+// Desktop
+<Switch color="accent" label="Notifications" labelPosition="start" name="notifications" defaultChecked />
+<Switch color="accent" label="Weekly summary" description="Sent on Mondays." labelPosition="start" name="summary" />
+
+// Phone: Field associates the external label and description with the switch.
+<FieldGroup>
+<Field row label="Notifications"><Switch color="accent" name="notifications" defaultChecked /></Field>
+<Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
+</FieldGroup>
 ```
 
-### With description
-Add a description below the label for additional context. Linked to the switch via aria-describedby.
-```tsx
-<Switch
-label="Disable user API keys"
-description="Disable user-based API keys across your entire organization."
-/>
-```
-
-### Label position
-Set {'labelPosition="start"'} to place the label on the left side of the switch control.
-```tsx
-<Switch label="Right aligned" labelPosition="start" />
-```
-
-### Label position with description
-The description follows the label position: both move together when {'labelPosition="start"'} is set.
-```tsx
-<Switch
-label="Dark mode"
-description="Use dark theme across the entire application."
-labelPosition="start"
-/>
-```
-
-### Default checked
-Initialize the switch with defaultChecked when you don't need to control its state. Use the name prop to read the value on form submission.
-```tsx
-<Switch label="Enable notifications" name="notifications" defaultChecked />
-```
-
-### Controlled
-Pass checked and onCheckedChange to manage the state in a controlled manner.
+### Controlled state
+Change checked above or toggle the setting. Both update the same state. Use this pattern when your application owns the value.
 ```tsx
 const [checked, setChecked] = useState(false)
-<Switch label="Airplane mode" checked={checked} onCheckedChange={setChecked} />
+
+// Desktop
+<Switch color="accent" label="Airplane mode" checked={checked} onCheckedChange={setChecked} />
+
+// Phone
+<FieldGroup>
+<Field row label="Airplane mode"><Switch color="accent" checked={checked} onCheckedChange={setChecked} /></Field>
+</FieldGroup>
 ```
 
-### Disabled
-Use disabled to prevent the user from toggling the control.
+### Grouped settings
+Group related settings with FieldGroup. Use a row description to explain a locked setting and a footer for help that applies to the group. Phone shows the same groups in a full Page with navigation.
 ```tsx
-<div className="flex gap-6">
-<Switch disabled aria-label="Notifications" />
-<Switch disabled checked aria-label="Dark mode" />
-</div>
-```
-
-### Disabled with label
-Disabled state works with labels: both the toggle and the label show a not-allowed cursor.
-```tsx
-<div className="flex flex-col gap-4">
-<Switch label="Notifications" disabled />
-<Switch label="Notifications" disabled defaultChecked />
-</div>
-```
-
-### Disabled with description
-Combine disabled with label and description for read-only settings that need explanation.
-```tsx
-<div className="flex flex-col gap-4">
-<Switch
-  label="Enable SSO"
-  description="Requires an Enterprise plan to configure."
-  disabled
-/>
-<Switch
-  label="Two-factor authentication"
-  description="Enforced by organization policy."
-  disabled
-  defaultChecked
-/>
-</div>
-```
-
-### With Field
-Pair a Switch with Field using orientation="horizontal" for inline toggle settings.
-```tsx
-<Field label="Marketing emails" orientation="horizontal">
-{(fieldProps) => (
-  <Switch id={fieldProps.id} checked={enabled} onCheckedChange={setEnabled} />
-)}
-</Field>
-```
-
-### With Field and description
-Use Field with description for the settings pattern with a section heading, description, and a labeled switch underneath.
-```tsx
-<Field
-label="Access Control"
-description="Disable user-based API keys across your entire organization. You can also choose to disable them on a project-by-project basis if needed."
->
-{(fieldProps) => (
-  <Switch
-    id={fieldProps.id}
-    label="Disable user API keys"
-    checked={enabled}
-    onCheckedChange={setEnabled}
-  />
-)}
-</Field>
-```
-
-### Settings panel
-Combine label and description to build settings-style toggle panels.
-```tsx
-<div className="flex w-full max-w-lg flex-col gap-8">
-<Switch
-  label="Enable custom providers for evals"
-  description="Allow eval runs to use third-party models you configure under Custom model providers."
-/>
-<Switch
-  label="Enable OpenRouter models"
-  description="Make OpenRouter models available for evaluation runs."
-/>
-<Switch
-  label="Disable user API keys"
-  description="Disable user-based API keys across your entire organization."
-  defaultChecked
-/>
-</div>
-```
-
-### Grouped sections
-Use dividers to separate switch groups into logical sections. Each section can be wrapped in a Field with its own label and description.
-```tsx
-<div className="w-full max-w-lg divide-y divide-alpha/15">
-<div className="pb-5">
-  <Field label="Notifications" description="Configure how you receive notifications.">
-    {() => (
-      <div className="flex flex-col gap-4">
-        <Switch
-          label="Push notifications"
-          description="Receive push notifications on your devices."
-          defaultChecked
-        />
-        <Switch
-          label="Email notifications"
-          description="Get notified via email for important updates."
-        />
-      </div>
-    )}
-  </Field>
-</div>
-<div className="pt-5">
-  <Field label="Privacy" description="Control your data sharing preferences.">
-    {() => (
-      <div className="flex flex-col gap-4">
-        <Switch
-          label="Share usage data"
-          description="Help us improve by sharing anonymous usage statistics."
-        />
-        <Switch
-          label="Personalized content"
-          description="Allow personalized recommendations based on your activity."
-          defaultChecked
-        />
-      </div>
-    )}
-  </Field>
-</div>
+// Place these groups inside Page.Content on Phone.
+<div className="flex flex-col gap-6">
+<FieldGroup title="Notifications">
+  <Field row label="Push notifications"><Switch color="accent" defaultChecked /></Field>
+  <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" /></Field>
+</FieldGroup>
+<FieldGroup title="Privacy" footer="You can change your data sharing preference at any time.">
+  <Field row label="Share usage data"><Switch color="accent" /></Field>
+  <Field row label="Security alerts" description="Required for your account."><Switch color="accent" defaultChecked disabled /></Field>
+</FieldGroup>
 </div>
 ```
 
@@ -7759,8 +7886,9 @@ return (
 ```
 
 ### Variant
-Use variant="bordered" for a card-like table with a rounded border and tinted header background.
+Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.
 ```tsx
+import { useState } from "react"
 import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
 import { users, type User } from "./data"
 
@@ -7775,8 +7903,20 @@ const columns: ColumnDef<User>[] = [
 { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
 ]
 
+const previewUsers = users.slice(0, 6)
+const emptyUsers: User[] = []
+const emptyMessages = {
+default: undefined,
+text: "No users found.",
+rich: <strong>No users found.</strong>,
+}
+
 export function UsersTable() {
-return <DataTable columns={columns} data={users.slice(0, 6)} variant="bordered" pageSize={Infinity} />
+const [empty, setEmpty] = useState(false)
+const [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>("text")
+
+return <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}
+  variant="bordered" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />
 }
 ```
 
@@ -8023,24 +8163,6 @@ return (
 }
 ```
 
-### Empty state
-Customize the empty state message with the emptyMessage prop.
-```tsx
-import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
-import type { User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-{ accessorKey: "id", header: "ID" },
-{ accessorKey: "name", header: "Name" },
-{ accessorKey: "email", header: "Email" },
-{ accessorKey: "status", header: "Status" },
-]
-
-export function UsersTable() {
-return <DataTable columns={columns} data={[]} emptyMessage="No users found." />
-}
-```
-
 ## Tabs
 Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
 Import: import { Tabs } from "@plexui/ui/components/Tabs"
@@ -8071,15 +8193,17 @@ Props:
     - children (ReactNode) — Tab label
 
 ### Overview
-Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations.
+Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.
 ```tsx
 const [tab, setTab] = useState("overview")
+const [disabled, setDisabled] = useState(false)
+const [reportsDisabled, setReportsDisabled] = useState(false)
 
 return (
-<Tabs value={tab} onChange={setTab} aria-label="Demo tabs">
+<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label="Demo tabs">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-  <Tabs.Tab value="reports">Reports</Tabs.Tab>
+  <Tabs.Tab value="reports" disabled={reportsDisabled}>Reports</Tabs.Tab>
   <Tabs.Tab value="settings">Settings</Tabs.Tab>
 </Tabs>
 )
@@ -8199,17 +8323,6 @@ Vertical underline tabs with icons provide a rich navigation experience commonly
 </Tabs>
 ```
 
-### Disabled tab
-Use disabled on individual Tabs.Tab elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected.
-```tsx
-<Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
-<Tabs.Tab value="overview">Overview</Tabs.Tab>
-<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-<Tabs.Tab value="reports" disabled>Reports</Tabs.Tab>
-<Tabs.Tab value="settings">Settings</Tabs.Tab>
-</Tabs>
-```
-
 ### Sizing
 Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs.
 ```tsx
@@ -8223,7 +8336,7 @@ Both variants support the full 9-step size scale. The size prop controls the hei
 ### Scrollable
 When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.
 ```tsx
-<div className="max-w-[400px] flex">
+<div className="flex w-full min-w-0 max-w-[400px]">
 <Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
   <Tabs.Tab value="1">Overview</Tabs.Tab>
   <Tabs.Tab value="2">Analytics</Tabs.Tab>
@@ -8240,7 +8353,7 @@ When tabs overflow their container, they automatically become horizontally scrol
 ### Overflow menu
 With overflow="menu", the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. overflowLabel sets the button's text (default "More"). Works for horizontal tabs without block.
 ```tsx
-<div className="flex w-[360px]">
+<div className="flex min-w-0 max-w-full w-[360px]">
 <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
   <Tabs.Tab value="code">Code</Tabs.Tab>
   <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>
@@ -8274,7 +8387,9 @@ Props:
 
 ### Overview
 ```tsx
+<div className="w-full min-w-0 max-w-[480px]">
 <TagInput placeholder="Add a tag..." size="md" rows={1} pill={false} />
+</div>
 ```
 
 ### Inline filter row
@@ -8454,7 +8569,7 @@ Props:
 
 ### Overview
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Enter text..." autoResize rows={3} />
 </div>
 ```
@@ -8462,7 +8577,7 @@ Props:
 ### Variants
 Use variant to stylize the textarea.
 ```tsx
-<div className="flex flex-col gap-6 w-[400px]">
+<div className="flex flex-col gap-6 w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Enter text..." variant="outline" rows={3} />
 <Textarea placeholder="Enter text..." variant="soft" rows={3} />
 </div>
@@ -8474,7 +8589,7 @@ Enable autoResize to automatically grow/shrink the textarea as the user types. C
 const [value, setValue] = useState("Line 1\nLine 2\nLine 3")
 
 return (
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
   <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
 </div>
 )
@@ -8483,7 +8598,7 @@ return (
 ### Sizing
 Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
 </div>
 ```
@@ -8491,7 +8606,7 @@ Sizing of the textarea is controlled with size and gutterSize props. size sets t
 ### Disabled
 Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea disabled defaultValue="Jane Doe" aria-label="Name" />
 </div>
 ```
@@ -8499,7 +8614,7 @@ Use the disabled prop to disable the textarea, greying it out and preventing use
 ### Invalid
 Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea invalid placeholder="Invalid textarea" />
 </div>
 ```
@@ -8507,7 +8622,7 @@ Use the invalid prop to mark the textarea as invalid. You decide how this state 
 ### Auto select text
 Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea defaultValue="Toggle to auto select" autoSelect={false} aria-label="Notes" />
 </div>
 ```
@@ -8515,7 +8630,7 @@ Pass autoSelect to select all text in the textarea, useful when pairing with oth
 ### Autofill extensions
 By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true.
 ```tsx
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
 <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
 </div>
 ```
@@ -8528,6 +8643,7 @@ Docs: https://plexui.com/components/toast
     - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
     - duration (number) default: 3000 — Default auto-dismiss duration in ms
     - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
+    - mobileOffset (string | number | { top?; right?; bottom?; left? }) default: 16px + safe area per edge — Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them.
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
@@ -8594,6 +8710,128 @@ description: "This stays open until you dismiss it.",
 duration: Infinity,
 action: { label: "Dismiss", onClick: () => toast.dismiss(id) },
 })
+```
+
+## Toolbar
+"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+Import: import { Toolbar } from "@plexui/ui/components/Toolbar"
+Docs: https://plexui.com/components/toolbar
+Props:
+  - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
+  - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of Toolbar.Title in a top bar
+  - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
+  - background ("edge" | "solid") default: "edge" — edge fades the canvas color over the content under the bar; solid fills the bar
+  - className (string) default: — — Applied to the bar
+  Toolbar.Title:
+    - subtitle (ReactNode) default: — — Second, smaller line below the title
+    - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
+
+### Overview
+Leading and trailing items take 44px targets; the title is centered across the whole width. Scroll the content: the canvas color fades out over the rows under the bar, and the glass starts to cast a shadow.
+```tsx
+<Page surface="grouped">
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title>Orders</Toolbar.Title>
+  <Toolbar.Trailing>
+    <NavigationButton action="close" />
+  </Toolbar.Trailing>
+</Toolbar>
+<Page.Content>...</Page.Content>
+</Page>
+```
+
+### Titles
+titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them, and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. titleAlign="start" puts an inline title after the leading items.
+```tsx
+<Toolbar titleStyle="large">
+<Toolbar.Leading>
+  <NavigationButton action="back" />
+</Toolbar.Leading>
+<Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
+<Toolbar.Trailing>
+  <NavigationButton action="confirm" />
+</Toolbar.Trailing>
+</Toolbar>
+```
+
+### Group
+Toolbar.Group puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with aria-label.
+```tsx
+<Toolbar>
+<Toolbar.Leading>
+  <NavigationButton action="close" />
+</Toolbar.Leading>
+<Toolbar.Trailing>
+  <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
+  <Toolbar.Group aria-label="Order actions">
+    <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+    <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+  </Toolbar.Group>
+</Toolbar.Trailing>
+</Toolbar>
+```
+
+### Search
+Toolbar.Content fill stretches a search field between the leading and trailing items. The field takes the row height and the material of the bar buttons.
+```tsx
+<Toolbar>
+<Toolbar.Content fill>
+  <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<Search />} />
+</Toolbar.Content>
+<Toolbar.Trailing>
+  <NavigationButton action="close" aria-label="Close search" />
+</Toolbar.Trailing>
+</Toolbar>
+```
+
+### Bottom
+placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars.
+```tsx
+<Page surface="grouped">
+<Toolbar>
+  <Toolbar.Title>Orders</Toolbar.Title>
+</Toolbar>
+<Page.Content>...</Page.Content>
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+  </Toolbar.Leading>
+  <Toolbar.Content>
+    <Button color="primary" pill>New order</Button>
+  </Toolbar.Content>
+  <Toolbar.Trailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+  </Toolbar.Trailing>
+</Toolbar>
+</Page>
+
+<Toolbar placement="bottom">
+<Toolbar.Content fill>
+  <Button color="primary" pill block><Plus /> New order</Button>
+</Toolbar.Content>
+</Toolbar>
+```
+
+### Sheet
+In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up.
+```tsx
+<Dialog.Content mobileVariant="sheet" surface="grouped">
+<Toolbar>
+  <Toolbar.Leading>
+    <Dialog.Close>
+      <NavigationButton action="close" />
+    </Dialog.Close>
+  </Toolbar.Leading>
+  <Toolbar.Title>Orders</Toolbar.Title>
+</Toolbar>
+<Dialog.Header>
+  <Dialog.Title>Orders</Dialog.Title>
+</Dialog.Header>
+<Dialog.Body>...</Dialog.Body>
+</Dialog.Content>
 ```
 
 ## Tooltip

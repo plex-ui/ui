@@ -382,7 +382,7 @@ export function InputGroupSpinnerDemo() {
 
 export function InputGroupTextareaDemo() {
   return (
-    <div className="w-[400px]">
+    <div className="w-full min-w-0 max-w-[400px]">
       <InputGroup>
         <InputGroup.Textarea placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
         <InputGroup.Addon align="block-start">

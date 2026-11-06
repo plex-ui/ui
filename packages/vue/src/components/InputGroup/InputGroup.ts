@@ -99,7 +99,9 @@ const InputGroupComponent = defineComponent({
       callListeners(attrs.onMousedown, evt)
       const control = (evt.currentTarget as HTMLElement).querySelector<HTMLElement>(CONTROL_SELECTOR)
       const { target } = evt
-      if (evt.defaultPrevented || !control || !(target instanceof Element) || control.contains(target)) {
+      // Only the physical input frame redirects a press to its control.
+      if (evt.defaultPrevented || !control || !(target instanceof Element) ||
+        !(evt.currentTarget instanceof HTMLElement) || !evt.currentTarget.contains(target) || control.contains(target)) {
         return
       }
       // Buttons, links, menus and other controls in the addons take their own clicks

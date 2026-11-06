@@ -21,7 +21,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import { Toaster, toast } from "@plexui/ui/components/Toast";`}</UsageBlock>
 
-Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. Toast is built on [sonner](https://sonner.emilkowal.ski/), and its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is.
+Render `<Toaster />` once near the root of your app, then call `toast(...)` from any handler. PlexUI renders toasts and manages their interaction while [sonner](https://sonner.emilkowal.ski/) supplies the toast store. Its full API (`toast.promise`, `toast.loading`, `toast.dismiss`, `toast.custom`) is re-exported as-is.
 
 ## Examples
 
@@ -104,10 +104,11 @@ toast.success("Inquiry ID copied", compact)`} previewMinHeight={PREVIEW_MIN_HEIG
   { prop: "position", type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"', default: '"top-center"', description: "Where toasts anchor on the viewport" },
   { prop: "duration", type: "number", default: "3000", description: "Default auto-dismiss duration in ms" },
   { prop: "offset", type: "string | number | { top?; right?; bottom?; left? }", description: "Distance from the viewport edge" },
+  { prop: "mobileOffset", type: "string | number | { top?; right?; bottom?; left? }", default: "16px + safe area per edge", description: "Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them." },
   { prop: "gap", type: "number", description: "Gap between stacked toasts in px" },
 ]} />
 
-Remaining sonner `Toaster` props (`expand`, `visibleToasts`, `hotkey`, `dir`, `swipeDirections`, etc.) are forwarded untouched. `theme`, `richColors`, `toastOptions`, `style` and `closeButton` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync.
+PlexUI implements the compatible sonner `Toaster` options (`expand`, `visibleToasts`, `hotkey`, `dir`, `swipeDirections`, etc.) in its renderer. `theme`, `richColors`, `toastOptions`, `style` and `closeButton` are left out of `ToasterProps`, because Plex sets them for its tokens, icons and theme sync.
 
 ### toast
 

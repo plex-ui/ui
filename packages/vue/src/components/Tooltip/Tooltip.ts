@@ -29,6 +29,7 @@ import {
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { preventDefaultHandler } from "../../lib/helpers.js"
 import { composeEventHandlers, concatAriaDescribedby, firstElementChild, flattenSlot, mergeSlotProps } from "./slot.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
 import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
 
 // Vue port of packages/ui/src/components/Tooltip/Tooltip.tsx on Reka UI.
@@ -152,7 +153,7 @@ export const TooltipRoot = defineComponent({
     disableHoverableContent: { type: Boolean, default: undefined },
   },
   emits: {
-    "update:open": (_open: boolean) => true,
+    "update:open": (open: boolean) => typeof open === "boolean",
   },
   setup(props, { slots, emit }) {
     const hooks: ProviderHooks = { onOpen: () => {}, onClose: () => {} }
@@ -215,35 +216,50 @@ export const TooltipTrigger = defineComponent({
     let isPointerDown = false
     let hasPointerMoveOpened = false
 
-    const handlePointerUp = () => {
+    let pointerDocument: Document | undefined
+    const handlePointerEnd = () => {
       isPointerDown = false
+      pointerDocument?.removeEventListener("pointerup", handlePointerEnd)
+      pointerDocument?.removeEventListener("pointercancel", handlePointerEnd)
+      pointerDocument = undefined
     }
-    onBeforeUnmount(() => document.removeEventListener("pointerup", handlePointerUp))
+    onBeforeUnmount(handlePointerEnd)
 
     // Radix's TooltipTrigger handlers
     const handlers: Record<string, (event: Event) => void> = {
       onPointermove: (event) => {
-        if ((event as PointerEvent).pointerType === "touch") return
+        if (!isHoverPointer(event as PointerEvent)) return
         if (!hasPointerMoveOpened && !providerContext.isPointerInTransitRef.value) {
           rootContext.onTriggerEnter()
           hasPointerMoveOpened = true
         }
       },
-      onPointerleave: () => {
+      onPointerleave: (event) => {
+        if (!isHoverPointer(event as PointerEvent)) return
         rootContext.onTriggerLeave()
         hasPointerMoveOpened = false
       },
-      onPointerdown: () => {
+      onPointerdown: (event) => {
+        handlePointerEnd()
         if (rootContext.open.value) {
           rootContext.onClose()
         }
         isPointerDown = true
-        document.addEventListener("pointerup", handlePointerUp, { once: true })
+        pointerDocument = (event.currentTarget as HTMLElement).ownerDocument
+        pointerDocument.addEventListener("pointerup", handlePointerEnd, { once: true })
+        pointerDocument.addEventListener("pointercancel", handlePointerEnd, { once: true })
       },
-      onFocus: () => {
-        if (!isPointerDown) rootContext.onOpen()
+      onFocus: (event) => {
+        if (!isPointerDown && !(event.currentTarget as HTMLElement).hasAttribute("data-menu-pointer-focus")) {
+          rootContext.onOpen()
+        }
       },
-      onBlur: () => rootContext.onClose(),
+      onBlur: (event) => {
+        // Clipboard fallback borrows focus synchronously, then restores it.
+        const nextTarget = (event as FocusEvent).relatedTarget
+        if (nextTarget instanceof Element && nextTarget.hasAttribute("data-plex-clipboard-fallback")) return
+        rootContext.onClose()
+      },
       onClick: () => rootContext.onClose(),
     }
 
@@ -288,7 +304,9 @@ const TooltipContentElement = markRaw(defineComponent({
     const contentIdProp = inject(ContentIdKey, undefined)
 
     return () => {
-      const { dir: _dir, style, id: _id, ...rest } = attrs
+      const { style, ...rest } = attrs
+      delete rest.dir
+      delete rest.id
       const ariaLabel = content.ariaLabel() as string | undefined
       const contentId = contentIdProp?.value ?? (rootContext.contentId || undefined)
       return h(
@@ -357,7 +375,9 @@ export const TooltipContent = defineComponent({
     }
 
     return () => {
-      const { class: className, style, "aria-label": _ariaLabel, id: _id, ...restProps } = attrs
+      const { class: className, style, ...restProps } = attrs
+      delete restProps["aria-label"]
+      delete restProps.id
 
       return h(RekaTooltipPortal, null, {
         default: () =>
@@ -457,8 +477,8 @@ const TooltipComponent = defineComponent({
     contentClassName: String,
   },
   emits: {
-    pointerdown: (_event: PointerEvent) => true,
-    click: (_event: MouseEvent) => true,
+    pointerdown: (event: PointerEvent) => typeof event.type === "string",
+    click: (event: MouseEvent) => typeof event.type === "string",
   },
   setup(props, { slots, attrs, emit }) {
     const visible = ref(false)

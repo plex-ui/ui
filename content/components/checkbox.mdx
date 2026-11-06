@@ -11,7 +11,6 @@ import {
   CheckboxPillDemo,
   CheckboxGhostDemo,
   CheckboxIndeterminateDemo,
-  CheckboxDisabledDemo,
   CheckboxOrientationDemo,
   CheckboxGroupDemo,
   CheckboxWithoutLabelDemo,
@@ -142,26 +141,30 @@ const toggle = (key: keyof typeof settings) => () =>
   <CheckboxDescriptionsDemo />
 </ComponentPreview>
 
+<span id="disabled" />
+
 ### Variants
 
-<ComponentPreview details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill.</>} code={`<div className="flex flex-wrap gap-x-12 gap-y-6">
+<ComponentPreview details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</>} code={`const [disabled, setDisabled] = useState(false)
+
+<div className="flex flex-wrap gap-x-12 gap-y-6">
   <div className="flex flex-col gap-3 items-start">
     <span className="text-xs text-secondary font-mono mb-1">solid</span>
-    <Checkbox label="Unchecked" />
-    <Checkbox label="Checked" defaultChecked />
-    <Checkbox label="Indeterminate" checked="indeterminate" />
+    <Checkbox disabled={disabled} label="Unchecked" />
+    <Checkbox disabled={disabled} label="Checked" defaultChecked />
+    <Checkbox disabled={disabled} label="Indeterminate" checked="indeterminate" />
   </div>
   <div className="flex flex-col gap-3 items-start">
     <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-    <Checkbox label="Unchecked" pill />
-    <Checkbox label="Checked" pill defaultChecked />
-    <Checkbox label="Indeterminate" pill checked="indeterminate" />
+    <Checkbox disabled={disabled} label="Unchecked" pill />
+    <Checkbox disabled={disabled} label="Checked" pill defaultChecked />
+    <Checkbox disabled={disabled} label="Indeterminate" pill checked="indeterminate" />
   </div>
   <div className="flex flex-col gap-3 items-start">
     <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-    <Checkbox label="Unchecked" variant="ghost" />
-    <Checkbox label="Checked" variant="ghost" defaultChecked />
-    <Checkbox label="Indeterminate" variant="ghost" checked="indeterminate" />
+    <Checkbox disabled={disabled} label="Unchecked" variant="ghost" />
+    <Checkbox disabled={disabled} label="Checked" variant="ghost" defaultChecked />
+    <Checkbox disabled={disabled} label="Indeterminate" variant="ghost" checked="indeterminate" />
   </div>
 </div>`} previewMinHeight={240}>
   <CheckboxVariantsDemo />
@@ -215,31 +218,6 @@ const toggle = (key: keyof typeof settings) => () =>
   label="Select all"
 />`} previewMinHeight={168}>
   <CheckboxIndeterminateDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.</>} code={`<div className="flex flex-wrap gap-x-12 gap-y-6">
-  <div className="flex flex-col gap-3 items-start">
-    <span className="text-xs text-secondary font-mono mb-1">solid</span>
-    <Checkbox label="Unchecked" disabled />
-    <Checkbox label="Checked" disabled defaultChecked />
-    <Checkbox label="Indeterminate" disabled checked="indeterminate" />
-  </div>
-  <div className="flex flex-col gap-3 items-start">
-    <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-    <Checkbox label="Unchecked" pill disabled />
-    <Checkbox label="Checked" pill disabled defaultChecked />
-    <Checkbox label="Indeterminate" pill disabled checked="indeterminate" />
-  </div>
-  <div className="flex flex-col gap-3 items-start">
-    <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-    <Checkbox label="Unchecked" variant="ghost" disabled />
-    <Checkbox label="Checked" variant="ghost" disabled defaultChecked />
-    <Checkbox label="Indeterminate" variant="ghost" disabled checked="indeterminate" />
-  </div>
-</div>`} previewMinHeight={240}>
-  <CheckboxDisabledDemo />
 </ComponentPreview>
 
 ### Label orientation
@@ -335,7 +313,7 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 
 ### Grouped sections
 
-<ComponentPreview details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`const [settings, setSettings] = useState({
+<ComponentPreview phonePresentation="screen" details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`const [settings, setSettings] = useState({
   emailMarketing: true,
   emailSecurity: true,
   pushEverything: false,
@@ -345,47 +323,23 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 const toggle = (key: keyof typeof settings) => () =>
   setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 
-<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-  <div className="pb-5">
-    <Field label="Email notifications" description="Configure which emails you receive.">
-      {() => (
-        <div className="flex flex-col gap-4">
-          <Checkbox
-            label={
-              <div className="flex flex-col">
-                <span className="font-medium">Marketing</span>
-                <span className="text-xs text-secondary mt-0.5">Receive emails about new products and features.</span>
-              </div>
-            }
-            checked={settings.emailMarketing}
-            onCheckedChange={toggle("emailMarketing")}
-          />
-          <Checkbox
-            label={
-              <div className="flex flex-col">
-                <span className="font-medium">Security</span>
-                <span className="text-xs text-secondary mt-0.5">Receive emails about account activity and security.</span>
-              </div>
-            }
-            checked={settings.emailSecurity}
-            onCheckedChange={toggle("emailSecurity")}
-          />
-        </div>
-      )}
-    </Field>
-  </div>
-  <div className="pt-5">
-    <Field label="Push notifications" description="Configure which push notifications you receive.">
-      {() => (
-        <div className="flex flex-col gap-3">
-          <Checkbox label="Everything" checked={settings.pushEverything} onCheckedChange={toggle("pushEverything")} />
-          <Checkbox label="Direct messages and mentions" checked={settings.pushMentions} onCheckedChange={toggle("pushMentions")} />
-          <Checkbox label="Nothing" checked={settings.pushNothing} onCheckedChange={toggle("pushNothing")} />
-        </div>
-      )}
-    </Field>
-  </div>
-</div>`} previewMinHeight={320}>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Notifications</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <div className="flex flex-col gap-6">
+      <FieldGroup title="Email notifications" description="Configure which emails you receive.">
+        <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox checked={settings.emailMarketing} onCheckedChange={toggle('emailMarketing')} /></Field>
+        <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
+        <Field row label="Everything"><Checkbox checked={settings.pushEverything} onCheckedChange={toggle('pushEverything')} /></Field>
+        <Field row label="Direct messages and mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
+        <Field row label="Nothing"><Checkbox checked={settings.pushNothing} onCheckedChange={toggle('pushNothing')} /></Field>
+      </FieldGroup>
+    </div>
+  </Page.Content>
+</Page>`} previewMinHeight={320}>
   <CheckboxNotificationSettingsDemo />
 </ComponentPreview>
 
@@ -416,6 +370,7 @@ const toggle = (key: keyof typeof settings) => () =>
 Checkbox reads these component tokens. Override them at any scope to restyle it:
 
 - `--checkbox-indicator-size`: indicator size (default `var(--radio-group-indicator-size)`)
+- `--checkbox-ghost-check-color`: checkmark color for the ghost variant (default `var(--gray-900)`)
 - `--checkbox-label-gap`: label gap (default `var(--radio-group-item-gap)`)
 - `--checkbox-label-line-height`: label line height (default `var(--radio-group-item-line-height)`)
 - `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)

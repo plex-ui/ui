@@ -3,16 +3,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  justify-content: safe center;
+  box-sizing: border-box;
   min-width: min(20rem, 100%);
 
   &[data-fill="static"] {
     width: 100%;
     height: 100%;
+    flex: 1 0 auto;
   }
 
   &[data-fill="absolute"] {
     position: absolute;
     inset: 0;
+  }
+
+  &:is([data-fill="static"], [data-fill="absolute"]):not([data-size="sm"]) {
+    min-block-size: min-content;
+    padding-inline: var(--empty-message-padding-inline, 0px);
+    padding-bottom: var(--empty-message-padding-bottom, 0px);
   }
 
   /* Compact: a panel, a card section or an empty list */
@@ -31,10 +40,19 @@
       font-size: var(--font-text-sm-size);
       line-height: var(--font-text-sm-line-height);
       letter-spacing: normal;
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .Description {
+      color: var(--color-text-tertiary);
+      font-size: var(--empty-message-compact-description-size, var(--font-text-sm-size));
+      line-height: var(--empty-message-compact-description-leading, var(--font-text-sm-line-height));
+      letter-spacing: normal;
     }
 
     .ActionRow {
       margin-top: spacing(3);
+      gap: spacing(2);
     }
   }
 
@@ -55,16 +73,16 @@
 }
 
 .IconBadge {
-  --badge-size: 40px;
-  --icon-size: 24px;
+  --badge-size: var(--empty-message-icon-badge-size, 40px);
+  --icon-size: var(--empty-message-icon-size, 24px);
 
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--badge-size);
   height: var(--badge-size);
-  border-radius: var(--radius-md);
-  margin: 0 0 12px;
+  border-radius: var(--empty-message-icon-radius, var(--radius-md));
+  margin: 0 0 var(--empty-message-icon-gap, 12px);
   background: var(--badge-background-color);
   color: var(--badge-text-color);
 
@@ -95,14 +113,18 @@
 }
 
 .Title {
-  margin: 0 0 spacing(2);
+  margin: 0 0 var(--empty-message-title-gap, spacing(2));
   color: var(--color-text);
-  font-size: var(--font-heading-xs-size);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.25;
-  letter-spacing: var(--font-heading-xs-tracking);
+  font-size: var(--empty-message-title-size, var(--font-heading-xs-size));
+  font-weight: var(--empty-message-title-weight, var(--font-weight-semibold));
+  line-height: var(--empty-message-title-leading, 1.25);
+  letter-spacing: var(--empty-message-title-tracking, var(--font-heading-xs-tracking));
   text-align: center;
   text-wrap: balance;
+
+  &:not(:has(+ .Description)) {
+    margin-bottom: var(--empty-message-title-only-gap, var(--empty-message-title-gap, spacing(2)));
+  }
 
   &:where([data-color="danger"]) {
     color: var(--color-text-danger);
@@ -115,9 +137,10 @@
 
 .Description {
   margin: 0;
-  color: var(--color-text-tertiary);
-  font-size: var(--font-text-sm-size);
-  line-height: var(--font-text-sm-line-height);
+  color: var(--empty-message-description-color, var(--color-text-tertiary));
+  font-size: var(--empty-message-description-size, var(--font-text-sm-size));
+  line-height: var(--empty-message-description-leading, var(--font-text-sm-line-height));
+  letter-spacing: var(--empty-message-description-tracking, normal);
   text-align: center;
   text-wrap: pretty;
 }
@@ -126,6 +149,31 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: spacing(2);
-  margin-top: spacing(4);
+  gap: var(--empty-message-action-gap, spacing(2));
+  margin-top: var(--empty-message-action-spacing, spacing(4));
+}
+
+/* Default actions use the same family; compact messages retain caller sizing. */
+.EmptyMessage:not([data-size="sm"]) .ActionRow {
+  --button-size-md: var(--empty-message-action-size, var(--control-size-md));
+  --button-font-size-md: var(--empty-message-action-font-size, var(--control-font-size-md));
+  --button-line-height-md: var(--empty-message-action-line-height, 1);
+  --button-gutter-md: var(--empty-message-action-gutter, var(--control-gutter-md));
+  --button-size-lg: var(--empty-message-action-size, var(--control-size-lg));
+  --button-font-size-lg: var(--empty-message-action-font-size, var(--control-font-size-md));
+  --button-line-height-lg: var(--empty-message-action-line-height, 1);
+  --button-gutter-lg: var(--empty-message-action-gutter, var(--control-gutter-md));
+  --button-size-xl: var(--empty-message-action-size, var(--control-size-xl));
+  --button-font-size-xl: var(--empty-message-action-font-size, var(--control-font-size-md));
+  --button-line-height-xl: var(--empty-message-action-line-height, 1);
+  --button-gutter-xl: var(--empty-message-action-gutter, var(--control-gutter-lg));
+}
+
+.EmptyMessage:not([data-size="sm"]) .ActionRow:has(> :nth-child(2)) {
+  flex-direction: var(--empty-message-multi-direction, row);
+  align-self: var(--empty-message-multi-align, auto);
+
+  & > :where(button, a) {
+    width: var(--empty-message-multi-action-width, auto);
+  }
 }

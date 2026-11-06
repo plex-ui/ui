@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useState } from "react"
+import { createElement, useEffect, useState } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
 import { defineComponent, h, ref } from "vue"
 import { OTPInput as ROTPInput } from "../../packages/ui/src/components/OTPInput"
@@ -32,6 +32,49 @@ describe("OTPInput parity", () => {
   })
 })
 
+describe.each(["React", "Vue"])("OTPInput %s IME keys", (framework) => {
+  test.each([
+    ["Backspace", true, 8],
+    ["Delete", true, 46],
+    ["ArrowLeft", true, 37],
+    ["ArrowRight", true, 39],
+    ["Backspace", false, 229],
+    ["Delete", false, 229],
+    ["ArrowLeft", false, 229],
+    ["ArrowRight", false, 229],
+  ] as const)("%s stays with the IME (composing=%s, keyCode=%s)", async (key, isComposing, keyCode) => {
+    const onChange = vi.fn()
+    const onComplete = vi.fn()
+    if (framework === "React") render(createElement(ROTPInput, { value: "12", onChange, onComplete }))
+    else { mountVue(() => h(OTPInput, { value: "12", onChange, onComplete })); await flushVue() }
+    const cells = document.querySelectorAll<HTMLInputElement>("input")
+    await interact(() => cells[1].focus())
+    await interact(() => fireEvent.compositionStart(cells[1]))
+
+    const candidateKey = new KeyboardEvent("keydown", { key, isComposing, keyCode, bubbles: true, cancelable: true })
+    await interact(() => { cells[1].dispatchEvent(candidateKey) })
+    expect(candidateKey.defaultPrevented).toBe(false)
+    expect(Array.from(cells, (cell) => cell.value).join("")).toBe("12")
+    expect(document.activeElement).toBe(cells[1])
+    expect(onChange).not.toHaveBeenCalled()
+    expect(onComplete).not.toHaveBeenCalled()
+
+    // The same key resumes its normal OTP action after composition finishes.
+    await interact(() => fireEvent.compositionEnd(cells[1]))
+    const ordinaryKey = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true })
+    await interact(() => { cells[1].dispatchEvent(ordinaryKey) })
+    expect(ordinaryKey.defaultPrevented).toBe(true)
+    if (key === "Backspace" || key === "Delete") {
+      expect(onChange).toHaveBeenCalledExactlyOnceWith("1")
+      expect(document.activeElement).toBe(cells[1])
+    } else {
+      expect(onChange).not.toHaveBeenCalled()
+      expect(document.activeElement).toBe(cells[key === "ArrowLeft" ? 0 : 2])
+    }
+    expect(onComplete).not.toHaveBeenCalled()
+  })
+})
+
 describe("OTPInput behaviour parity", () => {
   const walk = async (props: Props, steps: (snap: () => void, cell: (i: number) => HTMLInputElement) => Promise<void>) => {
     const result = { react: [] as string[], vue: [] as string[], reactEvents: [] as string[], vueEvents: [] as string[] }
@@ -57,6 +100,25 @@ describe("OTPInput behaviour parity", () => {
   }
   const type = (input: HTMLInputElement, value: string) => interact(() => fireEvent.input(input, { target: { value } }))
   const key = (input: HTMLInputElement, k: string) => interact(() => fireEvent.keyDown(input, { key: k }))
+
+  test.each(["React", "Vue"])("%s moves within the OTP row without requesting ancestor scroll", async (framework) => {
+    if (framework === "React") render(createElement(ROTPInput))
+    else { mountVue(() => h(OTPInput)); await flushVue() }
+    const cells = document.querySelectorAll<HTMLInputElement>("input")
+    const focus = Array.from(cells, (cell) => vi.spyOn(cell, "focus"))
+    await interact(() => fireEvent.input(cells[0], { target: { value: "1" } }))
+    expect(document.activeElement).toBe(cells[1])
+    expect(focus[1]).toHaveBeenLastCalledWith({ preventScroll: true })
+    await interact(() => fireEvent.keyDown(cells[1], { key: "Backspace" }))
+    expect(document.activeElement).toBe(cells[0])
+    expect(focus[0]).toHaveBeenLastCalledWith({ preventScroll: true })
+    await interact(() => fireEvent.keyDown(cells[0], { key: "ArrowRight" }))
+    expect(document.activeElement).toBe(cells[1])
+    expect(focus[1]).toHaveBeenLastCalledWith({ preventScroll: true })
+    await interact(() => fireEvent.paste(cells[1], { clipboardData: { getData: () => "23" } }))
+    expect(document.activeElement).toBe(cells[3])
+    expect(focus[3]).toHaveBeenLastCalledWith({ preventScroll: true })
+  })
 
   test("typing moves focus, editing keys clear digits, completion fires", async () => {
     const result = await walk({ length: 4 }, async (snap, cell) => {
@@ -163,10 +225,10 @@ describe("OTPInput behaviour parity", () => {
   })
 
   test("controlled: a parent taking each value keeps the gaps; another value fills from the start", async () => {
-    let setOutside = (_value: string) => {}
+    let setOutside: (value: string) => void = () => {}
     function ReactApp() {
       const [value, setValue] = useState("")
-      setOutside = setValue
+      useEffect(() => { setOutside = setValue }, [])
       return createElement(ROTPInput, { value, onChange: setValue })
     }
     const VueApp = defineComponent({

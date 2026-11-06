@@ -32,6 +32,7 @@ type ContentProps = {
   placement?: "center" | "top" | "bottom" | "start" | "end" | "fullscreen"
   mobilePlacement?: "center" | "bottom" | "fullscreen"
   mobileVariant?: "alert" | "sheet"
+  surface?: "plain" | "grouped"
 }
 
 // Click handlers on the Trigger and Close children; preventDefault() in one
@@ -159,6 +160,100 @@ const cases: Array<[string, { open?: boolean; content?: ContentProps }]> = [
 const pastDoubleClick = () => new Promise((resolve) => setTimeout(resolve, 320))
 
 describe("Dialog parity", () => {
+  test.each(["React", "Vue"])("%s: sheet bar measurements follow conditional and replaced slots", async (framework) => {
+    // jsdom has no layout or ResizeObserver. Supply geometry, then drive the same
+    // size notifications a browser emits when a bar's contents wrap or expand.
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains("measured-header")) return this.classList.contains("expanded") ? 118 : 70
+      if (this.classList.contains("measured-footer")) return this.classList.contains("expanded") ? 144 : 90
+      return 0
+    })
+    const observers: BarResizeObserver[] = []
+    class BarResizeObserver implements ResizeObserver {
+      readonly targets = new Map<Element, ResizeObserverOptions | undefined>()
+      constructor(private readonly callback: ResizeObserverCallback) { observers.push(this) }
+      observe(target: Element, options?: ResizeObserverOptions) { this.targets.set(target, options) }
+      unobserve(target: Element) { this.targets.delete(target) }
+      disconnect() { this.targets.clear() }
+      notify() { this.callback([], this) }
+    }
+    vi.stubGlobal("ResizeObserver", BarResizeObserver)
+    const state = reactive({ header: true, headerVersion: 0, footer: false, expanded: false })
+    const reactTree = () => (
+      <ReactDialog open>
+        <ReactDialog.Content mobileVariant="sheet" showClose={false}>
+          {state.header && <ReactDialog.Header key={state.headerVersion} className={`measured-header ${state.headerVersion ? "expanded" : ""}`}>Settings</ReactDialog.Header>}
+          <ReactDialog.Body><ReactDialog.Title>Settings</ReactDialog.Title><ReactDialog.Description>Update your preferences.</ReactDialog.Description></ReactDialog.Body>
+          {state.footer && <ReactDialog.Footer className={`measured-footer ${state.expanded ? "expanded" : ""}`}><button>Save</button></ReactDialog.Footer>}
+        </ReactDialog.Content>
+      </ReactDialog>
+    )
+    const vueTree = () => h(Dialog, { open: true }, () => h(DialogContent, { mobileVariant: "sheet", showClose: false }, () => [
+      state.header && h(DialogHeader, { key: state.headerVersion, class: `measured-header ${state.headerVersion ? "expanded" : ""}` }, () => "Settings"),
+      h(DialogBody, null, () => [h(DialogTitle, null, () => "Settings"), h(DialogDescription, null, () => "Update your preferences.")]),
+      state.footer && h(DialogFooter, { class: `measured-footer ${state.expanded ? "expanded" : ""}` }, () => h("button", "Save")),
+    ]))
+    let rerender = () => {}
+    let unmount = () => {}
+    try {
+      if (framework === "React") {
+        const view = render(reactTree())
+        rerender = () => view.rerender(reactTree())
+        unmount = view.unmount
+      } else {
+        unmount = mountVue(vueTree).unmount
+      }
+      const update = async (patch: Partial<typeof state>) => {
+        await act(async () => { Object.assign(state, patch); rerender(); await flushVue() })
+      }
+      await update({})
+      const panel = document.querySelector<HTMLElement>(".Panel")
+      expect(panel).not.toBeNull()
+      const heights = () => [panel?.style.getPropertyValue("--dialog-header-height"), panel?.style.getPropertyValue("--dialog-footer-height")]
+      expect(heights()).toEqual(["70px", "0px"])
+      const expectBorderBoxes = () => {
+        const options = observers.flatMap((observer) => Array.from(observer.targets.values()))
+        expect(options.length).toBeGreaterThan(0)
+        expect(options.every((option) => option?.box === "border-box")).toBe(true)
+      }
+      expectBorderBoxes()
+
+      await update({ footer: true })
+      expect(heights()).toEqual(["70px", "90px"])
+      const previousHeader = panel?.querySelector(".Header")
+      await update({ headerVersion: 1 })
+      expect(panel?.querySelector(".Header")).not.toBe(previousHeader)
+      expect(heights()).toEqual(["118px", "90px"])
+      expectBorderBoxes()
+
+      await update({ expanded: true })
+      const footer = panel?.querySelector(".Footer")
+      const watchingFooter = observers.filter((observer) => footer && observer.targets.has(footer))
+      expect(watchingFooter.length).toBeGreaterThan(0)
+      await act(async () => { watchingFooter.forEach((observer) => observer.notify()); await flushVue() })
+      expect(heights()).toEqual(["118px", "144px"])
+
+      await update({ header: false, footer: false })
+      expect(heights()).toEqual(["0px", "0px"])
+      expect(watchingFooter.every((observer) => observer.targets.size === 0)).toBe(true)
+    } finally {
+      unmount()
+      vi.unstubAllGlobals()
+    }
+  })
+
+  test.each(["glass", "solid"] as const)("%s bar surfaces have identical React and Vue markup", async (background) => {
+    render(<div><ReactDialog.Header background={background}>Title</ReactDialog.Header><ReactDialog.Footer background={background}>Actions</ReactDialog.Footer></div>)
+    const react = serializeDom()
+    cleanup()
+    const { unmount } = mountVue(() => h("div", [h(DialogHeader, { background }, () => "Title"), h(DialogFooter, { background }, () => "Actions")]))
+    await flushVue()
+    expect(document.querySelector(".Header")?.getAttribute("data-background")).toBe(background)
+    expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe(background)
+    expect(serializeDom()).toBe(react)
+    unmount()
+  })
+
   test("header action slot preserves its child in both frameworks", async () => {
     render(<ReactDialog.HeaderAction><ReactButton color="secondary" variant="soft" uniform aria-label="More actions">More</ReactButton></ReactDialog.HeaderAction>)
     const react = serializeDom()
@@ -184,6 +279,16 @@ describe("Dialog parity", () => {
     const react = await reactDom(props)
     const vue = await vueDom(props)
     expect(vue).toBe(react)
+  })
+
+  test.each([undefined, "plain", "grouped"] as const)("surface %s reaches the content without changing presentation", async (surface) => {
+    const props = { open: true, content: { surface, mobileVariant: "sheet" as const } }
+    const react = await reactDom(props)
+    const vue = await vueDom(props)
+    expect(vue).toBe(react)
+    expect(react).toContain(`data-surface="${surface ?? "plain"}"`)
+    expect(react).toContain('data-mobile-variant="sheet"')
+    expect(react).not.toContain(" surface=")
   })
 
   test.each(["alert", "sheet"] as const)("%s selects its mobile presentation independently of desktop placement", async (mobileVariant) => {
@@ -340,7 +445,8 @@ describe("Dialog parity, radix-ui 1.8", () => {
   const dialogOpen = () => !!document.querySelector('[role="dialog"]')
 
   test("without Title and Description the content is not labelled or described", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {})
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {})
+    const warnings = vi.spyOn(console, "warn").mockImplementation(() => {})
     await act(async () => {
       render(
         <ReactDialog open>
@@ -362,6 +468,10 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(react).toContain('role="dialog"')
     expect(react).not.toContain("aria-labelledby")
     expect(react).not.toContain("aria-describedby")
+    expect(errors).not.toHaveBeenCalled()
+    expect(warnings.mock.calls.map((args) => args.map(String).join(" "))).toEqual([
+      expect.stringContaining("`DialogContent` requires a `DialogTitle`"),
+    ])
   })
 
   // Presses on the overlay, outside the content: the primary button closes on

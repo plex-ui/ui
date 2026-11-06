@@ -5,19 +5,29 @@ import { useState } from 'react';
 import { DateInput } from '@plexui/ui/components/DateInput';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 import { Input } from '@plexui/ui/components/Input';
+import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
 
 export function DatePickerBaseDemo() {
   const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
+  const [disabled, setDisabled] = useState(false);
   return (
-    <DatePicker
-      id="date-picker-base"
-      triggerDateFormat="MM/dd/yy"
-      size="lg"
-      pill
-      clearable
-      value={selectedDate}
-      onChange={(next) => setSelectedDate(next as DateTime | null)}
-    />
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
+        <DatePicker
+          id="date-picker-base"
+          triggerDateFormat="MM/dd/yy"
+          size="lg"
+          pill
+          clearable
+          disabled={disabled}
+          value={selectedDate}
+          onChange={setSelectedDate}
+        />
+      </div>
+    </>
   );
 }
 
@@ -50,20 +60,6 @@ export function DatePickerWithoutIconDemo() {
       size="lg"
       triggerShowIcon={false}
       placeholder="Choose a date"
-      value={selectedDate}
-      onChange={(next) => setSelectedDate(next as DateTime | null)}
-    />
-  );
-}
-
-export function DatePickerDisabledDemo() {
-  const [selectedDate, setSelectedDate] = useState<DateTime | null>(DateTime.local());
-  return (
-    <DatePicker
-      id="date-picker-disabled"
-      triggerDateFormat="MM/dd/yy"
-      size="lg"
-      disabled
       value={selectedDate}
       onChange={(next) => setSelectedDate(next as DateTime | null)}
     />

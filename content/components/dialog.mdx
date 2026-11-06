@@ -9,8 +9,10 @@ import {
   DialogDeleteConfirmDemo,
   DialogBodyDemo,
   DialogPlacementDemo,
+  DialogViewOptionsDemo,
 } from "@/components/docs/DialogDemos"
 
+import { DialogSegmentedComposerDemo } from "@/components/docs/DialogSegmentedComposerDemo"
 import { DetailsDialogDemo } from "@/components/docs/DialogDetailsDemos"
 
 export const detailsCode = `'use client';
@@ -23,16 +25,101 @@ import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Separator } from '@plexui/ui/components/Separator';
 import { CopyTooltip } from '@plexui/ui/components/Tooltip';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+const detailsStyles = \`/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .details-content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .details-content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .details-content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .details-content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .details-content [data-detail-row]:has([data-detail-copy]),
+  .details-content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .details-content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .details-content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .details-content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .details-content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .details-content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .details-content [data-detail-copy]::before,
+  .details-content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .details-content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}
+\`;
 
 const CLIENT_ID = 'client_76fb07f7-78e2-4656-abdf-e77b5d7b1ed1';
 const FINGERPRINT = '144BA802A02D59A260D0021EC450552A4CA2E3496F4390A6D5A8556BF617420B';
 const EXTRA_ORIGINS = Array.from({ length: 24 }, (_, index) => \`https://preview-\${index + 1}.plexui.com\`);
 
 function CopyValue({ value, label }: { value: string; label: string }) {
+  const wide = useBreakpoint('md');
   return (
-    <CopyTooltip copyValue={value}>
-      <Button color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
-        <span className="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <CopyTooltip copyValue={value} sideOffset={wide ? 5 : 24} align={wide ? 'center' : 'start'}>
+      <Button data-detail-copy color="secondary" variant="ghost" size="sm" opticallyAlign="start" className="-my-1 max-w-full" aria-label={label}>
+        <span data-detail-value className="flex min-w-0 font-mono text-xs">
           <span className="truncate">{value.slice(0, -6)}</span>
           <span className="shrink-0">{value.slice(-6)}</span>
         </span>
@@ -43,7 +130,7 @@ function CopyValue({ value, label }: { value: string; label: string }) {
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+    <div data-detail-row className="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
       <dt className="text-secondary">{label}</dt>
       <dd className="min-w-0 sm:col-span-3">{children}</dd>
     </div>
@@ -52,9 +139,9 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
 
 function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4" aria-label={title}>
+    <section data-detail-section className="flex flex-col gap-4" aria-label={title}>
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{title}</h3>
+        <h3 data-detail-heading className="text-xs font-medium uppercase tracking-wide text-tertiary">{title}</h3>
         {action && <div className="-my-2 flex shrink-0">{action}</div>}
       </div>
       {children}
@@ -69,7 +156,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
   const heading = useRef<HTMLDivElement>(null);
   const origins = ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? EXTRA_ORIGINS : [])];
   const metadata = (
-    <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <dl data-detail-list className="space-y-4 text-sm">
       <DetailRow label="Name">Plex application</DetailRow>
       <DetailRow label="Client ID"><CopyValue value={CLIENT_ID} label="Copy client ID" /></DetailRow>
       <DetailRow label="Status"><Badge color={paused ? 'secondary' : 'success'} size="sm">{paused ? 'Paused' : 'Active'}</Badge></DetailRow>
@@ -79,12 +166,13 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
   );
 
   return (
-    <div data-demo-stage className="flex flex-col items-center gap-4 py-10">
+    <div className="flex flex-col items-center gap-4 py-10">
+      <style>{detailsStyles}</style>
       <Dialog open={open} onOpenChange={setOpen}>
         {(!initialOpen || !open) && <Dialog.Trigger>
           <Button color="secondary" variant="outline">{long ? 'View long details' : sections ? 'View application' : 'View details'}</Button>
         </Dialog.Trigger>}
-        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" width={640} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Application details</Dialog.Title></div>
             <Dialog.Description className="sr-only">Application metadata and registered platforms.</Dialog.Description>
@@ -98,7 +186,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
             </Dialog.HeaderAction>}
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-5 py-2">
+            <div className="details-content flex flex-col gap-5 py-2">
               {sections ? <>
                 <DetailSection title="Application">{metadata}</DetailSection>
                 <Separator />
@@ -108,20 +196,20 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
                     <Menu.Item onSelect={() => setLocalhost(!localhost)}>{localhost ? 'Remove localhost' : 'Allow localhost'}</Menu.Item>
                   </Menu.Content>
                 </Menu>}>
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><DetailRow label="Origins">
-                    <div className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={\`Copy origin \${origin}\`} /></div>)}</div>
+                  <dl data-detail-list className="space-y-4 text-sm"><DetailRow label="Origins">
+                    <div data-detail-values className="space-y-4">{origins.map((origin) => <div key={origin}><CopyValue value={origin} label={\`Copy origin \${origin}\`} /></div>)}</div>
                   </DetailRow></dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="iOS">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Team ID"><CopyValue value="AB12CD34EF" label="Copy team ID" /></DetailRow>
                     <DetailRow label="Bundle ID"><CopyValue value="com.plexui.application" label="Copy bundle ID" /></DetailRow>
                   </dl>
                 </DetailSection>
                 <Separator />
                 <DetailSection title="Android">
-                  <dl className="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+                  <dl data-detail-list className="space-y-4 text-sm">
                     <DetailRow label="Package name"><CopyValue value="com.plexui.application" label="Copy package name" /></DetailRow>
                     <DetailRow label="SHA-256"><CopyValue value={FINGERPRINT} label="Copy certificate fingerprint" /></DetailRow>
                   </dl>
@@ -138,7 +226,7 @@ export function DetailsDialogExample({ sections = false, long = false, showActio
 
 <UsageBlock>{`import { Dialog } from "@plexui/ui/components/Dialog";`}</UsageBlock>
 
-At 640px and below, `mobileVariant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobileVariant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
+At 767px and below, `mobileVariant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobileVariant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
 
 Alert actions wrap onto separate rows when their labels need more space. Set `<Dialog.Footer mobileLayout="stacked">` when the actions should always stack. Put long sheet content in `Dialog.Body` to keep the header and actions visible while the body scrolls.
 
@@ -146,14 +234,14 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 ### Overview
 
-<ComponentPreview phoneDialog code={`const [open, setOpen] = useState(false)
+<ComponentPreview phonePresentation="screen" phoneDialog code={`const [open, setOpen] = useState(false)
 const heading = useRef<HTMLDivElement>(null)
 
 <Dialog open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </Dialog.Trigger>
-  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
     <Dialog.Header>
       <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
       <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
@@ -171,14 +259,14 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Destructive confirmation
 
-<ComponentPreview phoneDialog details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`const [open, setOpen] = useState(false)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={`const [open, setOpen] = useState(false)
 const heading = useRef<HTMLDivElement>(null)
 
 <Dialog open={open} onOpenChange={setOpen}>
   <Dialog.Trigger>
     <Button color="danger" variant="outline">Delete</Button>
   </Dialog.Trigger>
-  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+  <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
     <Dialog.Header>
       <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
       <Dialog.Description>
@@ -200,33 +288,33 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Metadata details
 
-<ComponentPreview phoneDialog code={detailsCode} details={<>Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the actions.</>} previewMinHeight={120}>
+<ComponentPreview phonePresentation="screen" phoneDialog code={detailsCode} details={<>Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the actions.</>} previewMinHeight={120}>
   <DetailsDialogDemo />
 </ComponentPreview>
 
 ### Sections and actions
 
-<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Put application actions in Dialog.HeaderAction on the same row as Close. Keep Web actions beside the section heading. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
+<ComponentPreview phonePresentation="screen" description="Grouped metadata with menus for application and platform actions." phoneDialog code={detailsCode.replace('sections = false', 'sections = true')} details={<>Separate groups with Separator and the same gap on both sides. Put application actions in Dialog.HeaderAction on the same row as Close. Keep Web actions beside the section heading. Turn off showActions to compare the read-only layout. The menus update only this example: pause the application or remove and restore localhost.</>} previewMinHeight={160}>
   <DetailsDialogDemo sections />
 </ComponentPreview>
 
 ### Long details
 
-<ComponentPreview description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog code={detailsCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>Dialog.Body scrolls while the title and Close button stay visible. At narrow widths the labels stack above their values. Phone preview opens the dialog immediately; long identifiers stay within the value column.</>} previewMinHeight={160}>
+<ComponentPreview phonePresentation="screen" description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog code={detailsCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>Dialog.Body scrolls while the title and Close button stay visible. At narrow widths the labels stack above their values. Phone preview opens the dialog immediately; long identifiers stay within the value column.</>} previewMinHeight={160}>
   <DetailsDialogDemo sections long />
 </ComponentPreview>
 
 ### Scrolling body
 
-<ComponentPreview phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
     <Dialog.Description>Please read them before you continue.</Dialog.Description>
   </Dialog.Header>
   <Dialog.Body>
-    <div className="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+    <div className="flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
       {terms.map((term) => <p key={term}>{term}</p>)}
     </div>
   </Dialog.Body>
@@ -240,9 +328,9 @@ const heading = useRef<HTMLDivElement>(null)
 
 ### Placement
 
-<ComponentPreview description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phonePresentation="screen" description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobilePlacement</code> applies at 767px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<Dialog.Content mobilePlacement="bottom">'}</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
-<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement="end" width={360}>
+<Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement="end" width={360}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
   </Dialog.Header>
@@ -261,6 +349,34 @@ const heading = useRef<HTMLDivElement>(null)
   <DialogPlacementDemo />
 </ComponentPreview>
 
+### Floating view options
+
+A compact sheet for preferences that take effect immediately. On phones it floats 8px from the sides and bottom, with rounded lower corners. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
+
+Copy the [ViewOptionsSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.tsx), [option data](https://github.com/plex-ui/ui/blob/master/components/docs/viewOptionsData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.module.css) together. The helper composes Dialog, FieldGroup, Field, Select and Switch. Its controlled `value` and `onValueChange` connect the choices to your application.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
+
+export default function ViewPreferences() {
+  return <ViewOptionsSheetDemo />;
+}`}>
+  <DialogViewOptionsDemo />
+</ComponentPreview>
+
+### Segmented composer header
+
+A Close action, an Event/Reminder segmented control, and a Save action share the sheet header. Switching the segment changes the fields while preserving each draft. Save commits the selected local sample; Close, Escape, or outside dismissal discards unsaved edits. These sample values do not create calendar items. In Phone previews the sheet stays open after Save or Cancel so its state remains inspectable.
+
+Copy the [SegmentedComposer helper](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.tsx), [draft data](https://github.com/plex-ui/ui/blob/master/components/docs/segmentedComposerData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.module.css) together, preserving their relative paths. The helper uses Dialog, SegmentedControl, FieldGroup, Field, Input, Textarea, DatePicker and Switch.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`import { SegmentedComposer } from './SegmentedComposer';
+
+export default function Example() {
+  return <SegmentedComposer surface="grouped" />;
+}`}>
+  <DialogSegmentedComposerDemo />
+</ComponentPreview>
+
 ## API
 
 **Dialog** (root)
@@ -273,20 +389,21 @@ const heading = useRef<HTMLDivElement>(null)
 **Dialog.Content**
 
 <PropsTable data={[
+  { prop: "surface", type: '"plain" | "grouped"', default: '"plain"', description: "Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged" },
   { prop: "width", type: "number | string", default: "480", description: "Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width" },
   { prop: "showClose", type: "boolean", default: "true", description: "Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it" },
   { prop: "pill", type: "boolean", default: "false", description: "Rounder panel and a round close button, for dialogs beside pill controls" },
   { prop: "className", type: "string", description: "Additional CSS class on the panel" },
   { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
-  { prop: "mobileVariant", type: '"alert" | "sheet"', description: "Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
-  { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
+  { prop: "mobileVariant", type: '"alert" | "sheet"', description: "Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
+  { prop: "mobilePlacement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
   { prop: "onOpenAutoFocus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "onCloseAutoFocus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: wrapper for title, description and an optional header action.
+**Dialog.Header**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. Set `background="solid"` for an opaque bar or keep `background="glass"` for a translucent blurred surface.
 
 **Dialog.HeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it inside Dialog.Header and label icon-only controls. Mobile alerts hide this slot.
 
@@ -299,15 +416,19 @@ const heading = useRef<HTMLDivElement>(null)
 **Dialog.Footer**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 
 <PropsTable data={[
-  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
+  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged" },
+  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
 ]} />
 
 **Dialog.Close**: closes the dialog when its child is activated.
 
 ## Styling
 
+Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and glass/solid bars.
+
 Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
+- `--dialog-panel-background`: panel and solid bar color; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 

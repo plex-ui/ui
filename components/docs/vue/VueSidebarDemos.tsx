@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ComponentProps } from 'react';
+import { useId, useState, type ComponentProps } from 'react';
 import { computed, markRaw, ref, watch, type Component } from 'vue';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import {
@@ -50,6 +50,7 @@ import {
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../ButtonDemos';
 import { VuePreview } from '../VuePreview';
 import { VueDemo } from './VueDemo';
+import { ResponsiveSidebarProvider, ResponsiveSidebar, SidebarDemoPage } from './VueSidebarDemosFrame';
 
 // The Sidebar templates read their navigation data (with icon components) and
 // the Search and Filter tree helpers from their setup scope; a real app
@@ -445,6 +446,9 @@ const appBottomRows: AppRow[] = [
 
 // Static data stays out of Vue's reactivity
 const scope = {
+  ResponsiveSidebarProvider: markRaw(ResponsiveSidebarProvider),
+  ResponsiveSidebar: markRaw(ResponsiveSidebar),
+  SidebarDemoPage: markRaw(SidebarDemoPage),
   appTopRows: markRaw(appTopRows),
   appDocumentItems: markRaw(appDocumentItems),
   appBottomRows: markRaw(appBottomRows),
@@ -526,10 +530,11 @@ const SIDEBAR_DEMO_STYLES = `
  * Filter helpers (`filterWorkflowTree`, `flattenByType`, `findStepLabel`).
  */
 export function VueSidebarDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
+  const treeId = useId();
   return (
     <>
       <style>{SIDEBAR_DEMO_STYLES}</style>
-      <VueDemo {...props} state={{ ...scope, ...state }} />
+      <VueDemo {...props} state={{ ...scope, ...state, treeId }} />
     </>
   );
 }
@@ -731,9 +736,6 @@ const actionTree: ActionNode[] = [
 
 const groupIds = ['screen', 'container-elements', 'container-forms', 'footer', 'module'];
 
-const ghostButton =
-  'inline-flex items-center justify-center shrink-0 rounded-sm cursor-pointer p-0 m-0 border-0 bg-transparent appearance-none leading-none align-middle select-none hover:bg-[var(--color-background-secondary-ghost-hover)] active:bg-[var(--color-background-secondary-ghost-hover)] transition-colors [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto';
-
 /** The tree, keeping the parents of matching rows */
 function filterTree(items: ActionNode[], query: string): ActionNode[] {
   if (!query) return items;
@@ -796,13 +798,9 @@ const addMenu = (node: ActionNode): ActionNodeType[][] =>
 /** Containers in a screen (not its Footer) and elements reorder; a module's screens do not */
 const isSortable = (parent: ActionNode, node: ActionNode) => parent.type !== 'module' && node.type !== 'footer';
 
-/** Sub rows are 32px tall and indented 24px a level; leaves also skip the chevron column */
+/** Indent each level; leaf rows reserve the disclosure column without adding a control. */
 const rowStyle = (depth: number, node: ActionNode) => ({
-  paddingLeft: 4 + (node.children ? depth : depth + 1) * 24 + 'px',
-  paddingRight: '4px',
-  paddingTop: '0',
-  paddingBottom: '0',
-  height: '32px',
+  paddingLeft: `calc(${4 + depth * 24}px + ${node.children ? '0px' : 'var(--disclosure-width)'})`,
 });
 
 const expandAll = (): Record<string, boolean> => Object.fromEntries(groupIds.map((id) => [id, true]));
@@ -886,10 +884,12 @@ function createActionTreeDemo() {
   }
 
   const scope = {
+  ResponsiveSidebarProvider: markRaw(ResponsiveSidebarProvider),
+  ResponsiveSidebar: markRaw(ResponsiveSidebar),
+  SidebarDemoPage: markRaw(SidebarDemoPage),
     // Static data stays out of Vue's reactivity
     nodeTypes: markRaw(nodeTypes),
     filterOptions: markRaw(filterOptions),
-    ghostButton,
     addMenu,
     isSortable,
     rowStyle,
@@ -946,7 +946,7 @@ const nodeCode = (node: ActionNode): string => {
 /** The + button and its menu (`addMenu`) */
 const addMenuTemplate = (node: string, condition = '') => `<Menu${condition}>
   <MenuTrigger>
-    <button type="button" :class="ghostButton" style="width: 24px; height: 24px" aria-label="Add"><Plus /></button>
+    <Button variant="ghost" color="secondary" size="xs" uniform class="!size-6 max-md:!size-11" :aria-label="'Add to ' + ${node}.label"><Plus /></Button>
   </MenuTrigger>
   <MenuContent min-width="auto" align="end">
     <template v-for="(types, index) in addMenu(${node})" :key="index">
@@ -959,19 +959,17 @@ const addMenuTemplate = (node: string, condition = '') => `<Menu${condition}>
 </Menu>`;
 
 /** The expand chevron of a parent row */
-const chevronTemplate = (node: string, className: string) => `<span
+const chevronTemplate = (node: string) => `<Button
   v-if="${node}.children"
-  role="none"
-  class="${className}"
-  :class="ghostButton"
-  style="width: 24px; height: 24px"
-  :style="{ transform: expanded[${node}.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
-  @click.stop="toggle(${node}.id)"
-  @keydown.enter.stop="toggle(${node}.id)"
-  @keydown.space.stop="toggle(${node}.id)"
+  variant="ghost" color="secondary" size="xs" uniform
+  class="!size-6 max-md:!size-11 [&_svg]:!size-4"
+  :aria-label="(expanded[${node}.id] ? 'Collapse ' : 'Expand ') + ${node}.label"
+  :aria-expanded="!!expanded[${node}.id]"
+  :aria-controls="treeId + '-' + ${node}.id"
+  @click="toggle(${node}.id)"
 >
-  <ChevronDownMd />
-</span>`;
+  <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[${node}.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
+</Button>`;
 
 const typeIconTemplate = (node: string) => `<span
   class="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"
@@ -987,53 +985,46 @@ const subRowsTemplate = (parent: string, node: string, depth: number, inner?: st
   :style="dragId === ${node}.id ? 'opacity: 0.7' : undefined"
 >
   <div
-    class="group/ati relative"
+    class="group/ati relative flex items-center [--disclosure-width:24px] max-md:[--disclosure-width:44px]"
+    :style="rowStyle(${depth}, ${node})"
     :draggable="grabbed === ${node}.id"
     @dragstart="startDrag($event, ${parent}, ${node})"
     @dragover="dragOver($event, ${node}.id)"
     @drop="dropOn($event, ${node}.id)"
     @dragend="endDrag"
   >
+${indentText(chevronTemplate(node), 4)}
     <SidebarMenuSubButton
       :indent="1"
       :is-active="activeItem === ${node}.id"
       :class="[
-        'gap-0.5',
+        'gap-0.5 !w-auto min-w-0 flex-1 !h-8 !px-1 !py-0 max-md:!h-11',
         dragId === ${node}.id || overId === ${node}.id
           ? 'text-[var(--sidebar-menu-text-active)] [&::before]:!opacity-50 [&::before]:![transform:scale(1)]'
           : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]',
       ]"
-      :style="rowStyle(${depth}, ${node})"
       @click="activeItem = ${node}.id"
     >
       <span class="flex items-center shrink-0">
-${indentText(chevronTemplate(node, 'transition-transform shrink-0'), 8)}
 ${indentText(typeIconTemplate(node), 8)}
       </span>
-      <span
-        class="flex-1 min-w-0 truncate text-left relative z-[1]"
-        :class="
-          dragId === ${node}.id
-            ? (${node}.children ? 'pr-[54px]' : 'pr-[30px]')
-            : (${node}.children && isSortable(${parent}, ${node}) ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]')
-        "
-      >{{ ${node}.label }}</span>
+      <span class="flex-1 min-w-0 truncate text-left relative z-[1]">{{ ${node}.label }}</span>
     </SidebarMenuSubButton>
     <!-- Hover actions: + on parents, the drag grip on rows that reorder -->
     <span
       v-if="${node}.children || isSortable(${parent}, ${node})"
-      class="item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 z-[2]"
+      class="item-actions flex shrink-0 items-center gap-0.5"
       :class="
         dragId === ${node}.id
           ? 'opacity-100 pointer-events-auto'
-          : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto'
+          : 'opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto group-focus-within/ati:opacity-100 group-focus-within/ati:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto'
       "
     >
 ${indentText(addMenuTemplate(node, ` v-if="${node}.children"`), 6)}
       <span
         v-if="isSortable(${parent}, ${node})"
-        class="inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
-        style="width: 24px; height: 24px; border-radius: 6px; touch-action: none"
+        class="inline-flex size-6 max-md:size-11 items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
+        style="border-radius: 6px; touch-action: none"
         :style="{ cursor: dragId === ${node}.id ? 'grabbing' : 'grab' }"
         @pointerdown="grabbed = ${node}.id"
         @pointerup="grabbed = null"
@@ -1044,16 +1035,16 @@ ${indentText(addMenuTemplate(node, ` v-if="${node}.children"`), 6)}
   </div>${
     inner
       ? `
-  <SidebarMenuSub v-if="${node}.children && dragId !== ${node}.id" :open="!!expanded[${node}.id]" has-icons>
+  <SidebarMenuSub :id="treeId + '-' + ${node}.id" v-if="${node}.children && dragId !== ${node}.id" :open="!!expanded[${node}.id]" has-icons>
 ${indentText(inner, 4)}
   </SidebarMenuSub>`
       : ''
   }
 </SidebarMenuSubItem>`;
 
-const actionTreeTemplate = `<SidebarProvider :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
+const actionTreeTemplate = `<component :is="ResponsiveSidebarProvider" :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
   <SidebarLayout class="h-full">
-    <Sidebar class="!py-4">
+    <component :is="ResponsiveSidebar" class="!py-4">
       <SidebarHeader>
         <div class="flex items-center gap-2 w-full [&>div:first-child>div]:!p-0">
           <div class="flex-1">
@@ -1120,26 +1111,26 @@ const actionTreeTemplate = `<SidebarProvider :class="['h-full', { 'demo-sidebar-
             <!-- Otherwise the tree, narrowed by the search -->
             <SidebarMenu v-else>
               <SidebarMenuItem v-for="item in visibleSteps" :key="item.id" :expanded="!!expanded[item.id]">
-                <div class="group/atp relative">
+                <div class="group/atp relative flex items-center pl-1">
+${indentText(chevronTemplate('item'), 18)}
+                  <span v-else class="w-6 max-md:w-11 shrink-0" />
                   <SidebarMenuButton
                     :is-active="activeItem === item.id"
-                    class="group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
+                    class="!w-auto min-w-0 flex-1 group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
                     @click="activeItem = item.id"
                   >
                     <span class="flex items-center shrink-0" style="margin-left: 4px">
-${indentText(chevronTemplate('item', 'transition-transform'), 22)}
-                      <span v-else style="width: 24px; flex-shrink: 0" />
 ${indentText(typeIconTemplate('item'), 22)}
                     </span>
-                    <SidebarMenuButtonLabel class="group-hover/atp:pr-[52px]">{{ item.label }}</SidebarMenuButtonLabel>
+                    <SidebarMenuButtonLabel>{{ item.label }}</SidebarMenuButtonLabel>
                   </SidebarMenuButton>
                   <span
-                    class="item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto z-[2]"
+                    class="item-actions flex shrink-0 items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto group-focus-within/atp:opacity-100 group-focus-within/atp:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto"
                   >
 ${indentText(addMenuTemplate('item'), 20)}
                   </span>
                 </div>
-                <SidebarMenuSub v-if="item.children" :open="!!expanded[item.id]" has-icons>
+                <SidebarMenuSub :id="treeId + '-' + item.id" v-if="item.children" :open="!!expanded[item.id]" has-icons>
 ${indentText(subRowsTemplate('item', 'child', 1, subRowsTemplate('child', 'grandchild', 2)), 18)}
                 </SidebarMenuSub>
               </SidebarMenuItem>
@@ -1147,21 +1138,20 @@ ${indentText(subRowsTemplate('item', 'child', 1, subRowsTemplate('child', 'grand
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ activeLabel }}</h1>
+    <component :is="SidebarDemoPage" :title="activeLabel">
         <p class="text-secondary">
           {{ isFlattening ? 'Filtered results shown as a flat list.' : 'Screen → Container / Footer → Elements. Containers and elements are drag-reorderable; Footer stays pinned.' }}
         </p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`;
+</component>`;
 
 const actionTreeScript = `<script setup lang="ts">
-import { computed, ref, watch, type Component } from "vue"
+// Local responsive helpers from the Responsive composition example below.
+import { ResponsiveSidebarProvider, ResponsiveSidebar, SidebarDemoPage } from "./responsive-sidebar"
+import { computed, ref, useId, watch, type Component } from "vue"
 import { Button } from "@plexui/vue/components/Button"
 import { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@plexui/vue/components/Menu"
 import {
@@ -1220,8 +1210,7 @@ const formTypes: NodeType[] = [
 const addMenu = (node: ActionNode): NodeType[][] =>
   node.type === "screen" ? [["container", "footer"]] : [elementTypes, formTypes]
 
-const ghostButton =
-  "${ghostButton}"
+const treeId = useId()
 
 // Demo controls
 const action = ref<"collapse" | "filter">("collapse")
@@ -1367,13 +1356,9 @@ function dropOn(event: DragEvent, id: string) {
   endDrag()
 }
 
-/** Sub rows are 32px tall and indented 24px a level; leaves also skip the chevron column */
+/** Indent each level; leaf rows reserve the disclosure column without adding a control. */
 const rowStyle = (depth: number, node: ActionNode) => ({
-  paddingLeft: 4 + (node.children ? depth : depth + 1) * 24 + "px",
-  paddingRight: "4px",
-  paddingTop: "0",
-  paddingBottom: "0",
-  height: "32px",
+  paddingLeft: "calc(" + (4 + depth * 24) + "px + " + (node.children ? "0px" : "var(--disclosure-width)") + ")",
 })
 </script>`;
 
@@ -1392,6 +1377,7 @@ const ACTION_TREE_STAGE = 'flex-1 w-full !p-0 !items-stretch !justify-stretch [&
  * controls (as in the React demo) set the scope's `action` and `bordered`.
  */
 export function VueSidebarActionTreeDemo() {
+  const treeId = useId();
   const [demo] = useState(createActionTreeDemo);
   const [action, setAction] = useState<'collapse' | 'filter'>('collapse');
   const [bordered, setBordered] = useState(true);
@@ -1424,7 +1410,7 @@ export function VueSidebarActionTreeDemo() {
         />
       </div>
       <div data-demo-stage className={ACTION_TREE_STAGE}>
-        <VuePreview template={actionTreeTemplate} props={demo.scope} />
+        <VuePreview template={actionTreeTemplate} props={{ ...demo.scope, treeId }} />
       </div>
     </>
   );

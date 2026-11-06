@@ -503,10 +503,12 @@ const walk = async (initial: Case, steps: (tools: Tools) => Promise<void>) => {
       advance: (ms) => run(() => vi.advanceTimersByTime(ms)),
       set: (patch) =>
         run(() => {
-          framework === "react" ? update(patch) : Object.assign(vueState, patch)
+          if (framework === "react") update(patch)
+          else Object.assign(vueState, patch)
         }),
       open: async () => {
         await fire(TRIGGER, "pointerDown", { button: 0, ...mouse })
+        await fire(TRIGGER, "click", { button: 0, detail: 1 })
         await run(() => vi.advanceTimersByTime(1))
       },
     }
@@ -699,7 +701,118 @@ describe("Select markup details", () => {
 // ---------------------------------------------------------------------------
 // Behaviour
 
+describe.each([
+  ["animations off", true],
+  ["animations on", false],
+])("Select focus restoration, %s", (_mode, disabled) => {
+  const triggers = [
+    { name: "default", customTrigger: undefined, selector: TRIGGER },
+    { name: "FloatingLabelSelect", customTrigger: "floating", selector: TRIGGER },
+    { name: "Button", customTrigger: "plain", selector: '[data-testid="custom-trigger"]' },
+  ] as const
+
+  test.each(triggers.flatMap((trigger) =>
+    ["mouse", "touch"].map((pointerType) => ({ ...trigger, pointerType })),
+  ))("$name: $pointerType selection keeps focus without a pointer ring", async ({ customTrigger, selector, pointerType }) => {
+    animation.disabled = disabled
+    const result = await walk({ options: "many", value: "o1", customTrigger }, async ({ fire, key, advance, snapshot }) => {
+      await fire(selector, "pointerDown", { button: 0, pointerType })
+      if (customTrigger || pointerType === "touch") await fire(selector, "click", { detail: 1 })
+      await advance(1)
+      expect(document.activeElement).toBe(resolve(SEARCH))
+      // Search/keyboard navigation followed by a tap must use the latest modality.
+      await key("ArrowDown")
+      await fire(option("o3"), "pointerDown", { button: 0, pointerType })
+      await fire(option("o3"), "pointerUp", { pointerType })
+      if (pointerType === "touch") await fire(option("o3"), "click")
+      await advance(200)
+      expect(document.activeElement).toBe(resolve(selector))
+      expect(resolve(selector).hasAttribute("data-menu-pointer-focus")).toBe(true)
+      snapshot()
+      await key("Shift", selector)
+      expect(document.activeElement).toBe(resolve(selector))
+      expect(resolve(selector).hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test.each(triggers.flatMap((trigger) =>
+    ["Enter", "Escape"].map((keyToClose) => ({ ...trigger, keyToClose })),
+  ))("$name: $keyToClose after pointer opening preserves keyboard focus", async ({ customTrigger, selector, keyToClose }) => {
+    animation.disabled = disabled
+    const result = await walk({ options: "many", value: "o1", customTrigger }, async ({ fire, key, advance, snapshot }) => {
+      await fire(selector, "pointerDown", { button: 0, pointerType: "touch" })
+      await fire(selector, "click", { detail: 1 })
+      await advance(1)
+      await key("ArrowDown")
+      // Enter dispatches a synthetic mouse pointerup inside Select.
+      await key(keyToClose)
+      await advance(200)
+      expect(document.activeElement).toBe(resolve(selector))
+      expect(resolve(selector).hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test("pointer marker clears on blur and a later programmatic focus", async () => {
+    animation.disabled = disabled
+    const result = await walk({ options: "many", value: "o1" }, async ({ open, fire, advance, focus, snapshot }) => {
+      await open()
+      await fire(option("o3"), "pointerUp", mouse)
+      await advance(200)
+      expect(resolve(TRIGGER).hasAttribute("data-menu-pointer-focus")).toBe(true)
+      await focus('[data-testid="outside"]')
+      expect(resolve(TRIGGER).hasAttribute("data-menu-pointer-focus")).toBe(false)
+      await focus(TRIGGER)
+      expect(document.activeElement).toBe(resolve(TRIGGER))
+      expect(resolve(TRIGGER).hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test("focus moved outside before the deferred restore is preserved without a marker", async () => {
+    animation.disabled = disabled
+    const result = await walk({ options: "many", value: "o1" }, async ({ open, fire, focus, advance, snapshot }) => {
+      await open()
+      await fire(option("o3"), "pointerUp", mouse)
+      await focus('[data-testid="outside"]')
+      await advance(200)
+      expect(document.activeElement).toBe(resolve('[data-testid="outside"]'))
+      expect(resolve(TRIGGER).hasAttribute("data-menu-pointer-focus")).toBe(false)
+      snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+})
+
 describe("Select pointer behaviour parity", () => {
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name scrolling does not move or clear the keyboard highlight", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await walk({ value: "apple", controlled: true }, async ({ open, fire, key, snapshot }) => {
+        await open()
+        snapshot()
+        await fire(option("mango"), "pointerMove", { pointerType })
+        await fire(option("apple"), "pointerLeave", { pointerType })
+        snapshot()
+        await key("ArrowDown")
+        snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react[1]).toContain('data-highlight=""')
+      expect(result.react[1]).toMatch(/data-highlight=""[^\n]*data-option-id="apple"/)
+      expect(result.react[2]).not.toMatch(/data-highlight=""[^\n]*data-option-id="apple"/)
+    } finally {
+      delete document.documentElement.dataset.input
+    }
+  })
+
   test("pointer down opens; moving highlights; leaving clears; pointer up selects and closes", async () => {
     const result = await walk({ value: "apple", controlled: true }, async ({ open, fire, advance, snapshot }) => {
       await open()
@@ -1036,7 +1149,7 @@ describe("Select keyboard behaviour parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
     expect(result.react[1]).toMatch(/focus: <div class="OptionsList" role="listbox">/)
-    expect(result.react[2]).toMatch(/focus: <div class="Action"> "Organization overview"/)
+    expect(result.react[2]).toMatch(/focus: <div class="Action" role="button"> "Organization overview"/)
   })
 
   test("typeahead in the list highlights, cycles and resets after 500ms", async () => {
@@ -1142,6 +1255,30 @@ describe("Select search behaviour parity", () => {
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).toContain('data-option-id="o11"')
     expect(result.react[0]).not.toContain('data-option-id="o2"')
+  })
+
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name does not hover-highlight the expandable limit row", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await walk({ options: "grouped", value: "6" }, async ({ open, fire, key, snapshot }) => {
+        await open()
+        await fire('[data-option-id^="group-limit-"]', "pointerMove", { pointerType })
+        snapshot()
+        await key("ArrowDown")
+        snapshot()
+        await fire('[data-option-id^="group-limit-"]', "pointerLeave", { pointerType })
+        snapshot()
+        await key("Enter")
+        snapshot()
+      })
+      expect(result.vue).toEqual(result.react)
+      expect(result.react.map((dom) => activeOptionOf(dom, COMBOBOX_LINE))).toEqual(["6", "group-limit-[id]", "group-limit-[id]", "7"])
+    } finally {
+      delete document.documentElement.dataset.input
+    }
   })
 
   test("groups: Show all expands and highlights the first new option; a search hides the limit", async () => {
@@ -1439,7 +1576,7 @@ describe("Select edge behaviour parity", () => {
     expect(result.react[1]).toContain('"Docs"')
   })
 
-  test("loading: a custom trigger cannot open it; loading while open keeps it open", async () => {
+  test("loading: a custom trigger cannot open it; loading while open closes it", async () => {
     const result = await walk({ customTrigger: "plain", props: { loading: true } }, async ({ fire, set, advance, snapshot, open }) => {
       await fire('[data-testid="custom-trigger"]', "click")
       await advance(1)
@@ -1447,11 +1584,11 @@ describe("Select edge behaviour parity", () => {
       await set({ customTrigger: undefined, props: {} })
       await open()
       await set({ props: { loading: true } })
-      snapshot() // still open, trigger loading
+      snapshot() // closed, trigger loading
     })
     expect(result.vue).toEqual(result.react)
     expect(result.react[0]).not.toContain('role="dialog"')
-    expect(result.react[1]).toContain('role="dialog"')
+    expect(result.react[1]).not.toContain('role="dialog"')
     expect(result.react[1]).toContain('aria-busy="true"')
   })
 
@@ -1591,7 +1728,7 @@ describe("Select listbox semantics parity", () => {
     expect(attrOf(lineOf(custom.react[0]!, LISTBOX_LINE), "aria-labelledby")).toBeUndefined()
   })
 
-  test("the Show all row can be the active option; it is not selectable", async () => {
+  test("the Show all row can be active but is never a selected value", async () => {
     const result = await walk({ options: "grouped", value: "6" }, async ({ open, key, snapshot }) => {
       await open()
       await key("ArrowDown")
@@ -1600,7 +1737,7 @@ describe("Select listbox semantics parity", () => {
     expect(result.vue).toEqual(result.react)
     // 16 options: searchable, the combobox holds the active option
     expect(activeOptionOf(result.react[0]!, COMBOBOX_LINE)).toBe("group-limit-[id]")
-    expect(lineOf(result.react[0]!, /data-option-id="group-limit-/)).not.toContain("aria-selected")
+    expect(lineOf(result.react[0]!, /data-option-id="group-limit-/)).toContain('aria-selected="false"')
   })
 
   test("option groups: each group is a group named by its heading; ungrouped lists have no groups", async () => {
@@ -1811,5 +1948,109 @@ describe("Select server rendering parity", () => {
     expect(document.body.innerHTML).toContain('<span class="Menu">')
     app.unmount()
     container.remove()
+  })
+})
+
+
+describe("Select committed activation and live availability", () => {
+  test("click-only assistive activation opens and selects without any pointer events", async () => {
+    const result = await walk({ controlled: true, value: "apple" }, async ({ fire, advance }) => {
+      await fire(TRIGGER, "click", { detail: 0 })
+      await advance(1)
+      expect(document.querySelector(LIST)).not.toBeNull()
+      await fire(option("mango"), "click", { detail: 0 })
+      expect(events).toEqual(['change {"value":"mango","label":"Mango"}'])
+      expect(resolve(TRIGGER).textContent).toContain("Mango")
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test.each(["touch", "pen"])("%s scroll/cancel does not open; a committed tap selects exactly once", async (pointerType) => {
+    await walk({ controlled: true, value: "apple" }, async ({ fire, advance }) => {
+      await fire(TRIGGER, "pointerDown", { button: 0, pointerType, pointerId: 1 })
+      expect(document.querySelector(LIST)).toBeNull()
+      await fire(TRIGGER, "pointerCancel", { pointerType, pointerId: 1 })
+      expect(document.querySelector(LIST)).toBeNull()
+      await fire(TRIGGER, "pointerDown", { button: 0, pointerType, pointerId: 2 })
+      await fire(TRIGGER, "pointerUp", { button: 0, pointerType, pointerId: 2 })
+      await fire(TRIGGER, "click", { detail: 1 })
+      await advance(1)
+      expect(document.querySelector(LIST)).not.toBeNull()
+      await fire(option("mango"), "pointerDown", { button: 0, pointerType })
+      await fire(option("mango"), "pointerCancel", { pointerType })
+      expect(events).toEqual([])
+      await fire(option("mango"), "pointerUp", { button: 0, pointerType })
+      expect(events).toEqual([])
+      await fire(option("mango"), "click", { detail: 1 })
+      expect(events).toEqual(['change {"value":"mango","label":"Mango"}'])
+    })
+  })
+
+  test("mouse press-drag-select commits once across a controlled rerender; unrelated virtual click still works", async () => {
+    await walk({ multiple: true, value: [], controlled: true }, async ({ open, fire }) => {
+      await open()
+      await fire(option("apple"), "pointerUp", { button: 0, pointerType: "mouse" })
+      await fire(option("apple"), "click", { detail: 1 })
+      expect(events).toHaveLength(1)
+      await fire(option("banana"), "click", { detail: 0 })
+      expect(events).toHaveLength(2)
+      expect(events[1]).toContain('"banana"')
+    })
+  })
+
+  test.each([{ isComposing: true }, { keyCode: 229 }])("IME confirmation does not select or close (%j)", async (composition) => {
+    await walk({ options: "many", value: "o1" }, async ({ open, fire }) => {
+      await open()
+      await fire(SEARCH, "keyDown", { key: "Enter", ...composition })
+      expect(events).toEqual([])
+      expect(document.querySelector(LIST)).not.toBeNull()
+      await fire(SEARCH, "keyDown", { key: "Enter" })
+      expect(events).toHaveLength(1)
+    })
+  })
+
+  test.each(["disabled", "loading"])("live %s closes an open menu and rejects selection during exit", async (state) => {
+    animation.disabled = false
+    await walk({ value: "apple", controlled: true }, async ({ open, set, fire, advance }) => {
+      await open()
+      const oldOption = resolve(option("mango"))
+      await set({ props: { [state]: true } })
+      await fire(() => oldOption, "pointerUp", { button: 0, pointerType: "mouse" })
+      await fire(() => oldOption, "click", { detail: 0 })
+      expect(events).toEqual([])
+      await advance(300)
+      await advance(1)
+      expect(document.querySelector(LIST)).toBeNull()
+      expect(document.activeElement).toBe(resolve(TRIGGER))
+      await fire(TRIGGER, "click", { detail: 0 })
+      expect(document.querySelector(LIST)).toBeNull()
+    })
+  })
+
+  test("assistive click activates an action and expands a grouped limit", async () => {
+    await walk({ actions: true }, async ({ open, fire }) => {
+      await open()
+      const action = document.querySelector(".Action")
+      expect(action?.getAttribute("role")).toBe("button")
+      await fire(() => action, "click", { detail: 0 })
+      expect(events.some((event) => event.startsWith("action"))).toBe(true)
+    })
+    await walk({ options: "grouped" }, async ({ open, fire }) => {
+      await open()
+      const before = document.querySelectorAll('[role="option"]').length
+      await fire('.OptionsLimit', "click", { detail: 0 })
+      expect(document.querySelectorAll('[role="option"]').length).toBeGreaterThan(before)
+    })
+  })
+})
+
+
+test("Select closed typeahead ignores composition letters and legacy IME confirmation", async () => {
+  await walk({ value: "apple", controlled: true }, async ({ fire }) => {
+    await fire(TRIGGER, "keyDown", { key: "m", isComposing: true })
+    await fire(TRIGGER, "keyDown", { key: "b", keyCode: 229 })
+    expect(events).toEqual([])
+    await fire(TRIGGER, "keyDown", { key: "m" })
+    expect(events).toEqual(['change {"value":"mango","label":"Mango"}'])
   })
 })

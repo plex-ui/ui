@@ -39,7 +39,7 @@ import {
 import type { ControlSize } from "@plexui/styles/types"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
 import { useFieldRowPill } from "../../lib/fieldRow.js"
-import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
+import { preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers.js"
 import { Check, Info, Search } from "../Icon/index.js"
 import { Input } from "../Input/index.js"
 import { useDeferredPointerDownOutside } from "../Popover/deferredPointerDownOutside.js"
@@ -50,6 +50,10 @@ import { composeEventHandlers, firstElementChild, mergeSlotProps } from "../Tool
 import getDisableAnimations from "../Transition/getDisableAnimations.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { overlayTiming } from "../Transition/shared.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
+import { createSelectPress } from "../../lib/selectPress.js"
+import { createFocusRestore } from "../../lib/focusRestore.js"
+import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
 // Vue port of packages/ui/src/components/Select/Select.tsx on Reka UI.
@@ -409,6 +413,7 @@ const SelectComponent = defineComponent({
     }
 
     const onSelect = (selectedOption: Option, removeOption?: boolean) => {
+      if (props.disabled || props.loading || getOptionByValue(props.options, selectedOption.value)?.disabled) return
       const { multiple, options } = props
       const value = props.value as string[]
 
@@ -441,6 +446,7 @@ const SelectComponent = defineComponent({
     )
     // Action callbacks always come from the latest actions
     const onActionSelect = (actionId: string) => {
+      if (props.disabled || props.loading) return
       ;(props.actions ?? []).find((a) => a.id === actionId)?.onSelect(actionId)
     }
 
@@ -508,6 +514,7 @@ const SelectTrigger = defineComponent({
     }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.defaultPrevented || evt.isComposing || evt.keyCode === 229) return
       const key = evt.key
       const { multiple, value, options } = props
       const firstValue = multiple ? (value as string[])[0] : (value as string)
@@ -691,10 +698,14 @@ const CustomSelect = defineComponent({
     // Not before mount: server rendering and hydration render no teleport,
     // as Radix's Portal renders nothing before mount
     const mounted = ref(false)
+    let focusRestore: ReturnType<typeof createFocusRestore> | undefined
+    let focusRestoreTimer: ReturnType<typeof setTimeout> | undefined
 
     const handleOpenChange = (maybeNextState?: boolean) => {
+      clearTimeout(focusRestoreTimer)
       // Toggle the current state when called without a specific state
       const nextState = maybeNextState === undefined ? !open.value : maybeNextState
+      if (nextState && (props.disabled || props.loading)) return
       open.value = nextState
 
       // When we're closing, manage focus back to trigger manually
@@ -704,7 +715,7 @@ const CustomSelect = defineComponent({
         const focusWasInMenu = !!selectContentRef.value?.contains(document.activeElement)
 
         // Wait until the next tick to determine if another element has become focused
-        setTimeout(() => {
+        focusRestoreTimer = setTimeout(() => {
           const activeElement = document.activeElement
           const menu = selectContentRef.value
           const focusInMenu = !!menu && !!activeElement && menu.contains(activeElement)
@@ -713,11 +724,16 @@ const CustomSelect = defineComponent({
 
           // Focus that moved to another element outside the menu stays there
           if (focusInMenu || (focusWasInMenu && focusLost)) {
-            popoverTriggerEl.value?.focus()
+            const trigger = popoverTriggerEl.value
+            if (trigger) focusRestore?.restore(trigger)
           }
         })
       }
     }
+
+    watch(() => [props.disabled, props.loading], () => {
+      if (open.value && (props.disabled || props.loading)) handleOpenChange(false)
+    }, { flush: "sync" })
 
     useEscCloseStack(open, () => {
       handleOpenChange(false)
@@ -763,10 +779,13 @@ const CustomSelect = defineComponent({
     onMounted(() => {
       mounted.value = true
       mountedSelectLayers.add(layer)
-      listenerDocument = triggerEl.value?.ownerDocument ?? document
+      listenerDocument = popoverTriggerEl.value?.ownerDocument ?? triggerEl.value?.ownerDocument ?? document
+      focusRestore = createFocusRestore(listenerDocument)
       listenerDocument.addEventListener("focusin", handleFocusIn)
     })
     onBeforeUnmount(() => {
+      clearTimeout(focusRestoreTimer)
+      focusRestore?.dispose()
       mountedSelectLayers.delete(layer)
       listenerDocument?.removeEventListener("focusin", handleFocusIn)
       listenerDocument = null
@@ -776,7 +795,7 @@ const CustomSelect = defineComponent({
       const renderProps: SelectTriggerRenderProps = {
         open: open.value,
         onToggle: () => {
-          open.value = !open.value
+          if (!props.disabled && !props.loading) open.value = !open.value
         },
       }
       if (slots.trigger) return slots.trigger(renderProps)
@@ -826,7 +845,10 @@ const SelectContentElement = markRaw(
       }
 
       return () => {
-        const { "dir": _dir, "aria-labelledby": _labelledBy, "forceMount": _forceMount, style, ...rest } = attrs
+        const { style, ...rest } = attrs
+        delete rest.dir
+        delete rest["aria-labelledby"]
+        delete rest.forceMount
         return h("div", { ...rest, style: withRadixVariableNames(style, "popover"), ref: setContentRef }, slots.default?.())
       }
     },
@@ -837,7 +859,8 @@ const SelectPopoverContent = defineComponent({
   name: "SelectPopoverContent",
   setup() {
     const { props, align, alignOffset, listWidth, listMaxWidth, pill } = useSelectContext()
-    const { handleRootOpenChange, popoverTriggerEl } = inject(CustomSelectContextKey)!
+    const { handleRootOpenChange, popoverTriggerEl, open } = inject(CustomSelectContextKey)!
+    const floatingBoundary = useFloatingBoundary(() => open.value && props.avoidCollisions, { bottom: 30, top: 30 })
     // Radix (1.8.1) dismisses on the click that follows a primary pointer down outside
     const { onPointerDownOutside, onFocusOutside } = useDeferredPointerDownOutside((originalEvent) => {
       // The trigger is not outside: Radix's non-modal content keeps the popover open
@@ -858,7 +881,7 @@ const SelectPopoverContent = defineComponent({
           align: align.value,
           alignOffset: alignOffset.value,
           avoidCollisions: props.avoidCollisions,
-          collisionPadding: { bottom: 30, top: 30 },
+          ...floatingBoundary.value,
           // Prevent Reka's auto focus so we can handle our own from within <CustomSelectMenu />
           onOpenAutoFocus: preventDefaultHandler,
           onCloseAutoFocus: preventDefaultHandler,
@@ -940,6 +963,7 @@ const CustomSelectMenu = defineComponent({
     const requestClose = () => handleOpenChange(false)
 
     const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.defaultPrevented || evt.isComposing || evt.keyCode === 229) return
       const key = evt.key
       const multiple = props.multiple
       const value = props.value
@@ -956,15 +980,8 @@ const CustomSelectMenu = defineComponent({
       }
 
       const triggerHighlightedOption = () => {
-        const pointerUpEvent = new PointerEvent("pointerup", {
-          bubbles: true,
-          cancelable: true,
-          pointerType: "mouse",
-        })
-
-        // Find the current highlighted option
         const selectedOption = findOptionByValue(currentHighlightedValue, menuElement)
-        selectedOption?.dispatchEvent(pointerUpEvent)
+        selectedOption?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }))
       }
 
       const highlightOption = (val: string, element: Element) => {
@@ -1210,7 +1227,7 @@ const CustomSelectSearch = defineComponent({
     hasResults: { type: Boolean, required: true },
   },
   emits: {
-    "update:value": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
   },
   setup(props, { emit }) {
     const { props: selectProps } = useSelectContext()
@@ -1408,6 +1425,16 @@ const CustomSelectHardLimit = defineComponent({
   },
 })
 
+const selectPress = (action: () => void) => {
+  const press = createSelectPress()
+  return {
+    onPointerdown: press.onPointerDown,
+    onPointercancel: press.onPointerCancel,
+    onPointerup: (event: PointerEvent) => { if (press.onPointerUp(event)) action() },
+    onClick: (event: MouseEvent) => { if (press.onClick(event)) action() },
+  }
+}
+
 const CustomSelectExpandableLimit = defineComponent({
   name: "CustomSelectExpandableLimit",
   props: {
@@ -1420,7 +1447,8 @@ const CustomSelectExpandableLimit = defineComponent({
     const { highlightedValue } = useCustomSelectMenuContext()
     const optionId = useId()
 
-    const handlePointerMove = () => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!isHoverPointer(event)) return
       if (props.value === highlightedValue.value) {
         return
       }
@@ -1428,7 +1456,8 @@ const CustomSelectExpandableLimit = defineComponent({
       highlightedValue.value = props.value
     }
 
-    const handlePointerLeave = () => {
+    const handlePointerLeave = (event: PointerEvent) => {
+      if (!isHoverPointer(event)) return
       // Clear the highlight only if it is this one
       if (highlightedValue.value === props.value) {
         highlightedValue.value = ""
@@ -1437,6 +1466,8 @@ const CustomSelectExpandableLimit = defineComponent({
 
     // This component acts a LOT like an Option, but has enough bespoke behavior
     // that it cannot literally be one.
+    const press = selectPress(() => props.onPointerUp())
+
     return () => {
       const isHighlighted = props.value === highlightedValue.value
 
@@ -1447,9 +1478,10 @@ const CustomSelectExpandableLimit = defineComponent({
           "class": clsx(s.Option, s.OptionsLimit),
           "data-option-id": props.value,
           "data-highlight": isHighlighted ? "" : undefined,
-          // Not selectable: no aria-selected
+          // An expandable action, never a selected value.
           "role": "option",
-          "onPointerup": props.onPointerUp,
+          "aria-selected": "false",
+          ...press,
           "onPointermove": handlePointerMove,
           "onPointerleave": handlePointerLeave,
         },
@@ -1496,7 +1528,10 @@ const CustomSelectOption = defineComponent({
       }
     }
 
-    const handlePointerMove = () => {
+    const press = selectPress(handlePointerUp)
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!isHoverPointer(event)) return
       if (props.option.value === highlightedValue.value) {
         return
       }
@@ -1504,7 +1539,8 @@ const CustomSelectOption = defineComponent({
       highlightedValue.value = props.option.value
     }
 
-    const handlePointerLeave = () => {
+    const handlePointerLeave = (event: PointerEvent) => {
+      if (!isHoverPointer(event)) return
       // Clear the highlight only if it is this one, removing the active highlight on the menu.
       if (highlightedValue.value === props.option.value) {
         highlightedValue.value = ""
@@ -1545,7 +1581,7 @@ const CustomSelectOption = defineComponent({
           // Internal attribute for selecting DOM nodes
           [INTERNAL_DOM_SELECTION_DATA_ATTR]: value,
           // Allow options to behave like a native select, when you can open and select an item in a single click
-          ...(disabled ? {} : pressHandlers(handlePointerUp)),
+          ...(disabled ? {} : press),
           // Pointer move prevents contention between keyboard presses and a still mouse
           "onPointermove": disabled ? undefined : handlePointerMove,
           "onPointerleave": disabled ? undefined : handlePointerLeave,
@@ -1634,6 +1670,7 @@ const CustomSelectAction = defineComponent({
     }
 
     const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.defaultPrevented || evt.isComposing || evt.keyCode === 229) return
       const key = evt.key
 
       switch (key) {
@@ -1643,6 +1680,7 @@ const CustomSelectAction = defineComponent({
         case "Enter":
         case " ":
           evt.stopPropagation()
+          evt.preventDefault()
           handlePointerUp()
           break
         case "Escape":
@@ -1654,9 +1692,11 @@ const CustomSelectAction = defineComponent({
       }
     }
 
+    const press = selectPress(handlePointerUp)
+
     return () => {
       const { label, Icon, className } = props.action
-      return h("div", { class: s.Action, ...pressHandlers(handlePointerUp), onKeydown: handleKeyDown, tabindex: 0 }, [
+      return h("div", { class: s.Action, ...press, role: "button", onKeydown: handleKeyDown, tabindex: 0 }, [
         h("div", { class: clsx(s.ActionInner, className) }, [Icon ? h(Icon, { role: "presentation" }) : null, label]),
       ])
     }

@@ -45,7 +45,7 @@ import {
 <ComponentPreview details={<>Stylize the link with <code>color</code> and <code>variant</code> props.</>} code={`const colors = ["primary", "secondary", "danger", "info", "discovery", "success", "caution", "warning"] as const
 const variants = ["soft", "solid", "outline", "ghost"] as const
 
-<div className="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div className="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
   <div className="pt-1 pb-6 px-8 w-fit min-w-full">
     <div className="grid gap-6 items-center justify-center" style={{ gridTemplateColumns: "auto repeat(8, min-content)" }}>
       <div />
@@ -109,6 +109,8 @@ const variants = ["soft", "solid", "outline", "ghost"] as const
 
 ## API
 
+For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
+
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Content inside the link button" },
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color" },
@@ -122,6 +124,7 @@ const variants = ["soft", "solid", "outline", "ghost"] as const
   { prop: "external", type: "boolean", description: "Force external-link behavior" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
   { prop: "disabledTone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },

@@ -1,6 +1,6 @@
 "use client"
 
-import { DropdownMenu } from "radix-ui"
+import { DropdownMenu, Slot } from "radix-ui"
 import React, {
   type ComponentProps,
   type ComponentType,
@@ -9,25 +9,63 @@ import React, {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react"
 
 import clsx from "clsx"
+import { useFloatingBoundary } from "../../hooks/useFloatingBoundary"
+import { usePhoneSubmenu } from "../../hooks/usePhoneSubmenu"
+import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement"
+import { captureInitialPhoneSubmenuFocus, completeInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { Button } from "../Button"
-import { Check, ChevronRight } from "../Icon"
+import { Check, ChevronDown, ChevronRight } from "../Icon"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingQuick } from "../Transition/shared"
+import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
+
+// A delayed programmatic restore may inherit focus-visible from the menu.
+// Keep the focus, but suppress the Button ring only for this pointer restore.
+const markPointerFocusRestore = (trigger: HTMLElement) => {
+  const doc = trigger.ownerDocument
+  let active = true
+  let restoring = true
+  const clear = () => {
+    active = false
+    trigger.removeAttribute("data-menu-pointer-focus")
+    trigger.removeEventListener("blur", clear)
+    trigger.removeEventListener("focus", onFocus)
+    doc.removeEventListener("keydown", clear, true)
+  }
+  const onFocus = () => {
+    if (!restoring) clear()
+  }
+  trigger.setAttribute("data-menu-pointer-focus", "")
+  trigger.addEventListener("blur", clear)
+  trigger.addEventListener("focus", onFocus)
+  doc.addEventListener("keydown", clear, true)
+  queueMicrotask(() => {
+    if (!active) return
+    restoring = false
+    // Radix can skip its restore after an outside interaction.
+    if (doc.activeElement !== trigger) clear()
+  })
+  return clear
+}
 
 type MenuContextValue = {
   open: boolean
   setOpen: (next: boolean) => void
+  prepareFocusRestore: (trigger: HTMLElement) => void
+  isUsingKeyboard: React.RefObject<boolean>
 }
 
 const MenuContext = createContext<MenuContextValue | null>(null)
@@ -60,6 +98,34 @@ export type MenuProps = {
 export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: MenuProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const isOpen = forceOpen ?? open
+  const isUsingKeyboard = useRef(false)
+  const clearPointerFocus = useRef<(() => void) | undefined>(undefined)
+
+  useEffect(() => {
+    const onKeyDown = () => {
+      isUsingKeyboard.current = true
+    }
+    const onPointer = () => {
+      isUsingKeyboard.current = false
+    }
+    document.addEventListener("keydown", onKeyDown, true)
+    document.addEventListener("pointerdown", onPointer, true)
+    document.addEventListener("pointermove", onPointer, true)
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true)
+      document.removeEventListener("pointerdown", onPointer, true)
+      document.removeEventListener("pointermove", onPointer, true)
+      clearPointerFocus.current?.()
+    }
+  }, [])
+
+  const prepareFocusRestore = useCallback((trigger: HTMLElement) => {
+    clearPointerFocus.current?.()
+    clearPointerFocus.current = undefined
+    if (!isUsingKeyboard.current && trigger.isConnected) {
+      clearPointerFocus.current = markPointerFocusRestore(trigger)
+    }
+  }, [])
 
   const latestOnOpen = useLatestValue(onOpen)
   const latestOnClose = useLatestValue(onClose)
@@ -84,8 +150,10 @@ export const Menu = ({ children, forceOpen, onOpen, onClose, modal = false }: Me
     () => ({
       open: isOpen,
       setOpen: handleOpenChange,
+      prepareFocusRestore,
+      isUsingKeyboard,
     }),
-    [isOpen, handleOpenChange],
+    [isOpen, handleOpenChange, prepareFocusRestore],
   )
 
   return (
@@ -123,7 +191,7 @@ const Item = ({ className, children, description, disabled, danger, onSelect, on
   // https://github.com/radix-ui/primitives/blob/main/packages/react/menu/src/Menu.tsx#L712-L734
   const handlePreventAfterClose = (evt: React.PointerEvent<HTMLDivElement>) => {
     // Prevent default behavior when we're always known to be closing
-    if (!open) {
+    if (!open || !isHoverPointer(evt)) {
       evt.preventDefault()
     }
   }
@@ -146,7 +214,7 @@ const Item = ({ className, children, description, disabled, danger, onSelect, on
       <DropdownMenu.Item
         className={clsx(s.MenuItem, className)}
         onSelect={onSelect}
-        onClick={onClick}
+        onClick={disabled ? undefined : onClick}
         disabled={disabled}
         data-danger={danger ? "" : undefined}
         onPointerMove={handlePreventAfterClose}
@@ -239,7 +307,7 @@ const Link = ((
   // https://github.com/radix-ui/primitives/blob/main/packages/react/menu/src/Menu.tsx#L712-L734
   const handlePreventAfterClose = (evt: React.PointerEvent<HTMLDivElement>) => {
     // Prevent default behavior when we're always known to be closing
-    if (!open) {
+    if (!open || !isHoverPointer(evt)) {
       evt.preventDefault()
     }
   }
@@ -254,8 +322,8 @@ const Link = ((
       className={clsx(s.MenuItem, className)}
       disabled={disabled}
       data-danger={danger ? "" : undefined}
-      onPointerMove={isExternal ? undefined : handlePreventAfterClose}
-      onPointerLeave={isExternal ? undefined : handlePreventAfterClose}
+      onPointerMove={handlePreventAfterClose}
+      onPointerLeave={handlePreventAfterClose}
     >
       <Component
         {...linkProps}
@@ -356,6 +424,18 @@ export type MenuContentProps = {
   onCloseAutoFocus?: DropdownMenu.DropdownMenuContentProps["onCloseAutoFocus"]
 }
 
+/**
+ * Radix forwards `onOpenAutoFocus` from DropdownMenu.Content to its internal
+ * MenuContentImpl at runtime, but the public DropdownMenu types omit that
+ * private prop. Phone submenu initial focus needs it to replace the
+ * content-level mount focus, so the extra prop is declared here explicitly.
+ */
+const RootMenuContent = DropdownMenu.Content as React.ForwardRefExoticComponent<
+  DropdownMenu.DropdownMenuContentProps & {
+    onOpenAutoFocus?: (event: Event) => void
+  } & React.RefAttributes<HTMLDivElement>
+>
+
 const Content = ({
   children,
   side,
@@ -370,7 +450,9 @@ const Content = ({
   size,
   onCloseAutoFocus,
 }: MenuContentProps) => {
-  const { open } = useMenuContext()
+  const { open, prepareFocusRestore } = useMenuContext()
+  const contentRef = useRef<HTMLDivElement>(null)
+  const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
   const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
 
@@ -378,8 +460,10 @@ const Content = ({
     <DropdownMenu.Portal forceMount>
       <TransitionGroup className={s.Menu} {...overlayTiming} {...exitGuard.transition} overlay>
         {open && (
-          <DropdownMenu.Content
+          <RootMenuContent
             key="dropdown"
+            ref={contentRef}
+            onOpenAutoFocus={(event) => delegateInitialPhoneSubmenuFocus(event, contentRef.current)}
             forceMount
             className={s.MenuList}
             data-pill={pill ? "" : undefined}
@@ -388,12 +472,17 @@ const Content = ({
             align={align}
             alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}
             avoidCollisions
-            collisionPadding={{ bottom: 30, top: 30, left: 12, right: 12 }}
+            {...floatingBoundary}
             onEscapeKeyDown={preventDefaultHandler}
             onInteractOutside={exitGuard.onInteractOutside}
             onCloseAutoFocus={(event) => {
               onCloseAutoFocus?.(event)
               keepMovedFocus(event)
+              if (event.defaultPrevented) return
+              const content = event.target
+              if (!(content instanceof HTMLElement)) return
+              const trigger = content.ownerDocument.getElementById(content.getAttribute("aria-labelledby") ?? "")
+              if (trigger) prepareFocusRestore(trigger)
             }}
             data-layout={isHorizontal ? "horizontal" : undefined}
             data-size={isHorizontal && size ? size : undefined}
@@ -404,24 +493,73 @@ const Content = ({
             })}
           >
             {children}
-          </DropdownMenu.Content>
+          </RootMenuContent>
         )}
       </TransitionGroup>
     </DropdownMenu.Portal>
   )
 }
 
+type TriggerActivation = Pick<React.ButtonHTMLAttributes<HTMLButtonElement>, "onPointerDown" | "onPointerCancel" | "onClick" | "onKeyDown">
+
+// Keep Radix's public trigger registration, attributes and ref while owning
+// activation. Its pointerdown-only behavior cannot commit touch/AT clicks.
+const TriggerElement = ({ activation, ...props }: ComponentProps<typeof Slot.Root> & { activation: TriggerActivation }) => {
+  delete props.onPointerDown
+  delete props.onPointerCancel
+  delete props.onClick
+  delete props.onKeyDown
+  return <Slot.Root {...props} {...activation} />
+}
+
 const Trigger = ({
   children,
   disabled,
+  onPointerDown,
+  onPointerCancel,
+  onClick,
+  onKeyDown,
   ...restProps
 }: DropdownMenu.DropdownMenuTriggerProps & { ref?: React.Ref<HTMLButtonElement> }) => {
-  // Always composes onto the child (asChild after the spread wins over a
-  // caller's asChild); other props (aria-*, handlers, ref) reach it through
-  // the Slot instead of being dropped
+  const { open, setOpen } = useMenuContext()
+  const handledClick = useRef(false)
+  const activation: TriggerActivation = {
+    onPointerDown: (event) => {
+      handledClick.current = false
+      onPointerDown?.(event)
+      if (event.defaultPrevented) {
+        handledClick.current = true
+        return
+      }
+      if (disabled || event.button !== 0 || event.ctrlKey) return
+      if (event.pointerType === "pen" || !isHoverPointer(event)) return
+      handledClick.current = true
+      setOpen(!open)
+      if (!open) event.preventDefault()
+    },
+    onPointerCancel: (event) => {
+      handledClick.current = false
+      onPointerCancel?.(event)
+    },
+    onClick: (event) => {
+      const handled = handledClick.current
+      handledClick.current = false
+      onClick?.(event)
+      if (event.defaultPrevented || disabled || event.button !== 0 || event.ctrlKey) return
+      if (handled && event.detail !== 0) return
+      setOpen(!open)
+    },
+    onKeyDown: (event) => {
+      onKeyDown?.(event)
+      if (event.defaultPrevented || disabled || event.nativeEvent.isComposing || event.keyCode === 229) return
+      if (["Enter", " "].includes(event.key)) setOpen(!open)
+      if (event.key === "ArrowDown") setOpen(true)
+      if (["Enter", " ", "ArrowDown"].includes(event.key)) event.preventDefault()
+    },
+  }
   return (
     <DropdownMenu.Trigger {...restProps} asChild disabled={disabled}>
-      {children}
+      <TriggerElement activation={activation}>{children}</TriggerElement>
     </DropdownMenu.Trigger>
   )
 }
@@ -430,6 +568,7 @@ type SubmenuContextValue = {
   open: boolean
   setOpen: (next: boolean) => void
   triggerRef: React.RefObject<HTMLDivElement | null>
+  triggerDisabledRef: React.RefObject<boolean>
 }
 
 const SubmenuContext = createContext<SubmenuContextValue | null>(null)
@@ -457,6 +596,7 @@ export type SubmenuProps = {
 const Sub = ({ children, forceOpen, onOpen, onClose }: SubmenuProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const triggerRef = useRef<HTMLDivElement>(null)
+  const triggerDisabledRef = useRef(false)
   const isOpen = forceOpen ?? open
 
   const latestOnOpen = useLatestValue(onOpen)
@@ -464,6 +604,7 @@ const Sub = ({ children, forceOpen, onOpen, onClose }: SubmenuProps) => {
 
   const handleOpenChange = useCallback(
     (nextState: boolean) => {
+      if (nextState && triggerDisabledRef.current) return
       setOpen(nextState)
       if (nextState) {
         latestOnOpen.current?.()
@@ -485,6 +626,7 @@ const Sub = ({ children, forceOpen, onOpen, onClose }: SubmenuProps) => {
       open: isOpen,
       setOpen: handleOpenChange,
       triggerRef,
+      triggerDisabledRef,
     }),
     [isOpen, handleOpenChange],
   )
@@ -508,13 +650,17 @@ const SubTrigger = ({
   disabled?: boolean
 }) => {
   const { open } = useMenuContext()
-  const { triggerRef } = useSubmenuContext()
+  const { triggerRef, triggerDisabledRef } = useSubmenuContext()
+  useLayoutEffect(() => {
+    triggerDisabledRef.current = !!disabled
+    return () => { triggerDisabledRef.current = false }
+  }, [disabled, triggerDisabledRef])
 
   // This handler patches over focus races with core Radix primitives
   // https://github.com/radix-ui/primitives/blob/main/packages/react/menu/src/Menu.tsx#L712-L734
   const handlePreventAfterClose = (evt: React.PointerEvent<HTMLDivElement>) => {
     // Prevent default behavior when we know the outer menu is closing
-    if (!open) {
+    if (!open || !isHoverPointer(evt)) {
       evt.preventDefault()
     }
   }
@@ -550,32 +696,87 @@ const SubContent = ({
   sideOffset = 4,
   alignOffset = -6,
   width = "auto",
-  minWidth = "auto",
+  minWidth,
   maxHeight,
   pill = false,
 }: SubContentProps) => {
-  const { open } = useSubmenuContext()
+  const { open, setOpen, triggerRef } = useSubmenuContext()
+  const { isUsingKeyboard } = useMenuContext()
+  const latestOpen = useLatestValue(open)
+  const [content, setContent] = useState<HTMLDivElement | null>(null)
+  const stopInitialFocusCapture = useRef<(() => void) | undefined>(undefined)
+  const setContentRef = useCallback((element: HTMLDivElement | null) => {
+    stopInitialFocusCapture.current?.()
+    stopInitialFocusCapture.current = element ? captureInitialPhoneSubmenuFocus(element, () => isUsingKeyboard.current) : undefined
+    setContent(element)
+  }, [isUsingKeyboard])
+  const [exitGuard] = useState(createExitGuard)
+  const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
+  const phone = usePhoneSubmenu(open, triggerRef, content, floatingBoundary)
+  // Resize recovery is not a new keyboard entry after returning to the trigger.
+  const phoneWasUnavailable = useRef(false)
+  useLayoutEffect(() => {
+    if (!open) { phoneWasUnavailable.current = false; return }
+    if (phone.mobile && phone.unavailable) phoneWasUnavailable.current = true
+    if (content && triggerRef.current && completeInitialPhoneSubmenuFocus(triggerRef.current, content)) return
+    if (phone.mobile && phone.ready && !phoneWasUnavailable.current && content && isUsingKeyboard.current && content.ownerDocument.activeElement === triggerRef.current) {
+      focusPhoneSubmenuEntry(content)
+    }
+  }, [open, phone, content, isUsingKeyboard, triggerRef])
+  const collapse = (event: Event) => {
+    event.preventDefault()
+    if (!latestOpen.current) return
+    setOpen(false)
+    triggerRef.current?.focus({ preventScroll: true })
+  }
 
   return (
     <DropdownMenu.Portal forceMount>
-      <TransitionGroup className={s.Menu} {...overlayTimingQuick} overlay>
+      <TransitionGroup className={s.Menu} {...overlayTimingQuick} {...exitGuard.transition} overlay>
         {open && (
           <DropdownMenu.SubContent
             key="submenu"
+            ref={setContentRef}
             className={s.MenuList}
             data-submenu=""
             data-pill={pill ? "" : undefined}
-            sideOffset={sideOffset}
-            alignOffset={alignOffset}
-            avoidCollisions
-            collisionPadding={{ bottom: 30, top: 30, left: 12, right: 12 }}
-            onEscapeKeyDown={preventDefaultHandler}
+            sideOffset={phone.mobile ? phone.sideOffset : sideOffset}
+            alignOffset={phone.mobile ? phone.alignOffset : alignOffset}
+            avoidCollisions={!phone.mobile}
+            {...floatingBoundary}
+            onEscapeKeyDown={(event) => {
+              event.preventDefault()
+              // The primitive identifies the topmost submenu even when a
+              // controlled-open child mounts in the same commit as its root.
+              if (phone.mobile && latestOpen.current) {
+                event.stopPropagation()
+                collapse(event)
+              }
+            }}
+            onInteractOutside={exitGuard.onInteractOutside}
+            onFocusOutside={exitGuard.onInteractOutside}
+            onFocus={(event) => {
+              if (phone.mobile && event.target === event.currentTarget && isUsingKeyboard.current) {
+                event.preventDefault()
+                focusPhoneSubmenuEntry(event.currentTarget)
+              }
+            }}
             style={toCssVariables({
               "menu-width": width,
-              "menu-min-width": minWidth,
+              "menu-min-width": minWidth ?? "auto",
               "menu-max-height": maxHeight,
+              "menu-phone-width": phone.mobile && typeof width === "number" ? width : undefined,
+              "menu-phone-min-width": phone.mobile ? (minWidth === "auto" ? 0 : minWidth) : undefined,
             })}
           >
+            {phone.mobile && (
+              <DropdownMenu.Item className={clsx(s.MenuItem, s.SubMenuItem)} data-submenu-collapse="" onSelect={collapse} onPointerMove={preventTouchHover} onPointerLeave={preventTouchHover}>
+                <div className={s.PressableInner}>
+                  {phone.label}
+                  <ChevronDown width="16" height="16" className={s.SubTriggerIcon} />
+                </div>
+              </DropdownMenu.Item>
+            )}
             {children}
           </DropdownMenu.SubContent>
         )}
@@ -625,11 +826,22 @@ export type MenuRadioItemProps<T extends string> = {
   disabled?: boolean
 }
 
+const preventTouchHover = (event: React.PointerEvent) => {
+  if (!isHoverPointer(event)) event.preventDefault()
+}
+
 const RadioItem = <T extends string>({ className, children, ...props }: MenuRadioItemProps<T>) => (
-  <DropdownMenu.RadioItem className={clsx(s.MenuItem, s.RadioItem, className)} {...props}>
+  <DropdownMenu.RadioItem
+    className={clsx(s.MenuItem, s.RadioItem, className)}
+    {...props}
+    onPointerMove={preventTouchHover}
+    onPointerLeave={preventTouchHover}
+  >
     <div className={s.PressableInner}>
       <div className={s.RadioIndicator}>
-        <DropdownMenu.ItemIndicator className={s.RadioIndicatorActive} />
+        <DropdownMenu.ItemIndicator className={s.RadioIndicatorActive}>
+          <Check className={s.SelectionCheck} />
+        </DropdownMenu.ItemIndicator>
       </div>
       {children}
     </div>
@@ -671,15 +883,17 @@ const CheckboxItem = ({
     {...props}
     data-indicator-position={indicatorPosition}
     data-indicator-variant={indicatorVariant}
+    onPointerMove={preventTouchHover}
+    onPointerLeave={preventTouchHover}
   >
     <div className={s.PressableInner}>
       <div className={s.CheckboxIndicator}>
         <DropdownMenu.ItemIndicator>
           {indicatorVariant === "ghost" ? (
-            <Check className="size-4" />
+            <Check className={s.SelectionCheck} />
           ) : (
             <div className={s.CheckboxCircle}>
-              <Check className="size-4" />
+              <Check className={s.SelectionCheck} />
             </div>
           )}
         </DropdownMenu.ItemIndicator>

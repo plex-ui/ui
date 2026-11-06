@@ -26,6 +26,8 @@ const ButtonComponent = defineComponent({
     variant: { type: String as PropType<Variants<"solid" | "soft" | "outline" | "ghost">>, default: "solid" },
     /** Determines if the button should be a fully rounded pill shape. @default false */
     pill: { type: Boolean, default: false },
+    /** Phone surface for neutral soft/ghost buttons; desktop retains the variant. */
+    mobileMaterial: String as PropType<"glass" | "flat">,
     /** Determines if the button should have matching width and height, based on the `size`. @default false */
     uniform: { type: Boolean, default: false },
     /** Controls size of the button: height, plus defaults for `gutterSize`, `iconSize` and font size. @default "md" */
@@ -50,20 +52,26 @@ const ButtonComponent = defineComponent({
     inert: { type: Boolean, default: undefined },
   },
   emits: {
-    click: (_event: MouseEvent) => true,
+    click: (event: MouseEvent) => {
+      void event
+      return true
+    },
   },
   setup(props, { slots, emit }) {
+    // Defaults to `loading` state
+    const isInertState = () => props.disabled || (props.inert === undefined ? props.loading : props.inert)
+
     const handleClick = (event: MouseEvent) => {
-      if (props.disabled) {
+      // React drops mouse events on a natively disabled button, including
+      // loading/inert; Vue delivers dispatched clicks, so guard the same state.
+      if (isInertState()) {
         return
       }
       emit("click", event)
     }
 
     return () => {
-      // Defaults to `loading` state
-      const inert = props.inert === undefined ? props.loading : props.inert
-      const isInert = props.disabled || inert
+      const isInert = isInertState()
       const { loading } = props
 
       return h(
@@ -74,6 +82,7 @@ const ButtonComponent = defineComponent({
           "data-color": props.color,
           "data-variant": props.variant,
           "data-pill": props.pill ? "" : undefined,
+          "data-mobile-material": props.mobileMaterial,
           "data-uniform": props.uniform ? "" : undefined,
           "data-size": props.size,
           "data-gutter-size": props.gutterSize,

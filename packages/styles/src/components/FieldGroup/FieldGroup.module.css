@@ -7,11 +7,11 @@
 ============================================= */
 .Header {
   display: flex;
-  align-items: center;
+  align-items: var(--field-group-header-align, center);
   justify-content: space-between;
   gap: spacing(4);
-  min-height: spacing(8);
-  padding-bottom: spacing(2);
+  min-height: var(--field-group-header-min-height, spacing(8));
+  padding-bottom: var(--field-group-header-padding-bottom, spacing(2));
 }
 
 .HeaderText {
@@ -30,7 +30,7 @@
 .Description {
   margin: 0;
   padding-inline: var(--field-group-title-padding-inline);
-  color: var(--color-text-secondary);
+  color: var(--field-group-description-color, var(--color-text-secondary));
   font-size: var(--field-group-description-font-size);
   line-height: var(--field-group-description-line-height);
 }
@@ -51,10 +51,41 @@
 }
 
 @media (max-width: 767px) {
+  .FieldGroup {
+    --field-group-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --field-group-title-color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
   .Body > [data-row] + [data-row],
   .Body > [data-sortable] > [data-row] + [data-row] {
     position: relative;
     border-top-width: 0;
+  }
+
+  /* Full-row actions share the cell's bounds. Only their text and accessories
+     sit inside the row padding; the pressed surface must not shrink inward. */
+  .Body > [data-row] > button[data-block][data-variant="ghost"],
+  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"] {
+    --button-mobile-material-scale: 1;
+  }
+
+  .Body > [data-row]:first-child > button[data-block][data-variant="ghost"]::before,
+  .Body > [data-sortable] > [data-row]:first-child > button[data-block][data-variant="ghost"]::before {
+    border-start-start-radius: var(--field-group-radius);
+    border-start-end-radius: var(--field-group-radius);
+  }
+
+  .Body > [data-row]:last-child > button[data-block][data-variant="ghost"]::before,
+  .Body > [data-sortable] > [data-row]:last-child > button[data-block][data-variant="ghost"]::before {
+    border-end-start-radius: var(--field-group-radius);
+    border-end-end-radius: var(--field-group-radius);
+  }
+
+  /* An open popup is not a held press. Keep selection and explicit glass
+     surfaces independent; the trigger remains focusable and expanded. */
+  .Body > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before,
+  .Body > [data-sortable] > [data-row] > button[data-block][data-variant="ghost"]:is([aria-expanded="true"], [data-state="open"]):not(:active, [data-selected], [data-mobile-material="glass"])::before {
+    opacity: 0;
   }
 
   /* Draw inside the row: 44px controls + 4px padding on each side stay 52px.
@@ -68,5 +99,17 @@
     height: 1px;
     background: var(--color-border);
     pointer-events: none;
+  }
+}
+
+/* Explanations belong below the group, with the list's own text insets. */
+.Footer {
+  padding: var(--field-group-footer-padding, 8px 0 0);
+  color: var(--field-group-description-color, var(--color-text-secondary));
+  font-size: var(--field-group-footer-font-size, var(--field-group-description-font-size));
+  line-height: var(--field-group-footer-line-height, var(--field-group-description-line-height));
+
+  & > p {
+    margin: 0;
   }
 }

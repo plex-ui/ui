@@ -12,6 +12,7 @@ export const overviewControls = [
   { name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
   { name: "pill", type: "boolean", default: false },
   { name: "clearable", type: "boolean", default: true },
+  { name: "disabled", type: "boolean", default: false },
 ]
 
 export const overview = `<div class="w-[200px]">
@@ -21,6 +22,7 @@ export const overview = `<div class="w-[200px]">
     :variant="variant"
     :pill="pill"
     :clearable="clearable"
+    :disabled="disabled"
   />
 </div>`
 
@@ -61,17 +63,30 @@ export const validation = `<div class="w-[200px]">
   </Field>
 </div>`
 
-export const disabled = `<div class="w-[200px]">
-  <DateInput v-model:value="date" disabled />
-</div>`
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { DateTime } from 'luxon';
+import { DateInput } from '@plexui/vue/components/DateInput';
+
+const date = ref<DateTime | null>(null);
+const disabled = ref(false);
+</script>
+
+<template>
+<div class="w-[200px]">
+  <DateInput v-model:value="date" size="md" variant="outline" clearable :disabled="disabled" />
+</div>
+</template>`
 
 <UsageBlock>{`import { DateInput } from "@plexui/vue/components/DateInput";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</>} code={overview} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</>} code={overviewCode} previewMinHeight={168}>
   <VueDateInputDemo template={overview} stageClassName="py-10" state={{ date: null }} controls={overviewControls} />
 </ComponentPreview>
 
@@ -115,12 +130,6 @@ export const disabled = `<div class="w-[200px]">
 
 <ComponentPreview language="vue" details={<>Pass <code>error-message</code> to <code>Field</code> to display a validation error.</>} code={validation} previewMinHeight={100}>
   <VueDateInputDemo template={validation} state={{ date: null }} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" code={disabled} previewMinHeight={80}>
-  <VueDateInputDemo template={disabled} dates={{ date: "2025-01-01" }} />
 </ComponentPreview>
 
 ## API

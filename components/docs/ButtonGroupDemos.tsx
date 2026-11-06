@@ -31,38 +31,11 @@ import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Select } from '@plexui/ui/components/Select';
 import { Textarea } from '@plexui/ui/components/Textarea';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 /* ------------------------------------------------------------------
  * Shared demo-control primitives (same shape ButtonDemos / InputDemos use)
  * ------------------------------------------------------------------ */
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
 
 const SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 type DemoSize = (typeof SIZE_OPTIONS)[number];

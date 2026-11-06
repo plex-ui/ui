@@ -1,10 +1,12 @@
 "use client"
 
 import clsx from "clsx"
-import { forwardRef, useCallback, useId } from "react"
+import { forwardRef, useCallback, useId, useRef } from "react"
+import { mergeRefs } from "react-merge-refs"
 
 import { Button } from "../Button"
 import { Dropdown, X } from "../Icon"
+import { FieldError } from "../FieldError"
 
 import s from "@plexui/styles/components/FloatingLabelSelect/FloatingLabelSelect.module.css"
 
@@ -56,6 +58,7 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
       ...restProps
     } = props
 
+    const fieldRef = useRef<HTMLDivElement>(null)
     const generatedId = useId()
     const errorId = `floating-label-select-${generatedId}-error`
 
@@ -116,9 +119,12 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
       (evt: React.MouseEvent<HTMLButtonElement>) => {
         evt.stopPropagation()
         evt.preventDefault()
+        if (disabled) return
+        // Keep focus in the field before its clear button disappears.
+        fieldRef.current?.focus({ preventScroll: true })
         onClearClick?.()
       },
-      [onClearClick],
+      [disabled, onClearClick],
     )
 
     return (
@@ -129,7 +135,7 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
       >
         <div
           // The ref is the focusable field: a wrapping trigger returns focus to it and anchors to it
-          ref={ref}
+          ref={mergeRefs([fieldRef, ref])}
           className={clsx(s.FieldFootprint, {
             [s.HasValue]: selected,
           })}
@@ -140,7 +146,6 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
           data-disabled={disabled ? "" : undefined}
           aria-expanded={open}
           aria-haspopup="listbox"
-          aria-invalid={invalid ? true : undefined}
           aria-describedby={ariaDescribedBy}
           aria-disabled={disabled || undefined}
           onPointerDown={handlePointerDown}
@@ -173,10 +178,9 @@ export const FloatingLabelSelect = forwardRef<HTMLDivElement, FloatingLabelSelec
           </div>
         </div>
         {errorMessage && (
-          // Same plain line as FloatingLabelInput, so the two read alike on one form
-          <div id={errorId} className={s.ErrorMessage} role="alert">
+          <FieldError id={errorId} className={s.ErrorMessage}>
             {errorMessage}
-          </div>
+          </FieldError>
         )}
       </div>
     )

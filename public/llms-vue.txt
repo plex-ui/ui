@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 52
+Components: 53
 
 ## Setup
 
@@ -44,7 +44,7 @@ Props:
     - value (string) — Required. Unique identifier used by value / default-value
     - disabled (boolean) default: false — Disable this item
     - class (string) — Applied to the item wrapper
-Examples: Overview, Single, Multiple, Disabled, Card
+Examples: Overview, Single, Multiple, Card
 
 ## Alert
 Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
@@ -132,6 +132,7 @@ Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
   - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and default gutter/icon size
+  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
   - pill (boolean) default: false — Fully rounded corners
   - block (boolean) default: false — Full width
   - uniform (boolean) default: false — Square icon button (width equals height)
@@ -145,7 +146,7 @@ Props:
   - icon-size ("sm" | "md" | "lg" | "xl" | "2xl") — Size of icons in the slot; defaults from size
   - type ("button" | "submit" | "reset") default: "button" — Native button type
   - @click ((event: MouseEvent) => void) — Emitted on click, unless disabled
-Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, Disabled, Inert, Loading, Selected, Optical alignment
+Examples: Overview, Colors & variants, Sizing & roundness, Icons, Block, States, Inert, Selected, Optical alignment
 
 ## Button Group
 Join buttons into a single visual unit for toolbars, steppers, split buttons and search affordances.
@@ -176,6 +177,7 @@ Props:
   - external (boolean) — Force external-link behavior
   - optically-align ("start" | "end") — Apply optical negative margin alignment
   - block (boolean) default: false — Full width
+  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
   - pill (boolean) default: false — Fully rounded
   - disabled (boolean) default: false — Disable link
   - disabled-tone ("relaxed") — Use relaxed visual tone for disabled state
@@ -218,7 +220,7 @@ Props:
   - @update:checked ((next: boolean | "indeterminate") => void) — Emitted with the next state when it changes (a click always emits a boolean)
   - @focus ((event: FocusEvent) => void) — Emitted when the checkbox gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the checkbox loses focus
-Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With description, Indeterminate, Disabled, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
+Examples: Overview, With Radio Group, Descriptions, Variants, Pill, Ghost, With description, Indeterminate, Label orientation, Without label, Group with select all, Group with description, With Field, Grouped sections
 
 ## Code Block
 Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
@@ -241,7 +243,8 @@ Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, M
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
-Import: import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip"
+Import: import { CopyTooltip } from "@plexui/vue/components/Tooltip"
+Import: import { Button } from "@plexui/vue/components/Button"
 Docs: https://plexui.com/vue/components/copy-tooltip
 Props:
   - default slot (VNode) — Trigger element (for example TooltipTriggerDecorator)
@@ -276,7 +279,7 @@ Props:
   - disabled (boolean) default: false — Disable input
   - invalid (boolean) default: false — Mark as invalid
   - placeholder (string) — Generated from the format if not set
-Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation, Disabled
+Examples: Overview, With time, With seconds, Limits, US format, ISO format, With Field, Validation
 
 ## Date Picker
 Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
@@ -302,11 +305,11 @@ Props:
   - dropdown-icon-type ("dropdown" | "chevronDown" | "none") default: "dropdown" — Icon at the end of the trigger
   - placeholder (string) default: "Select date..." — Trigger placeholder
   - disabled (boolean) default: false — Disable picker
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - side-offset (number) default: 8 — Distance from the trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Alignment against the trigger
   - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
-Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon, Disabled
+Examples: Overview, Limits, Date of birth, Time picker, Dropdown + time, Two fields, Date input, DateTime input, Without Icon
 
 ## Date Range Picker
 Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
@@ -320,7 +323,7 @@ Props:
   - max-range-days (number) — Max length of range in days (inclusive)
   - week-starts-on (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
   - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
-  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side for popover
+  - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - side-offset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
   - align-offset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
@@ -346,17 +349,19 @@ Props:
   - open / v-model:open (boolean) — Controlled open state; uncontrolled when omitted
   - @update:open ((open: boolean) => void) — Fires when the dialog opens or closes
   DialogContent:
+    - surface ("plain" | "grouped") default: "plain" — Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged
     - width (number | string) default: 480 — Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width
     - show-close (boolean) default: true — Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it
     - class (string) — Additional CSS class on the panel
     - placement ("center" | "top" | "bottom" | "start" | "end" | "fullscreen") default: "center" — Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen
-    - mobile-variant ("alert" | "sheet") — Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
-    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
+    - mobile-variant ("alert" | "sheet") — Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance
+    - mobile-placement ("center" | "bottom" | "fullscreen") — Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
   DialogFooter:
-    - mobile-layout ("inline" | "stacked") — Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
-Examples: Overview, Destructive confirmation, Metadata details, Sections and actions, Long details, Scrolling body, Placement
+    - background ("glass" | "solid") default: "glass" — Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged
+    - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
+Examples: Overview, Destructive confirmation, Metadata details, Sections and actions, Long details, Scrolling body, Placement, Floating view options, Segmented composer header
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
@@ -388,7 +393,7 @@ Props:
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: child's size, else "md" — Label font size; defaults to the child control's size
   - required (boolean) default: false — Shows a required asterisk after the label (visual only)
   - orientation ("vertical" | "horizontal") default: "horizontal" on a row, else "vertical" — Layout direction of label and control
-  - row (boolean) default: false — One line of a FieldGroup. Other attributes reach the root only on a row
+  - row (boolean) default: false — One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row
   - fill (boolean) default: false — On a row, the control takes the rest of the line after the label
   - #action (slot) — On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it
   - optically-align ("start" | "end") — Applies optical alignment to the child control via negative margin using its gutter
@@ -415,7 +420,7 @@ Props:
   - description (string) — Helper text below the icon (area variant only)
   - accept (string) — Accepted file types (e.g. ".pdf,.png,image/*")
   - multiple (boolean) default: false — Allow selecting multiple files. Without it, a new pick replaces the current file
-  - max-files (number) — Maximum number of files. Button disables at limit.
+  - max-files (number) — Maximum number of files. In multiple mode, the button disables at the limit. Single-file mode keeps the button available for replacement.
   - max-size (number) — Maximum file size in bytes
   - value / v-model:value (File[]) — Controlled file list; `update:value` fires when files are added or removed
   - @file-reject ((file: File, reason: string) => void) — Fires when a file is rejected (wrong type, too large, over limit)
@@ -432,7 +437,7 @@ Props:
   FileCardGroup:
     - default slot (VNode[]) — FileCard elements
     - class (string) — Additional CSS class
-Examples: Overview, With files, Error state, Disabled, Read-only, With remove, Multiple files, Read-only list
+Examples: Overview, With files, Read-only, With remove, Multiple files, Read-only list
 
 ## Float Input
 Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
@@ -469,15 +474,15 @@ Docs: https://plexui.com/vue/components/floating-label-input
     - pill (boolean) default: true — Pill shape; false takes the rounded box of the other fields
     - @clear-click (() => void) — Shows a clear button when a value is selected
     - @interact (() => void) — Fires on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
-Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Birthday states, Phone input, Select, Multiple selection, Country select, Filled state, With error message, With description, With description and error, Clear button, Disabled, Read only, All states
+Examples: Overview, Types, Label inside, Rounded box, Textarea, Password input, SSN input, Birthday input, Birthday with validation, Phone input, Select, Multiple selection, Country select, States, Clear button
 
 ## Indicators
 Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
 Docs: https://plexui.com/vue/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length (or use the --indicator-size CSS variable)
-    - stroke-width (number) default: 2 — Stroke width in px
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size.
+    - stroke-width (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)
     - done (boolean) default: false — Fills the ring and ends the simulated progress
@@ -486,7 +491,7 @@ Docs: https://plexui.com/vue/components/indicators
     - stroke-width (number) default: 2 — Stroke thickness in px, capped at 4
     - track-color (string) — Track color (CSS variable or value)
     - track-active-color (string) — Active segment color
-Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color
+Examples: Overview, LoadingIndicator, Sizing & stroke, Color, Duration, CircularProgress, Progress, Sizing & stroke, Color, LoadingDots, Color, Phone spinner
 
 ## Input
 Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
@@ -592,7 +597,7 @@ Props:
   - aria-describedby (string) — aria-describedby of the editable element (Field sets it)
   - aria-invalid (boolean) — Sets aria-invalid on the editable element and the invalid style (Field sets it with error-message)
   - class (string) — Applied to the container
-Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants, Disabled, Invalid
+Examples: Placeholder, All formatting, With Field, Toolbar end slot, Variants
 
 ## Menu
 Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
@@ -647,17 +652,19 @@ Props:
   - disabled (boolean) default: false — Disable all cells
   - auto-focus (boolean) default: false — Auto-focus first cell on mount
   - class (string) — Applied to the root element
-Examples: Overview, Filled state, Grouped (3+3), With error, Disabled
+Examples: Overview, Grouped (3+3)
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
-Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
+Import: import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageLeading, PageSubtitle, PageTitle } from "@plexui/vue/components/Page"
 Docs: https://plexui.com/vue/components/page
 Props:
   - width ("full" | "wide" | "column") default: "full" — Column that header and content share: edge to edge, 1280px or 768px, centred
+  - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - divider (boolean) default: true — Shows the line, and the glass on a phone, once the content has scrolled under the header
+    - background ("glass" | "solid") default: "glass" — Mobile toolbar background
+    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header
     - class (string) — Class of the band
   PageContent:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
@@ -682,6 +689,7 @@ Props:
     - side-offset (number) default: 8 — Offset from trigger (px)
     - align-offset (number) default: -5 — Offset from the start or end alignment (px)
     - avoid-collisions (boolean) default: true — Reposition to stay inside the viewport and scroll containers
+    - collision-padding (number) default: 20 — Space in px to keep from viewport and scroll container boundaries
     - translucent (boolean) default: false — Translucent, blurred surface
     - auto-focus (boolean) default: true — Move focus into the panel when it opens (hover popovers never take focus)
     - data-* (string) — Data attributes land on the panel
@@ -912,7 +920,7 @@ Props:
   - @change ((value: number | number[]) => void) — Emitted with update:value, named after the React onChange prop
   - @focus ((event: FocusEvent) => void) — Emitted when the value input or a thumb gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the value input or a thumb loses focus
-Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical, Disabled
+Examples: Overview, Adding a tooltip, Marks, Range, Multiple thumbs, Vertical
 
 ## Sortable
 "Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."
@@ -964,6 +972,7 @@ Props:
   - description (string) — Secondary text below the label, linked via aria-describedby
   - description slot (VNode[]) — Rich description content; takes precedence over the description prop
   - label-position ("start" | "end") default: "end" — Label on the left (start) or right (end)
+  - color ("primary" | "accent") default: "primary" — Checked track color. Accent reads --switch-accent-color, with platform green as its fallback. Disabled checked controls retain a muted accent.
   - disabled (boolean) default: false — Prevent interaction
   - required (boolean) — Required for form submission
   - name (string) — Form field name
@@ -973,7 +982,7 @@ Props:
   - @update:checked ((next: boolean) => void) — Emitted with the next state when toggled
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
-Examples: Overview, With label, With description, Label position, Label position with description, Default checked, Controlled, Disabled, Disabled with label, Disabled with description, With Field, With Field and description, Settings panel, Grouped sections
+Examples: Overview, Label and description, Controlled state, Grouped settings
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
@@ -1017,7 +1026,7 @@ Docs: https://plexui.com/vue/components/table
     - dateTimeCell(accessor, options?) (CellComponent) — Formatted datetime with Intl.DateTimeFormat
     - statusCell(accessor, colorMap?) (CellComponent) — Badge cell with automatic status-to-color mapping
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
-Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility, Empty state
+Examples: Overview, With footer, Minimal, Variant, Sorting, Pagination, Row click, Row selection, Cell variants, Filtering, Column visibility
 
 ## Tabs
 Switch between grouped views with segmented or underline tabs, icon-only triggers, and badge counts on each tab.
@@ -1050,7 +1059,7 @@ Props:
     - default slot (VNode[]) — Tab label
     - icon slot (VNode[]) — Icon before the label
     - badge slot (VNode[]) — Badge content; styling still comes from the badge object
-Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Disabled tab, Sizing, Scrollable, Overflow menu
+Examples: Overview, Segmented with icons, Icon only, Segmented with badge, Underline, Underline flush, Underline block, Underline with icons, Underline with badge, Vertical segmented, Vertical underline, Vertical underline with icons, Sizing, Scrollable, Overflow menu
 
 ## Tag Input
 Input for entering multiple unique values as chip-style tokens, with suggestions and keyboard editing.
@@ -1119,8 +1128,24 @@ Docs: https://plexui.com/vue/components/toast
     - position ("top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right") default: "top-center" — Where toasts anchor on the viewport
     - duration (number) default: 3000 — Default auto-dismiss duration in ms
     - offset (string | number | { top?; right?; bottom?; left? }) — Distance from the viewport edge
+    - mobile-offset (string | number | { top?; right?; bottom?; left? }) default: 16px + safe area per edge — Mobile viewport gutter. Explicit edges override their safe defaults; omitted edges keep them.
     - gap (number) — Gap between stacked toasts in px
 Examples: Overview, Variants, Description, Action, Promise, Long content, Compact, Persistent
+
+## Toolbar
+"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+Import: import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from "@plexui/vue/components/Toolbar"
+Docs: https://plexui.com/vue/components/toolbar
+Props:
+  - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
+  - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
+  - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
+  - background ("edge" | "solid") default: "edge" — edge fades the canvas color over the content under the bar; solid fills the bar
+  - class (string) — Class of the bar
+  ToolbarTitle:
+    - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
+    - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
+Examples: Overview, Titles, Group, Search, Bottom, Sheet
 
 ## Tooltip
 Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.

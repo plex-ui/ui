@@ -1,0 +1,16 @@
+/* A read-only list row in the cell metrics of FieldGroup, as the iOS grouped list draws it. */
+.Row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--field-row-gap, 16px);
+  min-height: var(--field-row-min-height);
+  padding: var(--field-row-text-padding-block) var(--field-row-padding-inline);
+  font-size: var(--field-row-label-font-size);
+  font-weight: var(--field-row-label-font-weight);
+  line-height: var(--field-row-label-line-height);
+}
+
+.Value {
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+}

@@ -194,7 +194,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 <ComponentPreview details={<>Field works with any form control. Use the description to display the current slider value.</>} code={`const [price, setPrice] = useState([200, 800])
 
-<div className="w-[400px]">
+<div className="w-full min-w-0 max-w-[400px]">
   <Field
     label="Price Range"
     description={\`Set your budget range ($\${price[0].toLocaleString()} – \${price[1].toLocaleString()}).\`}
@@ -207,7 +207,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Fieldset
 
-<ComponentPreview details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Group related fields under a heading and description to create a logical fieldset.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <div className="mb-3">
     <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
     <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
@@ -217,10 +217,10 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
       <Input placeholder="123 Main St" />
     </Field>
     <div className="flex gap-3">
-      <Field label="City" className="flex-1">
+      <Field label="City" className="min-w-0 flex-1">
         <Input placeholder="New York" />
       </Field>
-      <Field label="Postal Code" className="flex-1">
+      <Field label="Postal Code" className="min-w-0 flex-1">
         <Input placeholder="90502" />
       </Field>
     </div>
@@ -277,7 +277,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Stacked fields
 
-<ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="w-[400px] divide-y divide-alpha/15">
+<ComponentPreview details={<>Stack <code>Field</code> components with a divider to group related notification settings.</>} code={`<div className="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
   <div className="pb-6">
     <Field
       label="Responses"
@@ -334,7 +334,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Optical alignment
 
-<ComponentPreview details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Use <code>opticallyAlign="start"</code> to apply a negative margin on the child control, aligning its text with the surrounding content. Works with <code>pill</code> inputs. The label, description, and error message stay at the container edge while the control extends past it.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
     <div className="mb-5 text-secondary text-sm">opticallyAlign="start"</div>
     <div className="flex flex-col gap-5">
@@ -359,7 +359,7 @@ For controls that need explicit prop wiring, pass a function as `children`. The 
 
 ### Form example
 
-<ComponentPreview details={<>A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.</>} code={`const months = Array.from({ length: 12 }, (_, i) => {
+<ComponentPreview phonePresentation="screen" details={<>A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.</>} code={`const months = Array.from({ length: 12 }, (_, i) => {
   const value = String(i + 1).padStart(2, "0")
   return { label: value, value }
 })
@@ -370,358 +370,139 @@ const years = Array.from({ length: 10 }, (_, i) => {
 const [month, setMonth] = useState("")
 const [year, setYear] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Payment Method</h3>
-      <p className="text-xs text-tertiary mt-0.5">All transactions are secure and encrypted</p>
-    </div>
-
-    <Field label="Name on Card">
-      <Input placeholder="Evil Rabbit" autoComplete="off" />
-    </Field>
-
-    <Field label="Card Number">
-      <Input placeholder="1234 5678 9012 3456" autoComplete="off" />
-    </Field>
-
-    <div className="grid grid-cols-3 gap-3">
-      <Field label="Month">
-        {(fieldProps) => (
-          <Select id={fieldProps.id} placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} />
-        )}
-      </Field>
-      <Field label="Year">
-        {(fieldProps) => (
-          <Select id={fieldProps.id} placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} />
-        )}
-      </Field>
-      <Field label="CVV">
-        <Input placeholder="123" />
-      </Field>
-    </div>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Billing Address</h3>
-      <p className="text-xs text-tertiary mt-0.5">The billing address associated with your payment method</p>
-    </div>
-
-    <Checkbox label="Same as shipping address" defaultChecked />
-
-    <Field label="Comments">
-      <Textarea placeholder="Add any additional comments" />
-    </Field>
-  </fieldset>
-
-  <div className="flex gap-2">
-    <Button color="primary">Submit</Button>
-    <Button color="secondary" variant="outline">Cancel</Button>
-  </div>
-</div>`} previewMinHeight={168}>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Payment details</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
+        <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
+        <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
+        <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
+        <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
+        <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
+        <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
+        <Field row label="Comments" orientation="vertical"><Textarea rows={3} autoResize placeholder="Add any additional comments" /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Submit</Button></Page.Footer>
+</Page>`} previewMinHeight={168}>
   <FieldFormExampleDemo />
 </ComponentPreview>
 
 ### Profile settings
 
-<ComponentPreview details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields.</>} code={`const [language, setLanguage] = useState("en")
+<ComponentPreview phonePresentation="screen" details={<>Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.</>} code={`const [language, setLanguage] = useState("en")
 const [theme, setTheme] = useState("system")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Personal Information</h3>
-      <p className="text-xs text-tertiary mt-0.5">Your public profile details</p>
-    </div>
+const languages = [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }, { label: 'German', value: 'de' }, { label: 'Japanese', value: 'ja' }];
+const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }];
 
-    <div className="grid grid-cols-2 gap-3">
-      <Field label="First name">
-        <Input placeholder="Jane" defaultValue="Jane" />
-      </Field>
-      <Field label="Last name">
-        <Input placeholder="Doe" defaultValue="Doe" />
-      </Field>
-    </div>
-
-    <Field label="Email" description="This is the email associated with your account.">
-      <Input placeholder="jane@example.com" defaultValue="jane@example.com" />
-    </Field>
-
-    <Field label="Bio" description="Brief description for your profile. Max 160 characters.">
-      <Textarea placeholder="Tell us about yourself..." rows={3} />
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Preferences</h3>
-      <p className="text-xs text-tertiary mt-0.5">Customize your experience</p>
-    </div>
-
-    <Field label="Language">
-      {(fieldProps) => (
-        <Select
-          id={fieldProps.id}
-          value={language}
-          onChange={(option) => setLanguage(option.value)}
-          options={[
-            { label: "English", value: "en" },
-            { label: "Spanish", value: "es" },
-            { label: "French", value: "fr" },
-            { label: "German", value: "de" },
-            { label: "Japanese", value: "ja" },
-          ]}
-        />
-      )}
-    </Field>
-
-    <Field label="Theme" description="Select your preferred appearance.">
-      {() => (
-        <RadioGroup aria-label="Theme" value={theme} onChange={setTheme} direction="col">
-          <RadioGroup.Item value="system">System</RadioGroup.Item>
-          <RadioGroup.Item value="light">Light</RadioGroup.Item>
-          <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-        </RadioGroup>
-      )}
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Notifications</h3>
-      <p className="text-xs text-tertiary mt-0.5">Manage how you receive updates</p>
-    </div>
-
-    <Field label="Email notifications" description="Receive weekly digests and important updates." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
-    </Field>
-
-    <Field label="Push notifications" description="Get real-time alerts in your browser." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} />}
-    </Field>
-
-    <Field label="Marketing emails" description="Tips, product updates, and promotions." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} />}
-    </Field>
-  </fieldset>
-
-  <div className="flex gap-2">
-    <Button color="primary">Save changes</Button>
-    <Button color="secondary" variant="outline">Cancel</Button>
-  </div>
-</div>`} previewMinHeight={168}>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Profile settings</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Personal information" description="Your public profile details." columns>
+        <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
+        <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
+        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
+        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Preferences" description="Customize your experience." columns>
+        <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
+        <Field row label="Theme"><Select value={theme} onChange={(option) => setTheme(option.value)} options={themes} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Notifications" description="Manage how you receive updates.">
+        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch defaultChecked /></Field>
+        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
+        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save changes</Button></Page.Footer>
+</Page>`} previewMinHeight={168}>
   <FieldProfileSettingsDemo />
 </ComponentPreview>
 
 ### Create project
 
-<ComponentPreview details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={`const [visibility, setVisibility] = useState("private")
+<ComponentPreview phonePresentation="screen" details={<>Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.</>} code={`const [visibility, setVisibility] = useState("private")
 const [region, setRegion] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">General</h3>
-      <p className="text-xs text-tertiary mt-0.5">Basic information about your project</p>
-    </div>
+const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label: 'US West (Oregon)', value: 'us-west-2' }, { label: 'Europe (Frankfurt)', value: 'eu-central-1' }, { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' }];
 
-    <Field label="Project name" required>
-      <Input placeholder="my-project" />
-    </Field>
-
-    <Field label="Description" description="A short summary shown in project listings.">
-      <Textarea placeholder="What does this project do?" rows={3} />
-    </Field>
-
-    <Field label="Visibility" description="Controls who can see this project.">
-      {() => (
-        <RadioGroup aria-label="Visibility" value={visibility} onChange={setVisibility} direction="col">
-          <RadioGroup.Item value="private">Private, only invited members</RadioGroup.Item>
-          <RadioGroup.Item value="internal">Internal, anyone in your organization</RadioGroup.Item>
-          <RadioGroup.Item value="public">Public, visible to everyone</RadioGroup.Item>
-        </RadioGroup>
-      )}
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Team Access</h3>
-      <p className="text-xs text-tertiary mt-0.5">Invite collaborators and set permissions</p>
-    </div>
-
-    <Field label="Team members" description="Add people by email address.">
-      {(fieldProps) => (
-        <TagInput
-          id={fieldProps.id}
-          placeholder="Add email..."
-          defaultValue={[
-            { value: "alice@team.com", valid: true },
-            { value: "bob@team.com", valid: true },
-          ]}
-          validator={(value) => value.includes("@")}
-        />
-      )}
-    </Field>
-
-    <Field label="Permissions" description="Default permissions for new members.">
-      {() => (
-        <div className="flex flex-col gap-3 mt-1">
-          <Checkbox label="Can view project" defaultChecked />
-          <Checkbox label="Can edit resources" defaultChecked />
-          <Checkbox label="Can manage members" />
-          <Checkbox label="Can delete project" />
-        </div>
-      )}
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Infrastructure</h3>
-      <p className="text-xs text-tertiary mt-0.5">Deployment and resource configuration</p>
-    </div>
-
-    <Field label="Region">
-      {(fieldProps) => (
-        <Select
-          id={fieldProps.id}
-          placeholder="Select region..."
-          value={region}
-          onChange={(option) => setRegion(option.value)}
-          options={[
-            { label: "US East (N. Virginia)", value: "us-east-1" },
-            { label: "US West (Oregon)", value: "us-west-2" },
-            { label: "Europe (Frankfurt)", value: "eu-central-1" },
-            { label: "Asia Pacific (Tokyo)", value: "ap-northeast-1" },
-          ]}
-        />
-      )}
-    </Field>
-
-    <Field label="Auto-deploy" description="Automatically deploy on push to main branch." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} defaultChecked />}
-    </Field>
-  </fieldset>
-
-  <div className="flex gap-2">
-    <Button color="primary">Create project</Button>
-    <Button color="secondary" variant="outline">Cancel</Button>
-  </div>
-</div>`} previewMinHeight={168}>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Create project</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="General" description="Basic information about your project." columns>
+        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
+        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" rows={3} autoResize /></Field>
+      </FieldGroup>
+      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Controls who can see this project.">
+          <Field row label="Private" description="Only invited members."><RadioGroup.Item value="private" /></Field>
+          <Field row label="Internal" description="Anyone in your organization."><RadioGroup.Item value="internal" /></Field>
+          <Field row label="Public" description="Visible to everyone."><RadioGroup.Item value="public" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
+        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Permissions" description="Default permissions for new members.">
+        <Field row label="Can view project"><Switch defaultChecked /></Field>
+        <Field row label="Can edit resources"><Switch defaultChecked /></Field>
+        <Field row label="Can manage members"><Switch /></Field>
+        <Field row label="Can delete project"><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
+        <Field row label="Region"><Select placeholder="Select region" value={region} onChange={(option) => setRegion(option.value)} options={regions} /></Field>
+        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch defaultChecked /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Create project</Button></Page.Footer>
+</Page>`} previewMinHeight={168}>
   <FieldCreateProjectDemo />
 </ComponentPreview>
 
 ### Field configuration
 
-<ComponentPreview details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={`const [type, setType] = useState("string")
+<ComponentPreview phonePresentation="screen" details={<>Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.</>} code={`const [type, setType] = useState("string")
 const [expiresIn, setExpiresIn] = useState("")
 
-<div className="flex flex-col gap-8 w-full !max-w-[460px]">
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Setup</h3>
-      <p className="text-xs text-tertiary mt-0.5">Define the basic field properties</p>
-    </div>
+const fieldTypes = [{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }, { label: 'Rich text', value: 'richtext' }];
+const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', value: '30d' }, { label: '90 days', value: '90d' }, { label: '1 year', value: '1y' }];
 
-    <Field label="Key" description="Unique identifier used in the API. Cannot be changed later.">
-      <Input placeholder="registration_method" defaultValue="registration_method" />
-    </Field>
-
-    <Field label="Label" description="Human-readable name displayed in the UI.">
-      <Input placeholder="Registration method" defaultValue="Registration method" />
-    </Field>
-
-    <Field label="Type">
-      {(fieldProps) => (
-        <Select
-          id={fieldProps.id}
-          value={type}
-          onChange={(option) => setType(option.value)}
-          options={[
-            { label: "String", value: "string" },
-            { label: "Number", value: "number" },
-            { label: "Boolean", value: "boolean" },
-            { label: "Date", value: "date" },
-            { label: "JSON", value: "json" },
-            { label: "Rich text", value: "richtext" },
-          ]}
-        />
-      )}
-    </Field>
-
-    <Field label="Default value" description="Value assigned when the field is empty.">
-      <Input placeholder="Set default value (optional)" />
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Formatting</h3>
-      <p className="text-xs text-tertiary mt-0.5">Input constraints and sanitization rules</p>
-    </div>
-
-    <Field label="Max length" description="Max length cannot exceed 4096.">
-      <Input placeholder="256" inputMode="numeric" />
-    </Field>
-
-    <Field label="HTML sanitization" description="Strip potentially unsafe HTML tags from input." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} />}
-    </Field>
-  </fieldset>
-
-  <hr className="border-default" />
-
-  <fieldset className="flex flex-col gap-5">
-    <div className="mb-1">
-      <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Privacy & Access</h3>
-      <p className="text-xs text-tertiary mt-0.5">Control field visibility and mutability</p>
-    </div>
-
-    <Field label="Not redactable" description="Prevent this field from being redacted." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} />}
-    </Field>
-
-    <Field label="Write once" description="Value can only be set once and cannot be changed." orientation="horizontal" className="justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-      {(fieldProps) => <Switch id={fieldProps.id} />}
-    </Field>
-
-    <Field label="Expires in" description="Automatically delete the field value after the specified period.">
-      {(fieldProps) => (
-        <Select
-          id={fieldProps.id}
-          placeholder="Never"
-          value={expiresIn}
-          onChange={(option) => setExpiresIn(option.value)}
-          options={[
-            { label: "Never", value: "never" },
-            { label: "30 days", value: "30d" },
-            { label: "90 days", value: "90d" },
-            { label: "1 year", value: "1y" },
-          ]}
-        />
-      )}
-    </Field>
-  </fieldset>
-
-  <div className="flex gap-2">
-    <Button color="primary">Save field</Button>
-    <Button color="secondary" variant="outline">Cancel</Button>
-  </div>
-</div>`} previewMinHeight={168}>
+// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Field configuration</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <form id="example-form" className="flex flex-col gap-6" onSubmit={(event) => event.preventDefault()}>
+      <FieldGroup title="Setup" description="Define the basic field properties." columns>
+        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input defaultValue="registration_method" /></Field>
+        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input defaultValue="Registration method" /></Field>
+        <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
+        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
+        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
+        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
+        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
+      </FieldGroup>
+    </form>
+  </Page.Content>
+  <Page.Footer><Button color="primary" size="3xl" pill block type="submit" form="example-form">Save field</Button></Page.Footer>
+</Page>`} previewMinHeight={168}>
   <FieldConfigurationDemo />
 </ComponentPreview>
 
@@ -879,7 +660,7 @@ const [year, setYear] = useState("")
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
-  { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Other div props reach the root only on a row" },
+  { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other div props reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
   { prop: "action", type: "ReactNode", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
   { prop: "opticallyAlign", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },

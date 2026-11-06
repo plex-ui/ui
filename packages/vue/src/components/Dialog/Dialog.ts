@@ -7,6 +7,7 @@ import {
   inject,
   onBeforeUnmount,
   onMounted,
+  onUnmounted,
   provide,
   ref,
   watch,
@@ -24,6 +25,7 @@ import {
   DialogPortal as RekaDialogPortal,
   DialogRoot as RekaDialogRoot,
   DialogTitle as RekaDialogTitle,
+  FocusScope as RekaFocusScope,
   injectDialogRootContext,
   useForwardExpose,
   useId,
@@ -35,6 +37,9 @@ import { firstElementChild } from "../Tooltip/slot.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { attachSheetDrag } from "./sheetDrag.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
+import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
+import { NavigationButton } from "../Button/NavigationButton.js"
+import { TOOLBAR_HOST } from "../Toolbar/Toolbar.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 const DOUBLE_CLICK = 300
@@ -59,6 +64,8 @@ type DialogContextValue = {
   /** Mounted DialogTitle / DialogDescription parts (Radix's title and description counts) */
   titleCount: Ref<number>
   descriptionCount: Ref<number>
+  /** Retain the native modal owner until its animated subtree actually unmounts. */
+  mountedSurfaces: Ref<number>
 }
 
 const DialogContextKey: InjectionKey<DialogContextValue> = Symbol("PlexUIDialog")
@@ -80,21 +87,23 @@ export const Dialog = defineComponent({
     open: { type: Boolean, default: undefined },
   },
   emits: {
-    "update:open": (_open: boolean) => true,
+    "update:open": (open: boolean) => typeof open === "boolean",
   },
   setup(props, { slots, emit }) {
     const internalOpen = ref(false)
     const isOpen = computed(() => props.open ?? internalOpen.value)
+    const mountedSurfaces = ref(0)
+    const nativeOpen = computed(() => isOpen.value || mountedSurfaces.value > 0)
 
     const setOpen = (nextState: boolean) => {
       emit("update:open", nextState)
       internalOpen.value = nextState
     }
 
-    provide(DialogContextKey, { open: isOpen, setOpen, titleCount: ref(0), descriptionCount: ref(0) })
+    provide(DialogContextKey, { open: isOpen, setOpen, titleCount: ref(0), descriptionCount: ref(0), mountedSurfaces })
 
     return () =>
-      h(RekaDialogRoot, { "open": isOpen.value, "onUpdate:open": setOpen }, { default: () => slots.default?.() })
+      h(RekaDialogRoot, { "open": nativeOpen.value, "onUpdate:open": setOpen }, { default: () => slots.default?.() })
   },
 })
 
@@ -120,6 +129,7 @@ export const DialogTrigger = defineComponent({
   name: "DialogTrigger",
   setup(_props, { slots }) {
     const rootContext = injectDialogRootContext()
+    const { open, setOpen } = useDialogContext()
     const { forwardRef, currentElement } = useForwardExpose()
     rootContext.contentId ||= useId(undefined, "reka-dialog-content")
     // Focus returns here when the dialog closes
@@ -128,19 +138,19 @@ export const DialogTrigger = defineComponent({
     })
 
     const onClick = (event: Event) => {
-      if (!event.defaultPrevented) rootContext.onOpenToggle()
+      if (!event.defaultPrevented) setOpen(!open.value)
     }
 
     return () => {
-      const open = rootContext.open.value
+      const isOpen = open.value
       return withDialogProps(
         firstElementChild(slots.default?.()),
         {
           "type": "button",
           "aria-haspopup": "dialog",
-          "aria-expanded": open || false,
-          "aria-controls": open ? rootContext.contentId : undefined,
-          "data-state": open ? "open" : "closed",
+          "aria-expanded": isOpen || false,
+          "aria-controls": isOpen ? rootContext.contentId : undefined,
+          "data-state": isOpen ? "open" : "closed",
         },
         onClick,
         forwardRef as (el: unknown) => void,
@@ -149,15 +159,25 @@ export const DialogTrigger = defineComponent({
   },
 })
 
-const CloseIcon = () =>
-  h("svg", { "class": s.CloseIcon, "viewBox": "0 0 20 20", "width": "20", "height": "20", "aria-hidden": "true" }, [
-    h("path", {
-      fill: "currentColor",
-      d: "M5.22 5.22a.75.75 0 0 1 1.06 0L10 8.94l3.72-3.72a.75.75 0 1 1 1.06 1.06L11.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L10 11.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06L8.94 10 5.22 6.28a.75.75 0 0 1 0-1.06",
-    }),
-  ])
+// Reka 2.11's force-mounted Dialog releases hideOthers when its `present`
+// becomes false, then calls the same non-idempotent cleanup again on unmount.
+// Keep its public Root open until this transition-owned subtree unmounts.
+// The logical open state still drives Plex triggers, events and exit rendering.
+const DialogSurface = defineComponent({
+  name: "DialogSurface",
+  setup(_props, { slots }) {
+    const { mountedSurfaces } = useDialogContext()
+    onMounted(() => { mountedSurfaces.value++ })
+    // Descendant Reka cleanup runs first; never send it present=false while alive.
+    onUnmounted(() => { mountedSurfaces.value-- })
+    return () => h("div", slots.default?.())
+  },
+})
 
 /** Overlay and panel. `class` lands on the panel, like `className` in React. */
+const TOP_TOOLBAR = '[data-toolbar][data-placement="top"]'
+const BOTTOM_TOOLBAR = '[data-toolbar][data-placement="bottom"]'
+
 export const DialogContent = defineComponent({
   name: "DialogContent",
   inheritAttrs: false,
@@ -177,10 +197,12 @@ export const DialogContent = defineComponent({
      * @default "center"
      */
     placement: { type: String as PropType<DialogPlacement>, default: "center" },
-    /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
+    /** Placement at 767px and below, such as a bottom sheet on phones. @default placement */
     mobilePlacement: String as PropType<Extract<DialogPlacement, "center" | "bottom" | "fullscreen">>,
-    /** Mobile presentation at 640px and below. Sheets default to bottom placement. */
+    /** Mobile presentation at 767px and below. Sheets default to bottom placement. */
     mobileVariant: String as PropType<"alert" | "sheet">,
+    /** Mobile panel palette; dark mode uses elevated surfaces. @default "plain" */
+    surface: { type: String as PropType<"plain" | "grouped">, default: "plain" },
     /** Called when focus moves into the dialog on open; `event.preventDefault()` keeps it for you to place. */
     onOpenAutoFocus: Function as PropType<(event: Event) => void>,
     /** Called when focus returns on close; `event.preventDefault()` keeps it elsewhere. */
@@ -188,6 +210,7 @@ export const DialogContent = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
+    provide(TOOLBAR_HOST, { kind: "dialog" })
     const mobilePlacement = computed(() =>
       props.mobileVariant === "alert"
         ? "center"
@@ -198,28 +221,25 @@ export const DialogContent = defineComponent({
     // without one would render `id=""`
     rootContext.contentId ||= useId(undefined, "reka-dialog-content")
 
-    // Force-mounted content refocuses Reka's trigger the moment it closes.
-    // Focus waits for the exit, as in Radix: the trigger is held back until
-    // the content unmounts, where Reka's own close auto focus uses it.
-    let closingTrigger: HTMLElement | undefined
-    watch(
-      open,
-      (isOpen) => {
-        if (isOpen) {
-          if (closingTrigger) rootContext.triggerElement.value = closingTrigger
-          closingTrigger = undefined
-        } else {
-          closingTrigger = rootContext.triggerElement.value
-          rootContext.triggerElement.value = undefined
+    const handleCloseAutoFocus = (rekaEvent: Event) => {
+      // Reka announces unmount before descendant scopes release their traps.
+      // Match Radix (and our Menu adapter): dispatch the cancellable callback
+      // on the detached content, so custom focus restoration is not trapped.
+      rekaEvent.preventDefault()
+      const container = rekaEvent.target instanceof HTMLElement ? rekaEvent.target : rootContext.contentElement.value
+      const trigger = rootContext.triggerElement.value
+      setTimeout(() => {
+        const event = new CustomEvent(rekaEvent.type, { bubbles: false, cancelable: true })
+        const restoreFocus = (closeEvent: Event) => {
+          props.onCloseAutoFocus?.(closeEvent)
+          keepMovedFocus(closeEvent)
+          if (!closeEvent.defaultPrevented) trigger?.focus()
         }
-      },
-      { flush: "sync" },
-    )
-    const handleCloseAutoFocus = (event: Event) => {
-      props.onCloseAutoFocus?.(event)
-      keepMovedFocus(event)
-      if (closingTrigger) rootContext.triggerElement.value = closingTrigger
-      closingTrigger = undefined
+        if (!container) return restoreFocus(event)
+        container.addEventListener(event.type, restoreFocus)
+        container.dispatchEvent(event)
+        container.removeEventListener(event.type, restoreFocus)
+      }, 0)
     }
 
     // Escape goes through the shared stack, as in React, so the dialog
@@ -235,6 +255,15 @@ export const DialogContent = defineComponent({
     const outsidePress = useDeferredPointerDownOutside((originalEvent) => {
       if (!originalEvent.ctrlKey && performance.now() - openedAt >= DOUBLE_CLICK) setOpen(false)
     })
+    const handlePointerDownOutside = (event: Parameters<typeof outsidePress.onPointerDownOutside>[0]) => {
+      // The native modal owner outlives logical open. An exiting layer must not
+      // start a deferred dismissal that closes a trigger-driven reopen.
+      if (!open.value) event.preventDefault()
+      else outsidePress.onPointerDownOutside(event)
+    }
+    const handleInteractOutside = (event: Event) => {
+      if (!open.value) event.preventDefault()
+    }
     watch(
       open,
       (isOpen) => {
@@ -244,14 +273,39 @@ export const DialogContent = defineComponent({
       { immediate: true },
     )
 
+    const boundary = provideFloatingBoundaryScope()
     let panelElement: HTMLElement | undefined
     let detachDrag: (() => void) | undefined
+    let barObserver: ResizeObserver | undefined
+    let barChildren: MutationObserver | undefined
     const setPanelRef = (instance: unknown) => {
       const element = instance instanceof HTMLElement ? instance : undefined
       if (element === panelElement) return
       detachDrag?.()
+      barObserver?.disconnect()
+      barChildren?.disconnect()
       detachDrag = undefined
       panelElement = element
+      boundary.setRoot(element)
+      if (element) {
+        const update = () => {
+          // A phone Toolbar takes the place of the header or footer bar on its side.
+          const header = element.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`) ?? element.querySelector<HTMLElement>(`:scope > .${s.Header}`)
+          const footer = element.querySelector<HTMLElement>(`:scope > ${BOTTOM_TOOLBAR}`) ?? element.querySelector<HTMLElement>(`:scope > .${s.Footer}`)
+          element.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? 0}px`)
+          element.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? 0}px`)
+        }
+        barObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+        const observeBars = () => {
+          barObserver?.disconnect()
+          element.querySelectorAll<HTMLElement>(`:scope > .${s.Header}, :scope > .${s.Footer}, :scope > [data-toolbar]`)
+            .forEach((bar) => barObserver?.observe(bar, { box: "border-box" }))
+          update()
+        }
+        observeBars()
+        barChildren = new MutationObserver(observeBars)
+        barChildren.observe(element, { childList: true })
+      }
       if (element && mobilePlacement.value === "bottom") {
         detachDrag = attachSheetDrag(element, () => setOpen(false))
       }
@@ -263,7 +317,7 @@ export const DialogContent = defineComponent({
         ? attachSheetDrag(panelElement, () => setOpen(false))
         : undefined
     })
-    onBeforeUnmount(() => detachDrag?.())
+    onBeforeUnmount(() => { detachDrag?.(); barObserver?.disconnect(); barChildren?.disconnect() })
 
     let overlayElement: Element | undefined
     const setOverlayRef = (instance: unknown) => {
@@ -276,8 +330,8 @@ export const DialogContent = defineComponent({
     }
 
     const renderDialog = () =>
-      h("div", { key: "dialog" }, [
-        h(RekaDialogOverlay, { class: s.Overlay, forceMount: true, ref: setOverlayRef }),
+      h(DialogSurface, { key: "dialog" }, () => [
+        h(RekaDialogOverlay, { class: s.Overlay, forceMount: true, ref: setOverlayRef, "data-state": open.value ? "open" : "closed" }),
         h(
           RekaDialogContent,
           {
@@ -288,6 +342,8 @@ export const DialogContent = defineComponent({
             "data-placement": props.placement === "center" ? undefined : props.placement,
             "data-mobile-placement": mobilePlacement.value,
             "data-mobile-variant": props.mobileVariant,
+            "data-surface": props.surface,
+            "data-state": open.value ? "open" : "closed",
             "data-pill": props.pill ? "" : undefined,
             "onOpenAutoFocus": props.onOpenAutoFocus,
             "onCloseAutoFocus": handleCloseAutoFocus,
@@ -295,23 +351,34 @@ export const DialogContent = defineComponent({
             ...(titleCount.value > 0 ? {} : { "aria-labelledby": undefined }),
             ...(descriptionCount.value > 0 ? {} : { "aria-describedby": undefined }),
             "onEscapeKeyDown": preventDefaultHandler,
-            "onPointerDownOutside": outsidePress.onPointerDownOutside,
+            "onPointerDownOutside": handlePointerDownOutside,
             "onFocusOutside": outsidePress.onFocusOutside,
+            "onInteractOutside": handleInteractOutside,
           },
           {
             default: () => [
-              h("div", { class: [s.Panel, attrs.class], ref: setPanelRef }, [
+              // The native Content is the sole focus owner while open, so it
+              // keeps tracking replacement inputs. Activate this non-trapping
+              // scope only during logical exit to pause the retained modal owner.
+              // A second live trap would leave the paused native scope tracking
+              // removed inputs; its mutation fallback could then select current text.
+              h(RekaFocusScope, {
+                asChild: true,
+                present: !open.value,
+                loop: false,
+                trapped: false,
+                onMountAutoFocus: preventDefaultHandler,
+                onUnmountAutoFocus: preventDefaultHandler,
+              }, () => h("div", { class: [s.Panel, attrs.class], ref: setPanelRef }, [
                 props.showClose
                   ? h(DialogClose, null, {
                       default: () => [
-                        h("button", { "type": "button", "class": s.CloseButton, "aria-label": "Close dialog" }, [
-                          h(CloseIcon),
-                        ]),
+                        h(NavigationButton, { "action": "close", "variant": "ghost", "class": s.CloseButton, "aria-label": "Close dialog" }),
                       ],
                     })
                   : null,
                 slots.default?.(),
-              ]),
+              ])),
             ],
           },
         ),
@@ -320,7 +387,7 @@ export const DialogContent = defineComponent({
     return () => {
       const { placement } = props
       const crossesScreen =
-        placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement.value === "bottom"
+        placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement.value === "bottom" || mobilePlacement.value === "fullscreen"
       return h(RekaDialogPortal, null, {
         default: () => [
           h(
@@ -341,10 +408,13 @@ export const DialogContent = defineComponent({
   },
 })
 
+export type DialogBarBackground = "glass" | "solid"
+
 export const DialogHeader = defineComponent({
   name: "DialogHeader",
-  setup(_props, { slots }) {
-    return () => h("div", { class: s.Header }, slots.default?.())
+  props: { background: { type: String as PropType<DialogBarBackground>, default: "glass" } },
+  setup(props, { slots }) {
+    return () => h("div", { class: s.Header, "data-background": props.background }, slots.default?.())
   },
 })
 
@@ -369,9 +439,11 @@ export const DialogFooter = defineComponent({
   props: {
     /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
     mobileLayout: String as PropType<"inline" | "stacked">,
+    background: { type: String as PropType<DialogBarBackground>, default: "glass" },
   },
   setup(props, { slots }) {
-    return () => h("div", { class: s.Footer, "data-mobile-layout": props.mobileLayout }, slots.default?.())
+    const boundary = useFloatingBoundaryRegistration()
+    return () => h("div", { ref: boundary?.setFooter, class: s.Footer, "data-mobile-layout": props.mobileLayout, "data-background": props.background }, slots.default?.())
   },
 })
 
@@ -418,3 +490,6 @@ export type DialogPlacement = "center" | "top" | "bottom" | "start" | "end" | "f
 
 /** DialogContent props; `class` lands on the panel, like `className` in React. */
 export type DialogContentProps = InstanceType<typeof DialogContent>["$props"] & { class?: HTMLAttributes["class"] }
+
+export type DialogHeaderProps = InstanceType<typeof DialogHeader>["$props"]
+export type DialogFooterProps = InstanceType<typeof DialogFooter>["$props"]

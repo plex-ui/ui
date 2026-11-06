@@ -1,5 +1,7 @@
 'use client';
 
+import countryLabelStyles from '../CountryLabel.module.css';
+
 import type { ComponentProps } from 'react';
 import { h, type FunctionalComponent } from 'vue';
 import {
@@ -22,6 +24,7 @@ import {
   stripFormatting,
 } from '../PhoneInputDemos';
 import { VueDemo } from './VueDemo';
+import { VueFormScreenDemo } from './VueFormScreenDemo';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass
 // functions or VNodes to a client component. The Select and SelectControl
@@ -167,6 +170,7 @@ const scope = {
   allColumns,
   // Country and phone examples
   FlagIcon,
+  countryLabelStyles,
   countries: COUNTRIES,
   countryOptions: COUNTRY_OPTIONS,
   countryOptionClass: COUNTRY_OPTION_CLASS,
@@ -196,4 +200,8 @@ export function VueCountrySelectDemo(props: ComponentProps<typeof VueDemo>) {
       <VueSelectDemo {...props} />
     </>
   );
+}
+
+export function VueCountryFormDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
+  return <><style>{COUNTRY_OPTION_STYLE}</style><VueFormScreenDemo {...props} state={{ ...scope, ...state }} /></>;
 }

@@ -1,13 +1,19 @@
 'use client';
 
-import React, { useId, useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import Image from 'next/image';
+import countryLabelStyles from './CountryLabel.module.css';
 import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { FormScreen } from './FormRowsDemos';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldError } from '@plexui/ui/components/FieldError';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 // ============================================================
 // Country data
@@ -252,7 +258,6 @@ export const COUNTRY_OPTIONS: Country[] = COUNTRIES.map((c) => ({
   label: `${c.label} (${c.dialCode})`,
 }));
 
-
 export const COUNTRY_OPTION_CLASS = 'phone-country-option';
 export const COUNTRY_OPTION_STYLE = `.${COUNTRY_OPTION_CLASS} > div > div:first-child > div:first-child { order: 1; margin-left: auto; }`;
 
@@ -318,7 +323,10 @@ function FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {
         flexShrink: 0,
       }}
     >
-      <img
+      <Image
+        width={24}
+        height={18}
+        unoptimized
         src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${code}.svg`}
         alt=""
         loading="lazy"
@@ -331,7 +339,6 @@ function FlagIcon({ code, trigger }: { code: string; trigger?: boolean }) {
     </span>
   );
 }
-
 
 export function formatPhoneNumber(raw: string, countryCode?: string): string {
   const allDigits = raw.replace(/\D/g, '');
@@ -357,52 +364,6 @@ export function stripFormatting(formatted: string): string {
 // Demo infrastructure (matching existing pattern)
 // ============================================================
 
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
-
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
 // ============================================================
@@ -422,9 +383,9 @@ const CountryTriggerView = ({ value, label }: Option) => {
 
 const CountryOptionView = ({ value, label }: Option) => {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, verticalAlign: 'middle', lineHeight: 0 }}>
+    <span className={countryLabelStyles.Root}>
       <FlagIcon code={value} />
-      {label}
+      <span className={countryLabelStyles.Text}>{label}</span>
     </span>
   );
 };
@@ -440,13 +401,12 @@ const CountryNameTriggerView = ({ value, label }: Option) => {
 
 const CountryNameOptionView = ({ value, label }: Option) => {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, verticalAlign: 'middle', lineHeight: 0 }}>
+    <span className={countryLabelStyles.Root}>
       <FlagIcon code={value} />
-      {label}
+      <span className={countryLabelStyles.Text}>{label}</span>
     </span>
   );
 };
-
 
 export const countrySearchPredicate = (option: Option, searchTerm: string): boolean => {
   const country = COUNTRY_LOOKUP.get(option.value);
@@ -522,7 +482,6 @@ export function CountryCodeSelectorDemo() {
   );
 }
 
-
 // ============================================================
 // Demo 1b: Country Selector (no dial codes)
 // ============================================================
@@ -587,7 +546,6 @@ export function CountrySelectorDemo() {
   );
 }
 
-
 // ============================================================
 // Demo 3: Combined Phone Form (Country Selector + Phone Input)
 // ============================================================
@@ -624,10 +582,29 @@ export function PhoneFormDemo() {
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault();
     setSubmitted(true);
-    if (isPhoneValid) {
 
-    }
   };
+
+  const wide = useBreakpoint('md');
+  if (!wide) return (
+    <>
+      <style>{COUNTRY_OPTION_STYLE}</style>
+      <FormScreen title="Phone number" submitLabel="Continue" onSubmit={handleSubmit} noValidate>
+        <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
+        <Field row label="Country">
+          <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}
+            searchPlaceholder="Search countries..." searchPredicate={countrySearchPredicate}
+            OptionView={CountryOptionView} listMinWidth={300} optionClassName={COUNTRY_OPTION_CLASS} />
+        </Field>
+        <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
+          <Input ref={phoneInputRef} value={phone} onChange={handlePhoneChange}
+            placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
+            startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+        </Field>
+      </FieldGroup>
+      </FormScreen>
+    </>
+  );
 
   return (
     <>

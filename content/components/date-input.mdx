@@ -13,20 +13,33 @@ import {
   DateInputWithSecondsDemo,
   DateInputWithFieldDemo,
   DateInputWithFieldErrorDemo,
-  DateInputDisabledDemo,
 } from "@/components/docs/DateInputDemos"
+
+export const overviewCode = `import { useState } from 'react';
+import { DateTime } from 'luxon';
+import { DateInput } from '@plexui/ui/components/DateInput';
+
+export default function DateInputExample() {
+  const [date, setDate] = useState<DateTime | null>(null);
+  const [disabled] = useState(false);
+
+  return (
+    <div className="w-[200px]">
+      <DateInput value={date} onChange={setDate} size="md" variant="outline"
+        clearable disabled={disabled} />
+    </div>
+  );
+}`
 
 <UsageBlock>{`import { DateInput } from "@plexui/ui/components/DateInput";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview details={<>Pass a Luxon <code>DateTime</code> (or <code>null</code>) as <code>value</code> with <code>onChange</code>. <code>onChange</code> fires once a complete, valid date is typed, and with <code>null</code> when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again.</>} code={`const [date, setDate] = useState<DateTime | null>(null)
-
-<div className="w-[200px]">
-  <DateInput value={date} onChange={setDate} size="md" variant="outline" clearable />
-</div>`} previewMinHeight={168}>
+<ComponentPreview details={<>Pass a Luxon <code>DateTime</code> (or <code>null</code>) as <code>value</code> with <code>onChange</code>. <code>onChange</code> fires once a complete, valid date is typed, and with <code>null</code> when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again.</>} code={overviewCode} previewMinHeight={168}>
   <DateInputBaseDemo />
 </ComponentPreview>
 
@@ -97,16 +110,6 @@ const [date, setDate] = useState<DateTime | null>(today)
   </Field>
 </div>`} previewMinHeight={100}>
   <DateInputWithFieldErrorDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview code={`const [date, setDate] = useState<DateTime | null>(DateTime.local(2025, 1, 1))
-
-<div className="w-[200px]">
-  <DateInput value={date} onChange={setDate} disabled />
-</div>`} previewMinHeight={80}>
-  <DateInputDisabledDemo />
 </ComponentPreview>
 
 ## API

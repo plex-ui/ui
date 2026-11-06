@@ -124,6 +124,7 @@ export const TagInput = (props: TagInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLSpanElement>(null)
+  const pendingRemovalFocus = useRef<{ tag: string; source: HTMLElement } | null>(null)
 
   const showInput = !maxTags || tags.size < maxTags
 
@@ -146,6 +147,32 @@ export const TagInput = (props: TagInputProps) => {
       }
     }
   }, [focused, selectedTag, showInput]) // Include showInput so we focus the container when we hide the input
+
+  // Wait for the controlled/uncontrolled list to actually remove the chip. A
+  // rejected removal leaves focus alone; another focused control is never stolen.
+  useLayoutEffect(() => {
+    const pending = pendingRemovalFocus.current
+    if (!pending || tags.has(pending.tag)) return
+    pendingRemovalFocus.current = null
+    const doc = pending.source.ownerDocument
+    if (doc.activeElement !== doc.body && !pending.source.contains(doc.activeElement)) return
+    ;(inputRef.current ?? containerRef.current)?.focus({ preventScroll: true })
+  }, [tags])
+
+  // A touch drag can move outside without focusin or compatibility mousedown.
+  // Cancel only the restoration request; leave normal blur/commit behavior alone.
+  useEffect(() => {
+    const doc = containerRef.current?.ownerDocument
+    if (!doc) return
+    const cancelAfterPointer = (event: Event) => {
+      const pending = pendingRemovalFocus.current
+      if (pending && event.target instanceof Node && !pending.source.contains(event.target)) {
+        pendingRemovalFocus.current = null
+      }
+    }
+    doc.addEventListener("pointerdown", cancelAfterPointer, true)
+    return () => doc.removeEventListener("pointerdown", cancelAfterPointer, true)
+  }, [])
 
   // A ghost has no frame: the hint stays after the first tag to show where to type.
   const placeholderText = tags.size === 0 || variant === "ghost" ? placeholder : undefined
@@ -270,15 +297,14 @@ export const TagInput = (props: TagInputProps) => {
     if (disabled) {
       return
     }
+    const source = containerRef.current?.querySelector<HTMLElement>(`[data-tag="${CSS.escape(tag)}"]`)
+    if (source?.contains(source.ownerDocument.activeElement)) pendingRemovalFocus.current = { tag, source }
     const newSet = new Map(tags)
     newSet.delete(tag)
     const newTags = Array.from(newSet.values())
     onChangeLatest.current?.(newTags)
     if (!isControlled) {
       setInternalTags(newTags)
-    }
-    if (selectedTag === tag) {
-      setSelectedTag(null)
     }
   }
 
@@ -323,6 +349,7 @@ export const TagInput = (props: TagInputProps) => {
   }
 
   const handleContainerBlur = () => {
+    pendingRemovalFocus.current = null
     setFocused(false)
     setSelectedTag(null)
     // A disabled tag input keeps the pending text instead of committing it
@@ -337,6 +364,8 @@ export const TagInput = (props: TagInputProps) => {
   // ============================================
 
   const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // IME candidate navigation belongs to the input, including Safari's 229 key.
+    if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return
     // A tag can keep focus while the input turns disabled: no selecting or removing then
     if (disabled) {
       return
@@ -361,6 +390,8 @@ export const TagInput = (props: TagInputProps) => {
   }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Confirming an IME candidate must not commit or clear the pre-edit buffer.
+    if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return
     if (e.key === "Enter" || delimiters.includes(e.key)) {
       e.preventDefault()
       if (currentInput) {
@@ -446,6 +477,7 @@ export const TagInput = (props: TagInputProps) => {
       return
     }
     setFocused(true)
+    setSelectedTag(null)
   }
 
   const handleBlur = (e: React.FocusEvent) => {
@@ -503,14 +535,15 @@ export const TagInput = (props: TagInputProps) => {
               <span className="overflow-hidden text-ellipsis" title={tag.value}>
                 <span className={s.TagValue}>{tag.value}</span>
               </span>
-              <div
+              <button
+                type="button"
                 className={s.TagRemove}
-                onClick={() => removeTag(tag.value)}
-                role="button"
-                aria-label="Remove item"
+                disabled={disabled}
+                onClick={(event) => { event.stopPropagation(); removeTag(tag.value) }}
+                aria-label={`Remove ${tag.value}`}
               >
                 <X />
-              </div>
+              </button>
             </div>
           ))}
           {showInput && (

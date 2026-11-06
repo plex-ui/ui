@@ -7,17 +7,20 @@ metaDescription: Vue 3 copy-to-clipboard tooltip that wraps any trigger element 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const overview = `<CopyTooltip
-  copy-value="Very cool content to copy"
+  copy-value="sess_12345abcdefg"
   :open-delay="openDelay"
   :side-offset="sideOffset"
   :align-offset="alignOffset"
   :side="side"
   :align="align"
 >
-  <TooltipTriggerDecorator>sess_12345abcdefg</TooltipTriggerDecorator>
+  <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+    sess_12345abcdefg
+  </Button>
 </CopyTooltip>`
 
-<UsageBlock>{`import { CopyTooltip, TooltipTriggerDecorator } from "@plexui/vue/components/Tooltip";`}</UsageBlock>
+<UsageBlock>{`import { CopyTooltip } from "@plexui/vue/components/Tooltip";
+import { Button } from "@plexui/vue/components/Button";`}</UsageBlock>
 
 ## Examples
 

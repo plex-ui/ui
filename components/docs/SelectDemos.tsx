@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Plus, SettingsSlider, User, UserLock, Workspace } from '@plexui/ui/components/Icon';
 import { Select } from '@plexui/ui/components/Select';
 import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Button } from '@plexui/ui/components/Button';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const fruitsOptions = [
   { label: 'Apple', value: 'apple' },
@@ -122,34 +123,6 @@ const SELECT_VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
 const SELECT_SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 const CHECK_POSITION_OPTIONS = ['start', 'end'] as const;
 
-const selectControlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const selectControlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const selectControlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function SelectDemoControlRow({ name, children }: { name: string; children: ReactNode }) {
-  return (
-    <div style={selectControlRowStyle}>
-      <span style={selectControlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
-
 export function SelectBaseDemo() {
   const [variant, setVariant] = useState<(typeof SELECT_VARIANT_OPTIONS)[number]>('outline');
   const [size, setSize] = useState<(typeof SELECT_SIZE_OPTIONS)[number]>('md');
@@ -162,8 +135,8 @@ export function SelectBaseDemo() {
 
   return (
     <>
-      <div data-demo-controls style={selectControlsTableStyle}>
-        <SelectDemoControlRow name="variant">
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="variant">
           <SegmentedControl<(typeof SELECT_VARIANT_OPTIONS)[number]>
             value={variant}
             onChange={setVariant}
@@ -176,8 +149,8 @@ export function SelectBaseDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="size">
+        </DemoControlRow>
+        <DemoControlRow name="size">
           <SegmentedControl<(typeof SELECT_SIZE_OPTIONS)[number]>
             value={size}
             onChange={setSize}
@@ -190,8 +163,8 @@ export function SelectBaseDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="checkPosition">
+        </DemoControlRow>
+        <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
             onChange={setCheckPosition}
@@ -204,13 +177,9 @@ export function SelectBaseDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="clearable">
-          <Switch checked={clearable} onCheckedChange={setClearable} aria-label="clearable" />
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="multiple">
-          <Switch checked={multiple} onCheckedChange={setMultiple} aria-label="multiple" />
-        </SelectDemoControlRow>
+        </DemoControlRow>
+        <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
+        <DemoControlBoolean name="multiple" value={multiple} onChange={setMultiple} />
       </div>
       <div
         data-demo-stage
@@ -262,8 +231,8 @@ export function SelectCustomViewsDemo() {
 
   return (
     <>
-      <div data-demo-controls style={selectControlsTableStyle}>
-        <SelectDemoControlRow name="variant">
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="variant">
           <SegmentedControl<(typeof SELECT_VARIANT_OPTIONS)[number]>
             value={variant}
             onChange={setVariant}
@@ -276,8 +245,8 @@ export function SelectCustomViewsDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="size">
+        </DemoControlRow>
+        <DemoControlRow name="size">
           <SegmentedControl<(typeof SELECT_SIZE_OPTIONS)[number]>
             value={size}
             onChange={setSize}
@@ -290,8 +259,8 @@ export function SelectCustomViewsDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="checkPosition">
+        </DemoControlRow>
+        <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
             onChange={setCheckPosition}
@@ -304,10 +273,8 @@ export function SelectCustomViewsDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </SelectDemoControlRow>
-        <SelectDemoControlRow name="triggerIcon">
-          <Switch checked={showIcon} onCheckedChange={setShowIcon} aria-label="triggerIcon" />
-        </SelectDemoControlRow>
+        </DemoControlRow>
+        <DemoControlBoolean name="triggerIcon" value={showIcon} onChange={setShowIcon} />
       </div>
       <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
         <div style={{ width: 220 }}>

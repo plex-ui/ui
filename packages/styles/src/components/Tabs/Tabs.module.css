@@ -1,6 +1,8 @@
 .Tabs {
   position: relative;
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   flex-wrap: nowrap;
   gap: var(--segmented-control-gap);
   font-size: var(--segmented-control-font-size);
@@ -324,9 +326,10 @@
   padding: 0 var(--segmented-control-option-gutter);
   color: var(--color-text-secondary);
   cursor: pointer;
-  line-height: 1;
+  line-height: var(--segmented-control-line-height, 1);
   display: flex;
   flex-shrink: 0;
+  min-width: var(--tabs-block-min-width, auto);
   align-items: center;
   justify-content: center;
   transition-duration: var(--transition-duration-basic);
@@ -349,7 +352,7 @@
   }
 
   :where(.Tabs[data-variant="segmented"][data-pill]) & {
-    min-width: calc(var(--segmented-control-size) - 2 * var(--segmented-control-gutter));
+    min-width: var(--tabs-block-min-width, calc(var(--segmented-control-size) - 2 * var(--segmented-control-gutter)));
     padding: 0 calc(var(--segmented-control-option-gutter) * var(--control-gutter-pill-scaling));
   }
 
@@ -437,11 +440,16 @@
     Shared states
   ============================================= */
   &[data-state="on"] {
+    font-weight: var(--segmented-control-active-font-weight, inherit);
     color: var(--color-text);
   }
 
   &[data-state="on"]:focus-visible {
     outline: 2px solid var(--color-ring);
+
+    :where(.Tabs[data-variant="underline"]) & {
+      outline-offset: -2px;
+    }
   }
 
   &[data-disabled] {
@@ -525,6 +533,8 @@
 .TabContent {
   position: relative;
   display: flex;
+  min-width: var(--tabs-block-min-width, auto);
+  max-width: var(--tabs-block-content-max-width, none);
   align-items: center;
   gap: var(--segmented-control-content-gap);
 
@@ -534,10 +544,22 @@
     height: var(--segmented-control-icon-size);
   }
 
+  > svg,
+  > .TabBadge {
+    flex-shrink: var(--tabs-block-accessory-shrink, 1);
+  }
+
   /* Negative margin for icon when followed by text */
   svg:where(:first-child:not(:only-child)) {
     margin-left: var(--segmented-control-icon-offset);
   }
+}
+
+.TabLabel {
+  min-width: var(--tabs-block-min-width, auto);
+  overflow: var(--tabs-block-label-overflow, visible);
+  white-space: var(--tabs-block-label-white-space, inherit);
+  text-overflow: ellipsis;
 }
 
 /* =============================================
@@ -715,4 +737,22 @@
   margin-inline-start: auto;
   padding-inline-start: spacing(3);
   color: var(--color-text-secondary);
+}
+
+/* The native segment already includes its final gutter; pill scaling is desktop-only. */
+@media (max-width: 767px) {
+  .Tabs[data-variant="segmented"][data-orientation="horizontal"] .Tab {
+    padding-inline: var(--segmented-control-option-gutter);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Tabs {
+    --tabs-thumb-transition-duration: 0ms;
+  }
+
+  .Tab,
+  .Tab::before {
+    transition-duration: 0ms;
+  }
 }

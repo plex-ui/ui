@@ -1,11 +1,13 @@
 import { DateTime, Interval } from "luxon"
-import { computed, createCommentVNode, defineComponent, h, onMounted, ref, shallowRef, watch, type PropType } from "vue"
+import { computed, createCommentVNode, defineComponent, h, ref, shallowRef, watch, type PropType } from "vue"
 import { useBreakpoint } from "../../composables/useBreakpoints.js"
 import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday, weekPosition } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
-import { Check, ChevronLeft, ChevronRight } from "../Icon/index.js"
+import { Check } from "../Icon/index.js"
+import { CalendarNavigationIcon } from "../DatePicker/CalendarNavigationIcon.js"
 import { TransitionGroup } from "../Transition/index.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
 import s from "@plexui/styles/components/DateRangePicker/Calendar.module.css"
 import { useDateRangeContext } from "./context.js"
 import { type DateRange, type DateRangeShortcut } from "./types.js"
@@ -17,8 +19,8 @@ import { type DateRange, type DateRangeShortcut } from "./types.js"
 //   React, when the value jumps out of view.
 // - React's pending-focus effect is a post watcher on the left month; its
 //   cleanup cancels the frame, as the effect's does.
-// - Below the `sm` breakpoint the right calendar is a placeholder, as React's
-//   `{isSmallUp && ...}`: TransitionGroup still renders its (empty) wrapper
+// - Below the `md` breakpoint the right calendar is a placeholder, as React's
+//   `{isMediumUp && ...}`: TransitionGroup still renders its (empty) wrapper
 //   when animations are off.
 // - React quirk kept: the day buttons have no `type`.
 
@@ -53,7 +55,7 @@ export const DateRangeCalendar = defineComponent({
   name: "DateRangeCalendar",
   setup() {
     const context = useDateRangeContext()
-    const isSmallUp = useBreakpoint("sm")
+    const isMediumUp = useBreakpoint("md")
     const calendarContainerRef = shallowRef<HTMLDivElement | null>(null)
     // The day to focus once a key has moved the view to its month
     let pendingFocus: DateTime | null = null
@@ -61,13 +63,13 @@ export const DateRangeCalendar = defineComponent({
     const calendarSteps = ref(0)
     const forceRenderIncrement = ref(0)
     const leftCalendarDate = shallowRef<DateTime>(
-      isSmallUp.value
+      isMediumUp.value
         ? getLeftCalendarDate(context.value?.[0] ?? DateTime.now(), context.max)
         : (context.value?.[0] ?? DateTime.now()),
     )
 
     const rightCalendarDate = computed(() =>
-      isSmallUp.value
+      isMediumUp.value
         ? leftCalendarDate.value.plus({ months: 1 }).startOf("month")
         : leftCalendarDate.value.startOf("month"),
     )
@@ -76,16 +78,19 @@ export const DateRangeCalendar = defineComponent({
     const canGoForward = () => !context.max || isBefore(rightCalendarDate.value.endOf("month"), context.max)
 
     const handleNext = () => {
+      if (context.disabled) return
       calendarSteps.value += 1
       leftCalendarDate.value = leftCalendarDate.value.plus({ months: 1 })
     }
 
     const handlePrevious = () => {
+      if (context.disabled) return
       calendarSteps.value -= 1
       leftCalendarDate.value = leftCalendarDate.value.minus({ months: 1 })
     }
 
     const handleDateSelect = (selectedDate: DateTime) => {
+      if (context.disabled) return
       if (!selectionRange.value) {
         selectionRange.value = [selectedDate, selectedDate]
         return
@@ -106,6 +111,7 @@ export const DateRangeCalendar = defineComponent({
     }
 
     const handleDateMouseEnter = (hoveredDate: DateTime) => {
+      if (context.disabled) return
       // If we're not actively selecting, no-op
       const currentSelectionRange = selectionRange.value
       if (!currentSelectionRange) {
@@ -145,7 +151,7 @@ export const DateRangeCalendar = defineComponent({
     }
 
     const handleDayKeyDown = (event: KeyboardEvent, day: DateTime) => {
-      if (event.altKey || event.ctrlKey || event.metaKey) {
+      if (context.disabled || event.altKey || event.ctrlKey || event.metaKey) {
         return
       }
 
@@ -219,52 +225,44 @@ export const DateRangeCalendar = defineComponent({
           // Reset state the calendar view entirely
           selectionRange.value = null
           calendarSteps.value = 0
-          leftCalendarDate.value = isSmallUp.value ? getLeftCalendarDate(value[0], context.max) : value[0]
+          leftCalendarDate.value = isMediumUp.value ? getLeftCalendarDate(value[0], context.max) : value[0]
           forceRenderIncrement.value += 1
         }
       },
     )
 
-    // Detect height changes when new calendars are rendered
-    const measureHeight = () => {
-      waitForAnimationFrame(() => {
+    // Observe calendar border boxes as Phone geometry/fonts change, as well as month changes.
+    watch([leftCalendarDate, forceRenderIncrement, isMediumUp], (_value, _previous, onCleanup) => {
+      let cancelTransition: (() => void) | undefined
+      let observer: ResizeObserver | undefined
+      const cancelMeasure = waitForAnimationFrame(() => {
         const container = calendarContainerRef.value
-
-        if (!container) {
-          return
-        }
-
-        let maxHeight = -Infinity
-
-        // Find the tallest calendar
-        container.querySelectorAll<HTMLElement>("[data-calendar]")?.forEach((element) => {
-          // NOTE: clientHeight does not respect the scale() that popover uses to animate in, which is what we want
-          // We want to know the full height of the element, without any transform applied.
-          const height = element.clientHeight
-
-          // Ignore calendars that are exiting
-          if (element.closest("[data-exiting]")) {
-            return
+        if (!container) return
+        const calendars = () => Array.from(container.querySelectorAll<HTMLElement>("[data-calendar]"))
+          .filter((element) => !element.closest("[data-exiting]"))
+        const measure = () => {
+          const visible = calendars()
+          if (!visible.length) return
+          const height = `${Math.max(...visible.map((element) => element.clientHeight))}px`
+          if (container.style.height !== height) container.style.height = height
+          // Do not animate the initial measurement. CSS follows live reduced motion.
+          if (!container.style.transition && !cancelTransition) {
+            cancelTransition = waitForAnimationFrame(() => {
+              container.style.transition = "height var(--calendar-height-duration, 0.25s) var(--cubic-move)"
+            })
           }
-
-          if (height > maxHeight) {
-            maxHeight = height
-          }
-        })
-
-        container.style.height = `${maxHeight}px`
-
-        // Don't animate the initial height.
-        // This is relevant when the calendar opens to a larger size than the default.
-        if (!container.style.transition) {
-          waitForAnimationFrame(() => {
-            container.style.transition = `height 0.25s var(--cubic-move)`
-          })
         }
+        measure()
+        observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : undefined
+        observer?.observe(container, { box: "border-box" })
+        calendars().forEach((calendar) => observer?.observe(calendar, { box: "border-box" }))
       })
-    }
-    onMounted(measureHeight)
-    watch(leftCalendarDate, measureHeight, { flush: "post" })
+      onCleanup(() => {
+        cancelMeasure()
+        cancelTransition?.()
+        observer?.disconnect()
+      })
+    }, { immediate: true, flush: "post" })
 
     // Focus a pending day once its month has rendered. TransitionGroup marks
     // the leaving calendar after this render, so wait a frame like the height does
@@ -311,7 +309,7 @@ export const DateRangeCalendar = defineComponent({
       }
 
       return h("div", { key: `stable-view-${forceRenderIncrement.value}`, class: s.CalendarWrapper }, [
-        h("div", { ref: setContainer, class: s.CalendarContainer, onMouseleave: handleCalendarMouseLeave }, [
+        h("div", { ref: setContainer, class: s.CalendarContainer, onPointerleave: (event: PointerEvent) => { if (isHoverPointer(event)) handleCalendarMouseLeave() } }, [
           h("div", { class: s.Previous }, [
             h(
               Button,
@@ -323,10 +321,10 @@ export const DateRangeCalendar = defineComponent({
                 "gutterSize": "2xs",
                 "iconSize": "sm",
                 "onClick": handlePrevious,
-                "disabled": !canGoBack(),
+                "disabled": context.disabled || !canGoBack(),
                 "aria-label": "Previous month",
               },
-              { default: () => [h(ChevronLeft)] },
+              { default: () => [h(CalendarNavigationIcon, { direction: "previous" })] },
             ),
           ]),
           h("div", { class: s.Next }, [
@@ -340,50 +338,52 @@ export const DateRangeCalendar = defineComponent({
                 "gutterSize": "2xs",
                 "iconSize": "sm",
                 "onClick": handleNext,
-                "disabled": !canGoForward(),
+                "disabled": context.disabled || !canGoForward(),
                 "aria-label": "Next month",
               },
-              { default: () => [h(ChevronRight)] },
+              { default: () => [h(CalendarNavigationIcon, { direction: "next" })] },
             ),
           ]),
-          h(
-            "div",
-            {
-              class: s.CalendarRange,
-              style: { transform: `translate(calc(${calendarSteps.value * -1} * var(--calendar-step)), 0)` },
-            },
-            [
-              h(
-                TransitionGroup,
-                { enterDuration: 400, exitDuration: 400 },
-                {
-                  default: () => [
-                    h(CalendarView, {
-                      key: left.toLocaleString({ month: "long", year: "numeric" }),
-                      stepPosition: calendarSteps.value,
-                      date: left,
-                      ...viewProps,
-                    }),
-                    isSmallUp.value
-                      ? h(CalendarView, {
-                          key: right.toLocaleString({ month: "long", year: "numeric" }),
-                          stepPosition: calendarSteps.value + 1,
-                          date: right,
-                          ...viewProps,
-                        })
-                      : createCommentVNode(),
-                  ],
-                },
-              ),
-            ],
-          ),
+          h("div", { class: s.CalendarViewport }, [
+            h(
+              "div",
+              {
+                class: s.CalendarRange,
+                style: { transform: `translate(calc(${calendarSteps.value * -1} * var(--calendar-step)), 0)` },
+              },
+              [
+                h(
+                  TransitionGroup,
+                  { enterDuration: 400, exitDuration: 400 },
+                  {
+                    default: () => [
+                      h(CalendarView, {
+                        key: left.toLocaleString({ month: "long", year: "numeric" }),
+                        stepPosition: calendarSteps.value,
+                        date: left,
+                        ...viewProps,
+                      }),
+                      isMediumUp.value
+                        ? h(CalendarView, {
+                            key: right.toLocaleString({ month: "long", year: "numeric" }),
+                            stepPosition: calendarSteps.value + 1,
+                            date: right,
+                            ...viewProps,
+                          })
+                        : createCommentVNode(),
+                    ],
+                  },
+                ),
+              ],
+            ),
+          ]),
         ]),
       ])
     }
   },
 })
 
-const daysOfTheWeekLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+const daysOfTheWeekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 const CalendarView = defineComponent({
   name: "DateRangeCalendarView",
@@ -453,8 +453,11 @@ const CalendarView = defineComponent({
         h("p", { class: s.MonthLabel }, [startOfMonth.monthLong, " ", String(startOfMonth.year)]),
         h(
           "div",
-          { class: s.Week },
-          dayLabels.map((day) => h("div", { key: day, class: s.DayLabel }, day)),
+          { class: [s.Week, s.WeekdayHeader] },
+          dayLabels.map((day) => h("div", { key: day, class: s.DayLabel }, [
+            h("span", { class: s.ShortDayLabel }, day.slice(0, 2)),
+            h("span", { class: s.LongDayLabel }, day),
+          ])),
         ),
         ...weeks.map((week, weekIndex) =>
           h(
@@ -502,12 +505,12 @@ const CalendarView = defineComponent({
                     "button",
                     {
                       "class": s.InteractiveDay,
-                      "disabled": !enabled,
+                      "disabled": context.disabled || !enabled,
                       "aria-label": d.toLocaleString(DateTime.DATE_HUGE),
                       "aria-pressed": isStart || isEnd || isInRange ? "true" : "false",
                       "aria-current": dayIsToday ? "date" : undefined,
-                      "onClick": () => d && props.onDateSelect?.(d),
-                      "onMouseenter": () => d && props.onDateMouseEnter?.(d),
+                      "onClick": () => { if (!context.disabled && d) props.onDateSelect?.(d) },
+                      "onPointerenter": (event: PointerEvent) => { if (!context.disabled && d && isHoverPointer(event)) props.onDateMouseEnter?.(d) },
                       "onKeydown": (event: KeyboardEvent) => d && props.onDayKeyDown?.(event, d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],
@@ -537,7 +540,7 @@ export const DateRangeShortcuts = defineComponent({
         return null
       }
 
-      const { value, min, max, maxRangeDays, onChange } = context
+      const { value, min, max, maxRangeDays, disabled, onChange } = context
 
       return h(
         "div",
@@ -560,8 +563,8 @@ export const DateRangeShortcuts = defineComponent({
               iconSize: "sm",
               block: true,
               selected: isActive,
-              disabled: !isRangeWithinLimits(range, min, max, maxRangeDays),
-              onClick: () => onChange(range, shortcut),
+              disabled: disabled || !isRangeWithinLimits(range, min, max, maxRangeDays),
+              onClick: () => { if (!context.disabled) onChange(range, shortcut) },
             },
             { default: () => [h("span", { class: s.ButtonText }, label), isActive ? h(Check) : null] },
           )

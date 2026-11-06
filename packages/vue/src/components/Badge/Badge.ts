@@ -35,7 +35,7 @@ const BadgeComponent = defineComponent({
       if (props.onRemove) {
         return h(
           "button",
-          { "type": "button", "class": s.Remove, "aria-label": props.removeLabel, "onClick": props.onRemove },
+          { "type": "button", "data-badge-remove": "", "class": s.Remove, "aria-label": props.removeLabel, "onClick": props.onRemove },
           [h(X)],
         )
       }

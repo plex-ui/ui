@@ -66,7 +66,7 @@ export const Badge = ({
 
   if (onRemove) {
     remove = (
-      <button type="button" className={s.Remove} aria-label={removeLabel} onClick={onRemove}>
+      <button type="button" data-badge-remove="" className={s.Remove} aria-label={removeLabel} onClick={onRemove}>
         <X />
       </button>
     )

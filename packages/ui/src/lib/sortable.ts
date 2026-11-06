@@ -45,6 +45,8 @@ type Area = {
   list: HTMLElement
   items: HTMLElement[]
   slots: Slot[]
+  scrollLeft: number
+  scrollTop: number
 }
 
 type Found = {
@@ -64,6 +66,8 @@ const LINE_INSET = 16
 const PART = 4
 // --cubic-enter: an animation here cannot read a CSS variable
 const EASING = "cubic-bezier(.19,1,.22,1)"
+// One pointer owns a pending hold or drag in this document.
+const activeDrags = new WeakMap<Document, () => void>()
 const HANDLE = "[data-sortable-handle]"
 const GRAB = "[data-sortable-grab]"
 const STATIC = "data-sortable-static"
@@ -282,6 +286,12 @@ function startDrag(
   commit: SortableCommit,
   link?: SortableLink,
 ) {
+  const doc = list.ownerDocument
+  const pointerId = event.pointerId
+  const validSource = () => list.isConnected && !list.hasAttribute("data-disabled")
+    && source.parentElement === list && !source.hasAttribute(STATIC)
+  const cancel = () => finish(false, true)
+  activeDrags.set(doc, cancel)
   const touch = event.pointerType === "touch" && !immediate
   const origin = { x: event.clientX, y: event.clientY }
   const pointer = { ...origin }
@@ -309,8 +319,12 @@ function startDrag(
   window.addEventListener("pointermove", onMove)
   window.addEventListener("pointerup", onUp)
   window.addEventListener("pointercancel", onCancel)
+  window.addEventListener("blur", cancel)
 
-  function onMove({ clientX, clientY }: PointerEvent) {
+  function onMove(event: PointerEvent) {
+    if (event.pointerId !== pointerId) return
+    if (!validSource()) { cancel(); return }
+    const { clientX, clientY } = event
     pointer.x = clientX
     pointer.y = clientY
     if (drag) return
@@ -319,12 +333,12 @@ function startDrag(
     else if (moved) begin()
   }
 
-  function onUp() {
-    finish(true)
+  function onUp(event: PointerEvent) {
+    if (event.pointerId === pointerId) finish(true)
   }
 
-  function onCancel() {
-    finish(false)
+  function onCancel(event: PointerEvent) {
+    if (event.pointerId === pointerId) cancel()
   }
 
   function onKey(keyEvent: KeyboardEvent) {
@@ -342,6 +356,8 @@ function startDrag(
     window.removeEventListener("pointermove", onMove)
     window.removeEventListener("pointerup", onUp)
     window.removeEventListener("pointercancel", onCancel)
+    window.removeEventListener("blur", cancel)
+    if (activeDrags.get(doc) === cancel) activeDrags.delete(doc)
     window.removeEventListener("keydown", onKey, true)
     window.removeEventListener("touchmove", blockScroll)
   }
@@ -350,11 +366,16 @@ function startDrag(
     return listsOf(list).map((entry) => {
       const items = itemsOf(entry)
       entry.setAttribute("data-dragging", "")
-      return { list: entry, items, slots: layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items) }
+      return {
+        list: entry, items,
+        slots: layout === "grid" ? gridSlots(entry, items) : listSlots(entry, items),
+        scrollLeft: entry.scrollLeft, scrollTop: entry.scrollTop,
+      }
     })
   }
 
   function begin() {
+    if (!validSource()) { cancel(); return }
     const areas = measure()
     window.getSelection()?.removeAllRanges()
     document.documentElement.classList.add(s.Dragging)
@@ -373,16 +394,21 @@ function startDrag(
 
   function tick() {
     if (!drag) return
+    if (!validSource()) { cancel(); return }
     drag.under = targets ? document.elementFromPoint(pointer.x, pointer.y) : undefined
     autoScroll()
     update()
     drag.frame = requestAnimationFrame(tick)
   }
 
-  /** A column of targets with a scroll of its own scrolls alone, the page stays */
+  /** A reachable list or target scrolls in its own pane, not the source pane. */
   function panelUnder() {
-    const panel = targets && drag?.under ? scrollParent(drag.under) : undefined
-    return panel && panel !== scroller && panel.querySelector(targets as string) ? panel : undefined
+    const panel = drag?.under ? scrollParent(drag.under) : undefined
+    if (!panel || panel === scroller) return undefined
+    const acceptsList = drag?.areas.some(({ list: entry }) =>
+      entry.isConnected && !entry.hasAttribute("data-disabled") && panel.contains(entry))
+    const acceptsTarget = targets && panel.querySelector(targets)
+    return acceptsList || acceptsTarget ? panel : undefined
   }
 
   function autoScroll() {
@@ -421,7 +447,15 @@ function startDrag(
     }, TARGET_HOLD)
   }
 
-  function distance(slot: Slot, box: DOMRect) {
+  // Slots retain their measured offsets while the list itself may scroll.
+  function slotOrigin(area: Area, box = area.list.getBoundingClientRect()) {
+    return {
+      left: box.left + area.scrollLeft - area.list.scrollLeft,
+      top: box.top + area.scrollTop - area.list.scrollTop,
+    }
+  }
+
+  function distance(slot: Slot, box: { left: number; top: number }) {
     if (layout === "list") return Math.abs(pointer.y - (box.top + slot.y))
     const top = box.top + slot.y
     return Math.hypot(pointer.x - (box.left + slot.x), Math.max(top - pointer.y, 0, pointer.y - top - slot.length))
@@ -432,6 +466,7 @@ function startDrag(
     let best: Found | undefined
     let closest = Infinity
     for (const area of drag.areas) {
+      if (!area.list.isConnected || area.list.hasAttribute("data-disabled")) continue
       const box = area.list.getBoundingClientRect()
       const near =
         pointer.x >= box.left - NEAR_LIST &&
@@ -439,8 +474,9 @@ function startDrag(
         pointer.y >= box.top - NEAR_LIST &&
         pointer.y <= box.bottom + NEAR_LIST
       if (!near) continue
+      const origin = slotOrigin(area, box)
       for (const slot of area.slots) {
-        const away = distance(slot, box)
+        const away = distance(slot, origin)
         if (away < closest) {
           closest = away
           best = { area, slot }
@@ -474,7 +510,7 @@ function startDrag(
     drag.found = found
     drag.line.hidden = !found
     if (!found) return
-    const box = found.area.list.getBoundingClientRect()
+    const box = slotOrigin(found.area)
     if (layout === "grid") {
       drag.line.style.transform = `translate(${box.left + found.slot.x - 1}px, ${box.top + found.slot.y}px)`
       drag.line.style.height = `${found.slot.length}px`
@@ -540,7 +576,8 @@ function startDrag(
     flyChip(chip, undefined, layout)
   }
 
-  function finish(drop: boolean) {
+  function finish(drop: boolean, dispose = false) {
+    const mayDrop = drop && validSource()
     stopListening()
     if (!drag) return
     const { chip, line, found, areas, frame, target, rest } = drag
@@ -558,19 +595,22 @@ function startDrag(
       document.documentElement.classList.remove(s.Dragging)
       shift(found?.slot, 0)
     }
-    const targetName = target?.dataset.name
-    if (drop && targetName && targetName !== list.dataset.name) {
+    const targetName = target?.isConnected ? target.dataset.name : undefined
+    if (mayDrop && targetName && targetName !== list.dataset.name) {
       void dropOn(chip, areas, targetName, clear)
       return
     }
-    if (drop && found && !target) {
+    if (mayDrop && found && !target && found.area.list.isConnected && !found.area.list.hasAttribute("data-disabled")) {
       void land(chip, areas, found, clear)
       return
     }
     clear()
     restoreSource()
-    settle(chip)
+    if (dispose) chip.remove()
+    else settle(chip)
   }
+
+  return cancel
 }
 
 /** Starts a drag from a press inside the list. Goes on the list's `pointerdown`. */
@@ -581,8 +621,10 @@ export function sortablePointerDown(
   commit: SortableCommit,
   link?: SortableLink,
 ) {
-  const target = event.target as Element
-  if (event.button || target.closest("[data-sortable]") !== list) return
+  const target = event.target
+  if (event.defaultPrevented || event.button || list.hasAttribute("data-disabled")
+    || activeDrags.has(list.ownerDocument) || !(target instanceof Element)
+    || target.closest("[data-sortable]") !== list) return
   const source = itemOf(list, target)
   if (!source || source.hasAttribute(STATIC)) return
   const handle = target.closest(HANDLE)
@@ -590,7 +632,7 @@ export function sortablePointerDown(
   // A grip in sight is the only way to drag, otherwise anything but a control
   // starts it, and a control that opens its row on a click may let a pull through
   if (source.querySelector(HANDLE) && showsHandles(list) ? !handle : control && !control.closest(GRAB)) return
-  startDrag(event, list, source, layout, !!handle, commit, link)
+  return startDrag(event, list, source, layout, !!handle, commit, link)
 }
 
 const KEY_STEPS: Record<string, number> = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }
@@ -599,9 +641,9 @@ const KEY_STEPS: Record<string, number> = { ArrowUp: -1, ArrowLeft: -1, ArrowDow
 export async function sortableKeyDown(event: KeyboardEvent, list: HTMLElement, commit: SortableCommit, link?: SortableLink) {
   const step = KEY_STEPS[event.key]
   const target = event.target as HTMLElement
-  if (!step || target.closest("[data-sortable]") !== list) return
+  if (!step || event.defaultPrevented || list.hasAttribute("data-disabled") || target.closest("[data-sortable]") !== list) return
   const source = itemOf(list, target)
-  if (!source || (target !== source && !target.closest(HANDLE))) return
+  if (!source || source.hasAttribute(STATIC) || (target !== source && !target.closest(HANDLE))) return
   const items = itemsOf(list)
   const from = items.indexOf(source)
   const to = from + step

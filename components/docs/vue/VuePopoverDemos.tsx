@@ -1,21 +1,48 @@
 'use client';
 
-import type { ComponentProps } from 'react';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { VueDemo } from './VueDemo';
 
-// A Vue template reads values from its setup scope, and MDX cannot pass
-// functions to a client component. The controller example calls
-// `submitPrompt()`, a stand-in for an async request that resolves after two
-// seconds (the React demo fakes the same loading state with a timeout). A
-// real app defines it in <script setup>.
-const submitPrompt = () =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, 2000);
-  });
+/** Responsive examples with a controller request owned by the mounted preview. */
+export function VuePopoverDemo({ context, ...props }: ComponentProps<typeof VueDemo>) {
+  const wide = useBreakpoint('md');
+  const [open, setOpen] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const session = useRef(0);
 
-const scope = { submitPrompt };
+  useEffect(() => () => {
+    session.current++;
+    clearTimeout(timer.current);
+  }, []);
 
-/** A VueDemo whose template can call `submitPrompt()`. */
-export function VuePopoverDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
-  return <VueDemo {...props} state={{ ...scope, ...state }} />;
+  const changeOpen = (next: boolean) => {
+    session.current++;
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    if (next) {
+      setSubmitting(false);
+      setPrompt('');
+    }
+    setOpen(next);
+  };
+
+  const submitPrompt = (close: () => void, shake: () => void) => {
+    if (!prompt) {
+      shake();
+      return;
+    }
+    if (timer.current !== undefined) return;
+    setSubmitting(true);
+    const currentSession = session.current;
+    timer.current = setTimeout(() => {
+      if (session.current !== currentSession) return;
+      timer.current = undefined;
+      close();
+    }, 2000);
+  };
+
+  return <VueDemo {...props} context={{ ...context, wide, open, prompt, submitting, setOpen: changeOpen, setPrompt, submitPrompt }} />;
 }

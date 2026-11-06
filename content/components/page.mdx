@@ -18,7 +18,7 @@ import {
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={`<Page>
+<ComponentPreview phonePresentation="screen" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={`<Page>
   <Page.Header>
     <Page.Bar>
       <Page.Title>Orders</Page.Title>
@@ -35,7 +35,7 @@ import {
 
 ### Widths
 
-<ComponentPreview details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.</>} code={`<Page width="column">
+<ComponentPreview phonePresentation="screen" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.</>} code={`<Page width="column">
   <Page.Header>...</Page.Header>
   <Page.Content>...</Page.Content>
 </Page>
@@ -46,11 +46,13 @@ import {
 
 ### Heading
 
-<ComponentPreview details={<><code>Page.Heading</code> holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.</>} code={`<Page.Bar>
+<ComponentPreview phonePresentation="screen" details={<><code>Page.Heading</code> groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.</>} code={`<Page.Bar>
   <Page.Heading>
     <Page.Title>Menu</Page.Title>
-    <Badge color="info" size="sm" variant="outline">Draft</Badge>
-    <Page.Subtitle>Saved a minute ago</Page.Subtitle>
+    <Page.Subtitle>
+      <Badge color="info" size="sm" variant="outline">Draft</Badge>
+      <span>Saved a minute ago</span>
+    </Page.Subtitle>
   </Page.Heading>
   <Page.Actions>...</Page.Actions>
 </Page.Bar>`}>
@@ -59,7 +61,7 @@ import {
 
 ### Fill
 
-<ComponentPreview details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={`<Page>
+<ComponentPreview phonePresentation="screen" details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={`<Page>
   <Page.Header divider={false}>...</Page.Header>
   <Page.Content fill>
     <div className="min-h-0 flex-1 overflow-auto">...</div>
@@ -70,9 +72,30 @@ import {
 
 ## Phone
 
-Under 768px the header is one row of 44px over the page. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+A page needs a bounded parent. These demos use a 420px frame on desktop and the full viewport on phones, without an outer border or rounded container:
 
-Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. The first column of the bar stays free for the menu button of a sidebar.
+```css
+.page-frame {
+  height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 767px) {
+  .page-frame {
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+}
+```
+
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+
+Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `Page.Bar`, such as a search field, belongs at the top of `Page.Content` on a phone. `useBreakpoint("md")` tells which one to render. Use `Page.Leading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
+
+For a phone bar of its own, with a large title, a search field, a button group or a bottom bar, put a [Toolbar](/components/toolbar) in the page. Under 768px it replaces `Page.Header` and `Page.Footer`, which stay the desktop header and footer.
 
 Use it inside `SidebarInset` for a whole app, see the [app sidebar](/components/sidebar#app).
 
@@ -83,6 +106,7 @@ Use it inside `SidebarInset` for a whole app, see the [app sidebar](/components/
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `width` | `"full" \| "wide" \| "column"` | `"full"` | Column that header and content share: edge to edge, 1280px or 768px, centred |
+| `surface` | `"plain" \| "grouped"` | `"plain"` | Mobile canvas and field-group palette; desktop colors stay unchanged |
 | `className` | `string` | — | Applied to the root element |
 
 All other `<div>` attributes are forwarded to the root.
@@ -91,7 +115,8 @@ All other `<div>` attributes are forwarded to the root.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `divider` | `boolean` | `true` | Shows the line, and the glass on a phone, once the content has scrolled under the header |
+| `background` | `"glass" \| "solid"` | `"glass"` | Mobile toolbar background |
+| `divider` | `boolean` | `true` | Shows a divider once the content has scrolled under the header |
 | `className` | `string` | — | Applied to the band |
 
 Children stand in the shared column. All other `<div>` attributes are forwarded to the band.
@@ -114,22 +139,28 @@ Actions stay below the scrolling `Page.Content`. The footer shares the page colu
 
 | Part | Element | Purpose |
 |------|---------|---------|
+| `Page.Leading` | `<div>` | Back or menu controls on the leading side of the bar |
 | `Page.Bar` | `<div>` | Row of the title and the actions |
 | `Page.Heading` | `<div>` | Title with what stands beside it |
 | `Page.Title` | `<h1>` | Page heading |
-| `Page.Subtitle` | `<p>` | Status of the page |
+| `Page.Subtitle` | `<div>` | Status of the page, including badges and text |
 | `Page.Actions` | `<div>` | Buttons on the trailing side of the bar |
 
 ## Styling
 
+`surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background="glass" | "solid"` material and leaves desktop colors unchanged.
+
+`Page.Header` and `Page.Footer` accept `background="glass"` (the default) or `background="solid"`. Use solid bars when the content should not show through them on phones.
+
 Page reads these component tokens. Override them at any scope to restyle it:
 
-- `--page-background`: background (default `var(--color-surface)`)
+- `--safe-area-inset-top`: shared top inset for Page and Dialog (defaults to `env(safe-area-inset-top, 0px)`); override it for an embedded screen with its own status bar
+- `--page-background`: canvas color; mobile follows `surface`, desktop defaults to `var(--color-surface)`
 - `--page-bar-gap`: gap between title and actions (default `24px`)
 - `--page-bar-height`: bar height (default `36px`)
 - `--page-bar-height-phone`: bar height on a phone (default `44px`)
 - `--page-bar-line`: hairline of the glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
-- `--page-bar-veil`: fill of the glass bar (default `light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%))`)
+- `--page-bar-veil`: translucent bar fill derived from the current mobile canvas
 - `--page-content-padding-bottom`: bottom of the content (default `48px`)
 - `--page-content-padding-top`: top of the content on a phone (default `16px`)
 - `--page-gutter`: side gutter on a phone (default `16px`)

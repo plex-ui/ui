@@ -4,6 +4,7 @@ import {
   h,
   nextTick,
   onMounted,
+  onBeforeUnmount,
   ref,
   useId,
   watch,
@@ -14,6 +15,7 @@ import {
 import type { ControlSize, Sizes, Variants } from "@plexui/styles/types"
 import { vServerText } from "../../lib/defaultValue.js"
 import { toCssVariables } from "../../lib/helpers.js"
+import { observeTextareaWidth } from "../../lib/observeTextareaWidth.js"
 import s from "@plexui/styles/components/Textarea/Textarea.module.css"
 
 // Vue port of packages/ui/src/components/Textarea/Textarea.tsx. Props,
@@ -79,7 +81,7 @@ const TextareaComponent = defineComponent({
     autoComplete: String,
   },
   emits: {
-    "update:value": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
     /** Fired when the browser autofills the textarea */
     "autofill": () => true,
   },
@@ -109,6 +111,16 @@ const TextareaComponent = defineComponent({
       textarea.style.height = scrollHeight + "px"
     }
 
+    let stopObservingWidth: (() => void) | undefined
+    const observeWidth = () => {
+      stopObservingWidth?.()
+      stopObservingWidth = props.autoResize && textAreaRef.value
+        ? observeTextareaWidth(textAreaRef.value, autosizeTextarea)
+        : undefined
+    }
+    watch(() => props.autoResize, observeWidth, { flush: "post" })
+    onBeforeUnmount(() => stopObservingWidth?.())
+
     // The textarea's value is set imperatively, like React DOM does: a `value`
     // prop would make Vue mirror it into a `value` attribute, which React
     // never renders. Puts the controlled value back when it differs.
@@ -128,6 +140,7 @@ const TextareaComponent = defineComponent({
       if (textarea && initialValue !== "") textarea.value = initialValue
       runAutoSelect()
       autosizeTextarea()
+      observeWidth()
     })
     // React DOM writes a new value while committing, before any effect runs,
     // so the selection covers the value that arrives with `autoSelect`

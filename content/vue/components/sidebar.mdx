@@ -20,7 +20,7 @@ export const indent = (text, spaces) =>
     .map((line) => (line ? " ".repeat(spaces) + line : line))
     .join("\n")
 
-export const demoHeader = (title) => `<SidebarHeader>
+export const demoHeader = (title) => `<SidebarHeader v-if="!sidebar.isMobile">
   <span class="demo-sidebar-wordmark">${title}</span>
   <Tooltip v-if="sidebar.collapsible !== 'none'" compact>
     <SidebarTrigger />
@@ -116,14 +116,14 @@ export const upgradeCard = `<SidebarCard dismissible>
 
 {/* Templates */}
 
-export const appShell = `<SidebarProvider
+export const appShell = `<component :is="ResponsiveSidebarProvider"
   v-model:open="open"
   v-slot="sidebar"
   :class="['h-full console-demo', { 'demo-sidebar-flat': !bordered }]"
   collapsible="icon"
 >
   <SidebarLayout class="h-full">
-    <Sidebar>
+    <component :is="ResponsiveSidebar">
 ${indent(demoHeader("Console"), 6)}
 
       <SidebarContent class="console-content">
@@ -269,20 +269,15 @@ ${indent(demoHeader("Console"), 6)}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-2">
-          {{ consoleSections.flatMap((s) => [s, ...(s.items ?? [])]).find((i) => i.id === active)?.label ?? 'Workbench' }}
-        </h1>
+    <component :is="SidebarDemoPage" :title="consoleSections.flatMap((s) => [s, ...(s.items ?? [])]).find((i) => i.id === active)?.label ?? 'Workbench'">
         <p class="text-secondary">
           Hover the icons when collapsed to reveal a flyout with the section's items.
         </p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
 export const appRow = (list) => `<SidebarMenuItem v-for="row in ${list}" :key="row.id">
   <SidebarMenuButton :is-active="active === row.id" :tooltip="row.label" @click="active = row.id">
@@ -295,9 +290,9 @@ export const appRow = (list) => `<SidebarMenuItem v-for="row in ${list}" :key="r
   </SidebarMenuButton>
 </SidebarMenuItem>`
 
-export const app = `<SidebarProvider v-model:open="open" v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
+export const app = `<component :is="ResponsiveSidebarProvider" v-model:open="open" v-slot="sidebar" class="h-full" collapsible="icon" variant="app">
   <SidebarLayout class="h-full">
-    <Sidebar>
+    <component :is="ResponsiveSidebar">
 ${indent(demoHeader("App"), 6)}
       <SidebarContent>
         <SidebarMenu>
@@ -372,31 +367,22 @@ ${indent(appRow("appBottomRows"), 10)}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <Page>
-        <PageHeader>
-          <PageBar>
-            <PageTitle>{{ appLabels.find((item) => item.id === active)?.label }}</PageTitle>
-          </PageBar>
-        </PageHeader>
-        <PageContent>
+    <component :is="SidebarDemoPage" :title="appLabels.find((item) => item.id === active)?.label">
           <p class="text-secondary">Fold the sidebar: the Notifications badge turns into a dot above its icon, the counts fade.</p>
-        </PageContent>
-      </Page>
-    </SidebarInset>
+        </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
-export const basic = `<SidebarProvider
+export const basic = `<component :is="ResponsiveSidebarProvider"
   :key="collapsible + '-' + icons"
   v-slot="sidebar"
   :class="['h-full', { 'demo-sidebar-flat': !bordered }]"
   :collapsible="icons ? collapsible : 'none'"
 >
   <SidebarLayout class="h-full">
-    <Sidebar>
+    <component :is="ResponsiveSidebar">
 ${indent(demoHeader("App"), 6)}
       <SidebarContent>
         <SidebarGroup v-for="group in navGroups" :key="group.label">
@@ -423,42 +409,36 @@ ${indent(demoHeader("App"), 6)}
       <SidebarFooter v-if="footerCard">
 ${indent(upgradeCard, 8)}
       </SidebarFooter>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ activeItem }}</h1>
+    <component :is="SidebarDemoPage" :title="activeItem">
         <p class="text-secondary">Main content area.</p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
-export const collapsibleSections = `<SidebarProvider :key="icons ? 'icons' : 'no-icons'" class="h-full" collapsible="none">
+export const collapsibleSections = `<component :is="ResponsiveSidebarProvider" :key="icons ? 'icons' : 'no-icons'" class="h-full" collapsible="none">
   <SidebarLayout class="h-full">
-    <Sidebar :variant="icons ? undefined : 'docs'">
+    <component :is="ResponsiveSidebar" :variant="icons ? undefined : 'docs'">
       <SidebarContent>
 ${indent(iconsNav("appPage").replace("<SidebarGroup>", '<SidebarGroup v-if="icons">'), 8)}
         <template v-else>
 ${indent(docsNav("docsPage"), 10)}
         </template>
       </SidebarContent>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ (icons ? appPage : docsPage).label }}</h1>
+    <component :is="SidebarDemoPage" :title="(icons ? appPage : docsPage).label">
         <p class="text-secondary">
           Documentation page for {{ (icons ? appPage : docsPage).label }}. This is where the content would be displayed.
         </p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
-export const searchAndFilter = `<SidebarProvider :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
+export const searchAndFilter = `<component :is="ResponsiveSidebarProvider" :class="['h-full', { 'demo-sidebar-flat': !bordered }]" collapsible="none">
   <SidebarLayout class="h-full">
-    <Sidebar>
+    <component :is="ResponsiveSidebar">
       <SidebarHeader>
         <div class="flex items-center gap-2 w-full [&>div:first-child>div]:!p-0" style="padding: 16px 0 8px">
           <div class="flex-1">
@@ -511,7 +491,11 @@ export const searchAndFilter = `<SidebarProvider :class="['h-full', { 'demo-side
             <SidebarMenu v-else>
               <template v-for="step in filterWorkflowTree(workflowSteps, search)" :key="step.id">
                 <SidebarMenuItem v-if="step.children" :expanded="!!expanded[step.id]">
+                  <div class="flex items-center">
                   <SidebarMenuButton
+                    class="!w-auto min-w-0 flex-1"
+                    :aria-expanded="expand === 'row' ? !!expanded[step.id] : undefined"
+                    :aria-controls="expand === 'row' ? treeId + '-' + step.id : undefined"
                     :is-active="activeStep === step.id"
                     @click="expand === 'chevron' ? (activeStep = step.id) : (expanded[step.id] = !expanded[step.id])"
                   >
@@ -519,27 +503,17 @@ export const searchAndFilter = `<SidebarProvider :class="['h-full', { 'demo-side
                       <component :is="stepTypes[step.type].icon" />
                     </SidebarMenuButtonIcon>
                     <SidebarMenuButtonLabel>{{ step.label }}</SidebarMenuButtonLabel>
-                    <!-- chevron mode: only the chevron toggles, the row selects -->
-                    <span
-                      v-if="expand === 'chevron'"
-                      role="none"
-                      class="inline-flex items-center justify-center shrink-0 rounded-sm cursor-pointer p-0 m-0 border-0 bg-transparent appearance-none leading-none align-middle select-none hover:bg-[var(--color-background-secondary-ghost-hover)] active:bg-[var(--color-background-secondary-ghost-hover)] transition-colors [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto ml-auto transition-transform"
-                      :style="{ width: '26px', height: '26px', marginRight: '-9px', transform: expanded[step.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
-                      @click.stop="expanded[step.id] = !expanded[step.id]"
-                      @keydown.enter.stop="expanded[step.id] = !expanded[step.id]"
-                      @keydown.space.stop="expanded[step.id] = !expanded[step.id]"
-                    >
-                      <ChevronDownMd />
-                    </span>
-                    <span
-                      v-else
-                      class="inline-flex items-center justify-center shrink-0 ml-auto transition-transform [&>svg]:block [&>svg]:w-4 [&>svg]:h-4"
-                      :style="{ width: '26px', height: '26px', marginRight: '-9px', transform: expanded[step.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }"
-                    >
-                      <ChevronDownMd />
-                    </span>
+                    <SidebarMenuChevron v-if="expand === 'row'" aria-hidden="true" />
                   </SidebarMenuButton>
-                  <SidebarMenuSub :open="!!expanded[step.id]" has-icons>
+                  <Button v-if="expand === 'chevron'" variant="ghost" color="secondary" size="xs" uniform
+                    class="!size-[26px] max-md:!size-11 [&_svg]:!size-4"
+                    :aria-label="(expanded[step.id] ? 'Collapse ' : 'Expand ') + step.label"
+                    :aria-expanded="!!expanded[step.id]" :aria-controls="treeId + '-' + step.id"
+                    @click="expanded[step.id] = !expanded[step.id]">
+                    <ChevronDownMd aria-hidden="true" :style="{ transform: expanded[step.id] ? 'rotate(0deg)' : 'rotate(-90deg)' }" />
+                  </Button>
+                  </div>
+                  <SidebarMenuSub :id="treeId + '-' + step.id" :open="!!expanded[step.id]" has-icons>
                     <SidebarMenuSubItem v-for="child in step.children" :key="child.id">
                       <SidebarMenuSubButton
                         class="gap-2"
@@ -570,88 +544,47 @@ export const searchAndFilter = `<SidebarProvider :class="['h-full', { 'demo-side
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
+    </component>
 
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ findStepLabel(activeStep) || 'Start' }}</h1>
+    <component :is="SidebarDemoPage" :title="findStepLabel(activeStep) || 'Start'">
         <p class="text-secondary">
           {{ typeFilters.length > 0 ? 'Filtered results shown as a flat list.' : 'Use the search and filter controls to narrow the navigation tree.' }}
         </p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
-export const mobileMenu = `<SidebarProvider
-  :key="mobile + '-' + nested + '-' + icons"
+export const mobileMenu = `<component :is="ResponsiveSidebarProvider"
   v-slot="sidebar"
   :class="['h-full', { 'demo-sidebar-flat': !bordered }]"
-  :collapsible="mobile ? 'offcanvas' : icons ? 'icon' : 'none'"
+  :collapsible="icons ? 'icon' : 'none'"
 >
-  <!-- Desktop: the sidebar next to the page -->
-  <SidebarLayout v-if="!mobile" class="h-full">
-    <Sidebar v-if="!nested">
+  <SidebarLayout class="h-full">
+    <component :is="ResponsiveSidebar" v-if="!nested">
 ${indent(demoHeader("App"), 6)}
       <SidebarContent>
-${indent(flatNav(), 8)}
+${indent(flatNav("; sidebar.setOpenMobile(false)"), 8)}
       </SidebarContent>
-    </Sidebar>
-    <Sidebar v-else-if="icons" style="width: 280px">
+    </component>
+    <component :is="ResponsiveSidebar" v-else-if="icons" style="width: 280px">
       <SidebarContent>
-${indent(iconsNav("active"), 8)}
+${indent(iconsNav("active", "; sidebar.setOpenMobile(false)"), 8)}
       </SidebarContent>
-    </Sidebar>
-    <Sidebar v-else variant="docs" style="width: 280px">
+    </component>
+    <component :is="ResponsiveSidebar" v-else variant="docs" style="width: 280px">
       <SidebarContent>
-${indent(docsNav("active"), 8)}
+${indent(docsNav("active", "; sidebar.setOpenMobile(false)"), 8)}
       </SidebarContent>
-    </Sidebar>
-
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ active.label }}</h1>
-        <p class="text-secondary">Toggle mobile to see the mobile sidebar.</p>
-      </div>
-    </SidebarInset>
+    </component>
+    <component :is="SidebarDemoPage" :title="active.label">
+      <p class="text-secondary">Open the menu to choose a different page.</p>
+    </component>
   </SidebarLayout>
+</component>`
 
-  <!-- Mobile: phone-sized container with a hamburger menu -->
-  <div
-    v-else
-    :data-mobile-menu="sidebar.openMobile ? 'visible' : 'hidden'"
-    style="width: 375px; height: 667px; background: var(--gray-75, #f3f3f3); overflow: hidden; position: relative; margin: 0 auto"
-  >
-    <header class="flex items-center" style="justify-content: flex-end; height: 54px; padding: 0 8px">
-      <SidebarMobileMenuButton />
-    </header>
-    <div
-      style="margin: 8px; margin-top: 0; background: var(--color-surface, #ffffff); box-shadow: var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08)); border-radius: 8px; height: calc(100% - 54px - 8px); overflow: auto"
-    >
-      <!-- Selecting an item closes the menu -->
-      <div v-if="sidebar.openMobile" style="padding: 12px">
-        <SidebarContent v-if="!nested">
-${indent(flatNav("; sidebar.setOpenMobile(false)"), 10)}
-        </SidebarContent>
-        <SidebarContent v-else-if="icons">
-${indent(iconsNav("active", "; sidebar.setOpenMobile(false)"), 10)}
-        </SidebarContent>
-        <SidebarContent v-else>
-${indent(docsNav("active", "; sidebar.setOpenMobile(false)"), 10)}
-        </SidebarContent>
-${indent(upgradeCard.replace("<SidebarCard dismissible>", '<SidebarCard v-if="!nested" dismissible>'), 8)}
-      </div>
-      <div v-else style="padding: 24px">
-        <h1 class="text-2xl font-semibold mb-4">{{ active.label }}</h1>
-        <p class="text-secondary">Click the menu button to open the sidebar and select a different item.</p>
-      </div>
-    </div>
-  </div>
-</SidebarProvider>`
-
-export const searchInput = `<SidebarProvider class="h-full" collapsible="none">
+export const searchInput = `<component :is="ResponsiveSidebarProvider" class="h-full" collapsible="none">
   <SidebarLayout class="h-full">
-    <Sidebar variant="docs">
+    <component :is="ResponsiveSidebar" variant="docs">
       <SidebarHeader>
         <div style="padding: 12px 0 8px; width: 100%">
           <SidebarInput v-model:value="searchValue" variant="soft" placeholder="Search" @clear="searchValue = ''" />
@@ -673,17 +606,14 @@ export const searchInput = `<SidebarProvider class="h-full" collapsible="none">
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
-    <SidebarInset>
-      <div class="p-6">
-        <h1 class="text-2xl font-semibold mb-4">{{ activeItem }}</h1>
+    </component>
+    <component :is="SidebarDemoPage" :title="activeItem">
         <p class="text-secondary">
           Search input stays fixed at the top while sidebar content scrolls.
         </p>
-      </div>
-    </SidebarInset>
+      </component>
   </SidebarLayout>
-</SidebarProvider>`
+</component>`
 
 <UsageBlock>{`import {
   SidebarProvider,
@@ -703,56 +633,185 @@ export const searchInput = `<SidebarProvider class="h-full" collapsible="none">
 
 ## Examples
 
+The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone.
+
+
 The examples read their navigation data (`navGroups`, `docsSections`, `iconSections`, `consoleSections`, ...) from the setup scope, where a real app defines it in `<script setup>` with icon components imported from `@plexui/vue/components/Icon`. The default slot of `SidebarProvider` receives the sidebar state and controls (`v-slot="sidebar"`), the same object `useSidebar()` returns.
 
 ### App Shell
 
-<ComponentPreview language="vue" details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={appShell} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={appShell} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarDemo template={appShell} stageClassName={STAGE} state={{ active: "workbench", expanded: { build: true, "managed-agents": true, analytics: true, cli: true, manage: true } }} controls={[{ name: "open", type: "boolean", default: true }, { name: "bordered", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### App
 
-<ComponentPreview language="vue" details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={app} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={app} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <VueSidebarDemo template={app} stageClassName={STAGE} state={{ active: "notifications", documentsOpen: true }} controls={[{ name: "open", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Basic
 
-<ComponentPreview language="vue" code={basic} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+<ComponentPreview phonePresentation="screen" language="vue" code={basic} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <VueSidebarDemo template={basic} stageClassName={STAGE} state={{ activeItem: "Overview" }} controls={[{ name: "collapsible", type: "select", options: COLLAPSIBLE, default: "icon" }, { name: "labelSize", type: "select", options: LABEL_SIZES, default: "sm" }, { name: "icons", type: "boolean", default: true }, { name: "badges", type: "boolean", default: true }, { name: "footerCard", type: "boolean", default: false }, { name: "bordered", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Collapsible Sections
 
-<ComponentPreview language="vue" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Each level of the tree is one <code>v-for</code>.</>} code={collapsibleSections} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Each level of the tree is one <code>v-for</code>.</>} code={collapsibleSections} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
   <VueSidebarDemo template={collapsibleSections} stageClassName={STAGE} state={{ expanded: { "getting-started": true, dashboard: true }, docsPage: { id: "introduction", label: "Introduction" }, appPage: { id: "overview", label: "Overview" } }} controls={[{ name: "icons", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Search and Filter
 
-<ComponentPreview language="vue" details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type; <code>filterWorkflowTree</code> and <code>flattenByType</code> are plain functions in the setup scope.</>} code={searchAndFilter} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type; <code>filterWorkflowTree</code> and <code>flattenByType</code> are plain functions in the setup scope. Create a unique <code>treeId</code> with Vue <code>useId()</code> to connect each disclosure to its sublist.</>} code={searchAndFilter} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarDemo template={searchAndFilter} stageClassName={STAGE} state={{ search: "", typeFilters: [], activeStep: "start", expanded: { "gov-id": true, "selfie-check": true, "doc-check": true, fail: true } }} controls={[{ name: "expand", type: "select", options: EXPAND_MODES, default: "chevron" }, { name: "bordered", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Tree with Hover Actions
 
-<ComponentPreview language="vue" details={<>Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a <code>+</code> menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.</>} code={vueSidebarActionTreeCode} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a <code>+</code> menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.</>} code={vueSidebarActionTreeCode} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarActionTreeDemo />
 </ComponentPreview>
 
 ### Mobile Menu
 
-<ComponentPreview language="vue" details={<>Mobile behavior is handled automatically when using <code>SidebarProvider</code>. The <code>SidebarMobileMenuButton</code> provides a standard animated hamburger trigger.</>} code={mobileMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
-  <VueSidebarDemo template={mobileMenu} stageClassName={STAGE} state={{ active: { id: "overview", label: "Overview" }, expanded: {} }} controls={[{ name: "mobile", type: "boolean", default: false }, { name: "nested", type: "boolean", default: false }, { name: "icons", type: "boolean", default: false }, { name: "bordered", type: "boolean", default: true }]} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Use Phone preview, then open the menu in the page toolbar. The same navigation tree renders in a desktop rail or a full-screen mobile drawer. Selecting a leaf closes the drawer; expanding a group keeps it open.</>} code={mobileMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+  <VueSidebarDemo template={mobileMenu} stageClassName={STAGE} state={{ active: { id: "overview", label: "Overview" }, expanded: {} }} controls={[{ name: "nested", type: "boolean", default: false }, { name: "icons", type: "boolean", default: false }, { name: "bordered", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 
 ### Search Input
 
-<ComponentPreview language="vue" details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so bind it with <code>v-model:value</code> and clear it with <code>@clear</code>.</>} code={searchInput} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so bind it with <code>v-model:value</code> and clear it with <code>@clear</code>.</>} code={searchInput} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <VueSidebarDemo template={searchInput} stageClassName={STAGE} state={{ activeItem: "Get started-Overview", searchValue: "" }} />
 </ComponentPreview>
+
+## Responsive composition
+
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+
+Save the helpers in `responsive-sidebar.ts` and the styles in `responsive-sidebar.module.css`:
+
+```ts
+import { defineComponent, h, ref, watch, type PropType } from 'vue';
+import { Page, PageActions, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
+import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
+import { useBreakpoint as breakpoint } from '@plexui/vue/composables/useBreakpoints';
+/** Leaf navigation closes the drawer; disclosure and popup buttons keep it open. */
+export function isSidebarNavigationSelection(target: EventTarget | null) {
+  if (!(target instanceof Element)) return false;
+  const button = target.closest('[data-active]');
+  return Boolean(button && !button.hasAttribute('aria-haspopup') &&
+    !button.hasAttribute('aria-expanded') && !button.closest('li')?.querySelector(':scope > ul'));
+}
+import s from './responsive-sidebar.module.css';
+
+export const ResponsiveSidebarProvider = defineComponent({
+  name: 'ResponsiveSidebarProvider',
+  inheritAttrs: false,
+  props: {
+    open: { type: Boolean, default: undefined },
+    collapsible: { type: String as PropType<SidebarCollapsible>, default: 'offcanvas' },
+    variant: { type: String as PropType<SidebarProviderVariant>, default: 'sidebar' },
+  },
+  setup(props, { attrs, slots }) {
+    const wide = breakpoint('md');
+    return () => h(SidebarProvider, {
+      ...attrs,
+      ...props,
+      class: [s.Frame, attrs.class],
+      open: wide.value ? props.open : true,
+      variant: wide.value ? props.variant : 'sidebar',
+    }, slots);
+  },
+});
+
+export const ResponsiveSidebar = defineComponent({
+  name: 'ResponsiveSidebar',
+  inheritAttrs: false,
+  setup(_, { attrs, slots }) {
+    const sidebar = sidebarContext();
+    const closeRef = ref<{ $el: HTMLButtonElement } | null>(null);
+    watch(() => sidebar.isMobile && sidebar.openMobile, (open, _, cleanup) => {
+      if (!open) return;
+      const trigger = document.activeElement;
+      closeRef.value?.$el.focus();
+      cleanup(() => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); });
+    }, { flush: 'post' });
+    return () => sidebar.isMobile
+      ? h(SidebarMobile, { contained: true, class: s.Drawer, inert: sidebar.openMobile ? undefined : true, role: 'navigation', 'aria-label': 'Main navigation' }, () =>
+        h(Page, null, () => [
+          h(PageHeader, { background: 'solid' }, () => h(PageBar, null, () => [
+            h(PageTitle, null, () => 'Navigation'),
+            h(PageActions, null, () => h(SidebarMobileMenuButton, { ref: closeRef })),
+          ])),
+          h(PageContent, { class: s.NavigationContent, onClick: (event: MouseEvent) => {
+            if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) sidebar.setOpenMobile(false);
+          } }, slots),
+        ]))
+      : h(Sidebar, attrs, slots);
+  },
+});
+
+export const SidebarDemoPage = defineComponent({
+  name: 'SidebarDemoPage',
+  props: { title: { type: String, required: true } },
+  setup(props, { slots }) {
+    const sidebar = sidebarContext();
+    return () => h(SidebarInset, { class: s.Inset, inert: sidebar.isMobile && sidebar.openMobile ? true : undefined }, () => sidebar.isMobile
+      ? h(Page, null, () => [
+        h(PageHeader, null, () => h(PageBar, null, () => [
+          h(PageLeading, null, () => h(SidebarMobileMenuButton)),
+          h(PageTitle, null, () => props.title),
+        ])),
+        h(PageContent, null, slots),
+      ])
+      : h('div', { class: 'p-6' }, [h('h1', { class: 'text-2xl font-semibold mb-4' }, props.title), slots.default?.()]));
+  },
+});
+```
+
+```css
+.Frame {
+  position: relative;
+}
+
+.Drawer {
+  padding: 0;
+  background: var(--color-surface);
+}
+
+.NavigationContent {
+  --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.NavigationContent :global([class*="Sidebar-module__Content"]) {
+  padding-top: 0;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+@media (max-width: 767px) {
+  .Frame {
+    --sidebar-mobile-button-size: 44px;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .Frame > :global([class*="SidebarLayout"]) {
+    height: 100%;
+  }
+
+  .Inset {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+```
 
 ## API
 

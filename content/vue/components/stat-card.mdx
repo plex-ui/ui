@@ -25,25 +25,25 @@ export const overview = `<div style="max-width: 320px; width: 100%" class="mx-au
 
 export const sizes = `<div class="flex flex-col gap-6 w-full">
   <!-- Default size -->
-  <div class="grid grid-cols-3 gap-4" style="max-width: 720px">
+  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-4" style="max-width: 720px">
     <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }" />
     <StatCard label="Active Users" value="2,847" :trend="{ value: 8.2 }" />
     <StatCard label="Conversion Rate" value="3.24%" :trend="{ value: -1.8 }" />
   </div>
   <!-- Small size -->
-  <div class="grid grid-cols-3 gap-3" style="max-width: 720px">
+  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3" style="max-width: 720px">
     <StatCard size="sm" label="Total Inquiries" value="3,544" :trend="{ value: -2.6 }" tooltip="Total inquiries in period" />
     <StatCard size="sm" label="Completion Rate" value="89.2%" :trend="{ value: 0.5 }" tooltip="Average across templates" />
     <StatCard size="sm" label="Approval Rate" value="84.6%" :trend="{ value: 1.8 }" tooltip="Average across templates" />
   </div>
 </div>`
 
-export const trendPosition = `<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+export const trendPosition = `<div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style="max-width: 480px">
   <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="value" />
   <StatCard label="Revenue" value="$45,231" :trend="{ value: 12.5 }" trend-position="header" />
 </div>`
 
-export const trendVariant = `<div class="grid grid-cols-2 gap-4" style="max-width: 480px">
+export const trendVariant = `<div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4" style="max-width: 480px">
   <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="text" />
   <StatCard label="Users" value="2,847" :trend="{ value: 8.2 }" trend-variant="badge" />
 </div>`
@@ -59,7 +59,7 @@ export const infoTooltip = `<div style="max-width: 320px; width: 100%; margin: 0
 
 export const withIcon = `<div class="flex flex-col gap-6 w-full">
   <!-- Default size -->
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-2 gap-4">
     <StatCard label="Total Revenue" value="$45,231" :trend="{ value: 12.5 }">
       <template #icon><DollarCircle /></template>
     </StatCard>
@@ -68,7 +68,7 @@ export const withIcon = `<div class="flex flex-col gap-6 w-full">
     </StatCard>
   </div>
   <!-- Small size -->
-  <div class="grid grid-cols-3 gap-3">
+  <div class="grid w-full min-w-0 grid-cols-1 md:grid-cols-3 gap-3">
     <StatCard size="sm" label="Revenue" value="$45,231" :trend="{ value: 12.5 }">
       <template #icon><DollarCircle /></template>
     </StatCard>

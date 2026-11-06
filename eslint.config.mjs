@@ -49,6 +49,15 @@ const eslintConfig = defineConfig([
     files: compilerAdoptionBacklog,
     rules: Object.fromEntries(compilerRules.map((rule) => [rule, "warn"])),
   },
+  // Vue composables run in setup(), not React's render/hook lifecycle.
+  // Keep TypeScript checks; React hook rules do not apply to the Vue package or the Vue docs demos.
+  {
+    files: ["packages/vue/**/*.ts", "components/docs/vue/**/*.ts"],
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+      "react-hooks/exhaustive-deps": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -60,6 +69,8 @@ const eslintConfig = defineConfig([
     // fumadocs-mdx collections.
     "packages/*/dist/**",
     ".source/**",
+    // Private research notes (a submodule): capture scripts and evidence, not shipped code.
+    ".memory/**",
     // Independent packages with their own package.json and tooling.
     "skills/dev-browser/**",
     "video/**",

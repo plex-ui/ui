@@ -1,0 +1,77 @@
+.Stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  padding-block: 40px;
+}
+
+.HeaderCenter {
+  width: 100%;
+  min-width: 0;
+  outline: none;
+}
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.Status {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .Stage {
+    padding: 0;
+  }
+
+  .Composer {
+    --dialog-sheet-action-inset-block: 20px;
+    --dialog-sheet-action-inset-inline: 20px;
+    height: var(--dialog-panel-max-height);
+  }
+
+  :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header {
+    min-height: 80px;
+    padding: 18px 76px 14px;
+  }
+
+  :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Header::before {
+    display: none;
+  }
+
+  .Composer .Mode[data-variant="segmented"][data-orientation="horizontal"] {
+    --segmented-control-size: 48px;
+    --segmented-control-gutter: 4px;
+    --segmented-control-option-gutter: 0px;
+    --segmented-control-font-size: 17px;
+    --segmented-control-line-height: 22px;
+    --segmented-control-font-weight: var(--font-weight-normal);
+    --segmented-control-active-font-weight: var(--font-weight-normal);
+    --segmented-control-background: var(--mobile-glass-background);
+    --segmented-control-thumb-background: var(--color-background-secondary-soft-alpha);
+    --segmented-control-thumb-shadow: none;
+    box-shadow: var(--mobile-glass-shadow);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  /* Keep the visible thumb 40px while each real radio has a 44px touch box. */
+  .Composer .Mode [role="radio"] {
+    min-height: 44px;
+    margin-block: -2px;
+  }
+
+  :global([data-plex-dialog][data-mobile-variant="sheet"]) .Composer > .Body {
+    padding-inline: 20px;
+    padding-top: calc(12px + var(--dialog-header-height, 0px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    scroll-padding-top: calc(12px + var(--dialog-header-height, 0px));
+    scroll-padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+}

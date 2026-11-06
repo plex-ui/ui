@@ -1,17 +1,30 @@
 'use client';
 import React, { useCallback, useId, useRef, useState } from 'react';
 import Image from 'next/image';
+import countryLabelStyles from './CountryLabel.module.css';
+import { PhoneCountryLabel } from './PhoneCountryLabel';
 import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
 import { FloatingLabelSelect } from '@plexui/ui/components/FloatingLabelSelect';
 
 import { Select, type Option } from '@plexui/ui/components/Select';
-import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldError } from '@plexui/ui/components/FieldError';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Input } from '@plexui/ui/components/Input';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { ChevronDown } from '@plexui/ui/components/Icon';
 import { AuthFormStage } from './AuthFormStage';
-import { useDemoControlSync } from './PreviewEmbed';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import { AuthLegalNotice } from './AuthLegalNotice';
+import authFieldsStyles from './AuthFields.module.css';
+import { FormScreen } from './FormRowsDemos';
+import { COUNTRY_LOOKUP, COUNTRY_OPTIONS } from './PhoneInputDemos';
+import { usePhoneViewport } from './PreviewEmbed';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 // ---------------------------------------------------------------------------
 // Birthday mask utilities
 // ---------------------------------------------------------------------------
@@ -255,6 +268,7 @@ function BirthdayMaskedInput({
   onChange: (value: string) => void;
   invalid?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
   className?: string;
   'aria-describedby'?: string;
 }) {
@@ -354,45 +368,6 @@ function BirthdayMaskedInput({
 }
 
 // ---------------------------------------------------------------------------
-// Demo controls
-// ---------------------------------------------------------------------------
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-  useDemoControlSync(name, value, onChange);
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Exported demos
 // ---------------------------------------------------------------------------
 export function FloatingLabelInputTextareaDemo() {
@@ -402,20 +377,17 @@ export function FloatingLabelInputTextareaDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <div style={controlRowStyle}>
-          <span style={controlLabelStyle}>multiline</span>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <SegmentedControl<'true' | 'false'>
-              value={multiline ? 'true' : 'false'}
-              onChange={(v) => setMultiline(v === 'true')}
-              aria-label="multiline"
-              size="xs"
-            >
-              <SegmentedControl.Option value="true">true</SegmentedControl.Option>
-              <SegmentedControl.Option value="false">false</SegmentedControl.Option>
-            </SegmentedControl>
-          </div>
-        </div>
+        <DemoControlRow name="multiline">
+          <SegmentedControl<'true' | 'false'>
+            value={multiline ? 'true' : 'false'}
+            onChange={(v) => setMultiline(v === 'true')}
+            aria-label="multiline"
+            size="xs"
+          >
+            <SegmentedControl.Option value="true">true</SegmentedControl.Option>
+            <SegmentedControl.Option value="false">false</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
       </div>
       <div data-demo-stage className="py-10">
         <div className="w-[360px]">
@@ -457,19 +429,46 @@ export function FloatingLabelInputWithClearButtonDemoWithControls() {
     </>
   );
 }
-export function FloatingLabelInputDisabledDemoWithControls() {
-  const [disabled, setDisabled] = useState(true);
+type FloatingLabelValuePreset = 'empty' | 'filled' | 'custom';
+
+export function FloatingLabelInputStatesDemo() {
+  const [value, setValue] = useState('');
+  const [invalid, setInvalid] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
+  const [description, setDescription] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+  const preset: FloatingLabelValuePreset = value === '' ? 'empty' : value === 'jane.doe@example.com' ? 'filled' : 'custom';
+  const applyPreset = (next: FloatingLabelValuePreset) => {
+    if (next !== 'custom') setValue(next === 'filled' ? 'jane.doe@example.com' : '');
+  };
+
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="preset">
+          <SegmentedControl<FloatingLabelValuePreset> value={preset} onChange={applyPreset} aria-label="preset" size="xs">
+            <SegmentedControl.Option value="empty">Empty</SegmentedControl.Option>
+            <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
+        <DemoControlBoolean name="errorMessage" value={errorMessage} onChange={setErrorMessage} />
+        <DemoControlBoolean name="description" value={description} onChange={setDescription} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[360px]">
+      <div data-demo-stage className="py-10 w-full flex justify-center">
+        <div className="w-full min-w-0 max-w-[360px]">
           <FloatingLabelInput
             label="Email address"
-            defaultValue="disabled@example.com"
+            value={value}
+            onChange={(evt) => setValue(evt.target.value)}
+            invalid={invalid || errorMessage}
+            errorMessage={errorMessage ? 'Email is not valid.' : undefined}
+            description={description ? "We'll never share your email with anyone else." : undefined}
             disabled={disabled}
+            readOnly={readOnly}
           />
         </div>
       </div>
@@ -487,13 +486,39 @@ export function FloatingLabelInputSSNDemo() {
 }
 export function FloatingLabelInputBirthdayDemo() {
   const [birthday, setBirthday] = useState('');
+  const [invalid, setInvalid] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+  const preset: FloatingLabelValuePreset = birthday === '' ? 'empty' : birthday === '01 / 15 / 1995' ? 'filled' : 'custom';
+  const applyPreset = (next: FloatingLabelValuePreset) => {
+    if (next !== 'custom') setBirthday(next === 'filled' ? '01 / 15 / 1995' : '');
+  };
 
   return (
-    <div data-demo-stage className="py-10">
-      <div className="w-[360px]">
-        <BirthdayMaskedInput value={birthday} onChange={setBirthday} />
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="preset">
+          <SegmentedControl<FloatingLabelValuePreset> value={preset} onChange={applyPreset} aria-label="preset" size="xs">
+            <SegmentedControl.Option value="empty">Empty</SegmentedControl.Option>
+            <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        <DemoControlBoolean name="readOnly" value={readOnly} onChange={setReadOnly} />
       </div>
-    </div>
+      <div data-demo-stage className="py-10 w-full flex justify-center">
+        <div className="w-full min-w-0 max-w-[360px]">
+          <BirthdayMaskedInput
+            value={birthday}
+            onChange={setBirthday}
+            invalid={invalid}
+            disabled={disabled}
+            readOnly={readOnly}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 export function FloatingLabelInputBirthdayValidationDemo() {
@@ -513,33 +538,6 @@ export function FloatingLabelInputBirthdayValidationDemo() {
           />
           {errorMessage && <FieldError id={errorId}>{errorMessage}</FieldError>}
         </div>
-      </div>
-    </div>
-  );
-}
-
-export function FloatingLabelInputBirthdayStatesDemo() {
-  const [empty, setEmpty] = useState('');
-  const [filled, setFilled] = useState('01 / 15 / 1995');
-  const [invalid, setInvalid] = useState('02 / 30 / 2001');
-
-  return (
-    <div className="flex flex-col items-center gap-8 py-8 w-full">
-      <div className="flex items-center w-full max-w-[432px]">
-        <div className="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Empty</div>
-        <BirthdayMaskedInput value={empty} onChange={setEmpty} className="flex-1 min-w-0" />
-      </div>
-      <div className="flex items-center w-full max-w-[432px]">
-        <div className="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Filled</div>
-        <BirthdayMaskedInput value={filled} onChange={setFilled} className="flex-1 min-w-0" />
-      </div>
-      <div className="flex items-center w-full max-w-[432px]">
-        <div className="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Invalid</div>
-        <BirthdayMaskedInput value={invalid} onChange={setInvalid} invalid className="flex-1 min-w-0" />
-      </div>
-      <div className="flex items-center w-full max-w-[432px]">
-        <div className="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Disabled</div>
-        <BirthdayMaskedInput value="01 / 15 / 1995" onChange={() => {}} disabled className="flex-1 min-w-0" />
       </div>
     </div>
   );
@@ -567,8 +565,8 @@ export function FloatingLabelInputAboutYouFormDemo() {
     <div data-demo-stage className="py-10">
       <div className="w-[320px]">
         <div className="mb-6">
-          <h3 className="text-2xl font-semibold tracking-tight">Tell us about you</h3>
-          <p className="text-secondary text-sm mt-1">This helps us customize your experience.</p>
+          <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Tell us about you</h3>
+          <p data-auth-description className="text-secondary text-sm mt-1">This helps us customize your experience.</p>
         </div>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <FloatingLabelInput
@@ -865,9 +863,9 @@ const COUNTRIES: { value: string; label: string }[] = [
 // ---------------------------------------------------------------------------
 function CountryLabel({ code, label }: { code: string; label: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, verticalAlign: 'middle', lineHeight: 0 }}>
+    <span className={countryLabelStyles.Root}>
       <FlagIcon code={code} />
-      {label}
+      <span className={countryLabelStyles.Text}>{label}</span>
     </span>
   );
 }
@@ -1023,14 +1021,79 @@ export function FloatingLabelInsideDemo() {
 }
 
 export function FloatingLabelInsideBillingFormDemo() {
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const phoneViewport = usePhoneViewport();
+  const [inputType, setInputType] = useState<'border-pill' | 'border-rounded' | 'inside-rounded'>('inside-rounded');
+  const labelPlacement = inputType === 'inside-rounded' ? 'inside' : 'border';
+  const pill = inputType === 'border-pill';
   const [country, setCountry] = useState('es');
-  const trigger = useInsideCountryTrigger(country);
+  const [billing, setBilling] = useState({
+    email: 'jane.doe@example.com', name: 'Jane Doe', address1: '', address2: '', postalCode: '', city: '',
+  });
+  const update = (key: keyof typeof billing) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setBilling((current) => ({ ...current, [key]: value }));
+  };
+  const countryLabel = COUNTRIES.find((option) => option.value === country)?.label;
+  const trigger = useCallback(({ open }: { open: boolean }) => (
+    <FloatingLabelSelect label="Country or region" labelPlacement={labelPlacement} pill={pill} selected={!!countryLabel} open={open}>
+      {countryLabel}
+    </FloatingLabelSelect>
+  ), [countryLabel, labelPlacement, pill]);
+  const controls = <div data-demo-controls style={controlsTableStyle}>
+    <ScreenPresentationControls {...presentation} />
+    {wide && !phoneViewport && <DemoControlRow name="type">
+      <SegmentedControl value={inputType} onChange={setInputType} aria-label="type" size="xs">
+        <SegmentedControl.Option value="border-pill">Border pill</SegmentedControl.Option>
+        <SegmentedControl.Option value="border-rounded">Border rounded</SegmentedControl.Option>
+        <SegmentedControl.Option value="inside-rounded">Inside rounded</SegmentedControl.Option>
+      </SegmentedControl>
+    </DemoControlRow>}
+  </div>;
+
+  if (!wide) {
+    return (
+      <>
+      {controls}
+      <FormScreen title="Billing details" submitLabel="Save" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
+        <FieldGroup columns>
+          <Field row label="Billing email">
+            <Input type="email" value={billing.email} onChange={update('email')} autoComplete="email" />
+          </Field>
+          <Field row label="Full name">
+            <Input value={billing.name} onChange={update('name')} autoComplete="name" />
+          </Field>
+        </FieldGroup>
+        <FieldGroup title="Billing address" columns>
+          <Field row label="Country">
+            <Select value={country} options={COUNTRIES} onChange={(option) => setCountry(option.value)} searchPlaceholder="Search countries..." block={false} align="end" checkPosition="end" />
+          </Field>
+          <Field row label="Address line 1">
+            <Input value={billing.address1} onChange={update('address1')} autoComplete="address-line1" />
+          </Field>
+          <Field row label="Address line 2">
+            <Input value={billing.address2} onChange={update('address2')} placeholder="Optional" autoComplete="address-line2" />
+          </Field>
+          <Field row label="Postal code">
+            <Input value={billing.postalCode} onChange={update('postalCode')} autoComplete="postal-code" />
+          </Field>
+          <Field row label="City">
+            <Input value={billing.city} onChange={update('city')} autoComplete="address-level2" />
+          </Field>
+        </FieldGroup>
+      </FormScreen>
+      </>
+    );
+  }
 
   return (
-    <AuthFormStage title="Billing details">
+    <>
+    {controls}
+    <AuthFormStage title="Billing details" surface={presentation.surface} dialog={presentation.dialog} onDialogChange={presentation.setDialog}>
       <form className="flex w-[360px] flex-col gap-3" onSubmit={(evt) => evt.preventDefault()}>
-        <FloatingLabelInput label="Billing email" labelPlacement="inside" type="email" defaultValue="jane.doe@example.com" />
-        <FloatingLabelInput label="Full name" labelPlacement="inside" defaultValue="Jane Doe" />
+        <FloatingLabelInput label="Billing email" labelPlacement={labelPlacement} pill={pill} type="email" value={billing.email} onChange={update('email')} autoComplete="email" />
+        <FloatingLabelInput label="Full name" labelPlacement={labelPlacement} pill={pill} value={billing.name} onChange={update('name')} autoComplete="name" />
         <Select
           value={country}
           options={COUNTRIES}
@@ -1041,15 +1104,16 @@ export function FloatingLabelInsideBillingFormDemo() {
           trigger={trigger}
           checkPosition="end"
         />
-        <FloatingLabelInput label="Address line 1" labelPlacement="inside" />
-        <FloatingLabelInput label="Address line 2" labelPlacement="inside" />
+        <FloatingLabelInput label="Address line 1" labelPlacement={labelPlacement} pill={pill} value={billing.address1} onChange={update('address1')} autoComplete="address-line1" />
+        <FloatingLabelInput label="Address line 2" labelPlacement={labelPlacement} pill={pill} value={billing.address2} onChange={update('address2')} autoComplete="address-line2" />
         <div className="flex gap-3">
-          <FloatingLabelInput className="flex-1" label="Postal code" labelPlacement="inside" />
-          <FloatingLabelInput className="flex-1" label="City" labelPlacement="inside" />
+          <FloatingLabelInput className="flex-1" label="Postal code" labelPlacement={labelPlacement} pill={pill} value={billing.postalCode} onChange={update('postalCode')} autoComplete="postal-code" />
+          <FloatingLabelInput className="flex-1" label="City" labelPlacement={labelPlacement} pill={pill} value={billing.city} onChange={update('city')} autoComplete="address-level2" />
         </div>
-        <Button color="primary" size="3xl" type="submit" pill className="mt-3">Save</Button>
+        <Button color="primary" size="3xl" type="submit" pill={pill} className="mt-3">Save</Button>
       </form>
     </AuthFormStage>
+    </>
   );
 }
 
@@ -1116,7 +1180,9 @@ export function FloatingLabelSelectMultiDemo() {
 }
 
 export function FloatingLabelSelectAboutYouFormDemo() {
-  const [inDialog, setInDialog] = useState(false);
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const mobileFormId = useId();
 
   const [fullName, setFullName] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -1155,12 +1221,38 @@ export function FloatingLabelSelectAboutYouFormDemo() {
     if (hasError) return;
   };
 
+  const mobileFields = (
+    <AuthFields>
+      <AuthInput label="Full name" value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" />
+      <AuthInput label="Birthday" errorMessage={birthdayError ?? undefined}
+        value={birthday} placeholder="MM / DD / YYYY" inputMode="numeric" maxLength={14} autoComplete="bday" onChange={(event) => {
+          const raw = event.target.value;
+          const digits = getDigits(raw);
+          setBirthday(formatBirthdayValue(raw.length < birthday.length && digits.length === getDigits(birthday).length ? digits.slice(0, -1) : raw));
+          setBirthdayError(null);
+        }} />
+      <div className={authFieldsStyles.Row}>
+        {/* The row has no visible label: a hidden one names the trigger together with its value. */}
+        <span id={countryFieldId + "-label"} className="sr-only">Country</span>
+        <Select value={country} options={COUNTRIES} onChange={(option) => { setCountry(option.value); setCountryError(null); }}
+          aria-labelledby={countryFieldId + "-label"} aria-invalid={!!countryError || undefined} aria-describedby={countryError ? countryFieldId : undefined}
+          searchPlaceholder="Search countries..." placeholder="Select country" clearable
+          variant="ghost" size="3xl" triggerClassName={authFieldsStyles.Country} block align="start" checkPosition="end" />
+        {countryError && <FieldError id={countryFieldId} className={authFieldsStyles.Note}>{countryError}</FieldError>}
+      </div>
+    </AuthFields>
+  );
+
+  const heading = (
+    <div className="mb-6 text-center">
+      <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Tell us about you</h3>
+      <p data-auth-description className="text-secondary text-sm mt-1">This helps us customize your experience.</p>
+    </div>
+  );
+
   const formContent = (
     <div className="w-[360px]">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Tell us about you</h3>
-        <p className="text-secondary text-sm mt-1">This helps us customize your experience.</p>
-      </div>
+      {heading}
       <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
         <FloatingLabelInput
           label="Full name"
@@ -1193,11 +1285,7 @@ export function FloatingLabelSelectAboutYouFormDemo() {
           />
           {countryError && <FieldError id={countryFieldId}>{countryError}</FieldError>}
         </div>
-        <p className="text-xs text-center text-tertiary mt-3">
-          By clicking &ldquo;Continue&rdquo;, you agree to our{' '}
-          <span className="underline">Terms</span> and have read our{' '}
-          <span className="underline">Privacy Policy</span>.
-        </p>
+        <AuthLegalNotice />
         <Button color="primary" size="3xl" type="submit" pill className="h-[3.25rem]">Continue</Button>
       </form>
     </div>
@@ -1206,10 +1294,21 @@ export function FloatingLabelSelectAboutYouFormDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
+        <ScreenPresentationControls {...presentation} />
       </div>
-      <AuthFormStage title="Tell us about you" dialog={inDialog} onDialogChange={setInDialog}>
-        {formContent}
+      <AuthFormStage
+        title="Tell us about you"
+        surface={presentation.surface}
+        dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog}
+        footer={<div className={authFieldsStyles.ConsentActions}><AuthLegalNotice /><Button color="primary" size="3xl" type="submit" form={mobileFormId} pill block>Continue</Button></div>}
+      >
+        {wide ? formContent : (
+          <div className="w-[360px]">
+            {heading}
+            <form id={mobileFormId} onSubmit={handleSubmit} noValidate>{mobileFields}</form>
+          </div>
+        )}
       </AuthFormStage>
     </>
   );
@@ -1328,6 +1427,11 @@ const PhoneCountryOptionView = ({ value, label }: Option) => (
   <CountryLabel code={value} label={label} />
 );
 
+const PhoneCountryTriggerView = ({ value, label }: Option) => {
+  const selected = COUNTRY_LOOKUP.get(value);
+  return <PhoneCountryLabel label={selected?.label ?? label} dialCode={selected?.dialCode} />;
+};
+
 function usePhoneCountryTrigger(country: string) {
   const selected = COUNTRIES.find((c) => c.value === country);
   const dialCode = selected ? DIAL_CODES[selected.value] : undefined;
@@ -1355,9 +1459,9 @@ function usePhoneCountryTrigger(country: string) {
         }}
       >
         {selected ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span className={countryLabelStyles.Root}>
             <FlagIcon code={selected.value} />
-            {selected.label}{dialCode ? ` (${dialCode})` : ''}
+            <PhoneCountryLabel label={selected.label} dialCode={dialCode} />
           </span>
         ) : (
           'Country'
@@ -1418,7 +1522,9 @@ export function FloatingLabelInputPhoneDemo() {
 }
 
 export function FloatingLabelInputPhoneLoginFormDemo() {
-  const [inDialog, setInDialog] = useState(false);
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
 
   const [country, setCountry] = useState('es');
   const [phone, setPhone] = useState('');
@@ -1445,7 +1551,7 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
 
   const phoneInputProps = {
     label: 'Phone number',
-    startAdornment: <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>,
+    startAdornment: wide ? <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span> : undefined,
     value: phone,
     onChange: handlePhoneChange,
     type: 'tel' as const,
@@ -1463,10 +1569,11 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
   const formContent = (
     <div className="w-[360px]">
       <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Welcome back</h3>
-        <p className="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
+        <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Welcome back</h3>
+        <p data-auth-description className="text-secondary text-sm mt-1">Enter your phone number to continue.</p>
       </div>
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+        <AuthFields>
         <Select
           value={country}
           options={PHONE_COUNTRY_OPTIONS}
@@ -1477,16 +1584,21 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
           listMinWidth={360}
           block
           size="3xl"
-          trigger={trigger}
+          trigger={wide ? trigger : undefined}
+          TriggerView={PhoneCountryTriggerView}
+          triggerClassName={wide ? undefined : authFieldsStyles.Country}
+          variant={wide ? 'outline' : 'ghost'}
+          aria-label="Country"
           checkPosition="end"
         />
-        <FloatingLabelInput ref={phoneInputRef} {...phoneInputProps} />
-        <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-3">Continue</Button>
-        <p className="text-base text-center mt-4">
+        <AuthInput ref={phoneInputRef} {...phoneInputProps} />
+        </AuthFields>
+        {wide && <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-3">Continue</Button>}
+        <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>
           Don&apos;t have an account?{' '}
-          <button type="button" className="cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)' }}>
+          <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction}>
             Sign up
-          </button>
+          </Button>
         </p>
       </form>
     </div>
@@ -1495,9 +1607,15 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
+        <ScreenPresentationControls {...presentation} />
       </div>
-      <AuthFormStage title="Log in with phone" dialog={inDialog} onDialogChange={setInDialog}>
+      <AuthFormStage
+        title="Log in with phone"
+        surface={presentation.surface}
+        dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog}
+        footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>}
+      >
         {formContent}
       </AuthFormStage>
     </>
@@ -1505,7 +1623,9 @@ export function FloatingLabelInputPhoneLoginFormDemo() {
 }
 
 export function FloatingLabelInputPhoneSignupFormDemo() {
-  const [inDialog, setInDialog] = useState(false);
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -1531,10 +1651,12 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
   const digits = stripFormatting(phone);
   const isPhoneValid = digits.length >= 7 && digits.length <= 15;
   const showError = submitted && !isPhoneValid;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailError = submitted && !isEmailValid;
 
   const phoneInputProps = {
     label: 'Phone number',
-    startAdornment: <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span>,
+    startAdornment: wide ? <span className="text-tertiary whitespace-nowrap select-none mr-2">{dialCode}</span> : undefined,
     value: phone,
     onChange: handlePhoneChange,
     type: 'tel' as const,
@@ -1546,27 +1668,33 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
   const handleSubmit = (evt: FormSubmitEvent) => {
     evt.preventDefault();
     setSubmitted(true);
-    if (!isPhoneValid) return;
+    if (!isPhoneValid || !isEmailValid) return;
   };
 
   const formContent = (
     <div className="w-[360px]">
       <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Create your account</h3>
-        <p className="text-secondary text-sm mt-1">Enter your details to get started.</p>
+        <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Create your account</h3>
+        <p data-auth-description className="text-secondary text-sm mt-1">Enter your details to get started.</p>
       </div>
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-        <FloatingLabelInput
+      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+        <AuthInput
           label="Full name"
           value={fullName}
           onChange={(evt) => setFullName(evt.target.value)}
         />
-        <FloatingLabelInput
+        <AuthInput
           label="Email address"
           type="email"
           value={email}
-          onChange={(evt) => setEmail(evt.target.value)}
+          onChange={(evt) => {
+            setEmail(evt.target.value);
+            setSubmitted(false);
+          }}
+          invalid={emailError}
+          errorMessage={emailError ? 'Enter a valid email address.' : undefined}
         />
+        <AuthFields>
         <Select
           value={country}
           options={PHONE_COUNTRY_OPTIONS}
@@ -1577,20 +1705,22 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
           listMinWidth={360}
           block
           size="3xl"
-          trigger={trigger}
+          trigger={wide ? trigger : undefined}
+          TriggerView={PhoneCountryTriggerView}
+          triggerClassName={wide ? undefined : authFieldsStyles.Country}
+          variant={wide ? 'outline' : 'ghost'}
+          aria-label="Country"
           checkPosition="end"
         />
-        <FloatingLabelInput ref={phoneInputRef} {...phoneInputProps} />
-        <p className="text-xs text-center text-tertiary mt-3">
-          By clicking &ldquo;Continue&rdquo;, you agree to our <span className="underline">Terms</span> and have read our{' '}
-          <span className="underline">Privacy Policy</span>.
-        </p>
-        <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Continue</Button>
-        <p className="text-base text-center mt-4">
+        <AuthInput ref={phoneInputRef} {...phoneInputProps} />
+        </AuthFields>
+        {wide && <AuthLegalNotice />}
+        {wide && <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem]">Continue</Button>}
+        <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>
           Already have an account?{' '}
-          <button type="button" className="cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)' }}>
+          <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction}>
             Log in
-          </button>
+          </Button>
         </p>
       </form>
     </div>
@@ -1599,9 +1729,15 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
+        <ScreenPresentationControls {...presentation} />
       </div>
-      <AuthFormStage title="Create an account" dialog={inDialog} onDialogChange={setInDialog}>
+      <AuthFormStage
+        title="Create an account"
+        surface={presentation.surface}
+        dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog}
+        footer={<div className={authFieldsStyles.ConsentActions}><AuthLegalNotice /><Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button></div>}
+      >
         {formContent}
       </AuthFormStage>
     </>
@@ -1609,74 +1745,112 @@ export function FloatingLabelInputPhoneSignupFormDemo() {
 }
 
 export function FloatingLabelInputPasswordFormDemo() {
-  const [inDialog, setInDialog] = useState(false);
-
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
   const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [navigationStep, setNavigationStep] = useState(0);
+  const focusPhoneEditor = useRef(false);
+  const [phoneCountry, setPhoneCountry] = useState('us');
+  const [phone, setPhone] = useState('555 123 4567');
+  const [draftCountry, setDraftCountry] = useState(phoneCountry);
+  const [draftPhone, setDraftPhone] = useState(phone);
+  const phoneInput = useRef<HTMLInputElement>(null);
+  const returnToEdit = useRef(false);
   const showError = submitted && !password;
-
-  const handleSubmit = (evt: FormSubmitEvent) => {
-    evt.preventDefault();
-    setSubmitted(true);
+  const digits = stripFormatting(draftPhone);
+  const phoneValid = digits.length >= 7 && digits.length <= 15;
+  const phoneError = submitted && !phoneValid;
+  const title = editingPhone ? 'Edit phone number' : 'Enter your password';
+  const displayPhone = `${COUNTRY_LOOKUP.get(phoneCountry)?.dialCode || '+1'} ${phone}`;
+  const closePhoneEditor = () => {
+    setNavigationStep((step) => step + 1);
+    focusPhoneEditor.current = false;
+    returnToEdit.current = true;
+    setEditingPhone(false);
+    setSubmitted(false);
   };
-
-  const formContent = (
-    <div className="w-[360px]">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Enter your password</h3>
-      </div>
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-        <FloatingLabelInput
-          label="Phone number"
-          readOnly
-          defaultValue="+1 555 123 4567"
-          endAdornment={(
-            <button type="button" className="text-sm font-medium cursor-pointer hover:underline" style={{ color: 'var(--link-primary-text-color)' }}>
-              Edit
-            </button>
-          )}
-        />
-        <div>
-          <FloatingLabelInput
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(evt) => {
-              setPassword(evt.target.value);
-              setSubmitted(false);
-            }}
-            invalid={showError}
-            errorMessage={showError ? 'Password is required.' : undefined}
-          />
-          <button type="button" className="text-sm mt-2 inline-block cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)', paddingLeft: 'var(--floating-input-gutter)' }}>
-            Forgot password?
-          </button>
-        </div>
-        <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-2">Continue</Button>
-        <p className="text-base text-center mt-4">
-          Don&apos;t have an account?{' '}
-          <button type="button" className="cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)' }}>
-            Sign up
-          </button>
-        </p>
-      </form>
-    </div>
+  const openPhoneEditor = () => {
+    setNavigationStep((step) => step + 1);
+    focusPhoneEditor.current = true;
+    setDraftCountry(phoneCountry);
+    setDraftPhone(phone);
+    setSubmitted(false);
+    setEditingPhone(true);
+  };
+  const handleSubmit = (event: FormSubmitEvent) => {
+    event.preventDefault();
+    setSubmitted(true);
+    if (editingPhone && phoneValid) {
+      setPhoneCountry(draftCountry);
+      setPhone(draftPhone);
+      closePhoneEditor();
+    }
+  };
+  const phoneSummary = (
+    <AuthInput label="Phone number" readOnly value={displayPhone}
+      endAdornment={<Button ref={(button) => {
+        if (button && returnToEdit.current) {
+          returnToEdit.current = false;
+          button.focus({ preventScroll: true });
+        }
+      }} type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction} onClick={openPhoneEditor}>Edit</Button>} />
   );
+  const passwordInput = (
+    <AuthInput label="Password" type="password" value={password}
+      onChange={(event) => { setPassword(event.target.value); setSubmitted(false); }}
+      invalid={showError} errorMessage={showError ? 'Password is required.' : undefined} />
+  );
+  const forgotPassword = <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(' ')}>Forgot password?</Button>;
 
   return (
     <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
-      </div>
-      <AuthFormStage title="Enter your password" dialog={inDialog} onDialogChange={setInDialog}>
-        {formContent}
+      <div data-demo-controls style={controlsTableStyle}><ScreenPresentationControls {...presentation} /></div>
+      <AuthFormStage navigation={wide ? undefined : { step: navigationStep, direction: editingPhone ? 'back' : 'forward' }} title={title} surface={presentation.surface} dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog} onBack={editingPhone ? closePhoneEditor : undefined}
+        backLabel={editingPhone ? 'Back to password' : undefined}
+        footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Continue</Button>}>
+        <div className="w-[360px]">
+          <div className="mb-6 text-center"><h3 data-auth-title tabIndex={-1} ref={(node) => {
+            if (node && focusPhoneEditor.current && editingPhone) {
+              focusPhoneEditor.current = false;
+              node.focus({ preventScroll: true });
+            }
+          }} className="text-2xl font-semibold tracking-tight">{title}</h3></div>
+          <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+            {editingPhone ? (
+              <AuthFields className="flex flex-col gap-3">
+                <Select value={draftCountry} options={COUNTRY_OPTIONS} aria-label="Country" TriggerView={PhoneCountryTriggerView}
+                  onChange={(option) => { setDraftCountry(option.value); setSubmitted(false); phoneInput.current?.focus(); }}
+                  searchPlaceholder="Search countries..." size="3xl" block checkPosition="end"
+                  variant={wide ? 'outline' : 'ghost'} triggerClassName={wide ? undefined : authFieldsStyles.Country} />
+                <AuthInput ref={phoneInput} label="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
+                  value={draftPhone} onChange={(event) => { setDraftPhone(formatPhoneNumber(event.target.value, draftCountry)); setSubmitted(false); }}
+                  invalid={phoneError} errorMessage={phoneError ? 'Phone number is not valid.' : undefined} />
+              </AuthFields>
+            ) : wide ? <>{phoneSummary}<div>{passwordInput}{forgotPassword}</div></> : <>
+              <AuthFields>{phoneSummary}{passwordInput}</AuthFields>{forgotPassword}
+            </>}
+            {wide && <div className="flex gap-3 mt-2">
+              {editingPhone && <Button type="button" color="secondary" variant="ghost" onClick={closePhoneEditor}>Back</Button>}
+              <Button color="primary" size="3xl" type="submit" pill block>Continue</Button>
+            </div>}
+            {!editingPhone && <p className={['text-base text-center mt-4', authFieldsStyles.CrossActionRow].join(' ')}>
+              Don&apos;t have an account? <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction}>Sign up</Button>
+            </p>}
+          </form>
+        </div>
       </AuthFormStage>
     </>
   );
 }
 
 export function FloatingLabelInputEmailLoginFormDemo() {
-  const [inDialog, setInDialog] = useState(false);
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1694,11 +1868,12 @@ export function FloatingLabelInputEmailLoginFormDemo() {
   const formContent = (
     <div className="w-[360px]">
       <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Welcome back</h3>
-        <p className="text-secondary text-sm mt-1">Log in to your account.</p>
+        <h3 data-auth-title className="text-2xl font-semibold tracking-tight">Welcome back</h3>
+        <p data-auth-description className="text-secondary text-sm mt-1">Log in to your account.</p>
       </div>
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
-        <FloatingLabelInput
+      <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+        {wide ? (<>
+        <AuthInput
           label="Email address"
           type="email"
           value={email}
@@ -1710,7 +1885,7 @@ export function FloatingLabelInputEmailLoginFormDemo() {
           errorMessage={emailError ? 'Enter a valid email address.' : undefined}
         />
         <div>
-          <FloatingLabelInput
+          <AuthInput
             label="Password"
             type="password"
             value={password}
@@ -1721,16 +1896,45 @@ export function FloatingLabelInputEmailLoginFormDemo() {
             invalid={passwordError}
             errorMessage={passwordError ? 'Password is required.' : undefined}
           />
-          <button type="button" className="text-sm mt-2 inline-block cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)', paddingLeft: 'var(--floating-input-gutter)' }}>
+          <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(" ")}>
             Forgot password?
-          </button>
+          </Button>
         </div>
-        <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-2">Log in</Button>
-        <p className="text-base text-center mt-4">
+        </>) : (<>
+        <AuthFields>
+        <AuthInput
+          label="Email address"
+          type="email"
+          value={email}
+          onChange={(evt) => {
+            setEmail(evt.target.value);
+            setSubmitted(false);
+          }}
+          invalid={emailError}
+          errorMessage={emailError ? 'Enter a valid email address.' : undefined}
+        />
+          <AuthInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(evt) => {
+              setPassword(evt.target.value);
+              setSubmitted(false);
+            }}
+            invalid={passwordError}
+            errorMessage={passwordError ? 'Password is required.' : undefined}
+          />
+        </AuthFields>
+        <Button type="button" color="info" variant="ghost" className={[authFieldsStyles.TextAction, authFieldsStyles.ForgotAction].join(" ")}>
+            Forgot password?
+          </Button>
+        </>)}
+        {wide && <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-2">Log in</Button>}
+        <p className={["text-base text-center mt-4", authFieldsStyles.CrossActionRow].join(" ")}>
           Don&apos;t have an account?{' '}
-          <button type="button" className="cursor-pointer hover:underline bg-transparent border-0 p-0" style={{ color: 'var(--link-primary-text-color)' }}>
+          <Button type="button" color="info" variant="ghost" className={authFieldsStyles.TextAction}>
             Sign up
-          </button>
+          </Button>
         </p>
       </form>
     </div>
@@ -1739,9 +1943,15 @@ export function FloatingLabelInputEmailLoginFormDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
+        <ScreenPresentationControls {...presentation} />
       </div>
-      <AuthFormStage title="Welcome back" dialog={inDialog} onDialogChange={setInDialog}>
+      <AuthFormStage
+        title="Welcome back"
+        surface={presentation.surface}
+        dialog={presentation.dialog}
+        onDialogChange={presentation.setDialog}
+        footer={<Button color="primary" size="3xl" type="submit" form={formId} pill block>Log in</Button>}
+      >
         {formContent}
       </AuthFormStage>
     </>

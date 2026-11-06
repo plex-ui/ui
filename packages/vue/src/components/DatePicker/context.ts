@@ -10,6 +10,7 @@ export type DateContextValue = {
   readonly value: DateTime | null
   readonly min?: DateTime
   readonly max?: DateTime
+  readonly disabled: boolean
   readonly captionLayout: "buttons" | "dropdown"
   readonly showTime: boolean
   readonly yearRange?: [number, number]

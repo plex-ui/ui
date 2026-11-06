@@ -535,7 +535,7 @@ describe("Tabs behaves like React", () => {
     })
     expect(vue).toEqual(react)
     expect(reactCalls).toEqual([["change", "analytics"], ["click"], ["click"], ["click"], ["change", "settings"], ["click"]])
-    expect(react.at(-1)).toMatch(/aria-checked="true"[^\n]*>\n {6}<span class="TabContent">\n {8}<span>\n {10}"Settings"/)
+    expect(react.at(-1)).toMatch(/aria-checked="true"[^\n]*>\n {6}<span class="TabContent">\n {8}<span class="TabLabel">\n {10}"Settings"/)
   })
 
   test("fixed value: change is emitted but selection stays", async () => {
@@ -950,7 +950,7 @@ describe("Tabs thumb positioning matches React", () => {
     })
     expect(vue).toEqual(react)
     expect(react[1]).not.toContain("TabsThumb\" style")
-    expect(react[3]).toContain("transition: width 200ms var(--cubic-enter), transform 200ms var(--cubic-enter)")
+    expect(react[3]).toContain("transition: width var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter), transform var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)")
     expect(react[3]).toContain("translateX(2px)")
   })
 
@@ -982,7 +982,7 @@ describe("Tabs thumb positioning matches React", () => {
       snapshot()
     })
     expect(vue).toEqual(react)
-    expect(react[0]).toContain("height 200ms var(--cubic-enter)")
+    expect(react[0]).toContain("height var(--tabs-thumb-transition-duration, 200ms) var(--cubic-enter)")
     expect(react[0]).toMatch(/translateY\(30px\)/)
   })
 
@@ -1000,7 +1000,7 @@ describe("Tabs thumb positioning matches React", () => {
       snapshot()
     })
     expect(vue).toEqual(react)
-    expect(react[1]).toContain("transition: width 200ms")
+    expect(react[1]).toContain("transition: width var(--tabs-thumb-transition-duration, 200ms)")
   })
 
   test("uncontrolled selection moves the thumb only on the next resize", async () => {
@@ -1050,6 +1050,43 @@ describe("Tabs thumb positioning matches React", () => {
       'Members {"block":"nearest","inline":"center","behavior":"smooth"}',
     ])
   })
+
+  test.each(["horizontal", "vertical"] as const)(
+    "%s scrolling respects reduced motion changed after mount",
+    async (orientation) => {
+      let reducedMotion = false
+      vi.stubGlobal("matchMedia", (query: string) => ({
+        matches: query === "(prefers-reduced-motion: reduce)" && reducedMotion,
+        media: query,
+      }))
+      const runs: string[][] = []
+      const { react, vue } = await walkThumb(
+        { value: "overview", orientation },
+        async ({ set, advance, snapshot }) => {
+          reducedMotion = false
+          layout.rootWidth = 100
+          layout.rootHeight = 60
+          scrollCalls.length = 0
+          await advance(64)
+          await set({ value: "settings" })
+          await advance(64)
+          reducedMotion = true
+          await set({ value: "overview" })
+          await advance(64)
+          reducedMotion = false
+          await set({ value: "settings" })
+          await advance(64)
+          snapshot()
+          runs.push(scrollCalls.splice(0))
+        },
+      )
+      expect(vue).toEqual(react)
+      expect(runs[1]).toEqual(runs[0])
+      expect(runs[0].map((call) => call.match(/"behavior":"([^"]+)"/)?.[1])).toEqual([
+        "smooth", "auto", "smooth",
+      ])
+    },
+  )
 
   test("vertical scrollable tabs scroll on the block axis", async () => {
     const runs: string[][] = []

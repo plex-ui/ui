@@ -34,11 +34,14 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ## Examples
 
+The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone.
+
+
 ### App Shell
 
-<ComponentPreview details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={`<SidebarProvider collapsible="icon">
+<ComponentPreview phonePresentation="screen" details={<>A multi-section app shell with a workspace selector, expandable parent sections with sub-items, and a footer with a documentation link plus a user menu. Inbox carries a quiet count <code>Badge</code>, as the inbox of a platform does. When collapsed (icon mode), hovering a parent icon opens a <code>Popover</code> flyout listing the section&apos;s items so users keep one-click access without expanding the rail.</>} code={`<ResponsiveSidebarProvider collapsible="icon">
   <SidebarLayout style={{ height: 600 }}>
-    <Sidebar>
+    <ResponsiveSidebar>
       <SidebarHeader>
         <span>Console</span>
         <SidebarTrigger />
@@ -98,18 +101,18 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
           <Menu.Content>...</Menu.Content>
         </Menu>
       </SidebarFooter>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarConsoleDemo />
 </ComponentPreview>
 
 ### App
 
-<ComponentPreview details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. Under 768px the page slides aside and the menu lies under it, as on iOS. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<SidebarProvider collapsible="icon" variant="app">
+<ComponentPreview phonePresentation="screen" details={<>The sidebar of a product: 260px, pill rows on a grey ground and a page with no inset. Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. A <code>Badge</code> in <code>SidebarMenuBadge</code> sits as far from the row's edge as from its top and bottom, and its digits end where plain counts and the chevron end; in the folded rail it becomes a dot of its color above the icon, while plain text such as a count fades. A group lists its items in a <code>Menu</code> beside the icon when folded. The person row in the footer is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. In these examples, the phone toolbar opens the same navigation tree in a full-screen drawer. Set <code>--sidebar-menu-sub-max-height</code> to a group's real height for an even fold.</>} code={`<ResponsiveSidebarProvider collapsible="icon" variant="app">
   <SidebarLayout>
-    <Sidebar>
+    <ResponsiveSidebar>
       <SidebarHeader>
         <span>App</span>
         <SidebarTrigger />
@@ -151,20 +154,18 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>...</SidebarFooter>
-    </Sidebar>
-    <SidebarInset>
-      <Page>...</Page>
-    </SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <SidebarAppDemo />
 </ComponentPreview>
 
 ### Basic
 
-<ComponentPreview code={`<SidebarProvider collapsible="icon">
+<ComponentPreview phonePresentation="screen" code={`<ResponsiveSidebarProvider collapsible="icon">
   <SidebarLayout style={{ height: 500 }}>
-    <Sidebar>
+    <ResponsiveSidebar>
       <SidebarHeader>
         <span>App</span>
         <SidebarTrigger />
@@ -186,23 +187,23 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <SidebarBaseDemo />
 </ComponentPreview>
 
 ### Collapsible Sections
 
-<ComponentPreview details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it.</>} code={`const [expanded, setExpanded] = useState<string[]>([]);
+<ComponentPreview phonePresentation="screen" details={<>Build collapsible nested menus with chevron toggles for documentation and API reference sidebars. A parent is a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it.</>} code={`const [expanded, setExpanded] = useState<string[]>([]);
 const toggle = (id: string) =>
   setExpanded((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 
 return (
-  <SidebarProvider collapsible="none">
+  <ResponsiveSidebarProvider collapsible="none">
     <SidebarLayout style={{ height: 500 }}>
-      <Sidebar variant="docs">
+      <ResponsiveSidebar variant="docs">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>API Reference</SidebarGroupLabel>
@@ -225,19 +226,21 @@ return (
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-      </Sidebar>
-      <SidebarInset>...</SidebarInset>
+      </ResponsiveSidebar>
+      <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
     </SidebarLayout>
-  </SidebarProvider>
+  </ResponsiveSidebarProvider>
 );`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarTall}>
   <SidebarNestedDemo />
 </ComponentPreview>
 
 ### Search and Filter
 
-<ComponentPreview details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type.</>} code={`<SidebarProvider collapsible="none">
+<ComponentPreview phonePresentation="screen" details={<>Combine search and type-based filtering with nested tree navigation. Each item has an icon based on its type. A <code>Menu</code> with checkbox items filters items by type.</>} code={`const subMenuId = useId();
+
+<ResponsiveSidebarProvider collapsible="none">
   <SidebarLayout style={{ height: 650 }}>
-    <Sidebar>
+    <ResponsiveSidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 w-full">
           <div className="flex-1">
@@ -280,48 +283,55 @@ return (
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive>
-                  <SidebarMenuButtonIcon><Desktop /></SidebarMenuButtonIcon>
-                  <SidebarMenuButtonLabel>Start</SidebarMenuButtonLabel>
-                </SidebarMenuButton>
+              <SidebarMenuItem expanded={expanded}>
+                <div className="flex items-center">
+                  <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
+                    <SidebarMenuButtonIcon><Desktop /></SidebarMenuButtonIcon>
+                    <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
+                  </SidebarMenuButton>
+                  <Button variant="ghost" color="secondary" size="xs" uniform
+                    className="!size-[26px] max-md:!size-11 [&_svg]:!size-4"
+                    aria-label={(expanded ? "Collapse " : "Expand ") + label}
+                    aria-expanded={expanded} aria-controls={subMenuId} onClick={() => setExpanded(!expanded)}>
+                    <ChevronDownMd aria-hidden="true" style={{ transform: expanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
+                  </Button>
+                </div>
+                <SidebarMenuSub id={subMenuId} open={expanded}>...</SidebarMenuSub>
               </SidebarMenuItem>
               ...
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarFilteredTreeDemo />
 </ComponentPreview>
 
 ### Tree with Hover Actions
 
-<ComponentPreview details={<>Tree navigation with chevrons on the left and actions on the right. Clicking a row selects the item and its chevron toggles expand/collapse. On hover, a row shows a <code>+</code> menu (top-level rows and nested groups) and nested rows show a drag handle for reordering. The actions sit next to the row button, not inside it, so no button is nested in another.</>} code={`<SidebarMenuItem expanded={isExpanded}>
-  <div className="group/row relative">
-    <SidebarMenuButton isActive={activeItem === id} onClick={() => setActiveItem(id)}>
-      <span
-        role="none"
-        className="transition-transform"
-        style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }}
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleExpanded(id);
-        }}
-      >
-        <ChevronDownMd />
-      </span>
+<ComponentPreview phonePresentation="screen" details={<>Tree navigation with independent selection, disclosure and action buttons. Tab reaches each control; Enter and Space activate it. Actions appear on hover or keyboard focus on desktop and stay visible on Phone. The controls occupy separate columns, with 44px touch targets on Phone.</>} code={`const treeId = useId();
+const subMenuId = treeId + "-" + id;
+
+<SidebarMenuItem expanded={isExpanded}>
+  <div className="group/row flex items-center">
+    <Button variant="ghost" color="secondary" size="xs" uniform
+      className="!size-6 max-md:!size-11 [&_svg]:!size-4"
+      aria-label={(isExpanded ? "Collapse " : "Expand ") + label}
+      aria-expanded={isExpanded} aria-controls={subMenuId}
+      onClick={() => toggleExpanded(id)}>
+      <ChevronDownMd aria-hidden="true" style={{ transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)" }} />
+    </Button>
+    <SidebarMenuButton className="!w-auto min-w-0 flex-1" isActive={activeItem === id} onClick={() => setActiveItem(id)}>
       <SidebarMenuButtonIcon><Icon /></SidebarMenuButtonIcon>
-      <SidebarMenuButtonLabel>Label</SidebarMenuButtonLabel>
+      <SidebarMenuButtonLabel>{label}</SidebarMenuButtonLabel>
     </SidebarMenuButton>
-    {/* A sibling of the row button, shown on hover */}
-    <span className="absolute right-1 top-0 bottom-0 flex items-center opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto">
+    <span className="flex shrink-0 opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto group-focus-within/row:opacity-100 group-focus-within/row:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto">
       <Menu>
         <Menu.Trigger>
-          <Button variant="ghost" color="secondary" size="xs" uniform aria-label="Add">
+          <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11" aria-label={"Add to " + label}>
             <Plus />
           </Button>
         </Menu.Trigger>
@@ -329,37 +339,30 @@ return (
       </Menu>
     </span>
   </div>
-  <SidebarMenuSub open={isExpanded} hasIcons>...</SidebarMenuSub>
+  <SidebarMenuSub id={subMenuId} open={isExpanded} hasIcons>...</SidebarMenuSub>
 </SidebarMenuItem>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarActionTreeDemo />
 </ComponentPreview>
 
 ### Mobile Menu
 
-<ComponentPreview details={<>Mobile behavior is handled automatically when using <code>SidebarProvider</code>. The <code>SidebarMobileMenuButton</code> provides a standard animated hamburger trigger.</>} code={`// Desktop: standard sidebar with icon collapse
-<SidebarProvider collapsible="icon">
-  <SidebarLayout style={{ height: 500 }}>
-    <Sidebar>...</Sidebar>
-    <SidebarInset>...</SidebarInset>
+<ComponentPreview phonePresentation="screen" details={<>Use Phone preview, then open the menu in the page toolbar. The same navigation tree renders in a desktop rail or a full-screen mobile drawer. Selecting a leaf closes the drawer; expanding a group keeps it open.</>} code={`<ResponsiveSidebarProvider collapsible="icon">
+  <SidebarLayout>
+    <ResponsiveSidebar>
+      <SidebarContent>{/* The same navigation tree in both layouts */}</SidebarContent>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>
-
-// Mobile: phone-sized container with hamburger menu
-<SidebarProvider collapsible="offcanvas">
-  <header>
-    <SidebarMobileMenuButton />
-  </header>
-  {openMobile ? <SidebarContent>...</SidebarContent> : <div>Page content</div>}
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarMobileDemo />
 </ComponentPreview>
 
 
 ### Search Input
 
-<ComponentPreview details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so control it with <code>value</code> and <code>onChange</code> and clear it with <code>onClear</code>.</>} code={`<SidebarProvider collapsible="none">
+<ComponentPreview phonePresentation="screen" details={<>The sidebar provides a dedicated <code>SidebarInput</code> component for search functionality. It forwards everything to <code>Input</code>, so control it with <code>value</code> and <code>onChange</code> and clear it with <code>onClear</code>.</>} code={`<ResponsiveSidebarProvider collapsible="none">
   <SidebarLayout style={{ height: 500 }}>
-    <Sidebar variant="docs">
+    <ResponsiveSidebar variant="docs">
       <SidebarHeader>
         <SidebarInput
           variant="soft"
@@ -382,12 +385,142 @@ return (
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>
-    <SidebarInset>...</SidebarInset>
+    </ResponsiveSidebar>
+    <SidebarDemoPage title={activePage}>...</SidebarDemoPage>
   </SidebarLayout>
-</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
+</ResponsiveSidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarStandard}>
   <SidebarSearchDemo />
 </ComponentPreview>
+
+## Responsive composition
+
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+
+Save the helpers in `responsive-sidebar.tsx` and the styles in `responsive-sidebar.module.css`:
+
+```tsx
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Page } from '@plexui/ui/components/Page';
+import {
+  Sidebar,
+  SidebarInset,
+  SidebarMobile,
+  SidebarMobileMenuButton,
+  SidebarProvider,
+  useSidebar,
+  type SidebarProps,
+  type SidebarProviderProps,
+} from '@plexui/ui/components/Sidebar';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import s from './responsive-sidebar.module.css';
+/** Leaf navigation closes the drawer; disclosure and popup buttons keep it open. */
+export function isSidebarNavigationSelection(target: EventTarget | null) {
+  if (!(target instanceof Element)) return false;
+  const button = target.closest('[data-active]');
+  return Boolean(button && !button.hasAttribute('aria-haspopup') &&
+    !button.hasAttribute('aria-expanded') && !button.closest('li')?.querySelector(':scope > ul'));
+}
+
+export function ResponsiveSidebarProvider({ className, open, variant, ...props }: SidebarProviderProps) {
+  const wide = useBreakpoint('md');
+  return <SidebarProvider {...props} className={[s.Frame, className].filter(Boolean).join(' ')} open={wide ? open : true} variant={wide ? variant : 'sidebar'} />;
+}
+
+/** Reuses one navigation tree in the desktop rail and the mobile drawer. */
+export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!isMobile || !openMobile) return;
+    const trigger = document.activeElement;
+    closeRef.current?.focus();
+    return () => { if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); };
+  }, [isMobile, openMobile]);
+  if (!isMobile) return <Sidebar {...props}>{children}</Sidebar>;
+  return (
+    <SidebarMobile contained className={s.Drawer} inert={!openMobile} role="navigation" aria-label="Main navigation">
+      <Page>
+        <Page.Header background="solid">
+          <Page.Bar>
+            <Page.Title>Navigation</Page.Title>
+            <Page.Actions><SidebarMobileMenuButton ref={closeRef} /></Page.Actions>
+          </Page.Bar>
+        </Page.Header>
+        <Page.Content className={s.NavigationContent} onClick={(event) => {
+          if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) setOpenMobile(false);
+        }}>
+          {children}
+        </Page.Content>
+      </Page>
+    </SidebarMobile>
+  );
+}
+
+export function SidebarDemoPage({ title, children }: { title: ReactNode; children: ReactNode }) {
+  const { isMobile, openMobile } = useSidebar();
+  return (
+    <SidebarInset className={s.Inset} inert={isMobile && openMobile}>
+      {isMobile ? (
+        <Page>
+          <Page.Header>
+            <Page.Bar>
+              <Page.Leading><SidebarMobileMenuButton /></Page.Leading>
+              <Page.Title>{title}</Page.Title>
+            </Page.Bar>
+          </Page.Header>
+          <Page.Content>{children}</Page.Content>
+        </Page>
+      ) : (
+        <div className="p-6">
+          <h1 className="text-2xl font-semibold mb-4">{title}</h1>
+          {children}
+        </div>
+      )}
+    </SidebarInset>
+  );
+}
+```
+
+```css
+.Frame {
+  position: relative;
+}
+
+.Drawer {
+  padding: 0;
+  background: var(--color-surface);
+}
+
+.NavigationContent {
+  --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.NavigationContent :global([class*="Sidebar-module__Content"]) {
+  padding-top: 0;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+@media (max-width: 767px) {
+  .Frame {
+    --sidebar-mobile-button-size: 44px;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .Frame > :global([class*="SidebarLayout"]) {
+    height: 100%;
+  }
+
+  .Inset {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+```
 
 ## API
 

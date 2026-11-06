@@ -1,7 +1,7 @@
-/* Keep only the ancestor path to the selected preview. MDX may group several
-   examples in a wrapper, so filter its prose siblings at every level. */
-.Root > :not([data-preview-embed]):not(:has([data-preview-embed])),
-.Root :has([data-preview-embed]) > :not([data-preview-embed]):not(:has([data-preview-embed])) {
+/* Keep the selected preview and explicit support hosts such as Toaster.
+   Filter prose siblings along either ancestor path through MDX wrappers. */
+.Root > :not([data-preview-embed], [data-preview-support]):not(:has([data-preview-embed], [data-preview-support])),
+.Root :has([data-preview-embed], [data-preview-support]) > :not([data-preview-embed], [data-preview-support]):not(:has([data-preview-embed], [data-preview-support])) {
   display: none;
 }
 
@@ -11,6 +11,37 @@
 }
 
 /* An initially open modal should not show its trigger through the scrim. */
-:global(body:has([data-plex-dialog][data-state="open"])) .Root [data-demo-stage] [aria-haspopup="dialog"] {
+:global(body:has([data-plex-dialog][data-state="open"])) .Root [data-preview-initial-dialog] [data-demo-stage] [aria-haspopup="dialog"] {
   visibility: hidden;
+}
+
+/* A full screen sits behind the external status glyphs. This document-level
+   inset also reaches portalled Dialogs; compact components keep their 812px view. */
+:global(:root:has([data-preview-presentation="screen"])) {
+  --safe-area-inset-top: 62px;
+  --safe-area-inset-bottom: 34px;
+}
+
+/* Complete screens use native base surfaces inside the iframe only. Page and
+   Dialog panels keep their own plain/grouped and elevated surface roles. */
+.Root:has([data-preview-presentation="screen"]) {
+  min-height: 100dvh;
+  background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+}
+
+.Root [data-preview-presentation="screen"] {
+  background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+  --floating-input-background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+  --file-upload-background: var(--mobile-surface-plain-primary, var(--color-fd-background));
+}
+
+/* Full-screen embeds own the viewport; component preview gutters stay outside them. */
+.Root [data-preview-presentation="screen"] [data-demo-stage] {
+  padding: 0;
+}
+
+/* Keyboard owns the bottom safe area. Its 308px host panel reduces the screen
+   iframe viewport; Page/Sheet fixed footers follow that viewport naturally. */
+:global(:root[data-preview-keyboard-open]) {
+  --safe-area-inset-bottom: 0px;
 }

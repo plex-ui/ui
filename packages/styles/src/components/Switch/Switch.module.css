@@ -1,8 +1,14 @@
 .Container {
   display: flex;
-  font-size: var(--font-text-sm-size);
-  line-height: var(--font-text-sm-line-height);
+  font-size: var(--switch-label-font-size, var(--font-text-sm-size));
+  line-height: var(--switch-label-line-height, var(--font-text-sm-line-height));
   user-select: none;
+
+  &[data-color="accent"] {
+    --switch-track-color-checked: var(--switch-accent-color, light-dark(#34c759, #30d158));
+    --switch-track-color-checked-disabled: color-mix(in srgb, var(--switch-track-color-checked) 50%, transparent);
+    --switch-thumb-color: var(--white);
+  }
 
   &[data-has-label] {
     align-items: flex-start;
@@ -81,6 +87,12 @@
   }
 }
 
+/* Center the first text line on the track without moving the track outside its box. */
+.Container > .Label,
+.LabelGroup {
+  padding-block-start: var(--switch-label-padding-top, 0px);
+}
+
 .LabelGroup {
   display: flex;
   flex-direction: column;
@@ -101,7 +113,7 @@
 }
 
 .Label {
-  font-weight: var(--field-label-font-weight);
+  font-weight: var(--switch-label-font-weight, var(--field-label-font-weight));
   cursor: pointer;
 
   /* Use padding so that the spacing is intrinsic to the label, remaining clickable. */
@@ -120,8 +132,8 @@
 
 .Description {
   color: var(--color-text-secondary);
-  font-size: var(--font-text-xs-size);
-  line-height: var(--font-text-xs-line-height);
+  font-size: var(--switch-description-font-size, var(--font-text-xs-size));
+  line-height: var(--switch-description-line-height, var(--font-text-xs-line-height));
   cursor: pointer;
 
   [data-disabled] & {

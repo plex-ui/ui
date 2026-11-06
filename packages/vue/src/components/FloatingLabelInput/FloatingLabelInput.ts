@@ -1,8 +1,10 @@
 import clsx from "clsx"
-import { defineComponent, h, mergeProps, nextTick, onMounted, ref, useId, watch, withDirectives, type InputHTMLAttributes, type PropType, type VNodeChild } from "vue"
+import { computed, defineComponent, h, mergeProps, nextTick, onBeforeUnmount, onMounted, ref, useId, watch, withDirectives, type InputHTMLAttributes, type PropType, type VNodeChild } from "vue"
 import { Eye, EyeOff, X } from "../Icon/index.js"
+import { FieldError } from "../FieldError/index.js"
 import { vDefaultValue, vServerText } from "../../lib/defaultValue.js"
 import { hasContent } from "../../lib/slotContent.js"
+import { observeTextareaWidth } from "../../lib/observeTextareaWidth.js"
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
 
 // A fallthrough listener is a function or, when merged, an array of them
@@ -69,24 +71,20 @@ const FloatingLabelInputComponent = defineComponent({
     defaultValue: { type: [String, Number] as PropType<string | number>, default: undefined },
   },
   emits: {
-    "update:value": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
     "autofill": () => true,
-    "revealedChange": (_revealed: boolean) => true,
+    "revealedChange": (revealed: boolean) => typeof revealed === "boolean",
   },
   setup(props, { attrs, slots, emit, expose }) {
     const inputRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
     const generatedId = useId()
     const focused = ref(false)
-    const hasValue = ref(!!(props.value !== undefined ? props.value : props.defaultValue))
+    const hasUncontrolledValue = ref(String((props.value !== undefined ? props.value : props.defaultValue) ?? "") !== "")
     const revealed = ref(false)
 
-    // Sync hasValue with controlled value prop
-    watch(
-      () => props.value,
-      (value) => {
-        if (value !== undefined) hasValue.value = !!value
-      },
-    )
+    const hasValue = computed(() => props.value !== undefined
+      ? String(props.value ?? "") !== ""
+      : hasUncontrolledValue.value)
 
     const autoResize = () => {
       const el = inputRef.value
@@ -94,6 +92,16 @@ const FloatingLabelInputComponent = defineComponent({
       el.style.height = "auto"
       el.style.height = `${el.scrollHeight}px`
     }
+    let stopObservingWidth: (() => void) | undefined
+    const observeWidth = () => {
+      stopObservingWidth?.()
+      stopObservingWidth = props.multiline && inputRef.value
+        ? observeTextareaWidth(inputRef.value, autoResize)
+        : undefined
+    }
+    watch(() => props.multiline, observeWidth, { flush: "post" })
+    onBeforeUnmount(() => stopObservingWidth?.())
+
     // The multiline <textarea> gets its value imperatively, like React DOM: a
     // `value` prop would make Vue mirror it into a `value` attribute, which
     // React never renders (its text content carries the value instead)
@@ -108,6 +116,7 @@ const FloatingLabelInputComponent = defineComponent({
       const el = inputRef.value
       if (props.multiline && el && el.textContent) el.value = el.textContent
       autoResize()
+      observeWidth()
     })
     // Also resize when a controlled value or rows changes without a keystroke
     watch(
@@ -149,7 +158,7 @@ const FloatingLabelInputComponent = defineComponent({
 
     const handleInput = (evt: Event) => {
       const target = evt.currentTarget as HTMLInputElement
-      hasValue.value = !!target.value
+      hasUncontrolledValue.value = !!target.value
       emit("update:value", target.value)
       autoResize()
       // Like a React controlled input, a `value` the parent does not update
@@ -164,7 +173,7 @@ const FloatingLabelInputComponent = defineComponent({
     const handleAnimationStart = (evt: AnimationEvent) => {
       // Detect browser autofill
       if (evt.animationName === "native-autofill-in") {
-        hasValue.value = true
+        hasUncontrolledValue.value = true
         emit("autofill")
       }
     }
@@ -235,7 +244,8 @@ const FloatingLabelInputComponent = defineComponent({
       const initialValue = props.value === undefined ? props.defaultValue : undefined
       // The textarea's text content follows the controlled value, else
       // `default-value`, as React keeps a textarea's defaultValue
-      const { value: _value, ...textareaControlProps } = controlProps as typeof controlProps & { value?: unknown }
+      const textareaControlProps = { ...controlProps }
+      delete textareaControlProps.value
       const textContent = String(props.value ?? props.defaultValue ?? "")
 
       const inside = props.labelPlacement === "inside"
@@ -302,7 +312,7 @@ const FloatingLabelInputComponent = defineComponent({
               : null,
           ],
         ),
-        props.errorMessage ? h("div", { id: errorId, class: s.ErrorMessage, role: "alert" }, props.errorMessage) : null,
+        props.errorMessage ? h(FieldError, { id: errorId, class: s.ErrorMessage }, { default: () => props.errorMessage }) : null,
         description ? h("div", { id: descriptionId, class: s.Description }, description) : null,
       ])
     }

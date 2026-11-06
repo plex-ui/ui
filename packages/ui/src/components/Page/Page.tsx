@@ -4,13 +4,21 @@ import clsx from "clsx"
 import {
   createContext,
   useContext,
+  useCallback,
   useMemo,
+  useLayoutEffect,
+  useRef,
   useState,
   type HTMLAttributes,
+  type CSSProperties,
   type Ref,
   type UIEvent,
 } from "react"
+import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
+import { ToolbarHostContext, type ToolbarHost, type ToolbarPlacement } from "../Toolbar/Toolbar"
 import s from "@plexui/styles/components/Page/Page.module.css"
+
+export type PageBarBackground = "glass" | "solid"
 
 export type PageWidth = "full" | "wide" | "column"
 
@@ -20,6 +28,8 @@ const SCROLLED_AFTER = 4
 type PageContextValue = {
   scrolled: boolean
   setScrolled: (scrolled: boolean) => void
+  setFooterHeight: (height: number) => void
+  setHeaderHeight: (height: number | undefined) => void
 }
 
 const PageContext = createContext<PageContextValue | null>(null)
@@ -47,19 +57,50 @@ export type PageProps = HTMLAttributes<HTMLDivElement> & {
    * @default "full"
    */
   width?: PageWidth
+  /** Mobile canvas and grouped-field palette. @default "plain" */
+  surface?: "plain" | "grouped"
   ref?: Ref<HTMLDivElement>
 }
 
-function PageRoot({ width = "full", className, children, ...restProps }: PageProps) {
+function PageRoot({ width = "full", surface = "plain", className, children, style, ref, ...restProps }: PageProps) {
+  const boundary = useFloatingBoundaryScope()
+  const setRoot = boundary.setRoot
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    setRoot(node)
+    if (typeof ref === "function") {
+      const cleanup = ref(node)
+      if (typeof cleanup === "function") return () => { setRoot(null); cleanup() }
+      return
+    }
+    if (ref) ref.current = node
+  }, [ref, setRoot])
   const [scrolled, setScrolled] = useState(false)
-  const context = useMemo(() => ({ scrolled, setScrolled }), [scrolled])
+  const [footerHeight, setFooterHeight] = useState(0)
+  const [headerHeight, setHeaderHeight] = useState<number>()
+  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight }), [scrolled])
+  // A phone Toolbar replaces the header and footer bars; it reports its own heights.
+  const [toolbarTop, setToolbarTop] = useState<number>()
+  const [toolbarBottom, setToolbarBottom] = useState<number>()
+  const setToolbarHeight = useCallback((placement: ToolbarPlacement, height: number | undefined) => (placement === "top" ? setToolbarTop : setToolbarBottom)(height), [])
+  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled }), [setToolbarHeight, scrolled])
+  const pageStyle = {
+    "--page-footer-height": `${footerHeight}px`,
+    ...(headerHeight !== undefined ? { "--page-header-height": `${headerHeight}px` } : {}),
+    ...(toolbarTop !== undefined ? { "--page-toolbar-height": `${toolbarTop}px` } : {}),
+    ...(toolbarBottom !== undefined ? { "--page-toolbar-bottom-height": `${toolbarBottom}px` } : {}),
+    ...style,
+  } as CSSProperties
 
   return (
+    <FloatingBoundaryProvider value={boundary}>
     <PageContext.Provider value={context}>
-      <div className={clsx(s.Page, className)} data-width={width} {...restProps}>
+    <ToolbarHostContext.Provider value={toolbarHost}>
+      <div ref={setRef} className={clsx(s.Page, className)} data-width={width} data-surface={surface} style={pageStyle} {...restProps}>
         {children}
       </div>
+    </ToolbarHostContext.Provider>
     </PageContext.Provider>
+    </FloatingBoundaryProvider>
   )
 }
 PageRoot.displayName = "Page"
@@ -70,21 +111,41 @@ PageRoot.displayName = "Page"
 
 export type PageHeaderProps = HTMLAttributes<HTMLDivElement> & {
   /**
-   * Shows the line, and the glass on a phone, once the content has scrolled under the header.
+   * Shows a divider once the content has scrolled under the header.
    * Turn it off when the content already draws a line of its own at that place.
    * @default true
    */
   divider?: boolean
+  /** Mobile bar surface. Glass blurs content beneath the bar. */
+  background?: PageBarBackground
   ref?: Ref<HTMLDivElement>
 }
 
-function PageHeader({ divider = true, className, children, ...restProps }: PageHeaderProps) {
-  const { scrolled } = usePageContext("Header")
+function PageHeader({ divider = true, background = "glass", className, children, ref, ...restProps }: PageHeaderProps) {
+  const { scrolled, setHeaderHeight } = usePageContext("Header")
+  const element = useRef<HTMLDivElement | null>(null)
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node
+    if (typeof ref === "function") return ref(node)
+    if (ref) ref.current = node
+  }, [ref])
+  useLayoutEffect(() => {
+    const header = element.current
+    if (!header) return
+    const update = () => setHeaderHeight(header.offsetHeight)
+    update()
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+    observer?.observe(header, { box: "border-box" })
+    return () => { observer?.disconnect(); setHeaderHeight(undefined) }
+  }, [setHeaderHeight])
 
   return (
     <div
+      ref={setRef}
       className={clsx(s.Header, className)}
-      data-scrolled={divider && scrolled ? "" : undefined}
+      data-background={background}
+      data-scrolled={scrolled ? "" : undefined}
+      data-divider={divider ? "" : undefined}
       {...restProps}
     >
       <div className={s.Head}>{children}</div>
@@ -99,10 +160,36 @@ PageHeader.displayName = "Page.Header"
 
 export type PageSlotProps = HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> }
 
-function PageBar({ className, ...restProps }: PageSlotProps) {
-  return <div className={clsx(s.Bar, className)} {...restProps} />
+function PageBar({ className, ref, ...restProps }: PageSlotProps) {
+  const element = useRef<HTMLDivElement | null>(null)
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node
+    if (typeof ref === "function") return ref(node)
+    if (ref) ref.current = node
+  }, [ref])
+  useLayoutEffect(() => {
+    const bar = element.current
+    if (!bar) return
+    const sides = () => bar.querySelectorAll<HTMLElement>(`:scope > .${s.Leading}, :scope > .${s.Actions}`)
+    const update = () => {
+      const width = Math.max(44, ...Array.from(sides(), (side) => side.offsetWidth))
+      bar.style.setProperty("--page-bar-side-width", `${width}px`)
+    }
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+    const observeSides = () => { observer?.disconnect(); sides().forEach((side) => observer?.observe(side, { box: "border-box" })); update() }
+    observeSides()
+    const children = new MutationObserver(observeSides)
+    children.observe(bar, { childList: true })
+    return () => { observer?.disconnect(); children.disconnect() }
+  }, [])
+  return <div ref={setRef} className={clsx(s.Bar, className)} {...restProps} />
 }
 PageBar.displayName = "Page.Bar"
+
+function PageLeading({ className, ...restProps }: PageSlotProps) {
+  return <div className={clsx(s.Leading, className)} {...restProps} />
+}
+PageLeading.displayName = "Page.Leading"
 
 function PageHeading({ className, ...restProps }: PageSlotProps) {
   return <div className={clsx(s.Heading, className)} {...restProps} />
@@ -117,11 +204,8 @@ function PageTitle({
 }
 PageTitle.displayName = "Page.Title"
 
-function PageSubtitle({
-  className,
-  ...restProps
-}: HTMLAttributes<HTMLParagraphElement> & { ref?: Ref<HTMLParagraphElement> }) {
-  return <p className={clsx(s.Subtitle, className)} {...restProps} />
+function PageSubtitle({ className, ...restProps }: PageSlotProps) {
+  return <div className={clsx(s.Subtitle, className)} {...restProps} />
 }
 PageSubtitle.displayName = "Page.Subtitle"
 
@@ -165,10 +249,34 @@ function PageContent({ fill = false, className, children, onScroll, ...restProps
 }
 PageContent.displayName = "Page.Content"
 
+export type PageFooterProps = PageSlotProps & { background?: PageBarBackground }
+
 /** Actions that remain below the scrolling content, inside the page's safe area. */
-function PageFooter({ className, children, ...restProps }: PageSlotProps) {
+function PageFooter({ className, children, background = "glass", ref, ...restProps }: PageFooterProps) {
+  const element = useRef<HTMLDivElement | null>(null)
+  const { setFooterHeight } = usePageContext("Footer")
+  const setFloatingFooter = useFloatingBoundaryRegistration()?.setFooter
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node
+    setFloatingFooter?.(node)
+    if (typeof ref === "function") {
+      const cleanup = ref(node)
+      if (typeof cleanup === "function") return () => { element.current = null; setFloatingFooter?.(null); cleanup() }
+      return
+    }
+    if (ref) ref.current = node
+  }, [ref, setFloatingFooter])
+  useLayoutEffect(() => {
+    const footer = element.current
+    if (!footer) return
+    const update = () => setFooterHeight(footer.offsetHeight)
+    update()
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+    observer?.observe(footer, { box: "border-box" })
+    return () => { observer?.disconnect(); setFooterHeight(0) }
+  }, [setFooterHeight])
   return (
-    <div className={clsx(s.Footer, className)} {...restProps}>
+    <div ref={setRef} className={clsx(s.Footer, className)} data-background={background} {...restProps}>
       <div className={s.FooterContent}>{children}</div>
     </div>
   )
@@ -182,6 +290,7 @@ PageFooter.displayName = "Page.Footer"
 export const Page = PageRoot as typeof PageRoot & {
   Header: typeof PageHeader
   Bar: typeof PageBar
+  Leading: typeof PageLeading
   Heading: typeof PageHeading
   Title: typeof PageTitle
   Subtitle: typeof PageSubtitle
@@ -191,6 +300,7 @@ export const Page = PageRoot as typeof PageRoot & {
 }
 Page.Header = PageHeader
 Page.Bar = PageBar
+Page.Leading = PageLeading
 Page.Heading = PageHeading
 Page.Title = PageTitle
 Page.Subtitle = PageSubtitle

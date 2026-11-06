@@ -1,0 +1,17 @@
+/* Mobile glass shared by Back, Close, More and the phone toolbar: Liquid Glass Regular Small of the
+   iOS 26 kit. A light fill over a slightly frosted backdrop, a sheen darker at the top and lighter at
+   the bottom, and a thin rim of light on the top-left and bottom-right edges that fades out at the
+   other two corners. The drop shadow comes only once content is under the control. */
+@media (max-width: 767px) {
+  :root {
+    --mobile-glass-background: light-dark(rgb(247 247 247 / 64%), rgb(19 19 19 / 42%));
+    --mobile-glass-background-hover: light-dark(rgb(247 247 247 / 74%), rgb(60 60 60 / 50%));
+    --mobile-glass-background-active: light-dark(rgb(247 247 247 / 84%), rgb(80 80 80 / 55%));
+    --mobile-glass-rim: light-dark(rgb(255 255 255 / 100%), rgb(255 255 255 / 30%));
+    --mobile-glass-sheen: linear-gradient(light-dark(rgb(0 0 0 / 3%), rgb(0 0 0 / 6%)), transparent 50%, light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 3%)));
+    --mobile-glass-shadow: inset 0.67px 0.67px 0 var(--mobile-glass-rim), inset -0.67px -0.67px 0 var(--mobile-glass-rim);
+    --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-shadow);
+    --mobile-glass-backdrop-filter: blur(4px);
+    --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
+  }
+}

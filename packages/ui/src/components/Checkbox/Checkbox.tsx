@@ -4,6 +4,7 @@ import clsx from "clsx"
 import { Checkbox as RadixCheckbox } from "radix-ui"
 import { type FocusEventHandler, type ReactNode, useId } from "react"
 import s from "@plexui/styles/components/Checkbox/Checkbox.module.css"
+import { Check, Minus } from "../Icon"
 
 export type CheckboxProps = {
   /** The `id` of the checkbox. */
@@ -99,7 +100,17 @@ export const Checkbox = ({
         {...restProps}
         aria-describedby={ariaDescribedBy}
       >
-        <RadixCheckbox.Indicator className={s.CheckMark} forceMount />
+        <span className={s.IndicatorBox} aria-hidden="true">
+          {variant === "ghost" ? (
+            // A ghost marks the choice with the PlexUI icons of a list row, not with drawn arms.
+            <RadixCheckbox.Indicator className={s.GhostMark} forceMount>
+              <Check className={s.GhostCheck} />
+              <Minus className={s.GhostDash} />
+            </RadixCheckbox.Indicator>
+          ) : (
+            <RadixCheckbox.Indicator className={s.CheckMark} forceMount />
+          )}
+        </span>
       </RadixCheckbox.Root>
       {descriptionId ? (
         <div className={s.LabelGroup}>

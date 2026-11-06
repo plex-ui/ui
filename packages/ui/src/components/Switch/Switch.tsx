@@ -12,6 +12,8 @@ export type SwitchProps = {
   defaultChecked?: boolean
   /** The controlled state of the switch. Must be used in conjunction with `onCheckedChange`. */
   checked?: boolean
+  /** Checked track color. The accent option uses the platform toggle green. @default primary */
+  color?: "primary" | "accent"
   /** Optional accessible label rendered next to the switch. */
   label?: ReactNode
   /** Optional description rendered below the label. Linked via `aria-describedby`. */
@@ -45,6 +47,7 @@ export const Switch = ({
   description,
   id: propsId,
   disabled,
+  color = "primary",
   labelPosition = "end",
   ...restProps
 }: SwitchProps) => {
@@ -60,6 +63,7 @@ export const Switch = ({
   return (
     <div
       className={clsx(s.Container, className)}
+      data-color={color}
       data-disabled={disabled ? "" : undefined}
       data-has-label={label ? "" : undefined}
       data-label-position={labelPosition}

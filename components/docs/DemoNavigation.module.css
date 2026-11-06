@@ -1,0 +1,121 @@
+.Viewport {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.BarViewport {
+  position: relative;
+  /* A flex box has no line box, so a 44px bar button keeps the 44px bar row. */
+  display: inline-flex;
+  vertical-align: top;
+}
+
+.Content,
+.Bar {
+  --demo-navigation-sign: 1;
+  position: relative;
+  width: 100%;
+  transform: translateX(0);
+}
+
+/* A bar button sits on the top of its line, so no descender space grows the 44px row. */
+.Bar > * > :where(button, a) {
+  vertical-align: top;
+}
+
+:is(.Content, .Bar):dir(rtl) {
+  --demo-navigation-sign: -1;
+}
+
+.Content {
+  z-index: 2;
+  background: var(--demo-navigation-background, var(--page-background, var(--dialog-panel-background, var(--color-surface-elevated))));
+}
+
+/* `--page-background` is defined at the root, so a Sheet would otherwise get the page color. */
+:where([data-plex-dialog]) .Content {
+  background: var(--demo-navigation-background, var(--dialog-panel-background, var(--color-surface-elevated)));
+}
+
+.Content[data-entering] {
+  transform: translateX(calc(100% * var(--demo-navigation-sign)));
+}
+
+.Bar[data-entering] {
+  opacity: 0;
+  transform: translateX(calc(24px * var(--demo-navigation-sign)));
+}
+
+/* A repeated tap on Back must not activate the incoming bar action
+   (Close dialog, another Back) that slides in under the same point. */
+.Bar[data-entering],
+.Bar[data-entering] * {
+  pointer-events: none;
+}
+
+:is(.Content, .Bar)[data-exiting] {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.Content[data-exiting] {
+  top: var(--demo-navigation-exit-scroll-offset, 0px);
+}
+
+:is(.Content, .Bar)[data-entering-active],
+:is(.Content, .Bar)[data-entering][data-interrupted] {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.Content[data-exiting-active],
+.Content[data-exiting][data-interrupted] {
+  opacity: 0;
+  transform: translateX(calc(-30% * var(--demo-navigation-sign)));
+}
+
+.Bar[data-exiting-active],
+.Bar[data-exiting][data-interrupted] {
+  opacity: 0;
+  transform: translateX(calc(-24px * var(--demo-navigation-sign)));
+}
+
+:is(.Content, .Bar):is([data-entering-active], [data-exiting-active], [data-interrupted]) {
+  transition: transform var(--motion-enter-large) var(--cubic-enter), opacity var(--motion-enter-large) var(--cubic-enter);
+}
+
+[data-demo-navigation-direction="back"] > .Content[data-entering]:not([data-entering-active], [data-interrupted]) {
+  transform: translateX(calc(-30% * var(--demo-navigation-sign)));
+}
+
+[data-demo-navigation-direction="back"] > .Bar[data-entering]:not([data-entering-active], [data-interrupted]) {
+  transform: translateX(calc(-24px * var(--demo-navigation-sign)));
+}
+
+.Content[data-demo-exit-direction="back"][data-exiting] {
+  z-index: 3;
+}
+
+.Content[data-demo-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted]) {
+  transform: translateX(calc(100% * var(--demo-navigation-sign)));
+}
+
+.Bar[data-demo-exit-direction="back"]:is([data-exiting-active], [data-exiting][data-interrupted]) {
+  transform: translateX(calc(24px * var(--demo-navigation-sign)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Content,
+  .Bar {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  :is(.Content, .Bar)[data-entering] { opacity: 1; }
+  :is(.Content, .Bar)[data-exiting] { visibility: hidden; }
+}

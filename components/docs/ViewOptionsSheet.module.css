@@ -1,0 +1,73 @@
+/* A separate, copyable floating composition. The public tall Sheet stays flush. */
+.Demo {
+  width: 100%;
+  max-width: 480px;
+  height: 480px;
+}
+
+.Sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.Heading {
+  outline: none;
+}
+
+@media (max-width: 767px) {
+  .Demo {
+    max-width: none;
+    height: 100dvh;
+  }
+
+  .Screen {
+    --page-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 54px);
+    --page-content-padding-top: 16px;
+  }
+
+  .FloatingSheet {
+    --dialog-panel-width: calc(100% - 16px);
+    --dialog-panel-max-height: calc(100dvh - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - 24px);
+    --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 46px 46px;
+    --dialog-panel-hidden-transform: translateY(calc(100% + 8px));
+    --dialog-panel-background: var(--mobile-glass-background);
+    --field-group-background: var(--color-background-secondary-soft-alpha);
+    margin: 0 8px 8px;
+    box-shadow: var(--mobile-glass-shadow);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  .FloatingHeader {
+    min-height: 84px;
+    padding: 20px 68px;
+  }
+
+  /* The floating panel owns one glass surface, including its header. */
+  .FloatingHeader::before,
+  .FloatingHeader::after {
+    display: none;
+  }
+
+  .FloatingAction {
+    top: 20px;
+    inset-inline-end: 20px;
+  }
+
+  .FloatingBody {
+    padding-inline: 20px;
+    padding-top: calc(20px + var(--dialog-header-height, 0px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    scroll-padding-top: calc(20px + var(--dialog-header-height, 0px));
+    scroll-padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .Sections {
+    gap: 32px;
+  }
+
+  .Advanced {
+    margin-top: -16px;
+  }
+}

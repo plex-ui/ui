@@ -1,0 +1,30 @@
+.NavigationGlyph {
+    display: block;
+    flex-shrink: 0;
+    width: var(--navigation-button-icon-size, var(--button-icon-size));
+    height: var(--navigation-button-icon-size, var(--button-icon-size));
+}
+
+.NavigationButton:dir(rtl) [data-navigation-glyph="back"] {
+    transform: scaleX(-1);
+}
+
+@media (max-width: 767px) {
+    .NavigationButton[data-navigation-action] {
+        --button-size: var(--navigation-button-size);
+        --button-uniform-size: var(--navigation-button-size);
+    }
+
+    /* SVG boxes normalize visible ink, rather than sizing unrelated icons. */
+    .NavigationButton[data-navigation-action="back"] {
+        --navigation-button-icon-size: var(--navigation-button-back-icon-size);
+    }
+
+    .NavigationButton[data-navigation-action="close"] {
+        --navigation-button-icon-size: var(--navigation-button-close-icon-size);
+    }
+
+    .NavigationButton[data-navigation-action="confirm"] {
+        --navigation-button-icon-size: var(--navigation-button-confirm-icon-size);
+    }
+}

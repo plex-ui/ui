@@ -1,1 +1,1 @@
-export { SelectControl, type DropdownIconType, type SelectControlProps } from "./SelectControl"
+export { SelectControl, DropdownIcon, type DropdownIconType, type SelectControlProps } from "./SelectControl"

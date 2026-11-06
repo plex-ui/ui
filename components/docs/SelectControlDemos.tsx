@@ -1,60 +1,13 @@
 'use client';
 
 import React, { type ComponentType, type SVGProps } from 'react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { Cabinet, CalendarAlt, User, Tools } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import { SelectControl } from '@plexui/ui/components/SelectControl';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const StartIcon = CalendarAlt as ComponentType<SVGProps<SVGSVGElement>>;
 const CabinetIcon = Cabinet as ComponentType<SVGProps<SVGSVGElement>>;
@@ -113,7 +66,7 @@ export function SelectControlVariantsDemo() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <RowMatrix
             rowLabels={VARIANT_OPTIONS}
             renderRow={(row) => (
@@ -403,7 +356,7 @@ function RowMatrix({
       {rowLabels.map((row, rowIndex) => (
         <div key={row} className="flex items-center">
           <div className="text-right text-sm mr-8 min-w-[4rem]" style={{ color: 'var(--color-text-tertiary)' }}>{row}</div>
-          <div className="flex-1">{renderRow(rowIndex)}</div>
+          <div className="min-w-0 flex-1">{renderRow(rowIndex)}</div>
         </div>
       ))}
     </div>

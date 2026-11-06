@@ -90,7 +90,7 @@
 ============================================= */
 @custom-variant hover {
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
       @slot;
     }
   }

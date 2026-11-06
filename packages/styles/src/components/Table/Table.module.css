@@ -40,8 +40,10 @@
       border-bottom: none;
     }
 
-    &:hover {
-      background-color: var(--table-row-hover-background);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:where(:not(:root[data-input="touch"] *)) {
+        background-color: var(--table-row-hover-background);
+      }
     }
   }
 }

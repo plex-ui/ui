@@ -1,46 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CopyTooltip, Tooltip } from '@plexui/ui/components/Tooltip';
+import { CopyTooltip } from '@plexui/ui/components/Tooltip';
+import { Button } from '@plexui/ui/components/Button';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { SliderValueControl } from './SliderValueControl';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const SIDE_OPTIONS = ['top', 'right', 'bottom', 'left'] as const;
 const ALIGN_OPTIONS = ['start', 'center', 'end'] as const;
-
-function DemoControlRow({
-  name,
-  children,
-}: {
-  name: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
 
 export function CopyTooltipBaseDemo() {
   const [openDelay, setOpenDelay] = useState(150);
@@ -116,14 +84,16 @@ export function CopyTooltipBaseDemo() {
       </div>
       <div data-demo-stage>
         <CopyTooltip
-          copyValue="Very cool content to copy"
+          copyValue="sess_12345abcdefg"
           openDelay={openDelay}
           align={align}
           sideOffset={sideOffset}
           side={side}
           alignOffset={alignOffset}
         >
-          <Tooltip.TriggerDecorator>sess_12345abcdefg</Tooltip.TriggerDecorator>
+          <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+            sess_12345abcdefg
+          </Button>
         </CopyTooltip>
       </div>
     </>

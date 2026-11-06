@@ -18,8 +18,10 @@
 }
 
 /* While a drag runs the neighbours of the gap slide apart */
-.Sortable[data-dragging] > * {
-  transition: transform 200ms var(--cubic-enter);
+@media (prefers-reduced-motion: no-preference) {
+  .Sortable[data-dragging] > * {
+    transition: transform 200ms var(--cubic-enter);
+  }
 }
 
 /* A row with a handle: the handle, then the row */
@@ -131,6 +133,18 @@
     width: 1em;
     height: 1em;
   }
+}
+
+/* Keep the desktop grip and the phone reorder symbol independent of the touch target. */
+.Handle > .DesktopGrip {
+  display: var(--sortable-desktop-grip-display, block);
+}
+
+.Handle > .PhoneGrip {
+  display: var(--sortable-phone-grip-display, none);
+  /* Hamburger ink occupies x3…21 of its 24-unit viewBox. */
+  width: calc(var(--sortable-phone-grip-ink-width, 17px) * 24 / 18);
+  height: calc(var(--sortable-phone-grip-ink-width, 17px) * 24 / 18);
 }
 
 /* Important: a page's own rule for every button stands outside the layer of this file */

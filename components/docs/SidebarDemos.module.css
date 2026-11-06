@@ -1,0 +1,38 @@
+.Frame {
+  position: relative;
+}
+
+.Drawer {
+  padding: 0;
+  background: var(--color-surface);
+}
+
+.NavigationContent {
+  --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.NavigationContent :global([class*="Sidebar-module__Content"]) {
+  padding-top: 0;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+@media (max-width: 767px) {
+  .Frame {
+    --sidebar-mobile-button-size: 44px;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .Frame > :global([class*="SidebarLayout"]) {
+    height: 100%;
+  }
+
+  .Inset {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

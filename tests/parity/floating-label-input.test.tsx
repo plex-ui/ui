@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useState, type ReactElement, type ReactNode } from "react"
+import { createElement, StrictMode, useState, type ReactElement, type ReactNode } from "react"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
@@ -446,5 +446,54 @@ describe("FloatingLabelInput SSR and default-value parity", () => {
     )
     expect(vue).toEqual(react)
     expect(shown).toEqual(["original", "original"])
+  })
+})
+
+describe("FloatingLabelInput value and reveal regressions", () => {
+  test("StrictMode reveals once per click, including two clicks in the same batch", async () => {
+    const changed = vi.fn()
+    render(<StrictMode><RFloatingLabelInput label="Password" type="password" onRevealedChange={changed} /></StrictMode>)
+    const toggle = () => document.querySelector<HTMLButtonElement>(".RevealButton")!
+    await interact(() => fireEvent.click(toggle()))
+    expect(changed.mock.calls).toEqual([[true]])
+    await interact(() => fireEvent.click(toggle()))
+    expect(changed.mock.calls).toEqual([[true], [false]])
+    await interact(() => {
+      fireEvent.click(toggle())
+      fireEvent.click(toggle())
+    })
+    expect(changed.mock.calls).toEqual([[true], [false], [true], [false]])
+    expect(document.querySelector("input")?.type).toBe("password")
+  })
+
+  test("numeric zero keeps the label floated and the clear action available", async () => {
+    await walkPairWithState(
+      { value: 0 as string | number },
+      (state) => <RFloatingLabelInput label="Quantity" value={state.value} onChange={noop} onClear={noop} />,
+      (state) => h(FloatingLabelInput, { label: "Quantity", value: state.value, onClear: noop }),
+      async ({ set }) => {
+        const field = () => document.querySelector<HTMLInputElement>("input")!
+        const footprint = () => document.querySelector(".FieldFootprint")!
+        const check = (filled: boolean) => {
+          expect(footprint().hasAttribute("data-has-value")).toBe(filled)
+          expect(footprint().classList.contains("HasValue")).toBe(filled)
+          expect(!!document.querySelector(".ClearButton")).toBe(filled)
+        }
+        expect(field().value).toBe("0")
+        check(true)
+        await set({ value: "" })
+        check(false)
+        await set({ value: 0 })
+        expect(field().value).toBe("0")
+        check(true)
+      },
+    )
+  })
+
+  test("uncontrolled defaultValue zero is visibly filled", async () => {
+    const result = await pair({ label: "Quantity", defaultValue: 0, onClear: noop })
+    expect(result.vue).toBe(result.react)
+    expect(result.react).toContain('data-has-value=""')
+    expect(result.react).toContain('aria-label="Clear input"')
   })
 })

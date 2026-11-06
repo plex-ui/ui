@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
-import { createElement, useSyncExternalStore, type ReactElement, type ReactNode } from "react"
+import { createElement, useSyncExternalStore, type ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { h, reactive, type VNode } from "vue"
 import { Slider as RSlider } from "../../packages/ui/src/components/Slider"
@@ -140,6 +140,19 @@ describe("Slider markup parity", () => {
       () => (form ? h("form", null, [vueSlider(props)]) : vueSlider(props)),
     )
     expect(vue).toBe(react)
+  })
+
+  test.each([
+    ["nonnegative integers", { min: 0, max: 100, step: 1 }, "numeric"],
+    ["nonnegative fractions", { min: 0, max: 1, step: 0.05 }, "decimal"],
+    ["fractional bounds", { min: 0.5, max: 10.5, step: 1 }, "decimal"],
+    ["signed integers", { min: -10, max: 10, step: 1 }, "text"],
+    ["signed fractions", { min: -1, max: 1, step: 0.05 }, "text"],
+  ])("%s offer a keyboard that can enter all allowed characters", async (_name, bounds, mode) => {
+    const props = { label: "Value", value: bounds.min, ...bounds }
+    const { react, vue } = await renderPair(reactSlider(props), () => vueSlider(props))
+    expect(vue).toBe(react)
+    expect(react).toContain(`inputmode="${mode}"`)
   })
 
   test("below the md breakpoint the value input is wider per character", async () => {
@@ -604,6 +617,103 @@ describe("Slider pointer parity", () => {
 })
 
 describe("Slider value input parity", () => {
+  test("disabling cancels pending typing immediately and blocks reset and blur commits", async () => {
+    const result = await sliderWalk({ ...BASE, resetValue: 500 }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("733")
+      await t.advance(100)
+      await t.set({ disabled: true })
+      expect($<HTMLInputElement>("input.ValueInput").disabled).toBe(true)
+      expect($<HTMLButtonElement>(".Reset").disabled).toBe(true)
+      expect($(".Slider").hasAttribute("data-disabled")).toBe(true)
+      expect(thumbs()[0].hasAttribute("data-disabled")).toBe(true)
+      await t.fire(".Reset", "click")
+      await t.fire("input.ValueInput", "keyDown", { key: "End" })
+      await t.blur()
+      await t.advance(300)
+      t.snapshot()
+      await t.set({ disabled: false })
+      await t.advance(300)
+      t.snapshot()
+      expect($<HTMLInputElement>("input.ValueInput").value).toBe("1000")
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual([])
+  })
+
+  test("disabling then enabling before the debounce expires does not revive the discarded draft", async () => {
+    const result = await sliderWalk({ ...BASE }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("733")
+      await t.set({ disabled: true })
+      await t.set({ disabled: false })
+      await t.advance(300)
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual([])
+  })
+
+  test("reset supersedes a pending typed value even while the input still has focus", async () => {
+    const result = await sliderWalk({ ...BASE, resetValue: 500 }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("733")
+      await t.fire(".Reset", "click")
+      await t.advance(300)
+      t.snapshot()
+      expect($<HTMLInputElement>("input.ValueInput").value).toBe("500")
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual(["change 500"])
+  })
+
+  test.each([false, true])("reset respects a controlled owner that refuses the requested value (focused=%s)", async (focused) => {
+    const result = await sliderWalk({ ...BASE, value: 500, resetValue: 1000 }, "fixed", async (t) => {
+      if (focused) {
+        await t.focus("input.ValueInput")
+        await t.type("733")
+      }
+      await t.fire(".Reset", "click")
+      await t.advance(300)
+      t.snapshot()
+      expect($<HTMLInputElement>("input.ValueInput").value).toBe("500")
+      expect(thumbs()[0].getAttribute("aria-valuenow")).toBe("500")
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual(["change 1000"])
+  })
+
+  test.each([false, true])("decimal comma is normalized, including signed values (negative=%s)", async (negative) => {
+    const result = await sliderWalk({ label: "Ratio", min: negative ? -1 : 0, max: 1, step: 0.05, value: 0 }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type(negative ? " -0,456 " : "0,456")
+      await t.advance(250)
+      await t.blur()
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual(negative ? ["change -0.456", "change -0.46"] : ["change 0.456", "change 0.46"])
+  })
+
+  test("a partial number cancels an older pending valid draft", async () => {
+    const result = await sliderWalk({ label: "Value", min: -10, max: 10, step: 0.1, value: 0 }, "controlled", async (t) => {
+      await t.focus("input.ValueInput")
+      await t.type("5")
+      await t.type("-")
+      await t.advance(300)
+      t.snapshot()
+    })
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog.filter((entry) => entry.startsWith("change"))).toEqual([])
+    expect(result.react[0]).toContain('value="-"')
+  })
+
   test("typing reports the parsed value after 250ms; the input keeps the text", async () => {
     const result = await sliderWalk({ ...BASE }, "controlled", async (t) => {
       await t.focus("input.ValueInput")

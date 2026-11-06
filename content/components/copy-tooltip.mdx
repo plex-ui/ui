@@ -6,14 +6,17 @@ metaDescription: React copy-to-clipboard tooltip that wraps any trigger element 
 
 import { CopyTooltipBaseDemo } from "@/components/docs/CopyTooltipDemo"
 
-<UsageBlock>{`import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip";`}</UsageBlock>
+<UsageBlock>{`import { CopyTooltip } from "@plexui/ui/components/Tooltip";
+import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`<CopyTooltip copyValue="Very cool content to copy">
-  <Tooltip.TriggerDecorator>sess_12345abcdefg</Tooltip.TriggerDecorator>
+<ComponentPreview code={`<CopyTooltip copyValue="sess_12345abcdefg">
+  <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
+    sess_12345abcdefg
+  </Button>
 </CopyTooltip>`} previewMinHeight={168}>
   <CopyTooltipBaseDemo />
 </ComponentPreview>

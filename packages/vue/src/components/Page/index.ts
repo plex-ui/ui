@@ -6,9 +6,12 @@ export {
   PageFooter,
   PageHeader,
   PageHeading,
+  PageLeading,
   PageSubtitle,
   PageTitle,
   type PageProps,
+  type PageFooterProps,
+  type PageBarBackground,
   type PageSlotProps,
   type PageWidth,
 } from "./Page.js"

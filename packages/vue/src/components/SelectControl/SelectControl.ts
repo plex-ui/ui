@@ -2,26 +2,15 @@ import clsx, { type ClassValue } from "clsx"
 import { defineComponent, h, shallowRef, type Component, type HTMLAttributes, type PropType } from "vue"
 import type { ControlSize, Variants } from "@plexui/styles/types"
 import { handlePressableMouseEnter } from "../../lib/helpers.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
+import { isNestedSelectControl } from "../../lib/selectPress.js"
 import { Button } from "../Button/index.js"
 import { ChevronDown, Dropdown, X } from "../Icon/index.js"
 import { LoadingIndicator } from "../Indicator/index.js"
 import s from "@plexui/styles/components/SelectControl/SelectControl.module.css"
 
-// Vue port of packages/ui/src/components/SelectControl/SelectControl.tsx.
-// - The control is a <span role="button"> that rebuilds <button> semantics,
-//   as in React. Every attribute that is not a prop lands on it after the
-//   control's own attributes (React spreads its rest props last), and an
-//   `onClick` listener is dropped: the control opens on pointer down, like a
-//   native select.
-// - `onClearClick` and `onInteract` are function props (`@clear-click`,
-//   `@interact` in templates): the first one's presence adds the clear
-//   button, the second one's changes what pointer down and the keyboard do.
-// - `@pointerdown`, `@keydown` and `@pointerenter` listeners are called the
-//   way React calls `onPointerDown`, `onKeyDown` and `onPointerEnter`: only
-//   while the control is interactive, `@keydown` only for keys the control
-//   does not handle, and `@pointerdown` (plus `@click`) only without
-//   `onInteract`. This is how a parent trigger (MenuTrigger, PopoverTrigger)
-//   opens its content from the control.
+// Mouse press-drag-select and touch/assistive click activation mirror React.
+// Nested clear controls keep their own button semantics.
 
 export type DropdownIconType = "chevronDown" | "dropdown" | "none"
 
@@ -71,6 +60,7 @@ const SelectControlComponent = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const controlRef = shallowRef<HTMLSpanElement | null>(null)
+    let mouseClickHandled = false
 
     // Act like a <button> and fire the click handler on keyboard actions
     const handleKeyDown = (evt: KeyboardEvent) => {
@@ -79,6 +69,8 @@ const SelectControlComponent = defineComponent({
       if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) {
         return
       }
+      callListener(attrs.onKeydown, evt)
+      if (evt.defaultPrevented || evt.isComposing || evt.keyCode === 229) return
       switch (evt.key) {
         case "Enter":
         case "ArrowDown":
@@ -92,63 +84,62 @@ const SelectControlComponent = defineComponent({
           evt.stopPropagation()
           evt.preventDefault()
 
-          if (props.onInteract) {
-            props.onInteract()
-          } else {
-            // Otherwise, send a synthetic trigger event to the parent trigger
-            controlRef.value?.dispatchEvent(
-              new PointerEvent("pointerdown", {
-                bubbles: true,
-                cancelable: true,
-                pointerType: "mouse", // mimic mouse interaction
-              }),
-            )
-          }
+          controlRef.value?.click()
           break
         default:
-          // Allow all other key presses through
-          callListener(attrs.onKeydown, evt)
+          break
       }
     }
 
     const handlePointerDown = (evt: PointerEvent) => {
-      // Don't trigger on right clicks
-      if (evt.button === 2) {
+      mouseClickHandled = false
+      if (isNestedSelectControl(evt)) return
+      callListener(attrs.onPointerdown, evt)
+      if (evt.defaultPrevented) {
+        mouseClickHandled = true
         return
       }
-
-      // Prevent focus from entering the click target of the select
-      // so that focus correctly moves into the menu.
+      if (evt.button !== 0) return
+      if (evt.pointerType === "pen" || !isHoverPointer(evt)) return
       evt.stopPropagation()
-
+      mouseClickHandled = true
       if (props.onInteract) {
         evt.preventDefault()
         props.onInteract()
       } else {
-        // NOTE: cannot preventDefault() here, for the parent trigger
-        callListener(attrs.onPointerdown, evt)
-        // A parent trigger may also pass `onClick` (React's <Popover.Trigger> does).
-        // This component opens on pointer down, so call it here, assuming that
-        // `onPointerdown` is not going to be responsible for opening.
         callListener(attrs.onClick, evt)
       }
+    }
+
+    const handleClick = (evt: MouseEvent) => {
+      const handled = mouseClickHandled
+      mouseClickHandled = false
+      if (props.disabled || props.loading || evt.defaultPrevented || evt.button !== 0 || isNestedSelectControl(evt)) return
+      if (handled && evt.detail !== 0) return
+      evt.stopPropagation()
+      if (props.onInteract) props.onInteract()
+      else callListener(attrs.onClick, evt)
     }
 
     const handleClearClick = (evt: MouseEvent) => {
       evt.stopPropagation()
       evt.preventDefault()
+      if (props.disabled || props.loading) return
+      // The clear button disappears when the value becomes empty.
+      controlRef.value?.focus({ preventScroll: true })
       props.onClearClick?.()
     }
 
     return () => {
       const {
         class: className,
-        onPointerdown: _onPointerdown,
-        onKeydown: _onKeydown,
         onPointerenter,
-        onClick: _onClick,
         ...restAttrs
       } = attrs as Record<string, unknown> & { onPointerenter?: Listener }
+      delete restAttrs.onPointerdown
+      delete restAttrs.onPointercancel
+      delete restAttrs.onKeydown
+      delete restAttrs.onClick
       const { disabled, loading, selected, pill, dropdownIconType, StartIcon } = props
       const clearable = !!props.onClearClick
       const showClearAction = clearable && selected && !loading && !disabled
@@ -183,6 +174,11 @@ const SelectControlComponent = defineComponent({
           "data-disabled": disabled ? "" : undefined,
           "aria-disabled": disabled,
           ...restAttrs,
+          "onClick": handleClick,
+          "onPointercancel": (evt: PointerEvent) => {
+            mouseClickHandled = false
+            callListener(attrs.onPointercancel, evt)
+          },
         },
         [
           StartIcon ? h(StartIcon, { class: s.StartIcon }) : null,
@@ -242,7 +238,17 @@ export const DropdownIcon = defineComponent({
   setup(props) {
     return () =>
       props.iconType === "chevronDown"
-        ? h(ChevronDown, { class: clsx(s.DropdownIcon, s.DropdownIconChevron) })
-        : h(Dropdown, { class: s.DropdownIcon })
+        ? h(ChevronDown, { "data-no-autosize": "", class: clsx(s.DropdownIcon, s.DropdownIconChevron) })
+        : h("span", { class: s.DropdownIcon, "aria-hidden": "true" }, [
+            h(Dropdown, { "data-no-autosize": "", class: s.DropdownGlyph }),
+            h("svg", { "data-no-autosize": "", class: s.MobileDropdownGlyph, width: "20", height: "20", viewBox: "0 0 20 20", fill: "none", "aria-hidden": "true" }, [
+              h("path", {
+                d: "M9.41074 2.74408C9.73618 2.41864 10.2638 2.41864 10.5893 2.74408L14.7559 6.91074C15.0814 7.23618 15.0814 7.76382 14.7559 8.08926C14.4305 8.41469 13.9028 8.41469 13.5774 8.08926L10 4.51184L6.42259 8.08926C6.09715 8.41469 5.56951 8.41469 5.24408 8.08926C4.91864 7.76382 4.91864 7.23618 5.24408 6.91074L9.41074 2.74408ZM5.24408 11.9107C5.56951 11.5853 6.09715 11.5853 6.42259 11.9107L10 15.4882L13.5774 11.9107C13.9028 11.5853 14.4305 11.5853 14.7559 11.9107C15.0814 12.2362 15.0814 12.7638 14.7559 13.0893L10.5893 17.2559C10.2638 17.5814 9.73618 17.5814 9.41074 17.2559L5.24408 13.0893C4.91864 12.7638 4.91864 12.2362 5.24408 11.9107Z",
+                fill: "currentColor",
+                "fill-rule": "evenodd",
+                "clip-rule": "evenodd",
+              }),
+            ]),
+          ])
   },
 })

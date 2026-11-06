@@ -4,14 +4,16 @@ description: Modal dialog for confirmations, forms, and destructive alerts, with
 metaDescription: Accessible Vue 3 modal dialog component for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 ---
 
+import { VueSegmentedComposerDemo } from "@/components/docs/vue/VueSegmentedComposerDemo"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueDialogPlacementDemo } from "@/components/docs/vue/VueDialogDemos"
+import detailsStyles from "@/components/docs/DialogDetailsDemos.module.css"
+import { VueDialogDetailsDemo, VueDialogPlacementDemo, VueDialogViewOptionsDemo } from "@/components/docs/vue/VueDialogDemos"
 
 export const overview = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open dialog</Button>
   </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Unsaved changes</DialogTitle></div>
       <DialogDescription>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</DialogDescription>
@@ -29,7 +31,7 @@ export const destructive = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="danger" variant="outline">Delete</Button>
   </DialogTrigger>
-  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Delete assistant?</DialogTitle></div>
       <DialogDescription>
@@ -62,13 +64,13 @@ export const body = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Review terms</Button>
   </DialogTrigger>
-  <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+  <DialogContent mobile-variant="sheet" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Terms of service</DialogTitle></div>
       <DialogDescription>Please read them before you continue.</DialogDescription>
     </DialogHeader>
     <DialogBody>
-      <div class="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+      <div class="flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
         <p v-for="(term, index) in [...terms, ...terms]" :key="index">{{ term }}</p>
       </div>
     </DialogBody>
@@ -85,7 +87,7 @@ export const placement = `<Dialog v-model:open="open">
   <DialogTrigger>
     <Button color="secondary" variant="outline">Open filters</Button>
   </DialogTrigger>
-  <DialogContent mobile-variant="sheet" :mobile-placement="placement === 'fullscreen' ? 'fullscreen' : 'bottom'" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
+  <DialogContent mobile-variant="sheet" :mobile-placement="placement === 'fullscreen' ? 'fullscreen' : 'bottom'" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })" :placement="placement" :width="placement === 'start' || placement === 'end' ? 360 : 480">
     <DialogHeader>
       <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Filters</DialogTitle></div>
       <DialogDescription>Narrow the list down.</DialogDescription>
@@ -198,7 +200,7 @@ export const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://pr
 export const detailTemplate = `<div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -212,12 +214,12 @@ export const detailTemplate = `<div class="flex flex-col items-center gap-4">
         </DialogHeaderAction>
       </DialogHeader>
       <DialogBody>
-        <div class="flex flex-col gap-5 py-2">
+        <div class="${detailsStyles.Content} flex flex-col gap-5 py-2">
           <template v-for="(group, index) in (sections ? groups : groups.slice(0, 1))" :key="group.title">
             <Separator v-if="index > 0" />
-            <section class="flex flex-col gap-4" :aria-label="group.title">
+            <section data-detail-section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
-                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{{ group.title }}</h3>
+                <h3 data-detail-heading class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
                 <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
@@ -227,16 +229,16 @@ export const detailTemplate = `<div class="flex flex-col items-center gap-4">
                   </Menu>
                 </div>
               </div>
-              <dl class="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
-                <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+              <dl data-detail-list class="space-y-4 text-sm">
+                <div data-detail-row v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
                   <dt class="text-secondary">{{ row.label }}</dt>
                   <dd class="min-w-0 sm:col-span-3">
                     <Badge v-if="row.label === 'Status'" :color="paused ? 'secondary' : 'success'" size="sm">{{ paused ? 'Paused' : 'Active' }}</Badge>
-                    <div v-else-if="row.copy" class="space-y-4">
+                    <div data-detail-values v-else-if="row.copy" class="space-y-4">
                       <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
-                        <CopyTooltip :copy-value="value">
-                          <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
-                            <span class="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                        <CopyTooltip :copy-value="value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
+                          <Button data-detail-copy color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
+                            <span data-detail-value class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
                           </Button>
                         </CopyTooltip>
                       </div>
@@ -263,6 +265,9 @@ import { DotsHorizontal } from '@plexui/vue/components/Icon';
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@plexui/vue/components/Menu';
 import { Separator } from '@plexui/vue/components/Separator';
 import { CopyTooltip } from '@plexui/vue/components/Tooltip';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+
+const wide = useBreakpoint('md');
 
 const initialOpen = false;
 const open = ref(initialOpen);
@@ -364,7 +369,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
 <div class="flex flex-col items-center gap-4">
   <Dialog v-model:open="open">
     <DialogTrigger v-if="!initialOpen || !open"><Button color="secondary" variant="outline">{{ long ? 'View long details' : sections ? 'View application' : 'View details' }}</Button></DialogTrigger>
-    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus()">
+    <DialogContent mobile-variant="sheet" :width="640" @open-auto-focus="$event.preventDefault(); $refs.heading.focus({ preventScroll: true })">
       <DialogHeader>
         <div ref="heading" tabindex="-1" class="outline-none"><DialogTitle>Application details</DialogTitle></div>
         <DialogDescription class="sr-only">Application metadata and registered platforms.</DialogDescription>
@@ -378,12 +383,12 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
         </DialogHeaderAction>
       </DialogHeader>
       <DialogBody>
-        <div class="flex flex-col gap-5 py-2">
+        <div class="details-content flex flex-col gap-5 py-2">
           <template v-for="(group, index) in (sections ? groups : groups.slice(0, 1))" :key="group.title">
             <Separator v-if="index > 0" />
-            <section class="flex flex-col gap-4" :aria-label="group.title">
+            <section data-detail-section class="flex flex-col gap-4" :aria-label="group.title">
               <div v-if="sections" class="flex items-center justify-between gap-4">
-                <h3 class="text-xs font-medium uppercase tracking-wide text-tertiary max-[640px]:text-[length:var(--field-group-description-font-size)] max-[640px]:leading-[var(--field-group-description-line-height)]">{{ group.title }}</h3>
+                <h3 data-detail-heading class="text-xs font-medium uppercase tracking-wide text-tertiary">{{ group.title }}</h3>
                 <div v-if="showActions && group.title === 'Web'" class="-my-2 flex shrink-0">
                   <Menu>
                     <MenuTrigger><Button color="secondary" variant="ghost" size="md" uniform :aria-label="group.title + ' actions'"><DotsHorizontal /></Button></MenuTrigger>
@@ -393,16 +398,16 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
                   </Menu>
                 </div>
               </div>
-              <dl class="space-y-4 text-sm max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
-                <div v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
+              <dl data-detail-list class="space-y-4 text-sm">
+                <div data-detail-row v-for="row in group.rows" :key="row.label" class="grid grid-cols-1 items-start gap-x-4 gap-y-1 sm:grid-cols-4">
                   <dt class="text-secondary">{{ row.label }}</dt>
                   <dd class="min-w-0 sm:col-span-3">
                     <Badge v-if="row.label === 'Status'" :color="paused ? 'secondary' : 'success'" size="sm">{{ paused ? 'Paused' : 'Active' }}</Badge>
-                    <div v-else-if="row.copy" class="space-y-4">
+                    <div data-detail-values v-else-if="row.copy" class="space-y-4">
                       <div v-for="value in (row.label === 'Origins' ? ['https://app.plexui.com', ...(localhost ? ['http://localhost:5173'] : []), ...(long ? extraOrigins : [])] : row.values)" :key="value">
-                        <CopyTooltip :copy-value="value">
-                          <Button color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
-                            <span class="flex min-w-0 font-mono text-xs max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
+                        <CopyTooltip :copy-value="value" :side-offset="wide ? 5 : 24" :align="wide ? 'center' : 'start'">
+                          <Button data-detail-copy color="secondary" variant="ghost" size="sm" optically-align="start" class="-my-1 max-w-full" :aria-label="'Copy ' + row.label + ' ' + value">
+                            <span data-detail-value class="flex min-w-0 font-mono text-xs"><span class="truncate">{{ value.slice(0, -6) }}</span><span class="shrink-0">{{ value.slice(-6) }}</span></span>
                           </Button>
                         </CopyTooltip>
                       </div>
@@ -419,6 +424,90 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
   </Dialog>
 </div>
 </template>
+
+<style>
+/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .details-content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .details-content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .details-content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .details-content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .details-content [data-detail-row]:has([data-detail-copy]),
+  .details-content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .details-content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .details-content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .details-content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .details-content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .details-content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .details-content [data-detail-copy]::before,
+  .details-content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .details-content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}
+</style>
 `
 
 <UsageBlock>{`import {
@@ -434,7 +523,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
   DialogTrigger,
 } from "@plexui/vue/components/Dialog";`}</UsageBlock>
 
-At 640px and below, `mobile-variant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobile-variant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
+At 767px and below, `mobile-variant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobile-variant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
 
 Alert actions wrap onto separate rows when their labels need more space. Set `<DialogFooter mobile-layout="stacked">` when the actions should always stack. Put long sheet content in `DialogBody` to keep the header and actions visible while the body scrolls.
 
@@ -442,49 +531,81 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 ### Overview
 
-<ComponentPreview phoneDialog language="vue" code={overview} previewMinHeight={120}>
-  <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" code={overview} previewMinHeight={120}>
+  <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Destructive confirmation
 
-<ComponentPreview phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
-  <VueDemo template={destructive} phoneTemplate={destructive.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
+  <VueDemo template={destructive} phoneTemplate={destructive.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
 </ComponentPreview>
 
 ### Metadata details
 
-<ComponentPreview phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" code={detailCode} details={<>Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.</>} previewMinHeight={160}>
+  <VueDialogDetailsDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true, initialOpen: true }} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: false, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Sections and actions
 
-<ComponentPreview description="Grouped metadata with menus for application and platform actions." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. DialogHeaderAction keeps application actions on the same row as Close. Web actions stay beside the section heading. The menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
+<ComponentPreview phonePresentation="screen" description="Grouped metadata with menus for application and platform actions." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true')} details={<>Separator has the same gap on either side. DialogHeaderAction keeps application actions on the same row as Close. Web actions stay beside the section heading. The menus update only this example: pause the application or remove and restore localhost. Turn off showActions to compare the read-only layout.</>} previewMinHeight={160}>
+  <VueDialogDetailsDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: false, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Long details
 
-<ComponentPreview description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
-  <VueDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
+<ComponentPreview phonePresentation="screen" description="The same layout with 24 additional origins. Scroll the body while the heading and Close button stay in place." phoneDialog language="vue" code={detailCode.replace('sections = false', 'sections = true').replace('long = false', 'long = true')} details={<>DialogBody scrolls while the header and Close button remain visible. Labels stack above values at narrow widths. Phone preview opens the dialog immediately so you can inspect the layout without resizing the page.</>} previewMinHeight={160}>
+  <VueDialogDetailsDemo template={detailTemplate} phoneTemplate={detailTemplate.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true, initialOpen: true }} controls={[{ name: "showActions", type: "boolean", default: true }]} stageClassName="py-10 flex justify-center" state={{ initialOpen: false, open: false, showActions: true, paused: false, localhost: true, sections: true, long: true, groups: detailGroups, extraOrigins }} />
 </ComponentPreview>
 
 ### Scrolling body
 
-<ComponentPreview phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
-  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
+  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
 ### Placement
 
-<ComponentPreview description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 640px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
+<ComponentPreview phonePresentation="screen" description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 767px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
   <VueDialogPlacementDemo
-    template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"')}
+    template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')}
     phoneState={{ open: true }}
     stageClassName="py-10 flex justify-center"
     state={{ open: false }}
   />
+</ComponentPreview>
+
+### Floating view options
+
+A compact sheet for preferences that take effect immediately. On phones it floats 8px from the sides and bottom, with rounded lower corners. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
+
+Copy the [ViewOptionsSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/ViewOptionsSheet.ts), [option data](https://github.com/plex-ui/ui/blob/master/components/docs/viewOptionsData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.module.css) together, preserving their relative paths. The helper composes Dialog, FieldGroup, Field, Select and Switch. Its controlled `v-model:value` connects the choices to your application.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`<script setup lang="ts">
+import { ViewOptionsSheetDemo } from './vue/ViewOptionsSheet';
+</script>
+
+<template>
+  <ViewOptionsSheetDemo />
+</template>`}>
+  <VueDialogViewOptionsDemo />
+</ComponentPreview>
+
+### Segmented composer header
+
+A Close action, an Event/Reminder segmented control, and a Save action share the sheet header. Switching the segment changes the fields while preserving each draft. Save commits the selected local sample; Close, Escape, or outside dismissal discards unsaved edits. These sample values do not create calendar items. In Phone previews the sheet stays open after Save or Cancel so its state remains inspectable.
+
+Copy the [SegmentedComposer helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/SegmentedComposer.ts), [draft data](https://github.com/plex-ui/ui/blob/master/components/docs/segmentedComposerData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/SegmentedComposer.module.css) together, preserving their relative paths. The helper uses Dialog, SegmentedControl, FieldGroup, Field, Input, Textarea, DatePicker and Switch.
+
+<ComponentPreview phonePresentation="screen" phoneDialog code={`<script setup>
+import { SegmentedComposer } from './vue/SegmentedComposer';
+</script>
+
+<template>
+  <SegmentedComposer surface="grouped" />
+</template>`}>
+  <VueSegmentedComposerDemo />
 </ComponentPreview>
 
 ## API
@@ -499,19 +620,20 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 **DialogContent**
 
 <PropsTable data={[
+  { prop: "surface", type: '"plain" | "grouped"', default: '"plain"', description: "Mobile panel and field-group palette. Dark dialogs use elevated surface levels; desktop colors stay unchanged" },
   { prop: "width", type: "number | string", default: "480", description: "Panel width. Mobile alert uses its compact width; a bottom sheet fills the viewport width" },
   { prop: "show-close", type: "boolean", default: "true", description: "Show the built-in close button. Mobile sheet places it at the leading edge; mobile alert hides it" },
   { prop: "class", type: "string", description: "Additional CSS class on the panel" },
   { prop: "placement", type: '"center" | "top" | "bottom" | "start" | "end" | "fullscreen"', default: '"center"', description: "Where the panel sits: centered, near the top, a bottom sheet, a side panel, or the whole screen" },
-  { prop: "mobile-variant", type: '"alert" | "sheet"', description: "Mobile appearance at 640px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
-  { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 640px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
+  { prop: "mobile-variant", type: '"alert" | "sheet"', description: "Mobile appearance at 767px and below. Alert is compact and centered; sheet defaults to the bottom. Omit for the standard appearance" },
+  { prop: "mobile-placement", type: '"center" | "bottom" | "fullscreen"', description: "Placement at 767px and below. Defaults to bottom for sheet, otherwise placement. Alert stays centered" },
   { prop: "@open-auto-focus", type: "(event: Event) => void", description: "Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field" },
   { prop: "@close-auto-focus", type: "(event: Event) => void", description: "Called when focus returns on close; call event.preventDefault() to keep it elsewhere" },
 ]} />
 
 **DialogTrigger**: opens the dialog; renders its child element (Reka's `as-child`).
 
-**DialogHeader**: wrapper for title, description and an optional header action.
+**DialogHeader**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. Set `background="solid"` for an opaque bar or keep `background="glass"` for a translucent blurred surface.
 
 **DialogHeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it inside DialogHeader and label icon-only controls. Mobile alerts hide this slot.
 
@@ -524,15 +646,19 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 **DialogFooter**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 
 <PropsTable data={[
-  { prop: "mobile-layout", type: '"inline" | "stacked"', description: "Action layout at 640px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
+  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged" },
+  { prop: "mobile-layout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
 ]} />
 
 **DialogClose**: closes the dialog when its child is activated.
 
 ## Styling
 
+Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and glass/solid bars.
+
 Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
+- `--dialog-panel-background`: panel and solid bar color; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 

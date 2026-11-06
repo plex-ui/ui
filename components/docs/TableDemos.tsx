@@ -14,12 +14,8 @@ import {
 } from '@plexui/ui/components/DataTable';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Switch } from '@plexui/ui/components/Switch';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { useDemoControlSync } from './PreviewEmbed';
 
 const controlRowStyle: React.CSSProperties = {
   display: 'flex',
@@ -69,27 +65,6 @@ const moneyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
   maximumFractionDigits: 0,
 });
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (value: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>
-        {name}
-      </label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
 
 export function TableSortingDemo() {
   const columns: ColumnDef<User>[] = useMemo(
@@ -244,6 +219,7 @@ export function TableCellVariantsDemo() {
 
 export function TableFilteringDemo() {
   const [globalFilter, setGlobalFilter] = useState('');
+  useDemoControlSync('globalFilter', globalFilter, setGlobalFilter);
   const filterInputId = useId();
 
   const columns: ColumnDef<User>[] = useMemo(
@@ -363,28 +339,20 @@ export function TableColumnVisibilityDemo() {
   );
 }
 
-export function TableEmptyStateDemo() {
-  const columns: ColumnDef<User>[] = useMemo(
-    () => [
-      { accessorKey: 'id', header: 'ID' },
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'email', header: 'Email' },
-      { accessorKey: 'status', header: 'Status' },
-    ],
-    [],
-  );
-
-  return (
-    <div data-demo-stage className="py-6 px-2 w-full">
-      <DataTable columns={columns} data={[]} emptyMessage="No users found." />
-    </div>
-  );
-}
-
 const VARIANTS = ['default', 'bordered'] as const;
+const EMPTY_MESSAGE_OPTIONS = ['default', 'text', 'rich'] as const;
+const EMPTY_MESSAGES = {
+  default: undefined,
+  text: 'No users found.',
+  rich: <strong>No users found.</strong>,
+};
+const VARIANT_USERS = users.slice(0, 6);
+const EMPTY_USERS: User[] = [];
 
 export function TableVariantDemo() {
   const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('bordered');
+  const [empty, setEmpty] = useState(false);
+  const [emptyMessage, setEmptyMessage] = useState<(typeof EMPTY_MESSAGE_OPTIONS)[number]>('text');
 
   const columns: ColumnDef<User>[] = useMemo(
     () => [
@@ -407,8 +375,7 @@ export function TableVariantDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <div style={controlRowStyle}>
-          <span style={controlLabelStyle}>variant</span>
+        <DemoControlRow name="variant">
           <SegmentedControl<(typeof VARIANTS)[number]>
             value={variant}
             onChange={setVariant}
@@ -421,10 +388,20 @@ export function TableVariantDemo() {
               </SegmentedControl.Option>
             ))}
           </SegmentedControl>
-        </div>
+        </DemoControlRow>
+        <DemoControlBoolean name="empty" value={empty} onChange={setEmpty} />
+        <DemoControlRow name="emptyMessage">
+          <SegmentedControl<(typeof EMPTY_MESSAGE_OPTIONS)[number]>
+            value={emptyMessage} onChange={setEmptyMessage} aria-label="emptyMessage" size="xs">
+            {EMPTY_MESSAGE_OPTIONS.map((option) => (
+              <SegmentedControl.Option key={option} value={option}>{option}</SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
       </div>
       <div data-demo-stage className="py-6 px-2 w-full">
-        <DataTable columns={columns} data={users.slice(0, 6)} variant={variant} pageSize={Infinity} />
+        <DataTable columns={columns} data={empty ? EMPTY_USERS : VARIANT_USERS}
+          variant={variant} pageSize={Infinity} emptyMessage={EMPTY_MESSAGES[emptyMessage]} />
       </div>
     </>
   );

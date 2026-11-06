@@ -51,6 +51,7 @@ export const DateRangeTrigger = (props: ComponentProps<"span">) => {
       block={block}
       size={size}
       disabled={disabled}
+      interactOnEnter
       StartIcon={triggerShowIcon && !isStepperView ? Calendar : undefined}
       dropdownIconType={!isStepperView ? dropdownIconType : "none"}
       onClearClick={clearable && !isStepperView ? handleClearClick : undefined}

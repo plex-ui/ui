@@ -21,10 +21,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Avatar } from '@plexui/ui/components/Avatar';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
-import { Page } from '@plexui/ui/components/Page';
 import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Switch } from '@plexui/ui/components/Switch';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import {
    Abc,
@@ -42,7 +40,6 @@ import {
    CameraPhoto,
    Chat,
    CheckCheck,
-   CheckCircle,
    CheckMd,
    CheckboxChecked,
    ChevronDownMd,
@@ -55,7 +52,6 @@ import {
    CreditCard,
    Cube,
    Desktop,
-   DotsHorizontal,
    FileDocument,
    Filter,
    FilterBadge,
@@ -75,7 +71,6 @@ import {
    Members,
    Number123,
    PanelBottom,
-   PastedText,
    Phone,
    Plus,
 
@@ -94,7 +89,6 @@ import {
  } from '@plexui/ui/components/Icon';
 import { Menu } from '@plexui/ui/components/Menu';
 import {
-  Sidebar,
   SidebarCard,
   SidebarCardContent,
   SidebarCardFooter,
@@ -106,7 +100,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarInput,
-  SidebarInset,
   SidebarLayout,
   SidebarMenu,
   SidebarMenuBadge,
@@ -119,12 +112,13 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarMobileMenuButton,
-  SidebarProvider,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from '@plexui/ui/components/Sidebar';
+
+import { ResponsiveSidebar as Sidebar, ResponsiveSidebarProvider as SidebarProvider, SidebarDemoPage } from './SidebarDemosFrame';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 // =============================================
 // Shared data
@@ -152,7 +146,8 @@ const resourcesNavItems = [
 // =============================================
 
 function DemoSidebarHeader({ title = 'App' }: { title?: string } = {}) {
-  const { state, collapsible } = useSidebar();
+  const { state, collapsible, isMobile } = useSidebar();
+  if (isMobile) return null;
   const isCollapsed = state === 'collapsed';
   // SidebarTrigger toggles on its own click; the Tooltip only adds the hint
   const trigger = (
@@ -280,12 +275,9 @@ export function SidebarBaseDemo() {
               )}
             </Sidebar>
 
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">Main content area.</p>
-              </div>
-            </SidebarInset>
+              </SidebarDemoPage>
           </SidebarLayout>
         </SidebarProvider>
     </div>
@@ -398,14 +390,11 @@ function SidebarCollapsibleIconDemoPreview() {
               </SidebarContent>
             </Sidebar>
 
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">
                   Uses <code>collapsible=&quot;icon&quot;</code>. Tooltips appear when collapsed.
                 </p>
-              </div>
-            </SidebarInset>
+              </SidebarDemoPage>
           </SidebarLayout>
         </SidebarProvider>
     </div>
@@ -706,14 +695,11 @@ export function SidebarNestedDemo() {
                 </SidebarContent>
               </Sidebar>
 
-              <SidebarInset>
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
+              <SidebarDemoPage title={activeItem.label}>
                   <p className="text-secondary">
                     Documentation page for {activeItem.label}. This is where the content would be displayed.
                   </p>
-                </div>
-               </SidebarInset>
+                </SidebarDemoPage>
             </SidebarLayout>
           </SidebarProvider>
       </div>
@@ -836,7 +822,25 @@ function flattenByType(
   return result;
 }
 
+function TreeDisclosure({ label, expanded, controls, onToggle, trailing = false }: {
+  label: string;
+  expanded: boolean;
+  controls: string;
+  onToggle: () => void;
+  trailing?: boolean;
+}) {
+  return (
+    <Button variant="ghost" color="secondary" size="xs" uniform
+      className={trailing ? '!size-[26px] max-md:!size-11 [&_svg]:!size-4' : '!size-6 max-md:!size-11 [&_svg]:!size-4'}
+      aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
+      aria-expanded={expanded} aria-controls={controls} onClick={onToggle}>
+      <ChevronDownMd aria-hidden="true" style={{ transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }} />
+    </Button>
+  );
+}
+
 export function SidebarFilteredTreeDemo() {
+  const treeId = useId();
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(
@@ -878,7 +882,11 @@ export function SidebarFilteredTreeDemo() {
           const chevronOnly = expandMode === 'chevron';
           return (
             <SidebarMenuItem key={item.id} expanded={isExpanded}>
+              <div className="flex items-center">
               <SidebarMenuButton
+                className="!w-auto min-w-0 flex-1"
+                aria-expanded={chevronOnly ? undefined : isExpanded}
+                aria-controls={chevronOnly ? undefined : `${treeId}-${item.id}`}
                 isActive={activeItem === item.id}
                 onClick={() => {
                   if (chevronOnly) setActiveItem(item.id);
@@ -887,26 +895,12 @@ export function SidebarFilteredTreeDemo() {
               >
                 <SidebarMenuButtonIcon style={iconSizeVar}><TypeIcon /></SidebarMenuButtonIcon>
                 <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                {chevronOnly ? (
-                  <span
-                    role="none"
-                    className={`${ghostBtnCls} ml-auto transition-transform`}
-                    style={{ width: 26, height: 26, marginRight: -9, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                    onClick={(e) => { e.stopPropagation(); toggleExpanded(item.id); }}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); toggleExpanded(item.id); } }}
-                  >
-                    <ChevronDownMd />
-                  </span>
-                ) : (
-                  <span
-                    className="inline-flex items-center justify-center shrink-0 ml-auto transition-transform [&>svg]:block [&>svg]:w-4 [&>svg]:h-4"
-                    style={{ width: 26, height: 26, marginRight: -9, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                  >
-                    <ChevronDownMd />
-                  </span>
-                )}
+                {!chevronOnly && <SidebarMenuChevron aria-hidden="true" />}
               </SidebarMenuButton>
-              <SidebarMenuSub open={isExpanded} hasIcons>
+              {chevronOnly && <TreeDisclosure label={item.label} expanded={isExpanded}
+                controls={`${treeId}-${item.id}`} onToggle={() => toggleExpanded(item.id)} trailing />}
+              </div>
+              <SidebarMenuSub id={`${treeId}-${item.id}`} open={isExpanded} hasIcons>
                 {renderTreeItems(item.children!, depth + 1)}
               </SidebarMenuSub>
             </SidebarMenuItem>
@@ -930,8 +924,11 @@ export function SidebarFilteredTreeDemo() {
         const chevronOnly = expandMode === 'chevron';
         return (
           <SidebarMenuItem key={item.id} expanded={isExpanded}>
+            <div className="flex items-center">
             <SidebarMenuSubButton
-              className="gap-2"
+              className="gap-2 !w-auto min-w-0 flex-1"
+              aria-expanded={chevronOnly ? undefined : isExpanded}
+              aria-controls={chevronOnly ? undefined : `${treeId}-${item.id}`}
               indent={Math.min(depth, 3) as 0 | 1 | 2 | 3}
               isActive={chevronOnly ? activeItem === item.id : undefined}
               onClick={() => {
@@ -941,26 +938,12 @@ export function SidebarFilteredTreeDemo() {
             >
                <span style={nestedIconStyle} className="inline-flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"><TypeIcon /></span>
                {item.label}
-               {chevronOnly ? (
-                 <span
-                   role="none"
-                   className={`${ghostBtnCls} ml-auto transition-transform`}
-                   style={{ width: 26, height: 26, marginRight: -9, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                   onClick={(e) => { e.stopPropagation(); toggleExpanded(item.id); }}
-                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); toggleExpanded(item.id); } }}
-                 >
-                   <ChevronDownMd />
-                 </span>
-               ) : (
-                 <span
-                   className="inline-flex items-center justify-center shrink-0 ml-auto transition-transform [&>svg]:block [&>svg]:w-4 [&>svg]:h-4"
-                   style={{ width: 26, height: 26, marginRight: -9, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                 >
-                   <ChevronDownMd />
-                 </span>
-               )}
+               {!chevronOnly && <SidebarMenuChevron aria-hidden="true" />}
             </SidebarMenuSubButton>
-            <SidebarMenuSub open={isExpanded}>
+            {chevronOnly && <TreeDisclosure label={item.label} expanded={isExpanded}
+              controls={`${treeId}-${item.id}`} onToggle={() => toggleExpanded(item.id)} trailing />}
+            </div>
+            <SidebarMenuSub id={`${treeId}-${item.id}`} open={isExpanded}>
               {renderTreeItems(item.children!, depth + 1)}
             </SidebarMenuSub>
           </SidebarMenuItem>
@@ -1078,16 +1061,13 @@ export function SidebarFilteredTreeDemo() {
                 </SidebarContent>
               </Sidebar>
 
-              <SidebarInset>
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">{activeItemLabel}</h1>
+              <SidebarDemoPage title={activeItemLabel}>
                   <p className="text-secondary">
                     {isFiltering
                       ? 'Filtered results shown as a flat list.'
                       : 'Use the search and filter controls to narrow the navigation tree.'}
                   </p>
-                </div>
-               </SidebarInset>
+                </SidebarDemoPage>
             </SidebarLayout>
           </SidebarProvider>
       </div>
@@ -1112,8 +1092,6 @@ export function SidebarFilteredTreeDemo() {
 // =============================================
 // Action tree navigation
 // =============================================
-
-const ghostBtnCls = 'inline-flex items-center justify-center shrink-0 rounded-sm cursor-pointer p-0 m-0 border-0 bg-transparent appearance-none leading-none align-middle select-none hover:bg-[var(--color-background-secondary-ghost-hover)] active:bg-[var(--color-background-secondary-ghost-hover)] transition-colors [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto';
 
 // =============================================
 // Action Tree — Types, Config, Data
@@ -1318,21 +1296,21 @@ function ContainerAddMenu({ trigger }: { trigger: React.ReactNode }) {
 // Action Tree — Sortable Item
 // =============================================
 
-const AT_BTN = 24;
 const AT_ICON: React.CSSProperties = { width: 24, height: 24, flexShrink: 0, borderRadius: 6 };
-const AT_ACTIONS = 'item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto z-[2]';
-const atItemPl = (depth: number, isGroup: boolean) => 4 + (isGroup ? depth : depth + 1) * 24;
+const AT_ACTIONS = 'item-actions flex shrink-0 items-center gap-0.5 opacity-0 pointer-events-none group-hover/ati:opacity-100 group-hover/ati:pointer-events-auto group-focus-within/ati:opacity-100 group-focus-within/ati:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto';
+const atItemPl = (depth: number, isGroup: boolean) => `calc(${4 + depth * 24}px + ${isGroup ? '0px' : 'var(--disclosure-width)'})`;
 
 function SortableActionItem({
-  item, pl, activeItem, expanded, onSelect, onToggle, childRenderer,
+  item, pl, activeItem, expanded, onSelect, onToggle, childRenderer, subMenuId,
 }: {
   item: ActionNode;
-  pl: number;
+  pl: string;
   activeItem: string;
   expanded: boolean;
   onSelect: (id: string) => void;
   onToggle: (id: string) => void;
   childRenderer: (parent: ActionNode) => React.ReactNode;
+  subMenuId: string;
 }) {
   const TypeIcon = actionNodeConfig[item.type].icon;
   const isGroup = !!item.children;
@@ -1352,50 +1330,39 @@ function SortableActionItem({
     : 'group-hover/ati:text-[var(--sidebar-menu-text-active)] group-hover/ati:[&::before]:!opacity-50 group-hover/ati:[&::before]:![transform:scale(1)]';
 
   const actionsCls = isDragging
-    ? 'item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-100 pointer-events-auto z-[2]'
+    ? 'item-actions flex shrink-0 items-center gap-0.5 opacity-100 pointer-events-auto'
     : AT_ACTIONS;
-
-  const labelPadCls = isDragging
-    ? `flex-1 min-w-0 truncate text-left relative z-[1] ${isGroup ? 'pr-[54px]' : 'pr-[30px]'}`
-    : `flex-1 min-w-0 truncate text-left relative z-[1] ${isGroup ? 'group-hover/ati:pr-[54px]' : 'group-hover/ati:pr-[30px]'}`;
 
   return (
     <SidebarMenuSubItem ref={setNodeRef} style={style}>
-      <div className="group/ati relative">
+      <div className="group/ati relative flex items-center [--disclosure-width:24px] max-md:[--disclosure-width:44px]" style={{ paddingLeft: pl }}>
+        {isGroup && <TreeDisclosure label={item.label} expanded={expanded} controls={subMenuId} onToggle={() => onToggle(item.id)} />}
         <SidebarMenuSubButton
           indent={1}
           isActive={activeItem === item.id}
-          className={`gap-0.5 ${hoverCls}`}
-          style={{ paddingLeft: pl, paddingRight: 4, paddingTop: 0, paddingBottom: 0, height: 32 }}
+          className={`gap-0.5 !w-auto min-w-0 flex-1 !h-8 !px-1 !py-0 max-md:!h-11 ${hoverCls}`}
           onClick={() => onSelect(item.id)}
         >
           <span className="flex items-center shrink-0">
-            {isGroup && (
-              <span role="none" className={`${ghostBtnCls} transition-transform shrink-0`}
-                style={{ width: 24, height: 24, transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                onClick={(e) => { e.stopPropagation(); onToggle(item.id); }}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); onToggle(item.id); } }}
-              ><ChevronDownMd /></span>
-            )}
             <span style={AT_ICON} className="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"><TypeIcon /></span>
           </span>
-          <span className={labelPadCls}>{item.label}</span>
+          <span className="flex-1 min-w-0 truncate text-left relative z-[1]">{item.label}</span>
         </SidebarMenuSubButton>
         <span className={actionsCls}>
           {isGroup && (
             <ContainerAddMenu trigger={
-              <button type="button" className={ghostBtnCls} style={{ width: AT_BTN, height: AT_BTN }}
-                aria-label="Add"><Plus /></button>
+              <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11"
+                aria-label={`Add to ${item.label}`}><Plus /></Button>
             } />
           )}
           <span
-            className="inline-flex items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
-            style={{ width: AT_BTN, height: AT_BTN, borderRadius: 6, cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+            className="inline-flex size-6 max-md:size-11 items-center justify-center shrink-0 [&>svg]:block [&>svg]:w-4 [&>svg]:h-4 relative z-[1] pointer-events-auto text-[var(--color-text-tertiary)]"
+            style={{ borderRadius: 6, cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
             {...listeners} {...attributes}><GripVertical /></span>
         </span>
       </div>
       {isGroup && !isDragging && (
-        <SidebarMenuSub open={expanded} hasIcons>
+        <SidebarMenuSub id={subMenuId} open={expanded} hasIcons>
           {hasKids && childRenderer(item)}
         </SidebarMenuSub>
       )}
@@ -1408,6 +1375,7 @@ function SortableActionItem({
 // =============================================
 
 export function SidebarActionTreeDemo() {
+  const treeId = useId();
   const [steps, setSteps] = useState(actionTreeData);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
@@ -1417,7 +1385,7 @@ export function SidebarActionTreeDemo() {
     new Set(defaultExpanded),
   );
   const [activeItem, setActiveItem] = useState('screen');
-  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [, setActiveDragId] = useState<string | null>(null);
   const [bordered, setBordered] = useState(true);
   const dragSiblingIds = useRef<Set<string> | null>(null);
 
@@ -1463,7 +1431,7 @@ export function SidebarActionTreeDemo() {
   };
   const activeItemLabel = findLabel(steps) || 'Screen';
 
-  const parentActionsCls = 'item-actions absolute right-1 top-0 bottom-0 flex items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto z-[2]';
+  const parentActionsCls = 'item-actions flex shrink-0 items-center gap-0.5 opacity-0 pointer-events-none group-hover/atp:opacity-100 group-hover/atp:pointer-events-auto group-focus-within/atp:opacity-100 group-focus-within/atp:pointer-events-auto max-md:opacity-100 max-md:pointer-events-auto';
 
   /* Scoped collision: only match items within the same parent */
   const scopedCollision = useCallback<typeof closestCenter>(
@@ -1525,7 +1493,7 @@ export function SidebarActionTreeDemo() {
           <SortableContext items={containers.map((c) => c.id)} strategy={verticalListSortingStrategy}>
             {containers.map((c) => (
               <SortableActionItem key={c.id} item={c} pl={atItemPl(childDepth, !!c.children)}
-                activeItem={activeItem} expanded={expandedItems.has(c.id)}
+                activeItem={activeItem} expanded={expandedItems.has(c.id)} subMenuId={`${treeId}-${c.id}`}
                 onSelect={setActiveItem} onToggle={toggleExpanded}
                 childRenderer={(p) => renderChildGroup(p, childDepth + 1)} />
             ))}
@@ -1539,7 +1507,7 @@ export function SidebarActionTreeDemo() {
       <SortableContext items={parent.children.map((c) => c.id)} strategy={verticalListSortingStrategy}>
         {parent.children.map((c) => (
           <SortableActionItem key={c.id} item={c} pl={atItemPl(childDepth, !!c.children)}
-            activeItem={activeItem} expanded={expandedItems.has(c.id)}
+            activeItem={activeItem} expanded={expandedItems.has(c.id)} subMenuId={`${treeId}-${c.id}`}
             onSelect={setActiveItem} onToggle={toggleExpanded}
             childRenderer={(p) => renderChildGroup(p, childDepth + 1)} />
         ))}
@@ -1557,37 +1525,31 @@ export function SidebarActionTreeDemo() {
 
     return (
       <SidebarMenuSubItem key={item.id}>
-        <div className="group/atp relative">
+        <div className="group/atp relative flex items-center [--disclosure-width:24px] max-md:[--disclosure-width:44px]" style={{ paddingLeft: pl }}>
+          {isGroup && <TreeDisclosure label={item.label} expanded={isExpanded}
+            controls={`${treeId}-${item.id}`} onToggle={() => toggleExpanded(item.id)} />}
           <SidebarMenuSubButton
             indent={1}
             isActive={activeItem === item.id}
-            className="gap-0.5 group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
-            style={{ paddingLeft: pl, paddingRight: 4, paddingTop: 0, paddingBottom: 0, height: 32 }}
+            className="gap-0.5 !w-auto min-w-0 flex-1 !h-8 !px-1 !py-0 max-md:!h-11 group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
             onClick={() => setActiveItem(item.id)}
           >
             <span className="flex items-center shrink-0">
-              {isGroup && (
-                <span role="none" className={`${ghostBtnCls} transition-transform shrink-0`}
-                  style={{ width: 24, height: 24, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                  onClick={(e) => { e.stopPropagation(); toggleExpanded(item.id); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); toggleExpanded(item.id); } }}
-                ><ChevronDownMd /></span>
-              )}
               <span style={AT_ICON} className="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"><TypeIcon /></span>
             </span>
-            <span className="flex-1 min-w-0 truncate text-left relative z-[1] group-hover/atp:pr-[30px]">{item.label}</span>
+            <span className="flex-1 min-w-0 truncate text-left relative z-[1]">{item.label}</span>
           </SidebarMenuSubButton>
           {isGroup && (
             <span className={parentActionsCls}>
               <ContainerAddMenu trigger={
-                <button type="button" className={ghostBtnCls} style={{ width: AT_BTN, height: AT_BTN }}
-                  aria-label="Add"><Plus /></button>
+                <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11"
+                  aria-label={`Add to ${item.label}`}><Plus /></Button>
               } />
             </span>
           )}
         </div>
         {isGroup && (
-          <SidebarMenuSub open={isExpanded} hasIcons>
+          <SidebarMenuSub id={`${treeId}-${item.id}`} open={isExpanded} hasIcons>
             {hasKids && renderChildGroup(item, depth + 1)}
           </SidebarMenuSub>
         )}
@@ -1605,42 +1567,35 @@ export function SidebarActionTreeDemo() {
 
       return (
         <SidebarMenuItem key={item.id} expanded={isExpanded}>
-          <div className="group/atp relative">
+          <div className="group/atp relative flex items-center pl-1">
+            {isGroup ? <TreeDisclosure label={item.label} expanded={isExpanded}
+              controls={`${treeId}-${item.id}`} onToggle={() => toggleExpanded(item.id)} /> : <span className="w-6 max-md:w-11 shrink-0" />}
             <SidebarMenuButton
               isActive={activeItem === item.id}
-              className="group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
+              className="!w-auto min-w-0 flex-1 group-hover/atp:text-[var(--sidebar-menu-text-active)] group-hover/atp:[&::before]:!opacity-50 group-hover/atp:[&::before]:![transform:scale(1)]"
               onClick={() => setActiveItem(item.id)}
             >
               <span className="flex items-center shrink-0" style={{ marginLeft: 4 }}>
-                {isGroup ? (
-                  <span role="none" className={`${ghostBtnCls} transition-transform`}
-                    style={{ width: 24, height: 24, transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                    onClick={(e) => { e.stopPropagation(); toggleExpanded(item.id); }}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); toggleExpanded(item.id); } }}
-                  ><ChevronDownMd /></span>
-                ) : (
-                  <span style={{ width: 24, flexShrink: 0 }} />
-                )}
                 <span style={AT_ICON} className="inline-flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 relative z-[1]"><TypeIcon /></span>
               </span>
-              <SidebarMenuButtonLabel className="group-hover/atp:pr-[52px]">{item.label}</SidebarMenuButtonLabel>
+              <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
             </SidebarMenuButton>
             <span className={parentActionsCls}>
               {item.type === 'screen' ? (
                 <ScreenAddMenu trigger={
-                  <button type="button" className={ghostBtnCls} style={{ width: AT_BTN, height: AT_BTN }}
-                    aria-label="Add"><Plus /></button>
+                  <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11"
+                  aria-label={`Add to ${item.label}`}><Plus /></Button>
                 } />
               ) : (
                 <ContainerAddMenu trigger={
-                  <button type="button" className={ghostBtnCls} style={{ width: AT_BTN, height: AT_BTN }}
-                    aria-label="Add"><Plus /></button>
+                  <Button variant="ghost" color="secondary" size="xs" uniform className="!size-6 max-md:!size-11"
+                  aria-label={`Add to ${item.label}`}><Plus /></Button>
                 } />
               )}
             </span>
           </div>
           {isGroup && (
-            <SidebarMenuSub open={isExpanded} hasIcons>
+            <SidebarMenuSub id={`${treeId}-${item.id}`} open={isExpanded} hasIcons>
               {hasKids && renderChildGroup(item, 1)}
             </SidebarMenuSub>
           )}
@@ -1718,16 +1673,13 @@ export function SidebarActionTreeDemo() {
               </SidebarContent>
             </Sidebar>
 
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItemLabel}</h1>
+            <SidebarDemoPage title={activeItemLabel}>
                 <p className="text-secondary">
                   {isFlattening
                     ? 'Filtered results shown as a flat list.'
                     : 'Screen → Container / Footer → Elements. Containers and elements are drag-reorderable; Footer stays pinned.'}
                 </p>
-              </div>
-            </SidebarInset>
+              </SidebarDemoPage>
           </SidebarLayout>
         </SidebarProvider>
       </div>
@@ -1830,14 +1782,11 @@ export function SidebarScrollableDemo() {
                 </SidebarGroup>
               </SidebarContent>
             </Sidebar>
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">
                   When content exceeds the container height, it scrolls vertically.
                 </p>
-              </div>
-             </SidebarInset>
+              </SidebarDemoPage>
            </SidebarLayout>
          </SidebarProvider>
      </div>
@@ -1884,14 +1833,11 @@ export function SidebarTextOnlyDemo() {
                 ))}
               </SidebarContent>
             </Sidebar>
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">
                   Text-only sidebar for settings pages. Uses <code>collapsible=&quot;none&quot;</code>.
                 </p>
-              </div>
-             </SidebarInset>
+              </SidebarDemoPage>
            </SidebarLayout>
          </SidebarProvider>
      </div>
@@ -1954,14 +1900,11 @@ export function SidebarSearchDemo() {
                 ))}
               </SidebarContent>
             </Sidebar>
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">
                   Search input stays fixed at the top while sidebar content scrolls.
                 </p>
-              </div>
-             </SidebarInset>
+              </SidebarDemoPage>
            </SidebarLayout>
          </SidebarProvider>
      </div>
@@ -1999,12 +1942,9 @@ export function SidebarSkeletonDemo() {
                 </SidebarGroup>
               </SidebarContent>
             </Sidebar>
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">Loading</h1>
+            <SidebarDemoPage title="Loading">
                 <p className="text-secondary">Skeleton placeholders while navigation loads.</p>
-              </div>
-             </SidebarInset>
+              </SidebarDemoPage>
            </SidebarLayout>
          </SidebarProvider>
      </div>
@@ -2066,14 +2006,11 @@ export function SidebarBadgesDemo() {
                   </SidebarGroup>
                 </SidebarContent>
               </Sidebar>
-              <SidebarInset>
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+              <SidebarDemoPage title={activeItem}>
                   <p className="text-secondary">
                     Badges indicate status, counts, or special states for menu items.
                   </p>
-                </div>
-               </SidebarInset>
+                </SidebarDemoPage>
              </SidebarLayout>
            </SidebarProvider>
        </div>
@@ -2160,14 +2097,11 @@ export function SidebarFooterCardsDemo() {
               </SidebarFooter>
             </Sidebar>
 
-            <SidebarInset>
-              <div className="p-6">
-                <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+            <SidebarDemoPage title={activeItem}>
                 <p className="text-secondary">
                   Footer cards are hidden when the sidebar is collapsed.
                 </p>
-              </div>
-             </SidebarInset>
+              </SidebarDemoPage>
            </SidebarLayout>
          </SidebarProvider>
      </div>
@@ -2560,14 +2494,11 @@ function SidebarConsoleDemoPreview() {
             </SidebarFooter>
           </Sidebar>
 
-          <SidebarInset>
-            <div className="p-6">
-              <h1 className="text-2xl font-semibold mb-2">{activeLabel}</h1>
+          <SidebarDemoPage title={activeLabel}>
               <p className="text-secondary">
                 Hover the icons when collapsed to reveal a flyout with the section&apos;s items.
               </p>
-            </div>
-          </SidebarInset>
+            </SidebarDemoPage>
         </SidebarLayout>
       </SidebarProvider>
     </div>
@@ -2777,20 +2708,11 @@ export function SidebarAppDemo() {
                 </SidebarMenu>
               </SidebarFooter>
             </Sidebar>
-            <SidebarInset>
-              <Page>
-                <Page.Header>
-                  <Page.Bar>
-                    <Page.Title>{activeLabel}</Page.Title>
-                  </Page.Bar>
-                </Page.Header>
-                <Page.Content>
+            <SidebarDemoPage title={activeLabel}>
                   <p className="text-secondary">
                     Fold the sidebar: the Notifications badge turns into a dot above its icon, the counts fade.
                   </p>
-                </Page.Content>
-              </Page>
-            </SidebarInset>
+                </SidebarDemoPage>
           </SidebarLayout>
         </SidebarProvider>
       </div>
@@ -2877,12 +2799,9 @@ export function SidebarHeaderSizesDemoPreview() {
                   ))}
                 </SidebarContent>
               </Sidebar>
-              <SidebarInset>
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+              <SidebarDemoPage title={activeItem}>
                   <p className="text-secondary">Compact headers with tertiary color.</p>
-                </div>
-              </SidebarInset>
+                </SidebarDemoPage>
             </SidebarLayout>
           </SidebarProvider>
         ) : (
@@ -2908,12 +2827,9 @@ export function SidebarHeaderSizesDemoPreview() {
                   ))}
                 </SidebarContent>
               </Sidebar>
-              <SidebarInset>
-                <div className="p-6">
-                  <h1 className="text-2xl font-semibold mb-4">{activeItem}</h1>
+              <SidebarDemoPage title={activeItem}>
                   <p className="text-secondary">Prominent headers with primary color.</p>
-                </div>
-              </SidebarInset>
+                </SidebarDemoPage>
              </SidebarLayout>
            </SidebarProvider>
          )}
@@ -2924,46 +2840,6 @@ export function SidebarHeaderSizesDemoPreview() {
  // =============================================
  // Shared controls table UI (Storybook-style)
  // =============================================
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({ name, value, onChange }: { name: string; value: boolean; onChange: (v: boolean) => void }) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
 
 export function SidebarHeaderSizesDemo() {
   return (
@@ -2999,11 +2875,11 @@ function SidebarHeaderSizesDemoControls() {
 }
 
 // =============================================
-// Mobile menu (with mobile / nested / icons controls)
+// Mobile menu (with nested / icons controls)
 // =============================================
 
-function MobileMenuInner({ mobile, nested, icons }: { mobile: boolean; nested: boolean; icons: boolean }) {
-  const { openMobile, setOpenMobile } = useSidebar();
+function MobileMenuInner({ nested, icons }: { nested: boolean; icons: boolean }) {
+  const { setOpenMobile } = useSidebar();
   const [activeItem, setActiveItem] = useState({ id: 'overview', label: 'Overview' });
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
@@ -3057,176 +2933,6 @@ function MobileMenuInner({ mobile, nested, icons }: { mobile: boolean; nested: b
     });
   };
 
-  // Desktop: simple flat nav with icons (default)
-  const renderDesktopSimpleNav = () => (
-    <Sidebar>
-      <DemoSidebarHeader />
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonIcon><item.icon /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonIcon><item.icon /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {resourcesNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonIcon><item.icon /></SidebarMenuButtonIcon>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-
-  // Desktop: simple flat nav without icons
-  const renderDesktopSimpleNavNoIcons = () => (
-    <Sidebar>
-      <DemoSidebarHeader />
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">Project</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel size="sm">Resources</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {resourcesNavItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton isActive={activeItem.label === item.label} tooltip={item.label} onClick={() => setActiveItem({ id: item.label.toLowerCase(), label: item.label })}>
-                    <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-
-  // Desktop: nested docs-style (text only, deep nesting)
-  const renderDesktopNestedNav = () => (
-    <Sidebar variant="docs" style={{ width: '280px' }}>
-      <SidebarContent>
-        {nestedDocsSections.map((section) => (
-          <SidebarGroup key={section.id}>
-            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{section.items && renderNestedItems(section.items, 0)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-    </Sidebar>
-  );
-
-  // Desktop: nested with icons (2 levels)
-  const renderDesktopNestedNavWithIcons = () => (
-    <Sidebar style={{ width: '280px' }}>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {nestedIconsSections.map((item) => {
-                const isExpanded = expandedSections.includes(item.id);
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.id} expanded={isExpanded}>
-                    <SidebarMenuButton onClick={() => toggleSection(item.id)}>
-                      <SidebarMenuButtonIcon>{Icon && <Icon />}</SidebarMenuButtonIcon>
-                      <SidebarMenuButtonLabel>{item.label}</SidebarMenuButtonLabel>
-                      <SidebarMenuChevron />
-                    </SidebarMenuButton>
-                    <SidebarMenuSub open={isExpanded} hasIcons>
-                      {item.items?.map((child) => (
-                        <SidebarMenuSubItem key={child.id}>
-                          <SidebarMenuSubButton
-                            indent={1}
-                            isActive={activeItem.id === child.id}
-                            onClick={() => setActiveItem({ id: child.id, label: child.label })}
-                          >
-                            {child.label}
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-
-  const renderDesktopSidebar = () => {
-    if (!nested) return icons ? renderDesktopSimpleNav() : renderDesktopSimpleNavNoIcons();
-    if (icons) return renderDesktopNestedNavWithIcons();
-    return renderDesktopNestedNav();
-  };
-
-  // Mobile view
-  if (mobile) {
-    // Mobile: nested docs-style with close callback
     const renderMobileNestedNavWithClose = () => (
       <SidebarContent>
         {nestedDocsSections.map((section) => (
@@ -3389,80 +3095,18 @@ function MobileMenuInner({ mobile, nested, icons }: { mobile: boolean; nested: b
     };
 
     return (
-      <div
-        data-mobile-menu={openMobile ? 'visible' : 'hidden'}
-        style={{
-          width: 375,
-          height: 667,
-          background: 'var(--gray-75, #f3f3f3)',
-          overflow: 'hidden',
-          position: 'relative',
-          margin: '0 auto',
-        }}
-      >
-        <header className="flex items-center" style={{ justifyContent: 'flex-end', height: 54, padding: '0 8px' }}>
-          <SidebarMobileMenuButton />
-        </header>
-        <div
-          style={{
-            margin: 8,
-            marginTop: 0,
-            background: 'var(--color-surface, #ffffff)',
-            boxShadow: 'var(--sidebar-inset-shadow, 0 1px 3px rgba(0,0,0,.08))',
-            borderRadius: 8,
-            height: 'calc(100% - 54px - 8px)',
-            overflow: 'auto',
-          }}
-        >
-          {openMobile ? (
-            <div style={{ padding: 12 }}>
-              {renderMobileContent()}
-              {!nested && (
-                <SidebarCard dismissible onDismiss={() => { }}>
-                  <SidebarCardTitleLink href="#" onClick={(e) => e.preventDefault()}>
-                    Upgrade to Pro
-                  </SidebarCardTitleLink>
-                  <SidebarCardContent>
-                    Unlock higher rate limits, priority support, and advanced features.
-                  </SidebarCardContent>
-                  <SidebarCardFooter>
-                    <Button size="sm" pill color="primary">View Plans</Button>
-                  </SidebarCardFooter>
-                </SidebarCard>
-              )}
-            </div>
-          ) : (
-            <div style={{ padding: 24 }}>
-              <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
-              <p className="text-secondary">
-                Click the menu button to open the sidebar and select a different item.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <SidebarLayout className="h-full">
+        <Sidebar>
+          <DemoSidebarHeader />
+          {renderMobileContent()}
+        </Sidebar>
+        <SidebarDemoPage title={activeItem.label}>
+          <p className="text-secondary">Open the menu to choose a different page.</p>
+        </SidebarDemoPage>
+      </SidebarLayout>
     );
-  }
-
-  // Desktop view
-  return (
-    <SidebarLayout className="h-full">
-        {renderDesktopSidebar()}
-        <SidebarInset>
-          <div className="p-6">
-            <h1 className="text-2xl font-semibold mb-4">{activeItem.label}</h1>
-            <p className="text-secondary">
-              Toggle mobile to see the mobile sidebar.
-            </p>
-          </div>
-         </SidebarInset>
-       </SidebarLayout>
-   );
- }
-
+}
  type MobileDemoContextValue = {
-  mobile: boolean;
-  setMobile: (v: boolean) => void;
   nested: boolean;
   setNested: (v: boolean) => void;
   icons: boolean;
@@ -3474,11 +3118,10 @@ function MobileMenuInner({ mobile, nested, icons }: { mobile: boolean; nested: b
 const MobileDemoContext = createContext<MobileDemoContextValue | null>(null);
 
 export function SidebarMobileDemoRoot({ children }: { children: React.ReactNode }) {
-  const [mobile, setMobile] = useState(false);
   const [nested, setNested] = useState(false);
   const [icons, setIcons] = useState(false);
   const [bordered, setBordered] = useState(true);
-  const value: MobileDemoContextValue = { mobile, setMobile, nested, setNested, icons, setIcons, bordered, setBordered };
+  const value: MobileDemoContextValue = { nested, setNested, icons, setIcons, bordered, setBordered };
   return (
     <MobileDemoContext.Provider value={value}>
       {children}
@@ -3488,15 +3131,14 @@ export function SidebarMobileDemoRoot({ children }: { children: React.ReactNode 
 
 export function SidebarMobileDemoPreview() {
    const ctx = useContext(MobileDemoContext);
-   const mobile = ctx?.mobile ?? false;
    const nested = ctx?.nested ?? false;
    const icons = ctx?.icons ?? false;
    const bordered = ctx?.bordered ?? true;
-   const key = `${mobile}-${nested}-${icons}`;
+   const key = `${nested}-${icons}`;
    return (
      <div data-demo-stage data-bordered={bordered ? 'true' : 'false'} className="flex-1 w-full !p-0 !items-stretch !justify-stretch [&>*]:!m-0">
-       <SidebarProvider className="h-full" collapsible={mobile ? 'offcanvas' : icons ? 'icon' : 'none'} key={key}>
-        <MobileMenuInner mobile={mobile} nested={nested} icons={icons} />
+       <SidebarProvider className="h-full" collapsible={icons ? 'icon' : 'none'} key={key}>
+        <MobileMenuInner nested={nested} icons={icons} />
       </SidebarProvider>
     </div>
   );
@@ -3505,10 +3147,9 @@ export function SidebarMobileDemoPreview() {
 function SidebarMobileDemoControls() {
   const ctx = useContext(MobileDemoContext);
   if (!ctx) return null;
-  const { mobile, setMobile, nested, setNested, icons, setIcons, bordered, setBordered } = ctx;
+  const { nested, setNested, icons, setIcons, bordered, setBordered } = ctx;
   return (
     <div data-demo-controls style={controlsTableStyle}>
-      <DemoControlBoolean name="mobile" value={mobile} onChange={setMobile} />
       <DemoControlBoolean name="nested" value={nested} onChange={setNested} />
       <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />
       <DemoControlBoolean name="bordered" value={bordered} onChange={setBordered} />

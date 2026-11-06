@@ -1,15 +1,24 @@
 'use client';
 
-import type { ComponentProps } from 'react';
+import countryLabelStyles from '../CountryLabel.module.css';
+import { PhoneCountryLabel } from './PhoneCountryLabel';
+
+import { removeTagWithFocus } from '../tagRemovalFocus';
+import { type ComponentProps } from 'react';
 import { defineComponent, h, markRaw, ref, type FunctionalComponent } from 'vue';
-import { Button } from '@plexui/vue/components/Button';
 import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
-import { ChevronDown, X } from '@plexui/vue/components/Icon';
+import { ChevronDown } from '@plexui/vue/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@plexui/vue/components/Dialog';
-import { Page, PageBar, PageContent, PageHeader } from '@plexui/vue/components/Page';
-import { usePreviewEmbed } from '../PreviewEmbed';
+import { usePhoneViewport, usePreviewEmbed } from '../PreviewEmbed';
 import authStyles from '../AuthFormStage.module.css';
+import authFieldsStyles from '../AuthFields.module.css';
+import { AuthInput } from './AuthInput';
+import { AuthFields } from './AuthFields';
+import { AuthLegalNotice } from './AuthLegalNotice';
+import { AuthFormStage } from './AuthFormStage';
+import { VerificationFlow } from './VerificationFlow';
+import { isVerificationCodeReady } from '../verificationCountdown';
+import { FormScreen } from './FormScreen';
 import {
   COUNTRIES,
   COUNTRY_LOOKUP,
@@ -18,7 +27,10 @@ import {
   formatPhoneNumber,
   stripFormatting,
 } from '../PhoneInputDemos';
-import { VueDemo } from './VueDemo';
+import { VueDemo, type VueDemoControl } from './VueDemo';
+import { MobileTagRow } from './MobileTagRow';
+import { ProductVariants } from './ProductVariants';
+import { SettingsChecklistDemo } from './SettingsChecklistDemo';
 import { inputDemoScope } from './VueInputDemos';
 
 // The form examples read small helper components and functions from their
@@ -28,76 +40,6 @@ import { inputDemoScope } from './VueInputDemos';
 // object components are marked raw, as the scope becomes reactive state. Markup, styles and data are the React demos'
 // (FloatingLabelInputDemos.tsx, OTPInputDemos.tsx, OAuthFormDemos.tsx); the
 // country and phone data is the same list, exported by PhoneInputDemos.tsx.
-
-/** Vue counterpart of AuthFormStage; both use the same layout styles. */
-const AuthFormStage = markRaw(defineComponent({
-  name: 'AuthFormStage',
-  props: {
-    title: { type: String, required: true },
-    dialog: { type: Boolean, default: false },
-    mobile: { type: Boolean, default: false },
-    phonePreview: { type: Boolean, default: false },
-  },
-  emits: ['update:dialog'],
-  setup(props, { slots, emit }) {
-    const heading = ref<HTMLElement | null>(null);
-    return () => {
-      if (props.dialog) {
-        if (props.mobile) {
-          return h(Dialog, {
-            'open': true,
-            'onUpdate:open': (open: boolean) => {
-              if (!props.phonePreview) emit('update:dialog', open);
-            },
-          }, {
-            default: () => h(DialogContent, {
-              mobileVariant: 'sheet',
-              onOpenAutoFocus: (event: Event) => {
-                event.preventDefault();
-                heading.value?.focus();
-              },
-            }, {
-              default: () => [
-                h(DialogHeader, null, {
-                  default: () => [
-                    h('div', { ref: heading, tabindex: -1 }, [
-                      h(DialogTitle, { class: 'sr-only' }, () => props.title),
-                    ]),
-                    h(DialogDescription, { class: 'sr-only' }, () => 'Review and submit this form.'),
-                  ],
-                }),
-                h(DialogBody, null, {
-                  default: () => h('div', { class: authStyles.Form }, slots.default?.()),
-                }),
-              ],
-            }),
-          });
-        }
-        return h('div', { class: authStyles.DesktopOverlay }, [
-          h('div', { class: authStyles.DesktopPanel }, [
-            h('div', { class: authStyles.DesktopToolbar }, [
-              h(Button, {
-                'color': 'secondary', 'variant': 'ghost', 'size': 'lg', 'uniform': true,
-                'aria-label': 'Close', 'onClick': () => emit('update:dialog', false),
-              }, () => h(X)),
-            ]),
-            h('div', { class: authStyles.DesktopBody }, slots.default?.()),
-          ]),
-        ]);
-      }
-      return h(Page, { class: authStyles.Screen }, {
-        default: () => [
-          h(PageHeader, { 'class': authStyles.Header, 'aria-hidden': true, 'divider': false }, {
-            default: () => h(PageBar),
-          }),
-          h(PageContent, { class: authStyles.Content }, {
-            default: () => h('div', { class: authStyles.Form }, slots.default?.()),
-          }),
-        ],
-      });
-    };
-  },
-}));
 
 // Brand logos (viewBox 0 0 24 24, sized by Button)
 const svgAttrs = (fill: string) => ({ 'viewBox': '0 0 24 24', fill, 'aria-hidden': 'true', 'focusable': 'false' });
@@ -199,18 +141,8 @@ const PhoneCountryTrigger = markRaw(defineComponent({
           selected
             ? h(
                 'span',
-                {
-                  style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    minWidth: 0,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  },
-                },
-                [h(FlagIcon, { code: selected.value }), `${selected.label}${dialCode ? ` (${dialCode})` : ''}`],
+                { class: countryLabelStyles.Root },
+                [h(FlagIcon, { code: selected.value }), h(PhoneCountryLabel, { label: selected.label, dialCode })],
               )
             : 'Country',
           h(ChevronDown, {
@@ -313,13 +245,25 @@ const BirthdayMaskedInput = markRaw(defineComponent({
 }));
 
 export const formExamplesScope = {
-  AuthFormStage,
+  FormScreen: markRaw(FormScreen),
+  AuthFormStage: markRaw(AuthFormStage),
+  VerificationFlow: markRaw(VerificationFlow),
+  isVerificationCodeReady,
+  AuthInput: markRaw(AuthInput),
+  AuthFields: markRaw(AuthFields),
+  AuthLegalNotice: markRaw(AuthLegalNotice),
+  authFieldsStyles,
+  MobileTagRow: markRaw(MobileTagRow),
+  ProductVariants: markRaw(ProductVariants),
+  SettingsChecklistDemo: markRaw(SettingsChecklistDemo),
   GoogleLogo,
   AppleLogo,
   MicrosoftLogo,
   PhoneLogo,
   FlagIcon,
+  countryLabelStyles,
   PhoneCountryTrigger,
+  PhoneCountryLabel: markRaw(PhoneCountryLabel),
   BirthdayMaskedInput,
   /** Country options without dial codes (About You) */
   countries: COUNTRIES.map(({ value, label }) => ({ value, label })),
@@ -334,28 +278,49 @@ export const formExamplesScope = {
     return digits.length >= 7 && digits.length <= 15;
   },
   isValidBirthday: inputDemoScope.isValidBirthday,
+  nextBirthday: inputDemoScope.nextBirthday,
   /** Focuses a template ref once the select has closed */
   focusLater: (target: { focus?: () => void } | null | undefined) => {
     setTimeout(() => target?.focus?.(), 0);
   },
 };
 
+export const formPresentationControls: VueDemoControl[] = [
+  { name: 'dialog', type: 'boolean', default: false },
+  { name: 'surface', type: 'select', options: [{ value: 'grouped', label: 'Grouped' }, { value: 'plain', label: 'Plain' }], default: 'grouped', phoneOnly: true },
+];
+
+const withPresentationControls = (controls: VueDemoControl[] = []) => [
+  ...controls,
+  ...formPresentationControls.filter((control) => !controls.some((item) => item.name === control.name)),
+];
+
 /** A VueDemo whose template can use the helpers above, and `wide` as `useBreakpoint("md")` gives it. */
 export function VueFormExampleDemo({
   state,
+  context,
   auth = false,
   stageClassName,
+  controls,
+  phoneControls,
   ...props
-}: ComponentProps<typeof VueDemo> & { auth?: boolean }) {
+}: ComponentProps<typeof VueDemo> & {
+  auth?: boolean;
+  phoneControls?: ComponentProps<typeof VueDemo>['controls'];
+}) {
   const wide = useBreakpoint('md');
+  const phoneViewport = usePhoneViewport();
   const phonePreview = usePreviewEmbed() !== null;
+
 
   return (
     <VueDemo
-      key={String(wide)}
       {...props}
+      controls={withPresentationControls((phoneViewport || !wide) && phoneControls ? phoneControls : controls)}
+      reactiveControlDefaults={phoneControls !== undefined}
       stageClassName={auth ? `${authStyles.Stage} ${stageClassName ?? ''}` : stageClassName}
-      state={{ ...formExamplesScope, ...state, wide, phonePreview }}
+      state={{ ...formExamplesScope, ...state, removeTagWithFocus }}
+      context={{ ...context, wide, phonePreview, phoneHost: phoneViewport && !phonePreview }}
     />
   );
 }

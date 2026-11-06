@@ -12,26 +12,39 @@ import {
   SliderRangeDemo,
   SliderMultipleThumbsDemo,
   SliderVerticalDemo,
-  SliderDisabledDemo,
 } from '@/components/docs/SliderDemos'
+
+export const overviewCode = `import { useState } from 'react';
+import { Slider } from '@plexui/ui/components/Slider';
+
+export default function SliderExample() {
+  const [value, setValue] = useState(1000);
+  const [disabled] = useState(false);
+
+  return (
+    <Slider
+      label="Example field"
+      min={0}
+      max={2000}
+      resetValue={1000}
+      step={10}
+      unit="ms"
+      value={value}
+      onChange={setValue}
+      disabled={disabled}
+    />
+  );
+}`
 
 <UsageBlock>{`import { Slider } from "@plexui/ui/components/Slider";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview code={`const [value, setValue] = useState(1000)
-<Slider
-  label="Example field"
-  min={0}
-  max={2000}
-  resetValue={1000}
-  step={10}
-  unit="ms"
-  value={value}
-  onChange={setValue}
-/>`} previewMinHeight={168}>
+<ComponentPreview code={overviewCode} previewMinHeight={168}>
   <SliderBaseDemoWithControls />
 </ComponentPreview>
 
@@ -124,20 +137,6 @@ return (
   orientation="vertical"
 />`} previewMinHeight={280}>
   <SliderVerticalDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview details={<>Set <code>disabled</code> to prevent interaction with the slider.</>} code={`<Slider
-  label="Disabled"
-  min={0}
-  max={100}
-  step={1}
-  value={50}
-  onChange={() => {}}
-  disabled
-/>`} previewMinHeight={168}>
-  <SliderDisabledDemo />
 </ComponentPreview>
 
 ## API

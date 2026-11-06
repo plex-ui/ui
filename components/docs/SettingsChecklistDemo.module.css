@@ -1,0 +1,168 @@
+.Stage {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.Screen {
+  width: 480px;
+  max-width: 100%;
+  height: 560px;
+  --checkbox-ghost-check-color: var(--color-text-info);
+}
+
+.Dialog {
+  --checkbox-ghost-check-color: var(--color-text-info);
+}
+
+.DialogBody {
+  display: flex;
+  /* The nested content owns scrolling, so it starts below the fixed header. */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.DialogContent {
+  width: 100%;
+  overflow: auto;
+  padding: 10px 20px 24px;
+}
+
+.BarViewport {
+  width: 100%;
+}
+
+.BackViewport {
+  position: relative;
+  /* Keep the moving Back target above the centered title's paint rectangle. */
+  z-index: 2;
+  display: flex;
+  width: max-content;
+}
+
+.Dialog .ContentTransition {
+  background: var(--dialog-panel-background, var(--color-surface-elevated));
+}
+
+.RowButton {
+  display: block;
+  height: auto;
+  min-height: var(--field-row-min-height);
+  padding: max(var(--field-row-text-padding-block), calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2)) var(--field-row-padding-inline);
+  border-radius: 0;
+  font-size: var(--field-row-label-font-size);
+  line-height: var(--field-row-label-line-height);
+  font-weight: var(--field-row-label-font-weight);
+  text-align: start;
+  white-space: normal;
+}
+
+.RowButton::before {
+  border-radius: inherit;
+}
+
+[data-row]:first-child > .RowButton::before {
+  border-start-start-radius: var(--field-group-radius);
+  border-start-end-radius: var(--field-group-radius);
+}
+
+[data-row]:last-child > .RowButton::before {
+  border-end-start-radius: var(--field-group-radius);
+  border-end-end-radius: var(--field-group-radius);
+}
+
+.RowContent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--field-row-disclosure-gap, 10px);
+  width: 100%;
+  min-width: 0;
+}
+
+.RowText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--field-row-gap);
+  min-width: 0;
+}
+
+.RowLabel,
+.RowValue {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.RowLabel {
+  flex-grow: 1;
+  color: var(--color-text);
+}
+
+.RowValue {
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+}
+
+.RowButton:disabled :is(.RowLabel, .RowValue, .Disclosure) {
+  color: var(--color-text-disabled);
+}
+
+.Disclosure {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-inline: -5px;
+  color: var(--mobile-accessory-secondary, var(--color-text-tertiary));
+}
+
+:is(.Screen, .Dialog) [data-settings-title]:focus {
+  outline: none;
+}
+
+@media (min-width: 768px) {
+  .Screen {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* The desktop root is one settings group, not a page title above a second gutter. */
+  .Screen[data-settings-root] {
+    --page-gutter: 0px;
+    --page-content-padding-top: 0px;
+    --page-content-padding-bottom: 0px;
+    --field-group-header-min-height: 52px;
+    --field-group-header-padding-bottom: 6px;
+  }
+
+  .Screen [data-settings-content] {
+    flex: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 767px) {
+  .Stage {
+    padding: 0;
+  }
+
+  .Screen,
+  .Dialog {
+    --field-group-radius: 26px;
+    --field-group-separator-inset: 20px;
+    --field-group-footer-padding: 8px 20px 6px;
+    --field-row-padding-inline: 20px;
+  }
+
+  .Screen {
+    --page-gutter: 20px;
+    --page-content-padding-top: 10px;
+    width: 100%;
+    height: 100dvh;
+  }
+
+  .RowButton:focus-visible::after {
+    outline: none;
+  }
+}

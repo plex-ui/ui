@@ -48,7 +48,7 @@ export async function copyToClipboard(
     }
 
     return false
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -73,15 +73,18 @@ export async function copyText(
       // Try to use the navigator.clipboard method first
       await navigator.clipboard.writeText(text)
       return true
-    } catch (error) {
+    } catch {
       // If that doesn't work, we continue on to the fallback
       // method below
     }
   }
 
   // Fallback method
-  const textArea = document.createElement("textarea")
+  const ownerDocument = container.ownerDocument
+  const previousFocus = ownerDocument.activeElement
+  const textArea = ownerDocument.createElement("textarea")
   textArea.value = text
+  textArea.setAttribute("data-plex-clipboard-fallback", "")
 
   // Avoid visibility/interaction
   textArea.style.position = "fixed"
@@ -90,15 +93,21 @@ export async function copyText(
   textArea.style.opacity = "0"
 
   container.appendChild(textArea)
-  textArea.focus()
+  textArea.focus({ preventScroll: true })
   textArea.select()
 
   let succeeded = false
   try {
-    succeeded = document.execCommand("copy")
-  } catch (error) {
+    succeeded = ownerDocument.execCommand("copy")
+  } catch {
     // Ignore
   }
-  container.removeChild(textArea)
+  const restoreFocus = ownerDocument.activeElement === textArea
+  textArea.remove()
+  // execCommand can synchronously move focus (for example, through a copy
+  // handler). Restore only while the temporary textarea still owns it.
+  if (restoreFocus && previousFocus?.isConnected && "focus" in previousFocus && typeof previousFocus.focus === "function") {
+    previousFocus.focus({ preventScroll: true })
+  }
   return succeeded
 }

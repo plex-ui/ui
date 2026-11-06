@@ -32,6 +32,8 @@ type Case = [string, ComponentType<Props>, Component, Props, string?]
 
 const cases: Case[] = [
   ["LoadingIndicator default", RLoadingIndicator as never, LoadingIndicator, {}],
+  ["LoadingIndicator native small", RLoadingIndicator as never, LoadingIndicator, { size: 22, role: "status", "aria-label": "Loading" }],
+  ["LoadingIndicator native small CSS size", RLoadingIndicator as never, LoadingIndicator, { size: "22px" }],
   ["LoadingIndicator size + stroke", RLoadingIndicator as never, LoadingIndicator, { size: 24, strokeWidth: 3, className: "x" }],
   ["LoadingIndicator string size", RLoadingIndicator as never, LoadingIndicator, { size: "2em" }],
   ["LoadingIndicator style wins", RLoadingIndicator as never, LoadingIndicator, { size: 24, style: { color: "red" } }],
@@ -109,6 +111,49 @@ describe("Primitive behaviour parity (4.1)", () => {
     expect(vue).toEqual(react)
     expect(react[2]).toContain("data-idle")
     expect(react[3]).not.toContain("data-idle")
+  })
+
+  test.each([false, true])("ShimmerableText settles a pending stop across Reduce Motion changes (initial: %s)", async (initialReducedMotion) => {
+    let reducedMotion = initialReducedMotion
+    const listeners = new Set<() => void>()
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      get matches() { return query === "(prefers-reduced-motion: reduce)" && reducedMotion },
+      media: query,
+      addEventListener: (_type: string, listener: () => void) => { listeners.add(listener) },
+      removeEventListener: (_type: string, listener: () => void) => { listeners.delete(listener) },
+    }))
+    const setReducedMotion = async (next: boolean) => {
+      await interact(() => {
+        reducedMotion = next
+        for (const listener of [...listeners]) listener()
+      })
+    }
+    try {
+      await walkPairWithState(
+        { shimmer: true },
+        (state) => <RShimmerableText shimmer={state.shimmer}>Thinking</RShimmerableText>,
+        (state) => h(ShimmerableText, { shimmer: state.shimmer }, () => "Thinking"),
+        async ({ set }) => {
+          const text = document.querySelector<HTMLElement>(".Shimmer")!
+          expect(text.hasAttribute("data-idle")).toBe(false)
+          await set({ shimmer: false })
+          expect(text.hasAttribute("data-idle")).toBe(initialReducedMotion)
+          // No synthetic animationiteration: reducing motion cancels that event.
+          await setReducedMotion(true)
+          expect(text.hasAttribute("data-idle")).toBe(true)
+          await setReducedMotion(false)
+          expect(text.hasAttribute("data-idle")).toBe(true)
+          await set({ shimmer: true })
+          expect(text.hasAttribute("data-idle")).toBe(false)
+          await setReducedMotion(true)
+          await setReducedMotion(false)
+          expect(text.hasAttribute("data-idle")).toBe(false)
+          await setReducedMotion(initialReducedMotion)
+        },
+      )
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 
   test("Image already loaded at mount (as before hydration) is marked loaded without a load event", async () => {

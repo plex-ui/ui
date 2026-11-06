@@ -40,6 +40,8 @@ const FieldGroupComponent = defineComponent({
       const hasTitle = slots.title ? hasContent(title as VNodeArrayChildren) : !!title
       const description = slots.description ? slots.description() : props.description
       const hasDescription = slots.description ? hasContent(description as VNodeArrayChildren) : !!description
+      const footer = slots.footer?.()
+      const hasFooter = !!footer && hasContent(footer as VNodeArrayChildren)
       const action = slots.action?.()
       const hasAction = !!action && hasContent(action as VNodeArrayChildren)
 
@@ -63,7 +65,7 @@ const FieldGroupComponent = defineComponent({
               ])
             : null,
           h("div", { class: clsx(s.Body, props.bodyClass) }, [slots.default?.()]),
-          slots.footer?.(),
+          hasFooter ? h("div", { class: s.Footer }, footer) : null,
         ],
       )
     }

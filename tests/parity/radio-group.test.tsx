@@ -149,8 +149,30 @@ describe("RadioGroup markup parity", () => {
   test("the label points at the radio button", async () => {
     const { react, vue } = await renderPair(reactGroup({ items: ITEMS }), () => vueGroup({ items: ITEMS }))
     expect(vue).toBe(react)
-    expect(react).toContain('<label class="RadioLabel" data-orientation="left" for="gen-1">')
+    expect(react).toContain('<label class="RadioLabel" data-has-label="" data-orientation="left" for="gen-1">')
     expect(react).toContain('id="gen-1" role="radio"')
+  })
+
+  test("own labels are marked without treating absent or conditional text as a label", async () => {
+    const { react, vue } = await renderPair(
+      <RRadioGroup>
+        <RRadioGroup.Item value="absent" />
+        <RRadioGroup.Item value="conditional">{false}</RRadioGroup.Item>
+        <RRadioGroup.Item value="zero">{0}</RRadioGroup.Item>
+        <RRadioGroup.Item value="text">Own label</RRadioGroup.Item>
+      </RRadioGroup>,
+      () => h(RadioGroup, null, () => [
+        h(RadioGroupItem, { value: "absent" }),
+        h(RadioGroupItem, { value: "conditional" }, () => false),
+        h(RadioGroupItem, { value: "zero" }, () => 0),
+        h(RadioGroupItem, { value: "text" }, () => "Own label"),
+      ]),
+    )
+    expect(vue).toBe(react)
+    const content = document.createElement("div")
+    content.innerHTML = react
+    expect(Array.from(content.querySelectorAll("label"), (label) => label.hasAttribute("data-has-label")))
+      .toEqual([false, false, true, true])
   })
 
   test("RadioGroup.Item is the flat RadioGroupItem", () => {
@@ -351,6 +373,50 @@ const groupWalk = (spec: GroupCase & { initial?: string }, mode: Mode, script: (
 }
 
 describe("RadioGroup behaviour parity", () => {
+  test.each(["retains focus", "moves focus", "unmounts"] as const)(
+    "Vue checks an arrow-focused radio after document keydown only while it %s",
+    async (outcome) => {
+      vi.useFakeTimers()
+      const change = vi.fn()
+      const { unmount } = mountVue(() =>
+        h("div", [
+          vueGroup({ items: ITEMS, props: { defaultValue: "daily", onChange: change } }),
+          h("button", { id: "outside-radio-group" }, "Outside"),
+        ]),
+      )
+      let mounted = true
+      try {
+        await flushVue()
+        const next = $<HTMLButtonElement>(radio("weekly"))
+        // In a browser, Reka's nextTick focus can run between the target's
+        // native keydown listener and the document's bubble listener. jsdom
+        // dispatchEvent does not yield there, so reproduce that observed order.
+        next.focus()
+        expect(next.getAttribute("aria-checked")).toBe("false")
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }))
+        if (outcome === "moves focus") $("#outside-radio-group").focus()
+        if (outcome === "unmounts") {
+          unmount()
+          mounted = false
+        }
+        await vi.advanceTimersByTimeAsync(1)
+        await flushVue()
+        if (outcome === "retains focus") {
+          expect(next.getAttribute("aria-checked")).toBe("true")
+          expect(document.activeElement).toBe(next)
+          expect(change).toHaveBeenCalledExactlyOnceWith("weekly")
+        } else {
+          expect(change).not.toHaveBeenCalled()
+          if (outcome === "moves focus") expect(document.activeElement).toBe($("#outside-radio-group"))
+        }
+      } finally {
+        document.dispatchEvent(new KeyboardEvent("keyup", { key: "ArrowDown", bubbles: true }))
+        if (mounted) unmount()
+        vi.useRealTimers()
+      }
+    },
+  )
+
   test("uncontrolled: clicks select and report; re-clicking the checked radio does not", async () => {
     const result = await groupWalk({ items: ITEMS, props: { defaultValue: "daily" } }, "uncontrolled", async (t) => {
       t.snapshot()
@@ -643,6 +709,60 @@ const formWalk = (spec: GroupCase & { initial?: string }, mode: Mode, script: (t
 }
 
 describe("RadioGroup form parity", () => {
+  test.each([true, false])("Vue null remains controlled when a model accepts changes: %s", async (acceptChanges) => {
+    const value = ref<string | null>(null)
+    const changes: (string | null)[] = []
+    const { unmount } = mountVue(() => h("form", null, [
+      h(RadioGroup, {
+        value: value.value,
+        name: "frequency",
+        "onUpdate:value": (next: string | null) => {
+          changes.push(next)
+          if (acceptChanges) value.value = next
+        },
+      }, () => ITEMS.map((item) => h(RadioGroupItem, { value: item.value }, () => item.label))),
+    ]))
+    try {
+      await flushVue()
+      const weekly = document.querySelector<HTMLButtonElement>(radio("weekly"))!
+      weekly.click()
+      await flushVue()
+      expect(value.value).toBe(acceptChanges ? "weekly" : null)
+      expect(weekly.getAttribute("aria-checked")).toBe(String(acceptChanges))
+      expect(formData()).toBe(acceptChanges ? '[["frequency","weekly"]]' : "[]")
+      document.querySelector("form")!.reset()
+      await flushVue()
+      expect(value.value).toBeNull()
+      expect(weekly.getAttribute("aria-checked")).toBe("false")
+      expect(formData()).toBe("[]")
+      expect(changes).toEqual(acceptChanges ? ["weekly", null] : ["weekly"])
+    } finally {
+      unmount()
+    }
+  })
+
+  test("reset restores an initially empty uncontrolled group and permits selecting the same option again", async () => {
+    const result = await formWalk(
+      { items: ITEMS, props: { name: "frequency" } },
+      "uncontrolled",
+      async (t) => {
+        t.snapshot(`form: ${formData()}`)
+        await t.click(radio("weekly"))
+        t.snapshot(`form: ${formData()}`)
+        await t.run(() => document.querySelector("form")!.reset())
+        t.snapshot(`form: ${formData()}`)
+        expect(document.querySelectorAll('button[role="radio"][aria-checked="true"]')).toHaveLength(0)
+        expect(formData()).toBe("[]")
+        await t.click(radio("weekly"))
+        t.snapshot(`form: ${formData()}`)
+        expect(formData()).toBe('[["frequency","weekly"]]')
+      },
+    )
+    expect(result.vue).toEqual(result.react)
+    expect(result.vueLog).toEqual(result.reactLog)
+    expect(result.reactLog).toContain("onChange null")
+  })
+
   test("named, uncontrolled: FormData follows the selection; onChange comes after the hidden inputs' events", async () => {
     const result = await formWalk({ items: ITEMS, props: { name: "frequency", defaultValue: "daily" } }, "uncontrolled", async (t) => {
       const data: string[] = []

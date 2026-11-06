@@ -1,4 +1,8 @@
 /* Shared by the React auth demos and their Vue templates. */
+.Form [data-auth-title]:focus {
+  outline: none;
+}
+
 .Stage {
   display: flex;
   justify-content: center;
@@ -51,10 +55,6 @@
     background: transparent;
   }
 
-  .Header {
-    display: none;
-  }
-
   .Content {
     flex: none;
     padding: 0;
@@ -68,21 +68,46 @@
     padding: 0 !important;
   }
 
+  .Sheet {
+    /* Remains a tall, flush Sheet when the preview keyboard reduces 100dvh. */
+    --dialog-panel-height: calc(100dvh - max(8px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))));
+    --dialog-panel-max-height: var(--dialog-panel-height);
+  }
+
   .Screen {
-    --page-top: calc(env(safe-area-inset-top, 0px) + 54px);
     --page-content-padding-top: 10px;
     --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
     width: 100%;
     height: 100dvh;
   }
 
-  .Header {
-    padding-top: env(safe-area-inset-top, 0px);
+  /* An action under a notice or in a busy wrapper matches a bare action of the bottom toolbar. */
+  .PhoneFooter > * > button {
+    --button-size: var(--toolbar-item-size);
+    --button-font-size: var(--toolbar-label-font-size);
+    --button-line-height: var(--toolbar-label-line-height);
+    --button-font-weight: var(--toolbar-label-font-weight);
   }
 
   .Form,
   .Form > * {
     width: 100%;
     max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .Form [data-auth-title] {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: normal;
+  }
+
+  .Form [data-auth-description] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: normal;
   }
 }

@@ -1,6 +1,9 @@
 .CalendarContainer {
+  --calendar-width: 210px;
+  --calendar-step: calc(var(--calendar-width) + 32px);
+
   position: relative;
-  width: 210px;
+  width: var(--calendar-width);
   /*  Default size of the calendar is assumed to be 224px */
   /*  and then is dynamically set via JS measuring */
   height: 224px;
@@ -90,6 +93,10 @@
   padding: 10px 12px 12px;
 }
 
+.CalendarViewport {
+  display: contents;
+}
+
 .CalendarRange {
   transition: transform 0.25s var(--cubic-move);
 }
@@ -100,7 +107,7 @@
 
   position: absolute;
   top: 0;
-  width: 210px;
+  width: var(--calendar-width);
   font-size: 14px;
 
   &[data-static] {
@@ -286,4 +293,276 @@
   font-size: 13px;
   font-weight: var(--font-weight-semibold);
   line-height: 1;
+}
+
+
+/* The caption keeps its compact desktop abbreviations. */
+.LongDayLabel {
+  display: none;
+}
+
+/* Keep 44px edge circles concentric with the popup corners. */
+@media (max-width: 767px) {
+  .Popover[role="dialog"],
+  .CalendarWrapper {
+    --calendar-gutter: clamp(3px, calc((100vw - 308px) / 4), 16px);
+    --calendar-inner-padding: min(max(0px, calc(var(--menu-radius, 32px) - 22px)), var(--calendar-gutter));
+    --calendar-header-height: calc(44px + 2 * var(--calendar-inner-padding));
+    --calendar-caption-inset: 96px;
+  }
+
+  .Popover[role="dialog"] {
+    /* The narrow-screen radius follows the available inset; it is a fit
+       constraint, not a separate measured native corner radius. */
+    --popover-radius: calc(22px + var(--calendar-inner-padding));
+
+    background: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
+    box-shadow: var(--menu-shadow, var(--shadow), var(--shadow-hairline));
+    -webkit-backdrop-filter: blur(50px);
+    backdrop-filter: blur(50px);
+  }
+
+  .CalendarWrapper {
+    /* Preserve the outer collision gutter; the inner inset follows the
+       corner geometry while seven 44px targets still fit at 320px. */
+    box-sizing: border-box;
+    width: min(370px, calc(100vw - 2 * var(--calendar-gutter)), var(--radix-popover-content-available-width, 370px));
+    padding: 0 var(--calendar-inner-padding);
+  }
+
+  .CalendarContainer {
+    --cell-size: 44px;
+    --cell-vertical-gutter: 7px;
+    --calendar-width: min(350px, calc(100vw - 2 * var(--calendar-gutter) - 2 * var(--calendar-inner-padding)), calc(var(--radix-popover-content-available-width, 370px) - 2 * var(--calendar-inner-padding)));
+
+    width: var(--calendar-width);
+  }
+
+  /* The month slides inside a stationary viewport. Only the title band
+     reserves the navigation area; weekday labels and days keep the full width. */
+  .CalendarViewport {
+    position: absolute;
+    inset: 0;
+    display: block;
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--calendar-caption-inset)) 0,
+      calc(100% - var(--calendar-caption-inset)) var(--calendar-header-height),
+      100% var(--calendar-header-height),
+      100% 100%,
+      0 100%
+    );
+  }
+
+  .Calendar {
+    --cell-size: 44px;
+    --cell-vertical-gutter: 7px;
+
+    box-sizing: border-box;
+    padding-bottom: var(--calendar-inner-padding);
+  }
+
+  .Previous,
+  .Next {
+    top: var(--calendar-inner-padding);
+    left: auto;
+    background: none;
+  }
+
+  .Previous {
+    right: 44px;
+  }
+
+  .Next {
+    right: 0;
+  }
+
+  .Previous::before,
+  .Previous::after,
+  .Next::before,
+  .Next::after {
+    display: none;
+  }
+
+  /* Base Button supplies the active circle. Idle and hover remain
+     transparent; the navigation target stays 44px throughout. */
+  .Previous button[type="button"],
+  .Next button[type="button"] {
+    --button-size: 44px;
+    --button-gutter: 0px;
+    --button-icon-size: 24px;
+    --button-text-color: var(--color-text-primary);
+    --button-text-color-hover: var(--color-text-primary);
+    --button-radius: var(--radius-full);
+    --button-mobile-material-background: transparent;
+    --button-mobile-material-hover: transparent;
+    --button-mobile-material-active: var(--button-background-color-active);
+    --button-mobile-material-shadow: none;
+    --button-mobile-material-backdrop-filter: none;
+    --button-mobile-material-opacity: 0;
+    --button-mobile-material-scale: 1;
+
+    width: 44px;
+    padding: 0;
+  }
+
+  /* Keep the agreed Phone focus treatment: real keyboard focus, no drawn ring. */
+  .Previous button[type="button"]::after,
+  .Next button[type="button"]::after {
+    display: none;
+  }
+
+  /* Equal insets above and below the 44px navigation targets. */
+  .MonthLabel {
+    box-sizing: border-box;
+    justify-content: flex-start;
+    height: var(--calendar-header-height);
+    padding: 0 var(--calendar-caption-inset) 0 max(0px, calc(var(--field-row-padding-inline, 16px) - var(--calendar-inner-padding)));
+    margin: 0;
+    font-size: 17px;
+    font-weight: 590;
+    line-height: 22px;
+    letter-spacing: -0.43px;
+  }
+
+  .Week {
+    display: grid;
+    grid-template-columns: repeat(7, var(--cell-size));
+    justify-content: space-between;
+  }
+
+  .WeekdayHeader {
+    align-items: center;
+    height: 20px;
+    margin-bottom: 3px;
+  }
+
+  .DayLabel {
+    width: var(--cell-size);
+    height: 18px;
+    color: var(--color-text-tertiary);
+    font-size: 13px;
+    font-weight: 590;
+    line-height: 18px;
+    text-transform: uppercase;
+  }
+
+  .ShortDayLabel {
+    display: none;
+  }
+
+  .LongDayLabel {
+    display: inline;
+  }
+
+  .InteractiveDay {
+    padding: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .TodayDot {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .MonthLabelSpacer {
+    height: var(--calendar-header-height);
+    margin: 0;
+  }
+
+  .DropdownCaption {
+    right: var(--calendar-caption-inset);
+    justify-content: flex-start;
+    height: var(--calendar-header-height);
+    padding-top: 0;
+  }
+
+  .DropdownCaption > * {
+    --select-control-size: 28px;
+    --select-control-font-size: 17px;
+    --select-control-gap: 4px;
+  }
+
+  .TimeFooter {
+    box-sizing: border-box;
+    height: 52px;
+    padding-top: 0;
+    border-top-width: 0.5px;
+    margin-top: 0;
+  }
+
+  .TimeLabel {
+    color: var(--color-text);
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .TimeInputGroup {
+    position: relative;
+    box-sizing: border-box;
+    justify-content: center;
+    gap: 0;
+    width: 88px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-full);
+    background: none;
+
+    /* Keep the compact pill separate from the two adjacent touch targets. */
+    &::before {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 86px;
+      height: 34px;
+      border-radius: inherit;
+      background: var(--color-background-secondary-soft-alpha);
+      content: "";
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  .TimeField {
+    position: relative;
+    box-sizing: border-box;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    background: none;
+    font-size: 17px;
+    font-weight: var(--font-weight-normal);
+    line-height: 22px;
+
+    &:focus {
+      background: none;
+      outline-offset: -6px;
+    }
+  }
+
+  .TimeSeparator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: var(--color-text);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    font-size: 17px;
+    font-weight: var(--font-weight-normal);
+    line-height: 22px;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .CalendarContainer {
+    --calendar-height-duration: 0ms;
+  }
+
+  .CalendarRange {
+    transition: none;
+  }
 }

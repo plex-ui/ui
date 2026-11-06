@@ -1,60 +1,16 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import { useState } from 'react';
 import { RadioGroup } from '@plexui/ui/components/RadioGroup';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import { Field } from '@plexui/ui/components/Field';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { FormScreen } from './FormRowsDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 export function RadioGroupHeroContent() {
   return (
@@ -323,7 +279,7 @@ export function RadioGroupChoiceCardDemo() {
 
 export function RadioGroupCardSelectionDemo() {
   return (
-    <RadioGroup className="flex-col w-[390px] gap-4" onChange={() => { }} aria-label="Sample options">
+    <RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4" onChange={() => { }} aria-label="Sample options">
       <RadioGroup.Item className="gap-2.5" value="basic">
         <div>
           <h4 className="font-semibold mb-1">Basic Plan</h4>
@@ -415,6 +371,27 @@ export function RadioGroupDescriptionsDemo() {
 export function RadioGroupNotificationSettingsDemo() {
   const [visibility, setVisibility] = useState('owners');
   const [frequency, setFrequency] = useState('weekly');
+
+  const wide = useBreakpoint('md');
+  if (!wide) return (
+    <FormScreen title="Preferences">
+      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Control who can see project resources.">
+          <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
+          <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
+          <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Digest frequency">
+        <FieldGroup title="Digest frequency" description="How often you receive summary emails.">
+          <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
+          <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
+          <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
+          <Field row label="Never"><RadioGroup.Item value="never" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+    </FormScreen>
+  );
 
   return (
     <div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">

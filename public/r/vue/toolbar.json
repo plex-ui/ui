@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "toolbar",
+  "type": "registry:ui",
+  "title": "Toolbar",
+  "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/toolbar/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Toolbar\"\n"
+    }
+  ],
+  "docs": "Import as `import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from '@/components/ui/toolbar'`. See https://plexui.com/vue/components/toolbar for props and examples."
+}

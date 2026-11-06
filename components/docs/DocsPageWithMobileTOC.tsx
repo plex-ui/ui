@@ -14,10 +14,18 @@ const subscribe = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
-/**
- * Wraps DocsPage and enables tableOfContentPopover only after mount.
- * Avoids Radix useId() hydration mismatch (different IDs on server vs client).
- */
+// Match the installed Fumadocs PageTOCPopover layout before its interactive
+// content mounts. Its max-xl layout variable reserves the same grid track on SSR.
+const tocPopoverPlaceholder = (
+  <div
+    aria-hidden="true"
+    className="sticky top-(--fd-docs-row-2) z-10 [grid-area:toc-popover] h-(--fd-toc-popover-height) xl:hidden max-xl:layout:[--fd-toc-popover-height:--spacing(10)]"
+  >
+    <div className="h-10 border-b bg-fd-background/80" />
+  </div>
+);
+
+/** Keep the TOC layout stable while deferring its Radix IDs until after hydration. */
 export function DocsPageWithMobileTOC({
   toc,
   showRightToc,
@@ -40,7 +48,10 @@ export function DocsPageWithMobileTOC({
     <DocsPage
       toc={showRightToc ? toc : []}
       tableOfContent={{ enabled: showRightToc }}
-      tableOfContentPopover={{ enabled: popoverEnabled && showRightToc }}
+      tableOfContentPopover={{
+        enabled: showRightToc,
+        component: popoverEnabled ? undefined : tocPopoverPlaceholder,
+      }}
       full={full}
       className={className}
       footer={footer ?? { enabled: false }}

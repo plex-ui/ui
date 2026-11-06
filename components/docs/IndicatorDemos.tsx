@@ -8,27 +8,9 @@ import {
   LoadingIndicator,
 } from '@plexui/ui/components/Indicator';
 import { SliderValueControl } from './SliderValueControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 type CircularProgressProps = ComponentProps<typeof CircularProgress>;
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
 
 function DemoRangeControlRow({
   name,
@@ -46,8 +28,7 @@ function DemoRangeControlRow({
   onChange: (value: number) => void;
 }) {
   return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
+    <DemoControlRow name={name}>
       <SliderValueControl
         ariaLabel={name}
         min={min}
@@ -57,7 +38,7 @@ function DemoRangeControlRow({
         onChange={onChange}
         width="min(42vw, 340px)"
       />
-    </div>
+    </DemoControlRow>
   );
 }
 

@@ -1,58 +1,11 @@
 'use client';
 
 import type React from 'react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from '@plexui/ui/components/Textarea';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const VARIANT_OPTIONS = ['outline', 'soft'] as const;
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
@@ -70,7 +23,7 @@ function RowMatrix({
       {rowLabels.map((row, ri) => (
         <div key={ri} className="flex items-center">
           <div className="text-right text-sm mr-8 min-w-[4rem]" style={{ color: 'var(--color-text-tertiary)' }}>{row}</div>
-          <div className="flex-1">{renderRow(ri)}</div>
+          <div className="min-w-0 flex-1">{renderRow(ri)}</div>
         </div>
       ))}
     </div>
@@ -80,7 +33,7 @@ function RowMatrix({
 export function TextareaBaseDemo() {
   return (
     <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-      <div className="w-[400px]">
+      <div className="w-full min-w-0 max-w-[400px]">
         <Textarea placeholder="Enter text..." autoResize rows={3} />
       </div>
     </div>
@@ -108,7 +61,7 @@ export function TextareaVariantsDemo() {
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <RowMatrix
             rowLabels={VARIANT_OPTIONS}
             renderRow={(row) => (
@@ -157,7 +110,7 @@ export function TextareaSizingDemo() {
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea placeholder="Write a message..." size={size} gutterSize={gutterSize} />
         </div>
       </div>
@@ -173,7 +126,7 @@ export function TextareaDisabledDemo() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea disabled={disabled} defaultValue="Jane Doe" aria-label="Name" />
         </div>
       </div>
@@ -189,7 +142,7 @@ export function TextareaInvalidDemo() {
         <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea invalid={invalid} placeholder="Invalid textarea" />
         </div>
       </div>
@@ -205,7 +158,7 @@ export function TextareaAutoSelectDemo() {
         <DemoControlBoolean name="autoSelect" value={autoSelect} onChange={setAutoSelect} />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea defaultValue="Toggle to auto select" autoSelect={autoSelect} aria-label="Notes" />
         </div>
       </div>
@@ -255,7 +208,7 @@ export function TextareaAutoResizeDemo() {
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -282,7 +235,7 @@ export function TextareaAutofillExtensionsDemo() {
         />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <Textarea
             key={String(allowAutofillExtensions)}
             name="email"

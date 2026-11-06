@@ -1,0 +1,23 @@
+.DesktopIcon {
+  display: block;
+  flex-shrink: 0;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+}
+
+.PhoneIcon {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .DesktopIcon {
+    display: none;
+  }
+
+  .PhoneIcon {
+    display: block;
+    flex-shrink: 0;
+    width: 15px;
+    height: 24px;
+  }
+}

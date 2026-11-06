@@ -93,7 +93,9 @@ const InputGroupRoot = ({
     onMouseDown?.(evt)
     const control = evt.currentTarget.querySelector<HTMLElement>(CONTROL_SELECTOR)
     const { target } = evt
-    if (evt.defaultPrevented || !control || !(target instanceof Element) || control.contains(target)) {
+    // Portal content can bubble through the React tree without belonging to this frame.
+    if (evt.defaultPrevented || !control || !(target instanceof Element) ||
+      !evt.currentTarget.contains(target) || control.contains(target)) {
       return
     }
     // Buttons, links, menus and other controls in the addons take their own clicks

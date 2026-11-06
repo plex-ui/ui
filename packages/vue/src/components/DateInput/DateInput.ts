@@ -72,8 +72,8 @@ const DateInputComponent = defineComponent({
     placeholder: String,
   },
   emits: {
-    "update:value": (_value: DateTime | null) => true,
-    "change": (_value: DateTime | null) => true,
+    "update:value": (value: DateTime | null) => value === null || DateTime.isDateTime(value),
+    "change": (value: DateTime | null) => value === null || DateTime.isDateTime(value),
   },
   setup(props, { attrs, slots, emit, expose }) {
     const hasTime = computed(() => !!props.timeMode)
@@ -186,12 +186,16 @@ const DateInputComponent = defineComponent({
     })
 
     return () => {
-      const { onInput: _onInput, onClear: _onClear, ...inputProps } = attrs
+      const { inputMode, inputmode, ...inputProps } = attrs
+      delete inputProps.onInput
+      delete inputProps.onClear
       return withDirectives(
         h(
           Input,
           // mergeProps keeps the caller's `@blur` and runs it first, as React does
           mergeProps(inputProps, {
+            // Accept both native and JSX spelling, without duplicate DOM attributes.
+            "inputmode": inputMode ?? inputmode ?? (props.timeMode?.includes("AA") ? "text" : "numeric"),
             "ref": inputComponent,
             "value": inputValue.value,
             "onUpdate:value": (str: string) => {

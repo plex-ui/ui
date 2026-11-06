@@ -84,7 +84,7 @@ import { Skeleton } from "@plexui/ui/components/Skeleton"
 
 ### Table
 
-<ComponentPreview details={<>Table skeletons show header and row structure while data loads.</>} code={`<div className="flex flex-col gap-2 w-[400px]">
+<ComponentPreview details={<>Table skeletons show header and row structure while data loads.</>} code={`<div className="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
   <div className="flex gap-4 pb-2 border-b border-default">
     <Skeleton className="h-4 w-[100px]" />
     <Skeleton className="h-4 w-[150px]" />
@@ -98,7 +98,7 @@ import { Skeleton } from "@plexui/ui/components/Skeleton"
     </div>
   ))}
 </div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-2 w-[400px]">
+  <div className="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
     <div className="flex gap-4 pb-2 border-b border-default">
       <Skeleton className="h-4 w-[100px]" />
       <Skeleton className="h-4 w-[150px]" />

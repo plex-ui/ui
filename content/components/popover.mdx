@@ -11,16 +11,139 @@ import {
   PopoverControllerDemo,
 } from "@/components/docs/PopoverDemos"
 
+export const controllerCode = `import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Button } from '@plexui/ui/components/Button';
+import { Sparkles } from '@plexui/ui/components/Icon';
+import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
+import { Textarea } from '@plexui/ui/components/Textarea';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function PopoverTextarea({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange?: (next: string) => void;
+}) {
+  return (
+    <Textarea
+      value={value}
+      onChange={(evt) => onChange?.(evt.target.value)}
+      aria-label="Prompt"
+      variant="ghost"
+      gutterSize="xl"
+      rows={3}
+      className="w-full"
+      placeholder="Describe what you're using the model for, and we'll generate system instructions."
+    />
+  );
+}
+
+function PopoverActionBar({ loading }: { loading?: boolean }) {
+  return (
+    <div className="px-3 pb-3 flex items-center justify-between">
+      <div className="flex gap-1.5 items-center font-normal text-sm text-tertiary">
+        <Sparkles width={16} height={16} />
+        Free beta
+      </div>
+      <Button color="primary" size="xs" pill={false} loading={loading} type="submit">
+        Create
+      </Button>
+    </div>
+  );
+}
+
+function PopoverControllerForm({ value, onChange, submitting, onSubmit }: {
+  value: string;
+  onChange: (value: string) => void;
+  submitting: boolean;
+  onSubmit: (close: () => void, shake: () => void) => void;
+}) {
+  const { shake, close } = usePopoverController();
+
+  const handleSubmit = (evt: FormEvent) => {
+    evt.preventDefault();
+    onSubmit(close, shake);
+  };
+
+  return (
+    <form className="pt-2" onSubmit={handleSubmit}>
+      <PopoverTextarea value={value} onChange={onChange} />
+      <PopoverActionBar loading={submitting} />
+    </form>
+  );
+}
+
+export function PopoverControllerDemo() {
+  const wide = useBreakpoint('md');
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const session = useRef(0);
+
+  useEffect(() => () => {
+    session.current++;
+    clearTimeout(timer.current);
+  }, []);
+
+  const changeOpen = (next: boolean) => {
+    session.current++;
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    if (next) {
+      setSubmitting(false);
+      setValue('');
+    }
+    setOpen(next);
+  };
+
+  const submitPrompt = (close: () => void, shake: () => void) => {
+    if (!value) {
+      shake();
+      return;
+    }
+    if (timer.current !== undefined) return;
+    setSubmitting(true);
+    const currentSession = session.current;
+    timer.current = setTimeout(() => {
+      if (session.current !== currentSession) return;
+      timer.current = undefined;
+      close();
+    }, 2000);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={changeOpen}>
+      <Popover.Trigger>
+        <Button color="primary" pill={false}>Generate</Button>
+      </Popover.Trigger>
+      <Popover.Content side={wide ? 'right' : 'bottom'}>
+        <PopoverControllerForm value={value} onChange={setValue} submitting={submitting} onSubmit={submitPrompt} />
+      </Popover.Content>
+    </Popover>
+  );
+}`
+
 <UsageBlock>{`import { Popover } from "@plexui/ui/components/Popover";`}</UsageBlock>
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`<Popover>
-  <Popover.Trigger><Button color="primary">Generate</Button></Popover.Trigger>
-  <Popover.Content side="right">...</Popover.Content>
-</Popover>`} previewMinHeight={168}>
+These examples keep the panel beside the trigger on desktop and below it on phones, where space beside the trigger is limited.
+
+<ComponentPreview code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+  const wide = useBreakpoint('md');
+  return (
+    <Popover>
+      <Popover.Trigger><Button color="primary">Generate</Button></Popover.Trigger>
+      <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+    </Popover>
+  );
+}`} previewMinHeight={168}>
   <PopoverBaseDemo />
 </ComponentPreview>
 
@@ -35,17 +158,23 @@ import {
 
 ### Open on hover
 
-<ComponentPreview details={<>Use <code>showOnHover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={`<Popover showOnHover>
-  <Popover.Trigger>...</Popover.Trigger>
-  <Popover.Content>...</Popover.Content>
-</Popover>`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>showOnHover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={`import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+
+function Example() {
+  const wide = useBreakpoint('md');
+  return (
+    <Popover showOnHover>
+      <Popover.Trigger>...</Popover.Trigger>
+      <Popover.Content side={wide ? 'right' : 'bottom'}>...</Popover.Content>
+    </Popover>
+  );
+}`} previewMinHeight={168}>
   <PopoverHoverDemo />
 </ComponentPreview>
 
 ### Using the controller
 
-<ComponentPreview details={<>You can access <code>usePopoverController()</code> controller context from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After async submission occurs (faked loading state), the <code>close()</code> method is called to close the popup imperatively.</li></ul></>} code={`const { close, shake } = usePopoverController()
-// e.g. close after form submit, shake on validation error`} previewMinHeight={168}>
+<ComponentPreview details={<>You can access <code>usePopoverController()</code> controller context from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>. They do exactly what you think they do.<br/><br/><ul><li>Attempting to submit an empty form calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
   <PopoverControllerDemo />
 </ComponentPreview>
 
@@ -79,6 +208,7 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
   { prop: "sideOffset", type: "number", default: "8", description: "Offset from trigger (px)" },
   { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment (px)" },
   { prop: "avoidCollisions", type: "boolean", default: "true", description: "Reposition to stay inside the viewport and scroll containers" },
+  { prop: "collisionPadding", type: "number", default: "20", description: "Space in px to keep from viewport and scroll container boundaries" },
   { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface" },
   { prop: "autoFocus", type: "boolean", default: "true", description: "Move focus into the panel when it opens (hover popovers never take focus)" },
   { prop: "data-*", type: "string", description: "Data attributes land on the panel" },

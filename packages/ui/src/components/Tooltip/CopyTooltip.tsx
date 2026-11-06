@@ -56,15 +56,43 @@ export const CopyTooltip = ({
   const [copied, setCopied] = useState<boolean>(false)
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const mounted = useRef(true)
+  const copyGeneration = useRef(0)
+  const stopPendingDismissListeners = useRef<(() => void) | undefined>(undefined)
+
+  const cancelFeedback = () => {
+    copyGeneration.current += 1
+    stopPendingDismissListeners.current?.()
+    stopPendingDismissListeners.current = undefined
+    clearTimeout(copiedTimerRef.current)
+  }
 
   const copy = async () => {
-    // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+    cancelFeedback()
+    // Success belongs to the completed attempt, not a new pending write.
+    setCopied(false)
+    const generation = copyGeneration.current
+    // A touch copy can start while closed, before Tooltip.Content installs its
+    // dismissal listeners. Scrolling or Escape still cancels pending feedback.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") cancelFeedback()
+    }
+    document.addEventListener("scroll", cancelFeedback, true)
+    document.addEventListener("keydown", onKeyDown, true)
+    stopPendingDismissListeners.current = () => {
+      document.removeEventListener("scroll", cancelFeedback, true)
+      document.removeEventListener("keydown", onKeyDown, true)
+    }
+    // "Copied!" follows the latest successful clipboard write
     const succeeded = await copyText(copyValue)
     if (!mounted.current) return
     onCopy?.(succeeded)
+    if (generation !== copyGeneration.current) return
+    stopPendingDismissListeners.current?.()
+    stopPendingDismissListeners.current = undefined
     if (!succeeded) return
 
     setCopied(true)
+    setOpen(true)
 
     // Persist the copied state for a second, then close
     clearTimeout(copiedTimerRef.current)
@@ -77,11 +105,13 @@ export const CopyTooltip = ({
     mounted.current = true
     return () => {
       mounted.current = false
+      stopPendingDismissListeners.current?.()
       clearTimeout(copiedTimerRef.current)
     }
   }, [])
 
   const handleOpenChange = (nextState: boolean) => {
+    if (!nextState) cancelFeedback()
     // When opening, ensure timer and copied state are cleared
     if (nextState) {
       clearTimeout(copiedTimerRef.current)
@@ -96,27 +126,20 @@ export const CopyTooltip = ({
       open={open}
       onOpenChange={handleOpenChange}
       delayDuration={openDelay}
-      disableHoverableContent={false}
+      disableHoverableContent={copied}
     >
       <Tooltip.Trigger
-        onPointerDown={(evt) => {
-          // Prevent tooltip listeners from closing
-          evt.preventDefault()
-          evt.stopPropagation()
-
-          // Copy the value
-          copy()
-        }}
-        // Prevent default behavior of closing on click from this handler
         onClick={(evt) => {
+          // Activate after a completed tap, not when a scrolling gesture starts.
+          // Keep the tooltip's click listener from closing the copy feedback.
           evt.preventDefault()
           evt.stopPropagation()
+          copy()
         }}
         // Keyboard users copy with Enter or Space, like a click
         onKeyDown={(evt) => {
           if (evt.key === "Enter" || evt.key === " ") {
             evt.preventDefault()
-            setOpen(true)
             copy()
           }
         }}
@@ -132,7 +155,7 @@ export const CopyTooltip = ({
         sideOffset={sideOffset}
         collisionPadding={15}
         onEscapeKeyDown={() => setOpen(false)}
-        onPointerDown={copy}
+        onClick={copy}
       >
         {copied ? (
           // The <Check /> SVG canvas whitespace is larger than copy, so we use a smaller flexbox gap

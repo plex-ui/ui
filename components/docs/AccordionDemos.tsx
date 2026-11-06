@@ -1,43 +1,55 @@
 'use client';
 
+import { useState } from 'react';
 import { Accordion } from '@plexui/ui/components/Accordion';
 import { Card } from '@plexui/ui/components/Card';
+import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
 
 /* ============================================================
    Overview — shipping / returns / support FAQ
    ============================================================ */
 
 export function AccordionOverviewDemo() {
+  const [value, setValue] = useState('shipping');
+  const [returnsDisabled, setReturnsDisabled] = useState(false);
   return (
-    <Accordion
-      type="single"
-      collapsible
-      defaultValue="shipping"
-      style={{ width: '100%', maxWidth: 384 }}
-    >
-      <Accordion.Item value="shipping">
-        <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>
-        <Accordion.Content>
-          We offer standard (5–7 business days), express (2–3 days), and
-          overnight shipping. Free standard shipping on orders over $50.
-        </Accordion.Content>
-      </Accordion.Item>
-      <Accordion.Item value="returns">
-        <Accordion.Trigger>What is your return policy?</Accordion.Trigger>
-        <Accordion.Content>
-          Returns are accepted within 30 days of delivery. Items must be unused
-          and in original packaging. Refunds are processed within 5–7 business
-          days of receipt.
-        </Accordion.Content>
-      </Accordion.Item>
-      <Accordion.Item value="support">
-        <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>
-        <Accordion.Content>
-          Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
-          ET. Weekend tickets are handled within 24 hours.
-        </Accordion.Content>
-      </Accordion.Item>
-    </Accordion>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="returnsDisabled" value={returnsDisabled} onChange={setReturnsDisabled} />
+      </div>
+      <div data-demo-stage className="py-10 w-full flex justify-center">
+        <Accordion
+          type="single"
+          collapsible
+          value={value}
+          onValueChange={setValue}
+          style={{ width: '100%', maxWidth: 384 }}
+        >
+          <Accordion.Item value="shipping">
+            <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>
+            <Accordion.Content>
+              We offer standard (5–7 business days), express (2–3 days), and
+              overnight shipping. Free standard shipping on orders over $50.
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="returns" disabled={returnsDisabled}>
+            <Accordion.Trigger>What is your return policy?</Accordion.Trigger>
+            <Accordion.Content>
+              Returns are accepted within 30 days of delivery. Items must be unused
+              and in original packaging. Refunds are processed within 5–7 business
+              days of receipt.
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="support">
+            <Accordion.Trigger>How can I contact customer support?</Accordion.Trigger>
+            <Accordion.Content>
+              Reach us by email, live chat, or phone Monday through Friday, 9am–6pm
+              ET. Weekend tickets are handled within 24 hours.
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      </div>
+    </>
   );
 }
 
@@ -122,43 +134,6 @@ export function AccordionMultipleDemo() {
           <Accordion.Content>{item.content}</Accordion.Content>
         </Accordion.Item>
       ))}
-    </Accordion>
-  );
-}
-
-/* ============================================================
-   Disabled — middle item not available on current plan
-   ============================================================ */
-
-export function AccordionDisabledDemo() {
-  return (
-    <Accordion
-      type="single"
-      collapsible
-      defaultValue="history"
-      style={{ width: '100%', maxWidth: 384 }}
-    >
-      <Accordion.Item value="history">
-        <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>
-        <Accordion.Content>
-          Yes, the Activity tab logs every API call, deploy, and admin action
-          for the last 90 days. Longer retention requires the Enterprise plan.
-        </Accordion.Content>
-      </Accordion.Item>
-      <Accordion.Item value="audit" disabled>
-        <Accordion.Trigger>Audit log export (Enterprise only)</Accordion.Trigger>
-        <Accordion.Content>
-          Upgrade to Enterprise to stream audit events to S3, Splunk, or your
-          SIEM of choice.
-        </Accordion.Content>
-      </Accordion.Item>
-      <Accordion.Item value="two-factor">
-        <Accordion.Trigger>How do I enable two-factor auth?</Accordion.Trigger>
-        <Accordion.Content>
-          Settings → Security → Two-factor. You can use an authenticator app or
-          a FIDO2 hardware key. Recovery codes are issued once at enrollment.
-        </Accordion.Content>
-      </Accordion.Item>
     </Accordion>
   );
 }

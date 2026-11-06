@@ -26,7 +26,7 @@ import {
   <EmptyMessage.Title>No projects yet</EmptyMessage.Title>
   <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>
   <EmptyMessage.ActionRow>
-    <Button color="primary" size="lg">
+    <Button color="primary" size="xl">
       <Plus className="mr-[-2px]" />
       New project
     </Button>
@@ -154,4 +154,4 @@ Every part accepts `className`. The parts apply no other attributes.
 
 ## Styling
 
-Empty Message has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+Empty Message reads the shared semantic colors and optional `--empty-message-*` tokens for its typography, content padding and actions. The touch stylesheet provides the full mobile state; `size="sm"` keeps the compact panel layout. See [Design tokens](/docs/foundations/design-tokens).

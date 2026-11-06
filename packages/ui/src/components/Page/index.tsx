@@ -1,5 +1,7 @@
 export {
   Page,
+  type PageBarBackground,
+  type PageFooterProps,
   type PageContentProps,
   type PageHeaderProps,
   type PageProps,

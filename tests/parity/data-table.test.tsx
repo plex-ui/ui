@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs"
+import postcss from "postcss"
+import type { Row, Table } from "@tanstack/react-table"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
 import { hydrateRoot } from "react-dom/client"
@@ -67,17 +70,18 @@ const lib = (fw: FW) => (fw === "react" ? R : V) as typeof R
 
 const sortHeader =
   (fw: FW, title: string, className?: string) =>
-  ({ column }: { column: unknown }) =>
-    fw === "react"
+  function SortHeader({ column }: { column: unknown }) {
+    return fw === "react"
       ? createElement(R.DataTableColumnHeader as ComponentType<Props>, { column, title, className })
       : h(V.DataTableColumnHeader as never, { column, title, ...(className ? { class: className } : {}) })
+  }
 
 const nameCell =
   (fw: FW) =>
   ({ row }: { row: { original: User } }) =>
     el(fw, "span", { className: "font-medium" }, row.original.name)
 
-const basicColumns = (fw: FW) => [
+const basicColumns = () => [
   { accessorKey: "id", header: "ID" },
   { accessorKey: "name", header: "Name" },
   { accessorKey: "department", header: "Department" },
@@ -129,7 +133,7 @@ const headerVariantColumns = (fw: FW) => [
   { accessorKey: "email", enableSorting: false, header: sortHeader(fw, "Email") },
 ]
 
-const groupedColumns = (fw: FW) => [
+const groupedColumns = () => [
   {
     id: "person",
     header: "Person",
@@ -149,7 +153,6 @@ const defaultRenderColumns = (fw: FW) => [
   { id: "display", header: () => el(fw, "em", {}, "Display"), cell: ({ row }: { row: { index: number } }) => `#${row.index}` },
 ]
 
-type Log = string[]
 
 /**
  * Columns whose header and cells call the table API, to drive the
@@ -159,7 +162,7 @@ type Log = string[]
 const apiColumns = (fw: FW, { selected = true }: { selected?: boolean } = {}) => [
   {
     id: "probe",
-    header: ({ table }: { table: any }) => {
+    header: ({ table }: { table: Table<User> }) => {
       const state = table.getState()
       return el(
         fw,
@@ -173,7 +176,7 @@ const apiColumns = (fw: FW, { selected = true }: { selected?: boolean } = {}) =>
         }),
       )
     },
-    cell: ({ row }: { row: any }) =>
+    cell: ({ row }: { row: Row<User> }) =>
       el(
         fw,
         "button",
@@ -187,13 +190,13 @@ const apiColumns = (fw: FW, { selected = true }: { selected?: boolean } = {}) =>
   },
   {
     accessorKey: "name",
-    header: ({ table }: { table: any }) =>
+    header: ({ table }: { table: Table<User> }) =>
       el(
         fw,
         "span",
         {},
         el(fw, "button", { className: "filter-design", onClick: () => table.setGlobalFilter("design") }, "filter"),
-        el(fw, "button", { className: "hide-role", onClick: () => table.getColumn("role").toggleVisibility(false) }, "hide"),
+        el(fw, "button", { className: "hide-role", onClick: () => table.getColumn("role")?.toggleVisibility(false) }, "hide"),
         el(fw, "button", { className: "reset-visibility", onClick: () => table.resetColumnVisibility() }, "reset"),
         el(fw, "button", { className: "toggle-all", onClick: () => table.toggleAllRowsSelected() }, "all"),
         el(fw, "button", { className: "reset-filter", onClick: () => table.resetGlobalFilter() }, "clear"),
@@ -211,7 +214,7 @@ const apiColumns = (fw: FW, { selected = true }: { selected?: boolean } = {}) =>
 const batchColumns = (fw: FW) => [
   {
     id: "batch",
-    header: ({ table }: { table: any }) =>
+    header: ({ table }: { table: Table<User> }) =>
       el(
         fw,
         "span",
@@ -242,7 +245,7 @@ const batchColumns = (fw: FW) => [
           "two later",
         ),
       ),
-    cell: ({ row }: { row: any }) => el(fw, "span", { className: "selected" }, `${row.id}:${row.getIsSelected()}`),
+    cell: ({ row }: { row: Row<User> }) => el(fw, "span", { className: "selected" }, `${row.id}:${row.getIsSelected()}`),
   },
   { accessorKey: "name", header: "Name" },
 ]
@@ -256,10 +259,13 @@ const vueProps = ({ className, onGlobalFilterChange, onColumnVisibilityChange, o
   ...(onRowSelectionChange ? { "onUpdate:rowSelection": onRowSelectionChange } : {}),
 })
 
-const dataTable = (fw: FW, props: Props, vueSlots?: Record<string, () => unknown>) =>
-  fw === "react"
+function dataTable(fw: "react", props: Props): ReactElement
+function dataTable(fw: "vue", props: Props, vueSlots?: Record<string, () => unknown>): VNode
+function dataTable(fw: FW, props: Props, vueSlots?: Record<string, () => unknown>): ReactElement | VNode {
+  return fw === "react"
     ? createElement(R.DataTable as ComponentType<Props>, props)
     : h(V.DataTable as never, vueProps(props), vueSlots as never)
+}
 
 // ---------------------------------------------------------------------------
 // Walker
@@ -481,7 +487,7 @@ describe("DataTable markup parity", () => {
       "every column hidden with rows: empty rows",
       (fw) => ({ columns: basic(fw), data: users.slice(0, 2), columnVisibility: { id: false, name: false, department: false, status: false } }),
     ],
-    ["empty columns", (fw) => ({ columns: [], data: users.slice(0, 2) })],
+    ["empty columns", () => ({ columns: [], data: users.slice(0, 2) })],
     ["controlled column visibility", (fw) => ({ columns: basic(fw), data: users.slice(0, 4), columnVisibility: { department: false, name: true } })],
     ["globalFilter matches", (fw) => ({ columns: basic(fw), data: users, globalFilter: "engineering", pageSize: 5 })],
     ["globalFilter empty string", (fw) => ({ columns: basic(fw), data: users, globalFilter: "" })],
@@ -1388,5 +1394,85 @@ describe("DataTable column helper interaction parity", () => {
 describe("DataTablePagination and DataTableColumnHeader exports", () => {
   test("exports mirror React's index", () => {
     expect(Object.keys(V).sort()).toEqual(Object.keys(R).sort())
+  })
+})
+
+
+describe("DataTable responsive control geometry", () => {
+  test.each([true, false])("selection, sorting and pagination keep their target/overflow contracts (Phone: %s)", async (phone) => {
+    // jsdom has no layout or media-query evaluation. Project the real shared
+    // declarations/tokens into this viewport; actual hit rectangles and
+    // horizontal scrolling still require the browser runtime check.
+    const tokens: Record<string, string> = {}
+    const tokenFiles = ["variables-primitive", "variables-semantic", "variables-components", ...(phone ? ["touch"] : [])]
+    for (const file of tokenFiles) {
+      postcss.parse(readFileSync(`packages/styles/src/styles/${file}.css`, "utf8")).walkDecls((decl) => {
+        if (decl.prop.startsWith("--")) tokens[decl.prop] = decl.value
+      })
+    }
+    const resolveValue = (source: string) => {
+      let result = source
+      for (let pass = 0; pass < 20; pass++) {
+        const next = result.replace(/var\((--[\w-]+)(?:,\s*([^()]*))?\)/g, (match: string, name: string, fallback: string | undefined) => tokens[name] ?? fallback ?? match)
+        if (next === result) break
+        result = next
+      }
+      return result.replace(/spacing\(([\d.]+)\)/g, (_match, amount: string) => `${Number(amount) * 4}px`)
+    }
+    const selected = postcss.root()
+    const selectors = new Set([".DataTable", ".TableContainer", ".DataTable .TableContainer :where(table)", ".SelectColumn", ".Pagination", ".PaginationRight", ".PaginationSelect", ".PaginationButtons", ".ColumnHeaderButton", ".SortIcon", ".TableWrapper", ".Table"])
+    let focusRing: Record<string, string> = {}
+    for (const component of ["Table", "DataTable"]) {
+      const source = postcss.parse(readFileSync(`packages/styles/src/components/${component}/${component}.module.css`, "utf8"))
+      source.walkRules((rule) => {
+        if (rule.selector === "&:focus-visible" && rule.parent?.type === "rule" && rule.parent.selector === ".ColumnHeaderButton") {
+          focusRing = Object.fromEntries(rule.nodes.filter((node) => node.type === "decl").map((node) => [node.prop, node.value]))
+        }
+        if (rule.parent?.type !== "root" || !selectors.has(rule.selector)) return
+        const flat = postcss.rule({ selector: rule.selector })
+        rule.each((node) => {
+          if (node.type === "decl") flat.append(node.clone({ value: resolveValue(node.value) }))
+        })
+        selected.append(flat)
+      })
+    }
+    const stylesheet = document.createElement("style")
+    stylesheet.textContent = selected.toString()
+    document.head.append(stylesheet)
+    try {
+      await tablePair((fw) => ({ columns: sortColumns(fw), data: users, pageSize: 5, enableRowSelection: true }), {
+        steps: async ({ click, choose }) => {
+          const selection = resolve(".SelectColumn")
+          const checkboxWidth = resolveValue("var(--checkbox-target-size, var(--checkbox-indicator-size))")
+          expect(getComputedStyle(selection).width).toBe(checkboxWidth)
+          expect(getComputedStyle(selection).boxSizing).toBe("content-box")
+          expect(selection.querySelector('[role="checkbox"]')).not.toBeNull()
+          for (const control of [resolve(".ColumnHeaderButton"), resolve(".PaginationSelect")]) {
+            const style = getComputedStyle(control)
+            expect(style.minHeight).toBe(phone ? "44px" : "auto")
+            expect(style.minWidth).toBe(phone ? "44px" : "auto")
+            expect(style.boxSizing).toBe("border-box")
+          }
+          expect(focusRing).toMatchObject({ outline: "2px solid var(--color-ring)", "outline-offset": "2px" })
+          expect(getComputedStyle(resolve(".Pagination")).flexWrap).toBe(phone ? "wrap" : "nowrap")
+          expect(getComputedStyle(resolve(".PaginationRight")).flexWrap).toBe(phone ? "wrap" : "nowrap")
+          expect(getComputedStyle(resolve(".PaginationButtons")).flexShrink).toBe("0")
+          expect(getComputedStyle(resolve(".SortIcon")).flexShrink).toBe("0")
+          expect(getComputedStyle(resolve(".Table")).tableLayout).toBe(phone ? "auto" : "fixed")
+          expect(getComputedStyle(resolve(".Table")).minWidth).toBe(phone ? "max-content" : "auto")
+          expect(getComputedStyle(resolve(".TableWrapper")).overflow).toBe("auto")
+          expect(getComputedStyle(resolve(".DataTable")).minWidth).toBe("0px")
+          // Enlarged native controls keep their existing interaction handlers.
+          await click('.SelectColumn [role="checkbox"]')
+          expect(resolve('tbody [role="checkbox"]').getAttribute("aria-checked")).toBe("true")
+          await click(".ColumnHeaderButton")
+          expect(resolve("th[aria-sort]").getAttribute("aria-sort")).toBe("ascending")
+          await choose(".PaginationSelect", "10")
+          expect(document.querySelectorAll("tbody tr")).toHaveLength(10)
+        },
+      })
+    } finally {
+      stylesheet.remove()
+    }
   })
 })

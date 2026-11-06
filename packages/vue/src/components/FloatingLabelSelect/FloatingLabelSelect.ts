@@ -2,6 +2,7 @@ import clsx from "clsx"
 import { defineComponent, h, shallowRef, useId, type PropType } from "vue"
 import { Button } from "../Button/index.js"
 import { Dropdown, X } from "../Icon/index.js"
+import { FieldError } from "../FieldError/index.js"
 import s from "@plexui/styles/components/FloatingLabelSelect/FloatingLabelSelect.module.css"
 
 type Listener = (event: KeyboardEvent) => void
@@ -101,6 +102,9 @@ export const FloatingLabelSelect = defineComponent({
     const handleClearClick = (evt: MouseEvent) => {
       evt.stopPropagation()
       evt.preventDefault()
+      if (props.disabled) return
+      // Keep focus in the field before its clear button disappears.
+      fieldRef.value?.focus({ preventScroll: true })
       props.onClearClick?.()
     }
 
@@ -109,9 +113,10 @@ export const FloatingLabelSelect = defineComponent({
       const {
         "class": className,
         "aria-describedby": ariaDescribedByAttr,
-        "onKeydown": _onKeydown,
         ...restAttrs
       } = attrs
+      // The composed handler below already invokes the consumer's key listener.
+      delete restAttrs.onKeydown
 
       const invalid = props.invalid ?? !!errorMessage
 
@@ -140,7 +145,6 @@ export const FloatingLabelSelect = defineComponent({
             "data-disabled": disabled ? "" : undefined,
             "aria-expanded": open,
             "aria-haspopup": "listbox",
-            "aria-invalid": invalid ? true : undefined,
             "aria-describedby": ariaDescribedBy,
             "aria-disabled": disabled || undefined,
             "onPointerdown": handlePointerDown,
@@ -175,7 +179,7 @@ export const FloatingLabelSelect = defineComponent({
           ],
         ),
         // Same plain line as FloatingLabelInput, so the two read alike on one form
-        errorMessage ? h("div", { id: errorId, class: s.ErrorMessage, role: "alert" }, [errorMessage]) : null,
+        errorMessage ? h(FieldError, { id: errorId, class: s.ErrorMessage }, { default: () => errorMessage }) : null,
       ])
     }
   },

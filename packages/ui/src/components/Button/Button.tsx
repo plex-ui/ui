@@ -35,6 +35,8 @@ type CommonProps = {
    * @default false
    */
   pill?: boolean
+  /** Phone surface for neutral soft/ghost buttons. Desktop keeps the chosen variant. */
+  mobileMaterial?: "glass" | "flat"
   /**
    * Disables the button visually and from interactions
    * @default false
@@ -116,6 +118,7 @@ export const Button = (props: ButtonProps) => {
     color = "primary",
     variant = "solid",
     pill = false,
+    mobileMaterial,
     uniform = false,
     size = "md",
     iconSize,
@@ -153,6 +156,7 @@ export const Button = (props: ButtonProps) => {
       data-color={color}
       data-variant={variant}
       data-pill={pill ? "" : undefined}
+      data-mobile-material={mobileMaterial}
       data-uniform={uniform ? "" : undefined}
       data-size={size}
       data-gutter-size={gutterSize}
@@ -217,6 +221,7 @@ export const ButtonLink = ((
     color = "primary",
     variant = "solid",
     pill = false,
+    mobileMaterial,
     size = "md",
     gutterSize,
     iconSize,
@@ -250,6 +255,7 @@ export const ButtonLink = ((
     "data-color": color,
     "data-variant": variant,
     "data-pill": pill ? "" : undefined,
+    "data-mobile-material": mobileMaterial,
     "data-block": block ? "" : undefined,
     "data-optically-align": opticallyAlign,
     "data-size": size,

@@ -1,65 +1,18 @@
 'use client';
 
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Button } from '@plexui/ui/components/Button';
 import { Field } from '@plexui/ui/components/Field';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Eye, EyeOff, Search } from '@plexui/ui/components/Icon';
 import { FieldError } from '@plexui/ui/components/FieldError';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const GUTTER_OPTIONS = ['auto', '2xs', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
 type GutterOption = (typeof GUTTER_OPTIONS)[number];
-
 
 export function InputSizingDemo() {
   const [username, setUsername] = useState('');
@@ -273,7 +226,7 @@ export function InputOpticalAlignDemo() {
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
       <div data-demo-stage className="py-10">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
             <div className="mb-5 text-secondary text-sm">
               {opticallyAlign ? 'opticallyAlign="start"' : "Default"}
@@ -353,8 +306,6 @@ export function InputWithButtonDemo() {
     </>
   );
 }
-
-
 
 // ---------------------------------------------------------------------------
 // SSN mask utilities
@@ -629,7 +580,6 @@ export function InputSSNDemo() {
     </>
   );
 }
-
 
 // ---------------------------------------------------------------------------
 // Birthday mask utilities

@@ -1,9 +1,9 @@
 import { DateTime, Interval } from "luxon"
-import { computed, defineComponent, h, nextTick, onMounted, ref, shallowRef, watch, type PropType } from "vue"
+import { computed, defineComponent, h, nextTick, ref, shallowRef, watch, type PropType } from "vue"
 import { chunkIntoWeeks, getDaysOfMonth, isAfter, isBefore, isSameDay, isToday } from "../../lib/dateUtils.js"
 import { waitForAnimationFrame } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
-import { ChevronLeft, ChevronRight } from "../Icon/index.js"
+import { CalendarNavigationIcon } from "./CalendarNavigationIcon.js"
 import { usePopoverClose } from "../Popover/usePopoverController.js"
 import { Select, type Option } from "../Select/index.js"
 import { TransitionGroup } from "../Transition/index.js"
@@ -20,10 +20,6 @@ import { useDateContext } from "./context.js"
 // - The time fields are React controlled inputs: a typed value the state
 //   does not take is put back, and the `value` attribute follows the shown
 //   value (React syncs it for controlled inputs).
-
-const CALENDAR_WIDTH_PX = 210
-const CALENDAR_GAP_PX = 32
-const STEP_DISTANCE_PX = CALENDAR_WIDTH_PX + CALENDAR_GAP_PX
 
 const SHORT_MONTH_NAMES = Array.from({ length: 12 }, (_, i) => DateTime.local(2024, i + 1, 1).monthShort!)
 
@@ -90,6 +86,7 @@ export const DateCalendar = defineComponent({
     const canGoForward = () => !context.max || isBefore(calendarDate.value.endOf("month"), context.max)
 
     const handleNext = () => {
+      if (context.disabled) return
       if (isDropdown()) {
         calendarDate.value = calendarDate.value.plus({ months: 1 })
         forceRenderIncrement.value += 1
@@ -100,6 +97,7 @@ export const DateCalendar = defineComponent({
     }
 
     const handlePrevious = () => {
+      if (context.disabled) return
       if (isDropdown()) {
         calendarDate.value = calendarDate.value.minus({ months: 1 })
         forceRenderIncrement.value += 1
@@ -119,8 +117,9 @@ export const DateCalendar = defineComponent({
     }
 
     const handleDateSelect = (selectedDate: DateTime) => {
+      if (context.disabled) return
       if (context.showTime) {
-        context.onChange(clampToBounds(selectedDate.set({ hour: pendingHour.value, minute: pendingMinute.value })))
+        context.onChange(clampToBounds(selectedDate.set({ hour: context.value?.hour ?? pendingHour.value, minute: context.value?.minute ?? pendingMinute.value })))
       } else {
         context.onChange(selectedDate)
         closePopover()
@@ -128,22 +127,26 @@ export const DateCalendar = defineComponent({
     }
 
     const handleTimeChange = (hour: number, minute: number) => {
+      if (context.disabled) return
       const value = context.value
-      const next = value ? clampToBounds(value.set({ hour, minute })) : null
-      // Show the time that was actually applied, even when clamping left value unchanged
-      pendingHour.value = next ? next.hour : hour
-      pendingMinute.value = next ? next.minute : minute
-      if (next) {
-        context.onChange(next)
+      if (value) {
+        // A controlled value is authoritative, including when the owner refuses the request.
+        context.onChange(clampToBounds(value.set({ hour, minute })))
+      } else {
+        // Before a day is chosen the time is a local draft, not a selected date.
+        pendingHour.value = hour
+        pendingMinute.value = minute
       }
     }
 
     const handleDropdownMonthChange = (month: number) => {
+      if (context.disabled) return
       calendarDate.value = DateTime.local(calendarDate.value.year, month, 1)
       forceRenderIncrement.value += 1
     }
 
     const handleDropdownYearChange = (year: number) => {
+      if (context.disabled) return
       calendarDate.value = DateTime.local(year, calendarDate.value.month, 1)
       forceRenderIncrement.value += 1
     }
@@ -158,7 +161,7 @@ export const DateCalendar = defineComponent({
     }
 
     const handleDayKeyDown = (event: KeyboardEvent, day: DateTime) => {
-      if (event.altKey || event.ctrlKey || event.metaKey) {
+      if (context.disabled || event.altKey || event.ctrlKey || event.metaKey) {
         return
       }
 
@@ -222,46 +225,38 @@ export const DateCalendar = defineComponent({
       },
     )
 
-    // Detect height changes when new calendars are rendered
-    const measureHeight = () => {
-      waitForAnimationFrame(() => {
+    // Observe calendar border boxes as Phone geometry/fonts change, as well as month changes.
+    watch([calendarDate, forceRenderIncrement, () => context.captionLayout], (_value, _previous, onCleanup) => {
+      let cancelTransition: (() => void) | undefined
+      let observer: ResizeObserver | undefined
+      const cancelMeasure = waitForAnimationFrame(() => {
         const container = calendarContainerRef.value
-
-        if (!container) {
-          return
-        }
-
-        let maxHeight = -Infinity
-
-        // Find the tallest calendar
-        container.querySelectorAll<HTMLElement>("[data-calendar]")?.forEach((element) => {
-          // NOTE: clientHeight does not respect the scale() that popover uses to animate in, which is what we want
-          // We want to know the full height of the element, without any transform applied.
-          const height = element.clientHeight
-
-          // Ignore calendars that are exiting
-          if (element.closest("[data-exiting]")) {
-            return
+        if (!container) return
+        const calendars = () => Array.from(container.querySelectorAll<HTMLElement>("[data-calendar]"))
+          .filter((element) => !element.closest("[data-exiting]"))
+        const measure = () => {
+          const visible = calendars()
+          if (!visible.length) return
+          const height = `${Math.max(...visible.map((element) => element.clientHeight))}px`
+          if (container.style.height !== height) container.style.height = height
+          // Do not animate the initial measurement. CSS follows live reduced motion.
+          if (!container.style.transition && !cancelTransition) {
+            cancelTransition = waitForAnimationFrame(() => {
+              container.style.transition = "height var(--calendar-height-duration, 0.25s) var(--cubic-move)"
+            })
           }
-
-          if (height > maxHeight) {
-            maxHeight = height
-          }
-        })
-
-        container.style.height = `${maxHeight}px`
-
-        // Don't animate the initial height.
-        // This is relevant when the calendar opens to a larger size than the default.
-        if (!container.style.transition) {
-          waitForAnimationFrame(() => {
-            container.style.transition = `height 0.25s var(--cubic-move)`
-          })
         }
+        measure()
+        observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : undefined
+        observer?.observe(container, { box: "border-box" })
+        calendars().forEach((calendar) => observer?.observe(calendar, { box: "border-box" }))
       })
-    }
-    onMounted(measureHeight)
-    watch(calendarDate, measureHeight, { flush: "post" })
+      onCleanup(() => {
+        cancelMeasure()
+        cancelTransition?.()
+        observer?.disconnect()
+      })
+    }, { immediate: true, flush: "post" })
 
     // Focus a pending day once its month has rendered. TransitionGroup marks
     // the leaving calendar after this render, so wait a frame like the height does
@@ -311,10 +306,10 @@ export const DateCalendar = defineComponent({
                   "pill": false,
                   "iconSize": "sm",
                   "onClick": handlePrevious,
-                  "disabled": !canGoBack(),
+                  "disabled": context.disabled || !canGoBack(),
                   "aria-label": "Previous month",
                 },
-                { default: () => [h(ChevronLeft)] },
+                { default: () => [h(CalendarNavigationIcon, { direction: "previous" })] },
               ),
             ]),
             h("div", { class: s.Next }, [
@@ -328,10 +323,10 @@ export const DateCalendar = defineComponent({
                   "pill": false,
                   "iconSize": "sm",
                   "onClick": handleNext,
-                  "disabled": !canGoForward(),
+                  "disabled": context.disabled || !canGoForward(),
                   "aria-label": "Next month",
                 },
-                { default: () => [h(ChevronRight)] },
+                { default: () => [h(CalendarNavigationIcon, { direction: "next" })] },
               ),
             ]),
             dropdown
@@ -344,52 +339,54 @@ export const DateCalendar = defineComponent({
                   yearRange: context.yearRange,
                 })
               : null,
-            h(
-              "div",
-              {
-                class: s.CalendarRange,
-                style: !dropdown
-                  ? { transform: `translate(${calendarSteps.value * -1 * STEP_DISTANCE_PX}px, 0)` }
-                  : undefined,
-              },
-              [
-                !dropdown
-                  ? h(
-                      TransitionGroup,
-                      { enterDuration: 400, exitDuration: 400 },
-                      {
-                        default: () => [
-                          h(CalendarView, {
-                            key: viewKey,
-                            stepPosition: calendarSteps.value,
-                            date,
-                            selectedDate: value,
-                            min,
-                            max,
-                            onDateSelect: handleDateSelect,
-                            onDayKeyDown: handleDayKeyDown,
-                            hideMonthLabel: false,
-                          }),
-                        ],
-                      },
-                    )
-                  : h(CalendarView, {
-                      key: viewKey,
-                      stepPosition: 0,
-                      date,
-                      selectedDate: value,
-                      min,
-                      max,
-                      onDateSelect: handleDateSelect,
-                      onDayKeyDown: handleDayKeyDown,
-                      hideMonthLabel: true,
-                    }),
-              ],
-            ),
+            h("div", { class: s.CalendarViewport }, [
+              h(
+                "div",
+                {
+                  class: s.CalendarRange,
+                  style: !dropdown
+                    ? { transform: `translate(calc(${calendarSteps.value * -1} * var(--calendar-step)), 0)` }
+                    : undefined,
+                },
+                [
+                  !dropdown
+                    ? h(
+                        TransitionGroup,
+                        { enterDuration: 400, exitDuration: 400 },
+                        {
+                          default: () => [
+                            h(CalendarView, {
+                              key: viewKey,
+                              stepPosition: calendarSteps.value,
+                              date,
+                              selectedDate: value,
+                              min,
+                              max,
+                              onDateSelect: handleDateSelect,
+                              onDayKeyDown: handleDayKeyDown,
+                              hideMonthLabel: false,
+                            }),
+                          ],
+                        },
+                      )
+                    : h(CalendarView, {
+                        key: viewKey,
+                        stepPosition: 0,
+                        date,
+                        selectedDate: value,
+                        min,
+                        max,
+                        onDateSelect: handleDateSelect,
+                        onDayKeyDown: handleDayKeyDown,
+                        hideMonthLabel: true,
+                      }),
+                ],
+              ),
+            ]),
           ],
         ),
         context.showTime
-          ? h(TimeInput, { hour: pendingHour.value, minute: pendingMinute.value, onChange: handleTimeChange })
+          ? h(TimeInput, { hour: context.value?.hour ?? pendingHour.value, minute: context.value?.minute ?? pendingMinute.value, onChange: handleTimeChange })
           : null,
       ])
     }
@@ -407,6 +404,7 @@ const DropdownCaption = defineComponent({
     yearRange: Array as unknown as PropType<[number, number]>,
   },
   setup(props) {
+    const context = useDateContext()
     const minYear = computed(() => props.yearRange?.[0] ?? props.min?.year ?? DateTime.now().year - 120)
     const maxYear = computed(() => props.yearRange?.[1] ?? props.max?.year ?? DateTime.now().year)
 
@@ -422,6 +420,7 @@ const DropdownCaption = defineComponent({
       h("div", { class: s.DropdownCaption }, [
         h(Select, {
           "aria-label": "Month",
+          "disabled": context.disabled,
           "listMinWidth": "auto",
           "listWidth": "auto",
           "variant": "ghost",
@@ -433,6 +432,7 @@ const DropdownCaption = defineComponent({
         }),
         h(Select, {
           "aria-label": "Year",
+          "disabled": context.disabled,
           "searchAriaLabel": "Search year",
           "listMinWidth": "auto",
           "listWidth": "auto",
@@ -457,9 +457,18 @@ const TimeInput = defineComponent({
     onChange: { type: Function as PropType<(hour: number, minute: number) => void>, required: true },
   },
   setup(props) {
+    const context = useDateContext()
     const minuteRef = shallowRef<HTMLInputElement | null>(null)
     const hourText = ref<string | null>(null)
     const minuteText = ref<string | null>(null)
+
+    // Disabling a focused input does not reliably blur it. Cancel both drafts
+    // independently so they cannot mask a later owner value or commit on re-enable.
+    watch(() => context.disabled, (disabled) => {
+      if (!disabled) return
+      hourText.value = null
+      minuteText.value = null
+    }, { flush: "sync" })
 
     const hourValue = () => hourText.value ?? pad(props.hour)
     const minuteValue = () => minuteText.value ?? pad(props.minute)
@@ -473,6 +482,7 @@ const TimeInput = defineComponent({
     }
 
     const handleHourChange = (e: Event) => {
+      if (context.disabled) return
       const target = e.target as HTMLInputElement
       const raw = target.value.replace(/\D/g, "").slice(0, 2)
       hourText.value = raw
@@ -485,13 +495,15 @@ const TimeInput = defineComponent({
     }
 
     const handleHourBlur = (e: FocusEvent) => {
+      hourText.value = null
+      if (context.disabled) return
       const raw = (e.currentTarget as HTMLInputElement).value.replace(/\D/g, "").slice(0, 2)
       const h = Math.min(23, Number(raw) || 0)
       props.onChange(h, props.minute)
-      hourText.value = null
     }
 
     const handleMinuteChange = (e: Event) => {
+      if (context.disabled) return
       const target = e.target as HTMLInputElement
       const raw = target.value.replace(/\D/g, "").slice(0, 2)
       minuteText.value = raw
@@ -504,15 +516,17 @@ const TimeInput = defineComponent({
     }
 
     const handleMinuteBlur = (e: FocusEvent) => {
+      minuteText.value = null
+      if (context.disabled) return
       const raw = (e.currentTarget as HTMLInputElement).value.replace(/\D/g, "").slice(0, 2)
       const m = Math.min(59, Number(raw) || 0)
       props.onChange(props.hour, m)
-      minuteText.value = null
     }
 
     // Arrow steps drop the draft text so the field shows the accepted value,
     // which the parent may have clamped to min/max
     const handleKeyDown = (e: KeyboardEvent, type: "hour" | "minute") => {
+      if (context.disabled) return
       const step = e.shiftKey ? 10 : 1
       const { hour, minute } = props
       if (e.key === "ArrowUp") {
@@ -549,6 +563,7 @@ const TimeInput = defineComponent({
         h("div", { class: s.TimeInputGroup }, [
           h("input", {
             "class": s.TimeField,
+            "disabled": context.disabled,
             "type": "text",
             "inputmode": "numeric",
             "value": hour,
@@ -569,6 +584,7 @@ const TimeInput = defineComponent({
           h("input", {
             "ref": setMinuteRef,
             "class": s.TimeField,
+            "disabled": context.disabled,
             "type": "text",
             "inputmode": "numeric",
             "value": minute,
@@ -590,7 +606,7 @@ const TimeInput = defineComponent({
   },
 })
 
-const daysOfTheWeekLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+const daysOfTheWeekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 const CalendarView = defineComponent({
   name: "DateCalendarView",
@@ -605,6 +621,7 @@ const CalendarView = defineComponent({
     hideMonthLabel: { type: Boolean, default: false },
   },
   setup(props) {
+    const context = useDateContext()
     // Lock position on mount and don't respond to changes
     const position = props.stepPosition
     const view = computed(() => {
@@ -640,7 +657,7 @@ const CalendarView = defineComponent({
         "div",
         {
           "class": s.Calendar,
-          "style": hideMonthLabel ? undefined : { left: `${position * STEP_DISTANCE_PX}px` },
+          "style": hideMonthLabel ? undefined : { left: `calc(${position} * var(--calendar-step))` },
           "data-calendar": true,
           "data-static": hideMonthLabel ? "" : undefined,
         },
@@ -650,8 +667,11 @@ const CalendarView = defineComponent({
             : h("p", { class: s.MonthLabel }, [startOfMonth.monthLong, " ", String(startOfMonth.year)]),
           h(
             "div",
-            { class: s.Week },
-            daysOfTheWeekLabels.map((day) => h("div", { key: day, class: s.DayLabel }, day)),
+            { class: [s.Week, s.WeekdayHeader] },
+            daysOfTheWeekLabels.map((day) => h("div", { key: day, class: s.DayLabel }, [
+              h("span", { class: s.ShortDayLabel }, day.slice(0, 2)),
+              h("span", { class: s.LongDayLabel }, day),
+            ])),
           ),
           ...weeks.map((week, weekIndex) =>
             h(
@@ -673,11 +693,11 @@ const CalendarView = defineComponent({
                     {
                       "type": "button",
                       "class": s.InteractiveDay,
-                      "disabled": !enabled,
+                      "disabled": context.disabled || !enabled,
                       "aria-label": d.toLocaleString(DateTime.DATE_HUGE),
                       "aria-pressed": isSelected ? "true" : "false",
                       "aria-current": dayIsToday ? "date" : undefined,
-                      "onClick": () => d && props.onDateSelect?.(d),
+                      "onClick": () => { if (!context.disabled && d) props.onDateSelect?.(d) },
                       "onKeydown": (event: KeyboardEvent) => d && props.onDayKeyDown?.(event, d),
                     },
                     [String(d.day), dayIsToday ? h("span", { class: s.TodayDot }) : null],

@@ -12,6 +12,7 @@ export const overview = `<DatePicker
   size="lg"
   pill
   clearable
+  :disabled="disabled"
   v-model:value="selectedDate"
 />`
 
@@ -110,22 +111,39 @@ export const withoutIcon = `<DatePicker
   v-model:value="selectedDate"
 />`
 
-export const disabled = `<DatePicker
-  id="date-picker-disabled"
+export const overviewControls = [{ name: "disabled", type: "boolean", default: false }]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { DateTime } from 'luxon';
+import { DatePicker } from '@plexui/vue/components/DatePicker';
+
+const selectedDate = ref<DateTime | null>(null);
+const disabled = ref(false);
+</script>
+
+<template>
+<DatePicker
+  id="date-picker-base"
   trigger-date-format="MM/dd/yy"
   size="lg"
-  disabled
+  pill
+  clearable
+  :disabled="disabled"
   v-model:value="selectedDate"
-/>`
+/>
+</template>`
 
 <UsageBlock>{`import { DatePicker } from "@plexui/vue/components/DatePicker";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Bind the date (a luxon <code>DateTime</code>, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same value, like React's <code>onChange</code>.</>} code={overview} previewMinHeight={168}>
-  <VueDatePickerDemo template={overview} />
+<ComponentPreview language="vue" details={<>Bind the date (a luxon <code>DateTime</code>, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same value, like React's <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
+  <VueDatePickerDemo template={overview} controls={overviewControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ### Limits
@@ -176,12 +194,6 @@ export const disabled = `<DatePicker
   <VueDatePickerDemo template={withoutIcon} />
 </ComponentPreview>
 
-### Disabled
-
-<ComponentPreview language="vue" details={<>Disable the picker to prevent user interaction.</>} code={disabled} previewMinHeight={168}>
-  <VueDatePickerDemo template={disabled} startAtToday />
-</ComponentPreview>
-
 ## API
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
@@ -208,7 +220,7 @@ In the calendar, the arrow keys move focus by a day or a week, Home and End move
   { prop: "dropdown-icon-type", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
   { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable picker" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement." },
   { prop: "side-offset", type: "number", default: "8", description: "Distance from the trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment against the trigger" },
   { prop: "align-offset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },

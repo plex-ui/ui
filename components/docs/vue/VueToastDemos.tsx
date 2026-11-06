@@ -18,7 +18,7 @@ const scope = { toast, compact, saveProfile };
 
 /** The page's one Vue `<Toaster />`, like the React page's `ToastDemosHost`. */
 export function VueToastDemosHost() {
-  return <VuePreview template="<Toaster />" />;
+  return <div data-preview-support><VuePreview template="<Toaster />" /></div>;
 }
 
 /** A VueDemo whose template can call `toast`, laid out like the React toast demos. */

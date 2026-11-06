@@ -13,8 +13,8 @@ import { serializeDom } from "./normalize"
 //
 // The clock is fixed (Wednesday 14 October 2026, 10:30) so both frameworks
 // render the same months and the same "today" dot. matchMedia is stubbed
-// with a viewport width: two calendars from `sm` (576px), shortcuts from
-// `md` (768px); resizing calls the media query listeners.
+// with a viewport width: two calendars and shortcuts from `md` (768px);
+// resizing calls the media query listeners.
 //
 // Normalized here, and only here: Reka's popper wrapper (`--reka-popper-*`
 // names and `dir="ltr"`, as in tooltip-popover.test.tsx).
@@ -56,7 +56,10 @@ const mediaQueries = new Set<{ min: number; listeners: Set<() => void> }>()
 
 beforeEach(() => {
   events = []
+  // jsdom omits the stylesheet; provide the real breakpoint used by the calendar.
+  document.documentElement.style.setProperty("--breakpoint-md", "768px")
   width = 1024
+  vi.stubGlobal("innerWidth", width)
   mediaQueries.clear()
   vi.stubGlobal("matchMedia", (query: string) => {
     const entry = { min: Number(/min-width: (\d+)px/.exec(query)?.[1]), listeners: new Set<() => void>() }
@@ -76,6 +79,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 const snapshotDom = () => {
@@ -273,19 +277,25 @@ const walk = async (initial: Case, steps: (tools: Tools) => Promise<void>) => {
       snapshot: () => snapshots.push(snapshotDom()),
       fire,
       click: (target) => fire(target, "click", { button: 0, detail: 1 }),
-      // testing-library's mouseEnter also fires mouseover (React's onMouseEnter)
-      hover: (target) => fire(target, "mouseEnter"),
+      // Pointer events distinguish a range preview from a touch gesture.
+      hover: (target) => fire(target, "pointerEnter", mouse),
       key: (key, target = () => document.activeElement, init) => fire(target, "keyDown", { key, ...init }),
       focus: (target) => dispatch(() => (resolve(target) as HTMLElement).focus()),
       advance: (ms) => run(() => vi.advanceTimersByTime(ms)),
       set: (patch) => run(() => update(patch)),
-      resize: (next) =>
-        run(() => {
+      resize: async (next) => {
+        // Commit the media-query change before the layout resize notification.
+        // jsdom has no resized boxes to notify Floating UI's ResizeObserver.
+        await run(() => {
           width = next
+          vi.stubGlobal("innerWidth", next)
           for (const entry of mediaQueries) for (const listener of entry.listeners) listener()
-        }),
+        })
+        await run(() => window.dispatchEvent(new Event("resize")))
+      },
       open: async () => {
         await fire(TRIGGER, "pointerDown", { button: 0, ...mouse })
+        await fire(TRIGGER, "click", { button: 0, detail: 1 })
         await run(() => vi.advanceTimersByTime(100))
       },
     }
@@ -409,6 +419,44 @@ const openCases: Array<[string, Case, number?]> = [
 ]
 
 describe("DateRangePicker parity: markup", () => {
+  test("an open range calendar updates collision space across the mobile breakpoint", async () => {
+    expectSame(await walk({}, async (tools) => {
+      await tools.resize(1024)
+      await tools.open()
+      const availableWidth = () => Number(/--radix-popper-available-width: (-?[\d.]+)px/.exec(snapshotDom())?.[1])
+      const desktop = availableWidth()
+      expect(Number.isFinite(desktop)).toBe(true)
+      await tools.resize(375)
+      expect(availableWidth()).toBe(desktop + 8)
+      await tools.resize(360)
+      expect(availableWidth()).toBe(desktop + 14)
+      await tools.resize(320)
+      expect(availableWidth()).toBe(desktop + 34)
+      await tools.resize(375)
+      expect(availableWidth()).toBe(desktop + 8)
+      await tools.resize(1024)
+      expect(availableWidth()).toBe(desktop)
+      tools.snapshot()
+    }))
+  })
+
+  test.each(["top", "right", "bottom", "left"] as const)("respects preferred side %s across desktop and phone fit", async (side) => {
+    const phoneSide = { top: "top", right: "bottom", bottom: "bottom", left: "bottom" }[side]
+    expectSame(await walk({ props: { side } }, async (tools) => {
+      await tools.resize(1024)
+      await tools.open()
+      const placement = () => resolve('[role="dialog"]').getAttribute("data-side")
+      expect(placement()).toBe(side)
+      await tools.resize(320)
+      expect(placement()).toBe(phoneSide)
+      await tools.resize(375)
+      expect(placement()).toBe(phoneSide)
+      await tools.resize(1024)
+      expect(placement()).toBe(side)
+      tools.snapshot()
+    }))
+  })
+
   test.each(closedCases)("closed: %s", async (_name, c) => {
     expectSame(await pair(c))
   })
@@ -438,7 +486,7 @@ describe("DateRangePicker parity: markup", () => {
 
 describe("DateRangePicker parity: calendar keyboard", () => {
   test("weekStartsOn moves the labels, the blank days and Home and End", async () => {
-    const labels = () => Array.from(document.querySelectorAll(".DayLabel"), (element) => element.textContent)
+    const labels = (className: string) => Array.from(document.querySelectorAll(`.DayLabel .${className}`), (element) => element.textContent)
     const blanksBefore = (name: string) => {
       const calendar = Array.from(document.querySelectorAll("[data-calendar]")).find((element) =>
         element.textContent?.startsWith(name),
@@ -447,7 +495,8 @@ describe("DateRangePicker parity: calendar keyboard", () => {
     }
     const result = await walk({ value: oct5to12, props: { weekStartsOn: 1 } }, async (tools) => {
       await tools.open()
-      expect(labels().slice(0, 7)).toEqual(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"])
+      expect(labels("ShortDayLabel").slice(0, 7)).toEqual(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"])
+      expect(labels("LongDayLabel").slice(0, 7)).toEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
       // October 1, 2026 is a Thursday
       expect(blanksBefore("October 2026")).toBe(3)
       await tools.focus(day(22, "October 2026"))
@@ -599,6 +648,29 @@ describe("DateRangePicker parity: calendar keyboard", () => {
 // Behaviour
 
 describe("DateRangePicker parity: behaviour", () => {
+  test.each([
+    { name: "touch pointer", pointerType: "touch", preview: false },
+    { name: "Phone preview mouse", pointerType: "mouse", preview: true },
+  ])("$name does not preview a date range on hover", async ({ pointerType, preview }) => {
+    if (preview) document.documentElement.dataset.input = "touch"
+    try {
+      const result = await walk({ controlled: true }, async (tools) => {
+        await tools.open()
+        await tools.click(day(8))
+        tools.snapshot()
+        await tools.fire(day(12), "pointerEnter", { pointerType })
+        tools.snapshot()
+        await tools.click(day(12))
+        tools.snapshot()
+      })
+      expectSame(result)
+      expect(result.react[1]).toEqual(result.react[0])
+      expect(result.react[2]).not.toEqual(result.react[0])
+    } finally {
+      delete document.documentElement.dataset.input
+    }
+  })
+
   test("opens on pointer down, closes on Escape and on an outside pointer down", async () => {
     expectSame(
       await walk({ value: oct5to12 }, async (tools) => {
@@ -649,7 +721,7 @@ describe("DateRangePicker parity: behaviour", () => {
         tools.snapshot()
         await tools.hover(day(2))
         tools.snapshot()
-        await tools.fire(CONTAINER, "mouseLeave")
+        await tools.fire(CONTAINER, "pointerLeave", mouse)
         tools.snapshot()
         await tools.click(day(6))
         await tools.hover(day(20))
@@ -862,17 +934,21 @@ describe("DateRangePicker parity: behaviour", () => {
     )
   })
 
-  test("resizing across sm and md while open", async () => {
+  test("resizing across the Phone boundary keeps one calendar until md", async () => {
     expectSame(
       await walk({ value: oct5to12, props: { shortcuts: dayShortcuts } }, async (tools) => {
         await tools.open()
-        await tools.resize(700)
-        tools.snapshot()
-        await tools.resize(500)
-        await tools.advance(100)
-        tools.snapshot()
-        await tools.resize(900)
-        await tools.advance(100)
+        for (const phoneWidth of [500, 600, 767]) {
+          await tools.resize(phoneWidth)
+          await tools.advance(400)
+          expect(visibleMonths().size).toBe(1)
+          expect(document.querySelector(".Shortcuts")).toBeNull()
+          tools.snapshot()
+        }
+        await tools.resize(768)
+        await tools.advance(400)
+        expect(visibleMonths().size).toBe(2)
+        expect(document.querySelector(".Shortcuts")).not.toBeNull()
         tools.snapshot()
       }),
     )
@@ -941,5 +1017,99 @@ describe("DateRangePicker parity: behaviour", () => {
     holder.value![1] = DateTime.local(2026, 10, 20).endOf("day")
     await flushVue()
     expect(container.querySelector(".TriggerText")?.textContent).toBe("10/05/26-10/20/26")
+  })
+})
+
+
+describe("DateRangePicker live state regressions", () => {
+  test("disabling an open calendar blocks a pending range and shortcuts", async () => {
+    await walk({ value: oct5to12, props: { shortcuts: dayShortcuts } }, async (tools) => {
+      await tools.open()
+      await tools.click(day(20))
+      await tools.set({ props: { shortcuts: dayShortcuts, disabled: true } })
+      expect((resolve(day(21)) as HTMLButtonElement).disabled).toBe(true)
+      expect((resolve(button("Next month")) as HTMLButtonElement).disabled).toBe(true)
+      expect((resolve(button("Previous month")) as HTMLButtonElement).disabled).toBe(true)
+      for (const item of document.querySelectorAll<HTMLButtonElement>(".Shortcuts button")) expect(item.disabled).toBe(true)
+      await tools.click(day(21))
+      await tools.key("PageDown", day(21))
+      await tools.click(shortcut("Today"))
+      expect(events).toEqual([])
+      await tools.set({ props: { shortcuts: dayShortcuts } })
+      await tools.click(day(21))
+      expect(events).toHaveLength(1)
+    })
+  })
+
+  test("calendar geometry is remeasured after responsive resize and column changes", async () => {
+    let height = 224
+    const originalObserver = globalThis.ResizeObserver
+    const observers: CalendarObserver[] = []
+    class CalendarObserver implements ResizeObserver {
+      readonly targets = new Set<Element>()
+      constructor(private readonly callback: ResizeObserverCallback) { observers.push(this) }
+      observe(target: Element) { this.targets.add(target) }
+      unobserve(target: Element) { this.targets.delete(target) }
+      disconnect() { this.targets.clear() }
+      notify() { this.callback([], this) }
+    }
+    vi.stubGlobal("ResizeObserver", CalendarObserver)
+    const dimensions = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (this: HTMLElement) {
+      return this.hasAttribute("data-calendar") ? height : 0
+    })
+    try {
+      await walk({ value: oct5to12 }, async (tools) => {
+        height = 224
+        await tools.open()
+        const container = resolve(".CalendarContainer") as HTMLElement
+        expect(container.style.height).toBe("224px")
+        height = 329
+        await tools.resize(767)
+        for (const observer of observers) {
+          if ([...observer.targets].some((target) => target.hasAttribute("data-calendar"))) observer.notify()
+        }
+        await tools.advance(500)
+        expect(container.style.height).toBe("329px")
+        expect(visibleMonths().size).toBe(1)
+        height = 256
+        await tools.resize(768)
+        for (const observer of observers) {
+          if ([...observer.targets].some((target) => target.hasAttribute("data-calendar"))) observer.notify()
+        }
+        await tools.advance(500)
+        expect(container.style.height).toBe("256px")
+        expect(visibleMonths().size).toBe(2)
+      })
+      expect(observers.every((observer) => observer.targets.size === 0)).toBe(true)
+    } finally {
+      dimensions.mockRestore()
+      vi.stubGlobal("ResizeObserver", originalObserver)
+    }
+  })
+})
+
+
+test("SelectControl date trigger waits for committed touch and accepts click-only activation", async () => {
+  await walk({}, async ({ fire, advance }) => {
+    const trigger = () => document.querySelector('.SelectControl')
+    await fire(trigger, "pointerDown", { button: 0, pointerType: "touch", pointerId: 7 })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "pointerCancel", { pointerType: "touch", pointerId: 7 })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "click", { detail: 0 })
+    await advance(1)
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+  })
+})
+
+
+test("Enter opens the date trigger without synthesizing a pointer event", async () => {
+  await walk({}, async ({ fire, advance }) => {
+    const trigger = () => document.querySelector(".SelectControl")
+    await fire(trigger, "keyDown", { key: "Enter", isComposing: true })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await fire(trigger, "keyDown", { key: "Enter" })
+    await advance(1)
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   })
 })

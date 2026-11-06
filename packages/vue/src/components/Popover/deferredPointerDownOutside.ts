@@ -65,6 +65,9 @@ export const useDeferredPointerDownOutside = (dismiss: (originalEvent: PointerEv
     }
     // Any later press replaces this one (Reka reports the outside ones again)
     const handlePointerDown = () => reset()
+    const handlePointerCancel = (event: PointerEvent) => {
+      if (event.pointerId === originalEvent.pointerId) reset()
+    }
 
     for (const name of OUTSIDE_INTERACTION_EVENTS) {
       ownerDocument.addEventListener(name, handleCapture, true)
@@ -73,6 +76,7 @@ export const useDeferredPointerDownOutside = (dismiss: (originalEvent: PointerEv
     // After the bubble listener, so a click that got here counts as not stopped
     ownerDocument.addEventListener("click", finish)
     ownerDocument.addEventListener("pointerdown", handlePointerDown, true)
+    ownerDocument.addEventListener("pointercancel", handlePointerCancel, true)
 
     stop = () => {
       active = false
@@ -82,6 +86,7 @@ export const useDeferredPointerDownOutside = (dismiss: (originalEvent: PointerEv
       }
       ownerDocument.removeEventListener("click", finish)
       ownerDocument.removeEventListener("pointerdown", handlePointerDown, true)
+      ownerDocument.removeEventListener("pointercancel", handlePointerCancel, true)
     }
   }
 

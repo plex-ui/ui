@@ -6,22 +6,22 @@ metaDescription: Vue 3 textarea component for multi-line text input with v-model
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const base = `<div class="w-[400px]">
+export const base = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Enter text..." auto-resize :rows="3" />
 </div>`
 
-export const variants = `<div class="w-[400px]">
+export const variants = `<div class="w-full min-w-0 max-w-[400px]">
   <div class="flex flex-col gap-6">
     <div v-for="variant in ['outline', 'soft']" :key="variant" class="flex items-center">
       <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
-      <div class="flex-1">
+      <div class="min-w-0 flex-1">
         <Textarea placeholder="Enter text..." class="w-full" :variant="variant" :rows="3" />
       </div>
     </div>
   </div>
 </div>`
 
-export const autoResize = `<div class="w-[400px]">
+export const autoResize = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea
     v-model:value="value"
     placeholder="Type to grow..."
@@ -31,23 +31,23 @@ export const autoResize = `<div class="w-[400px]">
   />
 </div>`
 
-export const sizing = `<div class="w-[400px]">
+export const sizing = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Write a message..." :size="size" :gutter-size="gutterSize" />
 </div>`
 
-export const disabled = `<div class="w-[400px]">
+export const disabled = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea :disabled="disabled" default-value="Jane Doe" aria-label="Name" />
 </div>`
 
-export const invalid = `<div class="w-[400px]">
+export const invalid = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea :invalid="invalid" placeholder="Invalid textarea" />
 </div>`
 
-export const autoSelect = `<div class="w-[400px]">
+export const autoSelect = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" aria-label="Notes" />
 </div>`
 
-export const autofillExtensions = `<div class="w-[400px]">
+export const autofillExtensions = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea
     :key="String(allowAutofillExtensions)"
     name="email"

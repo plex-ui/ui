@@ -16,10 +16,6 @@
     background: transparent;
   }
 
-  .ScreenStage [data-form-header] {
-    display: none;
-  }
-
   .ScreenStage [data-form-content] {
     flex: none;
     padding: 0;
@@ -33,22 +29,199 @@
 }
 
 @media (max-width: 767px) {
+  .FormDialog {
+    height: var(--dialog-panel-max-height);
+  }
+
   .ScreenStage[data-demo-stage] {
     padding: 0 !important;
   }
 
   .ScreenStage [data-form-screen] {
     --field-group-radius: 26px;
-    --page-top: calc(env(safe-area-inset-top, 0px) + 54px);
     --page-content-padding-top: 10px;
     --page-content-padding-bottom: 16px;
-    --page-footer-gutter: 24px;
-    --page-footer-padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     width: 100%;
     height: 100dvh;
   }
+}
 
-  .ScreenStage [data-form-header] {
-    padding-top: env(safe-area-inset-top, 0px);
+/* Full-row actions use FieldGroup geometry and native button semantics. */
+@media (max-width: 767px) {
+  .TagSummary {
+    display: block;
+    min-height: var(--field-row-min-height);
+    height: auto;
+    padding: max(var(--field-row-text-padding-block), calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2)) var(--field-row-padding-inline);
+    border-radius: 0;
+    font-size: var(--field-row-label-font-size);
+    font-weight: var(--field-row-label-font-weight);
+    line-height: var(--field-row-label-line-height);
+    text-align: start;
+    white-space: normal;
+  }
+
+  .TagSummary[data-tag-summary]:focus-visible:not([data-menu-pointer-focus])::after {
+    outline: none;
+  }
+
+  /* Keep the hit rectangle complete; only paint follows the group's outer corners. */
+  [data-row]:first-child > .TagSummary::before {
+    border-start-start-radius: var(--field-group-radius);
+    border-start-end-radius: var(--field-group-radius);
+  }
+
+  [data-row]:last-child > .TagSummary::before {
+    border-end-start-radius: var(--field-group-radius);
+    border-end-end-radius: var(--field-group-radius);
+  }
+
+  .TagSummary [data-tag-summary-content] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--field-row-disclosure-gap, 8px);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .TagSummary [data-tag-summary-text] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px var(--field-row-gap);
+    min-width: 0;
+  }
+
+  .TagSummary [data-tag-summary-label],
+  .TagSummary [data-tag-summary-count] {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .TagSummary [data-tag-summary-label] {
+    flex-grow: 1;
+    color: var(--color-text);
+  }
+
+  .TagSummary [data-tag-summary-value] {
+    min-width: 0;
+    max-width: 100%;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  :is(.TagSummary, :is(.ScreenStage, .FormDialog) [data-account-row]) [data-row-disclosure] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-inline: -5px;
+    color: var(--mobile-accessory-secondary, var(--color-text-secondary));
+  }
+
+  :is(.TagSummary, :is(.ScreenStage, .FormDialog) [data-account-row]):is([disabled], [data-disabled], [aria-disabled="true"]) [data-row-disclosure] {
+    color: var(--color-text-disabled);
+  }
+
+  [data-field-columns] .TagSummary [data-tag-summary-content] {
+    grid-template-columns: var(--field-row-column-width) minmax(0, 1fr) auto;
+    gap: 0;
+  }
+
+  [data-field-columns] .TagSummary [data-tag-summary-text] {
+    display: contents;
+  }
+
+  [data-field-columns] .TagSummary [data-tag-summary-value] {
+    /* The label column keeps its existing gutter; the trailing icon has its own slot gap. */
+    margin-inline-start: var(--field-row-gap);
+    margin-inline-end: var(--field-row-disclosure-gap, 8px);
+    color: var(--color-text);
+  }
+
+  .TagEditor {
+    height: var(--dialog-panel-max-height);
+  }
+
+  /* Leave the parent Sheet visible above this editor without scaling either panel. */
+  .TagEditorNested {
+    height: calc(var(--dialog-panel-max-height) - 16px);
+  }
+
+  .TagAddInput {
+    --input-size: var(--field-row-min-height);
+    --input-gutter: var(--field-row-padding-inline);
+    --input-adornment-offset: 0px;
+    --input-font-size: var(--field-row-label-font-size);
+    line-height: var(--field-row-label-line-height);
+  }
+
+  .TagAddAction[data-variant="ghost"]:not([data-uniform]) {
+    --button-size: var(--field-row-text-action-size);
+    --button-gutter: 0px;
+    --button-font-size: var(--field-row-label-font-size);
+    --button-line-height: var(--field-row-label-line-height);
+    --button-font-weight: var(--field-row-label-font-weight);
+    --button-justify-content: flex-end;
+    --button-background-color: transparent;
+    --button-background-color-active: transparent;
+    --button-mobile-material-background: transparent;
+    --button-mobile-material-hover: transparent;
+    --button-mobile-material-active: transparent;
+    --button-mobile-material-shadow: none;
+    --button-mobile-material-backdrop-filter: none;
+    min-width: var(--field-row-text-action-size);
+  }
+
+  /* The Sheet presentation is portaled outside the stage; it keeps the same rows. */
+  :is(.ScreenStage, .FormDialog) [data-account-row] {
+    height: auto;
+    min-height: var(--field-row-min-height);
+    padding: var(--field-row-text-padding-block) var(--field-row-padding-inline);
+    border-radius: 0;
+    font-size: var(--field-row-label-font-size);
+    font-weight: var(--field-row-label-font-weight);
+    line-height: var(--field-row-label-line-height);
+    text-align: start;
+    white-space: normal;
+  }
+
+  :is(.ScreenStage, .FormDialog) [data-account-row]:has([data-account-detail]) {
+    min-height: var(--field-row-description-min-height);
+  }
+
+  :is(.ScreenStage, .FormDialog) [data-account-detail] {
+    display: block;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: var(--field-row-description-font-size);
+    line-height: var(--field-row-description-line-height);
+    overflow-wrap: anywhere;
+  }
+}
+
+/* A filled state owns its content gutters; the Page/Sheet remains the scroller. */
+.FillContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.FillForm {
+  flex: 1 0 auto;
+  min-height: 0;
+}
+
+@media (max-width: 767px) {
+  .ScreenStage [data-form-content-fill] {
+    padding-inline: 0;
+    padding-top: var(--page-top);
+    padding-bottom: var(--page-bottom, 0px);
+    scroll-padding-top: var(--page-top);
+    scroll-padding-bottom: var(--page-bottom, 0px);
+  }
+
+  :global([data-plex-dialog][data-mobile-variant="sheet"]) .FormDialog > .FillContent {
+    padding-inline: 0;
+    padding-top: var(--dialog-header-height, 0px);
+    padding-bottom: var(--dialog-footer-height, 0px);
   }
 }

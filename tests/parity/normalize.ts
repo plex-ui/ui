@@ -4,6 +4,8 @@
 // - `data-radix-*` / `data-reka-*`, `data-dismissable-layer`, and
 //   `data-v-app` on the test's Vue mount container
 // - focus guard spans that Radix / Reka insert around modal content
+// - Vue Dialog's extra tabindex=-1 fallback on its direct Panel child; its
+//   logical-open FocusScope and fallback behavior are checked in dialog-lifecycle
 // - comments and empty text nodes (Vue fragment and teleport anchors)
 // - attribute order and inline-style declaration order
 // - generated ids (`radix-*`, `reka-*`, React/Vue useId) become `gen-1`, `gen-2`, ... in
@@ -45,6 +47,7 @@ const attributesOf = (element: Element, doc: Document, idNames: IdNames) => {
 
   for (const { name, value } of Array.from(element.attributes)) {
     if (DROPPED_ATTRIBUTE.test(name)) continue
+    if (name === "tabindex" && value === "-1" && element.matches("div.Panel") && element.parentElement?.matches("[data-plex-dialog]")) continue
 
     if (name === "id") {
       result.push(`id="${idNames.get(value) ?? value}"`)

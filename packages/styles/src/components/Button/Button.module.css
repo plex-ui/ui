@@ -10,7 +10,7 @@
   cursor: pointer;
   font-size: var(--button-font-size);
   font-weight: var(--button-font-weight);
-  line-height: 1;
+  line-height: var(--button-line-height, 1);
   transition-duration: var(--transition-duration-basic);
   transition-property: opacity, color;
   transition-timing-function: var(--transition-ease-basic);
@@ -23,6 +23,8 @@
     inset: 0;
     display: block;
     border-radius: inherit;
+    -webkit-backdrop-filter: var(--button-mobile-material-backdrop-filter, none);
+    backdrop-filter: var(--button-mobile-material-backdrop-filter, none);
     content: "";
     transition-duration: var(--transition-duration-basic);
     transition-property: opacity, background-color, transform, box-shadow, border-color;
@@ -50,7 +52,7 @@
     outline: none;
   }
 
-  &:focus-visible {
+  &:focus-visible:not([data-menu-pointer-focus]) {
     &::after {
       outline: 2px solid var(--button-ring-color, var(--color-ring));
       outline-offset: var(--button-ring-offset, 2px);
@@ -105,108 +107,126 @@
     Sizes
   ============================================= */
   &:where([data-size="3xs"]) {
-    --button-size: var(--control-size-3xs);
-    --button-gutter: var(--control-gutter-2xs);
-    --button-font-size: var(--control-font-size-sm);
+    --button-size: var(--button-size-3xs, var(--control-size-3xs));
+    --button-uniform-size: var(--control-size-3xs);
+    --button-line-height: var(--button-line-height-3xs, 1);
+    --button-gutter: var(--button-gutter-3xs, var(--control-gutter-2xs));
+    --button-font-size: var(--button-font-size-3xs, var(--control-font-size-sm));
     --button-icon-size: var(--control-icon-size-xs);
     --button-gap: var(--button-gap-sm);
-    --button-radius: var(--control-radius-sm);
+    --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: 11px;
     --circular-progress-size: 11px;
   }
 
   &:where([data-size="2xs"]) {
-    --button-size: var(--control-size-2xs);
-    --button-gutter: var(--control-gutter-xs);
-    --button-font-size: var(--control-font-size-sm);
+    --button-size: var(--button-size-2xs, var(--control-size-2xs));
+    --button-uniform-size: var(--control-size-2xs);
+    --button-line-height: var(--button-line-height-2xs, 1);
+    --button-gutter: var(--button-gutter-2xs, var(--control-gutter-xs));
+    --button-font-size: var(--button-font-size-2xs, var(--control-font-size-sm));
     --button-icon-size: var(--control-icon-size-sm);
     --button-gap: var(--button-gap-md);
-    --button-radius: var(--control-radius-sm);
+    --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: 12px;
     --circular-progress-size: 12px;
   }
 
   &:where([data-size="xs"]) {
-    --button-size: var(--control-size-xs);
-    --button-gutter: var(--control-gutter-xs);
-    --button-font-size: var(--control-font-size-md);
+    --button-size: var(--button-size-xs, var(--control-size-xs));
+    --button-uniform-size: var(--control-size-xs);
+    --button-line-height: var(--button-line-height-xs, 1);
+    --button-gutter: var(--button-gutter-xs, var(--control-gutter-xs));
+    --button-font-size: var(--button-font-size-xs, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-sm);
     --button-gap: var(--button-gap-md);
-    --button-radius: var(--control-radius-sm);
+    --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: 13px;
     --circular-progress-size: 14px;
   }
 
   &:where([data-size="sm"]) {
-    --button-size: var(--control-size-sm);
-    --button-gutter: var(--control-gutter-sm);
-    --button-font-size: var(--control-font-size-md);
+    --button-size: var(--button-size-sm, var(--control-size-sm));
+    --button-uniform-size: var(--control-size-sm);
+    --button-line-height: var(--button-line-height-sm, 1);
+    --button-gutter: var(--button-gutter-sm, var(--control-gutter-sm));
+    --button-font-size: var(--button-font-size-sm, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-md);
     --button-gap: var(--button-gap-md);
-    --button-radius: var(--control-radius-sm);
+    --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
     --indicator-size: 15px;
     --circular-progress-size: 15px;
   }
 
   &:where([data-size="md"]) {
-    --button-size: var(--control-size-md);
-    --button-gutter: var(--control-gutter-md);
-    --button-font-size: var(--control-font-size-md);
+    --button-size: var(--button-size-md, var(--control-size-md));
+    --button-uniform-size: var(--control-size-md);
+    --button-line-height: var(--button-line-height-md, 1);
+    --button-gutter: var(--button-gutter-md, var(--control-gutter-md));
+    --button-font-size: var(--button-font-size-md, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-md);
     --button-gap: var(--button-gap-lg);
-    --button-radius: var(--control-radius-md);
+    --button-radius: var(--button-touch-radius, var(--control-radius-md));
     --button-icon-offset: -1px;
     --indicator-size: 16px;
     --circular-progress-size: 16px;
   }
 
   &:where([data-size="lg"]) {
-    --button-size: var(--control-size-lg);
-    --button-gutter: var(--control-gutter-md);
-    --button-font-size: var(--control-font-size-md);
+    --button-size: var(--button-size-lg, var(--control-size-lg));
+    --button-uniform-size: var(--control-size-lg);
+    --button-line-height: var(--button-line-height-lg, 1);
+    --button-gutter: var(--button-gutter-lg, var(--control-gutter-md));
+    --button-font-size: var(--button-font-size-lg, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-md);
     --button-gap: var(--button-gap-lg);
-    --button-radius: var(--control-radius-lg);
+    --button-radius: var(--button-touch-radius, var(--control-radius-lg));
     --button-icon-offset: -1px;
     --indicator-size: 16px;
     --circular-progress-size: 16px;
   }
 
   &:where([data-size="xl"]) {
-    --button-size: var(--control-size-xl);
-    --button-gutter: var(--control-gutter-lg);
-    --button-font-size: var(--control-font-size-md);
+    --button-size: var(--button-size-xl, var(--control-size-xl));
+    --button-uniform-size: var(--control-size-xl);
+    --button-line-height: var(--button-line-height-xl, 1);
+    --button-gutter: var(--button-gutter-xl, var(--control-gutter-lg));
+    --button-font-size: var(--button-font-size-xl, var(--control-font-size-md));
     --button-icon-size: var(--control-icon-size-md);
     --button-gap: var(--button-gap-lg);
-    --button-radius: var(--control-radius-xl);
+    --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -1px;
     --indicator-size: 18px;
     --circular-progress-size: 18px;
   }
 
   &:where([data-size="2xl"]) {
-    --button-size: var(--control-size-2xl);
-    --button-gutter: var(--control-gutter-lg);
-    --button-font-size: var(--control-font-size-lg);
+    --button-size: var(--button-size-2xl, var(--control-size-2xl));
+    --button-uniform-size: var(--control-size-2xl);
+    --button-line-height: var(--button-line-height-2xl, 1);
+    --button-gutter: var(--button-gutter-2xl, var(--control-gutter-lg));
+    --button-font-size: var(--button-font-size-2xl, var(--control-font-size-lg));
     --button-icon-size: var(--control-icon-size-lg);
     --button-gap: var(--button-gap-lg);
-    --button-radius: var(--control-radius-xl);
+    --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -2px;
     --indicator-size: 18px;
     --circular-progress-size: 18px;
   }
 
   &:where([data-size="3xl"]) {
-    --button-size: var(--control-size-3xl);
-    --button-gutter: var(--control-gutter-xl);
-    --button-font-size: var(--control-font-size-lg);
+    --button-size: var(--button-size-3xl, var(--control-size-3xl));
+    --button-uniform-size: var(--control-size-3xl);
+    --button-line-height: var(--button-line-height-3xl, 1);
+    --button-gutter: var(--button-gutter-3xl, var(--control-gutter-xl));
+    --button-font-size: var(--button-font-size-3xl, var(--control-font-size-lg));
     --button-icon-size: var(--control-icon-size-lg);
     --button-gap: var(--button-gap-lg);
-    --button-radius: var(--control-radius-xl);
+    --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -2px;
     --indicator-size: 20px;
     --circular-progress-size: 20px;
@@ -286,6 +306,7 @@
     Uniform
   ============================================= */
   &[data-uniform] {
+    --button-size: var(--button-uniform-size);
     --button-gutter: 0;
 
     width: var(--button-size);
@@ -300,9 +321,11 @@
     color: var(--button-text-color);
 
     &::before {
-      background-color: var(--button-background-color);
-      opacity: 0;
-      transform: scale(var(--scale));
+      background-color: var(--button-mobile-material-background, var(--button-background-color));
+      background-image: var(--button-mobile-material-sheen, none);
+      box-shadow: var(--button-mobile-material-shadow, 0 0 #00000000);
+      opacity: var(--button-mobile-material-opacity, 0);
+      transform: scale(var(--button-mobile-material-scale, var(--scale)));
     }
 
     &[aria-expanded="true"],
@@ -310,8 +333,9 @@
       color: var(--button-text-color-hover);
 
       &::before {
+        background-color: var(--button-mobile-material-hover, var(--button-background-color));
         /* Slightly deemphasize */
-        opacity: 0.6;
+        opacity: var(--button-mobile-material-opacity, 0.6);
         transform: scale(1);
       }
     }
@@ -320,6 +344,7 @@
       color: var(--button-text-color-hover);
 
       &::before {
+        background-color: var(--button-mobile-material-hover, var(--button-background-color));
         opacity: 1;
         transform: scale(1);
       }
@@ -330,6 +355,7 @@
         color: var(--button-text-color-hover);
 
         &::before {
+          background-color: var(--button-mobile-material-hover, var(--button-background-color));
           opacity: 1;
           transform: scale(1);
         }
@@ -337,13 +363,13 @@
 
       &:active {
         &::before {
-          background-color: var(--button-background-color-active);
+          background-color: var(--button-mobile-material-active, var(--button-background-color-active));
           opacity: 1;
-          transform: scale(var(--scale));
+          transform: scale(var(--button-mobile-material-scale, var(--scale)));
         }
 
         &::after {
-          transform: scale(var(--scale));
+          transform: scale(var(--button-mobile-material-scale, var(--scale)));
         }
       }
     }
@@ -522,32 +548,34 @@
     color: var(--button-text-color);
 
     &::before {
-      background-color: var(--button-background-color);
+      background-color: var(--button-mobile-material-background, var(--button-background-color));
+      background-image: var(--button-mobile-material-sheen, none);
+      box-shadow: var(--button-mobile-material-shadow, 0 0 #00000000);
     }
 
     &[aria-expanded="true"],
     &[data-state="open"],
     &[data-selected] {
       &::before {
-        background-color: var(--button-background-color-hover);
+        background-color: var(--button-mobile-material-hover, var(--button-background-color-hover));
       }
     }
 
     &:where(:not([data-disabled])) {
       @mixin hover {
         &::before {
-          background-color: var(--button-background-color-hover);
+          background-color: var(--button-mobile-material-hover, var(--button-background-color-hover));
         }
       }
 
       &:active {
         &::before {
-          background-color: var(--button-background-color-active);
+          background-color: var(--button-mobile-material-active, var(--button-background-color-active));
         }
 
         &::before,
         &::after {
-          transform: scale(var(--scale));
+          transform: scale(var(--button-mobile-material-scale, var(--scale)));
         }
       }
     }
@@ -626,7 +654,7 @@
     color: var(--button-text-color);
 
     &::before {
-      background-color: var(--button-outline-background);
+      background-color: var(--button-outline-context-background, var(--button-outline-background));
       box-shadow:
         0 0 0 1px var(--button-border-color) inset,
         var(--button-shadow-custom, 0 0 #00000000);
@@ -670,8 +698,8 @@
     }
 
     &:where([data-color="primary"]) {
-      --button-background-color-hover: var(--color-background-primary-outline-hover);
-      --button-background-color-active: var(--color-background-primary-outline-active);
+      --button-background-color-hover: var(--mobile-neutral-outline-hover, var(--color-background-primary-outline-hover));
+      --button-background-color-active: var(--mobile-neutral-outline-active, var(--color-background-primary-outline-active));
       --button-border-color: var(--color-border-primary-outline);
       --button-border-color-hover: var(--color-border-primary-outline-hover);
       --button-text-color: var(--color-text-primary-outline);
@@ -680,8 +708,8 @@
     }
 
     &:where([data-color="secondary"]) {
-      --button-background-color-hover: var(--color-background-secondary-outline-hover);
-      --button-background-color-active: var(--color-background-secondary-outline-active);
+      --button-background-color-hover: var(--mobile-neutral-outline-hover, var(--color-background-secondary-outline-hover));
+      --button-background-color-active: var(--mobile-neutral-outline-active, var(--color-background-secondary-outline-active));
       --button-border-color: var(--color-border-secondary-outline);
       --button-border-color-hover: var(--color-border-secondary-outline-hover);
       --button-text-color: var(--color-text-secondary-outline);
@@ -785,7 +813,7 @@
   /* Allows overrides through className on .Button */
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: var(--button-justify-content, center);
   /* Allows overrides through className on .Button */
   gap: inherit;
   width: 100%;
@@ -900,3 +928,31 @@
     }
   }
 } */
+/* A single painted surface; the separate focus ring appears only for keyboard focus. */
+@media (max-width: 767px) {
+  .Button[data-variant="outline"]:where([data-color="primary"], [data-color="secondary"]) {
+    --button-outline-context-background: var(--mobile-neutral-outline-background, var(--button-outline-background));
+  }
+
+  .Button[data-mobile-material="glass"]:where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-mobile-material-background: var(--mobile-glass-background);
+    --button-mobile-material-hover: var(--mobile-glass-background-hover);
+    --button-mobile-material-active: var(--mobile-glass-background-active);
+    --button-mobile-material-sheen: var(--mobile-glass-sheen);
+    --button-mobile-material-shadow: var(--mobile-glass-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+  }
+
+  .Button:is([data-mobile-material="flat"], [data-disabled]) {
+    --button-mobile-material-background: initial;
+    --button-mobile-material-hover: initial;
+    --button-mobile-material-active: initial;
+    --button-mobile-material-sheen: initial;
+    --button-mobile-material-shadow: initial;
+    --button-mobile-material-backdrop-filter: initial;
+    --button-mobile-material-opacity: initial;
+    --button-mobile-material-scale: initial;
+  }
+}

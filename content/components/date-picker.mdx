@@ -8,7 +8,6 @@ import {
   DatePickerBaseDemo,
   DatePickerLimitsDemo,
   DatePickerWithoutIconDemo,
-  DatePickerDisabledDemo,
   DatePickerDobDemo,
   DatePickerTimeDemo,
   DatePickerDateTimeDropdownDemo,
@@ -17,23 +16,37 @@ import {
   DatePickerMaskedDateTimeDemo,
 } from "@/components/docs/DatePickerDemos"
 
+export const overviewCode = `import { useState } from 'react';
+import { DateTime } from 'luxon';
+import { DatePicker } from '@plexui/ui/components/DatePicker';
+
+export default function DatePickerExample() {
+  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
+  const [disabled] = useState(false);
+
+  return (
+    <DatePicker
+      id="date-picker-base"
+      triggerDateFormat="MM/dd/yy"
+      size="lg"
+      pill
+      clearable
+      disabled={disabled}
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  );
+}`
+
 <UsageBlock>{`import { DatePicker } from "@plexui/ui/components/DatePicker";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
-
-<DatePicker
-  id="date-picker-base"
-  triggerDateFormat="MM/dd/yy"
-  size="lg"
-  pill
-  clearable
-  value={selectedDate}
-  onChange={setSelectedDate}
-/>`} previewMinHeight={168}>
+<ComponentPreview details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
   <DatePickerBaseDemo />
 </ComponentPreview>
 
@@ -206,21 +219,6 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
   <DatePickerWithoutIconDemo />
 </ComponentPreview>
 
-### Disabled
-
-<ComponentPreview details={<>Disable the picker to prevent user interaction.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(DateTime.local())
-
-<DatePicker
-  id="date-picker-disabled"
-  triggerDateFormat="MM/dd/yy"
-  size="lg"
-  disabled
-  value={selectedDate}
-  onChange={setSelectedDate}
-/>`} previewMinHeight={168}>
-  <DatePickerDisabledDemo />
-</ComponentPreview>
-
 ## API
 
 Use `aria-labelledby` with the ID of a visible field label. The trigger includes that label and its current date or placeholder in its accessible name. `aria-label`, `aria-describedby` and `aria-invalid` also reach the trigger.
@@ -247,7 +245,7 @@ In the calendar, the arrow keys move focus by a day or a week, Home and End move
   { prop: "dropdownIconType", type: '"dropdown" | "chevronDown" | "none"', default: '"dropdown"', description: "Icon at the end of the trigger" },
   { prop: "placeholder", type: "string", default: '"Select date..."', description: "Trigger placeholder" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable picker" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement." },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from the trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment against the trigger" },
   { prop: "alignOffset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },

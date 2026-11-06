@@ -9,7 +9,7 @@
 
 import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
 import { join, basename, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import vm from "node:vm";
 import remarkGfm from "remark-gfm";
 import remarkMdx from "remark-mdx";
@@ -96,19 +96,11 @@ function extractImports(content, pkg) {
 // ---------------------------------------------------------------------------
 
 /**
- * Parses an MDX page and evaluates its top-level `export` declarations (the
- * Vue pages build their example templates there, sometimes with helper
- * functions) in a sandbox, so examples come out as the strings the page
- * renders. Declarations that need an import are skipped.
+ * Resolve exported code strings and template helpers from a local docs module.
+ * Its declarations run in a sandbox, without importing browser or framework
+ * dependencies. The page can call a helper there to assemble its example code.
  */
-/**
- * String constants a docs module exports (`export const vueProgressOverviewCode
- * = \`<script setup>...\``), which pages import as an example's `code`. The
- * module's top-level constants and functions are evaluated one by one in a
- * sandbox, like the page's own exports, so a code string assembled from other
- * strings and helpers resolves too; anything that needs an import is skipped.
- */
-function importedStrings(specifier) {
+function importedValues(specifier) {
   if (!specifier.startsWith("@/")) return {};
   const base = join(ROOT, specifier.slice(2));
   const file = ["", ".tsx", ".ts", ".mjs", ".js"].map((ext) => base + ext).find((path) => existsSync(path));
@@ -137,6 +129,8 @@ function importedStrings(specifier) {
       for (const declaration of statement.declarationList.declarations) {
         if (ts.isIdentifier(declaration.name)) exported.push(declaration.name.text);
       }
+    } else if (isExported && ts.isFunctionDeclaration(statement) && statement.name) {
+      exported.push(statement.name.text);
     }
     const code = text.slice(statement.getStart(source), statement.end).replace(/^export\s+/, "");
     // Constants are evaluated inside a function and only copied to the sandbox
@@ -164,24 +158,27 @@ function importedStrings(specifier) {
     if (failed.length === pending.length) break;
     pending = failed;
   }
-  const strings = {};
+  const values = {};
   for (const name of exported) {
-    if (typeof context[name] === "string") strings[name] = context[name];
+    // Keep helpers in their sandbox: page evaluation can call them, but never
+    // imports the module or its browser/framework dependencies into Node.
+    if (typeof context[name] === "string" || typeof context[name] === "function") values[name] = context[name];
   }
-  return strings;
+  return values;
 }
 
-function parsePage(content) {
+/** Parse MDX and evaluate its declarations against sandboxed imported values. */
+export function parsePage(content) {
   const tree = unified().use(remarkParse).use(remarkMdx).use(remarkGfm).parse(content);
   const context = vm.createContext({});
   for (const node of tree.children) {
     if (node.type !== "mdxjsEsm") continue;
     for (const statement of node.data?.estree?.body ?? []) {
       if (statement.type === "ImportDeclaration") {
-        const strings = importedStrings(statement.source.value);
+        const values = importedValues(statement.source.value);
         for (const specifier of statement.specifiers) {
           const name = specifier.imported?.name;
-          if (name && name in strings) context[specifier.local.name] = strings[name];
+          if (name && name in values) context[specifier.local.name] = values[name];
         }
         continue;
       }
@@ -234,7 +231,7 @@ function* blocks(nodes) {
 // Extract examples from ### and #### headings + <ComponentPreview>
 // ---------------------------------------------------------------------------
 
-function extractExamples(content, { tree, context }) {
+export function extractExamples(content, { tree, context }) {
   const examples = [];
   let name = null;
 
@@ -586,13 +583,16 @@ function generate(framework) {
 const CHECK = process.argv.includes("--check");
 const stale = [];
 
-generate(FRAMEWORKS.react);
-generate(FRAMEWORKS.vue);
+// Importing the resolver for a focused regression check must not rewrite artifacts.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  generate(FRAMEWORKS.react);
+  generate(FRAMEWORKS.vue);
 
-if (CHECK) {
-  if (stale.length > 0) {
-    console.error(`Out of date (run node scripts/generate-mcp-manifest.mjs): ${stale.join(", ")}`);
-    process.exit(1);
+  if (CHECK) {
+    if (stale.length > 0) {
+      console.error(`Out of date (run node scripts/generate-mcp-manifest.mjs): ${stale.join(", ")}`);
+      process.exit(1);
+    }
+    console.error("MCP manifests are up to date.");
   }
-  console.error("MCP manifests are up to date.");
 }

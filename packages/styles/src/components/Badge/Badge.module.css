@@ -238,12 +238,6 @@
     inset: -2px;
   }
 
-  @media (hover: none) {
-    &:where(button)::after {
-      inset: -16px -8px;
-    }
-  }
-
   &:where(button) {
     @mixin hover {
       background: color-mix(in srgb, var(--color-text) 8%, transparent);
@@ -261,5 +255,47 @@
 .Badge[data-variant="solid"] .Remove:where(button) {
   @mixin hover {
     background: color-mix(in srgb, currentColor 20%, transparent);
+  }
+}
+
+/* Interactive tags reserve their complete touch area in layout. Static badges
+   retain their size scale; no expanded pseudo target can cover the next row. */
+@media (max-width: 767px), (pointer: coarse) {
+  .Badge:has(> button.Remove) {
+    position: relative;
+    isolation: isolate;
+    height: 44px;
+    padding-inline-end: 0;
+    background-color: transparent;
+    box-shadow: none;
+
+    /* The face stays compact; its complete remove target belongs to this row. */
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 6px 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    &[data-variant="soft"]::before,
+    &[data-variant="solid"]::before {
+      background-color: var(--badge-background-color);
+    }
+
+    &[data-variant="outline"]::before {
+      box-shadow: 0 0 0 1px var(--badge-border-color) inset;
+    }
+
+    > button.Remove {
+      width: 44px;
+      height: 44px;
+      margin-inline: 0;
+
+      &::after {
+        display: none;
+      }
+    }
   }
 }

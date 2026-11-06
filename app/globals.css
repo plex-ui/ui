@@ -37,8 +37,21 @@
   --spacing: 0.25rem;
 }
 
+/* Inherited from the nearest theme, including nested preview themes. */
+:root,
+[data-theme="light"] {
+  --phone-status-icon-invert: 0;
+}
+
+[data-theme="dark"] {
+  --phone-status-icon-invert: 1;
+}
+
 /* Let Tailwind scan Plex UI component class usage */
 @source "../packages/ui";
+
+/* Private design extracts are reference data, not application class usage. */
+@source not "../.memory";
 
 /* Pointer cursor on every clickable element by default. The browser
  * default for <button> is `cursor: default`, so libraries that don't

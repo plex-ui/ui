@@ -3,13 +3,21 @@
   flex: 1;
   flex-direction: column;
   width: 100%;
+  min-width: 0;
   min-height: 0;
 }
 
 .TableContainer {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow: auto;
+}
+
+/* Dense Phone tables keep their columns inside Table's horizontal scroller. */
+.DataTable .TableContainer :where(table) {
+  table-layout: var(--data-table-layout, fixed);
+  min-width: var(--data-table-min-width, auto);
 }
 
 .EmptyCell {
@@ -50,11 +58,13 @@
    layout takes column widths from the header row) */
 .SelectColumn {
   box-sizing: content-box;
-  width: var(--checkbox-indicator-size);
+  width: var(--checkbox-target-size, var(--checkbox-indicator-size));
 }
 
 .Pagination {
   display: flex;
+  flex-wrap: var(--data-table-pagination-wrap, nowrap);
+  gap: var(--data-table-pagination-gap, 0px);
   align-items: center;
   justify-content: space-between;
   padding: spacing(3) 0;
@@ -69,6 +79,7 @@
 
 .PaginationRight {
   display: flex;
+  flex-wrap: var(--data-table-pagination-wrap, nowrap);
   align-items: center;
   gap: spacing(3);
 }
@@ -84,6 +95,10 @@
 }
 
 .PaginationSelect {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-width: var(--data-table-control-target, auto);
+  min-height: var(--data-table-control-target, auto);
   appearance: none;
   padding: spacing(1) spacing(2);
   padding-right: spacing(6);
@@ -106,13 +121,17 @@
 
 .PaginationButtons {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: spacing(1);
 }
 
 .ColumnHeaderButton {
   all: unset;
+  box-sizing: border-box;
   display: inline-flex;
+  min-width: var(--data-table-control-target, auto);
+  min-height: var(--data-table-control-target, auto);
   align-items: center;
   gap: spacing(1);
   color: inherit;
@@ -121,17 +140,27 @@
   user-select: none;
   cursor: pointer;
 
-  &:hover {
-    color: var(--color-text);
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      color: var(--color-text);
+    }
   }
 }
 
 .SortIcon {
   display: inline-flex;
+  flex-shrink: 0;
   opacity: 0.4;
 
-  :where(.ColumnHeaderButton:hover) & {
-    opacity: 0.7;
+  @media (hover: hover) and (pointer: fine) {
+    :where(.ColumnHeaderButton:hover:where(:not(:root[data-input="touch"] *))) & {
+      opacity: 0.7;
+    }
   }
 
   svg {

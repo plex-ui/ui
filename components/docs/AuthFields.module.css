@@ -1,0 +1,238 @@
+/* Shared by the React and Vue docs helpers; public controls retain their styles. */
+@media (max-width: 767px) {
+  .Group {
+    --field-group-background: var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary));
+    --field-group-radius: 26px;
+    --field-group-separator-inset: 20px;
+    --field-group-footer-padding: 8px 20px 6px;
+    --control-size-3xl: var(--field-row-min-height, 52px);
+    min-width: 0;
+    width: 100%;
+  }
+
+  .Body {
+    overflow: hidden;
+  }
+
+  .Row {
+    --mobile-field-error-icon-display: block;
+    min-width: 0;
+    position: relative;
+  }
+
+  .Control[data-slot="input"] {
+    --input-gutter: 20px;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .Control[data-slot="input"][data-invalid] {
+    box-shadow: none;
+  }
+
+  /* The 20px password accessory keeps a separate 44px touch target. */
+  .Control[data-slot="input"] > .Reveal {
+    --input-adornment-background: transparent;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin-inline-end: -12px;
+    justify-content: center;
+  }
+
+  .Control .Reveal > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .Control[data-slot="input"] > button:not([aria-label]) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    margin-inline-end: 0;
+    font-size: var(--field-row-action-font-size);
+    line-height: 20px;
+    font-weight: var(--field-row-action-font-weight);
+  }
+
+  /* ButtonInner fills the 44px target; align its text, not just the button. */
+  .Control[data-slot="input"] > button.TextAction[data-variant="ghost"]:last-child {
+    --button-justify-content: flex-end;
+    margin-inline: 0;
+  }
+
+  /* The end-only text action shares the input's logical inset in LTR and RTL. */
+  .Control[data-slot="input"]:where([data-has-end-adornment]:not([data-has-start-adornment])):has(> button.TextAction[data-variant="ghost"]:last-child) {
+    padding-inline: 0 var(--input-gutter);
+  }
+
+  .Control[data-slot="input"]:where([data-has-end-adornment]:not([data-has-start-adornment])):has(> button.TextAction[data-variant="ghost"]:last-child) > input {
+    padding-inline: var(--input-gutter) 0;
+  }
+
+  .Otp {
+    /* OTP keeps its digit/caret behavior; only the Phone auth surface changes. */
+    --floating-input-background: var(--mobile-surface-secondary, var(--mobile-surface-plain-secondary));
+    --floating-input-border-color: transparent;
+    --floating-input-border-color-hover: transparent;
+    --floating-input-border-color-focus: transparent;
+    --floating-input-border-color-invalid: transparent;
+  }
+
+  .Note {
+    margin: 0;
+    padding: 0 20px 12px;
+  }
+
+  .Note[role="alert"] {
+    margin-top: var(--mobile-field-error-offset, 4px);
+  }
+
+  .Description {
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  /* The Field owns the full two-line hit area and its persistent label. */
+  .CountryField[data-row] {
+    --field-row-padding-inline: 20px;
+    cursor: pointer;
+  }
+
+  .CountrySelect[data-variant="ghost"] {
+    --select-control-size: var(--field-row-label-line-height);
+    --select-control-gutter: 0px;
+    --select-control-font-size: var(--field-row-label-font-size);
+    line-height: var(--field-row-label-line-height);
+  }
+
+  .CountrySelect[data-variant="ghost"]::before {
+    background-color: transparent;
+  }
+
+  /* Auth country pickers are complete mobile rows, like Field popup rows. */
+  .Country[data-variant="ghost"][aria-haspopup] {
+    --select-control-radius: 0px;
+  }
+
+  .Country[data-variant="ghost"][aria-haspopup]::before {
+    background-color: transparent;
+  }
+
+  .Country[data-variant="ghost"][aria-haspopup]::after {
+    outline: none;
+  }
+
+  .Country {
+    width: 100%;
+    min-height: var(--field-row-min-height, 52px);
+    padding: 0 20px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--field-row-label-font-size, 17px);
+    line-height: var(--field-row-label-line-height, 22px);
+    text-align: start;
+  }
+}
+
+/* Auth text actions keep Button's focus and activation behavior. */
+button.TextAction[data-variant="ghost"] {
+  --button-background-color: transparent;
+  --button-background-color-active: transparent;
+  --button-text-color: var(--link-primary-text-color);
+  --button-text-color-hover: var(--link-primary-text-color-hover);
+  height: auto;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+button.ForgotAction[data-variant="ghost"] {
+  margin-top: 8px;
+  margin-inline-start: var(--floating-input-gutter);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+button.OAuthTextAction[data-variant="ghost"] {
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 767px) {
+  button.TextAction[data-variant="ghost"] {
+    min-width: 44px;
+    height: 44px;
+    font-size: 16px;
+    font-weight: var(--font-weight-normal);
+    line-height: 22px;
+    vertical-align: middle;
+  }
+
+  button.ForgotAction[data-variant="ghost"] {
+    align-self: center;
+    margin-top: 0;
+    margin-inline: 0;
+  }
+
+  .CrossActionRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 4px;
+    margin-block: 0;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .StandaloneCrossActionRow {
+    margin-block-start: 12px;
+  }
+}
+
+/* Consent belongs beside its submit action; each document keeps a separate target. */
+.ConsentActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.LegalNotice {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 8px;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--field-group-footer-font-size, var(--font-text-xs-size));
+  line-height: var(--font-text-md-line-height);
+  text-align: center;
+}
+
+.LegalDocument {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.LegalSeparator {
+  flex: none;
+}
+
+.LegalLink {
+  font: inherit;
+  text-decoration: underline;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

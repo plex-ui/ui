@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, watch, type PropType } from "vue"
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType } from "vue"
 import s from "@plexui/styles/components/ShimmerText/ShimmerText.module.css"
 
 type ShimmerTag = "p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"
@@ -25,6 +25,16 @@ export const ShimmerableText = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const paused = ref(!props.shimmer)
+    const reducedMotion = ref(false)
+    let query: MediaQueryList | undefined
+    const updateMotion = () => { reducedMotion.value = query?.matches ?? false }
+    onMounted(() => {
+      if (typeof window.matchMedia !== "function") return
+      query = window.matchMedia("(prefers-reduced-motion: reduce)")
+      updateMotion()
+      query.addEventListener("change", updateMotion)
+    })
+    onBeforeUnmount(() => query?.removeEventListener("change", updateMotion))
 
     // Pauses the animation at the start of (what would be) the next iteration.
     const handleAnimationIteration = () => {
@@ -32,10 +42,11 @@ export const ShimmerableText = defineComponent({
     }
 
     watch(
-      () => props.shimmer,
-      (shimmer) => {
-        // Ensure pause is cleared if shimmer is re-enabled
+      [() => props.shimmer, reducedMotion],
+      ([shimmer, reduced]) => {
         if (shimmer) paused.value = false
+        // CSS suppresses iteration events while motion is reduced.
+        else if (reduced) paused.value = true
       },
     )
 

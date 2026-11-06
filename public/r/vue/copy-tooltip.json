@@ -14,8 +14,8 @@
     {
       "path": "components/ui/copy-tooltip/index.ts",
       "type": "registry:ui",
-      "content": "export * from \"@plexui/vue/components/Tooltip\"\n"
+      "content": "export * from \"@plexui/vue/components/Tooltip\"\nexport * from \"@plexui/vue/components/Button\"\n"
     }
   ],
-  "docs": "Import as `import { CopyTooltip, TooltipTriggerDecorator } from '@/components/ui/copy-tooltip'`. See https://plexui.com/vue/components/copy-tooltip for props and examples."
+  "docs": "Import as `import { CopyTooltip, Button } from '@/components/ui/copy-tooltip'`. See https://plexui.com/vue/components/copy-tooltip for props and examples."
 }

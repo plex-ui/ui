@@ -126,6 +126,7 @@ const Item = <T extends string>({
     <label
       htmlFor={itemId}
       className={clsx(s.RadioLabel, className)}
+      data-has-label={React.Children.toArray(children).length > 0 ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
       data-block={block ? "" : undefined}
       data-orientation={orientation}

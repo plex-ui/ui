@@ -3,6 +3,7 @@ import { CheckboxIndicator as RekaCheckboxIndicator, CheckboxRoot as RekaCheckbo
 import { bubbleInputStyle, useBubbleInputEffect, useCheckedTracker, useIsFormControl, useSize } from "./bubbleInput.js"
 import { ControlButton, isListener, type Listeners } from "./ControlButton.js"
 import s from "@plexui/styles/components/Checkbox/Checkbox.module.css"
+import { Check, Minus } from "../Icon/index.js"
 
 // Vue port of packages/ui/src/components/Checkbox/Checkbox.tsx on Reka UI's
 // Checkbox (state, role, aria-checked, Enter handling, indicator presence).
@@ -45,11 +46,11 @@ const CheckboxComponent = defineComponent({
   },
   emits: {
     /** The state of the checkbox changed */
-    "update:checked": (_checked: CheckedState) => true,
+    "update:checked": (checked: CheckedState) => typeof checked === "boolean" || checked === "indeterminate",
     /** The checkbox gained focus */
-    focus: (_event: FocusEvent) => true,
+    focus: (event: FocusEvent) => { void event; return true },
     /** The checkbox lost focus */
-    blur: (_event: FocusEvent) => true,
+    blur: (event: FocusEvent) => { void event; return true },
   },
   setup(props, { attrs, slots, emit }) {
     const generatedId = useId()
@@ -167,7 +168,16 @@ const CheckboxComponent = defineComponent({
                   },
                   // Mounted for good: on every uncheck Presence reads computed style, and
                   // a long list of boxes cleared at once forces one style pass per box.
-                  { default: () => h(RekaCheckboxIndicator, { class: s.CheckMark, forceMount: true }) },
+                  {
+                    default: () => h("span", { class: s.IndicatorBox, "aria-hidden": "true" }, [
+                      // A ghost marks the choice with the PlexUI icons of a list row, not with drawn arms.
+                      props.variant === "ghost"
+                        ? h(RekaCheckboxIndicator, { class: s.GhostMark, forceMount: true }, {
+                            default: () => [h(Check, { class: s.GhostCheck }), h(Minus, { class: s.GhostDash })],
+                          })
+                        : h(RekaCheckboxIndicator, { class: s.CheckMark, forceMount: true }),
+                    ]),
+                  },
                 ),
             },
           ),

@@ -13,16 +13,16 @@
   z-index: 50;
   overflow: auto;
   width: var(--menu-width, auto);
-  min-width: var(--menu-min-width, 300px);
+  min-width: var(--menu-min-width, var(--menu-default-min-width, 300px));
   max-width: var(--radix-dropdown-menu-content-available-width);
   max-height: min(
     var(--radix-dropdown-menu-content-available-height),
     var(--menu-max-height, 1200px)
   );
-  padding: var(--menu-gutter);
+  padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter));
   border-radius: var(--menu-radius);
   background: var(--color-surface-elevated);
-  box-shadow: var(--shadow), var(--shadow-hairline);
+  box-shadow: var(--menu-shadow, var(--shadow), var(--shadow-hairline));
   color: var(--color-text);
   font-size: var(--menu-font-size);
   line-height: var(--menu-line-height);
@@ -117,7 +117,7 @@
     background: var(--menu-item-background-color);
     content: "";
     opacity: 0;
-    transform: scale(var(--scale, 0.98));
+    transform: scale(var(--menu-item-press-scale, var(--scale, 0.98)));
     transition-duration: var(--transition-duration-basic);
     transition-property: opacity, background-color, transform;
     transition-timing-function: var(--cubic-enter);
@@ -127,16 +127,18 @@
   &[data-state="open"],
   &[data-highlighted] {
     &::before {
-      opacity: 1;
+      opacity: var(--menu-item-highlight-opacity, 1);
       transform: scale(1);
     }
 
-    &:has(.ItemActions:hover)::before {
-      opacity: 0.4;
+    @media (hover: hover) and (pointer: fine) {
+      &:has(.ItemActions:hover:where(:not(:root[data-input="touch"] *)))::before {
+        opacity: 0.4;
+      }
     }
 
-    &:not(:has(.ItemActions:hover)):active::before {
-      transform: scale(var(--scale, 0.98));
+    &:not(:has(.ItemActions:active)):active::before {
+      transform: scale(var(--menu-item-press-scale, var(--scale, 0.98)));
     }
 
     .ItemActions {
@@ -199,6 +201,17 @@
   transition-duration: var(--transition-duration-basic);
   transition-property: opacity;
   transition-timing-function: var(--cubic-enter);
+}
+
+/* Secondary actions must be discoverable on touch without highlighting a row. */
+@media (hover: none), (pointer: coarse) {
+  .ItemActions {
+    opacity: 1;
+  }
+}
+
+:where(:root[data-input="touch"]) .ItemActions {
+  opacity: 1;
 }
 
 .Separator {
@@ -395,25 +408,30 @@
 }
 
 .MenuList[data-layout="horizontal"] {
-  --h-icon-size: 20px;
-  --h-padding: spacing(2);
-  --h-gap: spacing(1);
+  --h-icon-size: var(--menu-horizontal-icon-size, 20px);
+  --h-padding: var(--menu-horizontal-item-padding, spacing(2));
+  --h-gap: var(--menu-horizontal-item-gap, spacing(1));
 
   display: flex;
   flex-direction: row;
   min-width: auto;
+  gap: var(--menu-horizontal-gap, normal);
+  padding-inline: var(--menu-horizontal-padding-inline, var(--menu-gutter));
 
   &[data-size="sm"] {
-    --h-icon-size: 16px;
-    --h-padding: spacing(1.5);
+    --h-icon-size: var(--menu-horizontal-icon-size, 16px);
+    --h-padding: var(--menu-horizontal-item-padding, spacing(1.5));
   }
 
   &[data-size="lg"] {
-    --h-icon-size: 24px;
-    --h-padding: spacing(2.5);
+    --h-icon-size: var(--menu-horizontal-icon-size, 24px);
+    --h-padding: var(--menu-horizontal-item-padding, spacing(2.5));
   }
 
   & .MenuItem {
+    --menu-item-radius: var(--menu-horizontal-item-radius, calc(var(--menu-radius) - var(--menu-gutter)));
+    display: var(--menu-horizontal-item-display, block);
+    height: var(--menu-horizontal-item-height, auto);
     flex: 1 0 auto;
     flex-direction: column;
     align-items: center;
@@ -429,8 +447,9 @@
     flex-direction: column;
     align-items: center;
     gap: var(--h-gap);
-    font-size: var(--font-text-2xs-size);
-    line-height: var(--font-text-2xs-line-height);
+    font-size: var(--menu-horizontal-label-size, var(--font-text-2xs-size));
+    font-weight: var(--menu-horizontal-label-weight, inherit);
+    line-height: var(--menu-horizontal-label-leading, var(--font-text-2xs-line-height));
 
     & > svg {
       font-size: var(--h-icon-size);
@@ -450,5 +469,143 @@
     height: auto;
     align-self: stretch;
     margin: spacing(1) 0;
+  }
+}
+
+/* The shared check icon stays hidden for desktop radio indicators. */
+.SelectionCheck {
+  width: 16px;
+  height: 16px;
+}
+
+.RadioIndicator .SelectionCheck {
+  display: none;
+}
+
+/* iPhone menu items share label/subtitle and selection geometry. */
+@media (max-width: 767px) {
+  .MenuList:not([data-layout="horizontal"]) :is(.MenuItem, .MenuItemContent) {
+    letter-spacing: var(--menu-letter-spacing, -0.43px);
+    overflow-wrap: anywhere;
+  }
+
+  /* Intrinsic label height and a full-row pressed surface share the 44px target. */
+  .MenuList:not([data-layout="horizontal"]) .MenuItem {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    min-height: 44px;
+    padding-block: 0;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem::before {
+    position: absolute;
+    inset: 0;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem > .PressableInner {
+    grid-area: 1 / 1;
+    min-width: 0;
+    padding-block: 10px;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem:has(.ItemDescription),
+  .MenuList:not([data-layout="horizontal"]) .MenuItemContent:has(.ItemDescription) {
+    font-weight: var(--font-weight-normal);
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .ItemLeading {
+    gap: 2px;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .ItemDescription {
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: normal;
+    color: var(--menu-description-color, var(--color-text-secondary));
+  }
+
+  /* The native text subtitle is one line; rich description slots retain their layout. */
+  .MenuList:not([data-layout="horizontal"]) .ItemDescription:not(:has(*)) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem[data-disabled] {
+    color: var(--menu-disabled-label-color, var(--color-text-tertiary));
+    opacity: 1;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem[data-disabled] .ItemDescription {
+    color: var(--menu-disabled-description-color, var(--color-text-tertiary));
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .MenuItem[data-disabled] :is(.RadioIndicator, .CheckboxIndicator) {
+    color: var(--color-text);
+  }
+
+  .MenuList:not([data-layout="horizontal"]) :is(.RadioItem, .CheckboxItem) {
+    gap: var(--menu-item-gap);
+  }
+
+  .MenuList:not([data-layout="horizontal"]) :is(.RadioIndicator, .CheckboxIndicator) {
+    width: 24px;
+    height: 22px;
+    /* The reference keeps a 22px selection slot beside the 20px label line. */
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .RadioIndicatorActive::before,
+  .MenuList:not([data-layout="horizontal"]) .RadioIndicatorActive::after {
+    display: none;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) .CheckboxCircle {
+    width: 24px;
+    height: 22px;
+    border-radius: 0;
+    background: none;
+    color: inherit;
+    animation: none;
+  }
+
+  /* iOS 26 kit Menu Items (Menu has Selection): the checkmark leads the row, so the desktop end
+     position moves to the start on a phone. */
+  .MenuList:not([data-layout="horizontal"]) :is(.RadioItem, .CheckboxItem)[data-indicator-position="end"] {
+    justify-content: flex-start;
+  }
+
+  .MenuList:not([data-layout="horizontal"]) [data-indicator-position="end"] :is(.RadioIndicator, .RadioIndicatorActive, .CheckboxIndicator) {
+    order: -1;
+  }
+
+  /* The 17pt checkmark of the kit: about 15 × 14.5px of ink. */
+  .MenuList:not([data-layout="horizontal"]) .SelectionCheck {
+    display: block;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    color: inherit;
+  }
+}
+
+/* Phone submenu geometry is solved against the whole viewport/footer boundary.
+   Retain the primitive's collection and focus behavior, not its side-space width. */
+@media (max-width: 767px) {
+  .MenuList[data-submenu]:not([data-submenu-positioned]) {
+    visibility: hidden;
+  }
+
+  .MenuList[data-submenu-phone] {
+    width: var(--menu-phone-width, max-content);
+    min-width: min(var(--menu-phone-min-width, var(--menu-default-min-width, 238px)), var(--menu-phone-max-width));
+    max-width: var(--menu-phone-max-width);
+    max-height: min(var(--menu-max-height, 1200px), var(--menu-phone-max-height));
+  }
+
+  .SubMenuItem[data-state="open"] > .PressableInner > .SubTriggerIcon {
+    transform: rotate(90deg);
   }
 }

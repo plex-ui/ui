@@ -4,6 +4,8 @@ import clsx from "clsx"
 import { useRef, type ReactNode } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { handlePressableMouseEnter } from "../../lib/helpers"
+import { isHoverPointer } from "../../lib/inputMode"
+import { isNestedSelectControl } from "../../lib/selectPress"
 import type { ControlSize, Variants } from "../../types"
 import { Button } from "../Button"
 import { ChevronDown, Dropdown, X } from "../Icon"
@@ -94,6 +96,7 @@ export type SelectControlProps = Omit<React.HTMLAttributes<HTMLSpanElement>, "on
 export const SelectControl = ({
   ref,
   onPointerDown,
+  onPointerCancel,
   onKeyDown,
   onPointerEnter,
   onInteract,
@@ -115,6 +118,9 @@ export const SelectControl = ({
   ...restProps
 }: SelectControlProps) => {
   const controlRef = useRef<HTMLSpanElement>(null)
+  const mouseClickHandled = useRef(false)
+  // Popover/Menu clone their private click handler into the trigger.
+  const triggerProps: React.HTMLAttributes<HTMLSpanElement> = restProps
   const clearable = !!onClearClick
   const showClearAction = clearable && selected && !loading && !disabled
   const hasDropdownIcon = dropdownIconType && dropdownIconType !== "none" && !loading
@@ -128,6 +134,8 @@ export const SelectControl = ({
     if (evt.target !== evt.currentTarget && (evt.key === " " || evt.key === "Enter")) {
       return
     }
+    onKeyDown?.(evt)
+    if (evt.defaultPrevented || evt.nativeEvent.isComposing || evt.keyCode === 229) return
     switch (evt.key) {
       case "Enter":
       case "ArrowDown":
@@ -141,46 +149,43 @@ export const SelectControl = ({
         evt.stopPropagation()
         evt.preventDefault()
 
-        if (onInteract) {
-          onInteract()
-        } else {
-          // Otherwise, send a synthetic trigger event to Radix (presumably)
-          controlRef.current?.dispatchEvent(
-            new PointerEvent("pointerdown", {
-              bubbles: true,
-              cancelable: true,
-              pointerType: "mouse", // mimic mouse interaction
-            }),
-          )
-        }
+        controlRef.current?.click()
         break
       default:
-        // Allow all other key presses through
-        onKeyDown?.(evt)
+        break
     }
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLSpanElement>) => {
-    // Don't trigger on right clicks
-    if (evt.button === 2) {
+    mouseClickHandled.current = false
+    if (isNestedSelectControl(evt)) return
+    onPointerDown?.(evt)
+    if (evt.defaultPrevented) {
+      mouseClickHandled.current = true
       return
     }
-
-    // Prevent focus from entering the click target of the select
-    // so that focus correctly moves into the menu.
+    if (evt.button !== 0) return
+    // A touch may become a scroll. Wait for its click, which the browser cancels
+    // when scrolling; desktop mouse keeps press-drag-select.
+    if (evt.pointerType === "pen" || !isHoverPointer(evt)) return
     evt.stopPropagation()
-
+    mouseClickHandled.current = true
     if (onInteract) {
       evt.preventDefault()
       onInteract()
     } else {
-      // NOTE: cannot preventDefault() here, for radix
-      onPointerDown?.(evt)
-      // @ts-expect-error -- `onClick` can only be present if Radix is trying to spread it.
-      // An example would be `<Popover>`, but we specifically open this component on `onPointerDown`.
-      // Trigger the handler, assuming that `onPointerDown` is not going to be responsible for opening.
-      restProps.onClick?.(evt)
+      triggerProps.onClick?.(evt)
     }
+  }
+
+  const handleClick = (evt: React.MouseEvent<HTMLSpanElement>) => {
+    const handled = mouseClickHandled.current
+    mouseClickHandled.current = false
+    if (!isInteractive || evt.defaultPrevented || evt.button !== 0 || isNestedSelectControl(evt)) return
+    if (handled && evt.detail !== 0) return
+    evt.stopPropagation()
+    if (onInteract) onInteract()
+    else triggerProps.onClick?.(evt)
   }
 
   return (
@@ -209,8 +214,11 @@ export const SelectControl = ({
       data-disabled={disabled ? "" : undefined}
       aria-disabled={disabled}
       {...restProps}
-      // Ignore onClick handler from Radix, because we use onPointerDown to mimic a native select
-      onClick={undefined}
+      onClick={handleClick}
+      onPointerCancel={(evt) => {
+        mouseClickHandled.current = false
+        onPointerCancel?.(evt)
+      }}
     >
       {StartIcon && <StartIcon className={s.StartIcon} />}
       <span className={s.TriggerText}>{children}</span>
@@ -227,6 +235,9 @@ export const SelectControl = ({
               onClick={(evt) => {
                 evt.stopPropagation()
                 evt.preventDefault()
+                if (disabled || loading) return
+                // The clear button disappears when the value becomes empty.
+                controlRef.current?.focus({ preventScroll: true })
                 onClearClick()
               }}
               color="secondary"
@@ -250,13 +261,23 @@ export const SelectControl = ({
 }
 
 type DropdownIconProps = {
-  iconType: Omit<DropdownIconType, "none">
+  iconType: Exclude<DropdownIconType, "none">
 }
 
 export const DropdownIcon = ({ iconType }: DropdownIconProps) => {
   return iconType === "chevronDown" ? (
-    <ChevronDown className={clsx(s.DropdownIcon, s.DropdownIconChevron)} />
+    <ChevronDown data-no-autosize="" className={clsx(s.DropdownIcon, s.DropdownIconChevron)} />
   ) : (
-    <Dropdown className={s.DropdownIcon} />
+    <span className={s.DropdownIcon} aria-hidden="true">
+      <Dropdown data-no-autosize="" className={s.DropdownGlyph} />
+      <svg data-no-autosize="" className={s.MobileDropdownGlyph} width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M9.41074 2.74408C9.73618 2.41864 10.2638 2.41864 10.5893 2.74408L14.7559 6.91074C15.0814 7.23618 15.0814 7.76382 14.7559 8.08926C14.4305 8.41469 13.9028 8.41469 13.5774 8.08926L10 4.51184L6.42259 8.08926C6.09715 8.41469 5.56951 8.41469 5.24408 8.08926C4.91864 7.76382 4.91864 7.23618 5.24408 6.91074L9.41074 2.74408ZM5.24408 11.9107C5.56951 11.5853 6.09715 11.5853 6.42259 11.9107L10 15.4882L13.5774 11.9107C13.9028 11.5853 14.4305 11.5853 14.7559 11.9107C15.0814 12.2362 15.0814 12.7638 14.7559 13.0893L10.5893 17.2559C10.2638 17.5814 9.73618 17.5814 9.41074 17.2559L5.24408 13.0893C4.91864 12.7638 4.91864 12.2362 5.24408 11.9107Z"
+          fill="currentColor"
+          fillRule="evenodd"
+          clipRule="evenodd"
+        />
+      </svg>
+    </span>
   )
 }

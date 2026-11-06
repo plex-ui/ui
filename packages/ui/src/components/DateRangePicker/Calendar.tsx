@@ -15,8 +15,10 @@ import {
 } from "../../lib/dateUtils"
 import { waitForAnimationFrame } from "../../lib/helpers"
 import { Button } from "../Button"
-import { Check, ChevronLeft, ChevronRight } from "../Icon"
+import { Check } from "../Icon"
+import { CalendarNavigationIcon } from "../DatePicker/CalendarNavigationIcon"
 import { TransitionGroup } from "../Transition"
+import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/DateRangePicker/Calendar.module.css"
 import { useDateRangeContext } from "./context"
 import { type DateRange, type DateRangeShortcut } from "./types"
@@ -49,8 +51,8 @@ const getKeyTarget = (key: string, day: DateTime, weekStartsOn: number): DateTim
 const monthIndex = (date: DateTime) => date.year * 12 + date.month
 
 export const DateRangeCalendar = () => {
-  const { value, min, max, maxRangeDays, weekStartsOn, onChangeRef } = useDateRangeContext()
-  const isSmallUp = useBreakpoint("sm")
+  const { value, min, max, disabled, maxRangeDays, weekStartsOn, onChangeRef } = useDateRangeContext()
+  const isMediumUp = useBreakpoint("md")
   const calendarContainerRef = useRef<HTMLDivElement | null>(null)
   // The day to focus once a key has moved the view to its month
   const pendingFocusRef = useRef<DateTime | null>(null)
@@ -58,12 +60,12 @@ export const DateRangeCalendar = () => {
   const [calendarSteps, setCalendarSteps] = useState<number>(0)
   const [forceRenderIncrement, setForceRenderIncrement] = useState<number>(0)
   const [leftCalendarDate, setLeftCalendarDate] = useState<DateTime>(() =>
-    isSmallUp
+    isMediumUp
       ? getLeftCalendarDate(value?.[0] ?? DateTime.now(), max)
       : value?.[0] ?? DateTime.now(),
   )
 
-  const rightCalendarDate = isSmallUp
+  const rightCalendarDate = isMediumUp
     ? leftCalendarDate.plus({ months: 1 }).startOf("month")
     : leftCalendarDate.startOf("month")
 
@@ -71,16 +73,19 @@ export const DateRangeCalendar = () => {
   const canGoForward = !max || isBefore(rightCalendarDate.endOf("month"), max)
 
   const handleNext = () => {
+    if (disabled) return
     setCalendarSteps((c) => c + 1)
     setLeftCalendarDate((dt) => dt.plus({ months: 1 }))
   }
 
   const handlePrevious = () => {
+    if (disabled) return
     setCalendarSteps((c) => c - 1)
     setLeftCalendarDate((dt) => dt.minus({ months: 1 }))
   }
 
   const handleDateSelect = (selectedDate: DateTime) => {
+    if (disabled) return
     if (!selectionRange) {
       setSelectionRange([selectedDate, selectedDate])
       return
@@ -101,6 +106,7 @@ export const DateRangeCalendar = () => {
   }
 
   const handleDateMouseEnter = (hoveredDate: DateTime) => {
+    if (disabled) return
     // If we're not actively selecting, no-op
     if (!selectionRange) {
       return
@@ -154,7 +160,7 @@ export const DateRangeCalendar = () => {
   // A calendar that is leaving keeps the props it last rendered with, so its
   // days reach the current state through a stable callback
   const handleDayKeyDown = useStableCallback((event: KeyboardEvent, day: DateTime) => {
-    if (event.altKey || event.ctrlKey || event.metaKey) {
+    if (disabled || event.altKey || event.ctrlKey || event.metaKey) {
       return
     }
 
@@ -229,50 +235,44 @@ export const DateRangeCalendar = () => {
       // Reset state the calendar view entirely
       setSelectionRange(null)
       setCalendarSteps(0)
-      setLeftCalendarDate(isSmallUp ? getLeftCalendarDate(value[0], max) : value[0])
+      setLeftCalendarDate(isMediumUp ? getLeftCalendarDate(value[0], max) : value[0])
       setForceRenderIncrement((c) => c + 1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run this hook when value changes
   }, [value])
 
-  // Detect height changes when new calendars are rendered
+  // The day grid changes size at the Phone breakpoint and when fonts/content resize.
+  // Observe its border box, not only the month state, while retaining the height transition.
   useEffect(() => {
-    waitForAnimationFrame(() => {
-      const container = calendarContainerRef.current
-
-      if (!container) {
-        return
-      }
-
-      let maxHeight = -Infinity
-
-      // Find the tallest calendar
-      container.querySelectorAll("[data-calendar]")?.forEach((element) => {
-        // NOTE: clientHeight does not respect the scale() that popover uses to animate in, which is what we want
-        // We want to know the full height of the element, without any transform applied.
-        const height = element.clientHeight
-
-        // Ignore calendars that are exiting
-        if (element.closest("[data-exiting]")) {
-          return
-        }
-
-        if (height > maxHeight) {
-          maxHeight = height
-        }
-      })
-
-      container.style.height = `${maxHeight}px`
-
-      // Don't animate the initial height.
-      // This is relevant when the calendar opens to a larger size than the default.
-      if (!container.style.transition) {
-        waitForAnimationFrame(() => {
-          container.style.transition = `height 0.25s var(--cubic-move)`
+    const container = calendarContainerRef.current
+    if (!container) return
+    let cancelTransition: (() => void) | undefined
+    const calendars = () => Array.from(container.querySelectorAll<HTMLElement>("[data-calendar]"))
+      .filter((element) => !element.closest("[data-exiting]"))
+    const measure = () => {
+      const visible = calendars()
+      if (!visible.length) return
+      const height = `${Math.max(...visible.map((element) => element.clientHeight))}px`
+      if (container.style.height !== height) container.style.height = height
+      // Do not animate the initial measurement. The CSS variable follows live reduced motion.
+      if (!container.style.transition && !cancelTransition) {
+        cancelTransition = waitForAnimationFrame(() => {
+          container.style.transition = "height var(--calendar-height-duration, 0.25s) var(--cubic-move)"
         })
       }
+    }
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : undefined
+    const cancelMeasure = waitForAnimationFrame(() => {
+      measure()
+      observer?.observe(container, { box: "border-box" })
+      calendars().forEach((calendar) => observer?.observe(calendar, { box: "border-box" }))
     })
-  }, [leftCalendarDate])
+    return () => {
+      cancelMeasure()
+      cancelTransition?.()
+      observer?.disconnect()
+    }
+  }, [leftCalendarDate, forceRenderIncrement, isMediumUp])
 
   // Focus a pending day once its month has rendered. New calendars mount
   // after this render (TransitionGroup), so wait a frame like the height does
@@ -288,7 +288,6 @@ export const DateRangeCalendar = () => {
         focusDay(target)
       }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run this hook when the months change
   }, [leftCalendarDate])
 
   return (
@@ -296,7 +295,7 @@ export const DateRangeCalendar = () => {
       <div
         ref={calendarContainerRef}
         className={s.CalendarContainer}
-        onMouseLeave={handleCalendarMouseLeave}
+        onPointerLeave={(event) => { if (isHoverPointer(event)) handleCalendarMouseLeave() }}
       >
         <div className={s.Previous}>
           <Button
@@ -307,10 +306,10 @@ export const DateRangeCalendar = () => {
             gutterSize="2xs"
             iconSize="sm"
             onClick={handlePrevious}
-            disabled={!canGoBack}
+            disabled={disabled || !canGoBack}
             aria-label="Previous month"
           >
-            <ChevronLeft />
+            <CalendarNavigationIcon direction="previous" />
           </Button>
         </div>
         <div className={s.Next}>
@@ -322,44 +321,27 @@ export const DateRangeCalendar = () => {
             gutterSize="2xs"
             iconSize="sm"
             onClick={handleNext}
-            disabled={!canGoForward}
+            disabled={disabled || !canGoForward}
             aria-label="Next month"
           >
-            <ChevronRight />
+            <CalendarNavigationIcon direction="next" />
           </Button>
         </div>
-        <div
-          className={s.CalendarRange}
-          style={{
-            transform: `translate(calc(${calendarSteps * -1} * var(--calendar-step)), 0)`,
-          }}
-        >
-          <TransitionGroup enterDuration={400} exitDuration={400}>
-            <CalendarView
-              key={leftCalendarDate.toLocaleString({
-                month: "long",
-                year: "numeric",
-              })}
-              stepPosition={calendarSteps}
-              date={leftCalendarDate}
-              selectedDates={selectedDisplayValue}
-              min={min}
-              max={max}
-              selectionStart={selectionRange?.[0]}
-              maxRangeDays={maxRangeDays}
-              isSelecting={!!selectionRange}
-              onDateSelect={handleDateSelect}
-              onDateMouseEnter={handleDateMouseEnter}
-              onDayKeyDown={handleDayKeyDown}
-            />
-            {isSmallUp && (
+        <div className={s.CalendarViewport}>
+          <div
+            className={s.CalendarRange}
+            style={{
+              transform: `translate(calc(${calendarSteps * -1} * var(--calendar-step)), 0)`,
+            }}
+          >
+            <TransitionGroup enterDuration={400} exitDuration={400}>
               <CalendarView
-                key={rightCalendarDate.toLocaleString({
+                key={leftCalendarDate.toLocaleString({
                   month: "long",
                   year: "numeric",
                 })}
-                stepPosition={calendarSteps + 1}
-                date={rightCalendarDate}
+                stepPosition={calendarSteps}
+                date={leftCalendarDate}
                 selectedDates={selectedDisplayValue}
                 min={min}
                 max={max}
@@ -370,8 +352,27 @@ export const DateRangeCalendar = () => {
                 onDateMouseEnter={handleDateMouseEnter}
                 onDayKeyDown={handleDayKeyDown}
               />
-            )}
-          </TransitionGroup>
+              {isMediumUp && (
+                <CalendarView
+                  key={rightCalendarDate.toLocaleString({
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  stepPosition={calendarSteps + 1}
+                  date={rightCalendarDate}
+                  selectedDates={selectedDisplayValue}
+                  min={min}
+                  max={max}
+                  selectionStart={selectionRange?.[0]}
+                  maxRangeDays={maxRangeDays}
+                  isSelecting={!!selectionRange}
+                  onDateSelect={handleDateSelect}
+                  onDateMouseEnter={handleDateMouseEnter}
+                  onDayKeyDown={handleDayKeyDown}
+                />
+              )}
+            </TransitionGroup>
+          </div>
         </div>
       </div>
     </div>
@@ -393,7 +394,7 @@ type CalendarViewProps = {
   stepPosition: number
 }
 
-const daysOfTheWeekLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+const daysOfTheWeekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 const CalendarView = ({
   date,
@@ -408,7 +409,7 @@ const CalendarView = ({
   onDayKeyDown,
   stepPosition,
 }: CalendarViewProps) => {
-  const { weekStartsOn } = useDateRangeContext()
+  const { weekStartsOn, disabled } = useDateRangeContext()
   // Lock position on mount and don't respond to changes
   const [position] = useState(stepPosition)
   const { startOfMonth, weeks, enabledInterval } = useMemo(() => {
@@ -455,10 +456,11 @@ const CalendarView = ({
       <p className={s.MonthLabel}>
         {startOfMonth.monthLong} {startOfMonth.year}
       </p>
-      <div className={s.Week}>
+      <div className={`${s.Week} ${s.WeekdayHeader}`}>
         {dayLabels.map((day) => (
           <div key={day} className={s.DayLabel}>
-            {day}
+            <span className={s.ShortDayLabel}>{day.slice(0, 2)}</span>
+            <span className={s.LongDayLabel}>{day}</span>
           </div>
         ))}
       </div>
@@ -504,12 +506,12 @@ const CalendarView = ({
                 {/* The full date names the day, which "15" alone does not across months */}
                 <button
                   className={s.InteractiveDay}
-                  disabled={!enabled}
+                  disabled={disabled || !enabled}
                   aria-label={d.toLocaleString(DateTime.DATE_HUGE)}
                   aria-pressed={!!(isStart || isEnd || isInRange)}
                   aria-current={dayIsToday ? "date" : undefined}
-                  onClick={() => d && onDateSelect?.(d)}
-                  onMouseEnter={() => d && onDateMouseEnter?.(d)}
+                  onClick={() => { if (!disabled && d) onDateSelect?.(d) }}
+                  onPointerEnter={(event) => { if (!disabled && d && isHoverPointer(event)) onDateMouseEnter?.(d) }}
                   onKeyDown={(event) => d && onDayKeyDown?.(event, d)}
                 >
                   {d.day}
@@ -526,7 +528,7 @@ const CalendarView = ({
 
 export const DateRangeShortcuts = ({ shortcuts }: { shortcuts?: DateRangeShortcut[] }) => {
   const isMediumUp = useBreakpoint("md")
-  const { value, min, max, maxRangeDays, onChangeRef } = useDateRangeContext()
+  const { value, min, max, maxRangeDays, disabled, onChangeRef } = useDateRangeContext()
 
   if (!isMediumUp || !shortcuts?.length) {
     return null
@@ -551,8 +553,8 @@ export const DateRangeShortcuts = ({ shortcuts }: { shortcuts?: DateRangeShortcu
             iconSize="sm"
             block
             selected={isActive}
-            disabled={!isRangeWithinLimits(range, min, max, maxRangeDays)}
-            onClick={() => onChangeRef.current(range, shortcut)}
+            disabled={disabled || !isRangeWithinLimits(range, min, max, maxRangeDays)}
+            onClick={() => { if (!disabled) onChangeRef.current(range, shortcut) }}
           >
             <span className={s.ButtonText}>{label}</span>
             {isActive && <Check />}

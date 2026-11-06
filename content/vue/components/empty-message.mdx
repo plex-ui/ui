@@ -10,7 +10,7 @@ export const composition = `<div
   class="flex w-full items-center justify-center"
   :style="fill === 'absolute' ? { position: 'relative', minHeight: '200px' } : undefined"
 >
-  <EmptyMessage :fill="fill">
+  <EmptyMessage :fill="fill" :size="size">
     <EmptyMessageIcon v-if="icon === 'on'" :color="color" :size="size">
       <Explore />
     </EmptyMessageIcon>
@@ -18,11 +18,12 @@ export const composition = `<div
     <EmptyMessageDescription v-if="content !== 'title'">
       Create your first project to get started
     </EmptyMessageDescription>
-    <EmptyMessageActionRow>
-      <Button color="primary" :size="size === 'sm' ? 'md' : 'lg'">
+    <EmptyMessageActionRow v-if="actions !== 'none'">
+      <Button color="primary" :size="size === 'sm' ? 'md' : 'xl'">
         <Plus class="mr-[-2px]" />
         New project
       </Button>
+      <Button v-if="actions === 'two'" color="secondary" variant="outline" :size="size === 'sm' ? 'md' : 'xl'">Browse templates</Button>
     </EmptyMessageActionRow>
   </EmptyMessage>
 </div>`
@@ -116,6 +117,7 @@ export const leftAligned = `<div class="w-[320px]">
       { name: "color", type: "select", options: ["secondary", "danger", "warning"], default: "secondary" },
       { name: "size", type: "select", options: ["sm", "md"], default: "md" },
       { name: "icon", type: "select", options: ["on", "off"], default: "on" },
+      { name: "actions", type: "select", options: ["one", "two", "none"], default: "one" },
       { name: "content", type: "select", options: ["title + description", "title", "description"], default: "title + description" },
     ]}
   />
@@ -186,4 +188,4 @@ Every part accepts `class`. The parts apply no other attributes.
 
 ## Styling
 
-Empty Message has no component tokens of its own. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.
+Empty Message uses optional `--empty-message-*` tokens for its content spacing, typography and action sizes. It reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there.

@@ -36,3 +36,12 @@
     background-position: 250% top;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .Shimmer {
+    animation: none;
+    background: none;
+    background-clip: unset;
+    -webkit-text-fill-color: currentcolor;
+  }
+}

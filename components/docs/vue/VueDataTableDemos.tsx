@@ -13,6 +13,7 @@ import {
   type VisibilityState,
 } from '@plexui/vue/components/DataTable';
 import { DemoControlBoolean, controlsTableStyle } from '../ButtonDemos';
+import { useDemoControlSync } from '../PreviewEmbed';
 import { VuePreview } from '../VuePreview';
 import { VueDemo } from './VueDemo';
 
@@ -51,6 +52,9 @@ const users: User[] = markRaw([
   { id: 'USR-014', name: 'Jeffrey Webb', email: 'jeffrey@example.com', role: 'Tech Lead', status: 'Active', department: 'Engineering', joined: '2021-09-01T09:00:00Z', salary: 135000 },
   { id: 'USR-015', name: 'Kathryn Murphy', email: 'kathryn@example.com', role: 'Content Strategist', status: 'Inactive', department: 'Marketing', joined: '2023-06-20T09:00:00Z', salary: 76000 },
 ]);
+
+const variantUsers = markRaw(users.slice(0, 6));
+const emptyUsers = markRaw<User[]>([]);
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
@@ -103,12 +107,6 @@ const COLUMNS = {
       cell: ({ row }) => h('span', money.format(row.original.salary)),
     },
   ],
-  emptyState: [
-    { accessorKey: 'id', header: 'ID' },
-    { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'email', header: 'Email' },
-    { accessorKey: 'status', header: 'Status' },
-  ],
 } satisfies Record<string, ColumnDef<User>[]>;
 
 type Example = keyof typeof COLUMNS;
@@ -117,6 +115,8 @@ type Example = keyof typeof COLUMNS;
 // component and cannot pass functions to this client one
 const scopeOf = (example: Example) => ({
   users,
+  variantUsers,
+  emptyUsers,
   columns: markRaw(COLUMNS[example]),
   getRowId: (user: User) => user.id,
 });
@@ -158,6 +158,7 @@ const controlLabelStyle: CSSProperties = {
 export function VueDataTableFilteringDemo({ code }: { code: string }) {
   const [scope] = useState(() => scopeOf('filtering'));
   const [globalFilter, setGlobalFilter] = useState('');
+  useDemoControlSync('globalFilter', globalFilter, setGlobalFilter);
   const filterInputId = useId();
   const props = useMemo(() => ({ ...scope, globalFilter }), [scope, globalFilter]);
 

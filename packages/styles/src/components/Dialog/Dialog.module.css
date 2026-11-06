@@ -77,10 +77,12 @@
   max-height: var(--dialog-panel-max-height);
   overflow: auto;
   border-radius: var(--dialog-panel-radius);
-  background: var(--color-surface-elevated);
+  background: var(--dialog-panel-background, var(--color-surface-elevated));
   box-shadow: var(--shadow-lg), var(--shadow-hairline);
   padding: 1.25rem 1.25rem var(--dialog-panel-padding-bottom);
   pointer-events: auto;
+  /* A released drag holds here until the owner starts exit or returns to rest. */
+  transform: var(--dialog-panel-drag-transform, none);
 
   /* With a Body, only the body scrolls: the header and footer stay in view */
   &:has(> .Body) {
@@ -88,14 +90,14 @@
   }
 
   .Transition[data-entering] & {
-    opacity: 0;
+    opacity: var(--dialog-panel-hidden-opacity, 0);
     transform: var(--dialog-panel-hidden-transform);
   }
 
   .Transition[data-entering-active] &,
   .Transition[data-entering][data-interrupted] & {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: var(--dialog-panel-drag-transform, scale(1) translateY(0));
     transition:
       opacity var(--dialog-enter-duration) var(--cubic-enter),
       transform var(--dialog-enter-duration) var(--cubic-enter);
@@ -103,12 +105,12 @@
 
   .Transition[data-exiting] & {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: var(--dialog-panel-drag-transform, scale(1) translateY(0));
   }
 
   .Transition[data-exiting-active] &,
   .Transition[data-exiting][data-interrupted] & {
-    opacity: 0;
+    opacity: var(--dialog-panel-hidden-opacity, 0);
     transform: var(--dialog-panel-hidden-transform);
     transition:
       opacity var(--dialog-exit-duration) var(--dialog-exit-easing),
@@ -124,7 +126,7 @@
 }
 
 /* =============================================
-   Placement: `placement` everywhere, `mobilePlacement` at 640px and below
+   Placement: `placement` everywhere, `mobilePlacement` at 767px and below
 ============================================= */
 .Content:where([data-placement="top"]) {
   --dialog-content-align: flex-start;
@@ -183,10 +185,14 @@
   --dialog-panel-max-height: none;
   --dialog-panel-radius: 0;
   --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
-  --dialog-panel-hidden-transform: translateY(8px);
+  --dialog-panel-hidden-transform: translateY(100%);
+  --dialog-panel-hidden-opacity: 1;
+  --dialog-enter-duration: var(--motion-enter-large);
+  --dialog-exit-duration: var(--motion-exit-large);
+  --dialog-exit-easing: var(--cubic-enter);
 }
 
-@media (width <= 640px) {
+@media (width <= 767px) {
   .Content,
   .Content[data-pill] {
     --dialog-panel-corner: var(--dialog-mobile-radius);
@@ -231,10 +237,11 @@
     --dialog-panel-max-height: none;
     --dialog-panel-radius: 0;
     --dialog-panel-padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
-    --dialog-panel-hidden-transform: translateY(8px);
-    --dialog-enter-duration: var(--motion-enter);
-    --dialog-exit-duration: var(--motion-exit);
-    --dialog-exit-easing: var(--cubic-exit-snappy);
+    --dialog-panel-hidden-transform: translateY(100%);
+    --dialog-panel-hidden-opacity: 1;
+    --dialog-enter-duration: var(--motion-enter-large);
+    --dialog-exit-duration: var(--motion-exit-large);
+    --dialog-exit-easing: var(--cubic-enter);
   }
 }
 
@@ -254,9 +261,11 @@
   cursor: pointer;
   transition: background-color 0.2s var(--cubic-enter), color 0.2s var(--cubic-enter);
 
-  &:hover {
-    background: var(--dialog-close-background-hover);
-    color: var(--color-text);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      background: var(--dialog-close-background-hover);
+      color: var(--color-text);
+    }
   }
 
   &:focus-visible {
@@ -265,13 +274,42 @@
   }
 }
 
+/* NavigationButton supplies behavior/glyphs; Dialog keeps its established close face. */
+.Content .CloseButton[data-navigation-action] {
+  --button-size: 2rem;
+  --button-uniform-size: 2rem;
+  --navigation-button-icon-size: 20px;
+  padding: 0;
+  border-radius: 0.5rem;
+  background: var(--dialog-close-background);
+  color: var(--color-text-tertiary);
+  transition: background-color 0.2s var(--cubic-enter), color 0.2s var(--cubic-enter);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      background: var(--dialog-close-background-hover);
+      color: var(--color-text);
+    }
+  }
+
+  &::after { display: none; }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+}
+
+@media (min-width: 768px) {
+  .Content .CloseButton[data-navigation-action]::before {
+    display: none;
+  }
+}
+
 .Content[data-pill] .CloseButton {
   border-radius: var(--radius-full);
 }
 
-.CloseIcon {
-  display: block;
-}
 
 .Header {
   display: flex;
@@ -329,7 +367,16 @@
   color: var(--color-text-secondary);
 }
 
-@media (width <= 640px) {
+@media (width <= 767px) {
+  .Panel,
+  .Body {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .CloseButton {
     top: 0.5rem;
     right: 0.5rem;
@@ -344,18 +391,30 @@
       position: absolute;
       inset: calc((var(--dialog-mobile-action-size) - var(--dialog-mobile-close-size)) / 2);
       border-radius: inherit;
-      background: var(--dialog-mobile-close-background);
+      background: var(--mobile-glass-background, var(--dialog-mobile-close-background));
+      background-image: var(--mobile-glass-sheen, none);
+      box-shadow: var(--mobile-glass-shadow, 0 0 #00000000);
+      -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter, none);
+      backdrop-filter: var(--mobile-glass-backdrop-filter, none);
       content: "";
       pointer-events: none;
       transition: background-color 0.2s var(--cubic-enter);
     }
 
-    &:hover {
-      background: transparent;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:where(:not(:root[data-input="touch"] *)) {
+        background: transparent;
+      }
     }
 
-    &:hover::before {
-      background: var(--color-background-secondary-soft-alpha-hover);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:where(:not(:root[data-input="touch"] *))::before {
+        background-color: var(--mobile-glass-background-hover, var(--color-background-secondary-soft-alpha-hover));
+      }
+    }
+
+    &:active::before {
+      background-color: var(--mobile-glass-background-active, var(--color-background-secondary-soft-alpha-hover));
     }
 
     &:focus-visible {
@@ -363,11 +422,21 @@
     }
   }
 
-  .CloseIcon {
-    position: relative;
-    width: var(--dialog-mobile-close-icon-size);
-    height: var(--dialog-mobile-close-icon-size);
+  .Content .CloseButton[data-navigation-action] {
+    --button-size: var(--dialog-mobile-action-size);
+    --button-uniform-size: var(--dialog-mobile-action-size);
+    --navigation-button-icon-size: var(--dialog-mobile-close-icon-size);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-secondary);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:where(:not(:root[data-input="touch"] *)) { background: transparent; }
+    }
+
+    &:focus-visible { outline-offset: -4px; }
   }
+
 
   .Panel:has(> .CloseButton) > .Header > :first-child {
     padding-inline-end: calc(var(--dialog-mobile-action-size) - 0.75rem);
@@ -378,6 +447,9 @@
 
     & > * {
       width: 100%;
+    }
+
+    & > :where(button, a, [role="link"]) {
       --button-size: var(--dialog-mobile-action-size);
       --button-radius: var(--dialog-mobile-action-radius);
       --button-font-size: var(--dialog-mobile-action-font-size);
@@ -387,7 +459,7 @@
 }
 
 /* iOS presentations are opt-in; placement and all desktop styles remain independent. */
-@media (width <= 640px) {
+@media (width <= 767px) {
   .Content[data-mobile-variant="alert"] {
     --dialog-content-align: center;
     --dialog-content-justify: center;
@@ -440,7 +512,7 @@
     gap: 10px;
   }
 
-  .Content[data-mobile-variant] .Footer > * {
+  .Content[data-mobile-variant] .Footer > :where(button, a, [role="link"]) {
     --button-size: var(--dialog-alert-action-height);
     --button-font-size: var(--dialog-mobile-type-size);
     --button-gutter: 16px;
@@ -474,7 +546,7 @@
 
   .Content[data-mobile-variant="sheet"] {
     --field-group-radius: 26px;
-    --dialog-panel-max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 16px);
+    --dialog-panel-max-height: calc(100dvh - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - 16px);
     --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 0 0;
   }
 
@@ -495,6 +567,7 @@
 
   .Content[data-mobile-variant="sheet"] .Header {
     position: relative;
+    z-index: 2;
     gap: 0;
     min-height: 70px;
     padding: 16px 68px 10px;
@@ -507,7 +580,7 @@
       width: 36px;
       height: 5px;
       border-radius: var(--radius-full);
-      background: var(--color-background-secondary-soft-alpha);
+      background: var(--mobile-grabber-color, var(--color-background-secondary-soft-alpha));
       content: "";
     }
   }
@@ -521,14 +594,19 @@
   }
 
   /* The reference title sits 13px into the 44px toolbar, 2px below its geometric center. */
+  .Content[data-mobile-variant="alert"] .Title,
+  .Content[data-mobile-variant="sheet"] .Title {
+    font-weight: 590;
+  }
+
   .Content[data-mobile-variant="sheet"] .Title {
     transform: translateY(2px);
   }
 
   .Content[data-mobile-variant="sheet"] .CloseButton {
-    z-index: 1;
-    top: 16px;
-    inset-inline-start: 16px;
+    z-index: 3;
+    top: var(--dialog-sheet-action-inset-block, 16px);
+    inset-inline-start: var(--dialog-sheet-action-inset-inline, 16px);
     inset-inline-end: auto;
     width: var(--dialog-sheet-close-size);
     height: var(--dialog-sheet-close-size);
@@ -538,43 +616,112 @@
     }
   }
 
+  .Content[data-mobile-variant="sheet"] .CloseButton[data-navigation-action] {
+    --button-size: var(--dialog-sheet-close-size);
+    --button-uniform-size: var(--dialog-sheet-close-size);
+    --navigation-button-icon-size: var(--dialog-sheet-close-icon-size);
+    /* The glass Close glyph uses the same label role as Page NavigationButton close (IMG_5453). */
+    color: var(--color-text);
+  }
+
   .Content[data-mobile-variant="sheet"] .HeaderAction {
-    top: 16px;
-    inset-inline-end: 16px;
+    z-index: 3;
+    top: var(--dialog-sheet-action-inset-block, 16px);
+    inset-inline-end: var(--dialog-sheet-action-inset-inline, 16px);
 
     & > button {
       --button-size: var(--dialog-sheet-close-size);
-      --button-icon-size: 24px;
     }
   }
 
-  .Content[data-mobile-variant="sheet"] .CloseIcon {
-    width: var(--dialog-sheet-close-icon-size);
-    height: var(--dialog-sheet-close-icon-size);
+  .Content[data-mobile-variant="sheet"] .HeaderAction > button:not([data-navigation-action]) {
+    --button-icon-size: 24px;
   }
+
+  .Content[data-mobile-variant="sheet"] .HeaderAction > button:where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-mobile-material-background: var(--mobile-glass-background);
+    --button-mobile-material-hover: var(--mobile-glass-background-hover);
+    --button-mobile-material-active: var(--mobile-glass-background-active);
+    --button-mobile-material-sheen: var(--mobile-glass-sheen);
+    --button-mobile-material-shadow: var(--mobile-glass-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+  }
+
 
   .Content[data-mobile-variant="sheet"] .Body {
     margin-inline: 0;
     padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
   }
 
-  .Content[data-mobile-variant="sheet"] .Panel:has(> .Footer) > .Body {
-    padding-bottom: 16px;
+  /* A phone Toolbar takes the place of the Sheet's bar. The header keeps naming the dialog. */
+  .Panel:has(> [data-toolbar][data-placement="top"]) > .Header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .Panel:has(> [data-toolbar][data-placement="top"]) > .CloseButton,
+  .Panel:has(> [data-toolbar][data-placement="bottom"]) > .Footer {
+    display: none;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Panel > .Body {
+    margin-top: calc(-1 * var(--dialog-header-height, 0px));
+    margin-bottom: calc(-1 * var(--dialog-footer-height, 0px));
+    padding-top: calc(16px + var(--dialog-header-height, 0px));
+    padding-bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + var(--dialog-footer-height, 0px));
+    scroll-padding-top: calc(16px + var(--dialog-header-height, 0px));
+    scroll-padding-bottom: calc(16px + var(--dialog-footer-height, 0px));
+  }
+
+  /* Keep the bar material behind its controls without making Header a
+     backdrop root: HeaderAction and the sibling Close sample the same content. */
+  .Content[data-mobile-variant="sheet"] .Header::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: var(--dialog-panel-radius);
+    content: "";
+    pointer-events: none;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header::after,
+  .Content[data-mobile-variant="sheet"] .Footer {
+    background: var(--page-bar-veil);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="solid"]::after,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="solid"] {
+    background: var(--dialog-panel-background, var(--color-surface-elevated));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .Content[data-mobile-variant="sheet"] .Footer {
-    padding: 16px 24px max(24px, env(safe-area-inset-bottom, 0px));
+    position: relative;
+    z-index: 2;
+    padding: 12px 16px max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
   }
 
-  .Content[data-mobile-variant="sheet"] .Footer > * {
+  .Content[data-mobile-variant="sheet"] .Footer > :where(button, a, [role="link"]) {
     --button-size: var(--dialog-sheet-action-height);
     min-height: var(--dialog-sheet-action-height);
     padding-block: 14px;
   }
 
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .Header {
-    min-height: calc(54px + env(safe-area-inset-top, 0px));
-    padding-top: env(safe-area-inset-top, 0px);
+    min-height: calc(54px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
 
     &::before {
       display: none;
@@ -583,7 +730,35 @@
 
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .CloseButton,
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] .HeaderAction {
-    top: env(safe-area-inset-top, 0px);
+    top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
   }
 
+}
+
+/* Surface roles are independent of alert/sheet geometry and bar materials. */
+@media (max-width: 767px) {
+  .Content {
+    --mobile-surface-primary: var(--mobile-surface-elevated-plain-primary, var(--color-surface-elevated));
+    --mobile-surface-secondary: var(--mobile-surface-elevated-plain-secondary, var(--color-background-secondary-soft-alpha));
+    --mobile-surface-tertiary: var(--mobile-surface-elevated-plain-tertiary, var(--color-surface-elevated-secondary));
+    --dialog-panel-background: var(--mobile-surface-primary);
+    --field-group-background: var(--mobile-surface-secondary);
+    --file-upload-list-background: transparent;
+    --file-upload-list-border-width: 1px;
+    --mobile-neutral-outline-background: initial;
+    --mobile-neutral-outline-hover: initial;
+    --mobile-neutral-outline-active: initial;
+    --page-bar-veil: color-mix(in srgb, var(--dialog-panel-background) var(--page-bar-veil-opacity), transparent);
+  }
+
+  .Content[data-surface="grouped"] {
+    --mobile-surface-primary: var(--mobile-surface-elevated-grouped-primary, var(--color-surface-elevated-secondary));
+    --mobile-surface-secondary: var(--mobile-surface-elevated-grouped-secondary, var(--color-surface-elevated));
+    --mobile-surface-tertiary: var(--mobile-surface-elevated-grouped-tertiary, var(--color-surface-elevated-secondary));
+    --file-upload-list-background: var(--mobile-surface-secondary);
+    --file-upload-list-border-width: 0px;
+    --mobile-neutral-outline-background: var(--mobile-surface-secondary);
+    --mobile-neutral-outline-hover: color-mix(in srgb, var(--mobile-surface-secondary) 96%, var(--color-text));
+    --mobile-neutral-outline-active: color-mix(in srgb, var(--mobile-surface-secondary) 94%, var(--color-text));
+  }
 }

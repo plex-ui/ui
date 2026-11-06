@@ -1,7 +1,7 @@
 "use client"
 
 import clsx from "clsx"
-import { cloneElement, isValidElement, useId } from "react"
+import { cloneElement, isValidElement, useId, useRef } from "react"
 
 import { FieldRowContext } from "../../lib/fieldRow"
 import type { ControlSize } from "../../types"
@@ -70,6 +70,7 @@ export type FieldProps = {
    * One line of a FieldGroup: label at the start, control at the end, an error
    * under both. Other div props reach the root only on a row, so it can carry
    * a click or data attributes.
+   * Clicking a non-interactive part of the row focuses its text editor or activates its choice control or popup trigger.
    * A control at the end of the row is a pill unless its own `pill` says otherwise.
    * @default false
    */
@@ -127,6 +128,7 @@ export function Field({
 }: FieldProps) {
   const orientation = orientationProp ?? (row ? "horizontal" : "vertical")
   const generatedId = useId()
+  const forwardingRowClick = useRef(false)
   const fieldId = idProp || `field-${generatedId}`
   const labelId = `${fieldId}-label`
   const childProps = isValidElement<{ size?: unknown; id?: string }>(children) ? children.props : undefined
@@ -188,6 +190,45 @@ export function Field({
     <FieldRowContext.Provider value={row && orientation === "horizontal"}>
       <div
         {...(row ? rest : undefined)}
+        onClick={row ? (event) => {
+          if (forwardingRowClick.current) return
+          rest.onClick?.(event)
+          if (event.defaultPrevented) return
+          const target = event.target
+          const root = event.currentTarget
+          // The linked control remains the keyboard stop and owns its state.
+          // Nested actions keep their own click, including a Select's clear button.
+          if (!(target instanceof Element) || target.closest("[data-row]") !== root ||
+            target.closest('button, a, input, select, textarea, [role="button"], [role="link"], [contenteditable]:not([contenteditable="false"])')) return
+          const linkedControl = root.ownerDocument.getElementById(controlId)
+          if (!linkedControl || linkedControl.closest("[data-row]") !== root) return
+          // Select's id belongs to its hidden form proxy inside the trigger.
+          // Never search sibling popups, such as an InputGroup's unit action.
+          const control = linkedControl.matches('input[aria-hidden="true"]')
+            ? linkedControl.closest<HTMLElement>(':is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"])') ?? linkedControl
+            : linkedControl
+          if (control.matches(':disabled, [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"]')) return
+          const label = target.closest("label")
+          // Native labels already click their linked form control. A directly
+          // linked span trigger, such as DatePicker's, needs forwarding instead.
+          if (label && (label.htmlFor !== linkedControl.id || label.control === linkedControl)) return
+          // The row is the hit area for its plain editor. Focus only: a synthetic
+          // click would also run input actions or disturb native text selection.
+          if (control.matches('textarea, input:not([type]), input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="url"], input[type="number"]') &&
+            !control.matches('[hidden], [aria-hidden="true"]')) {
+            control.focus({ preventScroll: true })
+            return
+          }
+          if (!control.matches('button[role="radio"], button[role="checkbox"], button[role="switch"], input[type="radio"], input[type="checkbox"], :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"])')) return
+          forwardingRowClick.current = true
+          try {
+            control.focus({ preventScroll: true })
+            control.click()
+          } finally {
+            // Form controls can bubble their hidden input click after the render flush.
+            queueMicrotask(() => { forwardingRowClick.current = false })
+          }
+        } : undefined}
         className={clsx(s.Field, className)}
         data-size={size}
         data-orientation={orientation}

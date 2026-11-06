@@ -6,9 +6,6 @@ metaDescription: React OTP input component for one-time password and verificatio
 
 import { OTPInput } from "@plexui/ui/components/OTPInput"
 import {
-  OTPInputDisabledDemo,
-  OTPInputErrorDemo,
-  OTPInputFilledDemo,
   OTPInputGroupedDemo,
   OTPInputOverviewDemo,
 } from "@/components/docs/OTPInputDemos"
@@ -17,40 +14,32 @@ import {
 
 ## Examples
 
+<span id="filled-state" />
+<span id="with-error" />
+<span id="disabled" />
+
 ### Overview
 
+Choose Empty or Filled to replace the current code with a preset. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
+
 <ComponentPreview code={`const [value, setValue] = useState("")
+const [error, setError] = useState(false)
+const [disabled, setDisabled] = useState(false)
 
-<OTPInput value={value} onChange={setValue} />`} previewMinHeight={168}>
+<OTPInput
+  value={value}
+  onChange={setValue}
+  invalid={error}
+  errorMessage={error ? "Invalid verification code." : undefined}
+  disabled={disabled}
+/>`} previewMinHeight={168}>
   <OTPInputOverviewDemo />
-</ComponentPreview>
-
-### Filled state
-
-<ComponentPreview code={`const [value, setValue] = useState("488030")
-
-<OTPInput value={value} onChange={setValue} />`} previewMinHeight={168}>
-  <OTPInputFilledDemo />
 </ComponentPreview>
 
 ### Grouped (3+3)
 
 <ComponentPreview code={`<OTPInput grouping={[3, 3]} />`} previewMinHeight={168}>
   <OTPInputGroupedDemo />
-</ComponentPreview>
-
-### With error
-
-<ComponentPreview code={`const [value, setValue] = useState("48803")
-
-<OTPInput value={value} onChange={setValue} invalid errorMessage="Invalid verification code." />`} previewMinHeight={168}>
-  <OTPInputErrorDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview code={`<OTPInput value="488030" disabled />`} previewMinHeight={168}>
-  <OTPInputDisabledDemo />
 </ComponentPreview>
 
 ## API

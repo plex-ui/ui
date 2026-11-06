@@ -1,4 +1,6 @@
 .Root {
+  --button-size-3xl: var(--file-upload-height);
+
   position: relative;
   --field-error-padding-inline: 0;
   --field-error-margin-top: 0.25rem;
@@ -22,8 +24,10 @@
   transition: border-color var(--floating-input-transition-duration) ease-in-out;
 }
 
-.AreaTrigger:hover:not(:disabled) {
-  border-color: var(--floating-input-border-color-hover);
+@media (hover: hover) and (pointer: fine) {
+  .AreaTrigger:hover:where(:not(:root[data-input="touch"] *)):not(:disabled) {
+    border-color: var(--floating-input-border-color-hover);
+  }
 }
 
 .AreaTrigger[data-invalid] {
@@ -83,15 +87,15 @@
 .FileIcon {
   display: flex;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   margin-left: -4px;
   color: var(--input-text-color);
 }
 
 .FileIcon svg {
-  width: 16px;
-  height: 16px;
+  width: 100%;
+  height: 100%;
 }
 
 .FileInfo {
@@ -131,6 +135,9 @@
 }
 
 .FileRemove {
+  --file-remove-background: var(--color-background-secondary-soft-alpha);
+
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,27 +147,118 @@
   margin: 0 -7px 0 0;
   border: none;
   border-radius: var(--radius-full);
-  background-color: var(--color-background-secondary-soft-alpha);
+  background-color: transparent;
   cursor: pointer;
   color: var(--color-text-secondary-soft);
   flex-shrink: 0;
 }
 
+.FileRemove::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: inherit;
+  background-color: var(--file-remove-background);
+  pointer-events: none;
+}
+
 .FileRemove svg {
+  position: relative;
   width: 15px;
   height: 15px;
 }
 
-.FileRemove:hover {
-  background-color: var(--color-background-secondary-soft-alpha-hover);
+@media (hover: hover) and (pointer: fine) {
+  .FileRemove:hover:where(:not(:root[data-input="touch"] *)) {
+    --file-remove-background: var(--color-background-secondary-soft-alpha-hover);
+  }
 }
 
 .FileRemove:active {
-  background-color: var(--color-background-secondary-soft-alpha-active);
+  --file-remove-background: var(--color-background-secondary-soft-alpha-active);
 }
 
 .FileRemove:disabled {
   pointer-events: none;
+}
+
+/* File cards use the phone's two-line list role. The remove target occupies
+   its own space; the visible circle stays inside the 44px touch target. */
+@media (max-width: 767px) {
+  .Root {
+    --button-size-3xl: var(--control-size-3xl);
+  }
+
+  .FileList,
+  .FileCardGroup {
+    border-width: var(--file-upload-list-border-width, 1px);
+    background-color: var(--file-upload-list-background, transparent);
+  }
+
+  .FileItem {
+    position: relative;
+    min-height: 68px;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .FileItem + .FileItem,
+  .FileList li + li > .FileItem {
+    border-top: 0;
+  }
+
+  .FileItem + .FileItem::after,
+  .FileList li + li > .FileItem::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    inset-inline: 52px 16px;
+    height: 1px;
+    background-color: var(--color-border-primary-outline);
+    pointer-events: none;
+  }
+
+  .FileIcon {
+    margin-left: 0;
+  }
+
+  .FileNameStem,
+  .FileNameExt {
+    font-size: 17px;
+    line-height: 22px;
+    letter-spacing: normal;
+  }
+
+  .FileSize {
+    font-size: 15px;
+    line-height: 20px;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  .FileRemove {
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    /* Align the visible 28px circle with the row's 16px content inset.
+       The transparent half-gutter still belongs to the 44px target. */
+    margin-inline-end: -8px;
+  }
+
+  .FileRemove::before {
+    width: 28px;
+    height: 28px;
+  }
+
+  .FileRemove svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .FileRemove:disabled {
+    --file-remove-background: var(--color-background-disabled);
+    color: var(--color-text-disabled);
+  }
 }
 
 .HiddenInput {

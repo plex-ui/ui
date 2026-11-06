@@ -9,6 +9,7 @@ import {
   defineComponent,
   h,
   isVNode,
+  mergeProps,
   useId,
   type PropType,
   type SlotsType,
@@ -182,7 +183,7 @@ const FieldComponent = defineComponent({
     required: { type: Boolean, default: false },
     /** Layout direction of label and control. @default "horizontal" on a `row`, else "vertical" */
     orientation: String as PropType<"vertical" | "horizontal">,
-    /** One line of a FieldGroup: label at the start, control at the end. @default false */
+    /** One line of a FieldGroup. Its non-interactive area focuses the text editor or activates the choice control or popup trigger. @default false */
     row: { type: Boolean, default: false },
     /** On a `row`, the control takes the rest of the line after the label. @default false */
     fill: { type: Boolean, default: false },
@@ -203,6 +204,7 @@ const FieldComponent = defineComponent({
   }>,
   setup(props, { attrs, slots }) {
     const generatedId = useId()
+    let forwardingRowClick = false
 
     provideFieldRow(() => !!props.row && (props.orientation ?? "horizontal") === "horizontal")
 
@@ -256,15 +258,58 @@ const FieldComponent = defineComponent({
 
       return h(
         "div",
-        {
-          ...(row && attrs),
+        mergeProps({
+          ...(row && { ...attrs, onClick: undefined }),
           "class": clsx(s.Field, attrs.class as ClassValue),
           "data-size": size,
           "data-orientation": orientation,
           "data-optically-align": opticallyAlign,
           "data-row": row ? "" : undefined,
           "data-fill": props.fill ? "" : undefined,
-        },
+        }, row ? {
+          onClick: (event: MouseEvent) => {
+            if (forwardingRowClick) return
+            for (const handler of Array.isArray(attrs.onClick) ? attrs.onClick : [attrs.onClick]) {
+              if (typeof handler === "function") handler(event)
+            }
+            if (event.defaultPrevented) return
+            const target = event.target
+            const root = event.currentTarget
+            // The linked control keeps its state and keyboard behavior. Nested
+            // actions, including a Select's clear button, keep their own click.
+            if (!(target instanceof Element) || !(root instanceof HTMLElement) ||
+              target.closest("[data-row]") !== root ||
+              target.closest('button, a, input, select, textarea, [role="button"], [role="link"], [contenteditable]:not([contenteditable="false"])')) return
+            const linkedControl = root.ownerDocument.getElementById(controlId)
+            if (!linkedControl || linkedControl.closest("[data-row]") !== root) return
+            // Select's linked form proxy is inside its popup trigger. An
+            // ordinary input never delegates to a sibling Unit popup.
+            const control = linkedControl.matches('input[aria-hidden="true"]')
+              ? linkedControl.closest<HTMLElement>(':is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"])') ?? linkedControl
+              : linkedControl
+            if (control.matches(':disabled, [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"]')) return
+            const label = target.closest("label")
+            // Native label activation stays native; span popup triggers need
+            // forwarding from the Field's own label as well as its whitespace.
+            if (label && (label.htmlFor !== linkedControl.id || label.control === linkedControl)) return
+            // The row is the hit area for its plain editor. Focus only: a synthetic
+            // click would also run input actions or disturb native text selection.
+            if (control.matches('textarea, input:not([type]), input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="url"], input[type="number"]') &&
+              !control.matches('[hidden], [aria-hidden="true"]')) {
+              control.focus({ preventScroll: true })
+              return
+            }
+            if (!control.matches('button[role="radio"], button[role="checkbox"], button[role="switch"], input[type="radio"], input[type="checkbox"], :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"])')) return
+            forwardingRowClick = true
+            try {
+              control.focus({ preventScroll: true })
+              control.click()
+            } finally {
+              // Form controls can bubble their hidden input click after the render flush.
+              queueMicrotask(() => { forwardingRowClick = false })
+            }
+          },
+        } : {}),
         [
           h("div", { class: s.LabelGroup }, [
             hasLabelAction

@@ -6,7 +6,11 @@ metaDescription: Vue 3 accordion component built on Reka UI with vertically stac
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const overview = `<Accordion type="single" collapsible default-value="shipping" style="width: 100%; max-width: 384px">
+export const overviewControls = [
+  { name: "returnsDisabled", type: "boolean", default: false },
+]
+
+export const overview = `<Accordion type="single" collapsible v-model:value="value" style="width: 100%; max-width: 384px">
   <AccordionItem value="shipping">
     <AccordionTrigger>What are your shipping options?</AccordionTrigger>
     <AccordionContent>
@@ -14,7 +18,7 @@ export const overview = `<Accordion type="single" collapsible default-value="shi
       overnight shipping. Free standard shipping on orders over $50.
     </AccordionContent>
   </AccordionItem>
-  <AccordionItem value="returns">
+  <AccordionItem value="returns" :disabled="returnsDisabled">
     <AccordionTrigger>What is your return policy?</AccordionTrigger>
     <AccordionContent>
       Returns are accepted within 30 days of delivery. Items must be unused
@@ -30,6 +34,18 @@ export const overview = `<Accordion type="single" collapsible default-value="shi
     </AccordionContent>
   </AccordionItem>
 </Accordion>`
+
+export const overviewCode = `<script setup>
+import { ref } from 'vue';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@plexui/vue/components/Accordion';
+
+const value = ref('shipping');
+const returnsDisabled = ref(false);
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const single = `<Accordion type="single" collapsible default-value="trial" style="width: 100%; max-width: 384px">
   <AccordionItem
@@ -85,30 +101,6 @@ export const multiple = `<Accordion type="multiple" :default-value="['notificati
   </AccordionItem>
 </Accordion>`
 
-export const disabled = `<Accordion type="single" collapsible default-value="history" style="width: 100%; max-width: 384px">
-  <AccordionItem value="history">
-    <AccordionTrigger>Can I see my usage history?</AccordionTrigger>
-    <AccordionContent>
-      Yes, the Activity tab logs every API call, deploy, and admin action
-      for the last 90 days. Longer retention requires the Enterprise plan.
-    </AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="audit" disabled>
-    <AccordionTrigger>Audit log export (Enterprise only)</AccordionTrigger>
-    <AccordionContent>
-      Upgrade to Enterprise to stream audit events to S3, Splunk, or your
-      SIEM of choice.
-    </AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="two-factor">
-    <AccordionTrigger>How do I enable two-factor auth?</AccordionTrigger>
-    <AccordionContent>
-      Settings → Security → Two-factor. You can use an authenticator app or
-      a FIDO2 hardware key. Recovery codes are issued once at enrollment.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>`
-
 export const card = `<Card style="width: 100%; max-width: 384px">
   <CardHeader>
     <CardTitle>Subscription & billing</CardTitle>
@@ -155,10 +147,12 @@ Compose with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Built 
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview}>
-  <VueDemo template={overview} />
+<ComponentPreview language="vue" details={<>The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={overviewCode}>
+  <VueDemo template={overview} controls={overviewControls} state={{ value: "shipping" }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ### Single
@@ -171,12 +165,6 @@ Compose with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Built 
 
 <ComponentPreview language="vue" details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={multiple}>
   <VueDemo template={multiple} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" details={<>Pass <code>disabled</code> to an <code>AccordionItem</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={disabled}>
-  <VueDemo template={disabled} />
 </ComponentPreview>
 
 ### Card

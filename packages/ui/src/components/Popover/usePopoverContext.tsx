@@ -4,6 +4,7 @@ import { createContext, use, type RefObject } from "react"
 
 export type PopoverContextValue = {
   open: boolean
+  contentId: string
   setOpen: (next: boolean) => void
   shake: boolean
   setShake: (next: boolean) => void

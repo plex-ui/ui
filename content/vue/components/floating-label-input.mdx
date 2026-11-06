@@ -11,9 +11,52 @@ export const overview = `<div class="w-[360px]">
   <FloatingLabelInput label="Email address" />
 </div>`
 
-export const filled = `<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" />
+export const states = `<div class="w-full min-w-0 max-w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :invalid="invalid || errorMessage"
+    :error-message="errorMessage ? 'Email is not valid.' : undefined"
+    :description="description ? \`We'll never share your email with anyone else.\` : undefined"
+    :disabled="disabled"
+    :read-only="readOnly"
+  />
 </div>`
+
+export const statesControls = [
+  { name: "value", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "jane.doe@example.com", label: "Filled" }], default: "" },
+  { name: "invalid", type: "boolean", default: false },
+  { name: "errorMessage", type: "boolean", default: false },
+  { name: "description", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "readOnly", type: "boolean", default: false },
+]
+
+export const statesCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
+
+const value = ref('');
+const invalid = ref(false);
+const errorMessage = ref(false);
+const description = ref(false);
+const disabled = ref(false);
+const readOnly = ref(false);
+</script>
+
+<template>
+<div class="w-full min-w-0 max-w-[360px]">
+  <FloatingLabelInput
+    v-model:value="value"
+    label="Email address"
+    :invalid="invalid || errorMessage"
+    :error-message="errorMessage ? 'Email is not valid.' : undefined"
+    :description="description ? \`We'll never share your email with anyone else.\` : undefined"
+    :disabled="disabled"
+    :read-only="readOnly"
+  />
+</div>
+</template>`
 
 export const textarea = `<div class="w-[360px]">
   <FloatingLabelInput
@@ -21,32 +64,6 @@ export const textarea = `<div class="w-[360px]">
     v-model:value="value"
     label="Message"
     :multiline="multiline"
-  />
-</div>`
-
-export const error = `<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    default-value="jane.doe@example"
-    invalid
-    error-message="Email is not valid."
-  />
-</div>`
-
-export const description = `<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    description="We'll never share your email with anyone else."
-  />
-</div>`
-
-export const descriptionError = `<div class="w-[360px]">
-  <FloatingLabelInput
-    label="Email address"
-    default-value="jane.doe@example"
-    invalid
-    error-message="Email is not valid."
-    description="We'll never share your email with anyone else."
   />
 </div>`
 
@@ -58,37 +75,6 @@ export const clearButton = `<div class="w-[360px]">
     :read-only="readOnly"
     @clear="value = ''"
   />
-</div>`
-
-export const disabled = `<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="disabled@example.com" :disabled="disabled" />
-</div>`
-
-export const readOnly = `<div class="w-[360px]">
-  <FloatingLabelInput label="Email address" default-value="jane.doe@example.com" read-only />
-</div>`
-
-export const allStates = `<div class="flex flex-col items-center gap-8 py-8">
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Email address" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Email address" default-value="invalid@email" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Email address" default-value="jane.doe@gmail.com" class="w-[320px]" />
-  </div>
-  <div class="flex items-center">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-    <FloatingLabelInput read-only label="Email address" default-value="readonly@gmail.com" class="w-[320px]" />
-  </div>
 </div>`
 
 export const password = `<div class="w-[360px]">
@@ -136,10 +122,13 @@ export const ssn = `<div class="w-[360px]">
   </div>
 </div>`
 
-export const birthday = `<div class="w-[360px]">
+export const birthday = `<div class="w-full min-w-0 max-w-[360px]">
   <div style="position: relative">
     <FloatingLabelInput
       label="Birthday"
+      :invalid="invalid"
+      :disabled="disabled"
+      :read-only="readOnly"
       :value="birthday"
       maxlength="14"
       inputmode="numeric"
@@ -164,6 +153,99 @@ export const birthday = `<div class="w-[360px]">
   </div>
 </div>`
 
+export const birthdayControls = [
+  { name: "birthday", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "01 / 15 / 1995", label: "Filled" }], default: "" },
+  { name: "invalid", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "readOnly", type: "boolean", default: false },
+]
+
+export const birthdayCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { FloatingLabelInput } from '@plexui/vue/components/FloatingLabelInput';
+
+const birthday = ref('');
+const focused = ref(false);
+const invalid = ref(false);
+const disabled = ref(false);
+const readOnly = ref(false);
+
+const BIRTHDAY_MASK = 'MM / DD / YYYY';
+
+type MaskParts = { suffix: string; before: string; highlight: string; after: string };
+
+const splitMask = (suffix: string, pattern: RegExp): MaskParts => {
+  if (!suffix) return { suffix, before: '', highlight: '', after: '' };
+  const match = suffix.match(pattern);
+  if (!match) return { suffix, before: suffix, highlight: '', after: '' };
+  return { suffix, before: match[1] || '', highlight: match[2] ?? '', after: match[3] || '' };
+};
+
+const getBirthdayDigits = (value: string) => value.replace(/\\D/g, '').slice(0, 8);
+
+/** \`01151995\` → \`01 / 15 / 1995\`, with the separator added as soon as a part is full */
+const formatBirthday = (rawValue: string) => {
+  const digits = getBirthdayDigits(rawValue);
+  const month = digits.slice(0, 2);
+  const day = digits.slice(2, 4);
+  const year = digits.slice(4, 8);
+  if (digits.length < 2) return month;
+  if (digits.length === 2) return \`\${month} / \`;
+  if (digits.length < 4) return \`\${month} / \${day}\`;
+  if (digits.length === 4) return \`\${month} / \${day} / \`;
+  return \`\${month} / \${day} / \${year}\`;
+};
+
+/** Formatted value after an edit; backspacing over a separator removes the digit before it */
+const nextBirthday = (raw: string, value: string) => {
+  const newDigits = getBirthdayDigits(raw);
+  if (raw.length < value.length && newDigits.length === getBirthdayDigits(value).length) {
+    return formatBirthday(newDigits.slice(0, -1));
+  }
+  return formatBirthday(raw);
+};
+
+/** The rest of \`MM / DD / YYYY\` after the typed value, split around the next part */
+const birthdayMask = (value: string) => {
+  const suffix = value.length >= BIRTHDAY_MASK.length ? '' : BIRTHDAY_MASK.slice(value.length);
+  return splitMask(suffix, /^(\\s*\\/\\s*)?([A-Z]+)([\\s\\S]*)/);
+};
+
+</script>
+
+<template>
+<div class="w-full min-w-0 max-w-[360px]">
+  <div style="position: relative">
+    <FloatingLabelInput
+      label="Birthday"
+      :invalid="invalid"
+      :disabled="disabled"
+      :read-only="readOnly"
+      :value="birthday"
+      maxlength="14"
+      inputmode="numeric"
+      :style="focused && birthdayMask(birthday).suffix ? { caretColor: 'transparent' } : undefined"
+      @update:value="(raw) => (birthday = nextBirthday(raw, birthday))"
+      @focus="focused = true"
+      @blur="focused = false"
+    />
+    <div
+      v-if="focused && birthdayMask(birthday).suffix"
+      aria-hidden="true"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; padding: 0 calc(var(--floating-input-gutter) + 1px); pointer-events: none; font: inherit; font-size: 1rem; line-height: 1.5rem; z-index: 2; overflow: hidden"
+    >
+      <span style="visibility: hidden; white-space: pre">{{ birthday }}</span>
+      <span v-if="birthdayMask(birthday).before" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).before }}</span>
+      <span
+        v-if="birthdayMask(birthday).highlight"
+        style="background-color: var(--color-background-primary-solid); color: white; white-space: pre; border-radius: 3px; padding: 1px 1px"
+      >{{ birthdayMask(birthday).highlight }}</span>
+      <span v-if="birthdayMask(birthday).after" style="color: var(--color-text-tertiary); white-space: pre">{{ birthdayMask(birthday).after }}</span>
+    </div>
+  </div>
+</div>
+</template>`
+
 export const birthdayValidation = `<div class="w-[360px]">
   <div class="flex flex-col gap-1.5">
     <component
@@ -175,25 +257,6 @@ export const birthdayValidation = `<div class="w-[360px]">
     <FieldError v-if="birthday && !isValidBirthday(birthday)" id="birthday-validation-demo-error">
       Please enter a valid date.
     </FieldError>
-  </div>
-</div>`
-
-export const birthdayStates = `<div class="flex flex-col items-center gap-8 py-8 w-full">
-  <div class="flex items-center w-full max-w-[432px]">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Empty</div>
-    <component :is="BirthdayMaskedInput" v-model:value="emptyBirthday" class="flex-1 min-w-0" />
-  </div>
-  <div class="flex items-center w-full max-w-[432px]">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Filled</div>
-    <component :is="BirthdayMaskedInput" v-model:value="filledBirthday" class="flex-1 min-w-0" />
-  </div>
-  <div class="flex items-center w-full max-w-[432px]">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Invalid</div>
-    <component :is="BirthdayMaskedInput" v-model:value="invalidBirthday" invalid class="flex-1 min-w-0" />
-  </div>
-  <div class="flex items-center w-full max-w-[432px]">
-    <div class="text-right text-secondary text-sm mr-8 min-w-[5rem] shrink-0">Disabled</div>
-    <component :is="BirthdayMaskedInput" value="01 / 15 / 1995" disabled class="flex-1 min-w-0" />
   </div>
 </div>`
 
@@ -312,7 +375,7 @@ export const country = `<div class="w-[360px]">
     check-position="end"
   >
     <template #optionView="{ value, label }">
-      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
     </template>
     <template #trigger="{ open }">
       <FloatingLabelSelect
@@ -323,8 +386,8 @@ export const country = `<div class="w-[360px]">
       >
         <span
           v-if="countryOf(country)"
-          style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"
-        ><component :is="FlagIcon" :code="country" />{{ countryOf(country).label }}</span>
+          :class="countryLabelStyles.Root"
+        ><component :is="FlagIcon" :code="country" /><span :class="countryLabelStyles.Text">{{ countryOf(country).label }}</span></span>
       </FloatingLabelSelect>
     </template>
   </Select>
@@ -343,7 +406,7 @@ export const phone = `<div class="w-[360px] flex flex-col gap-3">
     @change="focusLater($refs.phoneInput)"
   >
     <template #optionView="{ value, label }">
-      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
     </template>
     <template #trigger="{ open, onToggle }">
       <component :is="PhoneCountryTrigger" :country="country" :open="open" @click="onToggle" />
@@ -413,25 +476,20 @@ Everything that is typed: more than one line, a password, or a value with a mask
   <VueFloatingLabelInputDemo template={ssn} stageClassName="py-10" state={{ digits: "", visible: false, focused: false }} />
 </ComponentPreview>
 
+<span id="birthday-states" />
+
 #### Birthday input
 
-<ComponentPreview language="vue" details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). <code>nextBirthday</code> and <code>birthdayMask</code> are plain helper functions of the example.</>} code={birthday} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo template={birthday} stageClassName="py-10" state={{ birthday: "", focused: false }} />
+Choose Empty or Filled to replace the date with a preset. The invalid, disabled and readOnly controls preserve the date you entered. Invalid demonstrates styling; the next example validates the date.
+
+<ComponentPreview language="vue" details={<>A date-of-birth input with an inline <code>MM / DD / YYYY</code> mask. The copied example includes its formatting and mask helpers.</>} code={birthdayCode} previewMinHeight={168}>
+  <VueFloatingLabelInputDemo template={birthday} controls={birthdayControls} state={{ focused: false }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 #### Birthday with validation
 
 <ComponentPreview language="vue" details={<>Use <code>invalid</code> and an error message to display the birthday validation state. Here the masked input of the Birthday input example is a component, <code>BirthdayMaskedInput</code>, and the error shows in a <code>FieldError</code> below it.</>} code={birthdayValidation} previewMinHeight={168}>
   <VueFloatingLabelInputDemo template={birthdayValidation} stageClassName="py-10" state={{ birthday: "02 / 30 / 2001" }} />
-</ComponentPreview>
-
-#### Birthday states
-
-<ComponentPreview language="vue" details={<>Overview of birthday input states.</>} code={birthdayStates} previewMinHeight={168}>
-  <VueFloatingLabelInputDemo
-    template={birthdayStates}
-    state={{ emptyBirthday: "", filledBirthday: "01 / 15 / 1995", invalidBirthday: "02 / 30 / 2001" }}
-  />
 </ComponentPreview>
 
 #### Phone input
@@ -462,56 +520,26 @@ Everything that is typed: more than one line, a password, or a value with a mask
   <VueFloatingLabelInputDemo template={country} stageClassName="py-10" state={{ country: "" }} />
 </ComponentPreview>
 
+<span id="filled-state" />
+<span id="with-error-message" />
+<span id="with-description" />
+<span id="with-description-and-error" />
+<span id="disabled" />
+<span id="read-only" />
+<span id="all-states" />
+
 ### States
 
-The states every field shares, whatever its type.
+Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied.
 
-#### Filled state
-
-<ComponentPreview language="vue" details={<>When the input has a value, the label stays floated above the input.</>} code={filled} previewMinHeight={168}>
-  <VueDemo template={filled} />
-</ComponentPreview>
-
-#### With error message
-
-<ComponentPreview language="vue" details={<>Use the <code>error-message</code> prop to display a validation error below the input. When <code>error-message</code> is provided, the input automatically enters the invalid state.</>} code={error} previewMinHeight={168}>
-  <VueDemo template={error} />
-</ComponentPreview>
-
-#### With description
-
-<ComponentPreview language="vue" details={<>Use the <code>description</code> prop (or the <code>description</code> slot) to display helper text below the input.</>} code={description} previewMinHeight={168}>
-  <VueDemo template={description} />
-</ComponentPreview>
-
-#### With description and error
-
-<ComponentPreview language="vue" details={<>When both <code>description</code> and <code>error-message</code> are provided, the error appears first (closest to the input), followed by the description.</>} code={descriptionError} previewMinHeight={168}>
-  <VueDemo template={descriptionError} />
+<ComponentPreview language="vue" code={statesCode} previewMinHeight={168}>
+  <VueDemo template={states} controls={statesControls} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 #### Clear button
 
 <ComponentPreview language="vue" details={<>Listen to <code>@clear</code> to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only.</>} code={clearButton} previewMinHeight={168}>
   <VueDemo template={clearButton} stageClassName="py-10" state={{ value: "clearable@example.com" }} controls={[{ name: "disabled", type: "boolean", default: false }, { name: "readOnly", type: "boolean", default: false }]} />
-</ComponentPreview>
-
-#### Disabled
-
-<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} stageClassName="py-10" controls={[{ name: "disabled", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-#### Read only
-
-<ComponentPreview language="vue" details={<>Use the <code>read-only</code> prop to make the input read-only. The user can still select and copy the text.</>} code={readOnly} previewMinHeight={168}>
-  <VueDemo template={readOnly} />
-</ComponentPreview>
-
-#### All states
-
-<ComponentPreview language="vue" details={<>Overview of all input states.</>} code={allStates} previewMinHeight={168}>
-  <VueDemo template={allStates} />
 </ComponentPreview>
 
 ## API

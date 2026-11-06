@@ -97,12 +97,22 @@ export const minimal = `<Table>
   </TableBody>
 </Table>`
 
+export const variantControls = [
+  { name: "variant", type: "select", options: ["default", "bordered"], default: "bordered" },
+  { name: "empty", type: "boolean", default: false },
+  { name: "emptyMessage", type: "select", options: ["default", "text", "rich"], default: "text" },
+]
+
 export const variant = `<script setup lang="ts">
 import { h, ref } from "vue"
 import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/vue/components/DataTable"
 import { users, type User } from "./data"
 
 const variant = ref<"default" | "bordered">("bordered")
+const empty = ref(false)
+const emptyMessage = ref<"default" | "text" | "rich">("text")
+const variantUsers = users.slice(0, 6)
+const emptyUsers: User[] = []
 
 const columns: ColumnDef<User>[] = [
   {
@@ -117,7 +127,13 @@ const columns: ColumnDef<User>[] = [
 </script>
 
 <template>
-  <DataTable :columns="columns" :data="users.slice(0, 6)" :variant="variant" :page-size="Infinity" />
+  <DataTable :columns="columns" :data="empty ? emptyUsers : variantUsers"
+    :variant="variant" :page-size="Infinity"
+    :empty-message="emptyMessage === 'default' ? undefined : 'No users found.'">
+    <template v-if="emptyMessage === 'rich'" #emptyMessage>
+      <strong>No users found.</strong>
+    </template>
+  </DataTable>
 </template>`
 
 export const sorting = `<script setup lang="ts">
@@ -335,22 +351,6 @@ const columns: ColumnDef<User>[] = [
   />
 </template>`
 
-export const emptyState = `<script setup lang="ts">
-import { DataTable, type ColumnDef } from "@plexui/vue/components/DataTable"
-import type { User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-  { accessorKey: "id", header: "ID" },
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "status", header: "Status" },
-]
-</script>
-
-<template>
-  <DataTable :columns="columns" :data="[]" empty-message="No users found." />
-</template>`
-
 <UsageBlock>{`import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/vue/components/Table";
 import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTable";`}</UsageBlock>
 
@@ -378,13 +378,15 @@ import { DataTable, DataTableColumnHeader } from "@plexui/vue/components/DataTab
 
 The examples import `users` (15 rows) and its `User` type from a local `./data` file. Column definitions live in `<script setup>`: header and cell renderers are functions that return VNodes (`h()`), rendered with TanStack Table's `FlexRender`.
 
+<span id="empty-state" />
+
 ### Variant
 
-<ComponentPreview language="vue" details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background.</>} code={variant} previewMinHeight={300}>
+<ComponentPreview language="vue" details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background. Toggle <code>empty</code> to supply no rows without resetting sorting or changing columns. <code>emptyMessage</code> selects the default message, custom text through <code>empty-message</code>, or rich content through the <code>emptyMessage</code> slot. Filtering and its no-results state are shown separately.</>} code={variant} previewMinHeight={300}>
   <VueDataTableDemo
     example="variant"
     code={variant}
-    controls={[{ name: "variant", type: "select", options: ["default", "bordered"], default: "bordered" }]}
+    controls={variantControls}
   />
 </ComponentPreview>
 
@@ -428,12 +430,6 @@ The examples import `users` (15 rows) and its `User` type from a local `./data` 
 
 <ComponentPreview language="vue" details={<>Toggle column visibility with <code>v-model:column-visibility</code>.</>} code={columnVisibility} previewMinHeight={340}>
   <VueDataTableColumnVisibilityDemo code={columnVisibility} />
-</ComponentPreview>
-
-### Empty state
-
-<ComponentPreview language="vue" details={<>Customize the empty state message with the <code>empty-message</code> prop, or the <code>emptyMessage</code> slot for rich content.</>} code={emptyState} previewMinHeight={200}>
-  <VueDataTableDemo example="emptyState" code={emptyState} />
 </ComponentPreview>
 
 ## API

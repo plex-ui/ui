@@ -7,16 +7,21 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react"
+import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { NavigationButton } from "../Button/NavigationButton"
+import { ToolbarHostContext, type ToolbarHost } from "../Toolbar/Toolbar"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
+import { usePopoverDismissableSurface } from "../Popover/deferredOutsidePress"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 type DialogContextValue = {
@@ -100,10 +105,12 @@ export type DialogContentProps = {
    * @default center
    */
   placement?: DialogPlacement
-  /** Placement at 640px and below, such as a bottom sheet on phones. @default placement */
+  /** Placement at 767px and below, such as a bottom sheet on phones. @default placement */
   mobilePlacement?: Extract<DialogPlacement, "center" | "bottom" | "fullscreen">
-  /** Mobile presentation at 640px and below. Sheets default to bottom placement. */
+  /** Mobile presentation at 767px and below. Sheets default to bottom placement. */
   mobileVariant?: "alert" | "sheet"
+  /** Mobile panel palette; dark mode uses elevated surfaces. @default "plain" */
+  surface?: "plain" | "grouped"
   /**
    * Called when focus moves into the dialog on open. Call
    * `event.preventDefault()` to focus something else yourself.
@@ -122,19 +129,24 @@ const Content = ({
   placement = "center",
   mobilePlacement: requestedMobilePlacement,
   mobileVariant,
+  surface = "plain",
   onOpenAutoFocus,
   onCloseAutoFocus,
 }: DialogContentProps) => {
   const { open, setOpen } = useDialogContext()
+  const overlaySurfaceRef = usePopoverDismissableSurface()
   const mobilePlacement =
     mobileVariant === "alert"
       ? "center"
       : requestedMobilePlacement ?? (mobileVariant === "sheet" ? "bottom" : undefined)
   const [exitGuard] = useState(createExitGuard)
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
+  const boundary = useFloatingBoundaryScope()
+  const setRoot = boundary.setRoot
+  const setPanelRef = useCallback((node: HTMLDivElement | null) => { setPanel(node); setRoot(node) }, [setRoot])
   const openedAt = useRef(0)
   const crossesScreen =
-    placement === "bottom" || placement === "start" || placement === "end" || mobilePlacement === "bottom"
+    placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement === "bottom" || mobilePlacement === "fullscreen"
 
   useEscCloseStack(open, () => {
     setOpen(false)
@@ -149,7 +161,31 @@ const Content = ({
     return attachSheetDrag(panel, () => setOpen(false))
   }, [panel, mobilePlacement, setOpen])
 
+  useLayoutEffect(() => {
+    if (!panel) return
+    const update = () => {
+      // A phone Toolbar takes the place of the header or footer bar on its side.
+      const header = panel.querySelector<HTMLElement>(`:scope > ${TOP_TOOLBAR}`) ?? panel.querySelector<HTMLElement>(`:scope > .${s.Header}`)
+      const footer = panel.querySelector<HTMLElement>(`:scope > ${BOTTOM_TOOLBAR}`) ?? panel.querySelector<HTMLElement>(`:scope > .${s.Footer}`)
+      panel.style.setProperty("--dialog-header-height", `${header?.offsetHeight ?? 0}px`)
+      panel.style.setProperty("--dialog-footer-height", `${footer?.offsetHeight ?? 0}px`)
+    }
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+    const observeBars = () => {
+      observer?.disconnect()
+      panel.querySelectorAll<HTMLElement>(`:scope > .${s.Header}, :scope > .${s.Footer}, :scope > [data-toolbar]`)
+        .forEach((bar) => observer?.observe(bar, { box: "border-box" }))
+      update()
+    }
+    observeBars()
+    // A form can add or remove its action bar while the dialog stays open.
+    const children = new MutationObserver(observeBars)
+    children.observe(panel, { childList: true })
+    return () => { observer?.disconnect(); children.disconnect() }
+  }, [panel])
+
   return (
+    <FloatingBoundaryProvider value={boundary}>
     <RadixDialog.Portal forceMount>
       {/* A dialog mounted open enters too, as `open` set with the mount does */}
       <TransitionGroup
@@ -161,7 +197,7 @@ const Content = ({
       >
         {open && (
           <div key="dialog">
-            <RadixDialog.Overlay className={s.Overlay} />
+            <RadixDialog.Overlay ref={overlaySurfaceRef} className={s.Overlay} />
             <RadixDialog.Content
               forceMount
               className={s.Content}
@@ -170,6 +206,7 @@ const Content = ({
               data-placement={placement === "center" ? undefined : placement}
               data-mobile-placement={mobilePlacement}
               data-mobile-variant={mobileVariant}
+              data-surface={surface}
               data-pill={pill ? "" : undefined}
               onEscapeKeyDown={preventDefaultHandler}
               onInteractOutside={(event) => {
@@ -183,42 +220,37 @@ const Content = ({
                 keepMovedFocus(event)
               }}
             >
-              <div ref={setPanel} className={clsx(s.Panel, className)}>
+              <div ref={setPanelRef} className={clsx(s.Panel, className)}>
                 {showClose && (
                   <RadixDialog.Close asChild>
-                    <button type="button" className={s.CloseButton} aria-label="Close dialog">
-                      <svg
-                        className={s.CloseIcon}
-                        viewBox="0 0 20 20"
-                        width="20"
-                        height="20"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M5.22 5.22a.75.75 0 0 1 1.06 0L10 8.94l3.72-3.72a.75.75 0 1 1 1.06 1.06L11.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L10 11.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06L8.94 10 5.22 6.28a.75.75 0 0 1 0-1.06"
-                        />
-                      </svg>
-                    </button>
+                    <NavigationButton action="close" variant="ghost" className={s.CloseButton} aria-label="Close dialog" />
                   </RadixDialog.Close>
                 )}
-                {children}
+                <ToolbarHostContext.Provider value={DIALOG_TOOLBAR_HOST}>{children}</ToolbarHostContext.Provider>
               </div>
             </RadixDialog.Content>
           </div>
         )}
       </TransitionGroup>
     </RadixDialog.Portal>
+    </FloatingBoundaryProvider>
   )
 }
+
+const DIALOG_TOOLBAR_HOST: ToolbarHost = { kind: "dialog" }
+const TOP_TOOLBAR = '[data-toolbar][data-placement="top"]'
+const BOTTOM_TOOLBAR = '[data-toolbar][data-placement="bottom"]'
 
 type DialogSlotProps = {
   children: ReactNode
   className?: string
 }
 
-const Header = ({ children, className }: DialogSlotProps) => {
-  return <div className={clsx(s.Header, className)}>{children}</div>
+export type DialogBarBackground = "glass" | "solid"
+export type DialogHeaderProps = DialogSlotProps & { background?: DialogBarBackground }
+
+const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
+  return <div className={clsx(s.Header, className)} data-background={background}>{children}</div>
 }
 
 const HeaderAction = ({ children, className }: DialogSlotProps) => {
@@ -230,13 +262,15 @@ const Body = ({ children, className }: DialogSlotProps) => {
   return <div className={clsx(s.Body, className)}>{children}</div>
 }
 
-type DialogFooterProps = DialogSlotProps & {
+export type DialogFooterProps = DialogSlotProps & {
+  background?: DialogBarBackground
   /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
   mobileLayout?: "inline" | "stacked"
 }
 
-const Footer = ({ children, className, mobileLayout }: DialogFooterProps) => {
-  return <div className={clsx(s.Footer, className)} data-mobile-layout={mobileLayout}>{children}</div>
+const Footer = ({ children, className, mobileLayout, background = "glass" }: DialogFooterProps) => {
+  const setFooter = useFloatingBoundaryRegistration()?.setFooter
+  return <div ref={setFooter} className={clsx(s.Footer, className)} data-mobile-layout={mobileLayout} data-background={background}>{children}</div>
 }
 
 const Title = ({ children, className }: DialogSlotProps) => {

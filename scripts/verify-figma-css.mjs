@@ -2,6 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import postcss from "postcss";
 
 const args = process.argv.slice(2);
 const figmaPath = getArg(args, "--figma");
@@ -192,23 +193,23 @@ function figmaToCSSProp(prop) {
 
 function parseCSSRules(css) {
   const rules = {};
-  const re = /([^{}]+)\{([^}]+)\}/g;
-  let m = re.exec(css);
-  while (m !== null) {
-    const sel = m[1].trim();
-    const body = m[2];
-    const props = {};
-    for (const decl of body.split(";")) {
-      const idx = decl.indexOf(":");
-      if (idx === -1) continue;
-      const p = decl.slice(0, idx).trim();
-      const v = decl.slice(idx + 1).trim();
-      if (p && v) props[p] = v;
-    }
-    rules[sel] = props;
-    m = re.exec(css);
-  }
-  return rules;
+  const nested = {};
+  postcss.parse(css).walkRules((rule) => {
+    const declarations = {};
+    // Only direct declarations belong to this rule. Nested selectors are
+    // independent rules; comments and values containing semicolons are not CSS
+    // declaration names and must not be split with a regular expression.
+    rule.each((node) => {
+      if (node.type === "decl") declarations[node.prop] = node.value;
+    });
+    let parent = rule.parent;
+    while (parent && parent.type !== "rule") parent = parent.parent;
+    if (parent) nested[rule.selector] = { ...nested[rule.selector], ...declarations };
+    else rules[rule.selector] = { ...rules[rule.selector], ...declarations };
+  });
+  // A simple selector names its component rule, not a compact variant nested
+  // below it. Explicit nested selectors (including &) remain addressable.
+  return { ...nested, ...rules };
 }
 
 function findRule(rules, selector) {

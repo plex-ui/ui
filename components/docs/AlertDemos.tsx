@@ -6,6 +6,7 @@ import { Button } from '@plexui/ui/components/Button';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import { Lightbulb } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const COLOR_OPTIONS = [
   'primary',
@@ -18,35 +19,6 @@ const COLOR_OPTIONS = [
 ] as const;
 
 const VARIANT_OPTIONS = ['solid', 'soft', 'outline'] as const;
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
 
 function RowMatrix({
   rowLabels,

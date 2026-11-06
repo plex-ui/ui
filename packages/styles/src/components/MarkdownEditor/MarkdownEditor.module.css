@@ -77,7 +77,9 @@
   flex-shrink: 0;
 }
 
-.ToolbarButton {
+.ToolbarButton.ToolbarButton {
+  --button-size: 24px;
+  --button-uniform-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,21 +90,24 @@
   border: 0;
   border-radius: var(--control-radius-sm);
   background: none;
-  color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 16px;
   transition-duration: var(--transition-duration-basic);
   transition-property: color, background-color;
   transition-timing-function: var(--transition-ease-basic);
 
-  @mixin hover {
-    background-color: var(--color-background-primary-ghost-hover);
-    color: var(--color-text);
-  }
+  &:where(:not([data-variant])) {
+    color: var(--color-text-secondary);
 
-  &:where([data-active="true"]) {
-    background-color: var(--color-background-primary-ghost-active);
-    color: var(--color-text);
+    @mixin hover {
+      background-color: var(--color-background-primary-ghost-hover);
+      color: var(--color-text);
+    }
+
+    &:where([data-active="true"]) {
+      background-color: var(--color-background-primary-ghost-active);
+      color: var(--color-text);
+    }
   }
 
   &:disabled {
@@ -166,162 +171,24 @@
   }
 }
 
-.LinkDialogOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.LinkDialogContent {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  width: 450px;
-  max-width: calc(100vw - 32px);
-  transform: translate(-50%, -50%);
-  border: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
-  border-radius: 12px;
-  background-color: var(--color-surface, #fff);
-  box-shadow:
-    0 0 0 0.5px rgba(0, 0, 0, 0.08),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
-}
-
-.LinkDialogBody {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-}
-
-.LinkDialogTitle {
-  margin: 0;
-  font-size: 18px;
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.6;
-  color: var(--color-text);
-}
-
+/* The shared Dialog owns the panel, controls, and mobile Sheet presentation. */
 .LinkDialogFields {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.LinkDialogField {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.LinkDialogLabel {
-  font-size: 14px;
-  font-weight: var(--font-weight-semibold);
-  line-height: 20px;
-  color: var(--color-text);
-}
-
-.LinkDialogInput {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: var(--control-radius-md);
-  background: none;
-  box-shadow: 0 0 0 1px var(--input-outline-border-color) inset;
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: var(--font-weight-normal);
-  line-height: 20px;
-  transition-duration: var(--transition-duration-basic);
-  transition-property: box-shadow;
-  transition-timing-function: var(--transition-ease-basic);
-
-  &:focus {
-    outline: 0;
-    box-shadow: 0 0 0 1px var(--input-outline-border-color-focus) inset;
+@media (max-width: 767px) {
+  .ToolbarGroup {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
   }
 
-  &::placeholder {
-    color: var(--input-placeholder-text-color);
-  }
-}
-
-.LinkDialogFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-}
-
-.LinkDialogFooterTrailing {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-}
-
-.LinkDialogButtonRemove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: var(--control-radius-md);
-  background-color: var(--color-background-danger-solid, #dc2626);
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: var(--font-weight-medium);
-  line-height: 20px;
-  transition-duration: var(--transition-duration-basic);
-  transition-property: background-color;
-  transition-timing-function: var(--transition-ease-basic);
-
-  @mixin hover {
-    background-color: var(--color-background-danger-solid-hover, #b91c1c);
-  }
-}
-
-.LinkDialogButtonCancel,
-.LinkDialogButtonSave {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: var(--control-radius-md);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: var(--font-weight-medium);
-  line-height: 20px;
-  transition-duration: var(--transition-duration-basic);
-  transition-property: background-color;
-  transition-timing-function: var(--transition-ease-basic);
-}
-
-.LinkDialogButtonCancel {
-  background-color: var(--color-background-primary-soft-alpha, rgba(0, 0, 0, 0.08));
-  color: var(--color-text);
-
-  @mixin hover {
-    background-color: var(--color-background-primary-soft-alpha-hover, rgba(0, 0, 0, 0.12));
-  }
-}
-
-.LinkDialogButtonSave {
-  background-color: var(--color-background-primary-solid, #181818);
-  color: var(--color-text-on-primary, #fff);
-
-  @mixin hover {
-    background-color: var(--color-background-primary-solid-hover, #333);
+  .ToolbarButton.ToolbarButton {
+    --button-size: 44px;
+    --button-uniform-size: 44px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
   }
 }

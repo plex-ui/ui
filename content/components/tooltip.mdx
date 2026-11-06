@@ -15,9 +15,11 @@ import {
 
 ## Examples
 
+Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/components/popover). These examples use pointer and keyboard interactions, so they do not have a separate Phone preview. For copying, [Copy Tooltip](/components/copy-tooltip) confirms the action after a successful tap.
+
 ### Overview
 
-<ComponentPreview code={`<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
+<ComponentPreview phonePresentation="none" code={`<Tooltip content="This is additional context that appears when the trigger is hovered or focused">
   <Tooltip.TriggerDecorator>Simple text with tooltip</Tooltip.TriggerDecorator>
 </Tooltip>`} previewMinHeight={168}>
   <TooltipOverviewDemo />
@@ -25,7 +27,7 @@ import {
 
 ### Different triggers
 
-<ComponentPreview details={<><code>Tooltip</code> provides an optional component, <code>Tooltip.TriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={`<div className="flex items-center gap-4">
+<ComponentPreview phonePresentation="none" details={<><code>Tooltip</code> provides an optional component, <code>Tooltip.TriggerDecorator</code>, to help create accessible tooltip triggers. However, any component can be used as a trigger.</>} code={`<div className="flex items-center gap-4">
   <Tooltip content="Tooltip on button">
     <Button color="primary" size="lg">Sample button</Button>
   </Tooltip>
@@ -38,7 +40,7 @@ import {
 
 ### Conditionally enabled
 
-<ComponentPreview details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={`<Tooltip
+<ComponentPreview phonePresentation="none" details={<>Sometimes a tooltip should only be disabled under certain conditions, such as when a component is disabled, providing more context as to why that is. Below is an example of how to do this by conditionally passing in <code>null</code> content.</>} code={`<Tooltip
   content={disabled ? "This action is disabled for reasons" : null}
 >
   <Button color="primary" size="lg" disabled={disabled}>
@@ -51,7 +53,7 @@ import {
 
 ### Compact tooltips
 
-<ComponentPreview details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>{'compact={true}'}</code> for brief status messages.</>} code={`<Tooltip content="Copy to clipboard" compact>
+<ComponentPreview phonePresentation="none" details={<>Compact tooltips are designed for short, 1-3 word tooltips with inverted styling. They feature minimal padding, a dark background with white text, and no box shadows. Use <code>{'compact={true}'}</code> for brief status messages.</>} code={`<Tooltip content="Copy to clipboard" compact>
   <Button color="secondary" variant="ghost" size="md" aria-label="Copy to clipboard"><Copy /></Button>
 </Tooltip>`} previewMinHeight={168}>
   <TooltipCompactDemo />

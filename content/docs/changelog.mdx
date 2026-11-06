@@ -7,6 +7,121 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.29.0 (2026-11-06)
+
+### Added
+
+- `Toolbar` for React and Vue: a phone-only top or bottom bar after the iOS 26 Toolbar Top, Top Sheet and Bottom with `Toolbar.Leading`, `Toolbar.Title` (subtitle, large and compact titles), `Toolbar.Content` (`fill` for a search field or one wide action), `Toolbar.Group` capsules and `Toolbar.Trailing`. It never renders from 768px up. In a Page it takes the place of Page.Header and Page.Footer and reserves its height; in a Sheet it takes the place of the header bar, Close and footer, while Dialog.Header keeps naming the dialog.
+- React and Vue export `NavigationButton` from Button for Back, Close, and Confirm actions. It preserves native button behavior, shares Phone target and glyph geometry, and uses the application primary palette for confirmation. Album editors use labeled desktop fields and text actions while Phone keeps its compact layout.
+
+- An Image and title form example supports choosing a local photo, editing its name, and saving or canceling the draft.
+- Verification examples include a resend countdown, an independent error control and a pending verification state that prevents repeated actions.
+- Dialog examples include a separate floating View Options sheet with immediate preference updates and persistent choices on reopen.
+- Settings examples include adaptive detail rows and a separate selection page, with immediate updates and focus restored on Back.
+- `Switch color="accent"` adds a green active state in React and Vue. The default remains neutral; the state comparison example shows On/Off and Enabled/Disabled in one table.
+- `mobileMaterial="glass" | "flat"` on Button and ButtonLink controls the mobile surface of neutral soft and ghost actions. Page toolbar buttons and Sheet actions use the shared glass material by default.
+- `surface="plain" | "grouped"` on Page and Dialog.Content selects mobile background roles, including elevated surfaces and dark mode.
+- `Page.Leading` places navigation before the page title. Phone toolbars keep the title centered between action groups of different widths.
+- `background="glass" | "solid"` on Page and Dialog headers and footers selects a translucent blurred or opaque surface. Mobile content scrolls beneath the measured panels while the final field remains reachable.
+- Phone verification examples include an interactive numeric keyboard with hide/show controls. Only the explicitly activated preview receives focus; touch devices keep their system keyboard.
+
+### Changed
+
+- `@plexui/ui` 0.29.0 and `@plexui/vue` 0.9.0 depend on `@plexui/styles` ^0.1.33, which adds the `Toolbar` and `NavigationButton` CSS modules and the mobile glass tokens they use.
+- `FloatingLabelInput` and `FloatingLabelSelect` show their error with `FieldError` in React and Vue, the same line as the other fields. `FloatingLabelSelect` no longer sets `aria-invalid` on its button role; the error stays linked through `aria-describedby`.
+- `Checkbox variant="ghost"` marks a choice with the PlexUI `Check` icon, and `Minus` when indeterminate, in React and Vue instead of drawn arms. The touch stylesheet sizes it as the 17pt checkmark of an iOS list row (`--checkbox-ghost-icon-size: 26px` in a 22px column); elsewhere it fills the indicator.
+- Mobile glass on Back, Close, More, toolbar buttons, groups and search fields follows Liquid Glass Regular Small of the iOS 26 kit: a light fill over a 4px backdrop blur, a white rim on the top-left and bottom-right edges and a sheen darker at the top. Controls cast no shadow at rest; a top `Toolbar` and Page.Header raise it once content scrolls under them. New tokens: `--mobile-glass-sheen`, `--mobile-glass-rim`, `--mobile-glass-shadow-raised` and `--mobile-grabber-color`.
+- Toolbar symbols take a 24px box in both bars. Text buttons use 17px medium labels with 14px side insets at the top and 12px at the bottom, and the bottom bar keeps 28px side insets. The Close glyph of `NavigationButton` is drawn thinner, at the weight of the iOS xmark, and the Confirm checkmark matches the 17pt kit symbol.
+- Form examples use `Toolbar` for phone bars and bottom actions. Desktop layouts show no top bar title or Back, and settings rows open a checkbox menu instead of a separate page.
+- Form examples use accent switches. The Colors guide shows one application palette mapped to shared primary actions, selected controls, links and focus tokens, with existing defaults preserved.
+- Mobile popup menus follow the iPhone menu layout: 32px corners, 17/20px labels, 13/18px subtitles and 44px minimum interaction targets. Long labels grow their rows, and disabled labels keep a separate color from selected checkmarks. On a phone the checkmark of a selected item leads its row in Menu and Select, as in the iOS 26 kit, and draws at the size of the 17pt symbol; from 768px up it keeps the trailing position.
+- Per-digit verification starts once when the code is complete, without Continue. Text-field verification keeps Continue above the keyboard and Resend beside the code field. Inline errors do not reserve an empty row, and content scrolls when space is limited.
+- Mobile Page and Sheet footers share 16px side gutters, 12px top spacing and bottom safe-area spacing.
+- Desktop password onboarding uses pill floating-label fields. Billing offers three consistent field types, preserving values when the type changes. Desktop settings use a FieldGroup title and omit Back on the root page.
+- OTP examples combine empty, filled, error and disabled states into one controlled preview, alongside the grouped-digit example.
+- Phone auth examples default to a grouped surface, with Plain available separately, filled 52px inputs and filled verification digits. Related fields use a linked group with aligned text, compact password reveal icons and requirements below the password group. Validation and controlled values are preserved. Desktop retains floating labels.
+- Neutral outlined buttons on grouped mobile surfaces use the contextual secondary fill and a thin border. Pages use base colors, and dialogs use elevated colors in both themes.
+- Form tag summaries show selected names and wrap long values outside column layouts; numeric verification previews offer an explicit keyboard switch.
+- Vue RadioGroup `value`, `update:value` and `change` types now include `null` for an empty selection. Resetting an initially empty form reports `null`; controlled handlers should preserve or explicitly handle that state. This corrects the Vue type contract.
+- The optional touch stylesheet separates content button sizes (28, 34 and 50px) from 44px toolbar actions. It also updates segmented controls, checkboxes, sliders, menus and progress indicators to the mobile scale.
+- Mobile date pickers use 44px days and navigation targets with measured arrow shapes. Phone navigation retains pressed feedback and keyboard behavior. Date ranges use one calendar below 768px and two above it.
+- Mobile loading indicators use eight spokes at 30px by default, with a 22px small example. Explicit sizes, including indicators inside buttons, remain supported.
+- Grouped forms use 52px regular rows, 68px rows with descriptions, shared value columns and footnotes below the group. Phone auth screens include back navigation and a consistent title scale.
+- Phone form tags open a separate Sheet with a checkmarked list and a new-tag field. Apply, a `NavigationButton` confirm, saves the draft; Close discards it. Created tags remain available when switching between mobile and desktop layouts.
+- Page and Sidebar examples render complete Phone screens. Sidebar navigation opens as a drawer and is inert when closed.
+
+### Fixed
+
+- Screen examples keep closing Sheets mounted through their exit. Settings and phone editing share directional transitions, preserve drafts and focus, and respect Reduce Motion.
+- Fullscreen dialogs enter and leave vertically. Sheet release hands movement back to CSS without retaining an inline transform, and Sidebar timings respect Reduce Motion.
+- Vue image and floating-sheet examples resolve their local components correctly. Filled empty states preserve space for the page toolbar on short screens.
+- Mobile submenus expand within their parent column and provide a collapse header. Keyboard focus and controlled dismissal preserve the parent menu.
+- Full empty states fill their available screen area with consistent title, description and action spacing. Compact messages retain their compact layout.
+- Documentation reserves the mobile table-of-contents row before hydration to avoid shifting examples down after first paint.
+- From 768px up, documentation keeps an example out of sight until it hydrates, so its server-rendered phone layout never shows without phone styles.
+- Surface controls appear only in Phone previews, and mobile calendar month titles align with the text inset of form rows.
+- Password creation and storage location now have separate form examples with independent state and no step selector.
+- Mobile calendar arrows and edge dates share concentric corner insets, weekday labels align with their date columns, and date numbers match the 17px field values while retaining 44px targets.
+
+- Mobile calendars share the menu radius and shadow, keep month titles clear of navigation arrows during transitions, and restore pressed feedback for the arrows. Selected dates use the same contrasting fill as desktop without enlarging their numbers.
+
+- Payout examples use consistent stacked mobile text fields without an inset input frame. Clicking a text field row focuses its editor while preserving nested actions and native text selection.
+
+- Phone country triggers shorten the middle of long names while keeping the final word and complete dial code visible.
+- Edit text in mobile auth fields aligns with the row content inset while retaining its full interaction target.
+- Mobile menus and selects account for the visible Page or Dialog footer when positioning and sizing their scrollable content.
+- Country option names wrap without overlapping dial codes. Search retains its height as the option list scrolls.
+- Pressed surfaces cover full mobile menu items and grouped action rows. Opening a row popup no longer retains a pressed background.
+- Account rows remain visible beneath nested editor and Delete overlays in Phone previews. Nested editors accept input and preserve their parent Sheet when saved.
+- Per-digit verification replaces Resend with Checking code in one stable action slot. Text-field verification keeps its loading state on Continue.
+- The password entry example opens a phone-number draft from Edit, with Continue to apply and Back to discard it.
+- Settings restores the originating row focus after animated Dialog content commits.
+- Mobile Field popup triggers share the whole row surface without a nested pill or focus ring. Disclosure details use the measured 8px slot gap.
+- Courier notes start at two lines, grow to six, then scroll within the field.
+- Full-screen Phone previews fill the device viewport without inheriting component-preview gutters.
+- About you uses a full-width Country row without a visible label or inner focus pill on Phone, while retaining an accessible name and linked error.
+- Auth examples use compact Terms of Use and Privacy Policy text above Continue, with links enabled only when destinations are supplied. Desktop auth cross-links share the surrounding text baseline. Mobile Forgot password actions are centered.
+- Mobile row popup and disclosure icons share the measured contour and Secondary color with trailing unit text.
+- Vue Dialog preserves the input selection when verification modes and inline errors change, while releasing the focus trap during closing animations.
+- Mobile auth text actions use consistent readable text and 44px touch targets. Password reveal controls use 20px icons with transparent surfaces in both visibility states.
+- Settings Sheet content starts below its header, and floating View Options sheets use one continuous glass surface.
+- Phone auth sheets fill the available height below the safe top inset, including when the preview keyboard is open. Multi-step forms show a Back action in the sheet header without closing the dialog.
+- Loading indicators inside SelectControl follow the control size, keeping the smallest loading controls within their bounds.
+- Grouped mobile rows use dedicated popup and disclosure contours, keeping indicator size, weight and color consistent in settings, tags and unit menus.
+- Mobile Select and DatePicker fields open from the entire row while preserving separate clear and nested action targets.
+- Mobile date calendars fit the available popover width without shifting when month navigation receives focus. Calendar panels use a translucent surface, and Popover exposes `collisionPadding` with the existing 20px default.
+- Mobile stacked fields use contiguous 20px label and 22px value lines within a 68px two-line row.
+- Mobile row text actions keep transparent hover and pressed surfaces, and unit buttons use the same typography as field values.
+- Mobile choice and disclosure rows show the pointer cursor across the cell and omit focus rings while preserving keyboard operation.
+- Mobile grouped fields grow with wrapped labels. Tag summaries follow the form's value columns and use the standard label color.
+- Sheet header materials follow the panel's rounded corners, keeping the backdrop visible around them.
+- Mobile row selectors share a compact 10×14px tertiary indicator, including unit menus inside InputGroup. Currency and unit labels use the mobile secondary text color.
+- SelectControl clear buttons keep their own face-size scale on desktop and Phone, including smaller controls, while mobile targets remain 44px.
+- Mobile grouped rows align trailing text actions and choice indicators with the content edge. Choice rows activate across the whole cell, and password actions and select clear buttons reserve separate 44px touch targets.
+- `Page.Subtitle` keeps badges and text together in valid server-rendered markup, avoiding hydration errors.
+- Vue Dialog keeps page accessibility and focus intact across repeated openings, nested sheets and closing animations.
+- Popover examples fit the Phone viewport and cancel pending requests when closed, so an earlier request cannot dismiss a newly opened panel.
+- Removing standalone FileCard examples moves focus to the next file or the empty state.
+- External example controls stay synchronized with Phone previews, including form states, table filtering, selection modes, sizing and appearance.
+- Contained mobile Sidebar drawers stay above their backdrop so navigation and the close button remain clickable.
+- OTPInput preserves the page scroll position when focus moves between digits during typing, deletion, paste and keyboard navigation.
+- Compact Phone previews fit the content height without inheriting desktop minimums. Disabled accent switches retain their color. Switch examples are consolidated into four comparisons covering states, labels, controlled values, and grouped settings.
+- Grouped mobile form values share the same regular body typography across inputs, textareas and selectors. Description and placeholder colors follow their distinct secondary and tertiary roles.
+- File-type icons are larger on desktop and Phone. Mobile file rows use readable filename and size text, with the remove circle aligned to the row inset inside its separate 44px target.
+- Touch gestures do not trigger hover feedback or change selection while scrolling. CopyTooltip confirms successful taps, and Sidebar actions remain visible without hovering.
+- Dialog mobile layouts and drag gestures use the same below-768px breakpoint as Page and form screens. Cancelled sheet gestures restore the panel without closing it.
+- Phone previews render at 100% CSS-pixel scale and scroll horizontally when their container is narrower than the device.
+- Preview framing distinguishes complete Phone screens from compact mobile controls. Pointer and keyboard Tooltip examples no longer imply a touch-only interaction.
+- Details examples use a clear mobile section, label and value hierarchy with separate 44px copy targets.
+- Menu clicks restore focus without a keyboard ring; keyboard navigation keeps its visible focus.
+- Scoped dark themes apply the correct surface roles and bar translucency.
+- Mobile example layouts keep tabs, form controls and cards within the phone viewport.
+- Modal backdrops remain inside the phone screen, including the status bar. Preview controls and surrounding documentation keep their normal background.
+- TagInput sizes follow the shared control scale on Phone. Empty group footers do not add space.
+- Generated Vue documentation includes form examples composed with shared screen templates.
+
+---
+
 ## 0.28.1 (2026-11-04)
 
 ### Changed

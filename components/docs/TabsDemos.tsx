@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import { useState } from 'react';
 import {
   Bell,
   Home,
@@ -8,54 +8,7 @@ import {
 } from '@plexui/ui/components/Icon';
 import { Tabs } from '@plexui/ui/components/Tabs';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Switch } from '@plexui/ui/components/Switch';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const VARIANT_OPTIONS = ['segmented', 'underline'] as const;
@@ -71,6 +24,7 @@ export function TabsOverviewDemo() {
   const [flush, setFlush] = useState(false);
   const [block, setBlock] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [reportsDisabled, setReportsDisabled] = useState(false);
 
   return (
     <>
@@ -100,6 +54,7 @@ export function TabsOverviewDemo() {
         <DemoControlBoolean name="flush" value={flush} onChange={setFlush} />
         <DemoControlBoolean name="block" value={block} onChange={setBlock} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+        <DemoControlBoolean name="reportsDisabled" value={reportsDisabled} onChange={setReportsDisabled} />
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
         <Tabs
@@ -116,7 +71,7 @@ export function TabsOverviewDemo() {
         >
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
           <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports">Reports</Tabs.Tab>
+          <Tabs.Tab value="reports" disabled={reportsDisabled}>Reports</Tabs.Tab>
           <Tabs.Tab value="settings">Settings</Tabs.Tab>
         </Tabs>
       </div>
@@ -516,48 +471,6 @@ export function TabsVerticalUnderlineIconsDemo() {
   );
 }
 
-// ─── Disabled tab ───
-export function TabsDisabledDemo() {
-  const [tab, setTab] = useState('overview');
-  const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('underline');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="variant">
-          <SegmentedControl value={variant} onChange={setVariant} size="xs" aria-label="variant">
-            {VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>{v}</SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="size">
-          <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
-            {SIZE_OPTIONS.map((s) => (
-              <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-      </div>
-      <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <Tabs
-          value={tab}
-          onChange={setTab}
-          variant={variant}
-          size={size}
-          aria-label="Sections"
-        >
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-          <Tabs.Tab value="reports" disabled>Reports</Tabs.Tab>
-          <Tabs.Tab value="settings">Settings</Tabs.Tab>
-        </Tabs>
-      </div>
-    </>
-  );
-}
-
 // ─── Sizing demo with interactive controls ───
 export function TabsSizingDemo() {
   const [tab, setTab] = useState('overview');
@@ -624,7 +537,7 @@ export function TabsScrollableDemo() {
         </DemoControlRow>
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <div className="max-w-[400px] flex">
+        <div className="flex w-full min-w-0 max-w-[400px]">
           <Tabs
             value={tab}
             onChange={setTab}
@@ -665,7 +578,7 @@ export function TabsOverflowMenuDemo() {
         </DemoControlRow>
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
-        <div className="flex" style={{ width: Number(width) }}>
+        <div className="flex min-w-0 max-w-full" style={{ width: Number(width) }}>
           <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
             <Tabs.Tab value="code">Code</Tabs.Tab>
             <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>

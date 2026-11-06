@@ -1,15 +1,17 @@
 .LoadingIndicator {
   display: inline-block;
   position: relative;
-  width: var(--indicator-size, 1em);
-  height: var(--indicator-size, 1em);
-  animation: rotate var(--indicator-rotate-duration, 0.8s) linear infinite;
+  width: var(--indicator-size, var(--indicator-default-size, 1em));
+  height: var(--indicator-size, var(--indicator-default-size, 1em));
+  container-name: plex-loading-indicator;
+  container-type: var(--indicator-container-type, normal);
+  animation: rotate var(--indicator-rotate-duration, 0.8s) var(--indicator-rotate-timing, linear) infinite;
   transition: opacity 0.15s ease;
 
   &::before {
     position: absolute;
     inset: 0;
-    display: block;
+    display: var(--indicator-ring-display, block);
     border: var(--indicator-stroke, 2px) solid var(--indicator-color, currentcolor);
     border-radius: 50%;
     content: "";
@@ -20,13 +22,52 @@
     position: absolute;
     top: 0;
     left: 50%;
-    display: block;
+    display: var(--indicator-ring-display, block);
     width: var(--indicator-stroke, 2px);
     height: var(--indicator-stroke, 2px);
     border-radius: 100%;
     margin-left: calc(var(--indicator-stroke, 2px) * -1 / 2);
     background-color: var(--indicator-color, currentcolor);
     content: "";
+  }
+}
+
+/* iOS 26 Progress indicator 5425:3432. These decorative spokes are enabled
+   only by the optional touch stylesheet; desktop keeps the original ring. */
+.Spoke {
+  position: absolute;
+  inset: 0;
+  display: var(--indicator-spoke-display, none);
+  pointer-events: none;
+
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--indicator-stroke, calc(4 / 30 * 100%));
+    height: calc(10 / 30 * 100%);
+    border-radius: calc(4 / 30 * 100cqw);
+    background-color: var(--indicator-color, currentcolor);
+    transform: translateX(-50%);
+    content: "";
+  }
+
+  &:nth-child(2) { transform: rotate(45deg); opacity: 0.15; }
+  &:nth-child(3) { transform: rotate(90deg); opacity: 0.27; }
+  &:nth-child(4) { transform: rotate(135deg); opacity: 0.39; }
+  &:nth-child(5) { transform: rotate(180deg); opacity: 0.51; }
+  &:nth-child(6) { transform: rotate(225deg); opacity: 0.63; }
+  &:nth-child(7) { transform: rotate(270deg); opacity: 0.75; }
+  &:nth-child(8) { transform: rotate(315deg); opacity: 0.87; }
+}
+
+/* Small 5425:3443 is 22px with 3 × 7px spokes and 1.5px corners.
+   A size container also covers CSS sizes and indicators nested in buttons. */
+@container plex-loading-indicator (max-width: 22px) {
+  .Spoke::before {
+    width: var(--indicator-stroke, calc(3 / 22 * 100%));
+    height: calc(7 / 22 * 100%);
+    border-radius: calc(1.5 / 22 * 100cqw);
   }
 }
 

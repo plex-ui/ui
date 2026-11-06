@@ -72,6 +72,8 @@ const textLinkCases: Case[] = [
 ]
 
 const buttonLinkCases: Case[] = [
+  ["Phone glass", { href: "#", variant: "soft", mobileMaterial: "glass" }],
+  ["Phone flat", { href: "#", variant: "ghost", mobileMaterial: "flat" }],
   ["default", { href: "#" }],
   ["secondary soft", { href: "#", color: "secondary", variant: "soft" }],
   ["danger outline lg pill", { href: "#", color: "danger", variant: "outline", size: "lg", pill: true }],

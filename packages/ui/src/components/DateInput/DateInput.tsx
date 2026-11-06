@@ -48,6 +48,7 @@ export const DateInput = (props: DateInputProps) => {
     max,
     clearable = false,
     placeholder,
+    inputMode,
     onBlur,
     ref,
     ...inputProps
@@ -147,6 +148,8 @@ export const DateInput = (props: DateInputProps) => {
   return (
     <Input
       {...inputProps}
+      // Maskito inserts separators; only the AM/PM segment needs letters.
+      inputMode={inputMode ?? (timeMode?.includes("AA") ? "text" : "numeric")}
       ref={mergeRefs([maskRef as unknown as React.Ref<HTMLInputElement>, ref])}
       value={inputValue}
       onInput={handleInput}

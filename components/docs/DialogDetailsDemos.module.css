@@ -1,0 +1,81 @@
+/* Read-only metadata uses native Body and Footnote roles on phones. */
+@media (max-width: 767px) {
+  .Content [data-detail-section] {
+    gap: 12px;
+  }
+
+  .Content [data-detail-heading] {
+    color: var(--color-text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .Content [data-detail-list] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .Content [data-detail-row] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+    margin: 0;
+    padding-block-end: 20px;
+  }
+
+  /* A copy target includes its own space below the text; targets never overlap. */
+  .Content [data-detail-row]:has([data-detail-copy]),
+  .Content [data-detail-row]:last-child {
+    padding-block-end: 0;
+  }
+
+  .Content [data-detail-row] > dt {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .Content [data-detail-row] > dd {
+    grid-column: auto;
+    color: var(--color-text);
+  }
+
+  .Content [data-detail-values] > * {
+    margin: 0;
+  }
+
+  .Content [data-detail-copy] {
+    --button-radius: 8px;
+    --button-gutter: 0px;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+
+  .Content [data-detail-copy] > span {
+    align-items: flex-start;
+    height: 22px;
+  }
+
+  .Content [data-detail-copy]::before,
+  .Content [data-detail-copy]::after {
+    inset-block-end: 22px;
+  }
+
+  .Content [data-detail-value] {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+}

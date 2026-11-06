@@ -1,13 +1,18 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { OTPInput } from '@plexui/ui/components/OTPInput';
-import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
+import { AuthInput } from './AuthInput';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { RESEND_WAIT_SECONDS, createVerificationAttempt, isVerificationCodeReady, startResendCountdown } from './verificationCountdown';
+import authFieldsStyles from './AuthFields.module.css';
 import { Button } from '@plexui/ui/components/Button';
+import { LoadingIndicator } from '@plexui/ui/components/Indicator';
 import { AuthFormStage } from './AuthFormStage';
 import { useDemoControlSync } from './PreviewEmbed';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
+import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 
 const controlsTableStyle: React.CSSProperties = {
   background: 'var(--docs-surface-elevated)',
@@ -58,24 +63,35 @@ function DemoControlBoolean({
 }
 
 type InputMode = 'per-digit' | 'text-field';
+type OTPValuePreset = 'empty' | 'filled' | 'custom';
 
 export function OTPInputOverviewDemo() {
   const [value, setValue] = useState('');
+  const [error, setError] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const preset: OTPValuePreset = value === '' ? 'empty' : value === '488030' ? 'filled' : 'custom';
+  const applyPreset = (next: OTPValuePreset) => {
+    if (next !== 'custom') setValue(next === 'filled' ? '488030' : '');
+  };
+  useDemoControlSync('preset', preset, applyPreset);
 
   return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput value={value} onChange={setValue} />
-    </div>
-  );
-}
-
-export function OTPInputFilledDemo() {
-  const [value, setValue] = useState('488030');
-
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput value={value} onChange={setValue} />
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="preset">
+          <SegmentedControl<OTPValuePreset> value={preset} onChange={applyPreset} aria-label="preset" size="xs">
+            <SegmentedControl.Option value="empty">Empty</SegmentedControl.Option>
+            <SegmentedControl.Option value="filled">Filled</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="error" value={error} onChange={setError} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      <div data-demo-stage className="py-10 flex justify-center">
+        <OTPInput value={value} onChange={setValue} invalid={error}
+          errorMessage={error ? 'Invalid verification code.' : undefined} disabled={disabled} />
+      </div>
+    </>
   );
 }
 
@@ -89,192 +105,131 @@ export function OTPInputGroupedDemo() {
   );
 }
 
-export function OTPInputErrorDemo() {
-  const [value, setValue] = useState('48803');
+function VerificationDemo({
+  title,
+  description,
+  resendLabel,
+}: {
+  title: string;
+  description: string;
+  resendLabel: string;
+}) {
+  const presentation = useScreenPresentation();
+  const wide = useBreakpoint('md');
+  const formId = useId();
+  const [attempt] = useState(createVerificationAttempt);
+  const [error, setError] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
+  const [seconds, setSeconds] = useState(RESEND_WAIT_SECONDS);
+  const [verifying, setVerifying] = useState(false);
+  const [mode, setMode] = useState<InputMode>('per-digit');
+  useDemoControlSync('input', mode, setMode);
+  const [otpValue, setOtpValue] = useState('');
+  const [code, setCode] = useState('');
+  const ready = isVerificationCodeReady(mode, mode === 'per-digit' ? otpValue : code);
+  const updateVerifying = (value: boolean) => {
+    attempt.setPending(value);
+    setVerifying(value);
+  };
+  const updateError = (value: boolean) => {
+    setError(value);
+    if (value) updateVerifying(false);
+  };
+  const editCode = (value: string) => {
+    attempt.edit(value);
+    setError(false);
+  };
+  const completeCode = (value: string) => {
+    if (!attempt.start('per-digit', value)) return;
+    setError(false);
+    setVerifying(true);
+  };
 
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput
-        value={value}
-        onChange={setValue}
-        invalid
-        errorMessage="Invalid verification code."
-      />
+  useEffect(() => {
+    if (!cooldown) return;
+    return startResendCountdown(setSeconds, () => setCooldown(false));
+  }, [cooldown]);
+
+  const actions = mode === 'text-field' ? (
+    <div className="w-full" data-verification-actions>
+      <Button color="primary" size="3xl" type="submit" form={formId} pill block className="md:h-[3.25rem]"
+        loading={verifying} disabled={!ready} aria-busy={verifying}>Continue</Button>
     </div>
-  );
-}
-
-export function OTPInputDisabledDemo() {
-  return (
-    <div data-demo-stage className="py-10 flex justify-center">
-      <OTPInput value="488030" disabled />
-    </div>
-  );
-}
-
-export function OTPInputCheckInboxErrorDemo() {
-  const [inDialog, setInDialog] = useState(false);
-
-  const formContent = (
-    <div className="w-[360px]">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Check your inbox</h3>
-        <p className="text-secondary text-sm mt-1">
-          Enter the verification code we just sent to alex.johnson@example.com
-        </p>
-      </div>
-      <div className="flex flex-col gap-3">
-        <FloatingLabelInput
-          label="Code"
-          defaultValue="111111"
-          inputMode="numeric"
-          invalid
-          errorMessage="Incorrect code"
-        />
-        <Button color="primary" size="3xl" type="button" pill className="w-full h-[3.25rem] mt-3">Continue</Button>
-        <p className="text-base text-center mt-4">
-          <button type="button" className="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend email</button>
-        </p>
-      </div>
-    </div>
-  );
+  ) : undefined;
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
+        <DemoControlRow name="input">
+          <SegmentedControl<InputMode> value={mode} onChange={setMode} aria-label="input type" size="xs">
+            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
+            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlBoolean name="error" value={error} onChange={updateError} />
+        <DemoControlBoolean name="cooldown" value={cooldown} onChange={setCooldown} />
+        <DemoControlBoolean name="verifying" value={verifying} onChange={updateVerifying} />
+        <ScreenPresentationControls {...presentation} />
       </div>
-      <AuthFormStage title="Check your inbox" dialog={inDialog} onDialogChange={setInDialog}>
-        {formContent}
+      <AuthFormStage keyboard="numeric" title={title} dialog={presentation.dialog}
+        surface={presentation.surface} onDialogChange={presentation.setDialog} footer={actions}>
+        <div className="w-[360px]">
+          <div className="mb-6 text-center">
+            <h3 data-auth-title className="text-2xl font-semibold tracking-tight">{title}</h3>
+            <p data-auth-description className="text-secondary text-sm mt-1">{description}</p>
+          </div>
+          <form id={formId} className="flex flex-col gap-6" noValidate aria-busy={verifying}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (mode === 'text-field' && attempt.start(mode, code)) {
+                setError(false);
+                setVerifying(true);
+              }
+            }}>
+            <div className="flex flex-col gap-2" data-verification-code>
+              {mode === 'per-digit' ? (
+                <div className="flex justify-center">
+                  <OTPInput value={otpValue} onChange={(value) => { editCode(value); setOtpValue(value); }}
+                    onComplete={completeCode} invalid={error}
+                    errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                    className={authFieldsStyles.Otp} />
+                </div>
+              ) : (
+                <AuthInput label="Code" value={code} invalid={error}
+                  errorMessage={error ? 'Incorrect code' : undefined} disabled={verifying}
+                  onChange={(event) => { editCode(event.target.value); setCode(event.target.value); }} inputMode="numeric" />
+              )}
+              <div data-verification-resend className="flex h-11 items-center justify-center">
+              {mode === 'per-digit' && verifying ? (
+                <LoadingIndicator role="status" aria-label="Checking code" />
+              ) : (
+              <Button type="button" color="secondary" variant="ghost" size="xl"
+                className="h-11 w-full font-normal" disabled={cooldown || verifying}
+                onClick={() => {
+                  if (cooldown || verifying || attempt.isPending()) return;
+                  attempt.reset();
+                  setError(false);
+                  setCooldown(true);
+                }}>
+                {cooldown ? `${resendLabel} (${seconds}s)` : resendLabel}
+              </Button>
+              )}
+              </div>
+            </div>
+            {wide && actions}
+          </form>
+        </div>
       </AuthFormStage>
     </>
   );
 }
 
 export function OTPInputVerifyEmailDemo() {
-  const [inDialog, setInDialog] = useState(false);
-  const [mode, setMode] = useState<InputMode>('per-digit');
-  useDemoControlSync('input', mode, setMode);
-  const [otpValue, setOtpValue] = useState('');
-  const [code, setCode] = useState('');
-
-  const formContent = (
-    <div className="w-[360px]">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Verify your email address</h3>
-        <p className="text-secondary text-sm mt-1">Enter the code sent to alex.johnson@example.com</p>
-      </div>
-      {mode === 'per-digit' ? (
-        <div className="flex flex-col items-center gap-3">
-          <OTPInput value={otpValue} onChange={setOtpValue} />
-          <button type="button" className="text-base hover:underline cursor-pointer mt-2 bg-transparent border-0 p-0">Resend email</button>
-        </div>
-      ) : (
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-          }}
-          noValidate
-        >
-          <FloatingLabelInput
-            label="Code"
-            value={code}
-            onChange={(evt) => { setCode(evt.target.value); }}
-            inputMode="numeric"
-          />
-          <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-3">Continue</Button>
-          <p className="text-base text-center mt-4">
-            <button type="button" className="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend email</button>
-          </p>
-        </form>
-      )}
-    </div>
-  );
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="input">
-          <SegmentedControl<InputMode>
-            value={mode}
-            onChange={setMode}
-            aria-label="input type"
-            size="xs"
-          >
-            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
-            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
-      </div>
-      <AuthFormStage title="Verify your email address" dialog={inDialog} onDialogChange={setInDialog}>
-        {formContent}
-      </AuthFormStage>
-    </>
-  );
+  return <VerificationDemo title="Verify your email address"
+    description="Enter the code sent to alex.johnson@example.com" resendLabel="Resend email" />;
 }
 
 export function OTPInputConfirmPhoneDemo() {
-  const [inDialog, setInDialog] = useState(false);
-  const [mode, setMode] = useState<InputMode>('per-digit');
-  useDemoControlSync('input', mode, setMode);
-  const [otpValue, setOtpValue] = useState('');
-  const [code, setCode] = useState('');
-
-  const formContent = (
-    <div className="w-[360px]">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-semibold tracking-tight">Confirm phone</h3>
-        <p className="text-secondary text-sm mt-1">Enter the code sent to +1 555 123 4567</p>
-      </div>
-      {mode === 'per-digit' ? (
-        <div className="flex flex-col items-center gap-3">
-          <OTPInput value={otpValue} onChange={setOtpValue} />
-          <button type="button" className="text-base hover:underline cursor-pointer mt-2 bg-transparent border-0 p-0">Resend code</button>
-        </div>
-      ) : (
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-          }}
-          noValidate
-        >
-          <FloatingLabelInput
-            label="Code"
-            value={code}
-            onChange={(evt) => { setCode(evt.target.value); }}
-            inputMode="numeric"
-          />
-          <Button color="primary" size="3xl" type="submit" pill className="w-full h-[3.25rem] mt-3">Continue</Button>
-          <p className="text-base text-center mt-4">
-            <button type="button" className="hover:underline cursor-pointer bg-transparent border-0 p-0">Resend code</button>
-          </p>
-        </form>
-      )}
-    </div>
-  );
-
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="input">
-          <SegmentedControl<InputMode>
-            value={mode}
-            onChange={setMode}
-            aria-label="input type"
-            size="xs"
-          >
-            <SegmentedControl.Option value="per-digit">Per-digit</SegmentedControl.Option>
-            <SegmentedControl.Option value="text-field">Text field</SegmentedControl.Option>
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlBoolean name="dialog" value={inDialog} onChange={setInDialog} />
-      </div>
-      <AuthFormStage title="Confirm phone" dialog={inDialog} onDialogChange={setInDialog}>
-        {formContent}
-      </AuthFormStage>
-    </>
-  );
+  return <VerificationDemo title="Confirm phone"
+    description="Enter the code sent to +1 555 123 4567" resendLabel="Resend code" />;
 }

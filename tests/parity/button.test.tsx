@@ -90,6 +90,8 @@ const cases: Array<[string, Props, Child[]?]> = [
   ),
   ...SIZES.map((size): [string, Props] => [`size ${size}`, { size }]),
   ["pill", { pill: true }],
+  ["Phone glass", { variant: "soft", mobileMaterial: "glass" }],
+  ["Phone flat", { variant: "ghost", mobileMaterial: "flat" }],
   ["uniform", { uniform: true }, [icon]],
   ["block", { block: true }],
   ["selected", { selected: true }],

@@ -1,10 +1,11 @@
 'use client';
 
 import type { SVGProps } from 'react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState, useSyncExternalStore } from 'react';
 import { Avatar } from '@plexui/ui/components/Avatar';
 import { Robot } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { SliderValueControl } from './SliderValueControl';
 
 const IconRobot = Robot as React.ComponentType<SVGProps<SVGSVGElement>>;
@@ -19,44 +20,12 @@ const ROUNDNESS_OPTIONS = [
   'rounded-none',
 ] as const;
 
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlRow({
-  name,
-  children,
-}: {
-  name: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div>{children}</div>
-    </div>
-  );
-}
+const subscribeMounted = () => () => {};
+const getMountedSnapshot = () => true;
+const getServerMountedSnapshot = () => false;
 
 function useMounted() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted;
+  return useSyncExternalStore(subscribeMounted, getMountedSnapshot, getServerMountedSnapshot);
 }
 
 export function AvatarSizingDemo() {

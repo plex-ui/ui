@@ -90,7 +90,8 @@ function render(manifest, { title, intro, full = false, language = "vue" }) {
     lines.push("");
   }
 
-  return lines.join("\n");
+  // Remove indentation from blank lines while preserving code and Markdown hard breaks.
+  return lines.join("\n").replace(/^[\t ]+$/gm, "");
 }
 
 const outputs = [

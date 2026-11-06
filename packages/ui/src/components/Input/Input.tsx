@@ -115,7 +115,7 @@ const InputRoot = (props: InputProps) => {
   const pill = useFieldRowPill(pillProp)
 
   // Determine if clear button should be shown
-  const hasValue = value !== undefined ? !!value : !!defaultValue
+  const hasValue = String((value !== undefined ? value : defaultValue) ?? "") !== ""
   const showClearButton = !!onClear && hasValue && !disabled && !readOnly
   // Redirect clicks on the container and adornments
   const handleMouseDown = (evt: React.MouseEvent<HTMLDivElement>) => {

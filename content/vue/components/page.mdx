@@ -5,8 +5,9 @@ metaDescription: "Vue 3 app page layout: header and content in one column at a f
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import pageStyles from "@/components/docs/PageDemos.module.css"
 
-export const STAGE = "flex w-full justify-center"
+export const STAGE = pageStyles.Stage
 
 export const rows = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`)
 
@@ -17,7 +18,7 @@ export const list = `<div class="divide-y divide-default rounded-xl border borde
         </div>
       </div>`
 
-export const frame = (body) => `<div class="h-[420px] w-full overflow-hidden rounded-xl border border-default">
+export const frame = (body) => `<div class="${pageStyles.Frame}">
 ${body}
 </div>`
 
@@ -43,8 +44,10 @@ export const widths = `<Page width="column">
 export const heading = `<PageBar>
   <PageHeading>
     <PageTitle>Menu</PageTitle>
-    <Badge color="info" size="sm" variant="outline">Draft</Badge>
-    <PageSubtitle>Saved a minute ago</PageSubtitle>
+    <PageSubtitle>
+      <Badge color="info" size="sm" variant="outline">Draft</Badge>
+      <span>Saved a minute ago</span>
+    </PageSubtitle>
   </PageHeading>
   <PageActions>...</PageActions>
 </PageBar>`
@@ -64,6 +67,7 @@ export const fill = `<Page>
   PageFooter,
   PageHeader,
   PageHeading,
+  PageLeading,
   PageSubtitle,
   PageTitle,
 } from "@plexui/vue/components/Page";`}</UsageBlock>
@@ -73,7 +77,7 @@ export const fill = `<Page>
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview language="vue" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={overview}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>The header has no line at rest. Scroll the content: the line comes after 4px and goes again at the top.</>} code={overview}>
   <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page>
     <PageHeader>
       <PageBar>
@@ -92,7 +96,7 @@ export const fill = `<Page>
 
 ### Widths
 
-<ComponentPreview language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.</>} code={widths}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take <code>full</code> for tables, <code>wide</code> for overviews and <code>column</code> for settings and forms. For any other width set <code>--page-width</code> on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.</>} code={widths}>
   <VueDemo stageClassName={STAGE} state={{ rows }} controls={[{ name: "width", type: "select", options: ["full", "wide", "column"], default: "column" }]} template={frame(`  <Page :width="width" style="--page-width-wide: 640px; --page-width-column: 384px">
     <PageHeader>
       <PageBar>
@@ -110,14 +114,16 @@ export const fill = `<Page>
 
 ### Heading
 
-<ComponentPreview language="vue" details={<><code>PageHeading</code> holds what stands beside the title. On a phone it stacks in the centre of the bar, so a status goes under the title, as iOS sets a navigation subtitle.</>} code={heading}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<><code>PageHeading</code> groups the title with metadata. On a phone the badge and subtitle share a second row below the centered title. The header grows when metadata wraps, and the content keeps the corresponding space below it.</>} code={heading}>
   <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page width="wide">
     <PageHeader>
       <PageBar>
         <PageHeading>
           <PageTitle>Menu</PageTitle>
-          <Badge color="info" size="sm" variant="outline">Draft</Badge>
-          <PageSubtitle>Saved a minute ago</PageSubtitle>
+          <PageSubtitle>
+            <Badge color="info" size="sm" variant="outline">Draft</Badge>
+            <span>Saved a minute ago</span>
+          </PageSubtitle>
         </PageHeading>
         <PageActions>
           <Button color="primary" pill size="md">Publish</Button>
@@ -132,7 +138,7 @@ export const fill = `<Page>
 
 ### Fill
 
-<ComponentPreview language="vue" details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={fill}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<><code>fill</code> stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with <code>divider</code>.</>} code={fill}>
   <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page>
     <PageHeader :divider="false">
       <PageBar>
@@ -149,9 +155,30 @@ export const fill = `<Page>
 
 ## Phone
 
-Under 768px the header is one row of 44px over the page. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+A page needs a bounded parent. These demos use a 420px frame on desktop and the full viewport on phones, without an outer border or rounded container:
 
-Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `PageBar`, such as a search field, belongs at the top of `PageContent` on a phone. `useBreakpoint("md")` tells which one to render. The first column of the bar stays free for the menu button of a sidebar.
+```css
+.page-frame {
+  height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 767px) {
+  .page-frame {
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+}
+```
+
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+
+Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `PageBar`, such as a search field, belongs at the top of `PageContent` on a phone. `useBreakpoint("md")` tells which one to render. Use `PageLeading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
+
+For a phone bar of its own, with a large title, a search field, a button group or a bottom bar, put a [Toolbar](/vue/components/toolbar) in the page. Under 768px it replaces `PageHeader` and `PageFooter`, which stay the desktop header and footer.
 
 Use it inside `SidebarInset` for a whole app, see the [app sidebar](/vue/components/sidebar#app).
 
@@ -161,6 +188,7 @@ Use it inside `SidebarInset` for a whole app, see the [app sidebar](/vue/compone
 
 <PropsTable data={[
   { prop: "width", type: '"full" | "wide" | "column"', default: '"full"', description: "Column that header and content share: edge to edge, 1280px or 768px, centred" },
+  { prop: "surface", type: '"plain" | "grouped"', default: '"plain"', description: "Mobile canvas and field-group palette; desktop colors stay unchanged" },
   { prop: "class", type: "string", description: "Class of the root element" },
 ]} />
 
@@ -169,7 +197,8 @@ All other attributes fall through to the root.
 ### PageHeader
 
 <PropsTable data={[
-  { prop: "divider", type: "boolean", default: "true", description: "Shows the line, and the glass on a phone, once the content has scrolled under the header" },
+  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile toolbar background" },
+  { prop: "divider", type: "boolean", default: "true", description: "Shows a divider once the content has scrolled under the header" },
   { prop: "class", type: "string", description: "Class of the band" },
 ]} />
 
@@ -192,22 +221,28 @@ Actions stay below the scrolling `PageContent`. The footer shares the page colum
 
 | Part | Element | Purpose |
 |------|---------|---------|
+| `PageLeading` | `<div>` | Back or menu controls on the leading side of the bar |
 | `PageBar` | `<div>` | Row of the title and the actions |
 | `PageHeading` | `<div>` | Title with what stands beside it |
 | `PageTitle` | `<h1>` | Page heading |
-| `PageSubtitle` | `<p>` | Status of the page |
+| `PageSubtitle` | `<div>` | Status of the page, including badges and text |
 | `PageActions` | `<div>` | Buttons on the trailing side of the bar |
 
 ## Styling
 
+`surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background="glass" | "solid"` material and leaves desktop colors unchanged.
+
+`PageHeader` and `PageFooter` accept `background="glass"` (the default) or `background="solid"`. Use solid bars when the content should not show through them on phones.
+
 Page reads these component tokens. Override them at any scope to restyle it:
 
-- `--page-background`: background (default `var(--color-surface)`)
+- `--safe-area-inset-top`: shared top inset for Page and Dialog (defaults to `env(safe-area-inset-top, 0px)`); override it for an embedded screen with its own status bar
+- `--page-background`: canvas color; mobile follows `surface`, desktop defaults to `var(--color-surface)`
 - `--page-bar-gap`: gap between title and actions (default `24px`)
 - `--page-bar-height`: bar height (default `36px`)
 - `--page-bar-height-phone`: bar height on a phone (default `44px`)
 - `--page-bar-line`: hairline of the glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
-- `--page-bar-veil`: fill of the glass bar (default `light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%))`)
+- `--page-bar-veil`: translucent bar fill derived from the current mobile canvas
 - `--page-content-padding-bottom`: bottom of the content (default `48px`)
 - `--page-content-padding-top`: top of the content on a phone (default `16px`)
 - `--page-gutter`: side gutter on a phone (default `16px`)

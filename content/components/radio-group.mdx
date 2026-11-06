@@ -222,7 +222,7 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Card selection
 
-<ComponentPreview details={<>Leverage component composition and <code>className</code> overrides to build card-style radio selections with rich content per option.</>} className="justify-start" code={`<RadioGroup className="flex-col w-[390px] gap-4">
+<ComponentPreview details={<>Leverage component composition and <code>className</code> overrides to build card-style radio selections with rich content per option.</>} className="justify-start" code={`<RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4">
   <RadioGroup.Item className="gap-2.5" value="basic">
     <div><h4>Basic Plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
   </RadioGroup.Item>
@@ -233,31 +233,29 @@ import { ControlsAlignmentDemo } from "@/components/docs/ControlsAlignmentDemo"
 
 ### Grouped sections
 
-<ComponentPreview details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`<div className="flex flex-col max-w-sm w-full divide-y divide-alpha/15">
-  <div className="pb-5">
-    <Field label="Visibility" description="Control who can see project resources.">
-      {() => (
-        <RadioGroup direction="col" value={visibility} onChange={setVisibility} aria-label="Visibility">
-          <RadioGroup.Item value="hidden">Hidden</RadioGroup.Item>
-          <RadioGroup.Item value="owners">Visible to organization owners</RadioGroup.Item>
-          <RadioGroup.Item value="everyone">Visible to everyone</RadioGroup.Item>
-        </RadioGroup>
-      )}
-    </Field>
-  </div>
-  <div className="pt-5">
-    <Field label="Digest frequency" description="How often you receive summary emails.">
-      {() => (
-        <RadioGroup direction="col" value={frequency} onChange={setFrequency} aria-label="Digest frequency">
-          <RadioGroup.Item value="daily">Daily</RadioGroup.Item>
-          <RadioGroup.Item value="weekly">Weekly</RadioGroup.Item>
-          <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-          <RadioGroup.Item value="never">Never</RadioGroup.Item>
-        </RadioGroup>
-      )}
-    </Field>
-  </div>
-</div>`} previewMinHeight={380}>
+<ComponentPreview phonePresentation="screen" details={<>Use dividers to separate radio groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={`// BackButton is your app's navigation action.
+<Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+  <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Preferences</Page.Title></Page.Bar></Page.Header>
+  <Page.Content>
+    <div className="flex flex-col gap-6">
+      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Control who can see project resources.">
+          <Field row label="Hidden"><RadioGroup.Item value="hidden" /></Field>
+          <Field row label="Visible to organization owners"><RadioGroup.Item value="owners" /></Field>
+          <Field row label="Visible to everyone"><RadioGroup.Item value="everyone" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <RadioGroup direction="col" className="w-full" value={frequency} onChange={setFrequency} aria-label="Digest frequency">
+        <FieldGroup title="Digest frequency" description="How often you receive summary emails.">
+          <Field row label="Daily"><RadioGroup.Item value="daily" /></Field>
+          <Field row label="Weekly"><RadioGroup.Item value="weekly" /></Field>
+          <Field row label="Monthly"><RadioGroup.Item value="monthly" /></Field>
+          <Field row label="Never"><RadioGroup.Item value="never" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+    </div>
+  </Page.Content>
+</Page>`} previewMinHeight={380}>
   <RadioGroupNotificationSettingsDemo />
 </ComponentPreview>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Button } from '@plexui/ui/components/Button';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -23,34 +23,7 @@ import {
   Trash,
   FileDocument,
 } from '@plexui/ui/components/Icon';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const INDICATOR_POSITION_OPTIONS = ['start', 'end'] as const;
 const INDICATOR_VARIANT_OPTIONS = ['solid', 'ghost'] as const;

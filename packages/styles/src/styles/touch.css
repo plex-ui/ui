@@ -1,15 +1,24 @@
+@import "./mobile-surfaces.css";
+@import "./mobile-materials.css";
+
 /*
  * Optional touch sizes for phones, from Apple's iOS and iPadOS 26 design
- * resources. Below 768px every control takes one height, 44px, with text at
- * 17px; menus and the mobile sidebar follow the iOS measures. Nothing changes
+ * resources. Below 768px text inputs and toolbar controls retain a 44px
+ * target; content buttons use the native 28px, 34px and 50px scale. Nothing changes
  * unless this file is imported, after the main stylesheet:
  *
  *   @import "@plexui/styles/styles/touch.css";
  *
- * Tokens only, so a size prop still picks the same token as on desktop. `3xl`
- * stays large at 50px for the main action of a sign-in or checkout screen.
+ * Component tokens preserve desktop defaults when this optional file is absent.
+ * `3xl` is the 50px main action of a sign-in or checkout screen.
  */
 @media (max-width: 767px) {
+  /* Secondary row values and accessories share the native label role, including
+     explicit text-secondary currency and unit labels. */
+  :where([data-row]) {
+    --color-text-secondary: var(--mobile-label-secondary);
+  }
+
   html:root {
     --control-size-sm: 44px;
     --control-size-md: 44px;
@@ -25,30 +34,109 @@
     --control-font-size-lg: 17px;
     --button-gap-lg: 4px;
 
-    --segmented-control-gutter: 4px;
+    /* Native text buttons: small 28px, medium 34px, large 50px. */
+    --button-touch-radius: var(--radius-full);
+    --button-font-weight: var(--font-weight-normal);
+    --button-size-3xs: 28px;
+    --button-gutter-3xs: 10px;
+    --button-font-size-3xs: 15px;
+    --button-line-height-3xs: 20px;
+    --button-size-2xs: 28px;
+    --button-gutter-2xs: 10px;
+    --button-font-size-2xs: 15px;
+    --button-line-height-2xs: 20px;
+    --button-size-xs: 28px;
+    --button-gutter-xs: 10px;
+    --button-font-size-xs: 15px;
+    --button-line-height-xs: 20px;
+    --button-size-sm: 28px;
+    --button-gutter-sm: 10px;
+    --button-font-size-sm: 15px;
+    --button-line-height-sm: 20px;
+    --button-size-md: 34px;
+    --button-gutter-md: 14px;
+    --button-font-size-md: 15px;
+    --button-line-height-md: 20px;
+    --button-size-lg: 34px;
+    --button-gutter-lg: 14px;
+    --button-font-size-lg: 15px;
+    --button-line-height-lg: 20px;
+    --button-size-xl: 50px;
+    --button-gutter-xl: 20px;
+    --button-font-size-xl: 17px;
+    --button-line-height-xl: 22px;
+    --button-size-2xl: 50px;
+    --button-gutter-2xl: 20px;
+    --button-font-size-2xl: 17px;
+    --button-line-height-2xl: 22px;
+    --button-size-3xl: 50px;
+    --button-gutter-3xl: 20px;
+    --button-font-size-3xl: 17px;
+    --button-line-height-3xl: 22px;
+
+    /* Web disclosure panels composed from native list height and text roles.
+       Expanded FAQ content and its spacing are a web adaptation. */
+    --accordion-trigger-min-height: 52px;
+    --accordion-trigger-font-size: 17px;
+    --accordion-trigger-line-height: 22px;
+    --accordion-trigger-font-weight: 590;
+    --accordion-trigger-padding-block: 15px;
+    --accordion-content-font-size: 17px;
+    --accordion-content-line-height: 22px;
+    --accordion-content-padding-bottom: 16px;
 
     --sortable-handle-size: 44px;
-    --sortable-handle-icon-size: 20px;
+    --sortable-handle-icon-size: 17px;
+    --sortable-desktop-grip-display: none;
+    --sortable-phone-grip-display: block;
+    --sortable-phone-grip-ink-width: 17px;
     --sortable-handle-inset: 4px;
 
+    /* Touch menus use selection indicators without a persistent row fill. */
+    --menu-item-highlight-opacity: 0;
+    --menu-item-press-scale: 1;
+    --select-control-ghost-state-opacity: 0;
+
     --menu-gutter: 10px;
+    --menu-default-min-width: 238px;
+    --menu-padding-inline: 16px;
+    --menu-shadow: 0 8px 40px rgb(0 0 0 / 12%);
     --menu-radius: 32px;
     --menu-radius-pill: 32px;
     --menu-font-size: 17px;
     --menu-line-height: 20px;
-    --menu-item-padding: 10px 14px 10px 12px;
+    --menu-letter-spacing: -0.43px;
+    --menu-description-color: var(--mobile-label-secondary);
+    --menu-disabled-label-color: var(--mobile-label-tertiary);
+    --menu-disabled-description-color: var(--mobile-label-quaternary);
+    --menu-item-padding: 10px 8px 10px 6px;
     --menu-item-gap: 6px;
-    --menu-separator-gutter: 10px 14px;
+    --menu-separator-gutter: 10px 8px;
     --menu-pill-gutter: 10px;
-    --menu-pill-item-padding: 10px 14px 10px 12px;
+    --menu-pill-item-padding: 10px 8px 10px 6px;
     --menu-search-gutter: 12px;
-    --menu-pill-separator-gutter: 10px 14px;
+    --menu-pill-separator-gutter: 10px 8px;
     --menu-checkbox-indicator-size: 24px;
-    --menu-label-padding: 4px 14px 10px;
+    --menu-label-padding: 4px 8px 10px;
     --menu-label-padding-bottom: 10px;
     --menu-label-font-size: 13px;
-    --menu-label-font-weight: var(--font-weight-medium);
+    --menu-label-font-weight: 510;
     --menu-label-line-height: 15px;
+    --menu-leading-icon-size: 17px;
+    --menu-leading-icon-slot: 28px;
+    --menu-leading-icon-gap: 8px;
+    --menu-horizontal-item-display: flex;
+    --menu-horizontal-item-height: 56px;
+    --menu-horizontal-item-padding: 6px 4px;
+    --menu-horizontal-item-radius: 20px;
+    --menu-horizontal-item-gap: 5px;
+    --menu-horizontal-gap: 6px;
+    --menu-horizontal-padding-inline: 10px;
+    --menu-horizontal-icon-size: 13px;
+    --menu-horizontal-icon-slot: 22px;
+    --menu-horizontal-label-size: 12px;
+    --menu-horizontal-label-leading: 18px;
+    --menu-horizontal-label-weight: 510;
 
     --sidebar-menu-item-height: 44px;
     --sidebar-menu-item-font-size: 17px;
@@ -61,36 +149,144 @@
 
     --table-cell-font-size: 15px;
     --table-cell-line-height: 20px;
+    /* Dense data tables are a web composition: keep every column reachable
+       and give their native controls independent touch targets. */
+    --data-table-layout: auto;
+    --data-table-min-width: max-content;
+    --data-table-control-target: 44px;
+    --data-table-pagination-wrap: wrap;
+    --data-table-pagination-gap: 12px;
 
     --switch-track-width: 64px;
     --switch-track-height: 28px;
     --switch-thumb-width: 39px;
     --switch-thumb-offset: 2px;
+    --switch-label-font-size: 17px;
+    --switch-label-line-height: 22px;
+    --switch-label-font-weight: 400;
+    --switch-description-font-size: 15px;
+    --switch-description-line-height: 20px;
+    --switch-track-top-offset: 0px;
+    --switch-label-padding-top: 3px;
 
+    --checkbox-target-size: 44px;
+    --checkbox-target-offset: 0px;
+    --checkbox-label-inset: 11px;
+    --checkbox-indicator-size: 22px;
+    /* iOS 26 kit: the 17pt checkmark of a list row, about 15 x 14.5px of ink in its 22px column. */
+    --checkbox-ghost-icon-size: 26px;
+    --checkbox-border-width: 1.5px;
+    --checkbox-radius: var(--radius-full);
+    --checkbox-label-font-size: 17px;
+    --checkbox-label-line-height: 22px;
+    --checkbox-description-font-size: 15px;
+    --checkbox-description-line-height: 20px;
+    --radio-group-target-size: 44px;
+    --radio-group-label-align: center;
+    --radio-group-indicator-size: 22px;
+    --radio-group-item-font-size: 17px;
+    --radio-group-item-line-height: 22px;
+    --radio-group-description-font-size: 15px;
+    --radio-group-description-line-height: 20px;
+    --radio-group-ring: none;
+    --radio-group-dot-display: none;
+    --radio-group-checkmark-display: block;
+
+    --slider-reset-size: 44px;
+    --slider-control-height: 52px;
+    --slider-padding-bottom: 0px;
+    --slider-track-size: 6px;
+    --slider-track-radius: 3px;
+    --slider-thumb-width: 38px;
+    --slider-thumb-height: 24px;
+    --slider-thumb-radius: var(--radius-full);
+    --slider-thumb-shadow: 0 0.5px 4px rgb(0 0 0 / 12%), 0 6px 13px rgb(0 0 0 / 12%);
+    --progress-height: 6px;
+    --progress-radius: 3px;
+
+    /* Full empty states share one content-card family; compact panels remain smaller. */
+    --empty-message-title-size: 22px;
+    --empty-message-title-leading: 28px;
+    --empty-message-title-gap: 4px;
+    --empty-message-title-only-gap: 0px;
+    --empty-message-title-weight: var(--font-weight-bold);
+    --empty-message-title-tracking: -0.26px;
+    --empty-message-description-size: 17px;
+    --empty-message-description-leading: 22px;
+    --empty-message-description-tracking: -0.43px;
+    --empty-message-description-color: var(--color-text-secondary);
+    --empty-message-compact-description-size: 15px;
+    --empty-message-compact-description-leading: 20px;
+    --empty-message-padding-inline: 40px;
+    --empty-message-padding-bottom: 40px;
+    --empty-message-action-spacing: 24px;
+    --empty-message-action-gap: 12px;
+    --empty-message-multi-direction: column;
+    --empty-message-multi-align: stretch;
+    --empty-message-multi-action-width: 100%;
+    --empty-message-action-size: 48px;
+    --empty-message-action-font-size: 17px;
+    --empty-message-action-line-height: 22px;
+    --empty-message-action-gutter: 16px;
+    /* Icon remains the existing badge API, not the transparent Figma glyph canvas. */
+    --empty-message-icon-badge-size: 50px;
+    --empty-message-icon-size: 22px;
+    --empty-message-icon-radius: var(--radius-full);
+    --empty-message-icon-gap: 16px;
+
+    /* Native 8-spoke progress indicator. Caller sizes, colors and durations win. */
+    --indicator-default-size: 30px;
+    --indicator-container-type: size;
+    --indicator-ring-display: none;
+    --indicator-spoke-display: block;
+    --indicator-rotate-timing: steps(8, end);
+
+    /* Clear targets occupy layout space; their glyphs keep the existing paint size. */
+    --input-control-min-width: 0px;
+    --input-clear-target-size: 44px;
+    --input-clear-target-offset: 0px;
     --floating-input-font-size: 17px;
+    --floating-input-control-min-width: 0px;
+    --floating-input-clear-size: 44px;
+    --floating-input-reveal-size: 44px;
     --floating-input-inside-height: 60px;
     --floating-input-inside-label-shift: -13px;
     --floating-input-inside-value-shift: 18px;
     --floating-input-inside-line-height: 22px;
 
+    /* Mobile field errors: Apps input/OTP footer 15/20 and 4px offset;
+       native grouped rows add a 16px first-line icon with a 4px text gap. */
+    --mobile-field-error-font-size: 15px;
+    --mobile-field-error-line-height: 20px;
+    --mobile-field-error-font-weight: var(--font-weight-normal);
+    --mobile-field-error-letter-spacing: -0.23px;
+    --mobile-field-error-offset: 4px;
+    --mobile-field-error-icon-size: 16px;
+    --mobile-field-error-icon-gap: 4px;
+    --mobile-field-error-icon-display: none;
+    --mobile-field-error-margin-bottom: 0px;
+
     --field-row-min-height: 52px;
     --field-row-padding-block: 4px;
     --field-row-text-padding-block: 12px;
     --field-row-gap: 16px;
+    --field-row-disclosure-gap: 8px;
     --field-row-text-display: flex;
     --field-row-label-font-size: 17px;
     --field-row-label-line-height: 22px;
     --field-row-label-font-weight: var(--font-weight-normal);
     --field-row-description-font-size: 15px;
     --field-row-description-line-height: 20px;
+    --field-row-description-min-height: 68px;
     --field-row-above-font-size: 15px;
     --field-row-above-line-height: 20px;
     --field-row-above-font-weight: var(--font-weight-normal);
-    --field-row-above-gap: 4px;
-    --field-row-above-padding-block: 12px;
+    --field-row-above-gap: 0px;
+    --field-row-above-padding-block: 13px;
     --field-row-list-padding-block: 12px;
     --field-row-list-row-gap: 6px;
     --field-row-action-size: 34px;
+    --field-row-text-action-size: 44px;
     --field-row-action-font-size: 15px;
     --field-row-action-font-weight: var(--font-weight-normal);
 
@@ -98,12 +294,18 @@
 
     --field-group-radius: 26px;
     --field-group-separator-inset: 16px;
-    --field-group-border-width: 1px;
-    --field-group-background: var(--color-surface);
+    --field-group-border-width: 0px;
+    --field-group-background: var(--mobile-surface-plain-secondary, var(--color-background-secondary-soft-alpha));
     --field-group-title-color: var(--color-text-secondary);
     --field-group-title-font-size: 17px;
     --field-group-title-line-height: 22px;
-    --field-group-title-font-weight: var(--font-weight-semibold);
+    --field-group-title-font-weight: 590;
+    --field-group-header-min-height: 39px;
+    --field-group-header-align: end;
+    --field-group-header-padding-bottom: 9px;
+    --field-group-footer-font-size: 13px;
+    --field-group-footer-line-height: 16px;
+    --field-group-footer-padding: 8px 16px 6px;
     --field-group-title-padding-inline: 16px;
     --field-group-description-font-size: 13px;
     --field-group-description-line-height: 18px;
@@ -119,17 +321,28 @@
     --dialog-panel-radius: 34px;
   }
 
-  /* List choices keep their radio semantics and keyboard behavior, with the
-     trailing checkmark used by iOS lists instead of the desktop radio dot. */
-  html [data-row] {
-    --radio-group-indicator-size: 22px;
-    --radio-group-ring: none;
-    --radio-group-dot-display: none;
-    --radio-group-checkmark-display: block;
+  /* Horizontal segmented controls use the native 32px track; underline and
+     vertical tabs retain their own layout. */
+  html [data-variant="segmented"][data-orientation="horizontal"] {
+    --segmented-control-size: 32px;
+    --segmented-control-gutter: 2px;
+    --segmented-control-gap: 4px;
+    --segmented-control-radius: 100px;
+    --segmented-control-option-radius: 20px;
+    --segmented-control-option-gutter: 6px;
+    --segmented-control-font-size: 13.333px;
+    --segmented-control-line-height: 18px;
+    --segmented-control-font-weight: 510;
+    --segmented-control-active-font-weight: 590;
   }
 
-  html [role="radiogroup"] {
-    --segmented-control-font-size: 15px;
+  /* Fixed-width mobile segments keep their labels on one line. */
+  html [data-variant][data-orientation="horizontal"][data-block] {
+    --tabs-block-min-width: 0px;
+    --tabs-block-content-max-width: 100%;
+    --tabs-block-label-overflow: hidden;
+    --tabs-block-label-white-space: nowrap;
+    --tabs-block-accessory-shrink: 0;
   }
 
   /* In the kit's layer: outside it these beat every kit rule, and the bare field
@@ -145,9 +358,23 @@
     }
   }
 
-  html [role="menu"] {
-    --menu-min-width: 238px !important;
+  /* The icon's drawing keeps its own size inside the wider native leading
+     slot. Selection indicators and trailing submenu chevrons are excluded. */
+  html [role="menu"]:not([data-layout="horizontal"]) [role="menuitem"] > :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"]) {
+    flex-shrink: 0;
+    width: var(--menu-leading-icon-size);
+    height: var(--menu-leading-icon-size);
+    margin-inline-start: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2);
+    margin-inline-end: calc((var(--menu-leading-icon-slot) - var(--menu-leading-icon-size)) / 2 + var(--menu-leading-icon-gap) - var(--menu-item-gap));
   }
+
+  html [role="menu"][data-layout="horizontal"] [role="menuitem"] > :is(div, span) > svg {
+    flex-shrink: 0;
+    width: var(--menu-horizontal-icon-size);
+    height: var(--menu-horizontal-icon-size);
+    margin-block: calc((var(--menu-horizontal-icon-slot) - var(--menu-horizontal-icon-size)) / 2);
+  }
+
 }
 
 /* One calendar on a phone: a whole cell to the finger, narrower only where

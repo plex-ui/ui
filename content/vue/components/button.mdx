@@ -15,7 +15,7 @@ export const overview = `<div class="flex flex-wrap gap-3">
   <Button variant="ghost" color="secondary" uniform aria-label="Clear"><Clear /></Button>
 </div>`
 
-export const colors = `<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+export const colors = `<div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
   <div class="pt-1 pb-6 px-8 w-max mx-auto">
     <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
       <div />
@@ -60,11 +60,26 @@ export const block = `<div class="w-[290px] mx-auto text-center p-2 border borde
   <Button color="primary" size="lg" :block="block">Continue</Button>
 </div>`
 
-export const disabled = `<Button color="primary" :disabled="disabled">Submit</Button>`
+export const states = `<Button color="primary" :disabled="disabled" :loading="loading">Submit</Button>`
+
+export const statesControls = [
+  { name: "disabled", type: "boolean", default: false },
+  { name: "loading", type: "boolean", default: false },
+]
+
+export const statesCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Button } from '@plexui/vue/components/Button';
+
+const disabled = ref(false);
+const loading = ref(false);
+</script>
+
+<template>
+<Button color="primary" :disabled="disabled" :loading="loading">Submit</Button>
+</template>`
 
 export const inert = `<Button color="primary" :inert="inert">Submit</Button>`
-
-export const loading = `<Button loading size="xl" pill><ArrowUp /> Click to load</Button>`
 
 export const selected = `<Popover>
   <PopoverTrigger>
@@ -156,10 +171,15 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
   <VueDemo template={block} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "block", type: "boolean", default: true }]} />
 </ComponentPreview>
 
-### Disabled
+<span id="disabled" />
+<span id="loading" />
 
-<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable a button. Clicks do not emit <code>click</code>.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "disabled", type: "boolean", default: true }]} />
+### States
+
+Use disabled to visually and accessibly disable the button. Loading shows a spinner and prevents interaction through its default inert state. The controls demonstrate these props; they do not start an asynchronous action.
+
+<ComponentPreview language="vue" code={statesCode} previewMinHeight={168}>
+  <VueDemo template={states} controls={statesControls} stageClassName="flex-1 flex items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ### Inert
@@ -169,15 +189,6 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
   <p><strong>Note:</strong> For accessibility reasons, <code>disabled</code> is used instead of applying <code>inert</code> directly to the button. Visual disablement in the <code>disabled</code> prop is applied via <code>[data-disabled]</code>.</p>
 </>} code={inert} previewMinHeight={168}>
   <VueDemo template={inert} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "inert", type: "boolean", default: true }]} />
-</ComponentPreview>
-
-### Loading
-
-<ComponentPreview language="vue" details={<>
-  <p>Use <code>loading</code> to display a loading indicator in the button, fading out the current content.</p>
-  <p>Interactions are prevented during this state, because <code>inert</code> defaults to <code>loading</code>. Override it with <code>inert</code>, or use <code>disabled</code> to add visual disablement.</p>
-</>} code={loading} previewMinHeight={168}>
-  <VuePreview template={loading} />
 </ComponentPreview>
 
 ### Selected
@@ -204,7 +215,27 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
 
 Button shares the unified 9-step size scale with Input, Select, SelectControl, and SegmentedControl.
 
+## NavigationButton
+
+`NavigationButton` supplies a Back, Close, or Confirm glyph inside the public Button. The caller owns navigation, dismissal, and form submission. Page toolbars and Dialog header actions retain its role-specific glyph sizing and 44px Phone target.
+
+```vue
+import { NavigationButton } from '@plexui/vue/components/Button';
+
+<NavigationButton action="back" aria-label="Back to albums" @click="goBack" />
+<NavigationButton action="close" @click="cancel" />
+<NavigationButton action="confirm" type="submit" form="album" aria-label="Save album" />
+```
+
+`action` is required: `"back" | "close" | "confirm"`. Accessible names default to Back, Close, and Confirm; override `aria-label` for the destination or operation. Other Button and native button props remain available, including `type`, `form`, disabled/loading state, event handlers, and refs. The component owns its glyph, `pill`, and `uniform` shape, so it does not accept children or an icon-size override.
+
+Back and Close default to secondary soft buttons with the mobile glass material. Confirm defaults to primary solid; an explicit `color` or `variant` still overrides it. Use the existing [shared application accent](/docs/foundations/colors#shared-application-accent) recipe to set the primary palette once in application CSS after the stylesheet imports. Semantic `info` remains available for informational states.
+
+Phone geometry uses `--navigation-button-size`, `--navigation-button-back-icon-size`, `--navigation-button-close-icon-size`, and `--navigation-button-confirm-icon-size`. Desktop retains Button sizing. Unrelated toolbar buttons keep their existing icon sizes.
+
 ## API
+
+For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
 
 Props mirror the React Button. In Vue, pass classes with `class` (React's `className`) and listen with `@click`.
 
@@ -212,6 +243,7 @@ Props mirror the React Button. In Vue, pass classes with `class` (React's `class
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Button style variant" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and default gutter/icon size" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded corners" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
   { prop: "uniform", type: "boolean", default: "false", description: "Square icon button (width equals height)" },

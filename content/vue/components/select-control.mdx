@@ -4,7 +4,7 @@ description: Select control primitive for building custom dropdowns, with varian
 metaDescription: Vue 3 select control primitive for building custom dropdowns, with variants, sizing, start and dropdown icons, and clearable, loading, and invalid states.
 ---
 
-import { VueCountrySelectDemo, VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
+import { VueCountrySelectDemo, VueCountryFormDemo, VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 export const STAGE = "flex-1 flex flex-col items-center justify-center py-12 w-full"
@@ -26,11 +26,11 @@ export const overview = `<Menu>
   </MenuContent>
 </Menu>`
 
-export const variants = `<div class="w-[400px]">
+export const variants = `<div class="w-full min-w-0 max-w-[400px]">
   <div class="flex flex-col gap-6">
     <div v-for="variant in ['soft', 'outline', 'ghost']" :key="variant" class="flex items-center">
       <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ variant }}</div>
-      <div class="flex-1">
+      <div class="min-w-0 flex-1">
         <SelectControl
           class="w-full"
           :variant="variant"
@@ -90,7 +90,7 @@ export const countrySelector = `<div class="w-[320px]">
       <span style="display: flex; align-items: center; gap: 8px; height: 100%; overflow: hidden; white-space: nowrap"><component :is="FlagIcon" :code="value" trigger />{{ label }}</span>
     </template>
     <template #optionView="{ value, label }">
-      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
     </template>
   </Select>
 </div>`
@@ -114,7 +114,7 @@ export const countryCodeSelector = `<div class="w-[320px]">
       <template v-else>{{ label }}</template>
     </template>
     <template #optionView="{ value, label }">
-      <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+      <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
     </template>
   </Select>
 </div>`
@@ -140,7 +140,7 @@ export const phoneForm = `<form class="w-[360px]" novalidate @submit.prevent="su
         <template v-else>{{ label }}</template>
       </template>
       <template #optionView="{ value, label }">
-        <span style="display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; line-height: 0"><component :is="FlagIcon" :code="value" />{{ label }}</span>
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
       </template>
     </Select>
     <div>
@@ -177,7 +177,11 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
   </div>
 </div>`
 
+import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
+
 <UsageBlock>{`import { SelectControl } from "@plexui/vue/components/SelectControl";`}</UsageBlock>
+
+The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type` accepts `"dropdown"` or `"chevronDown"`; the indicator keeps its proportions inside a Button.
 
 ## Examples
 
@@ -259,10 +263,26 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
   <VueCountrySelectDemo stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
+export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
+  <Field row label="Country">
+    <Select v-model:value="country" :options="countryOptions" search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate" :list-min-width="300" :option-class-name="countryOptionClass"
+      @change="() => { phone = ''; submitted = false; focusLater($refs.phoneInput) }">
+      <template #optionView="{ value, label }"><span class="inline-flex items-center gap-2"><component :is="FlagIcon" :code="value" />{{ label }}</span></template>
+    </Select>
+  </Field>
+  <Field row label="Phone" :error-message="submitted && !isPhoneValid(phone) ? 'Phone number is not valid.' : undefined">
+    <Input ref="phoneInput" :value="phone" @update:value="(raw) => { phone = formatPhoneNumber(raw, country); submitted = false }"
+      placeholder="Phone number" type="tel" inputmode="tel" autocomplete="tel-national">
+      <template #startAdornment><span class="text-tertiary whitespace-nowrap select-none">{{ countryOf(country)?.dialCode ?? '+1' }}</span></template>
+    </Input>
+  </Field>
+</FieldGroup>`, "Continue", "submitted = true", true)
+
 ### Phone form
 
-<ComponentPreview language="vue" details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={phoneForm} previewMinHeight={240}>
-  <VueCountrySelectDemo stageClassName="py-10" template={phoneForm} state={{ country: "es", phone: "", submitted: false }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: false }]} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix, clears the phone field and focuses it. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={phoneFormMobile} previewMinHeight={240}>
+  <VueCountryFormDemo stageClassName="py-10" template={`<template v-if="!wide">${phoneFormMobile}</template><template v-else>${phoneForm}</template>`} state={{ country: "es", phone: "", submitted: false }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Optical alignment

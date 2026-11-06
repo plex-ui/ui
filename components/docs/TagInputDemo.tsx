@@ -1,60 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TagInput, type Tag } from '@plexui/ui/components/TagInput';
 import { Button } from '@plexui/ui/components/Button';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { SelectControl } from '@plexui/ui/components/SelectControl';
 import { Menu } from '@plexui/ui/components/Menu';
 import { Field } from '@plexui/ui/components/Field';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <Switch checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const MIN_ROWS_OPTIONS = ['auto', 'min 2', 'min 3'] as const;
 const MIN_ROWS_TO_NUMBER: Record<(typeof MIN_ROWS_OPTIONS)[number], number> = {
@@ -115,7 +69,7 @@ export function TagInputBaseDemoWithControls() {
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
       <div data-demo-stage className="flex-1 flex flex-col items-center justify-center py-12 w-full">
-        <div style={{ width: 480 }}>
+        <div className="w-full min-w-0 max-w-[480px]">
           <TagInput
             placeholder="Add a tag..."
             size={size}

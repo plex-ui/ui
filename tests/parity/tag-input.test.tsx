@@ -1,7 +1,7 @@
-import { act, cleanup, fireEvent, render } from "@testing-library/react"
+import { cleanup, fireEvent, render, within } from "@testing-library/react"
 import { createElement } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
-import { h, isProxy } from "vue"
+import { h, isProxy, shallowRef } from "vue"
 import { Field as RField } from "../../packages/ui/src/components/Field"
 import { TagInput as RTagInput } from "../../packages/ui/src/components/TagInput"
 import { Field } from "../../packages/vue/src/components/Field"
@@ -140,7 +140,7 @@ describe("TagInput behaviour parity", () => {
       await type(input(), "pending")
       await interact(() => fireEvent.mouseDown(document.body))
       snap()
-      await interact(() => fireEvent.click(document.querySelector('[aria-label="Remove item"]')!))
+      await interact(() => fireEvent.click(document.querySelector('[data-tag] button')!))
       snap()
     })
     expect(result.vue).toEqual(result.react)
@@ -221,7 +221,7 @@ describe("TagInput behaviour parity", () => {
         await key(container(), "ArrowLeft")
         selected.push(document.activeElement?.getAttribute("data-tag") ?? "")
         // CSS turns pointer events off when disabled; jsdom does not apply it
-        await interact(() => fireEvent.click(document.querySelector('[aria-label="Remove item"]')!))
+        await interact(() => fireEvent.click(document.querySelector('[data-tag] button')!))
         snapshot()
         await set({ disabled: false })
         // Pending text is kept, not committed, by an outside click while disabled
@@ -248,7 +248,7 @@ describe("TagInput behaviour parity", () => {
     await flushVue()
     await interact(() => fireEvent.input(document.querySelector("input")!, { target: { value: "b" } }))
     await interact(() => fireEvent.keyDown(document.querySelector("input")!, { key: "Enter" }))
-    await interact(() => fireEvent.click(document.querySelectorAll('[aria-label="Remove item"]')[1]!))
+    await interact(() => fireEvent.click(document.querySelectorAll('[data-tag] button')[1]!))
     expect(changes.map((list) => list.map((tag) => tag.value))).toEqual([["a", "b"], ["a"]])
     expect(changes[1]![0]).toBe(initial[0])
     expect(changes.flat().some((tag) => isProxy(tag))).toBe(false)
@@ -270,5 +270,180 @@ describe("TagInput behaviour parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(focused).toEqual(['c\\d', "a]b", 'say "hi"', 'c\\d', "a]b", 'say "hi"'])
+  })
+})
+
+
+describe.each(["React", "Vue"])("%s tag removal focus", (framework) => {
+  beforeEach(() => {
+    // Vue rejects a bubbled event stamped in the same millisecond as listener
+    // installation. Give these immediate synthetic interactions ordered times.
+    let eventTime = Date.now()
+    vi.spyOn(Date, "now").mockImplementation(() => ++eventTime)
+  })
+
+  const mount = async (props: Props) => {
+    let update: (next: Props) => void
+    if (framework === "React") {
+      const view = render(createElement(RTagInput, props as never))
+      update = (next) => view.rerender(createElement(RTagInput, next as never))
+    } else {
+      const state = shallowRef(props)
+      mountVue(() => h(TagInput, state.value as never))
+      update = (next) => { state.value = next }
+    }
+    await interact(() => {})
+    return (next: Props) => interact(() => update(next))
+  }
+
+  test.each([undefined, 2])("a native remove button restores typing, including at maxTags %s", async (maxTags) => {
+    await mount({ defaultValue: tags("one", "two"), maxTags })
+    const button = within(document.body).getByRole("button", { name: "Remove one" })
+    expect(button.tagName).toBe("BUTTON")
+    expect(button.getAttribute("type")).toBe("button")
+    await interact(() => button.focus())
+    expect(document.activeElement).toBe(button)
+    // Native Enter/Space activation dispatches this click on the focused button.
+    await interact(() => fireEvent.click(button))
+    expect(document.querySelector('[data-tag="one"]')).toBeNull()
+    const input = document.querySelector("input")!
+    expect(document.activeElement).toBe(input)
+    await interact(() => fireEvent.input(input, { target: { value: "three" } }))
+    await interact(() => fireEvent.keyDown(input, { key: "Enter" }))
+    expect(document.querySelector('[data-tag="three"]')).not.toBeNull()
+  })
+
+  test("controlled rejected removal keeps focus and emits one request", async () => {
+    const onChange = vi.fn()
+    await mount({ value: tags("one", "two"), onChange })
+    const button = within(document.body).getByRole("button", { name: "Remove one" })
+    await interact(() => button.focus())
+    await interact(() => fireEvent.click(button))
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith(tags("two"))
+    expect(document.activeElement).toBe(button)
+    expect(document.querySelector('[data-tag="one"]')).not.toBeNull()
+  })
+
+  test("removing a neighboring chip clears the old keyboard selection before typing resumes", async () => {
+    await mount({ defaultValue: tags("one", "two", "three") })
+    const input = document.querySelector("input")!
+    const third = document.querySelector<HTMLElement>('[data-tag="three"]')!
+    await interact(() => input.focus())
+    await interact(() => fireEvent.keyDown(input, { key: "ArrowLeft" }))
+    expect(document.activeElement).toBe(third)
+    // Shift+Tab from the selected third chip reaches the preceding remove button.
+    const secondRemove = within(document.body).getByRole("button", { name: "Remove two" })
+    await interact(() => secondRemove.focus())
+    await interact(() => fireEvent.click(secondRemove))
+    expect(document.activeElement).toBe(input)
+    await interact(() => fireEvent.keyDown(input, { key: "Backspace" }))
+    expect(document.querySelector('[data-tag="three"]')).toBe(third)
+    expect(document.activeElement).toBe(third)
+  })
+
+  test("controlled rejected Backspace retains the selected chip until actual acceptance", async () => {
+    const onChange = vi.fn()
+    const update = await mount({ value: tags("one", "two"), maxTags: 2, onChange })
+    const container = document.querySelector<HTMLElement>("[data-size]")!
+    await interact(() => container.focus())
+    await interact(() => fireEvent.keyDown(container, { key: "Backspace" }))
+    const second = document.querySelector<HTMLElement>('[data-tag="two"]')!
+    expect(document.activeElement).toBe(second)
+    await interact(() => fireEvent.keyDown(second, { key: "Backspace" }))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(tags("one"))
+    expect(document.activeElement).toBe(second)
+    await update({ value: tags("one"), maxTags: 2, onChange })
+    expect(document.activeElement).toBe(document.querySelector("input"))
+  })
+
+  test("delayed controlled acceptance does not recover focus after the user leaves", async () => {
+    const onChange = vi.fn()
+    const update = await mount({ value: tags("one", "two"), onChange })
+    const button = within(document.body).getByRole("button", { name: "Remove one" })
+    await interact(() => button.focus())
+    await interact(() => fireEvent.click(button))
+    const outside = document.createElement("button")
+    document.body.append(outside)
+    await interact(() => { outside.focus(); outside.blur() })
+    expect(document.activeElement).toBe(document.body)
+    await update({ value: tags("two"), onChange })
+    expect(document.activeElement).toBe(document.body)
+  })
+
+  test("a touch gesture outside cancels delayed recovery without committing pending text", async () => {
+    const onChange = vi.fn()
+    const update = await mount({ value: tags("one", "two"), onChange })
+    const input = document.querySelector("input")!
+    await interact(() => input.focus())
+    await interact(() => fireEvent.input(input, { target: { value: "pending" } }))
+    const button = within(document.body).getByRole("button", { name: "Remove one" })
+    await interact(() => button.focus())
+    await interact(() => fireEvent.click(button))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(tags("two"))
+    const outside = document.createElement("div")
+    document.body.append(outside)
+    // Touch/drag alone: neither a mouse event nor a focus change accompanies it.
+    await interact(() => fireEvent.pointerDown(outside, { pointerType: "touch" }))
+    expect(document.activeElement).toBe(button)
+    expect(input.value).toBe("pending")
+    expect(onChange).toHaveBeenCalledTimes(1)
+    await update({ value: tags("two"), onChange })
+    expect(document.activeElement).toBe(document.body)
+    expect(input.value).toBe("pending")
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test.each([
+    ["Enter", true, 13],
+    [" ", true, 32],
+    ["Tab", true, 9],
+    ["Enter", false, 229],
+  ])("IME %s (composing=%s, code=%s) does not commit or clear pending text", async (key, isComposing, keyCode) => {
+    const onChange = vi.fn()
+    await mount({ defaultValue: tags("existing"), maxTags: 2, onChange })
+    const input = document.querySelector("input")!
+    await interact(() => input.focus())
+    await interact(() => fireEvent.compositionStart(input))
+    await interact(() => fireEvent.input(input, { target: { value: "東京" }, isComposing: true }))
+    const candidateKey = new KeyboardEvent("keydown", { key, isComposing, keyCode, bubbles: true, cancelable: true })
+    await interact(() => { input.dispatchEvent(candidateKey) })
+    expect(candidateKey.defaultPrevented).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(input.value).toBe("東京")
+    expect(document.activeElement).toBe(input)
+    expect(document.querySelectorAll("[data-tag]")).toHaveLength(1)
+
+    await interact(() => fireEvent.compositionEnd(input, { data: "東京" }))
+    await interact(() => fireEvent.keyDown(input, { key: "Enter" }))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(tags("existing", "東京"))
+    expect(document.querySelector("input")).toBeNull()
+    expect(document.activeElement).toBe(document.querySelector("[data-size]"))
+  })
+
+  test.each(["ArrowLeft", "ArrowUp", "Backspace"])("IME %s leaves candidate navigation and focus in the input", async (key) => {
+    const onChange = vi.fn()
+    await mount({ defaultValue: tags("existing"), onChange })
+    const input = document.querySelector("input")!
+    await interact(() => input.focus())
+    await interact(() => fireEvent.compositionStart(input))
+    // A pre-edit buffer may still be empty while the IME owns these keys.
+    const candidateKey = new KeyboardEvent("keydown", { key, isComposing: true, bubbles: true, cancelable: true })
+    await interact(() => { input.dispatchEvent(candidateKey) })
+    expect(candidateKey.defaultPrevented).toBe(false)
+    expect(document.activeElement).toBe(input)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(document.querySelector('[data-tag="existing"]')).not.toBeNull()
+    await interact(() => fireEvent.compositionEnd(input))
+    await interact(() => fireEvent.keyDown(input, { key: "Backspace" }))
+    expect(document.activeElement).toBe(document.querySelector('[data-tag="existing"]'))
+  })
+
+  test("disabled remove buttons cannot receive keyboard focus", async () => {
+    await mount({ defaultValue: tags("one"), disabled: true })
+    const button = within(document.body).getByRole("button", { name: "Remove one" }) as HTMLButtonElement
+    expect(button.disabled).toBe(true)
+    await interact(() => button.focus())
+    expect(document.activeElement).not.toBe(button)
   })
 })

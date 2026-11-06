@@ -6,12 +6,13 @@ import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../Butto
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
 import { usePreviewEmbed } from '../PreviewEmbed';
+import { createInitialDemoState } from './initialDemoState';
 
 /** A select option: the value itself, or a value shown under another label (`Per-digit`). */
 export type VueDemoOption = string | { value: string | boolean; label: string };
 
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
-export type VueDemoControl = { name: string; label?: string } & (
+export type VueDemoControl = { name: string; label?: string; phoneOnly?: boolean } & (
   | { type: 'boolean'; default: boolean }
   | { type: 'select'; options: readonly VueDemoOption[]; default: string | boolean }
   | { type: 'range'; min: number; max: number; step: number; default: number }
@@ -37,7 +38,9 @@ const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-
 export function VueDemo({
   template,
   controls = [],
+  reactiveControlDefaults = false,
   state,
+  context,
   phoneState,
   phoneTemplate,
   loop,
@@ -45,8 +48,12 @@ export function VueDemo({
 }: {
   template: string;
   controls?: VueDemoControl[];
+  /** Apply changing defaults until a control is explicitly changed; preserve the mounted form. */
+  reactiveControlDefaults?: boolean;
   /** Initial values the template reads and may change (`v-model:value="value"`) */
   state?: Record<string, unknown>;
+  /** Live host-owned context, separate from mutable initial form values and demo controls. */
+  context?: Record<string, unknown>;
   /** Initial state overrides for the embedded phone preview, such as an open dialog. */
   phoneState?: Record<string, unknown>;
   /** Phone-only composition, for example a permanently open presentation of a dialog. */
@@ -57,14 +64,28 @@ export function VueDemo({
 }) {
   const phonePreview = usePreviewEmbed() !== null;
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
-    ...state,
+    ...createInitialDemoState(state),
     ...Object.fromEntries(controls.map((control) => [control.name, control.default])),
     ...(loop ? { [loop.name]: false } : {}),
-    ...(phonePreview ? phoneState : {}),
+    ...createInitialDemoState(phonePreview ? phoneState : undefined),
   }));
   const [run, setRun] = useState(0);
-  const props = useMemo(() => values, [values]);
-  const set = (name: string) => (value: unknown) => setValues((current) => ({ ...current, [name]: value }));
+  const [modifiedControls, setModifiedControls] = useState<ReadonlySet<string>>(() => new Set(
+    phonePreview ? Object.keys(phoneState ?? {}) : [],
+  ));
+  const props = useMemo(() => ({
+    ...values,
+    ...(reactiveControlDefaults ? Object.fromEntries(controls
+      .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
+      .map((control) => [control.name, control.default])) : {}),
+    ...context,
+  }), [context, controls, loop?.name, modifiedControls, reactiveControlDefaults, values]);
+  const set = (name: string) => (value: unknown) => {
+    setValues((current) => ({ ...current, [name]: value }));
+    if (reactiveControlDefaults) {
+      setModifiedControls((current) => current.has(name) ? current : new Set([...current, name]));
+    }
+  };
 
   const { name: loopName, every, holdFor } = loop ?? {};
   useEffect(() => {
@@ -112,25 +133,26 @@ export function VueDemo({
             <DemoControlBoolean
               key={control.name}
               name={control.label ?? control.name}
-              value={values[control.name] as boolean}
+              value={props[control.name] as boolean}
               onChange={set(control.name)}
+              phoneOnly={control.phoneOnly}
             />
           ) : control.type === 'range' ? (
-            <DemoControlRow key={control.name} name={control.label ?? control.name}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly}>
               <SliderValueControl
                 ariaLabel={control.label ?? control.name}
                 min={control.min}
                 max={control.max}
                 step={control.step}
-                value={values[control.name] as number}
+                value={props[control.name] as number}
                 onChange={set(control.name)}
                 width="min(42vw, 340px)"
               />
             </DemoControlRow>
           ) : (
-            <DemoControlRow key={control.name} name={control.label ?? control.name}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly}>
               <SegmentedControl<string>
-                value={optionsOf(control.options).find((option) => option.value === values[control.name])?.label ?? ''}
+                value={optionsOf(control.options).find((option) => option.value === props[control.name])?.label ?? ''}
                 onChange={(label) => set(control.name)(optionsOf(control.options).find((option) => option.label === label)?.value)}
                 aria-label={control.label ?? control.name}
                 size="xs"

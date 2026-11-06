@@ -5,7 +5,7 @@ metaDescription: Vue 3 form field component with a label, helper text, and an er
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VueFieldDemo } from "@/components/docs/vue/VueFieldDemos"
+import { VueFieldDemo, VueFieldScreenDemo } from "@/components/docs/vue/VueFieldDemos"
 
 export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
@@ -119,7 +119,7 @@ export const labelAction = `<div class="w-[320px]">
   </Field>
 </div>`
 
-export const slider = `<div class="w-[400px]">
+export const slider = `<div class="w-full min-w-0 max-w-[400px]">
   <Field
     label="Price Range"
     :description="'Set your budget range ($' + price[0].toLocaleString() + ' – ' + price[1].toLocaleString() + ').'"
@@ -128,7 +128,7 @@ export const slider = `<div class="w-[400px]">
   </Field>
 </div>`
 
-export const fieldset = `<div class="w-[400px]">
+export const fieldset = `<div class="w-full min-w-0 max-w-[400px]">
   <div class="mb-3">
     <h3 class="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
     <p class="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
@@ -138,10 +138,10 @@ export const fieldset = `<div class="w-[400px]">
       <Input placeholder="123 Main St" />
     </Field>
     <div class="flex gap-3">
-      <Field label="City" class="flex-1">
+      <Field label="City" class="min-w-0 flex-1">
         <Input placeholder="New York" />
       </Field>
-      <Field label="Postal Code" class="flex-1">
+      <Field label="Postal Code" class="min-w-0 flex-1">
         <Input placeholder="90502" />
       </Field>
     </div>
@@ -183,7 +183,7 @@ export const switchField = `<div class="self-stretch mx-auto !max-w-[480px]">
   </Field>
 </div>`
 
-export const fieldGroup = `<div class="w-[400px] divide-y divide-alpha/15">
+export const fieldGroup = `<div class="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
   <div class="pb-6">
     <Field
       label="Responses"
@@ -222,7 +222,7 @@ export const validation = `<div class="w-[320px] flex flex-col gap-4">
   </Field>
 </div>`
 
-export const opticalAlign = `<div class="w-[400px]">
+export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
   <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">
     <div class="mb-5 text-secondary text-sm">
       {{ opticallyAlign ? 'optically-align="start"' : 'Default' }}
@@ -718,6 +718,8 @@ export const birthdaySelect = `<div class="w-[320px]">
   </Field>
 </div>`
 
+import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
+
 <UsageBlock>{`import { Field } from "@plexui/vue/components/Field";`}</UsageBlock>
 
 ## Examples
@@ -846,28 +848,97 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
   <VueDemo template={opticalAlign} stageClassName="py-10" controls={[{ name: "opticallyAlign", type: "boolean", default: true }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
+export const formExampleMobile = formScreenTemplate("Payment details", `<FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
+        <Field row label="Name on card"><Input placeholder="Jane Doe" autocomplete="cc-name" /></Field>
+        <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" /></Field>
+        <Field row label="Month"><Select placeholder="MM" v-model:value="month" :options="months" /></Field>
+        <Field row label="Year"><Select placeholder="YYYY" v-model:value="year" :options="years" /></Field>
+        <Field row label="CVV"><Input placeholder="123" inputmode="numeric" autocomplete="cc-csc" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
+        <Field row label="Same as shipping address"><Switch :default-checked="true" /></Field>
+        <Field row label="Comments" orientation="vertical"><Textarea :rows="3" auto-resize placeholder="Add any additional comments" /></Field>
+      </FieldGroup>`, "Submit")
+
+export const profileSettingsMobile = formScreenTemplate("Profile settings", `<FieldGroup title="Personal information" description="Your public profile details." columns>
+        <Field row label="First name"><Input default-value="Jane" autocomplete="given-name" /></Field>
+        <Field row label="Last name"><Input default-value="Doe" autocomplete="family-name" /></Field>
+        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input default-value="jane@example.com" type="email" autocomplete="email" /></Field>
+        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." :rows="3" auto-resize :maxLength="160" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Preferences" description="Customize your experience." columns>
+        <Field row label="Language"><Select v-model:value="language" :options="languages" /></Field>
+        <Field row label="Theme"><Select v-model:value="theme" :options="themes" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Notifications" description="Manage how you receive updates.">
+        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch :default-checked="true" /></Field>
+        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
+        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
+      </FieldGroup>`, "Save changes")
+
+export const createProjectMobile = formScreenTemplate("Create project", `<FieldGroup title="General" description="Basic information about your project." columns>
+        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
+        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" :rows="3" auto-resize /></Field>
+      </FieldGroup>
+      <RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Controls who can see this project.">
+          <Field row label="Private" description="Only invited members."><RadioGroupItem value="private" /></Field>
+          <Field row label="Internal" description="Anyone in your organization."><RadioGroupItem value="internal" /></Field>
+          <Field row label="Public" description="Visible to everyone."><RadioGroupItem value="public" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
+        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." :default-value="[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]" :validator="(value) => value.includes('@')" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Permissions" description="Default permissions for new members.">
+        <Field row label="Can view project"><Switch :default-checked="true" /></Field>
+        <Field row label="Can edit resources"><Switch :default-checked="true" /></Field>
+        <Field row label="Can manage members"><Switch /></Field>
+        <Field row label="Can delete project"><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
+        <Field row label="Region"><Select placeholder="Select region" v-model:value="region" :options="regions" /></Field>
+        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch :default-checked="true" /></Field>
+      </FieldGroup>`, "Create project")
+
+export const fieldConfigurationMobile = formScreenTemplate("Field configuration", `<FieldGroup title="Setup" description="Define the basic field properties." columns>
+        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input default-value="registration_method" /></Field>
+        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input default-value="Registration method" /></Field>
+        <Field row label="Type"><Select v-model:value="type" :options="fieldTypes" /></Field>
+        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputmode="numeric" /></Field>
+        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
+        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
+        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" v-model:value="expiresIn" :options="expirations" /></Field>
+      </FieldGroup>`, "Save field")
+
 ### Form example
 
-<ComponentPreview language="vue" details={<>A payment form built with Field, showing two fieldsets with small uppercase section headers and a 3-column grid row for expiry and CVV.</>} code={formExample} previewMinHeight={168}>
-  <VueFieldDemo template={formExample} stageClassName="" state={{ month: "", year: "" }} controls={pillControl} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A payment form using desktop fieldsets and a mobile Page with grouped rows, a navigation header, and a pinned submit action. The code shows the mobile composition.</>} code={formExampleMobile} previewMinHeight={168}>
+  <VueFieldScreenDemo template={`<template v-if="!wide">${formExampleMobile}</template><template v-else>${formExample}</template>`} stageClassName="" state={{ month: "", year: "" }} controls={pillControl} />
 </ComponentPreview>
 
 ### Profile settings
 
-<ComponentPreview language="vue" details={<>A profile settings form with three fieldset sections (personal info, preferences, and notifications) combining text inputs, select, radio group, and horizontal switch fields.</>} code={profileSettings} previewMinHeight={168}>
-  <VueDemo template={profileSettings} stageClassName="" state={{ language: "en", theme: "system" }} controls={pillControl} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Profile settings with text inputs, preferences, and notification switches. On Phone, FieldGroup columns align values and Page keeps the Save action below the scrolling form. The code shows the mobile composition.</>} code={profileSettingsMobile} previewMinHeight={168}>
+  <VueFieldScreenDemo template={`<template v-if="!wide">${profileSettingsMobile}</template><template v-else>${profileSettings}</template>`} stageClassName="" state={{ language: "en", theme: "system" }} controls={pillControl} />
 </ComponentPreview>
 
 ### Create project
 
-<ComponentPreview language="vue" details={<>A project creation form with general settings, team access with tag input and checkboxes, and infrastructure config, demonstrating diverse field types organized in sections.</>} code={createProject} previewMinHeight={168}>
-  <VueDemo template={createProject} stageClassName="" state={{ visibility: "private", region: "" }} controls={pillControl} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Project settings with grouped inputs, visibility choices, team access, and infrastructure. Phone uses checkmark rows for visibility and switches for permissions. The code shows the mobile composition.</>} code={createProjectMobile} previewMinHeight={168}>
+  <VueFieldScreenDemo template={`<template v-if="!wide">${createProjectMobile}</template><template v-else>${createProject}</template>`} stageClassName="" state={{ visibility: "private", region: "" }} controls={pillControl} />
 </ComponentPreview>
 
 ### Field configuration
 
-<ComponentPreview language="vue" details={<>A CMS-style field configuration form with setup, formatting, and privacy sections, matching the pattern used in content management systems for defining custom fields with type, validation, and access rules.</>} code={fieldConfiguration} previewMinHeight={168}>
-  <VueDemo template={fieldConfiguration} stageClassName="" state={{ type: "string", expiresIn: "" }} controls={pillControl} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Field configuration organized into setup, formatting, and privacy groups. On Phone, the toolbar and Save action stay in place while the fields scroll. The code shows the mobile composition.</>} code={fieldConfigurationMobile} previewMinHeight={168}>
+  <VueFieldScreenDemo template={`<template v-if="!wide">${fieldConfigurationMobile}</template><template v-else>${fieldConfiguration}</template>`} stageClassName="" state={{ type: "string", expiresIn: "" }} controls={pillControl} />
 </ComponentPreview>
 
 ### Birthday input
@@ -905,7 +976,7 @@ Field's default slot receives `{ id, "aria-describedby", "aria-invalid" }` (plus
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: "child's size, else \"md\"", description: "Label font size; defaults to the child control's size" },
   { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
   { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row, else "vertical"', description: "Layout direction of label and control" },
-  { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Other attributes reach the root only on a row" },
+  { prop: "row", type: "boolean", default: "false", description: "One line of a FieldGroup. Clicking its non-interactive area focuses the text editor or activates the choice or popup control. Other attributes reach the root only on a row" },
   { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
   { prop: "#action", type: "slot", description: "On a fill row, a control at the end of the row, such as a button that adds to a list. It stays on the list's first line, and on a phone it stands beside the label with the list under it" },
   { prop: "optically-align", type: '"start" | "end"', description: "Applies optical alignment to the child control via negative margin using its gutter" },

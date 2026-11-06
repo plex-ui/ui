@@ -10,17 +10,25 @@ import {
   MarkdownEditorWithFieldDemo,
   MarkdownEditorToolbarEndDemo,
   MarkdownEditorVariantsDemo,
-  MarkdownEditorDisabledDemo,
-  MarkdownEditorInvalidDemo,
 } from '@/components/docs/MarkdownEditorDemos'
 
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/ui/components/MarkdownEditor";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+<span id="invalid" />
+
 ### Placeholder
 
-<ComponentPreview details={<>Use <code>placeholder</code> to display hint text when the editor is empty.</>} code={`<MarkdownEditor placeholder="Enter text..." />`} previewMinHeight={168}>
+<ComponentPreview details={<>Use <code>placeholder</code> for empty content. Toggle <code>invalid</code> and <code>disabled</code> without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.</>} code={`function Example({ invalid = false, disabled = false }) {
+  const [value, setValue] = useState("");
+
+  return (
+    <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
+      value={value} onChange={setValue} invalid={invalid} aria-invalid={invalid} disabled={disabled} />
+  );
+}`} previewMinHeight={168}>
   <MarkdownEditorBaseDemo />
 </ComponentPreview>
 
@@ -32,9 +40,17 @@ import {
 
 ### With Field
 
-<ComponentPreview details={<>Wrap with <code>Field</code> to add label, description, and error handling. The editor receives <code>id</code> and <code>aria-describedby</code> automatically.</>} code={`<Field label="Description" description="Supports bold, italic, lists, and links.">
-  <MarkdownEditor placeholder="Enter description..." />
-</Field>`} previewMinHeight={200}>
+<ComponentPreview details={<>Wrap with <code>Field</code> to add a description and a linked error message. The editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> automatically. Set an accessible name with <code>aria-label</code>. The <code>errorMessage</code> control demonstrates the error state without validating or replacing the content.</>} code={`function Example({ errorMessage = false }) {
+  const [value, setValue] = useState("");
+
+  return (
+    <Field label="Description" description="Supports bold, italic, lists, and links."
+      errorMessage={errorMessage ? "This field is required." : undefined}>
+      <MarkdownEditor aria-label="Description" placeholder="Enter description..."
+        value={value} onChange={setValue} />
+    </Field>
+  );
+}`} previewMinHeight={200}>
   <MarkdownEditorWithFieldDemo />
 </ComponentPreview>
 
@@ -70,20 +86,6 @@ import { Translate } from "@plexui/ui/components/Icon"
   <MarkdownEditor placeholder="Soft variant..." variant="soft" />
 </Field>`} previewMinHeight={380}>
   <MarkdownEditorVariantsDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview details={<>Use <code>disabled</code> to prevent editing and grey out the component.</>} code={`<MarkdownEditor disabled defaultValue="This content is **read-only**." />`} previewMinHeight={168}>
-  <MarkdownEditorDisabledDemo />
-</ComponentPreview>
-
-### Invalid
-
-<ComponentPreview details={<>Use <code>invalid</code> or wrap with <code>Field</code> and pass <code>errorMessage</code> to show an error state.</>} code={`<Field label="Bio" errorMessage="This field is required.">
-  <MarkdownEditor placeholder="Tell us about yourself..." invalid />
-</Field>`} previewMinHeight={200}>
-  <MarkdownEditorInvalidDemo />
 </ComponentPreview>
 
 ## API

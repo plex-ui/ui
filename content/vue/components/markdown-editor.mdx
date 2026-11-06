@@ -19,21 +19,62 @@ Read our [Privacy Policy](https://example.com/privacy) and [Terms of Service](ht
 - Unordered item two
 - Unordered item three`
 
-export const base = `<div class="w-[500px]">
-  <MarkdownEditor placeholder="Enter text..." />
+export const baseControls = [
+  { name: "invalid", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
+
+export const base = `<div class="w-full min-w-0 max-w-[500px]">
+  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
+    v-model:value="value" :invalid="invalid" :aria-invalid="invalid" :disabled="disabled" />
 </div>`
 
-export const allFormatting = `<div class="w-[500px]">
+export const baseCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
+
+const value = ref('');
+const invalid = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+  <MarkdownEditor aria-label="Markdown content" placeholder="Enter text..."
+    v-model:value="value" :invalid="invalid" :disabled="disabled" />
+</template>`
+
+export const allFormatting = `<div class="w-full min-w-0 max-w-[500px]">
   <MarkdownEditor :default-value="allFormattingMd" />
 </div>`
 
-export const withField = `<div class="w-[500px]">
-  <Field label="Description" description="Supports bold, italic, lists, and links.">
-    <MarkdownEditor placeholder="Enter description..." />
+export const withFieldControls = [
+  { name: "errorMessage", type: "boolean", default: false },
+]
+
+export const withField = `<div class="w-full min-w-0 max-w-[500px]">
+  <Field label="Description" description="Supports bold, italic, lists, and links."
+    :error-message="errorMessage ? 'This field is required.' : undefined">
+    <MarkdownEditor aria-label="Description" placeholder="Enter description..." v-model:value="value" />
   </Field>
 </div>`
 
-export const toolbarEnd = `<div class="w-[500px]">
+export const withFieldCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Field } from '@plexui/vue/components/Field';
+import { MarkdownEditor } from '@plexui/vue/components/MarkdownEditor';
+
+const value = ref('');
+const errorMessage = ref(false);
+</script>
+
+<template>
+  <Field label="Description" description="Supports bold, italic, lists, and links."
+    :error-message="errorMessage ? 'This field is required.' : undefined">
+    <MarkdownEditor aria-label="Description" placeholder="Enter description..." v-model:value="value" />
+  </Field>
+</template>`
+
+export const toolbarEnd = `<div class="w-full min-w-0 max-w-[500px]">
   <Field label="Text markdown">
     <MarkdownEditor placeholder="Enter text...">
       <template #toolbarEnd>
@@ -50,7 +91,7 @@ export const toolbarEnd = `<div class="w-[500px]">
   </Field>
 </div>`
 
-export const variants = `<div class="flex flex-col gap-4 w-[500px]">
+export const variants = `<div class="flex flex-col gap-4 w-full min-w-0 max-w-[500px]">
   <Field label="Outline">
     <MarkdownEditor placeholder="Outline variant..." variant="outline" />
   </Field>
@@ -59,24 +100,17 @@ export const variants = `<div class="flex flex-col gap-4 w-[500px]">
   </Field>
 </div>`
 
-export const disabled = `<div class="w-[500px]">
-  <MarkdownEditor disabled default-value="This content is **read-only**." />
-</div>`
-
-export const invalid = `<div class="w-[500px]">
-  <Field label="Bio" error-message="This field is required.">
-    <MarkdownEditor placeholder="Tell us about yourself..." invalid />
-  </Field>
-</div>`
-
 <UsageBlock>{`import { MarkdownEditor } from "@plexui/vue/components/MarkdownEditor";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+<span id="invalid" />
+
 ### Placeholder
 
-<ComponentPreview language="vue" details={<>Use <code>placeholder</code> to display hint text when the editor is empty.</>} code={base} previewMinHeight={168}>
-  <VueDemo template={base} />
+<ComponentPreview language="vue" details={<>Use <code>placeholder</code> for empty content. Toggle <code>invalid</code> and <code>disabled</code> without replacing the entered markdown. The invalid state is controlled by this example, not by a validator.</>} code={baseCode} previewMinHeight={168}>
+  <VueDemo template={base} controls={baseControls} state={{ value: "" }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ### All formatting
@@ -87,8 +121,8 @@ export const invalid = `<div class="w-[500px]">
 
 ### With Field
 
-<ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add label, description, and error handling. The editor receives <code>id</code> and <code>aria-describedby</code> automatically.</>} code={withField} previewMinHeight={200}>
-  <VueDemo template={withField} />
+<ComponentPreview language="vue" details={<>Wrap with <code>Field</code> to add a description and a linked error message. The editor receives <code>id</code>, <code>aria-describedby</code> and <code>aria-invalid</code> automatically. Set an accessible name with <code>aria-label</code>. The <code>errorMessage</code> control demonstrates the error state without validating or replacing the content.</>} code={withFieldCode} previewMinHeight={200}>
+  <VueDemo template={withField} controls={withFieldControls} state={{ value: "" }} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 
 ### Toolbar end slot
@@ -101,18 +135,6 @@ export const invalid = `<div class="w-[500px]">
 
 <ComponentPreview language="vue" details={<>Use <code>variant</code> to switch between <code>outline</code> (default) and <code>soft</code> styles.</>} code={variants} previewMinHeight={380}>
   <VueDemo template={variants} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" details={<>Use <code>disabled</code> to prevent editing and grey out the component.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} />
-</ComponentPreview>
-
-### Invalid
-
-<ComponentPreview language="vue" details={<>Use <code>invalid</code> or wrap with <code>Field</code> and pass <code>error-message</code> to show an error state.</>} code={invalid} previewMinHeight={200}>
-  <VueDemo template={invalid} />
 </ComponentPreview>
 
 ## API

@@ -14,10 +14,11 @@ import React, {
   useRef,
   useState,
 } from "react"
+import { useFloatingBoundary } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { useFieldRowPill } from "../../lib/fieldRow"
-import { preventDefaultHandler, pressHandlers, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
+import { keepMovedFocus, preventDefaultHandler, toCssVariables, waitForAnimationFrame } from "../../lib/helpers"
 import { Check, Info, Search } from "../Icon"
 import type { ControlSize } from "../../types"
 import { Input } from "../Input"
@@ -25,6 +26,9 @@ import { SelectControl, type SelectControlProps } from "../SelectControl"
 import { Tooltip } from "../Tooltip"
 import { TransitionGroup } from "../Transition"
 import { overlayTiming } from "../Transition/shared"
+import { isHoverPointer } from "../../lib/inputMode"
+import { createSelectPress } from "../../lib/selectPress"
+import { createFocusRestore } from "../../lib/focusRestore"
 import s from "@plexui/styles/components/Select/Select.module.css"
 
 export type Option<T extends string = string> = {
@@ -420,6 +424,7 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
 
   // Create stable, mutable references to avoid memoization requirements from consumers
   const onSelectRef = useLatestValue((selectedOption: T, removeOption?: boolean) => {
+    if (disabled || loading || getOptionByValue(options, selectedOption.value)?.disabled) return
     if (multiple) {
       // When clearing values, the value is an
       if (!selectedOption.value) {
@@ -450,8 +455,9 @@ export const Select = <T extends Option>(props: SelectProps<T>) => {
   const propActionsRef = useRef<Actions>(propActions)
   propActionsRef.current = propActions
   const onActionSelect = useCallback<CallbackWithActionId>((actionId: string) => {
+    if (disabled || loading) return
     propActionsRef.current.find((a) => a.id === actionId)?.onSelect(actionId)
-  }, [])
+  }, [disabled, loading])
 
   // Determine when custom selects should be used
   const optionsCount = useMemo(
@@ -684,6 +690,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
   }, [multiple, options, value, placeholderValue])
 
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (evt.defaultPrevented || evt.nativeEvent.isComposing || evt.keyCode === 229) return
     const key = evt.key
 
     // If not a command, check for typeahead
@@ -777,6 +784,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
 const CustomSelect = () => {
   const {
     loading,
+    disabled,
     side,
     align,
     alignOffset,
@@ -788,13 +796,28 @@ const CustomSelect = () => {
     pill,
   } = useSelectContext()
   const [open, setOpen] = useState<boolean>(false)
+  const floatingBoundary = useFloatingBoundary(open && avoidCollisions, { bottom: 30, top: 30 })
   const selectContentRef = useRef<HTMLDivElement>(null)
   // The trigger element, the default one or a custom `trigger` (which has no `triggerId`)
   const popoverTriggerRef = useRef<HTMLButtonElement>(null)
+  const focusRestoreRef = useRef<ReturnType<typeof createFocusRestore> | null>(null)
+  const focusRestoreTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  const handleOpenChange = (maybeNextState?: boolean) => {
+  useEffect(() => {
+    const focusRestore = createFocusRestore(popoverTriggerRef.current?.ownerDocument ?? document)
+    focusRestoreRef.current = focusRestore
+    return () => {
+      clearTimeout(focusRestoreTimer.current)
+      focusRestore.dispose()
+      focusRestoreRef.current = null
+    }
+  }, [])
+
+  const handleOpenChange = useCallback((maybeNextState?: boolean) => {
+    clearTimeout(focusRestoreTimer.current)
     // Toggle the current state when called without a specific state
     const nextState = maybeNextState === undefined ? !open : maybeNextState
+    if (nextState && (disabled || loading)) return
     setOpen(nextState)
 
     // When we're closing, manage focus back to trigger manually
@@ -804,7 +827,7 @@ const CustomSelect = () => {
       const focusWasInMenu = !!selectContentRef.current?.contains(document.activeElement)
 
       // Wait until the next tick to determine if another element has become focused
-      setTimeout(() => {
+      focusRestoreTimer.current = setTimeout(() => {
         const activeElement = document.activeElement
         const menu = selectContentRef.current
         const focusInMenu = !!menu && !!activeElement && menu.contains(activeElement)
@@ -813,11 +836,16 @@ const CustomSelect = () => {
 
         // Focus that moved to another element outside the menu stays there
         if (focusInMenu || (focusWasInMenu && focusLost)) {
-          popoverTriggerRef.current?.focus()
+          const trigger = popoverTriggerRef.current
+          if (trigger) focusRestoreRef.current?.restore(trigger)
         }
       })
     }
-  }
+  }, [disabled, loading, open])
+
+  // Forget the open request when availability changes, so re-enabling does not
+  // reopen an old menu. Radix's exit autofocus below handles this close.
+  if (open && (disabled || loading)) setOpen(false)
 
   useEscCloseStack(open, () => {
     handleOpenChange(false)
@@ -837,7 +865,7 @@ const CustomSelect = () => {
       modal={false}
     >
       <Popover.Trigger asChild ref={popoverTriggerRef}>
-        {trigger ? trigger({ open, onToggle: () => setOpen((current) => !current) }) : <SelectTrigger onOpenChange={handleOpenChange} />}
+        {trigger ? trigger({ open, onToggle: () => { if (!disabled && !loading) setOpen((current) => !current) } }) : <SelectTrigger onOpenChange={handleOpenChange} />}
       </Popover.Trigger>
       <Popover.Portal forceMount>
         <TransitionGroup className={s.Menu} {...overlayTiming} overlay>
@@ -853,11 +881,18 @@ const CustomSelect = () => {
               align={align}
               alignOffset={alignOffset}
               avoidCollisions={avoidCollisions}
-              collisionPadding={{ bottom: 30, top: 30 }}
+              {...floatingBoundary}
               // Prevent Radix auto focus so we can handle our own from within <CustomSelectMenu />
               onOpenAutoFocus={preventDefaultHandler}
               // Radix waits until the animation completes before directing focus, which is janky.
-              onCloseAutoFocus={preventDefaultHandler}
+              onCloseAutoFocus={(event) => {
+                if (disabled || loading) {
+                  keepMovedFocus(event)
+                  const trigger = popoverTriggerRef.current
+                  if (!event.defaultPrevented && trigger) focusRestoreRef.current?.restore(trigger)
+                }
+                event.preventDefault()
+              }}
               onEscapeKeyDown={preventDefaultHandler}
               style={toCssVariables({
                 "select-list-width": listWidth,
@@ -936,6 +971,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
   const isMountStableRef = useRef<boolean>(false)
 
   const handleKeyDown = (evt: React.KeyboardEvent) => {
+    if (evt.defaultPrevented || evt.nativeEvent.isComposing || evt.keyCode === 229) return
     const key = evt.key
     const firstValue = multiple ? value[0] : value
     const targetValue = highlightedValue || firstOption?.value || firstValue
@@ -950,15 +986,8 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
     }
 
     const triggerHighlightedOption = () => {
-      const pointerUpEvent = new PointerEvent("pointerup", {
-        bubbles: true,
-        cancelable: true,
-        pointerType: "mouse",
-      })
-
-      // Find the current highlighted option
       const selectedOption = findOptionByValue(highlightedValue, menuElement)
-      selectedOption?.dispatchEvent(pointerUpEvent)
+      selectedOption?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }))
     }
 
     const highlightOption = (val: string, element: Element) => {
@@ -1038,7 +1067,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
         // Prevent default enter behavior from the search input, if present
         evt.preventDefault()
 
-        // Send a pointerDown event into the currently highlighted option
+        // Activate the highlighted option through its click handler
         triggerHighlightedOption()
 
         return
@@ -1052,7 +1081,7 @@ const CustomSelectMenu = ({ onOpenChange }: CustomSelectMenuProps) => {
         // Prevent space from entering search input
         evt.preventDefault()
 
-        // Send a pointerDown event into the currently highlighted option
+        // Activate the highlighted option through its click handler
         triggerHighlightedOption()
 
         return
@@ -1404,6 +1433,16 @@ const CustomSelectHardLimit = ({ numHidden }: CustomSelectHardLimitProps) => {
   )
 }
 
+const useSelectPress = (action: () => void) => {
+  const press = useMemo(() => createSelectPress(), [])
+  return {
+    onPointerDown: press.onPointerDown,
+    onPointerCancel: press.onPointerCancel,
+    onPointerUp: (event: React.PointerEvent) => { if (press.onPointerUp(event)) action() },
+    onClick: (event: React.MouseEvent) => { if (press.onClick(event)) action() },
+  }
+}
+
 type CustomSelectExpandableLimitProps = {
   value: string
   label: string
@@ -1418,10 +1457,12 @@ const CustomSelectExpandableLimit = ({
   const { checkPosition } = useSelectContext()
   const { highlightedValue, setHighlightedValue } = useCustomSelectMenuContext()
   const optionId = useId()
+  const press = useSelectPress(onPointerUp)
 
   const isHighlighted = value === highlightedValue
 
-  const handlePointerMove = () => {
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (!isHoverPointer(event)) return
     if (isHighlighted) {
       return
     }
@@ -1429,7 +1470,8 @@ const CustomSelectExpandableLimit = ({
     setHighlightedValue(value)
   }
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (event: React.PointerEvent) => {
+    if (!isHoverPointer(event)) return
     setHighlightedValue((currentHighlightedValue) => {
       // If the current value is not this one, don't do anything
       // Otherwise, clear the value, removing the active highlight on the menu.
@@ -1446,9 +1488,10 @@ const CustomSelectExpandableLimit = ({
       className={clsx(s.Option, s.OptionsLimit)}
       data-option-id={value}
       data-highlight={isHighlighted ? "" : undefined}
-      // Not selectable: no aria-selected
+      // An expandable action, never a selected value.
       role="option"
-      onPointerUp={onPointerUp}
+      aria-selected={false}
+      {...press}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     >
@@ -1496,7 +1539,10 @@ const CustomSelectOption = (option: Option) => {
     }
   }
 
-  const handlePointerMove = () => {
+  const press = useSelectPress(handlePointerUp)
+
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (!isHoverPointer(event)) return
     if (isHighlighted) {
       return
     }
@@ -1504,7 +1550,8 @@ const CustomSelectOption = (option: Option) => {
     setHighlightedValue(value)
   }
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (event: React.PointerEvent) => {
+    if (!isHoverPointer(event)) return
     setHighlightedValue((currentHighlightedValue) => {
       // If the current value is not this one, don't do anything
       // Otherwise, clear the value, removing the active highlight on the menu.
@@ -1524,7 +1571,7 @@ const CustomSelectOption = (option: Option) => {
       // Internal attribute for selecting DOM nodes
       {...{ [INTERNAL_DOM_SELECTION_DATA_ATTR]: value }}
       // Allow options to behave like a native select, when you can open and select an item in a single click
-      {...(disabled ? {} : pressHandlers(handlePointerUp))}
+      {...(disabled ? {} : press)}
       // Pointer move allows us to prevent contention from keyboard presses and a still mouse
       // which does trigger events like onMouseEnter, creating weird battles with mouse and keyboard focus.
       onPointerMove={disabled ? undefined : handlePointerMove}
@@ -1584,6 +1631,7 @@ const CustomSelectAction = ({ id, label, Icon, className }: Action) => {
   const { requestCloseRef } = useCustomSelectMenuContext()
 
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLDivElement>) => {
+    if (evt.defaultPrevented || evt.nativeEvent.isComposing || evt.keyCode === 229) return
     const key = evt.key
 
     switch (key) {
@@ -1594,6 +1642,7 @@ const CustomSelectAction = ({ id, label, Icon, className }: Action) => {
       case "Enter":
       case " ":
         evt.stopPropagation()
+        evt.preventDefault()
         handlePointerUp()
         break
       default:
@@ -1608,8 +1657,16 @@ const CustomSelectAction = ({ id, label, Icon, className }: Action) => {
     requestCloseRef.current?.()
   }
 
+  const press = useSelectPress(handlePointerUp)
+
   return (
-    <div className={s.Action} {...pressHandlers(handlePointerUp)} onKeyDown={handleKeyDown} tabIndex={0}>
+    <div
+      className={s.Action}
+      {...press}
+      role="button"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       <div className={clsx(s.ActionInner, className)}>
         {Icon && <Icon role="presentation" />}
         {label}

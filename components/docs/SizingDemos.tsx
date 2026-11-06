@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useId, useState, type ComponentType, type SVGProps } from 'react';
+import { useState, type ComponentType, type SVGProps } from 'react';
 import { DateTime } from 'luxon';
 import { Button } from '@plexui/ui/components/Button';
 import { Input } from '@plexui/ui/components/Input';
 import { Select } from '@plexui/ui/components/Select';
 import { DateRangePicker, type DateRange, type DateRangeShortcut } from '@plexui/ui/components/DateRangePicker';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Switch } from '@plexui/ui/components/Switch';
 import { SelectControl } from '@plexui/ui/components/SelectControl';
 import { Menu } from '@plexui/ui/components/Menu';
 import { ArrowRight, Delete, CompareArrows, Clear, Grid, Menu as MenuIcon, CalendarAlt } from '@plexui/ui/components/Icon';
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const CalendarAltIcon = CalendarAlt as ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -37,54 +37,6 @@ const dayShortcuts: DateRangeShortcut[] = [
     },
   },
 ];
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-controls-bg, #ffffff)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>
-        {name}
-      </label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={{ ...controlRowStyle, gap: 12 }}>
-      <span style={{ ...controlLabelStyle, flexShrink: 0 }}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', minWidth: 0 }}>{children}</div>
-    </div>
-  );
-}
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 type ControlSize = (typeof SIZE_OPTIONS)[number];

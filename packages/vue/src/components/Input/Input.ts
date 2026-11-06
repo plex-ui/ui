@@ -63,7 +63,7 @@ const InputComponent = defineComponent({
     autoComplete: String,
   },
   emits: {
-    "update:value": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
     "autofill": () => true,
   },
   setup(props, { attrs, slots, emit, expose }) {
@@ -135,7 +135,15 @@ const InputComponent = defineComponent({
         inputRef.value?.select()
       }
     }
-    onMounted(selectIfAuto)
+    onMounted(() => {
+      selectIfAuto()
+      // An enclosing focus scope may focus the input during the same mount.
+      // Reconcile after the mount finishes without focusing it a second time.
+      void nextTick(() => {
+        const input = inputRef.value
+        focused.value = !!input && input.ownerDocument.activeElement === input
+      })
+    })
     watch(() => props.autoSelect, selectIfAuto, { flush: "post" })
 
     // The clear button unmounts once the value is gone, so keep focus in the input
@@ -176,7 +184,7 @@ const InputComponent = defineComponent({
       const hasEndAdornment = hasContent(endAdornment)
 
       // Determine if clear button should be shown
-      const hasValue = value !== undefined ? !!value : !!defaultValue
+      const hasValue = String((value !== undefined ? value : defaultValue) ?? "") !== ""
       const showClearButton = !!props.onClear && hasValue && !disabled && !readOnly
 
       return h(
@@ -218,10 +226,12 @@ const InputComponent = defineComponent({
                 "readonly": readOnly,
                 "disabled": disabled,
                 "onInput": handleInput,
-                "onFocus": () => {
+                // Use bubbling focus events for state, independently of a layer
+                // capture listener. Caller @focus/@blur still receive their native events.
+                "onFocusin": () => {
                   focused.value = true
                 },
-                "onBlur": () => {
+                "onFocusout": () => {
                   focused.value = false
                 },
                 "onAnimationstart": handleAnimationStart,

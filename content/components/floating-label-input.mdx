@@ -9,16 +9,228 @@ import {
   FloatingLabelInputTextareaDemo,
   FloatingLabelInsideDemo,
   FloatingLabelInputWithClearButtonDemoWithControls,
-  FloatingLabelInputDisabledDemoWithControls,
+  FloatingLabelInputStatesDemo,
   FloatingLabelInputSSNDemo,
   FloatingLabelInputBirthdayDemo,
   FloatingLabelInputBirthdayValidationDemo,
-  FloatingLabelInputBirthdayStatesDemo,
   FloatingLabelInputPhoneDemo,
   FloatingLabelSelectPlainDemo,
   FloatingLabelSelectMultiDemo,
   FloatingLabelSelectCountryDemo,
 } from "@/components/docs/FloatingLabelInputDemos"
+
+export const birthdayCode = `import React, { useCallback, useRef, useState } from 'react';
+import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
+
+const MASK = 'MM / DD / YYYY';
+
+/**
+ * Extract raw digits from a formatted birthday string.
+ */
+function getDigits(value: string): string {
+  return value.replace(/\\D/g, '').slice(0, 8);
+}
+
+/**
+ * Format raw digits into "MM / DD / YYYY" with partial support.
+ * When a segment is complete (2 digits for month, 4 for month+day),
+ * the trailing separator is included so the cursor advances past it.
+ */
+function formatBirthdayValue(rawValue: string): string {
+  const digits = getDigits(rawValue);
+  const month = digits.slice(0, 2);
+  const day = digits.slice(2, 4);
+  const year = digits.slice(4, 8);
+  if (digits.length < 2) return month;
+  if (digits.length === 2) return \`\${month} / \`;
+  if (digits.length < 4) return \`\${month} / \${day}\`;
+  if (digits.length === 4) return \`\${month} / \${day} / \`;
+  return \`\${month} / \${day} / \${year}\`;
+}
+
+/**
+ * Build the visible mask suffix that appears after the typed text.
+ * E.g. typed "12" -> value is "12 / " -> mask suffix is "DD / YYYY"
+ *      typed "1"  -> value is "1"     -> mask suffix is "M / DD / YYYY"
+ */
+function getMaskSuffix(formattedValue: string): string {
+  if (formattedValue.length >= MASK.length) return '';
+  return MASK.slice(formattedValue.length);
+}
+
+
+/**
+ * Split mask suffix into three parts for segment-based highlighting:
+ * - before: separator text before the active segment (gray)
+ * - highlight: the active/next segment placeholder chars (blue bg)
+ * - after: remaining mask text after the active segment (gray)
+ *
+ * E.g. suffix " / DD / YYYY" => { before: " / ", highlight: "DD", after: " / YYYY" }
+ *      suffix "M / DD / YYYY"  => { before: "", highlight: "M", after: " / DD / YYYY" }
+ *      suffix "YYY"            => { before: "", highlight: "YYY", after: "" }
+ */
+function splitMaskSuffix(suffix: string): { before: string; highlight: string; after: string } {
+  if (!suffix) return { before: '', highlight: '', after: '' };
+  const match = suffix.match(/^(\\s*\\/\\s*)?([A-Z]+)([\\s\\S]*)/);
+  if (!match) return { before: suffix, highlight: '', after: '' };
+  return {
+    before: match[1] || '',
+    highlight: match[2],
+    after: match[3] || '',
+  };
+}
+
+function BirthdayMaskedInput({
+  value,
+  onChange,
+  invalid,
+  disabled,
+  className,
+  ...rest
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  invalid?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  className?: string;
+  'aria-describedby'?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [focused, setFocused] = useState(false);
+
+  const handleChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = evt.target.value;
+      const newDigits = getDigits(raw);
+      const oldDigits = getDigits(value);
+      // Backspace through a separator: raw got shorter but digit count unchanged
+      if (raw.length < value.length && newDigits.length === oldDigits.length) {
+        const trimmed = newDigits.slice(0, -1);
+        onChange(formatBirthdayValue(trimmed));
+      } else {
+        onChange(formatBirthdayValue(raw));
+      }
+    },
+    [onChange, value],
+  );
+
+  const maskSuffix = getMaskSuffix(value);
+  const showMask = focused && maskSuffix.length > 0;
+  const maskParts = splitMaskSuffix(maskSuffix);
+  return (
+    <div style={{ position: 'relative' }}>
+      <FloatingLabelInput
+        ref={inputRef}
+        label="Birthday"
+        value={value}
+        className={className}
+        disabled={disabled}
+        maxLength={14}
+        inputMode="numeric"
+        invalid={invalid}
+        onChange={handleChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={showMask ? { caretColor: 'transparent' } : undefined}
+        {...rest}
+      />
+      {showMask && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 calc(var(--floating-input-gutter) + 1px)',
+            pointerEvents: 'none',
+            font: 'inherit',
+            fontSize: '1rem',
+            lineHeight: '1.5rem',
+            zIndex: 2,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Invisible spacer matching width of typed text */}
+          <span style={{ visibility: 'hidden', whiteSpace: 'pre' }}>
+            {value}
+          </span>
+          {/* Separator before the active segment (gray) */}
+          {maskParts.before && (
+            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
+              {maskParts.before}
+            </span>
+          )}
+          {/* Active segment placeholder (accent highlight) */}
+          {maskParts.highlight && (
+            <span
+              style={{
+                backgroundColor: 'var(--color-background-primary-solid)',
+                color: 'white',
+                whiteSpace: 'pre',
+                borderRadius: '3px',
+                padding: '1px 1px',
+              }}
+            >
+              {maskParts.highlight}
+            </span>
+          )}
+          {/* Remaining mask text after active segment (gray) */}
+          {maskParts.after && (
+            <span style={{ color: 'var(--color-text-tertiary)', whiteSpace: 'pre' }}>
+              {maskParts.after}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function BirthdayExample() {
+  const [birthday, setBirthday] = useState('');
+  const [invalid] = useState(false);
+  const [disabled] = useState(false);
+  const [readOnly] = useState(false);
+
+  return (
+    <div className="w-full min-w-0 max-w-[360px]">
+      <BirthdayMaskedInput value={birthday} onChange={setBirthday}
+        invalid={invalid} disabled={disabled} readOnly={readOnly} />
+    </div>
+  );
+}`
+
+export const statesCode = `import { useState } from 'react';
+import { FloatingLabelInput } from '@plexui/ui/components/FloatingLabelInput';
+
+export default function InputStatesExample() {
+  const [value, setValue] = useState('');
+  const [invalid] = useState(false);
+  const [errorMessage] = useState(false);
+  const [description] = useState(false);
+  const [disabled] = useState(false);
+  const [readOnly] = useState(false);
+
+  return (
+    <div className="w-full min-w-0 max-w-[360px]">
+      <FloatingLabelInput
+        label="Email address"
+        value={value}
+        onChange={(evt) => setValue(evt.target.value)}
+        invalid={invalid || errorMessage}
+        errorMessage={errorMessage ? 'Email is not valid.' : undefined}
+        description={description ? "We'll never share your email with anyone else." : undefined}
+        disabled={disabled}
+        readOnly={readOnly}
+      />
+    </div>
+  );
+}`
 
 <UsageBlock>{`import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput";`}</UsageBlock>
 
@@ -39,19 +251,19 @@ import {
   <div className="text-sm text-secondary max-sm:hidden">Empty</div>
   <div className="text-sm text-secondary max-sm:hidden">Filled</div>
   <div className="text-sm">
-    Label on the border
+    <div>Label on the border</div>
     <div className="text-secondary">Pill</div>
   </div>
   <FloatingLabelInput label="Email address" />
   <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
   <div className="text-sm">
-    Label on the border
+    <div>Label on the border</div>
     <div className="text-secondary">Rounded box</div>
   </div>
   <FloatingLabelInput label="Email address" pill={false} />
   <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
   <div className="text-sm">
-    Label inside
+    <div>Label inside</div>
     <div className="text-secondary">Rounded box</div>
   </div>
   <FloatingLabelInput label="Email address" labelPlacement="inside" />
@@ -62,19 +274,19 @@ import {
     <div className="text-sm text-secondary max-sm:hidden">Empty</div>
     <div className="text-sm text-secondary max-sm:hidden">Filled</div>
     <div className="text-sm">
-      Label on the border
+      <div>Label on the border</div>
       <div className="text-secondary">Pill</div>
     </div>
     <FloatingLabelInput label="Email address" />
     <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
     <div className="text-sm">
-      Label on the border
+      <div>Label on the border</div>
       <div className="text-secondary">Rounded box</div>
     </div>
     <FloatingLabelInput label="Email address" pill={false} />
     <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" pill={false} />
     <div className="text-sm">
-      Label inside
+      <div>Label inside</div>
       <div className="text-secondary">Rounded box</div>
     </div>
     <FloatingLabelInput label="Email address" labelPlacement="inside" />
@@ -156,16 +368,13 @@ const formatted = formatSSN(rawDigits)
   <FloatingLabelInputSSNDemo />
 </ComponentPreview>
 
+<span id="birthday-states" />
+
 #### Birthday input
 
-<ComponentPreview details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). <code>formatBirthdayValue</code> is a plain helper function of the example.</>} code={`const [birthday, setBirthday] = useState("")
+Choose Empty or Filled to replace the date with a preset. The invalid, disabled and readOnly controls preserve the date you entered. Invalid demonstrates styling; the next example validates the date.
 
-<FloatingLabelInput
-  label="Birthday"
-  value={birthday}
-  maxLength={14}
-  onChange={(evt) => setBirthday(formatBirthdayValue(evt.target.value))}
-/>`} previewMinHeight={168}>
+<ComponentPreview details={<>A date-of-birth input with an inline <code>MM / DD / YYYY</code> mask. The copied example includes its formatting and mask helpers.</>} code={birthdayCode} previewMinHeight={168}>
   <FloatingLabelInputBirthdayDemo />
 </ComponentPreview>
 
@@ -181,29 +390,6 @@ const formatted = formatSSN(rawDigits)
   errorMessage={birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined}
 />`} previewMinHeight={168}>
   <FloatingLabelInputBirthdayValidationDemo />
-</ComponentPreview>
-
-#### Birthday states
-
-<ComponentPreview details={<>Overview of birthday input states.</>} code={`<div className="flex flex-col items-center gap-8 py-8">
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Birthday" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Birthday" defaultValue="01 / 15 / 1995" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Birthday" defaultValue="02 / 30 / 2001" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Birthday" defaultValue="01 / 15 / 1995" className="w-[320px]" />
-  </div>
-</div>`} previewMinHeight={168}>
-  <FloatingLabelInputBirthdayStatesDemo />
 </ComponentPreview>
 
 #### Phone input
@@ -367,68 +553,20 @@ const trigger = useCallback(
   <FloatingLabelSelectCountryDemo />
 </ComponentPreview>
 
+<span id="filled-state" />
+<span id="with-error-message" />
+<span id="with-description" />
+<span id="with-description-and-error" />
+<span id="disabled" />
+<span id="read-only" />
+<span id="all-states" />
+
 ### States
 
-The states every field shares, whatever its type.
+Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied.
 
-#### Filled state
-
-<ComponentPreview details={<>When the input has a value, the label stays floated above the input.</>} code={`<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" />
-  </div>
-</ComponentPreview>
-
-#### With error message
-
-<ComponentPreview details={<>Use the <code>errorMessage</code> prop to display a validation error below the input. When <code>errorMessage</code> is provided, the input automatically enters the invalid state.</>} code={`<FloatingLabelInput
-  label="Email address"
-  defaultValue="jane.doe@example"
-  invalid
-  errorMessage="Email is not valid."
-/>`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput
-      label="Email address"
-      defaultValue="jane.doe@example"
-      invalid
-      errorMessage="Email is not valid."
-    />
-  </div>
-</ComponentPreview>
-
-#### With description
-
-<ComponentPreview details={<>Use the <code>description</code> prop to display helper text below the input.</>} code={`<FloatingLabelInput
-  label="Email address"
-  description="We'll never share your email with anyone else."
-/>`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput
-      label="Email address"
-      description="We'll never share your email with anyone else."
-    />
-  </div>
-</ComponentPreview>
-
-#### With description and error
-
-<ComponentPreview details={<>When both <code>description</code> and <code>errorMessage</code> are provided, the error appears first (closest to the input), followed by the description.</>} code={`<FloatingLabelInput
-  label="Email address"
-  defaultValue="jane.doe@example"
-  invalid
-  errorMessage="Email is not valid."
-  description="We'll never share your email with anyone else."
-/>`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput
-      label="Email address"
-      defaultValue="jane.doe@example"
-      invalid
-      errorMessage="Email is not valid."
-      description="We'll never share your email with anyone else."
-    />
-  </div>
+<ComponentPreview code={statesCode} previewMinHeight={168}>
+  <FloatingLabelInputStatesDemo />
 </ComponentPreview>
 
 #### Clear button
@@ -442,68 +580,6 @@ The states every field shares, whatever its type.
   onClear={() => setValue("")}
 />`} previewMinHeight={168}>
   <FloatingLabelInputWithClearButtonDemoWithControls />
-</ComponentPreview>
-
-#### Disabled
-
-<ComponentPreview details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={`<FloatingLabelInput label="Email address" defaultValue="disabled@example.com" disabled />`} previewMinHeight={168}>
-  <FloatingLabelInputDisabledDemoWithControls />
-</ComponentPreview>
-
-#### Read only
-
-<ComponentPreview details={<>Use the <code>readOnly</code> prop to make the input read-only. The user can still select and copy the text.</>} code={`<FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" readOnly />`} previewMinHeight={168}>
-  <div className="w-[360px]">
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@example.com" readOnly />
-  </div>
-</ComponentPreview>
-
-#### All states
-
-<ComponentPreview details={<>Overview of all input states.</>} code={`<div className="flex flex-col items-center gap-8 py-8">
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-    <FloatingLabelInput label="Email address" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-    <FloatingLabelInput label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-    <FloatingLabelInput invalid label="Email address" defaultValue="invalid@email" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-    <FloatingLabelInput disabled label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-  </div>
-  <div className="flex items-center">
-    <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-    <FloatingLabelInput readOnly label="Email address" defaultValue="readonly@gmail.com" className="w-[320px]" />
-  </div>
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col items-center gap-8 py-8">
-    <div className="flex items-center">
-      <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Empty</div>
-      <FloatingLabelInput label="Email address" className="w-[320px]" />
-    </div>
-    <div className="flex items-center">
-      <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Filled</div>
-      <FloatingLabelInput label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-    </div>
-    <div className="flex items-center">
-      <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Invalid</div>
-      <FloatingLabelInput invalid label="Email address" defaultValue="invalid@email" className="w-[320px]" />
-    </div>
-    <div className="flex items-center">
-      <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Disabled</div>
-      <FloatingLabelInput disabled label="Email address" defaultValue="jane.doe@gmail.com" className="w-[320px]" />
-    </div>
-    <div className="flex items-center">
-      <div className="text-right text-secondary text-sm mr-8 min-w-[5rem]">Read only</div>
-      <FloatingLabelInput readOnly label="Email address" defaultValue="readonly@gmail.com" className="w-[320px]" />
-    </div>
-  </div>
 </ComponentPreview>
 
 ## API

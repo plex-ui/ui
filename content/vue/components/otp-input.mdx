@@ -6,48 +6,54 @@ metaDescription: Vue 3 OTP input component for one-time password and verificatio
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 
-export const overview = `<OTPInput v-model:value="value" />`
+export const overview = `<OTPInput
+  v-model:value="value"
+  :invalid="error"
+  :error-message="error ? 'Invalid verification code.' : undefined"
+  :disabled="disabled"
+/>`
 
-export const filled = `<OTPInput v-model:value="value" />`
+export const overviewControls = [
+  { name: "value", label: "preset", type: "select", options: [{ value: "", label: "Empty" }, { value: "488030", label: "Filled" }], default: "" },
+  { name: "error", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+]
+
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { OTPInput } from '@plexui/vue/components/OTPInput';
+
+const value = ref('');
+const error = ref(false);
+const disabled = ref(false);
+</script>
+
+<template>
+${overview}
+</template>`
 
 export const grouped = `<OTPInput v-model:value="value" :grouping="[3, 3]" />`
-
-export const error = `<OTPInput v-model:value="value" invalid error-message="Invalid verification code." />`
-
-export const disabled = `<OTPInput value="488030" disabled />`
 
 <UsageBlock>{`import { OTPInput } from "@plexui/vue/components/OTPInput";`}</UsageBlock>
 
 ## Examples
 
+<span id="filled-state" />
+<span id="with-error" />
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo template={overview} stageClassName="py-10 flex justify-center" state={{ value: "" }} />
-</ComponentPreview>
+Choose Empty or Filled to replace the current code with a preset. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
 
-### Filled state
-
-<ComponentPreview language="vue" code={filled} previewMinHeight={168}>
-  <VueDemo template={filled} stageClassName="py-10 flex justify-center" state={{ value: "488030" }} />
+<ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
+  <VueDemo template={overview} controls={overviewControls} stageClassName="py-10 flex justify-center" />
 </ComponentPreview>
 
 ### Grouped (3+3)
 
 <ComponentPreview language="vue" code={grouped} previewMinHeight={168}>
   <VueDemo template={grouped} stageClassName="py-10 flex justify-center" state={{ value: "" }} />
-</ComponentPreview>
-
-### With error
-
-<ComponentPreview language="vue" code={error} previewMinHeight={168}>
-  <VueDemo template={error} stageClassName="py-10 flex justify-center" state={{ value: "48803" }} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} stageClassName="py-10 flex justify-center" />
 </ComponentPreview>
 
 ## API

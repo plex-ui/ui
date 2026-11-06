@@ -84,17 +84,38 @@ export const vertical = `<Slider
   orientation="vertical"
 />`
 
-export const disabled = `<div style="width: 300px">
-  <Slider label="Disabled" :min="0" :max="100" :step="1" :value="50" disabled />
-</div>`
+export const overviewCode = `<script setup lang="ts">
+import { ref } from 'vue';
+import { Slider } from '@plexui/vue/components/Slider';
+
+const value = ref(1000);
+const disabled = ref(false);
+</script>
+
+<template>
+<div style="width: 300px">
+  <Slider
+    label="Example field"
+    :min="0"
+    :max="2000"
+    :reset-value="1000"
+    :step="10"
+    unit="ms"
+    v-model:value="value"
+    :disabled="disabled"
+  />
+</div>
+</template>`
 
 <UsageBlock>{`import { Slider } from "@plexui/vue/components/Slider";`}</UsageBlock>
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+<ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
   <VueDemo template={overview} state={{ value: 1000 }} controls={[{ name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
@@ -126,12 +147,6 @@ export const disabled = `<div style="width: 300px">
 
 <ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to render a vertical slider. Marks are not supported in vertical orientation.</>} code={vertical} previewMinHeight={280}>
   <VueDemo template={vertical} stageClassName={stage} state={{ value: 50 }} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" details={<>Set <code>disabled</code> to prevent interaction with the slider.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} stageClassName={stage} />
 </ComponentPreview>
 
 ## API

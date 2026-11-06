@@ -32,8 +32,10 @@
   transition: border-color var(--floating-input-transition-duration) ease-in-out;
 }
 
-.Cell:hover:not([data-disabled]) {
-  border-color: var(--floating-input-border-color-hover);
+@media (hover: hover) and (pointer: fine) {
+  .Cell:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) {
+    border-color: var(--floating-input-border-color-hover);
+  }
 }
 
 .CellFocused {
@@ -85,7 +87,15 @@
 }
 
 .ErrorMessage {
-  margin-top: var(--field-error-margin-top);
+  margin-top: var(--mobile-field-error-offset, var(--field-error-margin-top));
+}
+
+@media (max-width: 767px) {
+  .ErrorMessage {
+    --mobile-field-error-icon-display: none;
+    --field-error-text-align: center;
+    --field-error-content-justify: center;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

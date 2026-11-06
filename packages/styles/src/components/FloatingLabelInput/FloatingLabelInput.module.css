@@ -25,8 +25,10 @@
   transition: border-color var(--floating-input-transition-duration) ease-in-out;
 }
 
-.FieldFootprint:hover:not([data-disabled]) {
-  border-color: var(--input-state-color, var(--floating-input-border-color-hover));
+@media (hover: hover) and (pointer: fine) {
+  .FieldFootprint:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) {
+    border-color: var(--input-state-color, var(--floating-input-border-color-hover));
+  }
 }
 
 .FieldFootprint[data-focused] {
@@ -130,6 +132,7 @@
 
 /* Input element */
 .Input {
+  min-width: var(--floating-input-control-min-width, auto);
   background-color: transparent;
   outline: none;
   border: 0;
@@ -159,6 +162,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  width: var(--floating-input-clear-size, 1em);
+  height: var(--floating-input-clear-size, 1em);
   padding: 0;
   margin: 0;
   border: none;
@@ -171,8 +177,10 @@
   transition: color 150ms ease;
 }
 
-.ClearButton:hover {
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .ClearButton:hover:where(:not(:root[data-input="touch"] *)) {
+    color: var(--color-text);
+  }
 }
 
 /* Password reveal toggle — circular ghost button hugging the right edge */
@@ -181,8 +189,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: var(--floating-input-reveal-size, 32px);
+  height: var(--floating-input-reveal-size, 32px);
   margin: 0 -10px 0 0;
   padding: 0;
   border: none;
@@ -198,9 +206,11 @@
     background-color 150ms ease;
 }
 
-.RevealButton:hover {
-  color: var(--color-text);
-  background-color: var(--color-background-secondary-ghost-hover);
+@media (hover: hover) and (pointer: fine) {
+  .RevealButton:hover:where(:not(:root[data-input="touch"] *)) {
+    color: var(--color-text);
+    background-color: var(--color-background-secondary-ghost-hover);
+  }
 }
 
 /* End adornment slot */
@@ -213,11 +223,11 @@
 }
 
 .ErrorMessage {
-  color: var(--field-error-color);
-  font-size: var(--field-error-font-size);
-  line-height: var(--field-error-line-height);
-  margin-top: 0.25rem;
-  padding-inline-start: var(--floating-input-gutter);
+  /* Keep the desktop text-only error; mobile row context controls its icon. */
+  --field-error-icon-display: none;
+  --field-error-margin-bottom: 0px;
+  --field-error-padding-inline: var(--floating-input-gutter);
+  margin-top: var(--mobile-field-error-offset, 0.25rem);
 }
 
 .Description {
@@ -259,6 +269,7 @@
 }
 
 .Textarea {
+  min-width: var(--floating-input-control-min-width, auto);
   background-color: transparent;
   outline: none;
   border: 0;

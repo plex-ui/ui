@@ -24,22 +24,50 @@ export const CopyTooltip = defineComponent({
   },
   emits: {
     /** The clipboard write settled; `copied` says whether it succeeded (React's `onCopy`). */
-    copy: (_copied: boolean) => true,
+    copy: (copied: boolean) => typeof copied === "boolean",
   },
   setup(props, { slots, emit }) {
     const open = ref(false)
     const copied = ref(false)
     let copiedTimer: ReturnType<typeof setTimeout> | undefined
     let mounted = true
+    let copyGeneration = 0
+    let stopPendingDismissListeners: (() => void) | undefined
+
+    const cancelFeedback = () => {
+      copyGeneration += 1
+      stopPendingDismissListeners?.()
+      stopPendingDismissListeners = undefined
+      clearTimeout(copiedTimer)
+    }
 
     const copy = async () => {
-      // "Copied!" follows the clipboard: a failed write keeps the tooltip as it was
+      cancelFeedback()
+      // Success belongs to the completed attempt, not a new pending write.
+      copied.value = false
+      const generation = copyGeneration
+      // A touch copy can start while closed, before TooltipContent installs its
+      // dismissal listeners. Scrolling or Escape still cancels pending feedback.
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") cancelFeedback()
+      }
+      document.addEventListener("scroll", cancelFeedback, true)
+      document.addEventListener("keydown", onKeyDown, true)
+      stopPendingDismissListeners = () => {
+        document.removeEventListener("scroll", cancelFeedback, true)
+        document.removeEventListener("keydown", onKeyDown, true)
+      }
+      // "Copied!" follows the latest successful clipboard write
       const succeeded = await copyText(props.copyValue)
       if (!mounted) return
       emit("copy", succeeded)
+      if (generation !== copyGeneration) return
+      stopPendingDismissListeners?.()
+      stopPendingDismissListeners = undefined
       if (!succeeded) return
 
       copied.value = true
+      open.value = true
 
       // Persist the copied state for a second, then close
       clearTimeout(copiedTimer)
@@ -50,10 +78,12 @@ export const CopyTooltip = defineComponent({
 
     onBeforeUnmount(() => {
       mounted = false
+      stopPendingDismissListeners?.()
       clearTimeout(copiedTimer)
     })
 
     const handleOpenChange = (nextState: boolean) => {
+      if (!nextState) cancelFeedback()
       // When opening, ensure timer and copied state are cleared
       if (nextState) {
         clearTimeout(copiedTimer)
@@ -70,31 +100,24 @@ export const CopyTooltip = defineComponent({
           "open": open.value,
           "onUpdate:open": handleOpenChange,
           "delayDuration": props.openDelay,
-          "disableHoverableContent": false,
+          "disableHoverableContent": copied.value,
         },
         {
           default: () => [
             h(
               TooltipTrigger,
               {
-                onPointerdown: (evt: PointerEvent) => {
-                  // Prevent tooltip listeners from closing
-                  evt.preventDefault()
-                  evt.stopPropagation()
-
-                  // Copy the value
-                  copy()
-                },
-                // Prevent default behavior of closing on click from this handler
                 onClick: (evt: MouseEvent) => {
+                  // Activate after a completed tap, not when a scrolling gesture starts.
+                  // Keep the tooltip's click listener from closing the copy feedback.
                   evt.preventDefault()
                   evt.stopPropagation()
+                  copy()
                 },
                 // Keyboard users copy with Enter or Space, like a click
                 onKeydown: (evt: KeyboardEvent) => {
                   if (evt.key === "Enter" || evt.key === " ") {
                     evt.preventDefault()
-                    open.value = true
                     copy()
                   }
                 },
@@ -113,7 +136,7 @@ export const CopyTooltip = defineComponent({
                 side: props.side,
                 sideOffset: props.sideOffset,
                 collisionPadding: 15,
-                onPointerdown: copy,
+                onClick: copy,
               },
               {
                 default: () =>

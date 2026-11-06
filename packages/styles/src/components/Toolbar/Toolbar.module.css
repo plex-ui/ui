@@ -1,0 +1,395 @@
+/* A phone toolbar. A desktop layout has its own composition, so the toolbar never renders there. */
+.Toolbar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .Toolbar {
+    --toolbar-item-size: var(--toolbar-top-item-size);
+    --toolbar-item-gap: var(--toolbar-top-item-gap);
+    --toolbar-edge-blur: var(--toolbar-edge-blur-small);
+    --navigation-button-size: var(--toolbar-item-size);
+    position: relative;
+    z-index: 5;
+    display: grid;
+    flex: none;
+    grid-template-areas: "leading heading trailing";
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+    align-items: center;
+    min-width: 0;
+    padding: var(--toolbar-padding-top, 0px) var(--toolbar-gutter) var(--toolbar-padding-bottom) var(--toolbar-gutter);
+    color: var(--color-text);
+
+    /* Soft scroll edge: the canvas color fades out over the content, which shows only once content
+       is under the bar. It reaches 16px past the bar, as the reference effect does. */
+    &::before {
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 -16px;
+      background: var(--toolbar-background, var(--dialog-panel-background, var(--page-background)));
+      -webkit-backdrop-filter: blur(var(--toolbar-edge-blur));
+      backdrop-filter: blur(var(--toolbar-edge-blur));
+      content: "";
+      -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+      mask-image: linear-gradient(to bottom, #000, transparent);
+      pointer-events: none;
+    }
+
+    &[data-background="solid"]::before {
+      inset: 0;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+
+  .Toolbar[data-placement="bottom"] {
+    --toolbar-item-size: var(--toolbar-bottom-item-size);
+    --toolbar-item-gap: var(--toolbar-bottom-item-gap);
+    grid-template-areas: "leading content trailing";
+    padding: var(--toolbar-bottom-padding-top) var(--toolbar-bottom-gutter) var(--toolbar-bottom-padding-bottom);
+
+    &::before {
+      inset: -16px 0 0;
+      -webkit-mask-image: linear-gradient(to top, #000, transparent);
+      mask-image: linear-gradient(to top, #000, transparent);
+    }
+
+    &[data-background="solid"]::before {
+      inset: 0;
+    }
+  }
+
+  /* A single wide action (Apps 2.4 Fullsize) leaves 12px above it. */
+  .Toolbar[data-placement="bottom"]:has(> .Content[data-fill] > :where(button, a)) {
+    --toolbar-edge-blur: var(--toolbar-edge-blur-large);
+    padding-top: var(--toolbar-bottom-fill-padding-top);
+  }
+
+  /* Apps 2.4 Toolbar Search: a flat bar of the canvas color, 14px below the field. */
+  .Toolbar[data-placement="top"]:has(> .Content[data-fill]) {
+    --toolbar-padding-bottom: var(--toolbar-search-padding-bottom);
+
+    &:not([data-background="solid"])::before {
+      inset: 0;
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) var(--toolbar-flat-opacity), transparent);
+      -webkit-backdrop-filter: blur(var(--toolbar-flat-blur));
+      backdrop-filter: blur(var(--toolbar-flat-blur));
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+
+  /* Leading alignment, compact titles and filled content share one row from the start edge. */
+  .Toolbar:is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"]),
+  .Toolbar:has(> .Content[data-fill]) {
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    column-gap: var(--toolbar-item-gap);
+  }
+
+  .Toolbar:has(> .Content[data-fill]) {
+    grid-template-areas: "leading content trailing";
+  }
+
+  .Toolbar:is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"]):not(:has(> .Leading)),
+  .Toolbar:has(> .Content[data-fill]):not(:has(> .Leading)) {
+    grid-template-areas: "heading trailing";
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+
+  .Toolbar:has(> .Content[data-fill]):not(:has(> .Leading)) {
+    grid-template-areas: "content trailing";
+  }
+
+  .Toolbar:has(> .Content[data-fill]):not(:has(> .Leading)):not(:has(> .Trailing)) {
+    grid-template-areas: "content";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Large title: the controls stay in their own row and the title sits below it. */
+  .Toolbar[data-title-style="large"] {
+    --toolbar-edge-blur: var(--toolbar-edge-blur-large);
+    grid-template-areas:
+      "leading . trailing"
+      "heading heading heading";
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    row-gap: var(--toolbar-large-title-gap);
+  }
+
+  .Toolbar:is([data-title-style="compact-large"], [data-title-style="compact-medium"]),
+  .Toolbar:has(> .Heading > .Subtitle) {
+    --toolbar-edge-blur: var(--toolbar-edge-blur-large);
+  }
+
+  .Leading,
+  .Trailing,
+  .Group {
+    display: flex;
+    align-items: center;
+    gap: var(--toolbar-item-gap);
+    min-width: 0;
+    min-height: var(--toolbar-item-size);
+  }
+
+  .Leading {
+    grid-area: leading;
+    justify-self: start;
+  }
+
+  .Trailing {
+    grid-area: trailing;
+    justify-content: flex-end;
+    justify-self: end;
+  }
+
+  .Content {
+    display: flex;
+    grid-area: heading;
+    align-items: center;
+    justify-content: center;
+    gap: var(--toolbar-item-gap);
+    min-width: 0;
+    min-height: var(--toolbar-item-size);
+
+    &[data-fill] {
+      grid-area: content;
+      justify-content: stretch;
+
+      & > * {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+    }
+  }
+
+  .Toolbar[data-placement="bottom"] > .Content:not([data-fill]) {
+    grid-area: content;
+  }
+
+  /* Several buttons in one capsule (iOS 26 kit Buttons Top and Bottom: 2 to 6 Symbols). The capsule
+     carries the shared mobile glass; the buttons inside it stay clear. */
+  .Group {
+    gap: var(--toolbar-group-gap);
+    padding-inline: var(--toolbar-group-padding);
+    border-radius: var(--radius-full);
+    background-color: var(--mobile-glass-background);
+    background-image: var(--mobile-glass-sheen);
+    box-shadow: var(--mobile-glass-shadow);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+    & > :where(button, a) {
+      --mobile-glass-background: transparent;
+      --mobile-glass-sheen: none;
+      --mobile-glass-background-hover: var(--toolbar-group-item-hover);
+      --mobile-glass-background-active: var(--toolbar-group-item-active);
+      --mobile-glass-shadow: none;
+      --mobile-glass-backdrop-filter: none;
+    }
+  }
+
+  .Toolbar[data-placement="bottom"] .Group {
+    --toolbar-group-gap: var(--toolbar-bottom-group-gap);
+    --toolbar-group-padding: var(--toolbar-bottom-group-padding);
+  }
+
+  /* No shadow at rest: the glass casts one once content has scrolled under the bar. */
+  .Toolbar[data-scrolled] {
+    --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
+  }
+
+  /* The extra class outweighs the sizes of Button itself, whatever order the style sheets load in. */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a) {
+    --button-size: var(--toolbar-item-size);
+    --button-uniform-size: var(--toolbar-item-size);
+    --button-radius: var(--radius-full);
+    --button-font-size: var(--toolbar-label-font-size);
+    --button-line-height: var(--toolbar-label-line-height);
+    --button-font-weight: var(--toolbar-label-font-weight);
+  }
+
+  /* iOS 26 kit: a symbol is set at 17pt in a 36pt frame, about 20px of ink, in both bars. */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action]) {
+    --button-icon-size: var(--toolbar-icon-size);
+  }
+
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action], [data-uniform]) {
+    --button-gutter: var(--toolbar-label-gutter);
+  }
+
+  .Toolbar[data-placement="bottom"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-navigation-action], [data-uniform]) {
+    --button-gutter: var(--toolbar-bottom-label-gutter);
+  }
+
+  :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-mobile-material-background: var(--mobile-glass-background);
+    --button-mobile-material-sheen: var(--mobile-glass-sheen);
+    --button-mobile-material-shadow: var(--mobile-glass-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+    --button-mobile-material-hover: var(--mobile-glass-background-hover);
+    --button-mobile-material-active: var(--mobile-glass-background-active);
+  }
+
+  /* A search field (iOS 26 kit Search Top and Bottom): the row height and the glass of the bar buttons.
+     The extra attribute outweighs the field's own focus and hover outlines, which a bar does not draw. */
+  .Toolbar :is(.Leading, .Trailing, .Content) > [data-slot="input"][data-variant] {
+    --input-size: var(--toolbar-item-size);
+    --input-font-size: var(--toolbar-label-font-size);
+    --input-gutter: var(--toolbar-search-gutter);
+    --input-gap: var(--toolbar-search-icon-gap);
+    --input-adornment-offset: 0px;
+    --control-gutter-pill-scaling: 1;
+    --input-soft-background-color: var(--mobile-glass-background);
+    --input-placeholder-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    border-radius: var(--radius-full);
+    background-image: var(--mobile-glass-sheen);
+    box-shadow: var(--mobile-glass-shadow);
+    font-weight: var(--toolbar-label-font-weight);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+
+    & > svg {
+      flex: none;
+      width: var(--toolbar-search-icon-size);
+      height: var(--toolbar-search-icon-size);
+    }
+  }
+
+  /* Title: SF text ink sits 2px below the geometric center of the 44px row. */
+  .Heading {
+    display: flex;
+    grid-area: heading;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: var(--toolbar-item-size);
+    text-align: center;
+    transform: translateY(2px);
+  }
+
+  .Title {
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--toolbar-title-font-size);
+    font-weight: var(--toolbar-title-font-weight);
+    line-height: var(--toolbar-title-line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .Subtitle {
+    max-width: 100%;
+    margin: -2px 0 0;
+    overflow: hidden;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: var(--toolbar-subtitle-font-size);
+    font-weight: var(--toolbar-subtitle-font-weight);
+    line-height: var(--toolbar-subtitle-line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Two lines: title 15/20 at 6px, subtitle 12/16 below it. */
+  .Heading:has(> .Subtitle) {
+    transform: translateY(1px);
+
+    & > .Title {
+      font-size: var(--toolbar-title-compact-font-size);
+      line-height: var(--toolbar-title-compact-line-height);
+    }
+  }
+
+  .Toolbar:is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"], [data-title-style="large"]) > .Heading {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .Toolbar[data-title-style="large"] > .Heading {
+    min-height: 0;
+    transform: none;
+
+    & > .Title {
+      font-size: var(--toolbar-large-title-font-size);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--toolbar-large-title-line-height);
+    }
+
+    & > .Subtitle {
+      margin: 0;
+      font-size: var(--toolbar-large-subtitle-font-size);
+      font-weight: var(--font-weight-normal);
+      line-height: var(--toolbar-large-subtitle-line-height);
+    }
+  }
+
+  .Toolbar[data-title-style="compact-large"] > .Heading {
+    align-self: start;
+    min-height: 0;
+    transform: none;
+
+    & > .Title {
+      font-size: var(--toolbar-large-title-font-size);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--toolbar-large-title-line-height);
+    }
+  }
+
+  .Toolbar[data-title-style="compact-medium"] > .Heading {
+    transform: none;
+
+    & > .Title {
+      font-size: var(--toolbar-medium-title-font-size);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--toolbar-medium-title-line-height);
+    }
+  }
+
+  /* Hosts: a Page puts the top bar over its content under the status bar, a Sheet below its grabber. */
+  .Toolbar[data-host="page"][data-placement="top"] {
+    --toolbar-padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+    position: absolute;
+    inset: 0 0 auto;
+  }
+
+  .Toolbar[data-host="dialog"][data-placement="top"] {
+    --toolbar-background: var(--dialog-panel-background);
+    --toolbar-padding-top: var(--toolbar-sheet-padding-top);
+    /* The panel radius is a shorthand (top corners only for a Sheet), so it goes to the shorthand too:
+       a longhand would drop it and leave square corners that smear the Sheet's rounded top. */
+    border-radius: var(--dialog-panel-radius, 0px);
+
+    &::before {
+      border-radius: inherit;
+    }
+
+    /* Grabber (iOS 26 kit Grabber: 36 × 5 at 5px). */
+    &::after {
+      position: absolute;
+      top: 5px;
+      left: calc(50% - 18px);
+      width: 36px;
+      height: 5px;
+      border-radius: var(--radius-full);
+      background: var(--mobile-grabber-color, var(--color-background-secondary-soft-alpha));
+      content: "";
+    }
+  }
+
+  :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
+    --toolbar-padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .Toolbar[data-host="dialog"][data-placement="bottom"] {
+    --toolbar-background: var(--dialog-panel-background);
+  }
+}

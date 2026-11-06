@@ -1,0 +1,186 @@
+---
+title: Toolbar
+description: "The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+metaDescription: "React phone toolbar in the iOS 26 style: top and bottom bars with navigation buttons, inline, large and compact titles, a search field and button groups, for pages and sheets."
+---
+
+import {
+  ToolbarOverviewDemo,
+  ToolbarTitlesDemo,
+  ToolbarGroupDemo,
+  ToolbarSearchDemo,
+  ToolbarBottomDemo,
+  ToolbarSheetDemo,
+} from "@/components/docs/ToolbarDemos"
+
+<UsageBlock>{`import { Toolbar } from "@plexui/ui/components/Toolbar";`}</UsageBlock>
+
+## Examples
+
+Toolbar is a phone component: under 768px it renders, from 768px up it takes no space. Each example shows the phone view.
+
+### Overview
+
+<ComponentPreview phoneOnly details={<>Leading and trailing items take 44px targets; the title is centered across the whole width. Scroll the content: the canvas color fades out over the rows under the bar, and the glass starts to cast a shadow.</>} code={`<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Leading>
+      <NavigationButton action="back" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Orders</Toolbar.Title>
+    <Toolbar.Trailing>
+      <NavigationButton action="close" />
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+</Page>`}>
+  <ToolbarOverviewDemo />
+</ComponentPreview>
+
+### Titles
+
+<ComponentPreview phoneOnly details={<><code>titleStyle</code> sets the size and place of the title: <code>inline</code> in the row of controls, <code>large</code> on a row of its own below them, and <code>compact-large</code> or <code>compact-medium</code> at the leading edge of the row. <code>subtitle</code> adds a second line. <code>titleAlign="start"</code> puts an inline title after the leading items.</>} code={`<Toolbar titleStyle="large">
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
+  <Toolbar.Trailing>
+    <NavigationButton action="confirm" />
+  </Toolbar.Trailing>
+</Toolbar>`}>
+  <ToolbarTitlesDemo />
+</ComponentPreview>
+
+### Group
+
+<ComponentPreview phoneOnly details={<><code>Toolbar.Group</code> puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with <code>aria-label</code>.</>} code={`<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="close" />
+  </Toolbar.Leading>
+  <Toolbar.Trailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
+    <Toolbar.Group aria-label="Order actions">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+    </Toolbar.Group>
+  </Toolbar.Trailing>
+</Toolbar>`}>
+  <ToolbarGroupDemo />
+</ComponentPreview>
+
+### Search
+
+<ComponentPreview phoneOnly details={<><code>Toolbar.Content fill</code> stretches a search field between the leading and trailing items. The field takes the row height and the material of the bar buttons.</>} code={`<Toolbar>
+  <Toolbar.Content fill>
+    <Input variant="soft" pill placeholder="Search" aria-label="Search orders" startAdornment={<Search />} />
+  </Toolbar.Content>
+  <Toolbar.Trailing>
+    <NavigationButton action="close" aria-label="Close search" />
+  </Toolbar.Trailing>
+</Toolbar>`}>
+  <ToolbarSearchDemo />
+</ComponentPreview>
+
+### Bottom
+
+<ComponentPreview phoneOnly details={<><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>Toolbar.Content</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The page content scrolls under both bars.</>} code={`<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Title>Orders</Toolbar.Title>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+  <Toolbar placement="bottom">
+    <Toolbar.Leading>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+    </Toolbar.Leading>
+    <Toolbar.Content>
+      <Button color="primary" pill>New order</Button>
+    </Toolbar.Content>
+    <Toolbar.Trailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+    </Toolbar.Trailing>
+  </Toolbar>
+</Page>
+
+<Toolbar placement="bottom">
+  <Toolbar.Content fill>
+    <Button color="primary" pill block><Plus /> New order</Button>
+  </Toolbar.Content>
+</Toolbar>`}>
+  <ToolbarBottomDemo />
+</ComponentPreview>
+
+### Sheet
+
+<ComponentPreview phoneOnly phoneDialog details={<>In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>Dialog.Header</code> with <code>Dialog.Title</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={`<Dialog.Content mobileVariant="sheet" surface="grouped">
+  <Toolbar>
+    <Toolbar.Leading>
+      <Dialog.Close>
+        <NavigationButton action="close" />
+      </Dialog.Close>
+    </Toolbar.Leading>
+    <Toolbar.Title>Orders</Toolbar.Title>
+  </Toolbar>
+  <Dialog.Header>
+    <Dialog.Title>Orders</Dialog.Title>
+  </Dialog.Header>
+  <Dialog.Body>...</Dialog.Body>
+</Dialog.Content>`}>
+  <ToolbarSheetDemo />
+</ComponentPreview>
+
+## Hosts
+
+A toolbar places itself by its parent:
+
+- In `Page`, the top bar covers the content below the device's top safe area, and `Page.Content` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `Page.Header` and a bottom toolbar replaces `Page.Footer`, so one page can keep its desktop header and its phone toolbar side by side.
+- In a `Dialog` Sheet, the top bar starts with the grabber, hides the Sheet's own bar and Close button, and leaves `Dialog.Header` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `Dialog.Footer`.
+
+Put the Back button of a phone screen in the toolbar only. A desktop layout shows its own navigation, such as a sidebar or breadcrumbs.
+
+## API
+
+### Toolbar
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `placement` | `"top" \| "bottom"` | `"top"` | Top bar with 44px targets, or bottom bar with 48px targets |
+| `titleStyle` | `"inline" \| "large" \| "compact-large" \| "compact-medium"` | `"inline"` | Size and place of `Toolbar.Title` in a top bar |
+| `titleAlign` | `"center" \| "start"` | `"center"` | Alignment of an inline title. Large and compact titles always start at the leading edge |
+| `background` | `"edge" \| "solid"` | `"edge"` | `edge` fades the canvas color over the content under the bar; `solid` fills the bar |
+| `className` | `string` | — | Applied to the bar |
+
+All other `<div>` attributes and `ref` are forwarded to the bar.
+
+### Toolbar.Title
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `subtitle` | `ReactNode` | — | Second, smaller line below the title |
+| `as` | `"h1" \| "h2" \| "h3"` | `"h1"` | Heading level of the title |
+
+### Compound parts
+
+| Part | Element | Purpose |
+|------|---------|---------|
+| `Toolbar.Leading` | `<div>` | Back, Close or menu controls at the leading edge |
+| `Toolbar.Title` | `<h1>` | Title of the screen, with an optional subtitle |
+| `Toolbar.Content` | `<div>` | Middle content: a search field, a main action or a segmented control. `fill` stretches it across the row |
+| `Toolbar.Group` | `<div role="group">` | Related buttons in one capsule |
+| `Toolbar.Trailing` | `<div>` | Actions at the trailing edge |
+
+## Styling
+
+Buttons, capsules and the search field in a toolbar use the shared mobile glass of iOS 26: a light fill over a softly frosted backdrop, a thin rim of light on the top-left and bottom-right edges and a sheen darker at the top and lighter at the bottom. At rest the glass casts no shadow; once content scrolls under the top bar, it does. Icons take a 24px box in both bars, labels are 17px medium. `NavigationButton` keeps its own glyph sizes.
+
+Toolbar reads these component tokens. Override them at any scope to restyle it:
+
+- `--toolbar-gutter`, `--toolbar-bottom-gutter`: side padding of the top and bottom bars (default `16px` and `28px`)
+- `--toolbar-top-item-size`, `--toolbar-bottom-item-size`: button and field height (default `44px` and `48px`)
+- `--toolbar-top-item-gap`, `--toolbar-bottom-item-gap`: gap between items (default `10px` and `12px`)
+- `--toolbar-group-padding`, `--toolbar-group-gap`: inner padding and spacing of a capsule in the top bar (default `2px` and `12px`; `4px` and `6px` in the bottom bar)
+- `--toolbar-padding-bottom`: space below the top row (default `10px`)
+- `--toolbar-sheet-padding-top`: space for the grabber in a Sheet (default `16px`)
+- `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and `16px` or the bottom safe area less `2px`)
+- `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar
+- `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
+- `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
+- `--toolbar-background`: color of the fading edge (defaults to the Sheet or page canvas)

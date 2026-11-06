@@ -22,7 +22,7 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 
 ### Overview
 
-<ComponentPreview code={`<div className="w-[400px]">
+<ComponentPreview code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Enter text..." autoResize rows={3} />
 </div>`} previewMinHeight={168}>
   <TextareaBaseDemo />
@@ -30,7 +30,7 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to stylize the textarea.</>} code={`<div className="flex flex-col gap-6 w-[400px]">
+<ComponentPreview details={<>Use <code>variant</code> to stylize the textarea.</>} code={`<div className="flex flex-col gap-6 w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Enter text..." variant="outline" rows={3} />
   <Textarea placeholder="Enter text..." variant="soft" rows={3} />
 </div>`} previewMinHeight={168}>
@@ -42,7 +42,7 @@ import { Textarea } from "@plexui/ui/components/Textarea"
 <ComponentPreview details={<>Enable <code>autoResize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>maxRows</code>.</>} code={`const [value, setValue] = useState("Line 1\\nLine 2\\nLine 3")
 
 return (
-  <div className="w-[400px]">
+  <div className="w-full min-w-0 max-w-[400px]">
     <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
   </div>
 )`} previewMinHeight={168}>
@@ -51,7 +51,7 @@ return (
 
 ### Sizing
 
-<ComponentPreview details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutterSize</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
 </div>`} previewMinHeight={168}>
   <TextareaSizingDemo />
@@ -59,7 +59,7 @@ return (
 
 ### Disabled
 
-<ComponentPreview details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea disabled defaultValue="Jane Doe" aria-label="Name" />
 </div>`} previewMinHeight={168}>
   <TextareaDisabledDemo />
@@ -67,7 +67,7 @@ return (
 
 ### Invalid
 
-<ComponentPreview details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea invalid placeholder="Invalid textarea" />
 </div>`} previewMinHeight={168}>
   <TextareaInvalidDemo />
@@ -75,7 +75,7 @@ return (
 
 ### Auto select text
 
-<ComponentPreview details={<>Pass <code>autoSelect</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>Pass <code>autoSelect</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea defaultValue="Toggle to auto select" autoSelect={false} aria-label="Notes" />
 </div>`} previewMinHeight={168}>
   <TextareaAutoSelectDemo />
@@ -83,7 +83,7 @@ return (
 
 ### Autofill extensions
 
-<ComponentPreview details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={`<div className="w-[400px]">
+<ComponentPreview details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={`<div className="w-full min-w-0 max-w-[400px]">
   <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
 </div>`} previewMinHeight={168}>
   <TextareaAutofillExtensionsDemo />

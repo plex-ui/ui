@@ -1,0 +1,44 @@
+.Root {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: middle;
+  line-height: inherit;
+}
+
+.Text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A closed phone-country value keeps its final word and the complete dial code.
+   Only the start may ellipsize; the separate accessible value stays unbroken. */
+.TriggerLabel {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.TriggerName {
+  display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.TriggerStart {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+
+.TriggerEnd,
+.TriggerDialCode {
+  flex-shrink: 0;
+  white-space: pre;
+}

@@ -95,6 +95,10 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
   </div>
 </div>`
 
+export const variantsControls = [
+  { name: "disabled", type: "boolean", default: false },
+]
+
 export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
   <div
     v-for="group in [
@@ -141,23 +145,6 @@ export const indeterminate = `<Checkbox
   @update:checked="checked = checked === 'indeterminate' ? true : checked ? false : 'indeterminate'"
   label="Select all"
 />`
-
-export const disabled = `<div class="flex flex-wrap gap-x-12 gap-y-6">
-  <div
-    v-for="group in [
-      { name: 'solid' },
-      { name: 'solid pill', pill: true },
-      { name: 'ghost', variant: 'ghost' },
-    ]"
-    :key="group.name"
-    class="flex flex-col gap-3 items-start"
-  >
-    <span class="text-xs text-secondary font-mono mb-1">{{ group.name }}</span>
-    <Checkbox label="Unchecked" :pill="group.pill" :variant="group.variant" disabled />
-    <Checkbox label="Checked" :pill="group.pill" :variant="group.variant" disabled default-checked />
-    <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" disabled checked="indeterminate" />
-  </div>
-</div>`
 
 export const orientation = `<Checkbox label="Accept terms and conditions" :orientation="orientation" />`
 
@@ -239,7 +226,20 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   </div>
 </div>`
 
+import { VueFormScreenDemo } from "@/components/docs/vue/VueFormScreenDemo"
+import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
+
 <UsageBlock>{`import { Checkbox } from "@plexui/vue/components/Checkbox";`}</UsageBlock>
+
+export const groupedSectionsMobile = formScreenTemplate("Notifications", `<FieldGroup title="Email notifications" description="Configure which emails you receive.">
+        <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox v-model:checked="settings.emailMarketing" /></Field>
+        <Field row label="Security" description="Receive emails about account activity and security."><Checkbox v-model:checked="settings.emailSecurity" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
+        <Field row label="Everything"><Checkbox v-model:checked="settings.pushEverything" /></Field>
+        <Field row label="Direct messages and mentions"><Checkbox v-model:checked="settings.pushMentions" /></Field>
+        <Field row label="Nothing"><Checkbox v-model:checked="settings.pushNothing" /></Field>
+      </FieldGroup>`)
 
 ## Examples
 
@@ -273,10 +273,12 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
   />
 </ComponentPreview>
 
+<span id="disabled" />
+
 ### Variants
 
-<ComponentPreview language="vue" details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill.</>} code={variants} previewMinHeight={240}>
-  <VueDemo template={variants} stageClassName={stage} controls={[{ name: "disabled", type: "boolean", default: false }]} />
+<ComponentPreview language="vue" details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</>} code={variants} previewMinHeight={240}>
+  <VueDemo template={variants} stageClassName={stage} controls={variantsControls} />
 </ComponentPreview>
 
 ### Pill
@@ -301,12 +303,6 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 <ComponentPreview language="vue" details={<>Use <code>checked="indeterminate"</code> to indicate a partially selected state. This is typically used for "select all" controls where only some child items are checked. Here <code>checked</code> starts as <code>"indeterminate"</code> and each click moves it to the next state.</>} code={indeterminate} previewMinHeight={168}>
   <VueDemo template={indeterminate} state={{ checked: "indeterminate" }} />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview language="vue" details={<>When <code>disabled</code> is set, the checkbox is dimmed to 50% opacity and prevents interaction. It works the same across all variants: solid, pill, and ghost.</>} code={disabled} previewMinHeight={240}>
-  <VueDemo template={disabled} />
 </ComponentPreview>
 
 ### Label orientation
@@ -366,9 +362,9 @@ export const groupedSections = `<div class="flex flex-col max-w-sm w-full divide
 
 ### Grouped sections
 
-<ComponentPreview language="vue" details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSections} previewMinHeight={320}>
-  <VueDemo
-    template={groupedSections}
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Use dividers to separate checkbox groups into logical sections. Each section can be wrapped in a <code>Field</code> with its own label and description.</>} code={groupedSectionsMobile} previewMinHeight={320}>
+  <VueFormScreenDemo
+    template={`<template v-if="!wide">${groupedSectionsMobile}</template><template v-else>${groupedSections}</template>`}
     stageClassName={stage}
     state={{
       settings: { emailMarketing: true, emailSecurity: true, pushEverything: false, pushMentions: true, pushNothing: false },
@@ -405,6 +401,7 @@ Other attributes and listeners land on the checkbox `<button>`. Built on [Reka U
 Checkbox reads these component tokens. Override them at any scope to restyle it:
 
 - `--checkbox-indicator-size`: indicator size (default `var(--radio-group-indicator-size)`)
+- `--checkbox-ghost-check-color`: checkmark color for the ghost variant (default `var(--gray-900)`)
 - `--checkbox-label-gap`: label gap (default `var(--radio-group-item-gap)`)
 - `--checkbox-label-line-height`: label line height (default `var(--radio-group-item-line-height)`)
 - `--input-border-color-invalid`: border color invalid (default `var(--color-border-danger-outline)`)

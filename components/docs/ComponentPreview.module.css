@@ -3,16 +3,24 @@
   margin: 0 0 30px;
 }
 
-/* ── Tab bar (inline with the preceding heading) ── */
+/* Keep Phone-only controls mounted so their values survive mode changes.
+   A narrow docs page is already the phone view, without an iframe. */
+@media (min-width: 768px) {
+  .Wrapper[data-preview-viewport="desktop"] [data-demo-phone-only] {
+    display: none !important;
+  }
+}
+
+/* The toolbar owns its row: descriptions and wrapped headings can precede it. */
 
 .TabBar {
-  position: absolute;
-  right: 0;
-  top: -36px;
+  position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 /* On a phone the page is the phone view already */
@@ -44,10 +52,43 @@
   display: none !important;
 }
 
+/* The layout viewport remains 402×812. Only unused vertical space is cropped,
+   so viewport units and portalled overlays cannot trigger a resize feedback loop. */
+.ComponentPhoneContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ComponentPhoneViewport {
+  position: relative;
+  width: 402px;
+  margin-inline: auto;
+  /* Crop without a scroll container: focusing the taller iframe must not
+     scroll this visible slice away from the demo's natural-flow origin. */
+  overflow: clip;
+}
+
+.ComponentPhoneFrame {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  width: 402px;
+  height: 812px;
+  border: 0;
+  background: transparent;
+}
+
+.PreviewContainer:has(> .ComponentPhoneContainer),
+.PreviewContainer[data-preview-presentation="component"],
+.PreviewContainer[data-preview-presentation="component"] > .PreviewInner {
+  min-height: 0;
+}
+
 .PhoneContainer {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
+  overflow-x: auto;
   padding: 24px 16px;
   background: var(--color-fd-background);
 }
@@ -55,16 +96,17 @@
 .PhoneDevice {
   position: relative;
   flex: none;
-  width: min(100%, 360px);
+  width: 450px;
+  margin-inline: auto;
   aspect-ratio: 450 / 920;
 }
 
-/* Hardware geometry comes from Figma node 754:48030, scaled as one unit. */
+/* Hardware geometry from Figma node 754:48030 stays at 1:1 CSS pixels.
+   Narrow hosts scroll horizontally; auto margins keep the leading edge reachable. */
 .PhoneCanvas {
   position: absolute;
   width: 450px;
   height: 920px;
-  transform-origin: top left;
 }
 
 .PhoneScreen {
@@ -75,10 +117,14 @@
   height: 874px;
   border-radius: 44px;
   overflow: hidden;
-  background: var(--color-fd-background);
+  background: var(--phone-screen-background, var(--color-fd-background));
 }
 
 .PhoneStatusBar {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,16 +151,13 @@
   gap: 7px;
   padding-top: 1px;
   padding-right: 1px;
-}
-
-html.dark .PhoneStatusIcons {
-  filter: invert(1);
+  filter: invert(var(--phone-status-icon-invert, 0));
 }
 
 .PhoneFrame {
   display: block;
   width: 402px;
-  height: 812px;
+  height: 874px;
   border: 0;
   background: transparent;
 }
@@ -130,9 +173,10 @@ html.dark .PhoneStatusIcons {
   user-select: none;
 }
 
-.PhoneContainer[data-dialog-open],
-.PhoneContainer[data-dialog-open] .PhoneScreen {
-  background: linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5)), var(--color-fd-background);
+/* Dialog's real overlay now paints behind the entire screen. Dim only the
+   external status glyphs, so the canvas never receives a second scrim. */
+.PhoneContainer[data-status-bar-scrim] .PhoneStatusBar {
+  filter: brightness(0.5);
 }
 
 /* Stacking context so preview content (e.g. Sidebar drawer) does not overlap mobile TOC (z-10) */
@@ -198,6 +242,13 @@ html.dark .PreviewContent[data-resizable] {
   align-items: center;
   align-items: safe center;
   justify-content: center;
+}
+
+/* Server markup of an example is its phone composition; from 768px up it waits for hydration. */
+@media (min-width: 768px) {
+  .PreviewInner[data-preview-hydrating] {
+    visibility: hidden;
+  }
 }
 
 .PreviewInner>[data-demo-controls] {
@@ -416,4 +467,21 @@ html.dark .CodeBlockWrap [data-rehype-pretty-code-figure],
   border-radius: 4px;
   background: var(--docs-surface-elevated);
   color: var(--color-fd-foreground);
+}
+
+/* The simulator setting belongs to the standard controls area, outside the device. */
+.KeyboardControl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--color-fd-border);
+  background: var(--docs-surface-elevated);
+}
+
+.KeyboardControl > label {
+  cursor: pointer;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
 }

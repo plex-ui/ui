@@ -12,6 +12,17 @@ export const VARIANTS = ["segmented", "underline"]
 export const ORIENTATIONS = ["horizontal", "vertical"]
 export const STAGE = "flex-1 flex items-center justify-center py-12 w-full"
 
+export const overviewControls = [
+  { name: "variant", type: "select", options: VARIANTS, default: "segmented" },
+  { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" },
+  { name: "size", type: "select", options: SIZES, default: "md" },
+  { name: "pill", type: "boolean", default: true },
+  { name: "flush", type: "boolean", default: false },
+  { name: "block", type: "boolean", default: false },
+  { name: "disabled", type: "boolean", default: false },
+  { name: "reportsDisabled", type: "boolean", default: false },
+]
+
 export const overview = `<Tabs
   v-model:value="tab"
   :variant="variant"
@@ -25,7 +36,7 @@ export const overview = `<Tabs
 >
   <TabsTab value="overview">Overview</TabsTab>
   <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports">Reports</TabsTab>
+  <TabsTab value="reports" :disabled="reportsDisabled">Reports</TabsTab>
   <TabsTab value="settings">Settings</TabsTab>
 </Tabs>`
 
@@ -99,20 +110,13 @@ export const verticalUnderlineIcons = `<Tabs v-model:value="tab" variant="underl
   <TabsTab value="notifications"><template #icon><Bell /></template>Notifications</TabsTab>
 </Tabs>`
 
-export const disabledTab = `<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Sections">
-  <TabsTab value="overview">Overview</TabsTab>
-  <TabsTab value="analytics">Analytics</TabsTab>
-  <TabsTab value="reports" disabled>Reports</TabsTab>
-  <TabsTab value="settings">Settings</TabsTab>
-</Tabs>`
-
 export const sizing = `<Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Demo tabs">
   <TabsTab value="overview">Overview</TabsTab>
   <TabsTab value="analytics">Analytics</TabsTab>
   <TabsTab value="reports">Reports</TabsTab>
 </Tabs>`
 
-export const scrollable = `<div class="max-w-[400px] flex">
+export const scrollable = `<div class="flex w-full min-w-0 max-w-[400px]">
   <Tabs v-model:value="tab" :variant="variant" :size="size" aria-label="Scrollable tabs">
     <TabsTab value="1">Overview</TabsTab>
     <TabsTab value="2">Analytics</TabsTab>
@@ -125,7 +129,7 @@ export const scrollable = `<div class="max-w-[400px] flex">
   </Tabs>
 </div>`
 
-export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
+export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ width: width + 'px' }">
   <Tabs v-model:value="tab" variant="underline" overflow="menu" aria-label="Repository">
     <TabsTab value="code">Code</TabsTab>
     <TabsTab value="issues" :badge="12">Issues</TabsTab>
@@ -141,10 +145,12 @@ export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
 
 ## Examples
 
+<span id="disabled-tab" />
+
 ### Overview
 
-<ComponentPreview language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
-  <VueDemo stageClassName={STAGE} template={overview} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: true }, { name: "flush", type: "boolean", default: false }, { name: "block", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
+<ComponentPreview language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+  <VueDemo stageClassName={STAGE} template={overview} state={{ tab: "overview" }} controls={overviewControls} />
 </ComponentPreview>
 
 ### Segmented with icons
@@ -211,12 +217,6 @@ export const overflowMenu = `<div class="flex" :style="{ width: width + 'px' }">
 
 <ComponentPreview language="vue" details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={verticalUnderlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
   <VueDemo stageClassName={STAGE} template={verticalUnderlineIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }]} />
-</ComponentPreview>
-
-### Disabled tab
-
-<ComponentPreview language="vue" details={<>Use <code>disabled</code> on individual <code>TabsTab</code> elements to prevent interaction. Disabled tabs appear dimmed and cannot be selected.</>} code={disabledTab} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={disabledTab} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Sizing

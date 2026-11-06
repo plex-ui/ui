@@ -21,7 +21,7 @@
   max-width: var(--select-list-max-width, none);
   border-radius: var(--menu-radius);
   background: var(--color-surface-elevated);
-  box-shadow: var(--shadow), var(--shadow-hairline);
+  box-shadow: var(--menu-shadow, var(--shadow), var(--shadow-hairline));
   font-size: var(--menu-font-size);
   line-height: var(--menu-line-height);
   /* The transform-origin computed from the content and arrow positions/offsets */
@@ -79,7 +79,7 @@
 .OptionsList {
   overflow: auto;
   flex: 1;
-  padding: var(--menu-gutter);
+  padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter));
 
   /* Focused without search: the highlighted option shows where the keys go */
   &:focus {
@@ -103,7 +103,7 @@
     background: var(--menu-item-background-color);
     content: "";
     opacity: 0;
-    transform: scale(var(--scale, 0.98));
+    transform: scale(var(--menu-item-press-scale, var(--scale, 0.98)));
     transition-duration: var(--transition-duration-basic);
     transition-property: opacity, background-color, transform;
     transition-timing-function: var(--cubic-enter);
@@ -125,12 +125,12 @@
 
   &[data-highlight] {
     &::before {
-      opacity: 1;
+      opacity: var(--menu-item-highlight-opacity, 1);
       transform: scale(1);
     }
 
     &:active::before {
-      transform: scale(var(--scale, 0.98));
+      transform: scale(var(--menu-item-press-scale, var(--scale, 0.98)));
     }
   }
 
@@ -219,11 +219,11 @@
   align-items: center;
   justify-content: flex-start;
   gap: var(--menu-item-gap);
-  padding: var(--menu-item-padding);
+  padding: var(--menu-label-padding, var(--menu-item-padding));
   margin-top: spacing(2);
-  font-size: var(--font-text-xs-size);
-  line-height: var(--font-text-xs-line-height);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--menu-label-font-size, var(--font-text-xs-size));
+  line-height: var(--menu-label-line-height, var(--font-text-xs-line-height));
+  font-weight: var(--menu-label-font-weight, var(--font-weight-semibold));
   color: var(--color-text-secondary);
 
   .OptionGroup:not(:first-child) > &::before {
@@ -329,7 +329,7 @@
 
 .ActionsContainer {
   position: relative;
-  padding: var(--menu-gutter);
+  padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter));
   border-top: 1px solid var(--menu-separator-background-color);
 
   &::before {
@@ -357,7 +357,7 @@
   --control-gutter-md: var(--menu-search-gutter, 8px);
   --control-gutter-lg: var(--menu-search-gutter, 8px);
   position: relative;
-  padding: var(--menu-gutter) var(--menu-gutter) 0;
+  padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter)) 0;
 }
 
 /* Override fill for Search icon to apply fill-secondary class correctly */
@@ -375,7 +375,7 @@
 }
 
 .SearchEmpty {
-  padding: var(--menu-gutter);
+  padding: var(--menu-gutter) var(--menu-padding-inline, var(--menu-gutter));
   margin: spacing(4) 0;
 
   &[data-text-only] {
@@ -402,4 +402,112 @@
   clip-path: inset(50%);
   white-space: nowrap;
   pointer-events: none;
+}
+
+/* iPhone menu selection geometry. Search and multiple selection keep their behavior. */
+@media (max-width: 767px) {
+  .Option,
+  .Option[data-selected],
+  .Option:has(.OptionDescription) {
+    font-weight: var(--font-weight-normal);
+  }
+
+  .Option {
+    letter-spacing: var(--menu-letter-spacing, -0.43px);
+  }
+
+  .Search,
+  .ActionsContainer {
+    flex-shrink: 0;
+  }
+
+  .OptionsList {
+    min-height: 0;
+  }
+
+  /* Text grows naturally; the pressed surface covers the complete 44px target. */
+  .Option:has(> .PressableInner > .OptionLeading) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    min-height: 44px;
+    padding-block: 0;
+  }
+
+  .Option:has(> .PressableInner > .OptionLeading)::before {
+    position: absolute;
+    inset: 0;
+  }
+
+  .PressableInner:has(> .OptionLeading) {
+    grid-area: 1 / 1;
+    align-items: center;
+  }
+
+  .OptionLeading {
+    gap: 2px;
+    padding-block: 10px;
+  }
+
+  .OptionLeading > .OptionInner {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .OptionIndicatorSlot {
+    justify-content: center;
+    width: 24px;
+    height: 22px;
+  }
+
+  /* iOS 26 kit Menu Items (Menu has Selection): the checkmark leads every row in a 24px column,
+     6px before the label, so the desktop end position moves to the start on a phone. */
+  .PressableInner > .OptionIndicatorSlot[data-position="end"] {
+    order: -1;
+    margin-left: 0;
+  }
+
+  /* The 17pt checkmark of the kit: about 15 × 14.5px of ink. */
+  .OptionCheck {
+    width: 26px;
+    height: 26px;
+  }
+
+  .OptionDescription {
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: normal;
+    color: var(--menu-description-color, var(--color-text-secondary));
+  }
+
+  /* Rich descriptions may contain their own controls; only plain subtitles truncate. */
+  .OptionDescription:not(:has(*)) {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .Option[data-disabled] {
+    color: var(--menu-disabled-label-color, var(--color-text-tertiary));
+    opacity: 1;
+  }
+
+  .Option[data-disabled] .OptionDescription {
+    color: var(--menu-disabled-description-color, var(--color-text-tertiary));
+  }
+
+  .Option[data-disabled] .OptionIndicatorSlot {
+    color: var(--color-text);
+  }
+
+  .OptionGroupHeading {
+    margin-top: 21px;
+    color: var(--color-text-tertiary);
+  }
+
+  .OptionGroup:not(:first-child) > .OptionGroupHeading::before {
+    top: -11px;
+    inset-inline: 8px;
+  }
 }

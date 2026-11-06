@@ -11,11 +11,17 @@
   }
 
   /* Without hover the reset could never appear */
-  @media (hover: none) {
+  @media (hover: none), (pointer: coarse) {
     .Reset[data-hide="false"] {
       opacity: 1;
       visibility: visible;
     }
+  }
+
+  :where(:root[data-input="touch"]) & .Reset[data-hide="false"] {
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
   }
 }
 
@@ -24,9 +30,15 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding-bottom: 6px;
+  min-height: var(--slider-control-height, auto);
+  padding-bottom: var(--slider-padding-bottom, 6px);
   touch-action: none;
   user-select: none;
+
+  &[data-disabled] {
+    pointer-events: none;
+    touch-action: auto;
+  }
 
   /* Animate thumb position for single-mode programmatic changes */
   .Thumb {
@@ -62,7 +74,7 @@
 }
 
 .SliderWrap[data-orientation="vertical"] .Track {
-  width: 4px;
+  width: var(--slider-track-size, 4px);
   height: 100%;
 }
 
@@ -72,6 +84,8 @@
 }
 
 .SliderWrap[data-orientation="vertical"] .Thumb {
+  width: var(--slider-thumb-height, 14px);
+  height: var(--slider-thumb-width, 14px);
   transition: none;
 }
 
@@ -79,15 +93,15 @@
   position: relative;
   flex-grow: 1;
   width: 100%;
-  height: 4px;
-  border-radius: var(--radius-2xs);
+  height: var(--slider-track-size, 4px);
+  border-radius: var(--slider-track-radius, var(--radius-2xs));
   background: var(--slider-track-color);
 }
 
 .Range {
   position: absolute;
   height: 100%;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--slider-track-radius, var(--radius-2xs));
   background: var(--slider-range-color);
   transition: right var(--slider-duration) var(--cubic-move);
 }
@@ -95,11 +109,11 @@
 .Thumb {
   position: relative;
   display: block;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  width: var(--slider-thumb-width, 14px);
+  height: var(--slider-thumb-height, 14px);
+  border-radius: var(--slider-thumb-radius, 50%);
   background: var(--gray-0);
-  box-shadow: inset 0 0 0 2px var(--slider-range-color);
+  box-shadow: var(--slider-thumb-shadow, inset 0 0 0 2px var(--slider-range-color));
   cursor: grab;
   outline: none;
 
@@ -112,7 +126,9 @@
     cursor: grabbing;
   }
 
-  &:disabled {
+  &:disabled,
+  &[data-disabled] {
+    cursor: default;
     pointer-events: none;
   }
 }
@@ -138,8 +154,8 @@
 
   /* Custom overrides outside the design system. Using the data attribute to win the specificity war. */
   &[data-size="2xs"] {
-    width: 22px;
-    height: 22px;
+    width: var(--slider-reset-size, 22px);
+    height: var(--slider-reset-size, 22px);
 
     svg {
       width: 14px;
@@ -170,8 +186,10 @@
     height: 22px;
   }
 
-  .SliderWrap:hover &:not(:focus-within) {
-    border-color: var(--gray-200);
+  @media (hover: hover) and (pointer: fine) {
+    .SliderWrap:hover:where(:not(:root[data-input="touch"] *)) &:not(:focus-within) {
+      border-color: var(--gray-200);
+    }
   }
 
   &:focus-within {
@@ -236,4 +254,27 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+
+/* Editable values and vertical rails are web adaptations, not native iOS controls.
+   Their touch targets occupy normal flow without changing the painted track/thumb. */
+@media (max-width: 767px) {
+  .SliderValue {
+    align-items: center;
+    height: auto;
+    min-height: 44px;
+    margin-right: 0;
+  }
+
+  .ValueInput {
+    min-width: 44px;
+    height: 44px;
+    text-align: right;
+  }
+
+  .SliderWrap[data-orientation="vertical"] .Slider {
+    width: max(44px, var(--slider-control-height, 44px));
+    padding-right: 0;
+  }
 }

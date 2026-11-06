@@ -27,9 +27,11 @@
   &:where([data-interactive]) {
     cursor: pointer;
 
-    &:hover {
-      --card-background: var(--card-background-hover);
-      --card-border-color: var(--card-border-color-hover);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:where(:not(:root[data-input="touch"] *)) {
+        --card-background: var(--card-background-hover);
+        --card-border-color: var(--card-border-color-hover);
+      }
     }
 
     &:focus-visible {

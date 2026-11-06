@@ -28,8 +28,10 @@
   user-select: none;
 }
 
-.FieldFootprint:hover:not([data-disabled]) {
-  border-color: var(--input-state-color, var(--floating-input-border-color-hover));
+@media (hover: hover) and (pointer: fine) {
+  .FieldFootprint:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) {
+    border-color: var(--input-state-color, var(--floating-input-border-color-hover));
+  }
 }
 
 .FieldFootprint[data-focused] {
@@ -45,7 +47,7 @@
 }
 
 /* Focus ring */
-.FieldFootprint:focus-visible {
+.FieldFootprint:focus-visible:not([data-menu-pointer-focus]) {
   outline: 2px solid var(--color-ring);
   outline-offset: 1px;
 }
@@ -169,10 +171,15 @@
   opacity: 0.75;
 }
 
-.FieldFootprint:hover:not([data-disabled]) .Clear,
 .FieldFootprint[data-open] .Clear,
 .Clear:focus-visible {
   opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .FieldFootprint:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) .Clear {
+    opacity: 1;
+  }
 }
 
 /* Dropdown icon — matches SelectControl 3xl: 9×13 */
@@ -185,24 +192,25 @@
   opacity: 0.75;
   transition: opacity var(--floating-input-transition-duration) ease-in-out;
 }
-.FieldFootprint:hover:not([data-disabled]) .DropdownIcon {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .FieldFootprint:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) .DropdownIcon {
+    opacity: 1;
+  }
 }
 .FieldFootprint[data-open] .DropdownIcon {
   opacity: 1;
 }
 
-/* Error message: the same plain line as FloatingLabelInput's */
+/* Shared error composition, with the desktop text-only appearance. */
 .ErrorMessage {
-  color: var(--field-error-color);
-  font-size: var(--field-error-font-size);
-  line-height: var(--field-error-line-height);
-  margin-top: 0.25rem;
-  padding-inline-start: var(--floating-input-gutter);
+  --field-error-icon-display: none;
+  --field-error-margin-bottom: 0.5rem;
+  --field-error-padding-inline: var(--floating-input-gutter);
+  margin-top: var(--mobile-field-error-offset, 0.25rem);
 }
 
 .ErrorMessage:last-child {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--mobile-field-error-margin-bottom, 0.5rem);
 }
 
 /* =============================================

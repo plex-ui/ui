@@ -234,6 +234,14 @@ const walk = async (
     await flushVue()
   }
 
+  const onReactChange = (next: DateTime | null) => {
+    emitted.push(`change ${fmt(next)}`)
+    if (accept) {
+      current = { ...current, value: next }
+      for (const listener of listeners) listener()
+    }
+  }
+
   function ReactApp() {
     const state = useSyncExternalStore(
       (listener) => {
@@ -246,13 +254,7 @@ const walk = async (
     const input = createElement(RDateInput as R, {
       ...props,
       value: stateValue,
-      onChange: (next: DateTime | null) => {
-        emitted.push(`change ${fmt(next)}`)
-        if (accept) {
-          current = { ...current, value: next }
-          for (const listener of listeners) listener()
-        }
-      },
+      onChange: onReactChange,
     })
     return inField ? createElement(RField as R, { label: "Date", errorMessage: stateValue ? undefined : "Date is required" }, input) : input
   }
@@ -386,6 +388,65 @@ describe("DateInput typing parity", () => {
     const { react, vue } = await walk({ value: null, min: date("2024-03-10") }, typeSteps("01032024"))
     expect(vue).toEqual(react)
     expect(react.at(-1)).toContain('value: "10.03.2024"')
+  })
+})
+
+describe("DateInput mobile keyboard parity", () => {
+  test.each<[string, Props, string, string]>([
+    ["date", {}, "15032024", "15.03.2024"],
+    ["time", { timeMode: "HH:MM" }, "150320241430", "15.03.2024, 14:30"],
+    ["seconds", { timeMode: "HH:MM:SS" }, "15032024143045", "15.03.2024, 14:30:45"],
+  ])("%s uses numeric entry while preserving text-mask editing", async (_name, props, digits, shown) => {
+    const { react, vue } = await walk({ value: null, ...props }, async ({ input, run, snap }) => {
+      expect(input().type).toBe("text")
+      expect(input().inputMode).toBe("numeric")
+      await run(() => typeText(input(), digits))
+      expect(input().value).toBe(shown)
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain("change 2024-03-15")
+  })
+
+  test("AM/PM retains a text keyboard for its alphabetic segment", async () => {
+    const { react, vue } = await walk({ value: null, timeMode: "HH:MM AA" }, async ({ input, run, snap }) => {
+      expect(input().inputMode).toBe("text")
+      await run(() => typeText(input(), "150320240230"))
+      await run(() => {
+        // The mask fills AM automatically; select its segment to enter PM.
+        input().setSelectionRange(input().value.length - 2, input().value.length)
+        edit(input(), "insertText", "P")
+      })
+      expect(input().value).toBe("15.03.2024, 02:30 PM")
+      snap()
+    })
+    expect(vue).toEqual(react)
+    expect(react[0]).toContain("change 2024-03-15T14:30:00.000")
+  })
+
+  test.each(["text", "decimal", "none"])("explicit inputMode=%s overrides the date/time default", async (inputMode) => {
+    const { react, vue } = await walk({ value: null, inputMode }, async ({ input, set, snap }) => {
+      expect(input().inputMode).toBe(inputMode)
+      await set({ timeMode: "HH:MM AA" })
+      expect(input().inputMode).toBe(inputMode)
+      snap()
+      await set({ inputMode: undefined })
+      expect(input().inputMode).toBe("text")
+      await set({ timeMode: "HH:MM" })
+      expect(input().inputMode).toBe("numeric")
+      snap()
+    })
+    expect(vue).toEqual(react)
+  })
+
+  test("Vue native inputmode spelling overrides and restores the default reactively", async () => {
+    const props = reactive<{ inputmode?: string }>({ inputmode: "none" })
+    mountVue(() => h(DateInput, { value: null, ...props }))
+    await flushVue()
+    expect(theInput().inputMode).toBe("none")
+    props.inputmode = undefined
+    await flushVue()
+    expect(theInput().inputMode).toBe("numeric")
   })
 })
 

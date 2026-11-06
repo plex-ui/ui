@@ -1,5 +1,6 @@
 .Root {
   width: 100%;
+  min-width: 0;
 }
 
 .Item {
@@ -17,6 +18,7 @@
 
 .Header {
   display: flex;
+  min-width: 0;
   margin: 0;
 }
 
@@ -27,6 +29,8 @@
   justify-content: space-between;
   gap: var(--accordion-trigger-gap);
   width: 100%;
+  min-width: 0;
+  min-height: var(--accordion-trigger-min-height, 0px);
   padding: var(--accordion-trigger-padding-block) 0;
   border: 0;
   background: transparent;
@@ -35,6 +39,7 @@
   font-weight: var(--accordion-trigger-font-weight);
   line-height: var(--accordion-trigger-line-height);
   text-align: left;
+  overflow-wrap: anywhere;
   color: var(--accordion-trigger-color);
   cursor: pointer;
   outline: none;
@@ -84,6 +89,8 @@
 }
 
 .ContentInner {
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding-bottom: var(--accordion-content-padding-bottom);
 }
 
@@ -102,5 +109,16 @@
   }
   to {
     height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Trigger,
+  .Chevron {
+    transition: none;
+  }
+
+  .Content[data-state] {
+    animation: none;
   }
 }

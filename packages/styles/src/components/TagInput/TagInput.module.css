@@ -73,7 +73,7 @@
   /* 20 + 4 + 4 = 28 */
   &:where([data-size="sm"]) {
     --tag-input-font-size: var(--control-font-size-md);
-    --tag-input-height: 20px;
+    --tag-input-height: calc(var(--control-size-sm, 28px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 4px;
     --tag-input-tag-gutter: var(--control-gutter-2xs);
     --tag-input-radius: var(--control-radius-sm);
@@ -82,7 +82,7 @@
   /* 20 + 6 + 6 = 32 */
   &:where([data-size="md"]) {
     --tag-input-font-size: var(--control-font-size-md);
-    --tag-input-height: 20px;
+    --tag-input-height: calc(var(--control-size-md, 32px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 6px;
     --tag-input-radius: var(--control-radius-md);
   }
@@ -90,7 +90,7 @@
   /* 24 + 6 + 6 = 36 */
   &:where([data-size="lg"]) {
     --tag-input-font-size: var(--control-font-size-md);
-    --tag-input-height: 24px;
+    --tag-input-height: calc(var(--control-size-lg, 36px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 6px;
     --tag-input-radius: var(--control-radius-lg);
   }
@@ -100,7 +100,7 @@
     /* SelectControl xl uses control-font-size-md (not -lg), so the chip + input
        text inside TagInput xl matches Select xl. */
     --tag-input-font-size: var(--control-font-size-md);
-    --tag-input-height: 24px;
+    --tag-input-height: calc(var(--control-size-xl, 40px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 8px;
     --tag-input-radius: var(--control-radius-xl);
   }
@@ -108,7 +108,7 @@
   /* 28 + 8 + 8 = 44 */
   &:where([data-size="2xl"]) {
     --tag-input-font-size: var(--control-font-size-lg);
-    --tag-input-height: 28px;
+    --tag-input-height: calc(var(--control-size-2xl, 44px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 8px;
     --tag-input-radius: var(--control-radius-xl);
   }
@@ -116,7 +116,7 @@
   /* 32 + 8 + 8 = 48 */
   &:where([data-size="3xl"]) {
     --tag-input-font-size: var(--control-font-size-lg);
-    --tag-input-height: 32px;
+    --tag-input-height: calc(var(--control-size-3xl, 48px) - 2 * var(--tag-input-tag-spacing));
     --tag-input-tag-spacing: 8px;
     --tag-input-radius: var(--control-radius-xl);
   }
@@ -168,7 +168,8 @@
        same idea as the container's pill rule above. */
     border-radius: calc(var(--tag-input-tag-height, var(--tag-input-height)) / 2);
   }
-  background-color: var(--color-background-secondary-soft-alpha);
+  --tag-input-tag-background: var(--color-background-secondary-soft-alpha);
+  background-color: var(--tag-input-tag-background);
   color: var(--color-text-secondary-soft);
   /* Match SelectControl text-size for the same `size` (md/lg=14, xl/2xl/3xl=16);
      `--tag-input-font-size` is set per-size to the same token Select uses. */
@@ -180,15 +181,15 @@
   transition: background-color 0.15s ease;
 
   @mixin hover {
-    background-color: var(--color-background-secondary-soft-alpha-hover);
+    --tag-input-tag-background: var(--color-background-secondary-soft-alpha-hover);
   }
 
   &:focus {
-    background-color: var(--color-background-secondary-soft-alpha-hover);
+    --tag-input-tag-background: var(--color-background-secondary-soft-alpha-hover);
   }
 
   &:active {
-    background-color: var(--color-background-secondary-soft-alpha-active);
+    --tag-input-tag-background: var(--color-background-secondary-soft-alpha-active);
   }
 
   .Container[data-disabled] & {
@@ -196,19 +197,19 @@
   }
 
   &[data-invalid] {
-    background-color: var(--color-background-danger-soft-alpha);
+    --tag-input-tag-background: var(--color-background-danger-soft-alpha);
     color: var(--color-text-danger-soft);
 
     @mixin hover {
-      background-color: var(--color-background-danger-soft-alpha-hover);
+      --tag-input-tag-background: var(--color-background-danger-soft-alpha-hover);
     }
 
     &:focus {
-      background-color: var(--color-background-danger-soft-alpha-hover);
+      --tag-input-tag-background: var(--color-background-danger-soft-alpha-hover);
     }
 
     &:active {
-      background-color: var(--color-background-danger-soft-alpha-active);
+      --tag-input-tag-background: var(--color-background-danger-soft-alpha-active);
     }
   }
 
@@ -223,13 +224,59 @@
 
 .TagRemove {
   display: flex;
+  flex: none;
   align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
   color: inherit;
   opacity: 0.5;
   transition: opacity 0.15s ease;
 
   @mixin hover {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: -2px;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+  .Tag {
+    --tag-input-tag-height: 44px;
+
+    height: 44px;
+    max-width: 100%;
+    padding-inline-end: 0;
+    border-radius: var(--radius-full);
+  }
+
+  .Tag[data-tag] {
+    position: relative;
+    isolation: isolate;
+    background-color: transparent;
+
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 6px 0;
+      border-radius: inherit;
+      background-color: var(--tag-input-tag-background);
+      pointer-events: none;
+      transition: background-color 0.15s ease;
+    }
+  }
+
+  .TagRemove {
+    width: 44px;
+    height: 44px;
   }
 }
 

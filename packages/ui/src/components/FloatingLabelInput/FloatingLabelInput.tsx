@@ -1,10 +1,12 @@
 "use client"
 
 import clsx from "clsx"
-import { forwardRef, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react"
+import { forwardRef, useCallback, useId, useLayoutEffect, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
+import { observeTextareaWidth } from "../../lib/observeTextareaWidth"
 
 import { Eye, EyeOff, X } from "../Icon"
+import { FieldError } from "../FieldError"
 
 import s from "@plexui/styles/components/FloatingLabelInput/FloatingLabelInput.module.css"
 
@@ -151,17 +153,13 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
     const errorId = errorMessage ? `${inputId}-error` : undefined
 
     const [focused, setFocused] = useState(false)
-    const [hasValue, setHasValue] = useState(() => {
-      return !!(value !== undefined ? value : defaultValue)
+    const [hasUncontrolledValue, setHasValue] = useState(() => {
+      return String((value !== undefined ? value : defaultValue) ?? "") !== ""
     })
     const [revealed, setRevealed] = useState(false)
+    const revealedRef = useRef(false)
 
-    // Sync hasValue with controlled value prop
-    useEffect(() => {
-      if (value !== undefined) {
-        setHasValue(!!value)
-      }
-    }, [value])
+    const hasValue = value !== undefined ? String(value ?? "") !== "" : hasUncontrolledValue
 
     const autoResize = useCallback(() => {
       const el = inputRef.current
@@ -169,6 +167,11 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
       el.style.height = "auto"
       el.style.height = `${el.scrollHeight}px`
     }, [multiline])
+
+    useLayoutEffect(() => {
+      if (!multiline || !inputRef.current) return
+      return observeTextareaWidth(inputRef.current, autoResize)
+    }, [multiline, autoResize])
 
     // Also resize when a controlled value or rows changes without a keystroke
     useLayoutEffect(() => {
@@ -261,11 +264,10 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
     )
 
     const handleRevealToggle = useCallback(() => {
-      setRevealed((prev) => {
-        const next = !prev
-        onRevealedChange?.(next)
-        return next
-      })
+      const next = !revealedRef.current
+      revealedRef.current = next
+      setRevealed(next)
+      onRevealedChange?.(next)
     }, [onRevealedChange])
 
     return (
@@ -361,9 +363,9 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
           )}
         </div>
         {errorMessage && (
-          <div id={errorId} className={s.ErrorMessage} role="alert">
+          <FieldError id={errorId} className={s.ErrorMessage}>
             {errorMessage}
-          </div>
+          </FieldError>
         )}
         {description && (
           <div id={descriptionId} className={s.Description}>

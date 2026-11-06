@@ -1,0 +1,29 @@
+.Row {
+  display: flex;
+  align-items: center;
+  gap: var(--field-row-gap, 16px);
+  min-width: 0;
+  min-height: var(--field-row-min-height, 52px);
+  padding-inline: var(--field-row-padding-inline, 16px);
+}
+
+.Slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.Value {
+  flex: none;
+  min-width: 4ch;
+  text-align: end;
+  font-size: var(--field-row-label-font-size, 14px);
+  line-height: var(--field-row-label-line-height, 20px);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.Row[data-disabled] .Value { color: var(--color-text-disabled); }
+
+.Help {
+  min-height: 44px;
+}

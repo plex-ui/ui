@@ -181,7 +181,7 @@ describe("SelectControl behaviour parity", () => {
       },
     )
     expect(result.vue).toEqual(result.react)
-    expect(result.react.log).toEqual(["interact", "pointerDown prevented", "pointerDown allowed", "click allowed"])
+    expect(result.react.log).toEqual(["pointerdown pointerdown", "interact", "pointerDown prevented", "pointerdown pointerdown", "pointerDown allowed", "interact", "click allowed"])
   })
 
   test("interactOnEnter makes Enter interact", async () => {
@@ -192,7 +192,7 @@ describe("SelectControl behaviour parity", () => {
       },
     )
     expect(result.vue).toEqual(result.react)
-    expect(result.react.log).toEqual(["interact", "keyDown Enter prevented"])
+    expect(result.react.log).toEqual(["keydown Enter", "interact", "keyDown Enter prevented"])
   })
 
   test("onInteract: ArrowDown, ArrowUp and Space interact; Enter does nothing; other keys reach onKeyDown", async () => {
@@ -203,12 +203,16 @@ describe("SelectControl behaviour parity", () => {
     })
     expect(result.vue).toEqual(result.react)
     expect(result.react.log).toEqual([
+      "keydown ArrowDown",
       "interact",
       "keyDown ArrowDown prevented",
+      "keydown ArrowUp",
       "interact",
       "keyDown ArrowUp prevented",
+      "keydown  ",
       "interact",
       "keyDown   prevented",
+      "keydown Enter",
       "keyDown Enter allowed",
       "keydown a",
       "keyDown a allowed",
@@ -219,14 +223,14 @@ describe("SelectControl behaviour parity", () => {
     ])
   })
 
-  test("without onInteract: pointer down calls onPointerDown and onClick; keys dispatch a pointer down", async () => {
+  test("without onInteract: mouse down and keyboard/assistive clicks reach the parent trigger", async () => {
     const result = await behaviour(
       (log) => ({ ...recorder(log), onInteract: undefined }),
       async (log) => {
         await fireAndRecord(log, "pointerDown", { button: 0 })
         await fireAndRecord(log, "keyDown", { key: "ArrowDown" })
         await fireAndRecord(log, "keyDown", { key: " " })
-        // Clicks are ignored: the control opens on pointer down
+        // Assistive clicks without a pointer sequence also activate the trigger.
         await fireAndRecord(log, "click")
       },
     )
@@ -235,12 +239,13 @@ describe("SelectControl behaviour parity", () => {
       "pointerdown pointerdown",
       "click pointerdown",
       "pointerDown allowed",
-      "pointerdown pointerdown",
-      "click pointerdown",
+      "keydown ArrowDown",
+      "click click",
       "keyDown ArrowDown prevented",
-      "pointerdown pointerdown",
-      "click pointerdown",
+      "keydown  ",
+      "click click",
       "keyDown   prevented",
+      "click click",
       "click allowed",
     ])
   })
@@ -292,6 +297,7 @@ describe("SelectControl behaviour parity", () => {
     expect(result.react.log).toEqual([
       "clear keyDown   allowed",
       "clear keyDown Enter allowed",
+      "keydown ArrowDown",
       "interact",
       "clear keyDown ArrowDown prevented",
       "keydown a",
@@ -363,9 +369,31 @@ describe("SelectControl as a Menu trigger", () => {
     snapshots.push(snapshot())
   }
 
+  test("touch waits for a committed click before opening the menu", async () => {
+    const steps = async () => {
+      await settle()
+      await fire(control, "pointerDown", { button: 0, pointerType: "touch", pointerId: 7 })
+      await settle()
+      expect(document.querySelector('[role="menu"]')).toBeNull()
+      await fire(control, "pointerCancel", { pointerType: "touch", pointerId: 7 })
+      expect(document.querySelector('[role="menu"]')).toBeNull()
+      await fire(control, "click", { button: 0, detail: 1 })
+      await settle()
+      expect(document.querySelector('[role="menu"]')).not.toBeNull()
+    }
+    await act(async () => { render(reactMenu("Today")) })
+    await steps()
+    cleanup()
+    const { unmount } = mountVue(() => vueMenu("Today"))
+    await flushVue()
+    await steps()
+    unmount()
+  })
+
   test.each([
     ["pointer down opens", () => fire(control, "pointerDown", { button: 0, pointerType: "mouse" })],
-    ["ArrowDown opens through a synthetic pointer down", () => fire(control, "keyDown", { key: "ArrowDown" })],
+    ["ArrowDown opens", () => fire(control, "keyDown", { key: "ArrowDown" })],
+    ["assistive click opens", () => fire(control, "click", { button: 0, detail: 0 })],
     ["Space opens", () => fire(control, "keyDown", { key: " " })],
   ])("%s", async (_name, step) => {
     const react: string[] = []
@@ -391,5 +419,46 @@ describe("SelectControl as a Menu trigger", () => {
     expect(react[0]).toContain('aria-haspopup="menu"')
     expect(react[0]).not.toContain('role="menu"')
     expect(react[1]).toContain('role="menu"')
+  })
+})
+
+
+describe("SelectControl committed activation", () => {
+  test.each(["touch", "pen"])("%s waits for click and does not act on cancel", async (pointerType) => {
+    const result = await behaviour((log) => ({ onInteract: () => log.push("interact") }), async (log) => {
+      await fire(control, "pointerDown", { button: 0, pointerType })
+      await fire(control, "pointerCancel", { pointerType })
+      expect(log).toEqual([])
+      await fire(control, "pointerDown", { button: 0, pointerType })
+      await fire(control, "pointerUp", { button: 0, pointerType })
+      await fire(control, "click", { detail: 1 })
+      expect(log).toEqual(["interact"])
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test("virtual clicks activate; the physical click after mouse down does not activate twice", async () => {
+    const result = await behaviour((log) => ({ onInteract: () => log.push("interact") }), async (log) => {
+      await fire(control, "pointerDown", { button: 0, pointerType: "mouse" })
+      await fire(control, "click", { detail: 1 })
+      expect(log).toEqual(["interact"])
+      await fire(control, "click", { detail: 0 })
+      expect(log).toEqual(["interact", "interact"])
+    })
+    expect(result.vue).toEqual(result.react)
+  })
+
+  test("consumer preventDefault cancels pointer and keyboard activation", async () => {
+    const result = await behaviour((log) => ({
+      onInteract: () => log.push("interact"),
+      onPointerDown: (event: { preventDefault: () => void }) => event.preventDefault(),
+      onKeyDown: (event: { preventDefault: () => void }) => event.preventDefault(),
+    }), async (log) => {
+      await fire(control, "pointerDown", { button: 0, pointerType: "mouse" })
+      await fire(control, "click", { detail: 1 })
+      await fire(control, "keyDown", { key: "ArrowDown" })
+      expect(log).toEqual([])
+    })
+    expect(result.vue).toEqual(result.react)
   })
 })

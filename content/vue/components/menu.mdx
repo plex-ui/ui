@@ -337,12 +337,18 @@ export const danger = `<Menu>
 
 ## Styling
 
+With the optional `touch.css` stylesheet, phone menus use 32px corners, 17px labels with 20px line height, and 13/18px subtitles. Long labels wrap and increase the item height. Each item retains a minimum 44px interaction target; a checked item keeps its checkmark without a persistent background. The default minimum menu width is 238px, while an explicit minimum width still takes precedence.
+
+On phones, menus and submenus inside a Page or Dialog keep clear of its visible footer. Their available space updates when the footer or viewport changes.
+
 Menu reads these component tokens. Override them at any scope to restyle it:
 
 - `--menu-checkbox-indicator-size`: checkbox indicator size (default `var(--font-text-lg-size)`)
 - `--menu-font-size`: font size (default `var(--font-text-sm-size)`)
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
+- `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 238px with touch styles)
+- `--menu-item-press-scale`: pressed surface scale (1 with touch styles; otherwise follows the pointer interaction scale)
 - `--menu-item-gap`: item gap (default `spacing(1.5)`)
 - `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)
 - `--menu-line-height`: line height (default `var(--font-text-sm-line-height)`)

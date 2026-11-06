@@ -1,21 +1,25 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, useId, useSyncExternalStore, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Eye, Code, InfoCircle, Desktop, Mobile } from '@plexui/ui/components/Icon';
+import { Button } from '@plexui/ui/components/Button';
+import { Eye, Code, InfoCircle, Desktop, Mobile, Reload } from '@plexui/ui/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { DemoControlHostContext, usePreviewEmbed } from './PreviewEmbed';
+import { DemoControlHostContext, compactPreviewHeight, createDemoControlChannel, usePreviewEmbed } from './PreviewEmbed';
 import s from './ComponentPreview.module.css';
 import { usePreviewViewport } from './PreviewViewport';
+import { goToPreviousExample } from './previewNavigation';
+import { isPreviewScrollDelta, scrollPreviewParent } from './previewScroll';
+import { Switch } from '@plexui/ui/components/Switch';
+import { PreviewKeyboard, NUMERIC_KEYBOARD_HEIGHT, TEXT_KEYBOARD_HEIGHT } from './PreviewKeyboard';
+import { canSimulatePreviewKeyboard, type PreviewKeyboardCommand, type PreviewKeyboardState } from './previewKeyboardInput';
 
 type Mode = 'preview' | 'code' | 'details';
 type Viewport = 'desktop' | 'phone';
-
-/** Original Figma iPhone 17 Pro bezel geometry: 450×920 around a 402×874 screen. */
-const PHONE_DEVICE_WIDTH = 450;
+type PhonePresentation = 'component' | 'screen' | 'none';
 
 export function ComponentPreview({
   previewId,
@@ -27,6 +31,8 @@ export function ComponentPreview({
   className,
   previewMinHeight,
   phoneDialog = false,
+  phonePresentation: requestedPhonePresentation,
+  phoneOnly = false,
   resizable = false,
 }: {
   /** Assigned by remarkPreviewId, shared by the docs page and its Phone iframe. */
@@ -40,12 +46,19 @@ export function ComponentPreview({
   previewMinHeight?: number | string;
   /** Reserve a scrim and reveal the phone only after its initial dialog has mounted. */
   phoneDialog?: boolean;
+  /** Component viewport, complete screen, or a pointer/keyboard-only example. */
+  phonePresentation?: PhonePresentation;
+  /** A phone-only component, such as Toolbar: the preview always shows the Phone view, without the Desktop switch. */
+  phoneOnly?: boolean;
   resizable?: boolean;
 }) {
+  const phonePresentation = requestedPhonePresentation ?? (phoneDialog || phoneOnly ? 'screen' : 'component');
   const [mode, setMode] = useState<Mode>('preview');
+  const [resetRevision, setResetRevision] = useState(0);
+  const [phoneActivation, setPhoneActivation] = useState(0);
   const pageViewport = usePreviewViewport();
   const [override, setOverride] = useState<{ viewport: Viewport; revision: number } | null>(null);
-  const viewport = override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
+  const viewport = phoneOnly ? 'phone' : override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
   const setViewport = (next: Viewport) => setOverride({ viewport: next, revision: pageViewport.revision });
   // Under md the page is a phone already: no switch and no iframe
   const wide = useBreakpoint('md');
@@ -53,6 +66,12 @@ export function ComponentPreview({
   const embedTarget = usePreviewEmbed();
   const hasCode = Boolean(code);
   const hasDetails = Boolean(details);
+
+  const { registerPhoneExample } = pageViewport;
+  useEffect(() => {
+    if (embedTarget !== null || phonePresentation === 'none' || phoneOnly) return;
+    return registerPhoneExample();
+  }, [embedTarget, phoneOnly, phonePresentation, registerPhoneExample]);
 
   type ElementProps = Record<string, unknown>;
   const childArray = React.Children.toArray(children);
@@ -94,20 +113,27 @@ export function ComponentPreview({
   if (embedTarget !== null) {
     if (embedTarget !== previewId) return null;
     return (
-      <div className={`${s.PreviewContainer} not-prose`} data-preview-embed>
+      <div className={`${s.PreviewContainer} not-prose`} data-preview-embed data-preview-presentation={phonePresentation} data-preview-initial-dialog={phoneDialog || undefined}>
         <div className={`${s.PreviewInner} ${className ?? ''}`.trim()}>{normalizedChildren}</div>
       </div>
     );
   }
 
   return (
-    <div className={`${s.Wrapper} not-prose`}>
+    <div className={`${s.Wrapper} not-prose`} data-component-preview data-preview-viewport={viewport}>
       {/* Tab bar — outside the bordered block */}
-      <div className={s.TabBar}>
-        <SegmentedControl
+      <div className={s.TabBar} onClickCapture={(event) => {
+        // Re-selecting the active Phone tab is still an explicit activation.
+        // Page-wide Phone mode deliberately does not focus every mounted iframe.
+        if (viewport === 'phone' && event.target instanceof Element && event.target.closest('button[aria-label="Phone"]')) {
+          setPhoneActivation((value) => value + 1);
+        }
+      }}>
+        {phonePresentation !== 'none' && !phoneOnly && <SegmentedControl
           value={viewport}
           onChange={(v) => {
             setViewport(v as Viewport);
+            if (v === 'phone') setPhoneActivation((value) => value + 1);
             setMode('preview');
           }}
           size="xs"
@@ -117,7 +143,7 @@ export function ComponentPreview({
         >
           <SegmentedControl.Option value="desktop" icon={<Desktop />} aria-label="Desktop" />
           <SegmentedControl.Option value="phone" icon={<Mobile />} aria-label="Phone" />
-        </SegmentedControl>
+        </SegmentedControl>}
         <SegmentedControl
           value={mode}
           onChange={(v) => setMode(v as Mode)}
@@ -133,6 +159,11 @@ export function ComponentPreview({
             <SegmentedControl.Option value="details" icon={<InfoCircle />} aria-label="Details" />
           )}
         </SegmentedControl>
+        <Button type="button" color="secondary" variant="ghost" size="xs" uniform pill
+          aria-label="Reset preview" title="Reset preview"
+          onClick={() => { setResetRevision((revision) => revision + 1); setMode('preview'); }}>
+          <Reload />
+        </Button>
       </div>
 
       {description && <p className={s.PreviewDescription}>{description}</p>}
@@ -141,10 +172,11 @@ export function ComponentPreview({
       <div className={s.PreviewBlock}>
         {mode === 'preview' ? (
           <PreviewPane
+            key={resetRevision}
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog } : null}
+            phone={viewport === 'phone' && wide && phonePresentation !== 'none' ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -172,62 +204,130 @@ export function ComponentPreview({
 
 /**
  * The demo stays mounted on this page, its controls above the phone and its stage
- * hidden; the controls' values go into the iframe, so they carry across both views.
+ * hidden. Values sync both ways, keeping the control bar and iframe in step.
  */
-function PhoneFrame({
+function PhonePreview({
   src,
   previewKey,
   previewMinHeight,
   startsWithDialog,
+  presentation,
   frameRef,
   onReady,
+  activation,
 }: {
   src: string;
   previewKey: string;
   previewMinHeight?: number | string;
   startsWithDialog: boolean;
+  presentation: Exclude<PhonePresentation, 'none'>;
   frameRef: React.RefObject<HTMLIFrameElement | null>;
   onReady: () => void;
+  activation: number;
 }) {
+  const screen = presentation === 'screen';
+  const minimumHeight = typeof previewMinHeight === 'number' ? previewMinHeight : 168;
+  const [contentHeight, setContentHeight] = useState(() => compactPreviewHeight(minimumHeight));
   const deviceRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.8);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [statusBarScrim, setStatusBarScrim] = useState(startsWithDialog);
+  const [screenBackground, setScreenBackground] = useState<string>();
   const [ready, setReady] = useState(!startsWithDialog);
+  const [keyboard, setKeyboard] = useState<PreviewKeyboardState>({ available: false, open: false, kind: null });
+  const keyboardControlId = useId();
+  const [loaded, setLoaded] = useState(false);
+  const lastActivation = useRef(0);
+  const sendKeyboard = useCallback((command: PreviewKeyboardCommand) => {
+    if (!screen || !canSimulatePreviewKeyboard(document)) return;
+    frameRef.current?.contentWindow?.postMessage({ previewKey, previewKeyboardCommand: command }, window.location.origin);
+  }, [screen, frameRef, previewKey]);
+  useEffect(() => {
+    // Wait for the input and the host's keyboard-sized viewport, not just the
+    // iframe bridge. A streamed or Vue-mounted field can arrive after demoReady.
+    if (activation > lastActivation.current && loaded && keyboard.available) {
+      lastActivation.current = activation;
+      sendKeyboard('activate');
+    }
+  }, [activation, loaded, keyboard.available, sendKeyboard]);
   const onReadyRef = useRef(onReady);
   useEffect(() => {
     onReadyRef.current = onReady;
   }, [onReady]);
 
   useEffect(() => {
-    const device = deviceRef.current;
-    if (!device) return;
-    const update = () => setScale(device.getBoundingClientRect().width / PHONE_DEVICE_WIDTH);
-    const observer = new ResizeObserver(update);
-    observer.observe(device);
-    update();
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
-      const data = event.data as { previewKey?: string; previewDialogOpen?: boolean; demoReady?: boolean };
-      if (data?.previewKey !== previewKey) return;
-      if (typeof data.previewDialogOpen === 'boolean') {
+      const data: unknown = event.data;
+      if (!data || typeof data !== 'object' || !('previewKey' in data) || data.previewKey !== previewKey) return;
+      if ('previewScroll' in data && isPreviewScrollDelta(data.previewScroll) && frameRef.current) {
+        scrollPreviewParent(frameRef.current, data.previewScroll);
+      }
+      if ('previewHeight' in data && typeof data.previewHeight === 'number' && Number.isFinite(data.previewHeight)) {
+        // Once measured, compact content owns its height; the desktop minimum is only a loading placeholder.
+        setContentHeight(compactPreviewHeight(data.previewHeight, 0));
+      }
+      if ('previewBackground' in data && typeof data.previewBackground === 'string' && CSS.supports('color', data.previewBackground)) {
+        setScreenBackground(data.previewBackground);
+      }
+      if ('previewDialogOpen' in data && typeof data.previewDialogOpen === 'boolean') {
         setDialogOpen(data.previewDialogOpen);
         if (data.previewDialogOpen) setReady(true);
       }
-      if (data.demoReady) onReadyRef.current();
+      if ('previewStatusBarScrim' in data && typeof data.previewStatusBarScrim === 'boolean') {
+        setStatusBarScrim(data.previewStatusBarScrim);
+      }
+      if (screen && canSimulatePreviewKeyboard(document) && 'previewKeyboard' in data && data.previewKeyboard && typeof data.previewKeyboard === 'object') {
+        const state = data.previewKeyboard;
+        if ('available' in state && typeof state.available === 'boolean' && 'open' in state && typeof state.open === 'boolean'
+          && 'kind' in state && (state.kind === 'numeric' || state.kind === 'text' || state.kind === null)) {
+          const available = state.available && state.kind !== null;
+          setKeyboard({ available, open: available && state.open, kind: available ? state.kind : null });
+        }
+      }
+      if ('demoReady' in data && data.demoReady === true) {
+        setLoaded(true);
+        onReadyRef.current();
+      }
+      if ('previewBack' in data && data.previewBack === true) {
+        goToPreviousExample(deviceRef.current);
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [previewKey, frameRef]);
+  }, [previewKey, frameRef, screen, sendKeyboard]);
+
+  const frame = (
+    <iframe
+      ref={frameRef}
+      src={src}
+      title={screen ? "Phone preview" : "Phone component preview"}
+      loading="lazy"
+      className={screen ? s.PhoneFrame : s.ComponentPhoneFrame}
+      data-pending={screen && !ready || undefined}
+      style={screen && keyboard.open ? { height: 874 - (keyboard.kind === 'text' ? TEXT_KEYBOARD_HEIGHT : NUMERIC_KEYBOARD_HEIGHT) } : undefined}
+    />
+  );
+
+  if (!screen) {
+    return (
+      <div className={s.ComponentPhoneContainer}>
+        <div ref={deviceRef} className={s.ComponentPhoneViewport} style={{ height: contentHeight }}>
+          {frame}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={s.PhoneContainer} data-dialog-open={(dialogOpen || !ready) || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
+    <>
+    {keyboard.available && <div className={s.KeyboardControl}>
+      <label htmlFor={keyboardControlId}>keyboard</label>
+      <Switch id={keyboardControlId} checked={keyboard.open} onCheckedChange={(open) => sendKeyboard(open ? 'show' : 'hide')} />
+    </div>}
+    <div className={s.PhoneContainer} data-dialog-open={(dialogOpen || !ready) || undefined} data-status-bar-scrim={(statusBarScrim || !ready) || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
       <div ref={deviceRef} className={s.PhoneDevice}>
-        <div className={s.PhoneCanvas} style={{ transform: `scale(${scale})` }}>
-          <div className={s.PhoneScreen}>
+        <div className={s.PhoneCanvas}>
+          <div className={s.PhoneScreen} style={{ '--phone-screen-background': screenBackground } as React.CSSProperties}>
             <div className={s.PhoneStatusBar} aria-hidden="true">
               <span className={s.PhoneTime}>9:41</span>
               <span className={s.PhoneStatusIcons}>
@@ -236,25 +336,23 @@ function PhoneFrame({
                 <Image src="/images/devices/iphone-17-pro/battery.svg" alt="" width={27.328} height={13} unoptimized />
               </span>
             </div>
-            <iframe
-              ref={frameRef}
-              src={src}
-              title="Phone preview"
-              loading="lazy"
-              className={s.PhoneFrame}
-              data-pending={!ready || undefined}
-            />
+            {frame}
+            {keyboard.open && keyboard.kind && <PreviewKeyboard kind={keyboard.kind} onKey={sendKeyboard} />}
           </div>
           <Image className={s.PhoneBezel} src="/images/devices/iphone-17-pro/silver-portrait.png" alt="" width={450} height={920} unoptimized loading="eager" aria-hidden="true" />
         </div>
       </div>
     </div>
+    </>
   );
 }
 
 /* ------------------------------------------------------------------ */
 /*  Resizable preview pane                                            */
 /* ------------------------------------------------------------------ */
+
+// Hydration has no event to subscribe to: the server snapshot is false, every client snapshot is true.
+const subscribeToNothing = () => () => {};
 
 function PreviewPane({
   children,
@@ -267,15 +365,17 @@ function PreviewPane({
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
-  phone: { src: string; previewKey: string; dialog: boolean } | null;
+  phone: { src: string; previewKey: string; dialog: boolean; presentation: Exclude<PhonePresentation, 'none'>; activation: number } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
   const dragging = useRef(false);
+  // An example picks its phone or desktop composition after hydration (useBreakpoint is false on the
+  // first render), so the server markup is the phone one. On a wide page it stays out of sight until then.
+  const hydrated = useSyncExternalStore(subscribeToNothing, () => true, () => false);
 
-  // The controls' latest values, sent into the phone view and again once it loads
+  // Shared control values sync both ways and replay into the phone once it loads.
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const controlValues = useRef(new Map<string, unknown>());
   const phoneKey = phone?.previewKey;
   const send = useCallback(
     (name: string, value: unknown) => {
@@ -287,18 +387,25 @@ function PreviewPane({
     [phoneKey]
   );
   const host = useMemo(
-    () =>
-      phoneKey
-        ? {
-            publish: (name: string, value: unknown) => {
-              controlValues.current.set(name, value);
-              send(name, value);
-            },
-          }
-        : null,
-    [phoneKey, send]
+    () => phoneKey ? createDemoControlChannel(phoneKey, 'host') : null,
+    [phoneKey]
   );
-  const sendAll = useCallback(() => controlValues.current.forEach((value, name) => send(name, value)), [send]);
+  useLayoutEffect(() => host?.connect(send), [host, send]);
+  const sendAll = useCallback(() => host?.replay(), [host]);
+
+  useEffect(() => {
+    if (!host) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
+      const data: unknown = event.data;
+      if (!data || typeof data !== 'object' || !('previewKey' in data) || data.previewKey !== phoneKey || !('demoControlChange' in data)) return;
+      const control = data.demoControlChange;
+      if (!control || typeof control !== 'object' || !('name' in control) || typeof control.name !== 'string' || !('value' in control)) return;
+      host.receive(control.name, control.value);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [host, phoneKey]);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -348,7 +455,7 @@ function PreviewPane({
         data-phone={phone ? '' : undefined}
       >
         <DemoControlHostContext.Provider value={host}>
-          <div className={s.PreviewInner}>{children}</div>
+          <div className={s.PreviewInner} data-preview-hydrating={hydrated ? undefined : ''}>{children}</div>
         </DemoControlHostContext.Provider>
         {resizable && !phone && (
           <div
@@ -362,13 +469,15 @@ function PreviewPane({
         )}
       </div>
       {phone && (
-        <PhoneFrame
+        <PhonePreview
           src={phone.src}
           previewKey={phone.previewKey}
           startsWithDialog={phone.dialog}
+          presentation={phone.presentation}
           previewMinHeight={previewMinHeight}
           frameRef={frameRef}
           onReady={sendAll}
+          activation={phone.activation}
         />
       )}
     </div>

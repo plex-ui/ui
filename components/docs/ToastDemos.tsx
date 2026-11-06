@@ -4,7 +4,7 @@ import { Button } from '@plexui/ui/components/Button';
 import { Toaster, toast, compact } from '@plexui/ui/components/Toast';
 
 export function ToastDemosHost() {
-  return <Toaster />;
+  return <div data-preview-support><Toaster /></div>;
 }
 
 function DemoStage({ children }: { children: React.ReactNode }) {

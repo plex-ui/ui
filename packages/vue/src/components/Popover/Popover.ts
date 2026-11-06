@@ -34,6 +34,7 @@ import { useDeferredPointerDownOutside } from "./deferredPointerDownOutside.js"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent.js"
 import { PopoverContextKey, usePopoverContext, type PopoverContextValue } from "./usePopoverContext.js"
 import { usePopoverController } from "./usePopoverController.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
 import s from "@plexui/styles/components/Popover/Popover.module.css"
 
 // Vue port of packages/ui/src/components/Popover/Popover.tsx on Reka UI.
@@ -68,7 +69,7 @@ const PopoverComponent = defineComponent({
     hoverOpenDelay: { type: Number, default: 150 },
   },
   emits: {
-    "update:open": (_nextState: boolean) => true,
+    "update:open": (nextState: boolean) => typeof nextState === "boolean",
   },
   setup(props, { slots, emit }) {
     const open = ref(false)
@@ -167,8 +168,8 @@ export const PopoverTrigger = defineComponent({
   name: "PopoverTrigger",
   inheritAttrs: false,
   emits: {
-    pointerdown: (_event: PointerEvent) => true,
-    click: (_event: MouseEvent) => true,
+    pointerdown: (event: PointerEvent) => typeof event.type === "string",
+    click: (event: MouseEvent) => typeof event.type === "string",
   },
   setup(_props, { slots, emit }) {
     const {
@@ -206,7 +207,7 @@ export const PopoverTrigger = defineComponent({
     }
 
     const handlePointerMove = (evt: PointerEvent) => {
-      if (evt.pointerType === "touch") {
+      if (!isHoverPointer(evt)) {
         return
       }
 
@@ -278,6 +279,8 @@ export const PopoverTrigger = defineComponent({
 const contentProps = {
   /** Avoids collisions with the viewport and scroll containers. @default true */
   avoidCollisions: { type: Boolean, default: undefined },
+  /** Distance from viewport and scroll container boundaries, in pixels. @default 20 */
+  collisionPadding: { type: Number, default: 20 },
   /** `width` of the popover; numbers are pixels. @default "auto" */
   width: [Number, String] as PropType<number | "auto">,
   /** `min-width` of the popover; numbers are pixels. @default 300 */
@@ -312,7 +315,10 @@ const PopoverContentElement = markRaw(defineComponent({
     }
 
     return () => {
-      const { "dir": _dir, "aria-labelledby": _labelledBy, "forceMount": _forceMount, style, ...rest } = attrs
+      const { style, ...rest } = attrs
+      delete rest.dir
+      delete rest["aria-labelledby"]
+      delete rest.forceMount
       return h(
         "div",
         { ...rest, style: withRadixVariableNames(style, "popover"), ref: setContentRef },
@@ -422,7 +428,7 @@ const PopoverContentImpl = defineComponent({
           "alignOffset": props.alignOffset ?? (props.align === "center" ? 0 : -5),
           "avoidCollisions": props.avoidCollisions ?? true,
           "hideWhenDetached": true,
-          "collisionPadding": 20,
+          "collisionPadding": props.collisionPadding,
           "onOpenAutoFocus": preventDefaultHandler,
           // Escape is handled by the Escape stack in PopoverContent
           "onEscapeKeyDown": preventDefaultHandler,
@@ -447,6 +453,7 @@ const PopoverContentHoverable = defineComponent({
     }
 
     const handleCreateGraceArea = (event: PointerEvent, hoverTarget: HTMLElement) => {
+      if (!isHoverPointer(event)) return
       const graceArea = createPointerIntentArea(event, hoverTarget)
       pointerGraceArea.value = graceArea
       isPointerInTransitRef.current = true
@@ -481,6 +488,7 @@ const PopoverContentHoverable = defineComponent({
       }
 
       const handleTrackPointerGrace = (event: PointerEvent) => {
+        if (!isHoverPointer(event)) return
         const trigger = triggerRef.value
         const content = contentRef.value
         const target = event.target as HTMLElement

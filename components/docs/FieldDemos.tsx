@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useCallback, useId, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { FieldError } from '@plexui/ui/components/FieldError';
 import { Input } from '@plexui/ui/components/Input';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { Select } from '@plexui/ui/components/Select';
@@ -14,59 +13,23 @@ import { RadioGroup } from '@plexui/ui/components/RadioGroup';
 import { TagInput } from '@plexui/ui/components/TagInput';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import dynamic from 'next/dynamic';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { FormScreen } from './FormRowsDemos';
+
+const months = Array.from({ length: 12 }, (_, index) => { const value = String(index + 1).padStart(2, '0'); return { label: value, value }; });
+const years = Array.from({ length: 10 }, (_, index) => { const value = String(2025 + index); return { label: value, value }; });
+const languages = [{ label: 'English', value: 'en' }, { label: 'Spanish', value: 'es' }, { label: 'French', value: 'fr' }, { label: 'German', value: 'de' }, { label: 'Japanese', value: 'ja' }];
+const themes = [{ label: 'System', value: 'system' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }];
+const regions = [{ label: 'US East (N. Virginia)', value: 'us-east-1' }, { label: 'US West (Oregon)', value: 'us-west-2' }, { label: 'Europe (Frankfurt)', value: 'eu-central-1' }, { label: 'Asia Pacific (Tokyo)', value: 'ap-northeast-1' }];
+const fieldTypes = [{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }, { label: 'Rich text', value: 'richtext' }];
+const expirations = [{ label: 'Never', value: 'never' }, { label: '30 days', value: '30d' }, { label: '90 days', value: '90d' }, { label: '1 year', value: '1y' }];
 
 const Slider = dynamic(
   () => import('@plexui/ui/components/Slider').then((mod) => mod.Slider),
   { ssr: false }
 );
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
@@ -288,7 +251,7 @@ export function FieldLabelActionDemo() {
 export function FieldWithSliderDemo() {
   const [price, setPrice] = useState<number[]>([200, 800]);
   return (
-    <div className="w-[400px]">
+    <div className="w-full min-w-0 max-w-[400px]">
       <Field label="Price Range" description={`Set your budget range ($${price[0].toLocaleString()} – ${price[1].toLocaleString()}).`}>
         <Slider
           range
@@ -306,7 +269,7 @@ export function FieldWithSliderDemo() {
 
 export function FieldFieldsetDemo() {
   return (
-    <div className="w-[400px]">
+    <div className="w-full min-w-0 max-w-[400px]">
       <div className="mb-3">
         <h3 className="text-xs font-medium text-secondary uppercase tracking-wider">Address Information</h3>
         <p className="text-xs text-tertiary mt-0.5">We need your address to deliver your order.</p>
@@ -316,10 +279,10 @@ export function FieldFieldsetDemo() {
           <Input placeholder="123 Main St" />
         </Field>
         <div className="flex gap-3">
-          <Field label="City" className="flex-1">
+          <Field label="City" className="min-w-0 flex-1">
             <Input placeholder="New York" />
           </Field>
-          <Field label="Postal Code" className="flex-1">
+          <Field label="Postal Code" className="min-w-0 flex-1">
             <Input placeholder="90502" />
           </Field>
         </div>
@@ -386,7 +349,7 @@ export function FieldWithSwitchDemo() {
 
 export function FieldGroupDemo() {
   return (
-    <div className="w-[400px] divide-y divide-alpha/15">
+    <div className="w-full min-w-0 max-w-[400px] divide-y divide-alpha/15">
       <div className="pb-6">
         <Field
           label="Responses"
@@ -455,6 +418,24 @@ export function FieldFormExampleDemo() {
   const [pill, setPill] = useState(false);
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
+
+  const wide = useBreakpoint('md');
+
+  if (!wide) return (
+    <FormScreen title="Payment details" submitLabel="Submit">
+      <FieldGroup title="Payment method" description="All transactions are secure and encrypted." columns>
+        <Field row label="Name on card"><Input placeholder="Jane Doe" autoComplete="cc-name" /></Field>
+        <Field row label="Card number" orientation="vertical"><Input placeholder="1234 5678 9012 3456" inputMode="numeric" autoComplete="cc-number" /></Field>
+        <Field row label="Month"><Select placeholder="MM" value={month} onChange={(option) => setMonth(option.value)} options={months} /></Field>
+        <Field row label="Year"><Select placeholder="YYYY" value={year} onChange={(option) => setYear(option.value)} options={years} /></Field>
+        <Field row label="CVV"><Input placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Billing address" description="The billing address associated with your payment method.">
+        <Field row label="Same as shipping address"><Switch defaultChecked /></Field>
+        <Field row label="Comments" orientation="vertical"><Textarea rows={3} autoResize placeholder="Add any additional comments" /></Field>
+      </FieldGroup>
+    </FormScreen>
+  );
 
   return (
     <>
@@ -551,7 +532,7 @@ export function FieldOpticalAlignDemo() {
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
       <div data-demo-stage className="py-10">
-        <div className="w-[400px]">
+        <div className="w-full min-w-0 max-w-[400px]">
           <div className="border border-dashed border-alpha/20 rounded-md py-6 px-8">
             <div className="mb-5 text-secondary text-sm">
               {opticallyAlign ? 'opticallyAlign="start"' : "Default"}
@@ -855,6 +836,28 @@ export function FieldProfileSettingsDemo() {
   const [language, setLanguage] = useState('en');
   const [theme, setTheme] = useState('system');
 
+  const wide = useBreakpoint('md');
+
+  if (!wide) return (
+    <FormScreen title="Profile settings" submitLabel="Save changes">
+      <FieldGroup title="Personal information" description="Your public profile details." columns>
+        <Field row label="First name"><Input defaultValue="Jane" autoComplete="given-name" /></Field>
+        <Field row label="Last name"><Input defaultValue="Doe" autoComplete="family-name" /></Field>
+        <Field row label="Email" orientation="vertical" description="This is the email associated with your account."><Input defaultValue="jane@example.com" type="email" autoComplete="email" /></Field>
+        <Field row label="Bio" orientation="vertical" description="Brief description for your profile. Max 160 characters."><Textarea placeholder="Tell us about yourself..." rows={3} autoResize maxLength={160} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Preferences" description="Customize your experience." columns>
+        <Field row label="Language"><Select value={language} onChange={(option) => setLanguage(option.value)} options={languages} /></Field>
+        <Field row label="Theme"><Select value={theme} onChange={(option) => setTheme(option.value)} options={themes} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Notifications" description="Manage how you receive updates.">
+        <Field row label="Email notifications" description="Receive weekly digests and important updates."><Switch defaultChecked /></Field>
+        <Field row label="Push notifications" description="Get real-time alerts in your browser."><Switch /></Field>
+        <Field row label="Marketing emails" description="Tips, product updates, and promotions."><Switch /></Field>
+      </FieldGroup>
+    </FormScreen>
+  );
+
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -914,7 +917,7 @@ export function FieldProfileSettingsDemo() {
             </Field>
 
             <Field label="Theme" description="Select your preferred appearance.">
-              {(fieldProps) => (
+              {() => (
                 <RadioGroup
                   aria-label="Theme"
                   value={theme}
@@ -974,6 +977,37 @@ export function FieldCreateProjectDemo() {
   const [pill, setPill] = useState(false);
   const [visibility, setVisibility] = useState('private');
   const [region, setRegion] = useState('');
+
+  const wide = useBreakpoint('md');
+
+  if (!wide) return (
+    <FormScreen title="Create project" submitLabel="Create project">
+      <FieldGroup title="General" description="Basic information about your project." columns>
+        <Field row label="Project name" required><Input placeholder="my-project" required /></Field>
+        <Field row label="Description" orientation="vertical" description="A short summary shown in project listings."><Textarea placeholder="What does this project do?" rows={3} autoResize /></Field>
+      </FieldGroup>
+      <RadioGroup direction="col" className="w-full" value={visibility} onChange={setVisibility} aria-label="Visibility">
+        <FieldGroup title="Visibility" description="Controls who can see this project.">
+          <Field row label="Private" description="Only invited members."><RadioGroup.Item value="private" /></Field>
+          <Field row label="Internal" description="Anyone in your organization."><RadioGroup.Item value="internal" /></Field>
+          <Field row label="Public" description="Visible to everyone."><RadioGroup.Item value="public" /></Field>
+        </FieldGroup>
+      </RadioGroup>
+      <FieldGroup title="Team access" description="Invite collaborators and set permissions.">
+        <Field row label="Team members" orientation="vertical" description="Add people by email address."><TagInput placeholder="Add email..." defaultValue={[{ value: 'alice@team.com', valid: true }, { value: 'bob@team.com', valid: true }]} validator={(value) => value.includes('@')} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Permissions" description="Default permissions for new members.">
+        <Field row label="Can view project"><Switch defaultChecked /></Field>
+        <Field row label="Can edit resources"><Switch defaultChecked /></Field>
+        <Field row label="Can manage members"><Switch /></Field>
+        <Field row label="Can delete project"><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Infrastructure" description="Deployment and resource configuration." columns>
+        <Field row label="Region"><Select placeholder="Select region" value={region} onChange={(option) => setRegion(option.value)} options={regions} /></Field>
+        <Field row label="Auto-deploy" description="Automatically deploy on push to main branch."><Switch defaultChecked /></Field>
+      </FieldGroup>
+    </FormScreen>
+  );
 
   return (
     <>
@@ -1099,6 +1133,28 @@ export function FieldConfigurationDemo() {
   const [type, setType] = useState('string');
   const [expiresIn, setExpiresIn] = useState('');
 
+  const wide = useBreakpoint('md');
+
+  if (!wide) return (
+    <FormScreen title="Field configuration" submitLabel="Save field">
+      <FieldGroup title="Setup" description="Define the basic field properties." columns>
+        <Field row label="Key" orientation="vertical" description="Unique identifier used in the API. Cannot be changed later."><Input defaultValue="registration_method" /></Field>
+        <Field row label="Label" orientation="vertical" description="Human-readable name displayed in the UI."><Input defaultValue="Registration method" /></Field>
+        <Field row label="Type"><Select value={type} onChange={(option) => setType(option.value)} options={fieldTypes} /></Field>
+        <Field row label="Default value" orientation="vertical" description="Value assigned when the field is empty."><Input placeholder="Set default value (optional)" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Formatting" description="Input constraints and sanitization rules." columns>
+        <Field row label="Max length" description="Max length cannot exceed 4096."><Input placeholder="256" inputMode="numeric" /></Field>
+        <Field row label="HTML sanitization" description="Strip potentially unsafe HTML tags from input."><Switch /></Field>
+      </FieldGroup>
+      <FieldGroup title="Privacy & access" description="Control field visibility and mutability." columns>
+        <Field row label="Not redactable" description="Prevent this field from being redacted."><Switch /></Field>
+        <Field row label="Write once" description="Value can only be set once and cannot be changed."><Switch /></Field>
+        <Field row label="Expires in" description="Automatically delete the field value after the specified period."><Select placeholder="Never" value={expiresIn} onChange={(option) => setExpiresIn(option.value)} options={expirations} /></Field>
+      </FieldGroup>
+    </FormScreen>
+  );
+
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -1212,5 +1268,4 @@ export function FieldConfigurationDemo() {
     </>
   );
 }
-
 

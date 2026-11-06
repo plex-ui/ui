@@ -187,10 +187,26 @@ export const Slider = memo((props: SliderProps) => {
   // One debounced function for the slider's lifetime (calling the latest
   // onChange), so an immediate change can cancel the pending typed one
   const debouncedOnChange = useDebounceCallback(
-    useStableCallback((nextValue: number) => singleOnChange?.(nextValue)),
+    useStableCallback((nextValue: number) => {
+      if (!disabled) singleOnChange?.(nextValue)
+    }),
     250,
   )
   const [pointerDown, setPointerDown] = useState(false)
+  const [resetPending, setResetPending] = useState(false)
+  // Read the controlled owner after a reset request, including a refused request.
+  useEffect(() => {
+    if (!resetPending) return
+    setResetPending(false)
+    if (!isRange) setInputValueNumber(singleValue)
+  }, [resetPending, isRange, singleValue, setInputValueNumber])
+  useEffect(() => () => debouncedOnChange.cancel(), [debouncedOnChange])
+  useEffect(() => {
+    if (!disabled) return
+    debouncedOnChange.cancel()
+    setPointerDown(false)
+    if (!isRange) setInputValueNumber(singleValue)
+  }, [disabled, isRange, singleValue, setInputValueNumber, debouncedOnChange])
   const isMounted = useIsMounted()
 
   // Used to position the input over the thumb
@@ -257,7 +273,7 @@ export const Slider = memo((props: SliderProps) => {
 
   // Single-mode keyboard handler: a key's change replaces a pending typed one
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (evt) => {
-    if (isRange || !singleOnChange) return
+    if (disabled || isRange || !singleOnChange) return
     if (evt.key === "Home") {
       evt.preventDefault()
       debouncedOnChange.cancel()
@@ -293,9 +309,10 @@ export const Slider = memo((props: SliderProps) => {
   }
 
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = (evt) => {
-    if (isRange || !singleOnChange) return
-    // Digits and dots, plus a leading minus when the slider goes below zero
-    const nextValue = evt.currentTarget.value.replace(min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "").trim()
+    if (disabled || isRange || !singleOnChange) return
+    // Mobile decimal keyboards may use a comma. A minus is valid only below zero.
+    const nextValue = evt.currentTarget.value.trim().replace(/,/g, ".").replace(min < 0 ? /(?!^-)[^\d.]/g : /[^\d.]/g, "")
+    debouncedOnChange.cancel()
     let parsed = parseFloat(nextValue || "0")
     if (Number.isNaN(parsed)) {
       // A lone "-" or "." is a number still being typed: nothing to report yet
@@ -314,7 +331,12 @@ export const Slider = memo((props: SliderProps) => {
     if (isRange || !singleOnChange) return
     // Blur commits the typed text, so its pending debounced change is dropped
     debouncedOnChange.cancel()
-    let parsed = parseFloat(evt.target.value.trim()) || 0
+    if (disabled) {
+      setInputValueNumber(singleValue)
+      onBlur?.(evt)
+      return
+    }
+    let parsed = parseFloat(evt.target.value.trim().replace(/,/g, ".")) || 0
     if (step >= 1) {
       parsed = Math.floor(parsed)
     } else {
@@ -330,9 +352,12 @@ export const Slider = memo((props: SliderProps) => {
 
   // Radix value/onChange wiring
   const radixValue = isRange ? (value as number[]) : [value as number]
-  const handleValueChange = isRange
-    ? (values: number[]) => (onChange as (v: number[]) => void)(values)
-    : (values: number[]) => (onChange as (v: number) => void)(values[0])
+  const handleValueChange = (values: number[]) => {
+    if (disabled) return
+    debouncedOnChange.cancel()
+    if (isRange) (onChange as (v: number[]) => void)(values)
+    else (onChange as (v: number) => void)(values[0])
+  }
 
   // Single-mode props
   const resetValue = !isRange ? (props as SingleSliderProps).resetValue : undefined
@@ -374,8 +399,14 @@ export const Slider = memo((props: SliderProps) => {
                 color="secondary"
                 className={s.Reset}
                 aria-label={resetTooltip}
+                disabled={disabled}
                 data-hide={disabled || (resetValue === singleValue && !pointerDown)}
-                onClick={() => singleOnChange!(resetValue)}
+                onClick={() => {
+                  if (disabled) return
+                  debouncedOnChange.cancel()
+                  singleOnChange?.(resetValue)
+                  setResetPending(true)
+                }}
               >
                 <Reload />
               </Button>
@@ -384,7 +415,7 @@ export const Slider = memo((props: SliderProps) => {
           {isRange ? (
             <span className={s.RangeDisplay}>{rangeDisplayText}</span>
           ) : (
-            <div className={s.SliderValue} onClick={() => inputRef.current?.focus()}>
+            <div className={s.SliderValue} onClick={() => { if (!disabled) inputRef.current?.focus() }}>
               {prefixUnit && <span className={s.ValueUnit}>{prefixUnit}</span>}
               <input
                 id={id}
@@ -394,6 +425,7 @@ export const Slider = memo((props: SliderProps) => {
                 onKeyDown={handleKeyDown}
                 value={inputValue}
                 type="text"
+                inputMode={min < 0 ? "text" : Number.isInteger(min) && Number.isInteger(max) && Number.isInteger(step) ? "numeric" : "decimal"}
                 onClick={(e) => e.stopPropagation()}
                 onBlur={handleInputBlur}
                 onFocus={(e) => {
@@ -422,7 +454,7 @@ export const Slider = memo((props: SliderProps) => {
           minStepsBetweenThumbs={minStepsBetweenThumbs}
           onBlur={onBlur}
           onFocus={onFocus}
-          onPointerDown={() => setPointerDown(true)}
+          onPointerDown={() => { if (!disabled) setPointerDown(true) }}
           onPointerUp={() => setPointerDown(false)}
           style={toCssVariables({
             "slider-duration": `${animationDurationMS}ms`,

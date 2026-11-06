@@ -9,7 +9,6 @@ import {
   AccordionOverviewDemo,
   AccordionSingleDemo,
   AccordionMultipleDemo,
-  AccordionDisabledDemo,
   AccordionCardDemo,
 } from "@/components/docs/AccordionDemos"
 
@@ -19,16 +18,21 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 ## Examples
 
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview code={`<Accordion type="single" collapsible defaultValue="shipping">
+<ComponentPreview details={<>The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={`const [value, setValue] = useState("shipping")
+const [returnsDisabled, setReturnsDisabled] = useState(false)
+
+<Accordion type="single" collapsible value={value} onValueChange={setValue}>
   <Accordion.Item value="shipping">
     <Accordion.Trigger>What are your shipping options?</Accordion.Trigger>
     <Accordion.Content>
       We offer standard (5–7 business days), express (2–3 days), and overnight shipping…
     </Accordion.Content>
   </Accordion.Item>
-  <Accordion.Item value="returns">
+  <Accordion.Item value="returns" disabled={returnsDisabled}>
     <Accordion.Trigger>What is your return policy?</Accordion.Trigger>
     <Accordion.Content>Returns are accepted within 30 days of delivery…</Accordion.Content>
   </Accordion.Item>
@@ -64,25 +68,6 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
   ))}
 </Accordion>`}>
   <AccordionMultipleDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview details={<>Pass <code>disabled</code> to an <code>Accordion.Item</code> to make it read-only. The row stays visible so the reader understands the section exists; keyboard focus skips it.</>} code={`<Accordion type="single" collapsible defaultValue="history">
-  <Accordion.Item value="history">
-    <Accordion.Trigger>Can I see my usage history?</Accordion.Trigger>
-    <Accordion.Content>…</Accordion.Content>
-  </Accordion.Item>
-  <Accordion.Item value="audit" disabled>
-    <Accordion.Trigger>Audit log export (Enterprise only)</Accordion.Trigger>
-    <Accordion.Content>…</Accordion.Content>
-  </Accordion.Item>
-  <Accordion.Item value="two-factor">
-    <Accordion.Trigger>How do I enable two-factor auth?</Accordion.Trigger>
-    <Accordion.Content>…</Accordion.Content>
-  </Accordion.Item>
-</Accordion>`}>
-  <AccordionDisabledDemo />
 </ComponentPreview>
 
 ### Card

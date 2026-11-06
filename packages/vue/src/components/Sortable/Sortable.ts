@@ -2,7 +2,10 @@ import clsx, { type ClassValue } from "clsx"
 import {
   defineComponent,
   h,
+  mergeProps,
   nextTick,
+  onBeforeUnmount,
+  watch,
   type Component,
   type PropType,
   type SlotsType,
@@ -10,7 +13,7 @@ import {
   type VNodeChild,
 } from "vue"
 import { moveItem, sortableKeyDown, sortablePointerDown, type SortableLayout, type SortableMove } from "../../lib/sortable.js"
-import { GripVertical } from "../Icon/index.js"
+import { GripVertical, Hamburger } from "../Icon/index.js"
 import s from "@plexui/styles/components/Sortable/Sortable.module.css"
 
 // Vue port of packages/ui/src/components/Sortable/Sortable.tsx.
@@ -41,18 +44,26 @@ const SortableComponent = defineComponent({
     name: { type: String, default: undefined },
   },
   emits: {
-    "update:value": (_value: unknown[]) => true,
-    "change": (_value: unknown[]) => true,
+    "update:value": (value: unknown[]) => Array.isArray(value),
+    "change": (value: unknown[]) => Array.isArray(value),
     /** An item moved, inside this list or out of it. Out of it the app updates both lists: `update:value` is for a move inside one. */
-    "move": (_move: SortableMove) => true,
+    "move": (move: SortableMove) => typeof move === "object" && move !== null,
     /** A drag rests on a `SortableTarget` of the group: open what it stands for or go there. */
-    "hold": (_name: string) => true,
+    "hold": (name: string) => typeof name === "string",
   },
   slots: Object as SlotsType<{
     /** The items, one direct child per entry of `value`, keyed by the entry and not by its index */
     default?: () => VNodeChild
   }>,
   setup(props, { attrs, emit, slots }) {
+    let cancelDrag: ReturnType<typeof sortablePointerDown>
+    onBeforeUnmount(() => cancelDrag?.())
+    watch(() => props.disabled, (disabled) => {
+      if (disabled) {
+        cancelDrag?.()
+        cancelDrag = undefined
+      }
+    }, { flush: "sync" })
     const commit = async (from: number, to: number) => {
       const next = moveItem(props.value, from, to)
       emit("update:value", next)
@@ -70,13 +81,13 @@ const SortableComponent = defineComponent({
     }
 
     const onPointerdown = (event: PointerEvent) => {
-      if (!props.disabled) {
-        sortablePointerDown(event, event.currentTarget as HTMLElement, props.layout, commit, link)
+      if (!props.disabled && !event.defaultPrevented) {
+        cancelDrag = sortablePointerDown(event, event.currentTarget as HTMLElement, props.layout, commit, link) ?? cancelDrag
       }
     }
 
     const onKeydown = (event: KeyboardEvent) => {
-      if (!props.disabled) void sortableKeyDown(event, event.currentTarget as HTMLElement, commit, link)
+      if (!props.disabled && !event.defaultPrevented) void sortableKeyDown(event, event.currentTarget as HTMLElement, commit, link)
     }
 
     return () => {
@@ -84,8 +95,7 @@ const SortableComponent = defineComponent({
       const isElement = typeof props.as === "string"
       return h(
         props.as as string,
-        {
-          ...rest,
+        mergeProps(rest, {
           "class": clsx(s.Sortable, className as ClassValue),
           "data-sortable": "",
           "data-layout": props.layout,
@@ -96,7 +106,7 @@ const SortableComponent = defineComponent({
           onPointerdown,
           onKeydown,
           "onDragstart": preventNativeDrag,
-        },
+        }),
         isElement ? (slots.default?.() as VNodeArrayChildren) : { default: () => slots.default?.() },
       )
     }
@@ -126,7 +136,7 @@ const SortableHandleComponent = defineComponent({
           "data-sortable-handle": "",
           "aria-label": props.ariaLabel,
         },
-        (slots.default ? slots.default() : [h(GripVertical, { "aria-hidden": true })]) as VNodeArrayChildren,
+        (slots.default ? slots.default() : [h(GripVertical, { class: s.DesktopGrip, "aria-hidden": true }), h(Hamburger, { class: s.PhoneGrip, "aria-hidden": true })]) as VNodeArrayChildren,
       )
     }
   },

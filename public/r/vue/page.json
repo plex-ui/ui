@@ -17,5 +17,5 @@
       "content": "export * from \"@plexui/vue/components/Page\"\n"
     }
   ],
-  "docs": "Import as `import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageSubtitle, PageTitle } from '@/components/ui/page'`. See https://plexui.com/vue/components/page for props and examples."
+  "docs": "Import as `import { Page, PageActions, PageBar, PageContent, PageFooter, PageHeader, PageHeading, PageLeading, PageSubtitle, PageTitle } from '@/components/ui/page'`. See https://plexui.com/vue/components/page for props and examples."
 }

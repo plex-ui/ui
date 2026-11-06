@@ -1,10 +1,15 @@
 "use client"
 
 import clsx from "clsx"
-import { Popover as RadixPopover } from "radix-ui"
+import { Portal, Slot } from "radix-ui"
+import * as Popper from "@radix-ui/react-popper"
+import { DismissableLayer } from "@radix-ui/react-dismissable-layer"
+import { FocusScope, useFocusScopeBranch } from "@radix-ui/react-focus-scope"
+import { useFocusGuards } from "@radix-ui/react-focus-guards"
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -13,6 +18,7 @@ import {
   type PointerEventHandler,
   type ReactNode,
 } from "react"
+import { mergeRefs } from "react-merge-refs"
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { useLatestValue } from "../../hooks/useLatestValue"
@@ -20,6 +26,8 @@ import { dataAttributes, focusableElements, keepMovedFocus, preventDefaultHandle
 import { TransitionGroup } from "../Transition"
 import { overlayTiming } from "../Transition/shared"
 import { createPointerIntentArea, isPointInPolygon, type Polygon } from "./pointerIntent"
+import { isHoverPointer } from "../../lib/inputMode"
+import { useDeferredOutsidePress } from "./deferredOutsidePress"
 import s from "@plexui/styles/components/Popover/Popover.module.css"
 import { PopoverContext, usePopoverContext, type PopoverContextValue } from "./usePopoverContext"
 
@@ -48,6 +56,7 @@ export const Popover = ({
   const hoverOpenFocusedWithTab = useRef<boolean>(false)
   const isPointerInTransitRef = useRef<boolean>(false)
   const isOpen = controlledOpen ?? open
+  const contentId = useId()
 
   const [temporarilyPreventClickToClose, setTemporarilyPreventClickToClose] =
     useState<boolean>(false)
@@ -112,6 +121,7 @@ export const Popover = ({
   const store = useMemo<PopoverContextValue>(
     () => ({
       open: isOpen,
+      contentId,
       setOpen: handleOpenChange,
       shake,
       setShake,
@@ -126,6 +136,7 @@ export const Popover = ({
     }),
     [
       isOpen,
+      contentId,
       handleOpenChange,
       shake,
       setShake,
@@ -140,9 +151,9 @@ export const Popover = ({
 
   return (
     <PopoverContext value={store}>
-      <RadixPopover.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
+      <Popper.Root>
         {children}
-      </RadixPopover.Root>
+      </Popper.Root>
     </PopoverContext>
   )
 }
@@ -157,6 +168,8 @@ const Trigger = ({
   onClick?: MouseEventHandler
 }) => {
   const {
+    open,
+    contentId,
     setOpen,
     showOnHover,
     temporarilyPreventClickToClose,
@@ -180,7 +193,7 @@ const Trigger = ({
   }
 
   const handlePointerMove = (evt: React.PointerEvent) => {
-    if (evt.pointerType === "touch") {
+    if (!isHoverPointer(evt)) {
       return
     }
 
@@ -200,47 +213,59 @@ const Trigger = ({
   }
 
   return (
-    <RadixPopover.Trigger
-      asChild
-      ref={triggerRef}
-      onPointerDown={(evt) => {
-        maybePreventClickClose(evt)
-        onPointerDown?.(evt)
-      }}
-      onClick={(evt) => {
-        maybePreventClickClose(evt)
-        onClick?.(evt)
-      }}
-      onPointerMove={showOnHover ? handlePointerMove : undefined}
-      onPointerLeave={showOnHover ? handlePointerLeave : undefined}
-      onFocus={showOnHover ? () => setOpen(true) : undefined}
-      onBlur={
-        showOnHover
-          ? () => {
-              setTimeout(() => {
-                // Ignore this handler if focus has moved into the popover
-                if (contentRef.current?.contains(document.activeElement)) {
-                  return
-                }
+    <Popper.Anchor asChild>
+      <Slot.Root
+        {...{ type: "button" }}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls={open ? contentId : undefined}
+        data-state={open ? "open" : "closed"}
+        ref={triggerRef}
+        onPointerDown={(evt) => {
+          maybePreventClickClose(evt)
+          onPointerDown?.(evt)
+        }}
+        onClick={(evt) => {
+          maybePreventClickClose(evt)
+          onClick?.(evt)
+          if (!evt.defaultPrevented) setOpen(!open)
+        }}
+        onPointerMove={showOnHover ? handlePointerMove : undefined}
+        onPointerLeave={showOnHover ? handlePointerLeave : undefined}
+        onFocus={showOnHover ? () => setOpen(true) : undefined}
+        onBlur={
+          showOnHover
+            ? () => {
+                setTimeout(() => {
+                  // Ignore this handler if focus has moved into the popover
+                  if (contentRef.current?.contains(document.activeElement)) {
+                    return
+                  }
 
-                setOpen(false)
-              }, 50)
-            }
-          : undefined
-      }
-    >
-      {children}
-    </RadixPopover.Trigger>
+                  setOpen(false)
+                }, 50)
+              }
+            : undefined
+        }
+      >
+        {children}
+      </Slot.Root>
+    </Popper.Anchor>
   )
 }
 
 export type PopoverContentProps = {
   children: ReactNode
   /**
-   * Whether to avoid collisions with vieport/scroll containersw.
+   * Whether to avoid collisions with the viewport and scroll containers.
    * @default true
    */
   avoidCollisions?: boolean
+  /**
+   * Distance in pixels to keep from viewport and scroll container boundaries.
+   * @default 20
+   */
+  collisionPadding?: number
   /**
    * Set the `width` of the popover, in pixels.
    * @default auto
@@ -263,22 +288,22 @@ export type PopoverContentProps = {
    * The preferred side of the trigger to render against when open. Will be reversed when collisions occur.
    * @default bottom
    */
-  side?: RadixPopover.PopoverContentProps["side"]
+  side?: Popper.PopperContentProps["side"]
   /**
    * The distance in pixels from the trigger.
    * @default 8
    */
-  sideOffset?: RadixPopover.PopoverContentProps["sideOffset"]
+  sideOffset?: Popper.PopperContentProps["sideOffset"]
   /**
    * The preferred alignment against the trigger. May change when collisions occur.
    * @default center
    */
-  align?: RadixPopover.PopoverContentProps["align"]
+  align?: Popper.PopperContentProps["align"]
   /**
    * An offset in pixels from the "start" or "end" alignment options.
    * @default 0
    */
-  alignOffset?: RadixPopover.PopoverContentProps["alignOffset"]
+  alignOffset?: Popper.PopperContentProps["alignOffset"]
   /**
    * Whether the popover surface should be translucent.
    * @default false
@@ -298,6 +323,7 @@ export type PopoverContentProps = {
 const ContentImpl = ({
   children,
   avoidCollisions,
+  collisionPadding = 20,
   width,
   minWidth,
   maxWidth,
@@ -310,7 +336,26 @@ const ContentImpl = ({
   autoFocus = true,
   ...restProps
 }: PopoverContentProps) => {
-  const { showOnHover, shake, contentRef } = usePopoverContext()
+  const { showOnHover, shake, contentRef, contentId, triggerRef, setOpen, open } = usePopoverContext()
+  const [contentNode, setContentNode] = useState<HTMLDivElement | null>(null)
+  const contentMergedRef = useMemo(() => mergeRefs([contentRef, setContentNode]), [contentRef])
+  const interactedOutside = useRef(false)
+  useFocusScopeBranch(contentNode)
+  useFocusGuards()
+  const outsidePress = useDeferredOutsidePress(() => {
+    interactedOutside.current = true
+    setOpen(false)
+  }, triggerRef)
+  const { reset: resetOutsidePress } = outsidePress
+  useEffect(() => { if (!open) resetOutsidePress() }, [open, resetOutsidePress])
+  const handleCloseAutoFocus = (event: Event) => {
+    if (showOnHover) event.preventDefault()
+    else keepMovedFocus(event)
+    if (!event.defaultPrevented) {
+      if (!interactedOutside.current) triggerRef.current?.focus({ preventScroll: true })
+      event.preventDefault()
+    }
+  }
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (evt) => {
     const contentElement = contentRef.current
@@ -361,35 +406,46 @@ const ContentImpl = ({
   }, [contentRef, showOnHover, autoFocus])
 
   return (
-    <RadixPopover.Content
-      {...dataAttributes(restProps)}
-      forceMount
-      ref={contentRef}
-      className={clsx(s.Popover, className)}
-      style={toCssVariables({
-        "popover-width": width,
-        "popover-min-width": minWidth,
-        "popover-max-width": maxWidth,
-      })}
-      onCloseAutoFocus={showOnHover ? preventDefaultHandler : keepMovedFocus}
-      // data-surface={surface}
-      data-animate={shake ? "shake" : undefined}
-      data-translucent={translucent ? "true" : undefined}
-      side={side}
-      sideOffset={sideOffset}
-      align={align}
-      alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}
-      avoidCollisions={avoidCollisions ?? true}
-      hideWhenDetached
-      collisionPadding={20}
-      onOpenAutoFocus={preventDefaultHandler}
-      // Use custom esc listener because default Radix is bound to the document
-      // and cannot have propagation stopped.
-      onEscapeKeyDown={preventDefaultHandler}
-      onKeyDown={handleKeyDown}
-    >
-      {children}
-    </RadixPopover.Content>
+    <FocusScope asChild loop onMountAutoFocus={preventDefaultHandler} onUnmountAutoFocus={handleCloseAutoFocus}>
+      <DismissableLayer asChild
+        onPointerDownOutside={outsidePress.onPointerDownOutside}
+        onFocusOutside={outsidePress.onFocusOutside}
+        onDismiss={() => { interactedOutside.current = true; setOpen(false) }}
+        onEscapeKeyDown={preventDefaultHandler}
+      >
+        <Popper.Content
+          id={contentId}
+          role="dialog"
+          data-state={open ? "open" : "closed"}
+          {...dataAttributes(restProps)}
+          ref={contentMergedRef}
+          className={clsx(s.Popover, className)}
+          style={toCssVariables({
+            "popover-width": width,
+            "popover-min-width": minWidth,
+            "popover-max-width": maxWidth,
+            "radix-popover-content-transform-origin": "var(--radix-popper-transform-origin)",
+            "radix-popover-content-available-width": "var(--radix-popper-available-width)",
+            "radix-popover-content-available-height": "var(--radix-popper-available-height)",
+            "radix-popover-trigger-width": "var(--radix-popper-anchor-width)",
+            "radix-popover-trigger-height": "var(--radix-popper-anchor-height)",
+          })}
+          // data-surface={surface}
+          data-animate={shake ? "shake" : undefined}
+          data-translucent={translucent ? "true" : undefined}
+          side={side}
+          sideOffset={sideOffset}
+          align={align}
+          alignOffset={alignOffset ?? (align === "center" ? 0 : -5)}
+          avoidCollisions={avoidCollisions ?? true}
+          hideWhenDetached
+          collisionPadding={collisionPadding}
+          onKeyDown={handleKeyDown}
+        >
+          {children}
+        </Popper.Content>
+      </DismissableLayer>
+    </FocusScope>
   )
 }
 
@@ -405,6 +461,7 @@ const ContentHoverable = (props: PopoverContentProps) => {
 
   const handleCreateGraceArea = useCallback(
     (event: PointerEvent, hoverTarget: HTMLElement) => {
+      if (!isHoverPointer(event)) return
       const graceArea = createPointerIntentArea(event, hoverTarget)
       setPointerGraceArea(graceArea)
       isPointerInTransitRef.current = true
@@ -441,6 +498,7 @@ const ContentHoverable = (props: PopoverContentProps) => {
     }
 
     const handleTrackPointerGrace = (event: PointerEvent) => {
+      if (!isHoverPointer(event)) return
       const trigger = triggerRef.current
       const content = contentRef.current
       const target = event.target as HTMLElement
@@ -504,7 +562,7 @@ const Content = (props: PopoverContentProps) => {
   })
 
   return (
-    <RadixPopover.Portal forceMount>
+    <Portal.Root asChild>
       <TransitionGroup {...overlayTiming} className={s.Transition} overlay>
         {open &&
           (showOnHover ? (
@@ -513,7 +571,7 @@ const Content = (props: PopoverContentProps) => {
             <ContentImpl key="popover" {...props} />
           ))}
       </TransitionGroup>
-    </RadixPopover.Portal>
+    </Portal.Root>
   )
 }
 

@@ -2,12 +2,13 @@
 
 import { useState, type ComponentProps } from 'react';
 import { VueDemo } from './VueDemo';
-import { AuthFormStage } from '../AuthFormStage';
+import { VueFormExampleDemo } from './VueFormExamplesDemos';
+import { removeFileWithFocus } from '../fileRemovalFocus';
 
 // MDX cannot pass File objects to a client component, so the files the
 // templates read (`files`, `file`) are created here: the same mock files as
 // the React demos in FileUploadDemos.tsx. Like those demos, every preview sits
-// in a `py-10` demo stage (VueDemo only renders a stage when it has controls).
+// in a `py-10` demo stage, with controls outside the stage when present.
 
 function createMockFile(name: string, sizeKB: number, type: string): File {
   const bytes = new Uint8Array(sizeKB * 1024);
@@ -34,13 +35,13 @@ export function VueFileUploadDemo({ files = 'none', auth = false, state, ...prop
     return {
       files: files === 'all' ? mockFiles : files === 'first' ? mockFiles.slice(0, 1) : [],
       file: createMockFile('project-brief.pdf', 2400, 'application/pdf'),
+      removeFileWithFocus,
     };
   });
 
-  const preview = <VueDemo {...props} state={{ ...scope, ...state }} />;
   return auth ? (
-    <AuthFormStage title="Upload documents">{preview}</AuthFormStage>
+    <VueFormExampleDemo {...props} auth state={{ ...scope, ...state }} template={`<component :is="AuthFormStage" title="Upload documents" :mobile="!wide" :phone-preview="phonePreview" :phone-host="phoneHost" :surface="surface" v-model:dialog="dialog">${props.template}</component>`} />
   ) : (
-    <div data-demo-stage className="py-10">{preview}</div>
+    <VueDemo {...props} stageClassName="py-10" state={{ ...scope, ...state }} />
   );
 }

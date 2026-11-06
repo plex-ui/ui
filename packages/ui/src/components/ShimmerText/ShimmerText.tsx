@@ -1,9 +1,18 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import { useState, useSyncExternalStore, type ReactNode } from "react"
 
 import clsx from "clsx"
+import { prefersReducedMotion } from "../../lib/helpers"
 import s from "@plexui/styles/components/ShimmerText/ShimmerText.module.css"
+
+const subscribeReducedMotion = (onChange: () => void) => {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => {}
+  const query = window.matchMedia("(prefers-reduced-motion: reduce)")
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+const serverReducedMotion = () => false
 
 // If text will always shimmer, use the simpler interface
 export const ShimmerText = ({
@@ -31,19 +40,18 @@ export const ShimmerableText = ({
   className?: string
   shimmer?: boolean
 }) => {
+  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, prefersReducedMotion, serverReducedMotion)
   const [paused, setPaused] = useState(!shimmer)
+
+  // CSS stops motion immediately. A pending stop must also settle without an
+  // animationiteration event, so removing the preference cannot restart it.
+  if (shimmer && paused) setPaused(false)
+  else if (!shimmer && reducedMotion && !paused) setPaused(true)
 
   // Pauses the animation at the start of (what would be) the next iteration.
   const handleAnimationIteration = () => {
     setPaused(true)
   }
-
-  useEffect(() => {
-    if (shimmer) {
-      // Ensure pause is cleared if shimmer is re-enabled
-      setPaused(false)
-    }
-  }, [shimmer])
 
   return (
     <Tag

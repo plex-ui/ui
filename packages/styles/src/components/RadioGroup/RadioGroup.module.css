@@ -11,7 +11,7 @@
 .RadioLabel {
   display: inline-flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: var(--radio-group-label-align, flex-start);
   gap: var(--radio-group-item-gap);
   cursor: pointer;
   font-size: var(--radio-group-item-font-size);
@@ -47,10 +47,10 @@
 }
 
 .RadioDescription {
-  padding-inline-start: calc(var(--radio-group-indicator-size) + var(--radio-group-item-gap));
+  padding-inline-start: calc(var(--radio-group-target-size, var(--radio-group-indicator-size)) + var(--radio-group-item-gap));
   color: var(--color-text-secondary);
-  font-size: var(--font-text-xs-size);
-  line-height: var(--font-text-xs-line-height);
+  font-size: var(--radio-group-description-font-size, var(--font-text-xs-size));
+  line-height: var(--radio-group-description-line-height, var(--font-text-xs-line-height));
 
   .RadioItemGroup[data-orientation="right"] & {
     padding-inline-start: 0;
@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: var(--radio-group-item-line-height);
+  height: var(--radio-group-target-size, var(--radio-group-item-line-height));
 
   /* Radix pushes the inputs off screen in a weird way that
     messes with error overlays */
@@ -91,8 +91,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--radio-group-indicator-size);
-  height: var(--radio-group-indicator-size);
+  width: var(--radio-group-target-size, var(--radio-group-indicator-size));
+  height: var(--radio-group-target-size, var(--radio-group-indicator-size));
   padding: 0;
   border: none;
   border-radius: var(--radius-full);
@@ -180,11 +180,11 @@
   }
 }
 
-/* The touch stylesheet reveals this only in grouped Field rows. */
+/* The touch stylesheet uses the same single-selection mark inside and outside Field rows. */
 .Checkmark {
   display: var(--radio-group-checkmark-display, none);
   grid-area: 1 / 1;
   width: 22px;
   height: 22px;
-  color: var(--color-text);
+  color: var(--radio-group-checkmark-color, var(--color-text));
 }

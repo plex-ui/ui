@@ -6,7 +6,7 @@ metaDescription: "React table components with styled HTML table primitives and a
 
 import { Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableCaption } from "@plexui/ui/components/Table"
 import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
-import { TableSortingDemo, TablePaginationDemo, TableRowClickDemo, TableRowSelectionDemo, TableCellVariantsDemo, TableFilteringDemo, TableColumnVisibilityDemo, TableEmptyStateDemo, TableVariantDemo } from "@/components/docs/TableDemos"
+import { TableSortingDemo, TablePaginationDemo, TableRowClickDemo, TableRowSelectionDemo, TableCellVariantsDemo, TableFilteringDemo, TableColumnVisibilityDemo, TableVariantDemo } from "@/components/docs/TableDemos"
 
 <UsageBlock>{`import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table";
 import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable";`}</UsageBlock>
@@ -217,9 +217,12 @@ return (
 
 The examples import `users` (15 rows) and its `User` type from a local `./data` file. Header and cell renderers are functions that return JSX, rendered with TanStack Table's `flexRender`.
 
+<span id="empty-state" />
+
 ### Variant
 
-<ComponentPreview details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background.</>} code={`import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
+<ComponentPreview details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background. Toggle <code>empty</code> to supply no rows without resetting sorting or changing columns. <code>emptyMessage</code> selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.</>} code={`import { useState } from "react"
+import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
 import { users, type User } from "./data"
 
 const columns: ColumnDef<User>[] = [
@@ -233,8 +236,20 @@ const columns: ColumnDef<User>[] = [
   { accessorKey: "status", header: "Status", cell: statusCell<User>((row) => row.status) },
 ]
 
+const previewUsers = users.slice(0, 6)
+const emptyUsers: User[] = []
+const emptyMessages = {
+  default: undefined,
+  text: "No users found.",
+  rich: <strong>No users found.</strong>,
+}
+
 export function UsersTable() {
-  return <DataTable columns={columns} data={users.slice(0, 6)} variant="bordered" pageSize={Infinity} />
+  const [empty, setEmpty] = useState(false)
+  const [emptyMessage, setEmptyMessage] = useState<keyof typeof emptyMessages>("text")
+
+  return <DataTable columns={columns} data={empty ? emptyUsers : previewUsers}
+    variant="bordered" pageSize={Infinity} emptyMessage={emptyMessages[emptyMessage]} />
 }`} previewMinHeight={300}>
   <TableVariantDemo />
 </ComponentPreview>
@@ -480,24 +495,6 @@ export function UsersTable() {
   )
 }`} previewMinHeight={340}>
   <TableColumnVisibilityDemo />
-</ComponentPreview>
-
-### Empty state
-
-<ComponentPreview details={<>Customize the empty state message with the <code>emptyMessage</code> prop.</>} code={`import { DataTable, type ColumnDef } from "@plexui/ui/components/DataTable"
-import type { User } from "./data"
-
-const columns: ColumnDef<User>[] = [
-  { accessorKey: "id", header: "ID" },
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "status", header: "Status" },
-]
-
-export function UsersTable() {
-  return <DataTable columns={columns} data={[]} emptyMessage="No users found." />
-}`} previewMinHeight={200}>
-  <TableEmptyStateDemo />
 </ComponentPreview>
 
 ## API

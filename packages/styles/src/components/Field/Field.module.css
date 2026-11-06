@@ -24,7 +24,7 @@
 .Content {
   display: flex;
   flex-direction: column;
-  gap: var(--field-gap);
+  gap: var(--mobile-field-error-offset, var(--field-gap));
 }
 
 /* =============================================
@@ -190,7 +190,7 @@
    Description
 ============================================= */
 .Description {
-  color: var(--color-text-secondary);
+  color: var(--field-description-color, var(--color-text-secondary));
   font-size: var(--field-description-font-size);
   line-height: var(--field-description-line-height);
 }
@@ -226,6 +226,7 @@
 }
 
 .Field:where([data-row]):has(.Description, .Content > :not(.Control)) {
+  min-height: var(--field-row-description-min-height, var(--field-row-min-height));
   padding-block: var(--field-row-text-padding-block);
 }
 
@@ -423,8 +424,77 @@
    The row is the frame of every field, as on iOS: the framed fields of the web read
    as the ghost above, with nothing for the author to change. */
 @media (max-width: 767px) {
+  .Field:where([data-row]) {
+    --field-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --field-row-above-color: var(--mobile-label-secondary, var(--color-text-tertiary));
+    --input-placeholder-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    --mobile-field-error-icon-display: block;
+  }
+
+  .Field:where([data-row]):has(> .Content > [role="alert"]) {
+    row-gap: var(--mobile-field-error-offset, var(--field-row-row-gap));
+  }
+
+  /* Choice and popup rows forward non-interactive clicks to their control. */
+  .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])),
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
+    cursor: pointer;
+  }
+
+  /* Mobile choice rows keep keyboard focus and activation without a drawn ring. */
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):focus-visible {
+    outline: none;
+  }
+
+  /* Each extra label line grows a regular row by one line-height. Pad the label,
+     not LabelRow, so an adjacent label action keeps its independent target size. */
+  .Field:where([data-row]:not([data-fill], [data-orientation="vertical"]):not(:has(> .LabelGroup > .Description, > .Content > :not(.Control)))) > .LabelGroup {
+    > .Label,
+    > .LabelRow > .Label {
+      min-width: 0;
+      max-width: 100%;
+      padding-block: max(0px, calc((var(--field-row-min-height) - var(--field-row-label-line-height)) / 2 - var(--field-row-padding-block)));
+      overflow-wrap: anywhere;
+    }
+  }
+
+  /* A grouped row uses one body-text role for every value, including editable
+     text and inherited text adornments. Standalone TextFields keep their own typography. */
+  .Field:where([data-row]) .Control [data-slot="input"],
+  .Field:where([data-row]) .Control [data-slot="input"] > input,
+  .Field:where([data-row]) .Control textarea,
+  .Field:where([data-row]) .Control [data-slot="input-group-control"],
+  .Field:where([data-row]) .Control [data-variant][role="button"] {
+    font-size: var(--field-row-label-font-size);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--field-row-label-line-height);
+  }
+
+  /* Keep textarea row measurement consistent with the visible line box. */
+  .Field:where([data-row]) .Control > [data-variant]:has(> textarea) {
+    --textarea-line-height: var(--field-row-label-line-height);
+  }
+
+  .Field:where([data-row]) .Control [data-slot="input-group"] {
+    --input-group-line-height: var(--field-row-label-line-height);
+  }
+
   .Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action) {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* The label shares the action's first grid row, independently of list wrapping. */
+  .Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action) > .LabelGroup {
+    align-self: center;
+  }
+
+  .Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action) > .LabelGroup > :is(.Label, .LabelRow) {
+    padding-block: 0;
+  }
+
+  /* With no list, center the action in a regular row; populated lists keep their wrapping space. */
+  .Field:where([data-row][data-fill]:not([data-orientation="vertical"])):has(> .Action):has(.Control:empty, .Control > div:empty:only-child) {
+    padding-block: max(0px, calc((var(--field-row-min-height) - var(--field-row-action-layout-size, var(--field-row-action-size))) / 2));
   }
 
   .Field:where([data-row][data-fill]:has(> .Action)) .Control {
@@ -434,6 +504,44 @@
 
   .Action {
     grid-column: 2;
+  }
+
+  /* Text actions share the row's body role and trailing edge while retaining
+     the action's full target. Filled and uniform icon buttons keep their shape. */
+  .Field:where([data-row]:not([data-orientation="vertical"]):has(> .Action > button[data-variant="ghost"]:not([data-uniform]))) {
+    --field-row-action-layout-size: max(var(--field-row-action-size), var(--field-row-text-action-size));
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"]):has(> .Action > button[data-variant="ghost"]:not([data-uniform]))) > .Action {
+    align-items: center;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Action > button[data-variant="ghost"]:not([data-uniform]) {
+    --button-size: var(--field-row-text-action-size);
+    --button-gutter: 0px;
+    --button-font-size: var(--field-row-label-font-size);
+    --button-line-height: var(--field-row-label-line-height);
+    --button-font-weight: var(--field-row-label-font-weight);
+    --button-justify-content: flex-end;
+    --button-background-color: transparent;
+    --button-background-color-active: transparent;
+    --button-mobile-material-background: transparent;
+    --button-mobile-material-hover: transparent;
+    --button-mobile-material-active: transparent;
+    --button-mobile-material-shadow: none;
+    --button-mobile-material-backdrop-filter: none;
+
+    min-width: var(--field-row-text-action-size);
+  }
+
+  /* Reserve the indicator's visible width at the row edge. Its centered target
+     and focus ring keep their full size, extending into the row's side padding. */
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child:not([data-has-label]):has(> [role="checkbox"]):not(:has(> [role="checkbox"] ~ [role="checkbox"], > :not([role="checkbox"], input[type="checkbox"][aria-hidden="true"]))) {
+    margin-inline: calc((var(--checkbox-indicator-size) - var(--checkbox-target-size, var(--checkbox-indicator-size))) / 2);
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child > label:only-child:not([data-has-label]) > :only-child:has(> [role="radio"]):not(:has(> [role="radio"] ~ [role="radio"], > :not([role="radio"], input[type="radio"][aria-hidden="true"]))) {
+    margin-inline: calc((var(--radio-group-indicator-size) - var(--radio-group-target-size, var(--radio-group-indicator-size))) / 2);
   }
 
   .Field:where([data-row]:not([data-orientation="vertical"])) {
@@ -480,8 +588,42 @@
   /* A Select or a date: its value ends at the row's edge, its mark too, as the row has no pill to sit in */
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
     --dropdown-icon-pill-offset: 0px;
+  }
 
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="ghost"])[role="button"] {
     padding-inline: 0;
+  }
+
+  /* The Field already delegates its non-interactive area to this linked popup.
+     Keep one row surface; the trigger remains its only keyboard stop. */
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
+    --select-control-size: var(--field-row-label-line-height);
+    border-radius: 0;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::before {
+    background-color: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::after {
+    outline: none;
+    transform: none;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
+    cursor: pointer;
+  }
+
+  /* Trailing units share the accessory tone; the input and the button keep their own disabled states. */
+  .Field:where([data-row]) .Control > [data-slot="input"]:not([data-disabled]) > span:global(.text-secondary):last-child,
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child:not([data-uniform], [disabled], [data-disabled], [aria-disabled="true"]) {
+    color: var(--mobile-accessory-secondary, var(--color-text-secondary));
+  }
+
+  .Field:where([data-row]) .Control > [data-slot="input"][data-disabled] > span:global(.text-secondary):last-child {
+    color: var(--color-text-disabled);
   }
 
   /* An InputGroup: its value and its unit end at the row's edge too. A button at the end
@@ -496,6 +638,28 @@
     --button-background-color-active: transparent;
 
     margin-inline-end: 0;
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child:not([data-uniform]) {
+    --button-font-size: var(--field-row-label-font-size);
+    --button-line-height: var(--field-row-label-line-height);
+    --button-font-weight: var(--field-row-label-font-weight);
+
+    font-size: var(--field-row-label-font-size);
+    font-weight: var(--field-row-label-font-weight);
+    line-height: var(--field-row-label-line-height);
+  }
+
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child[data-variant="ghost"]:not([data-uniform]) {
+    --button-size: var(--field-row-text-action-size);
+    --button-justify-content: flex-end;
+    --button-mobile-material-background: transparent;
+    --button-mobile-material-hover: transparent;
+    --button-mobile-material-active: transparent;
+    --button-mobile-material-shadow: none;
+    --button-mobile-material-backdrop-filter: none;
+
+    min-width: var(--field-row-text-action-size);
   }
 
   /* With `columns` the value starts at the column and takes the rest of the row: a unit,

@@ -1,3 +1,4 @@
+import { VueDemoBackButton } from './VueDemoBackButton';
 import { compile, type CompilerOptions } from '@vue/compiler-dom';
 import * as Vue from 'vue';
 import { registerRuntimeCompiler, type Component, type RenderFunction } from 'vue';
@@ -6,7 +7,7 @@ import { Alert } from '@plexui/vue/components/Alert';
 import { Avatar, AvatarGroup } from '@plexui/vue/components/Avatar';
 import { Badge } from '@plexui/vue/components/Badge';
 import { Breadcrumb, BreadcrumbItem } from '@plexui/vue/components/Breadcrumb';
-import { Button, ButtonLink, CopyButton } from '@plexui/vue/components/Button';
+import { Button, ButtonLink, CopyButton, NavigationButton } from '@plexui/vue/components/Button';
 import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from '@plexui/vue/components/ButtonGroup';
 import {
   Card,
@@ -97,6 +98,7 @@ import {
   PageFooter,
   PageHeader,
   PageHeading,
+  PageLeading,
   PageSubtitle,
   PageTitle,
 } from '@plexui/vue/components/Page';
@@ -111,7 +113,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@plexui/vue/components/RadioGroup';
 import { SegmentedControl, SegmentedControlOption, SegmentedControlTab } from '@plexui/vue/components/SegmentedControl';
 import { Select } from '@plexui/vue/components/Select';
-import { SelectControl } from '@plexui/vue/components/SelectControl';
+import { SelectControl, DropdownIcon } from '@plexui/vue/components/SelectControl';
 import { Separator } from '@plexui/vue/components/Separator';
 import { ShimmerableText, ShimmerText } from '@plexui/vue/components/ShimmerText';
 import {
@@ -182,6 +184,7 @@ import {
   TooltipTrigger,
   TooltipTriggerDecorator,
 } from '@plexui/vue/components/Tooltip';
+import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import {
   Animate,
   AnimateLayout,
@@ -313,6 +316,7 @@ const components: Record<string, Component> = {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
+  NavigationButton,
   OTPInput,
   // <TransitionGroup> always compiles to Vue's built-in, so templates use the alias
   PlexTransitionGroup,
@@ -324,6 +328,7 @@ const components: Record<string, Component> = {
   PageFooter,
   PageHeader,
   PageHeading,
+  PageLeading,
   PageSubtitle,
   PageTitle,
   Popover,
@@ -341,6 +346,7 @@ const components: Record<string, Component> = {
   SegmentedControlTab,
   Select,
   SelectControl,
+  DropdownIcon,
   Separator,
   ShimmerableText,
   ShimmerText,
@@ -404,6 +410,12 @@ const components: Record<string, Component> = {
   Textarea,
   TextLink,
   Toaster,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarLeading,
+  ToolbarTitle,
+  ToolbarTrailing,
   Tooltip,
   TooltipContent,
   TooltipRoot,
@@ -419,4 +431,4 @@ for (const [name, icon] of Object.entries(Icons as Record<string, Component>)) {
 }
 
 /** Everything a preview template can use without importing it. */
-export const vueComponents: Record<string, Component> = { ...icons, ...components };
+export const vueComponents: Record<string, Component> = { ...icons, ...components, DemoBackButton: VueDemoBackButton };

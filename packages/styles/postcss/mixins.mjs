@@ -72,7 +72,7 @@ export default function platformUIMixins(
         hover() {
           return {
             "@media (hover: hover) and (pointer: fine)": {
-              "&:hover": {
+              '&:hover:where(:not(:root[data-input="touch"] *))': {
                 "@mixin-content": {},
               },
             },

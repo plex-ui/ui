@@ -1,152 +1,157 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Switch } from '@plexui/ui/components/Switch';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { FormScreen } from './FormRowsDemos';
+import { usePhoneViewport } from './PreviewEmbed';
+
+import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+
+// A compact slice of a grouped settings screen, at the phone's actual width.
+const phoneRowsClassName = 'flex w-full flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]';
+
+function usePhoneRows() {
+  const preview = usePhoneViewport();
+  const wide = useBreakpoint('md');
+  return preview || !wide;
+}
+
+function PhoneSwitchGroup({ children, title, footer }: { children: ReactNode; title?: string; footer?: string }) {
+  return (
+    <div data-switch-phone-rows className={phoneRowsClassName}>
+      <FieldGroup title={title} footer={footer}>{children}</FieldGroup>
+    </div>
+  );
+}
+
+export function SwitchStatesDemo() {
+  const phone = usePhoneRows();
+  const [color, setColor] = useState<'primary' | 'accent'>('accent');
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="color">
+          <SegmentedControl<'primary' | 'accent'> value={color} onChange={setColor} aria-label="color" size="xs">
+            <SegmentedControl.Option value="primary">primary</SegmentedControl.Option>
+            <SegmentedControl.Option value="accent">accent</SegmentedControl.Option>
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
+        {phone ? (
+          <div data-switch-phone-rows className={phoneRowsClassName}>
+            {[false, true].map((disabled) => (
+              <FieldGroup key={String(disabled)} title={disabled ? 'Disabled' : 'Enabled'}>
+                {[false, true].map((checked) => (
+                  <Field key={String(checked)} row label={checked ? 'Initially on' : 'Initially off'}>
+                    <Switch color={color} disabled={disabled} defaultChecked={checked} />
+                  </Field>
+                ))}
+              </FieldGroup>
+            ))}
+          </div>
+        ) : (
+          <table className="w-full max-w-sm border-separate border-spacing-x-4 border-spacing-y-4 text-sm">
+            <caption className="sr-only">Initial switch states. Enabled switches are interactive.</caption>
+            <thead>
+              <tr>
+                <th scope="col" className="text-left font-normal text-secondary">State</th>
+                <th scope="col" className="text-center font-normal text-secondary">Off</th>
+                <th scope="col" className="text-center font-normal text-secondary">On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[false, true].map((disabled) => (
+                <tr key={String(disabled)}>
+                  <th scope="row" className="text-left font-normal">{disabled ? 'Disabled' : 'Enabled'}</th>
+                  {[false, true].map((checked) => (
+                    <td key={String(checked)}>
+                      <div className="flex justify-center">
+                        <Switch color={color} disabled={disabled} defaultChecked={checked} aria-label={(disabled ? 'Disabled' : 'Enabled') + ', initially ' + (checked ? 'on' : 'off')} />
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </>
+  );
+}
+
+
+export function SwitchLabelsDemo() {
+  const phone = usePhoneRows();
+  const [labelPosition, setLabelPosition] = useState<'start' | 'end'>('start');
+  return (
+    <>
+      {!phone && (
+        <div data-demo-controls style={controlsTableStyle}>
+          <DemoControlRow name="labelPosition">
+            <SegmentedControl<'start' | 'end'> value={labelPosition} onChange={setLabelPosition} aria-label="labelPosition" size="xs">
+              <SegmentedControl.Option value="start">start</SegmentedControl.Option>
+              <SegmentedControl.Option value="end">end</SegmentedControl.Option>
+            </SegmentedControl>
+          </DemoControlRow>
+        </div>
+      )}
+      <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
+        {phone ? (
+          <PhoneSwitchGroup>
+            <Field row label="Notifications"><Switch color="accent" name="notifications" defaultChecked /></Field>
+            <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
+          </PhoneSwitchGroup>
+        ) : (
+          <div className="flex w-full max-w-sm flex-col gap-6">
+            <Switch color="accent" name="notifications" label="Notifications" labelPosition={labelPosition} defaultChecked />
+            <Switch color="accent" name="summary" label="Weekly summary" description="Sent on Mondays." labelPosition={labelPosition} />
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
 
 export function SwitchControlledDemo() {
+  const phone = usePhoneRows();
   const [checked, setChecked] = useState(false);
-  return <Switch label="Airplane mode" checked={checked} onCheckedChange={setChecked} />;
-}
-
-export function SwitchWithDescriptionDemo() {
   return (
-    <Switch
-      label="Disable user API keys"
-      description="Disable user-based API keys across your entire organization."
-    />
-  );
-}
-
-export function SwitchLabelPositionWithDescriptionDemo() {
-  return (
-    <Switch
-      label="Dark mode"
-      description="Use dark theme across the entire application."
-      labelPosition="start"
-    />
-  );
-}
-
-export function SwitchDisabledWithLabelDemo() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Switch label="Notifications" disabled />
-      <Switch label="Notifications" disabled defaultChecked />
-    </div>
-  );
-}
-
-export function SwitchDisabledWithDescriptionDemo() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Switch
-        label="Enable SSO"
-        description="Requires an Enterprise plan to configure."
-        disabled
-      />
-      <Switch
-        label="Two-factor authentication"
-        description="Enforced by organization policy."
-        disabled
-        defaultChecked
-      />
-    </div>
-  );
-}
-
-export function SwitchWithFieldDemo() {
-  const [enabled, setEnabled] = useState(false);
-  return (
-    <div className="self-stretch mx-auto !max-w-[480px]">
-      <Field label="Marketing emails" orientation="horizontal" className="items-center justify-between [--field-horizontal-label-width:auto] [--field-horizontal-control-width:auto] [--field-label-horizontal-offset:0px]">
-        {(fieldProps) => (
-          <Switch
-            id={fieldProps.id}
-            checked={enabled}
-            onCheckedChange={setEnabled}
-          />
-        )}
-      </Field>
-    </div>
-  );
-}
-
-export function SwitchWithFieldDescriptionDemo() {
-  const [enabled, setEnabled] = useState(true);
-  return (
-    <div className="self-stretch mx-auto !max-w-[480px]">
-      <Field label="Access Control" description="Disable user-based API keys across your entire organization. You can also choose to disable them on a project-by-project basis if needed.">
-        {(fieldProps) => (
-          <Switch
-            id={fieldProps.id}
-            label="Disable user API keys"
-            checked={enabled}
-            onCheckedChange={setEnabled}
-          />
-        )}
-      </Field>
-    </div>
-  );
-}
-
-export function SwitchSettingsPanelDemo() {
-  return (
-    <div className="flex w-full max-w-lg flex-col gap-8">
-      <Switch
-        label="Enable custom providers for evals"
-        description="Allow eval runs to use third-party models you configure under Custom model providers."
-      />
-      <Switch
-        label="Enable OpenRouter models"
-        description="Make OpenRouter models available for evaluation runs."
-      />
-      <Switch
-        label="Disable user API keys"
-        description="Disable user-based API keys across your entire organization."
-        defaultChecked
-      />
-    </div>
-  );
-}
-
-export function SwitchNotificationSettingsDemo() {
-  return (
-    <div className="w-full max-w-lg divide-y divide-alpha/15">
-      <div className="pb-5">
-        <Field label="Notifications" description="Configure how you receive notifications.">
-          {() => (
-            <div className="flex flex-col gap-4">
-              <Switch
-                label="Push notifications"
-                description="Receive push notifications on your devices."
-                defaultChecked
-              />
-              <Switch
-                label="Email notifications"
-                description="Get notified via email for important updates."
-              />
-            </div>
-          )}
-        </Field>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="checked" value={checked} onChange={setChecked} />
       </div>
-      <div className="pt-5">
-        <Field label="Privacy" description="Control your data sharing preferences.">
-          {() => (
-            <div className="flex flex-col gap-4">
-              <Switch
-                label="Share usage data"
-                description="Help us improve by sharing anonymous usage statistics."
-              />
-              <Switch
-                label="Personalized content"
-                description="Allow personalized recommendations based on your activity."
-                defaultChecked
-              />
-            </div>
-          )}
-        </Field>
+      <div data-demo-stage className={phone ? 'w-full' : 'flex w-full flex-1 items-center justify-center py-8'}>
+        {phone ? (
+          <PhoneSwitchGroup>
+            <Field row label="Airplane mode"><Switch color="accent" checked={checked} onCheckedChange={setChecked} /></Field>
+          </PhoneSwitchGroup>
+        ) : <Switch color="accent" label="Airplane mode" checked={checked} onCheckedChange={setChecked} />}
       </div>
-    </div>
+    </>
+  );
+}
+
+export function SwitchSettingsDemo() {
+  const phone = usePhoneRows();
+  const groups = (
+    <>
+      <FieldGroup title="Notifications">
+        <Field row label="Push notifications"><Switch color="accent" defaultChecked /></Field>
+        <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" /></Field>
+      </FieldGroup>
+      <FieldGroup title="Privacy" footer="You can change your data sharing preference at any time.">
+        <Field row label="Share usage data"><Switch color="accent" /></Field>
+        <Field row label="Security alerts" description="Required for your account."><Switch color="accent" defaultChecked disabled /></Field>
+      </FieldGroup>
+    </>
+  );
+  return phone ? <FormScreen title="Preferences">{groups}</FormScreen> : (
+    <div className="flex w-full max-w-lg flex-col gap-6">{groups}</div>
   );
 }

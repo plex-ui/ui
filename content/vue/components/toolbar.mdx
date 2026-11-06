@@ -1,0 +1,317 @@
+---
+title: Toolbar
+description: "The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+metaDescription: "Vue 3 phone toolbar in the iOS 26 style: top and bottom bars with navigation buttons, inline, large and compact titles, a search field and button groups, for pages and sheets."
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import pageStyles from "@/components/docs/PageDemos.module.css"
+import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
+
+export const STAGE = pageStyles.Stage
+
+export const rows = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`)
+
+export const list = `<FieldGroup>
+        <div v-for="row in rows" :key="row" data-row class="${toolbarStyles.Row}">
+          <span>{{ row }}</span>
+          <span class="${toolbarStyles.Value}">Paid</span>
+        </div>
+      </FieldGroup>`
+
+export const frame = (body) => `<div class="${pageStyles.Frame}">
+${body}
+</div>`
+
+export const overview = `<Page surface="grouped">
+  <Toolbar>
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Orders</ToolbarTitle>
+    <ToolbarTrailing>
+      <NavigationButton action="close" />
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>...</PageContent>
+</Page>`
+
+export const titles = `<Toolbar title-style="large">
+  <ToolbarLeading>
+    <NavigationButton action="back" />
+  </ToolbarLeading>
+  <ToolbarTitle subtitle="24 orders">Orders</ToolbarTitle>
+  <ToolbarTrailing>
+    <NavigationButton action="confirm" />
+  </ToolbarTrailing>
+</Toolbar>`
+
+export const group = `<Toolbar>
+  <ToolbarLeading>
+    <NavigationButton action="close" />
+  </ToolbarLeading>
+  <ToolbarTrailing>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
+    <ToolbarGroup aria-label="Order actions">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+    </ToolbarGroup>
+  </ToolbarTrailing>
+</Toolbar>`
+
+export const search = `<Toolbar>
+  <ToolbarContent fill>
+    <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+      <template #startAdornment>
+        <Search />
+      </template>
+    </Input>
+  </ToolbarContent>
+  <ToolbarTrailing>
+    <NavigationButton action="close" aria-label="Close search" />
+  </ToolbarTrailing>
+</Toolbar>`
+
+export const bottom = `<Page surface="grouped">
+  <Toolbar>
+    <ToolbarTitle>Orders</ToolbarTitle>
+  </Toolbar>
+  <PageContent>...</PageContent>
+  <Toolbar placement="bottom">
+    <ToolbarLeading>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+    </ToolbarLeading>
+    <ToolbarContent>
+      <Button color="primary" pill>New order</Button>
+    </ToolbarContent>
+    <ToolbarTrailing>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+    </ToolbarTrailing>
+  </Toolbar>
+</Page>
+
+<Toolbar placement="bottom">
+  <ToolbarContent fill>
+    <Button color="primary" pill block><Plus /> New order</Button>
+  </ToolbarContent>
+</Toolbar>`
+
+export const sheet = `<Dialog v-model:open="open">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">Show orders</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="sheet" surface="grouped">
+    <Toolbar>
+      <ToolbarLeading>
+        <DialogClose>
+          <NavigationButton action="close" />
+        </DialogClose>
+      </ToolbarLeading>
+      <ToolbarTitle>Orders</ToolbarTitle>
+    </Toolbar>
+    <DialogHeader>
+      <DialogTitle>Orders</DialogTitle>
+    </DialogHeader>
+    <DialogBody>
+      ${list}
+    </DialogBody>
+  </DialogContent>
+</Dialog>`
+
+export const sheetCode = sheet.replace(list, "...")
+
+<UsageBlock>{`import { Toolbar, ToolbarLeading, ToolbarTitle, ToolbarTrailing } from "@plexui/vue/components/Toolbar";`}</UsageBlock>
+
+## Examples
+
+Toolbar is a phone component: under 768px it renders, from 768px up it takes no space. Each example shows the phone view.
+
+### Overview
+
+<ComponentPreview phoneOnly language="vue" details={<>Leading and trailing items take 44px targets; the title is centered across the whole width. Scroll the content: the canvas color fades out over the rows under the bar, and the glass starts to cast a shadow.</>} code={overview}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page surface="grouped">
+    <Toolbar>
+      <ToolbarLeading>
+        <NavigationButton action="back" />
+      </ToolbarLeading>
+      <ToolbarTitle>Orders</ToolbarTitle>
+      <ToolbarTrailing>
+        <NavigationButton action="close" />
+      </ToolbarTrailing>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Titles
+
+<ComponentPreview phoneOnly language="vue" details={<><code>title-style</code> sets the size and place of the title: <code>inline</code> in the row of controls, <code>large</code> on a row of its own below them, and <code>compact-large</code> or <code>compact-medium</code> at the leading edge of the row. <code>subtitle</code> adds a second line. <code>title-align="start"</code> puts an inline title after the leading items.</>} code={titles}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
+    { name: "titleStyle", type: "select", options: ["inline", "large", "compact-large", "compact-medium"], default: "inline" },
+    { name: "titleAlign", type: "select", options: ["center", "start"], default: "center" },
+    { name: "subtitle", type: "boolean", default: true },
+  ]} template={frame(`  <Page surface="grouped">
+    <Toolbar :title-style="titleStyle" :title-align="titleAlign">
+      <ToolbarLeading v-if="!titleStyle.startsWith('compact')">
+        <NavigationButton action="back" />
+      </ToolbarLeading>
+      <ToolbarTitle :subtitle="subtitle && !titleStyle.startsWith('compact') ? '24 orders' : undefined">Orders</ToolbarTitle>
+      <ToolbarTrailing>
+        <NavigationButton :action="titleStyle === 'large' ? 'confirm' : 'close'" />
+      </ToolbarTrailing>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Group
+
+<ComponentPreview phoneOnly language="vue" details={<><code>ToolbarGroup</code> puts related actions in one capsule. A single action keeps a capsule of its own. Name each icon button with <code>aria-label</code>.</>} code={group}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page surface="grouped">
+    <Toolbar>
+      <ToolbarLeading>
+        <NavigationButton action="close" />
+      </ToolbarLeading>
+      <ToolbarTrailing>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Details"><InfoCircle /></Button>
+        <ToolbarGroup aria-label="Order actions">
+          <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+          <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+        </ToolbarGroup>
+      </ToolbarTrailing>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Search
+
+<ComponentPreview phoneOnly language="vue" details={<><code>ToolbarContent fill</code> stretches a search field between the leading and trailing items. The field takes the row height and the material of the bar buttons.</>} code={search}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} template={frame(`  <Page surface="grouped">
+    <Toolbar>
+      <ToolbarContent fill>
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+          <template #startAdornment>
+            <Search />
+          </template>
+        </Input>
+      </ToolbarContent>
+      <ToolbarTrailing>
+        <NavigationButton action="close" aria-label="Close search" />
+      </ToolbarTrailing>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+  </Page>`)} />
+</ComponentPreview>
+
+### Bottom
+
+<ComponentPreview phoneOnly language="vue" details={<><code>placement="bottom"</code> sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. <code>ToolbarContent</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. The page content scrolls under both bars.</>} code={bottom}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
+    { name: "content", type: "select", options: ["buttons", "search", "action"], default: "buttons" },
+  ]} template={frame(`  <Page surface="grouped">
+    <Toolbar>
+      <ToolbarTitle>Orders</ToolbarTitle>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+    <Toolbar v-if="content === 'buttons'" placement="bottom">
+      <ToolbarLeading>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Filter"><Filter /></Button>
+      </ToolbarLeading>
+      <ToolbarContent>
+        <Button color="primary" pill>New order</Button>
+      </ToolbarContent>
+      <ToolbarTrailing>
+        <Button color="secondary" variant="soft" uniform pill aria-label="Search"><Search /></Button>
+      </ToolbarTrailing>
+    </Toolbar>
+    <Toolbar v-else-if="content === 'search'" placement="bottom">
+      <ToolbarContent fill>
+        <Input variant="soft" pill placeholder="Search" aria-label="Search orders">
+          <template #startAdornment>
+            <Search />
+          </template>
+        </Input>
+      </ToolbarContent>
+    </Toolbar>
+    <Toolbar v-else placement="bottom">
+      <ToolbarContent fill>
+        <Button color="primary" pill block><Plus /> New order</Button>
+      </ToolbarContent>
+    </Toolbar>
+  </Page>`)} />
+</ComponentPreview>
+
+### Sheet
+
+<ComponentPreview phoneOnly phoneDialog language="vue" details={<>In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>DialogHeader</code> with <code>DialogTitle</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={sheetCode}>
+  <VueDemo template={sheet} phoneTemplate={sheet.replace('v-model:open="open"', ':open="true"').replace('<DialogContent mobile-variant="sheet" surface="grouped">', '<DialogContent mobile-variant="sheet" surface="grouped" @open-auto-focus="$event.preventDefault()">')} phoneState={{ open: true, rows }} stageClassName="py-10 flex justify-center" state={{ open: false, rows }} />
+</ComponentPreview>
+
+## Hosts
+
+A toolbar places itself by its parent:
+
+- In `Page`, the top bar covers the content below the device's top safe area, and `PageContent` starts below it. The bottom bar stays below the content, which scrolls under it. Under 768px a top toolbar replaces `PageHeader` and a bottom toolbar replaces `PageFooter`, so one page can keep its desktop header and its phone toolbar side by side.
+- In a `Dialog` Sheet, the top bar starts with the grabber, hides the Sheet's own bar and Close button, and leaves `DialogHeader` to name the dialog. Its title is hidden from assistive technology there. A bottom bar replaces `DialogFooter`.
+
+Put the Back button of a phone screen in the toolbar only. A desktop layout shows its own navigation, such as a sidebar or breadcrumbs.
+
+## API
+
+### Toolbar
+
+<PropsTable data={[
+  { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "Top bar with 44px targets, or bottom bar with 48px targets" },
+  { prop: "titleStyle", type: '"inline" | "large" | "compact-large" | "compact-medium"', default: '"inline"', description: "Size and place of ToolbarTitle in a top bar" },
+  { prop: "titleAlign", type: '"center" | "start"', default: '"center"', description: "Alignment of an inline title. Large and compact titles always start at the leading edge" },
+  { prop: "background", type: '"edge" | "solid"', default: '"edge"', description: "edge fades the canvas color over the content under the bar; solid fills the bar" },
+  { prop: "class", type: "string", description: "Class of the bar" },
+]} />
+
+All other attributes fall through to the bar.
+
+### ToolbarTitle
+
+<PropsTable data={[
+  { prop: "subtitle", type: "string", description: "Second, smaller line below the title. The subtitle slot takes precedence" },
+  { prop: "as", type: '"h1" | "h2" | "h3"', default: '"h1"', description: "Heading level of the title" },
+]} />
+
+### Parts
+
+| Part | Element | Purpose |
+|------|---------|---------|
+| `ToolbarLeading` | `<div>` | Back, Close or menu controls at the leading edge |
+| `ToolbarTitle` | `<h1>` | Title of the screen, with an optional subtitle |
+| `ToolbarContent` | `<div>` | Middle content: a search field, a main action or a segmented control. `fill` stretches it across the row |
+| `ToolbarGroup` | `<div role="group">` | Related buttons in one capsule |
+| `ToolbarTrailing` | `<div>` | Actions at the trailing edge |
+
+## Styling
+
+Buttons, capsules and the search field in a toolbar use the shared mobile glass of iOS 26: a light fill over a softly frosted backdrop, a thin rim of light on the top-left and bottom-right edges and a sheen darker at the top and lighter at the bottom. At rest the glass casts no shadow; once content scrolls under the top bar, it does. Icons take a 24px box in both bars, labels are 17px medium. `NavigationButton` keeps its own glyph sizes.
+
+Toolbar reads these component tokens. Override them at any scope to restyle it:
+
+- `--toolbar-gutter`, `--toolbar-bottom-gutter`: side padding of the top and bottom bars (default `16px` and `28px`)
+- `--toolbar-top-item-size`, `--toolbar-bottom-item-size`: button and field height (default `44px` and `48px`)
+- `--toolbar-top-item-gap`, `--toolbar-bottom-item-gap`: gap between items (default `10px` and `12px`)
+- `--toolbar-group-padding`, `--toolbar-group-gap`: inner padding and spacing of a capsule in the top bar (default `2px` and `12px`; `4px` and `6px` in the bottom bar)
+- `--toolbar-padding-bottom`: space below the top row (default `10px`)
+- `--toolbar-sheet-padding-top`: space for the grabber in a Sheet (default `16px`)
+- `--toolbar-bottom-padding-top`, `--toolbar-bottom-padding-bottom`: padding of the bottom bar (default `4px`, and `16px` or the bottom safe area less `2px`)
+- `--mobile-glass-background`, `--mobile-glass-sheen`, `--mobile-glass-shadow`, `--mobile-glass-shadow-raised`, `--mobile-glass-backdrop-filter`: glass of the buttons, capsules and search field, at rest and with content under the bar
+- `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
+- `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
+- `--toolbar-background`: color of the fading edge (defaults to the Sheet or page canvas)

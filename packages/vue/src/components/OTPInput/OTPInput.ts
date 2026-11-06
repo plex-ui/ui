@@ -41,9 +41,9 @@ export const OTPInput = defineComponent({
     autoFocus: { type: Boolean, default: false },
   },
   emits: {
-    "update:value": (_value: string) => true,
-    "change": (_value: string) => true,
-    "complete": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
+    "change": (value: string) => typeof value === "string",
+    "complete": (value: string) => typeof value === "string",
   },
   setup(props, { attrs, emit, expose }) {
     const length = computed(() => Math.max(1, Math.floor(props.length)))
@@ -112,7 +112,7 @@ export const OTPInput = defineComponent({
       const clampedIndex = Math.max(0, Math.min(index, length.value - 1))
       const input = inputRefs[clampedIndex]
       if (!input) return
-      input.focus()
+      input.focus({ preventScroll: true })
       input.setSelectionRange(1, 1)
     }
 
@@ -194,6 +194,8 @@ export const OTPInput = defineComponent({
     }
 
     const handleKeyDown = (index: number, evt: KeyboardEvent) => {
+      // Candidate editing belongs to the IME, including Safari's 229 key.
+      if (evt.isComposing || evt.keyCode === 229) return
       if (props.disabled) return
 
       if (evt.key === "Backspace") {

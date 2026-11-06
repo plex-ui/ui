@@ -27,6 +27,8 @@ import {
 
 <UsageBlock>{`import { SelectControl } from "@plexui/ui/components/SelectControl";`}</UsageBlock>
 
+The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` accepts `"dropdown"` or `"chevronDown"`; the indicator keeps its proportions inside a Button.
+
 ## Examples
 
 ### Overview
@@ -56,9 +58,11 @@ return (
 
 ### Variants
 
-<ComponentPreview details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={`<SelectControl variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-<SelectControl variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={`<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
+  <SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+  <SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+  <SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
+</div>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlVariantsDemo />
 </ComponentPreview>
 
@@ -188,11 +192,14 @@ const CountryTriggerView = ({ value }) => {
 
 ### Phone form
 
-<ComponentPreview details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={`import { useState, useCallback, useRef } from 'react';
+<ComponentPreview phonePresentation="screen" details={<>Country selector with flag icons and phone input composed into a form. Selecting a country updates the dial code prefix and clears the phone field. Phone numbers are formatted as you type using per-country patterns (e.g. <code>123 456 7890</code> for US, <code>1234 567 890</code> for UK). Search works by both country name and dial code. Validation runs on submit: the phone field shows an error state with <code>FieldError</code> when the number is too short or too long.</>} code={`import { useState, useCallback, useRef } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Button } from '@plexui/ui/components/Button';
-import { FieldError } from '@plexui/ui/components/FieldError';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { Page } from '@plexui/ui/components/Page';
+// BackButton is your app's navigation action.
 
 // Country data: include all 245 countries in production
 type Country = { value: string; label: string; dialCode: string; flag: string };
@@ -327,46 +334,26 @@ function PhoneForm() {
   );
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} noValidate>
-      <div className="flex flex-col gap-2">
-        <Select
-          value={country}
-          options={COUNTRY_OPTIONS}
-          onChange={handleCountryChange}
-          placeholder="Select country..."
-          size="lg"
-          block
-          searchPlaceholder="Search countries..."
-          searchPredicate={searchPredicate}
-          TriggerView={CountryTriggerView}
-          OptionView={CountryOptionView}
-          listMinWidth={300}
-        />
-        <div>
-          <Input
-            ref={phoneRef}
-            value={phone}
-            onChange={handlePhoneChange}
-            placeholder="Phone number"
-            type="tel"
-            inputMode="tel"
-            size="lg"
-            invalid={showError}
-            startAdornment={
-              <span className="text-tertiary whitespace-nowrap select-none">
-                {dialCode}
-              </span>
-            }
-          />
-          {showError && (
-            <FieldError className="mt-1.5">Phone number is not valid.</FieldError>
-          )}
-        </div>
-      </div>
-      <Button type="submit" color="primary" variant="solid" size="lg" className="w-full mt-3">
-        Continue
-      </Button>
-    </form>
+    <Page className="h-dvh [--page-content-padding-top:10px] [--page-content-padding-bottom:16px] [--page-footer-gutter:24px] [--page-footer-padding-bottom:max(24px,env(safe-area-inset-bottom,0px))]">
+      <Page.Header style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}><Page.Bar><Page.Leading><BackButton /></Page.Leading><Page.Title>Phone number</Page.Title></Page.Bar></Page.Header>
+      <Page.Content>
+        <form id="phone-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} noValidate>
+          <FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
+        <Field row label="Country">
+          <Select value={country} options={COUNTRY_OPTIONS} onChange={handleCountryChange}
+            searchPlaceholder="Search countries..." searchPredicate={searchPredicate}
+            OptionView={CountryOptionView} listMinWidth={300} />
+        </Field>
+        <Field row label="Phone" errorMessage={showError ? 'Phone number is not valid.' : undefined}>
+          <Input ref={phoneRef} value={phone} onChange={handlePhoneChange}
+            placeholder="Phone number" type="tel" inputMode="tel" autoComplete="tel-national"
+            startAdornment={<span className="text-tertiary whitespace-nowrap select-none">{dialCode}</span>} />
+        </Field>
+      </FieldGroup>
+        </form>
+      </Page.Content>
+      <Page.Footer><Button color="primary" size="3xl" pill block form="phone-form" type="submit">Continue</Button></Page.Footer>
+    </Page>
   );
 }`} previewMinHeight={240}>
   <PhoneFormDemo />

@@ -1,47 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { ArrowUpRight, Explore, Group, Mic, Plus, Search, Sparkle } from '@plexui/ui/components/Icon';
 import { TextLink } from '@plexui/ui/components/TextLink';
 import { Card } from '@plexui/ui/components/Card';
 import { EmptyMessage } from '@plexui/ui/components/EmptyMessage';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 
 const FILL_OPTIONS = ['static', 'absolute', 'none'] as const;
 const COLOR_OPTIONS = ['secondary', 'danger', 'warning'] as const;
 const SIZE_OPTIONS = ['sm', 'md'] as const;
 
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
-
 const CONTENT_OPTIONS = ['title + description', 'title', 'description'] as const;
 const ICON_OPTIONS = ['on', 'off'] as const;
+const ACTION_OPTIONS = ['one', 'two', 'none'] as const;
 
 export function EmptyMessageBaseDemo() {
   const [fill, setFill] = useState<(typeof FILL_OPTIONS)[number]>('static');
@@ -49,13 +23,14 @@ export function EmptyMessageBaseDemo() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [content, setContent] = useState<(typeof CONTENT_OPTIONS)[number]>('title + description');
   const [icon, setIcon] = useState<(typeof ICON_OPTIONS)[number]>('on');
+  const [actions, setActions] = useState<(typeof ACTION_OPTIONS)[number]>('one');
 
   const showIcon = icon === 'on';
   const showTitle = content === 'title' || content === 'title + description';
   const showDescription = content === 'description' || content === 'title + description';
 
   const stageContent = (
-    <EmptyMessage fill={fill}>
+    <EmptyMessage fill={fill} size={size}>
       {showIcon && (
         <EmptyMessage.Icon color={color} size={size}>
           <Explore />
@@ -69,12 +44,13 @@ export function EmptyMessageBaseDemo() {
           Create your first project to get started
         </EmptyMessage.Description>
       )}
-      <EmptyMessage.ActionRow>
-        <Button color="primary" onClick={() => {}} size={size === 'sm' ? 'md' : 'lg'}>
+      {actions !== 'none' && <EmptyMessage.ActionRow>
+        <Button color="primary" onClick={() => {}} size={size === 'sm' ? 'md' : 'xl'}>
           <Plus className="mr-[-2px]" />
           New project
         </Button>
-      </EmptyMessage.ActionRow>
+        {actions === 'two' && <Button color="secondary" variant="outline" size={size === 'sm' ? 'md' : 'xl'}>Browse templates</Button>}
+      </EmptyMessage.ActionRow>}
     </EmptyMessage>
   );
 
@@ -135,6 +111,11 @@ export function EmptyMessageBaseDemo() {
                 {i}
               </SegmentedControl.Option>
             ))}
+          </SegmentedControl>
+        </DemoControlRow>
+        <DemoControlRow name="actions">
+          <SegmentedControl value={actions} onChange={setActions} aria-label="actions" size="xs">
+            {ACTION_OPTIONS.map((action) => <SegmentedControl.Option key={action} value={action}>{action}</SegmentedControl.Option>)}
           </SegmentedControl>
         </DemoControlRow>
         <DemoControlRow name="content">

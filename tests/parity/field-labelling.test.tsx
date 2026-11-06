@@ -1,10 +1,11 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
-import { describe, expect, test } from "vitest"
+import { describe, expect, test, vi } from "vitest"
 import { h } from "vue"
 import { Checkbox as RCheckbox } from "../../packages/ui/src/components/Checkbox"
 import { DatePicker as RDatePicker } from "../../packages/ui/src/components/DatePicker"
 import { Field as RField } from "../../packages/ui/src/components/Field"
 import { FieldError as RFieldError } from "../../packages/ui/src/components/FieldError"
+import { FloatingLabelInput as RFloatingLabelInput } from "../../packages/ui/src/components/FloatingLabelInput"
 import { FloatingLabelSelect as RFloatingLabelSelect } from "../../packages/ui/src/components/FloatingLabelSelect"
 import { Input as RInput } from "../../packages/ui/src/components/Input"
 import { Select as RSelect } from "../../packages/ui/src/components/Select"
@@ -14,6 +15,7 @@ import { Checkbox } from "../../packages/vue/src/components/Checkbox"
 import { DatePicker } from "../../packages/vue/src/components/DatePicker"
 import { Field } from "../../packages/vue/src/components/Field"
 import { FieldError } from "../../packages/vue/src/components/FieldError"
+import { FloatingLabelInput } from "../../packages/vue/src/components/FloatingLabelInput"
 import { FloatingLabelSelect } from "../../packages/vue/src/components/FloatingLabelSelect"
 import { Input } from "../../packages/vue/src/components/Input"
 import { Select } from "../../packages/vue/src/components/Select"
@@ -109,14 +111,27 @@ describe("Field labels its control", () => {
   })
 
   test("a DatePicker trigger is named by the label", async () => {
-    const pair = await renderPair(
-      <RField label="Start date">
-        <RDatePicker value={null} onChange={noop} />
-      </RField>,
-      () => h(Field, { label: "Start date" }, () => h(DatePicker, { value: null })),
-    )
-    expect(pair.vue).toBe(pair.react)
-    expect(pair.react).toContain('aria-labelledby="')
+    document.documentElement.style.setProperty("--breakpoint-md", "768px")
+    vi.stubGlobal("matchMedia", (media: string) => ({
+      matches: true,
+      media,
+      addEventListener: noop,
+      removeEventListener: noop,
+      addListener: noop,
+      removeListener: noop,
+    }))
+    try {
+      const pair = await renderPair(
+        <RField label="Start date">
+          <RDatePicker value={null} onChange={noop} />
+        </RField>,
+        () => h(Field, { label: "Start date" }, () => h(DatePicker, { value: null })),
+      )
+      expect(pair.vue).toBe(pair.react)
+      expect(pair.react).toContain('aria-labelledby="')
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 
   test.each([
@@ -275,12 +290,21 @@ describe("FieldError icon", () => {
 })
 
 describe("FloatingLabelSelect error", () => {
-  test("is the same plain line as FloatingLabelInput's", async () => {
+  // Item 70 (05.11): both floating fields show the shared FieldError, so the two read alike on one form.
+  test("is the same FieldError as FloatingLabelInput's, linked without aria-invalid on the button role", async () => {
     const pair = await renderPair(<RFloatingLabelSelect label="Country" errorMessage="Choose a country" />, () =>
       h(FloatingLabelSelect, { label: "Country", errorMessage: "Choose a country" }),
     )
     expect(pair.vue).toBe(pair.react)
-    expect(pair.react).toMatch(/<div class="ErrorMessage" id="[^"]+" role="alert">\s*"Choose a country"/)
-    expect(pair.react).not.toContain("FieldError")
+    const error = /<div class="FieldError ErrorMessage" id="([^"]+)" role="alert">/.exec(pair.react)
+    expect(error).toBeTruthy()
+    expect(pair.react).toContain("Choose a country")
+    expect(pair.react).toContain(`aria-describedby="${error?.[1]}"`)
+    expect(pair.react).not.toContain("aria-invalid")
+    const input = await renderPair(<RFloatingLabelInput label="Country" errorMessage="Choose a country" />, () =>
+      h(FloatingLabelInput, { label: "Country", errorMessage: "Choose a country" }),
+    )
+    expect(input.vue).toBe(input.react)
+    expect(input.react).toMatch(/<div class="FieldError ErrorMessage" id="[^"]+" role="alert">/)
   })
 })

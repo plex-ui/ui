@@ -22,6 +22,8 @@ const SwitchComponent = defineComponent({
     defaultChecked: { type: Boolean, default: undefined },
     /** The controlled state of the switch. Bind with `v-model:checked`. */
     checked: { type: Boolean, default: undefined },
+    /** Checked track color. The accent option uses the platform toggle green. @default primary */
+    color: { type: String as PropType<"primary" | "accent">, default: "primary" },
     /** Optional accessible label rendered next to the switch. The `label` slot takes rich content. */
     label: String,
     /** Optional description rendered below the label, linked via `aria-describedby`. The `description` slot takes rich content. */
@@ -39,11 +41,11 @@ const SwitchComponent = defineComponent({
   },
   emits: {
     /** The state of the switch changed */
-    "update:checked": (_checked: boolean) => true,
+    "update:checked": (checked: boolean) => typeof checked === "boolean",
     /** The switch gained focus */
-    focus: (_event: FocusEvent) => true,
+    focus: (event: FocusEvent) => event.type === "focus",
     /** The switch lost focus */
-    blur: (_event: FocusEvent) => true,
+    blur: (event: FocusEvent) => event.type === "blur",
   },
   setup(props, { attrs, slots, emit }) {
     const generatedId = useId()
@@ -119,6 +121,7 @@ const SwitchComponent = defineComponent({
         {
           "ref": container,
           "class": [s.Container, className],
+          "data-color": props.color,
           "data-disabled": props.disabled ? "" : undefined,
           "data-has-label": hasLabel ? "" : undefined,
           "data-label-position": props.labelPosition,

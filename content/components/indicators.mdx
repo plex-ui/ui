@@ -99,13 +99,27 @@ import {
   </div>
 </ComponentPreview>
 
+### Phone spinner
+
+With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 30px; `size={22}` selects the small geometry. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
+
+<ComponentPreview code={`<div className="flex items-center gap-6">
+  <LoadingIndicator />
+  <LoadingIndicator size={22} />
+</div>`} previewMinHeight={168}>
+  <div className="flex items-center gap-6">
+    <LoadingIndicator />
+    <LoadingIndicator size={22} />
+  </div>
+</ComponentPreview>
+
 ## API
 
 ### LoadingIndicator
 
 <PropsTable data={[
-  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length (or use the --indicator-size CSS variable)" },
-  { prop: "strokeWidth", type: "number", default: "2", description: "Stroke width in px" },
+  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size." },
+  { prop: "strokeWidth", type: "number", default: "2", description: "Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px." },
 ]} />
 
 ### CircularProgress
@@ -126,8 +140,8 @@ A `style` prop replaces the size, stroke and color variables these props set. Al
 
 The indicators read these CSS custom properties, each with a fallback. Set them at any scope to restyle the indicators inside it:
 
-- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`)
-- `--indicator-stroke`: `LoadingIndicator` stroke width (defaults to `2px`)
+- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`, or `30px` with the touch stylesheet)
+- `--indicator-stroke`: ring stroke width (defaults to `2px`) or mobile spoke width (defaults to `4px` at 30px and `3px` at 22px)
 - `--indicator-color`: `LoadingIndicator` color (defaults to `currentcolor`)
 - `--indicator-rotate-duration`: time of one `LoadingIndicator` turn (defaults to `0.8s`)
 - `--circular-progress-size`: `CircularProgress` diameter (defaults to `28px`)

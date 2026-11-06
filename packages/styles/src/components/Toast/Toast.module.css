@@ -91,14 +91,21 @@
   color: var(--color-text-primary-solid) !important;
   font-weight: var(--font-weight-medium);
 
-  &:hover {
-    background: var(--color-background-primary-solid-hover) !important;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:where(:not(:root[data-input="touch"] *)) {
+      background: var(--color-background-primary-solid-hover) !important;
+    }
   }
 }
 
 .CancelButton {
   color: var(--color-text-secondary) !important;
   font-weight: var(--font-weight-medium);
+}
+
+.Toast :is([data-button], [data-close-button]):disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* =============================================
@@ -132,4 +139,77 @@
 
 .Info {
   --toast-icon-color: var(--color-text-info-outline);
+}
+
+/* Sonner removes the native outline; the token shadow above also replaces its
+   focus shadow. Give keyboard focus its own ring in both color schemes. */
+.Toast:focus-visible,
+.Toast :is([data-button], [data-close-button]):focus-visible {
+  outline: 2px solid var(--color-ring) !important;
+  outline-offset: 2px;
+}
+
+.Toast :is([data-button], [data-close-button]):focus-visible {
+  box-shadow: none !important;
+}
+
+/* Toast is an in-app web feedback composition, not the iOS notification banner.
+   These targets and wrapping rules adapt Sonner's controls for phone use. */
+@media (max-width: 767px), (pointer: coarse) {
+  .Toast[data-styled="true"] {
+    flex-wrap: wrap;
+
+    & > .Content {
+      flex: 1 1 calc(100% - 28px);
+      min-width: 0;
+    }
+
+    & > :is(.ActionButton, .CancelButton) {
+      box-sizing: border-box;
+      flex: 0 1 auto !important;
+      min-width: 44px;
+      max-width: 100%;
+      min-height: 44px;
+      height: auto !important;
+      padding: 8px 10px !important;
+      margin-inline: 0 !important;
+      line-height: var(--font-text-sm-line-height);
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    /* The 20px close face stays compact inside a separate 44px target. Reserve
+       the leading space so neither its target nor its ring covers the message. */
+    &:has([data-close-button]) {
+      padding-inline-start: 56px !important;
+    }
+
+    & > [data-close-button] {
+      top: 0 !important;
+      left: 0 !important;
+      right: auto !important;
+      width: 44px !important;
+      height: 44px !important;
+      border: 0 !important;
+      background: transparent !important;
+      transform: none !important;
+
+      &::before {
+        position: absolute;
+        z-index: -1;
+        inset: 12px;
+        box-sizing: border-box;
+        border: 1px solid var(--gray4);
+        border-radius: 50%;
+        background: var(--normal-bg);
+        content: "";
+        pointer-events: none;
+      }
+    }
+  }
+
+  .Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
+    left: auto !important;
+    right: 0 !important;
+  }
 }

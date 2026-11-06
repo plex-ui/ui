@@ -97,6 +97,13 @@
     --button-font-weight: var(--font-weight-medium);
     --button-outline-background: transparent;
 
+    /* NavigationButton: 44px target; glyph boxes normalize close/check/back ink. */
+    --navigation-button-size: var(--control-size-2xl);
+    --navigation-button-back-icon-size: 32px;
+    --navigation-button-close-icon-size: 34px;
+    /* iOS 26 kit: the 17pt checkmark of a bar button, about 15 × 14.5px of ink. */
+    --navigation-button-confirm-icon-size: 26px;
+
     /* =============================================
       Card
     ============================================= */
@@ -270,6 +277,7 @@
     --field-row-list-row-gap: 8px;
     --field-row-list-label-offset: 6px;
     --field-row-action-size: 2rem;
+    --field-row-text-action-size: 2rem;
     /* 32px */
     --field-row-action-font-size: var(--font-text-sm-size);
     --field-row-action-font-weight: var(--font-weight-medium);
@@ -424,6 +432,56 @@
     --modal-container-inner-padding: spacing(5);
 
     /* =============================================
+      Toolbar (phone only; Apps 2.4 Toolbars, iOS 26)
+    ============================================= */
+    --toolbar-gutter: 16px;
+    --toolbar-top-item-size: 44px;
+    --toolbar-bottom-item-size: 48px;
+    --toolbar-top-item-gap: 10px;
+    --toolbar-bottom-item-gap: 12px;
+    --toolbar-bottom-gutter: 28px;
+    --toolbar-group-gap: 12px;
+    --toolbar-group-padding: 2px;
+    --toolbar-bottom-group-gap: 6px;
+    --toolbar-bottom-group-padding: 4px;
+    --toolbar-padding-bottom: 10px;
+    --toolbar-sheet-padding-top: 16px;
+    --toolbar-bottom-padding-top: 4px;
+    --toolbar-bottom-fill-padding-top: 12px;
+    --toolbar-bottom-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 2px));
+    --toolbar-search-padding-bottom: 14px;
+    --toolbar-search-gutter: 11px;
+    --toolbar-search-icon-gap: 4px;
+    --toolbar-search-icon-size: 26px;
+    --toolbar-flat-opacity: 80%;
+    --toolbar-flat-blur: 60px;
+    --toolbar-large-title-gap: 10px;
+    --toolbar-icon-size: 24px;
+    --toolbar-label-font-size: 17px;
+    --toolbar-label-line-height: 22px;
+    --toolbar-label-font-weight: 510;
+    --toolbar-label-gutter: 14px;
+    --toolbar-bottom-label-gutter: 12px;
+    --toolbar-title-font-size: 17px;
+    --toolbar-title-line-height: 22px;
+    --toolbar-title-font-weight: 590;
+    --toolbar-title-compact-font-size: 15px;
+    --toolbar-title-compact-line-height: 20px;
+    --toolbar-subtitle-font-size: 12px;
+    --toolbar-subtitle-line-height: 16px;
+    --toolbar-subtitle-font-weight: var(--font-weight-medium);
+    --toolbar-large-title-font-size: 34px;
+    --toolbar-large-title-line-height: 41px;
+    --toolbar-large-subtitle-font-size: 15px;
+    --toolbar-large-subtitle-line-height: 20px;
+    --toolbar-medium-title-font-size: 22px;
+    --toolbar-medium-title-line-height: 28px;
+    --toolbar-edge-blur-small: 3px;
+    --toolbar-edge-blur-large: 10px;
+    --toolbar-group-item-hover: color-mix(in srgb, var(--color-text) 4%, transparent);
+    --toolbar-group-item-active: color-mix(in srgb, var(--color-text) 8%, transparent);
+
+    /* =============================================
       Page
     ============================================= */
     --page-background: var(--color-surface);
@@ -436,6 +494,7 @@
     --page-bar-height: 36px;
     --page-bar-height-phone: 44px;
     --page-bar-gap: 24px;
+    --page-bar-veil-opacity: light-dark(72%, 60%);
     --page-bar-veil: light-dark(rgb(255 255 255 / 72%), rgb(0 0 0 / 60%));
     --page-bar-line: light-dark(rgb(0 0 0 / 10%), var(--color-border));
     --page-title-font-size: 20px;

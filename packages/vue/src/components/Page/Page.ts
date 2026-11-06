@@ -1,9 +1,10 @@
 import {
-  computed,
   defineComponent,
   h,
   inject,
   mergeProps,
+  onMounted,
+  onBeforeUnmount,
   provide,
   ref,
   type HTMLAttributes,
@@ -11,20 +12,25 @@ import {
   type PropType,
   type Ref,
 } from "vue"
+import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
+import { TOOLBAR_HOST, type ToolbarPlacement } from "../Toolbar/Toolbar.js"
 import s from "@plexui/styles/components/Page/Page.module.css"
 
 // Vue port of packages/ui/src/components/Page/Page.tsx. Exports are flat
 // (`PageHeader` for `Page.Header`, ...). As in React, caller attributes are
 // applied after the page's own (`class` is merged), so they win.
 
+export type PageBarBackground = "glass" | "solid"
+
 export type PageWidth = "full" | "wide" | "column"
 
 // A trackpad's small settle at the top must not flash the line.
 const SCROLLED_AFTER = 4
 
-const PAGE_CONTEXT: InjectionKey<Ref<boolean>> = Symbol("Page")
+type PageContext = { scrolled: Ref<boolean>; footerHeight: Ref<number>; headerHeight: Ref<number | undefined> }
+const PAGE_CONTEXT: InjectionKey<PageContext> = Symbol("Page")
 
-function injectPageContext(part: string): Ref<boolean> {
+function injectPageContext(part: string): PageContext {
   const scrolled = inject(PAGE_CONTEXT, null)
   if (!scrolled) {
     throw new Error(`${part} must be used within Page`)
@@ -43,16 +49,33 @@ const PageComponent = defineComponent({
      * @default "full"
      */
     width: { type: String as PropType<PageWidth>, default: "full" },
+    /** Mobile canvas and grouped-field palette. @default "plain" */
+    surface: { type: String as PropType<"plain" | "grouped">, default: "plain" },
   },
   setup(props, { slots }) {
-    provide(PAGE_CONTEXT, ref(false))
-
-    return () => h("div", { "class": s.Page, "data-width": props.width }, slots.default?.())
+    const boundary = provideFloatingBoundaryScope()
+    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>() }
+    provide(PAGE_CONTEXT, context)
+    // A phone Toolbar replaces the header and footer bars; it reports its own heights.
+    const toolbarTop = ref<number>()
+    const toolbarBottom = ref<number>()
+    provide(TOOLBAR_HOST, {
+      kind: "page",
+      scrolled: context.scrolled,
+      setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
+    })
+    return () => h("div", { "ref": boundary.setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
+      style: {
+        "--page-footer-height": `${context.footerHeight.value}px`,
+        ...(context.headerHeight.value !== undefined ? { "--page-header-height": `${context.headerHeight.value}px` } : {}),
+        ...(toolbarTop.value !== undefined ? { "--page-toolbar-height": `${toolbarTop.value}px` } : {}),
+        ...(toolbarBottom.value !== undefined ? { "--page-toolbar-bottom-height": `${toolbarBottom.value}px` } : {}),
+      } }, slots.default?.())
   },
 })
 
 /** Props of `Page`. */
-export type PageProps = { width?: PageWidth } & HTMLAttributes
+export type PageProps = { width?: PageWidth; surface?: "plain" | "grouped" } & HTMLAttributes
 
 export const Page = PageComponent as typeof PageComponent & { new (): { $props: PageProps } }
 
@@ -61,19 +84,30 @@ export const PageHeader = defineComponent({
   name: "PageHeader",
   props: {
     /**
-     * Shows the line, and the glass on a phone, once the content has scrolled
-     * under the header. Turn it off when the content already draws a line of
+     * Shows a divider once the content has scrolled under the header.
+     * Turn it off when the content already draws a line of
      * its own at that place.
      * @default true
      */
     divider: { type: Boolean, default: true },
+    background: { type: String as PropType<PageBarBackground>, default: "glass" },
   },
   setup(props, { slots }) {
-    const scrolled = injectPageContext("PageHeader")
-    const line = computed(() => props.divider && scrolled.value)
+    const { scrolled, headerHeight } = injectPageContext("PageHeader")
+    const element = ref<HTMLElement | null>(null)
+    let observer: ResizeObserver | undefined
+    onMounted(() => {
+      const header = element.value
+      if (!header) return
+      const update = () => { headerHeight.value = header.offsetHeight }
+      update()
+      observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+      observer?.observe(header, { box: "border-box" })
+    })
+    onBeforeUnmount(() => { observer?.disconnect(); headerHeight.value = undefined })
 
     return () =>
-      h("div", { "class": s.Header, "data-scrolled": line.value ? "" : undefined }, [
+      h("div", { "ref": element, "class": s.Header, "data-background": props.background, "data-scrolled": scrolled.value ? "" : undefined, "data-divider": props.divider ? "" : undefined }, [
         h("div", { class: s.Head }, slots.default?.()),
       ])
   },
@@ -89,13 +123,38 @@ function part(name: string, tag: string, className: string) {
 }
 
 /** The row of the title and the actions (React `Page.Bar`). */
-export const PageBar = part("PageBar", "div", s.Bar)
+export const PageBar = defineComponent({
+  name: "PageBar",
+  setup(_, { slots }) {
+    const element = ref<HTMLElement | null>(null)
+    let observer: ResizeObserver | undefined
+    let children: MutationObserver | undefined
+    onMounted(() => {
+      const bar = element.value
+      if (!bar) return
+      const sides = () => bar.querySelectorAll<HTMLElement>(`:scope > .${s.Leading}, :scope > .${s.Actions}`)
+      const update = () => {
+        const width = Math.max(44, ...Array.from(sides(), (side) => side.offsetWidth))
+        bar.style.setProperty("--page-bar-side-width", `${width}px`)
+      }
+      observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
+      const observeSides = () => { observer?.disconnect(); sides().forEach((side) => observer?.observe(side, { box: "border-box" })); update() }
+      observeSides()
+      children = new MutationObserver(observeSides)
+      children.observe(bar, { childList: true })
+    })
+    onBeforeUnmount(() => { observer?.disconnect(); children?.disconnect() })
+    return () => h("div", { ref: element, class: s.Bar }, slots.default?.())
+  },
+})
+/** Navigation controls on the leading side (React `Page.Leading`). */
+export const PageLeading = part("PageLeading", "div", s.Leading)
 /** Title with what stands beside it, a subtitle under it on a phone (React `Page.Heading`). */
 export const PageHeading = part("PageHeading", "div", s.Heading)
 /** Page heading, an `<h1>` (React `Page.Title`). */
 export const PageTitle = part("PageTitle", "h1", s.Title)
-/** Status of the page, a `<p>` (React `Page.Subtitle`). */
-export const PageSubtitle = part("PageSubtitle", "p", s.Subtitle)
+/** Status of the page, a flow container for badges and text (React `Page.Subtitle`). */
+export const PageSubtitle = part("PageSubtitle", "div", s.Subtitle)
 /** Buttons on the trailing side of the bar (React `Page.Actions`). */
 export const PageActions = part("PageActions", "div", s.Actions)
 
@@ -112,7 +171,7 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const scrolled = injectPageContext("PageContent")
+    const { scrolled } = injectPageContext("PageContent")
 
     const onScroll = (event: Event) => {
       scrolled.value = (event.currentTarget as HTMLElement).scrollTop > SCROLLED_AFTER
@@ -133,8 +192,27 @@ export const PageContent = defineComponent({
 /** Actions that remain below the scrolling content (React `Page.Footer`). */
 export const PageFooter = defineComponent({
   name: "PageFooter",
-  setup(_props, { slots }) {
-    return () => h("div", { class: s.Footer }, [
+  props: { background: { type: String as PropType<PageBarBackground>, default: "glass" } },
+  setup(props, { slots }) {
+    const element = ref<HTMLElement | null>(null)
+    const { footerHeight } = injectPageContext("PageFooter")
+    const boundary = useFloatingBoundaryRegistration()
+    const setFooter = (node: unknown) => {
+      element.value = node instanceof HTMLElement ? node : null
+      boundary?.setFooter(node)
+    }
+    let observer: ResizeObserver | undefined
+    onMounted(() => {
+      const footer = element.value
+      if (!footer) return
+      const update = () => { footerHeight.value = footer.offsetHeight }
+      update()
+      if (typeof ResizeObserver === "undefined") return
+      observer = new ResizeObserver(update)
+      observer.observe(footer, { box: "border-box" })
+    })
+    onBeforeUnmount(() => { observer?.disconnect(); footerHeight.value = 0 })
+    return () => h("div", { ref: setFooter, class: s.Footer, "data-background": props.background }, [
       h("div", { class: s.FooterContent }, slots.default?.()),
     ])
   },
@@ -142,3 +220,5 @@ export const PageFooter = defineComponent({
 
 /** Props of the Page parts: native attributes of their element. */
 export type PageSlotProps = HTMLAttributes
+
+export type PageFooterProps = PageSlotProps & { background?: PageBarBackground }

@@ -28,10 +28,11 @@ import {
   useId,
 } from "reka-ui"
 import { useEscCloseStack } from "../../composables/useEscCloseStack.js"
+import { isHoverPointer } from "../../lib/inputMode.js"
 import { firstElementChild } from "../Tooltip/slot.js"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers.js"
 import { Button } from "../Button/index.js"
-import { Check, ChevronRight } from "../Icon/index.js"
+import { Check, ChevronDown, ChevronRight } from "../Icon/index.js"
 import { useLinkComponent } from "../PlexUIProvider/internal.js"
 import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
@@ -64,6 +65,10 @@ import {
   type MenuLevel,
   type MenuSubInternals,
 } from "./internal.js"
+import { useFloatingBoundary } from "../../composables/useFloatingBoundary.js"
+import { usePhoneSubmenu } from "../../composables/usePhoneSubmenu.js"
+import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement.js"
+import { completeInitialPhoneSubmenuFocus, deferInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus.js"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 
 // Vue port of packages/ui/src/components/Menu/Menu.tsx. Exports are flat
@@ -93,9 +98,39 @@ import s from "@plexui/styles/components/Menu/Menu.module.css"
 // ---------------------------------------------------------------------------
 // Plex contexts (React's MenuContext and SubmenuContext)
 
+// A delayed programmatic restore may inherit focus-visible from the menu.
+// Keep the focus, but suppress the Button ring only for this pointer restore.
+const markPointerFocusRestore = (trigger: HTMLElement) => {
+  const doc = trigger.ownerDocument
+  let active = true
+  let restoring = true
+  const clear = () => {
+    active = false
+    trigger.removeAttribute("data-menu-pointer-focus")
+    trigger.removeEventListener("blur", clear)
+    trigger.removeEventListener("focus", onFocus)
+    doc.removeEventListener("keydown", clear, true)
+  }
+  const onFocus = () => {
+    if (!restoring) clear()
+  }
+  trigger.setAttribute("data-menu-pointer-focus", "")
+  trigger.addEventListener("blur", clear)
+  trigger.addEventListener("focus", onFocus)
+  doc.addEventListener("keydown", clear, true)
+  queueMicrotask(() => {
+    if (!active) return
+    restoring = false
+    // Radix can skip its restore after an outside interaction.
+    if (doc.activeElement !== trigger) clear()
+  })
+  return clear
+}
+
 type MenuContextValue = {
   open: ComputedRef<boolean>
   setOpen: (next: boolean) => void
+  prepareFocusRestore: (trigger: HTMLElement) => void
 }
 
 const MenuContextKey: InjectionKey<MenuContextValue> = Symbol("PlexUIMenu")
@@ -177,8 +212,6 @@ export const Menu = defineComponent({
       () => handleOpenChange(false),
     )
 
-    provide(MenuContextKey, { open: isOpen, setOpen: handleOpenChange })
-
     // Radix's controlled root reports a change only when it differs from the
     // rendered state (two changes before the next render both report)
     let renderedOpen = isOpen.value
@@ -187,11 +220,23 @@ export const Menu = defineComponent({
     }
 
     const isUsingKeyboard = box(false)
+    let clearPointerFocus: (() => void) | undefined
+    const prepareFocusRestore = (trigger: HTMLElement) => {
+      clearPointerFocus?.()
+      clearPointerFocus = undefined
+      if (!isUsingKeyboard.current && trigger.isConnected) {
+        clearPointerFocus = markPointerFocusRestore(trigger)
+      }
+    }
+    provide(MenuContextKey, { open: isOpen, setOpen: handleOpenChange, prepareFocusRestore })
     let stopTracking: (() => void) | undefined
     onMounted(() => {
       stopTracking = trackKeyboardUse(isUsingKeyboard)
     })
-    onBeforeUnmount(() => stopTracking?.())
+    onBeforeUnmount(() => {
+      stopTracking?.()
+      clearPointerFocus?.()
+    })
 
     const level: MenuLevel = { open: () => isOpen.value, onOpenChange: setOpen, content: shallowRef(null) }
     provide(MenuLevelKey, level)
@@ -243,12 +288,20 @@ export const MenuTrigger = defineComponent({
       rootContext.triggerElement.value = element ?? undefined
     }
 
+    let handledClick = false
+
     // After the child's own handlers, skipped when one called preventDefault()
     const onPointerdown = (event: PointerEvent) => {
-      if (event.defaultPrevented) return
+      handledClick = false
+      if (event.defaultPrevented) {
+        handledClick = true
+        return
+      }
+      if (event.pointerType === "pen" || !isHoverPointer(event)) return
       // only call handler if it's the left button (mousedown gets triggered by all mouse buttons)
       // but not when the control key is pressed (avoiding MacOS right click)
       if (!props.disabled && event.button === 0 && event.ctrlKey === false) {
+        handledClick = true
         const wasOpen = level.open()
         level.onOpenChange(!wasOpen)
         // prevent trigger focusing when opening
@@ -257,8 +310,16 @@ export const MenuTrigger = defineComponent({
       }
     }
 
+    const onClick = (event: MouseEvent) => {
+      const handled = handledClick
+      handledClick = false
+      if (event.defaultPrevented || props.disabled || event.button !== 0 || event.ctrlKey) return
+      if (handled && event.detail !== 0) return
+      level.onOpenChange(!level.open())
+    }
+
     const onKeydown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return
+      if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return
       if (props.disabled) return
       if (["Enter", " "].includes(event.key)) level.onOpenChange(!level.open())
       if (event.key === "ArrowDown") level.onOpenChange(true)
@@ -274,7 +335,7 @@ export const MenuTrigger = defineComponent({
       if (!child) return null
       // Radix's trigger props, then the caller's (React's Menu.Trigger
       // forwards them), with its handlers after the caller's
-      const { onPointerdown: callerPointerdown, onKeydown: callerKeydown, ...restAttrs } = attrs
+      const { onPointerdown: callerPointerdown, onPointercancel: callerPointercancel, onClick: callerClick, onKeydown: callerKeydown, ...restAttrs } = attrs
       const triggerProps = {
         "type": "button",
         "id": rootContext.triggerId,
@@ -285,7 +346,19 @@ export const MenuTrigger = defineComponent({
         "data-disabled": props.disabled ? "" : undefined,
         "disabled": props.disabled,
         ...restAttrs,
-        "onPointerdown": composeEventHandlers(callerPointerdown, onPointerdown),
+        "onPointerdown": (event: PointerEvent) => {
+          handledClick = false
+          composeEventHandlers(callerPointerdown, onPointerdown)(event)
+          if (event.defaultPrevented) handledClick = true
+        },
+        "onPointercancel": (event: PointerEvent) => {
+          handledClick = false
+          composeEventHandlers(callerPointercancel, () => {})(event)
+        },
+        "onClick": (event: MouseEvent) => {
+          composeEventHandlers(callerClick, onClick)(event)
+          handledClick = false
+        },
         "onKeydown": composeEventHandlers(callerKeydown, onKeydown),
       }
       return cloneVNode(mergeSlotProps(child, triggerProps), { ref: setRef }, true)
@@ -330,7 +403,8 @@ const MenuContentElement = markRaw(
     inheritAttrs: false,
     setup(_props, { slots, attrs }) {
       return () => {
-        const { forceMount: _forceMount, ...rest } = attrs
+        const rest = { ...attrs }
+        delete rest.forceMount
         return h("div", rest, slots.default?.())
       }
     },
@@ -358,6 +432,8 @@ const MenuRootContentImpl = defineComponent({
     const rootContext = injectDropdownMenuRootContext()
     const internals = useMenuRootInternals()
     const level = useMenuLevel()
+    const floatingBoundary = useFloatingBoundary(level.open, COLLISION_PADDING)
+    const { prepareFocusRestore } = useMenuContext()
     rootContext.contentId ||= useId(undefined, "reka-dropdown-menu-content")
 
     const { contentHandlers, resetSearch } = provideMenuContentContext(() => level.content.value)
@@ -382,7 +458,11 @@ const MenuRootContentImpl = defineComponent({
           props.onCloseAutoFocus(closeEvent)
           keepMovedFocus(closeEvent)
           if (closeEvent.defaultPrevented) return
-          if (!hasInteractedOutside) internals.trigger.value?.focus()
+          const trigger = internals.trigger.value
+          if (!hasInteractedOutside && trigger) {
+            prepareFocusRestore(trigger)
+            trigger.focus()
+          }
           hasInteractedOutside = false
           // Always prevent auto focus because we either focus manually or want user agent focus
           closeEvent.preventDefault()
@@ -420,7 +500,7 @@ const MenuRootContentImpl = defineComponent({
           "align": props.align,
           "alignOffset": props.alignOffset ?? (props.align === "center" ? 0 : -5),
           "avoidCollisions": true,
-          "collisionPadding": COLLISION_PADDING,
+          ...floatingBoundary.value,
           "reference": internals.trigger.value ?? undefined,
           "class": s.MenuList,
           "data-pill": props.pill ? "" : undefined,
@@ -435,6 +515,7 @@ const MenuRootContentImpl = defineComponent({
             ...contentVariables,
           },
           "onEscapeKeyDown": preventDefaultHandler,
+          "onOpenAutoFocus": (event: Event) => delegateInitialPhoneSubmenuFocus(event, level.content.value),
           onCloseAutoFocus,
           onInteractOutside,
           ...handlers,
@@ -501,7 +582,7 @@ export const MenuContent = defineComponent({
      * `event.preventDefault()` to keep the trigger from regaining focus (and
      * its focus-visible ring).
      */
-    closeAutoFocus: (_event: Event) => true,
+    closeAutoFocus: (event: Event) => typeof event.type === "string",
   },
   setup(props, { slots, emit }) {
     const { open } = useMenuContext()
@@ -610,7 +691,9 @@ export const MenuItem = defineComponent({
     onClick: Function as PropType<(event: MouseEvent) => void>,
   },
   setup(props, { slots, attrs }) {
-    const onItemClick = (event: MouseEvent) => props.onClick?.(event)
+    const onItemClick = (event: MouseEvent) => {
+      if (!props.disabled) props.onClick?.(event)
+    }
 
     return () => {
       const description = slots.description ? slots.description() : props.description
@@ -659,7 +742,7 @@ export const MenuItemAction = defineComponent({
     ariaLabel: String,
   },
   emits: {
-    click: (_event: MouseEvent) => true,
+    click: (event: MouseEvent) => typeof event.type === "string",
   },
   setup(props, { slots, emit }) {
     const { setOpen } = useMenuContext()
@@ -890,6 +973,7 @@ export const MenuSubTrigger = defineComponent({
       if (openTimer) window.clearTimeout(openTimer)
       openTimer = null
     }
+    watch(() => props.disabled, (disabled) => { if (disabled) clearOpenTimer() })
     onBeforeUnmount(() => {
       clearOpenTimer()
       window.clearTimeout(contentContext.pointerGraceTimer.current)
@@ -929,7 +1013,7 @@ export const MenuSubTrigger = defineComponent({
           if (!props.disabled && !subLevel.open() && !openTimer) {
             contentContext.onPointerGraceIntentChange(null)
             openTimer = window.setTimeout(() => {
-              subLevel.onOpenChange(true)
+              if (!props.disabled) subLevel.onOpenChange(true)
               clearOpenTimer()
             }, 100)
           }
@@ -1025,15 +1109,18 @@ const MenuSubContentImpl = defineComponent({
     sideOffset: { type: Number, required: true },
     alignOffset: { type: Number, required: true },
     width: { type: sizeProp, required: true },
-    minWidth: { type: sizeProp, required: true },
+    minWidth: sizeProp,
     maxHeight: Number,
     pill: Boolean,
+    exitGuard: { type: Object as PropType<ReturnType<typeof createExitGuard>>, required: true },
   },
   setup(props, { slots }) {
     // The submenu's own Reka root: its content takes the submenu's ids
     const subRoot = injectDropdownMenuRootContext()
     const subInternals = useMenuSubInternals()
     const subLevel = useMenuLevel()
+    const floatingBoundary = useFloatingBoundary(subLevel.open, COLLISION_PADDING)
+    const phone = usePhoneSubmenu(subLevel.open, subInternals.trigger, subLevel.content, floatingBoundary)
     const internals = useMenuRootInternals()
     const parentContent = inject(ParentContentKey, null)
     subRoot.triggerId = subInternals.triggerId
@@ -1047,13 +1134,38 @@ const MenuSubContentImpl = defineComponent({
       },
     })
     onMounted(() => {
-      subLevel.content.value = document.getElementById(subInternals.contentId)
+      subLevel.content.value = (subInternals.trigger.value?.ownerDocument ?? document).getElementById(subInternals.contentId)
     })
     onBeforeUnmount(() => {
       subLevel.content.value = null
     })
 
     const handlers = contentHandlers(internals.isUsingKeyboard)
+    // Resize recovery is not a new keyboard entry after returning to the trigger.
+    let phoneWasUnavailable = false
+    watch([phone, subLevel.open], ([state, open]) => {
+      if (!open) { phoneWasUnavailable = false; return }
+      if (state.mobile && state.unavailable) phoneWasUnavailable = true
+      const content = subLevel.content.value
+      const trigger = subInternals.trigger.value
+      if (content && trigger && completeInitialPhoneSubmenuFocus(trigger, content)) return
+      if (state.mobile && state.ready && !phoneWasUnavailable && content && internals.isUsingKeyboard.current && content.ownerDocument.activeElement === subInternals.trigger.value) {
+        focusPhoneSubmenuEntry(content)
+      }
+    }, { flush: "post" })
+    const requestCollapse = () => {
+      if (!subLevel.open()) return
+      subLevel.onOpenChange(false)
+      subInternals.trigger.value?.focus({ preventScroll: true })
+    }
+    const collapse = (event: Event) => {
+      event.preventDefault()
+      requestCollapse()
+    }
+    // Reka emits Escape on window bubble, after Plex's body-level stack.
+    // Register the effective Phone child here, including externally forced
+    // opens; waiting for Reka would let the parent consume the same key first.
+    useEscCloseStack(() => phone.value.mobile && subLevel.open(), requestCollapse)
 
     const onKeydown = (event: KeyboardEvent) => {
       const currentTarget = event.currentTarget as HTMLElement
@@ -1077,10 +1189,10 @@ const MenuSubContentImpl = defineComponent({
           "as": MenuContentElement,
           "side": internals.dir.value === "rtl" ? "left" : "right",
           "align": "start",
-          "sideOffset": props.sideOffset,
-          "alignOffset": props.alignOffset,
-          "avoidCollisions": true,
-          "collisionPadding": COLLISION_PADDING,
+          "sideOffset": phone.value.mobile ? phone.value.sideOffset : props.sideOffset,
+          "alignOffset": phone.value.mobile ? phone.value.alignOffset : props.alignOffset,
+          "avoidCollisions": !phone.value.mobile,
+          ...floatingBoundary.value,
           "reference": subInternals.trigger.value ?? undefined,
           "class": s.MenuList,
           "data-submenu": "",
@@ -1088,12 +1200,16 @@ const MenuSubContentImpl = defineComponent({
           "style": {
             ...toCssVariables({
               "menu-width": props.width,
-              "menu-min-width": props.minWidth,
+              "menu-min-width": props.minWidth ?? "auto",
               "menu-max-height": props.maxHeight,
+              "menu-phone-width": phone.value.mobile && typeof props.width === "number" ? props.width : undefined,
+              "menu-phone-min-width": phone.value.mobile ? (props.minWidth === "auto" ? 0 : props.minWidth) : undefined,
             }),
             ...contentVariables,
           },
           "onOpenAutoFocus": (event: Event) => {
+            deferInitialPhoneSubmenuFocus(event, subLevel.content.value, internals.isUsingKeyboard.current)
+            if (event.defaultPrevented) return
             // when opening a submenu, focus content for keyboard users only
             if (internals.isUsingKeyboard.current) subLevel.content.value?.focus()
             event.preventDefault()
@@ -1105,13 +1221,23 @@ const MenuSubContentImpl = defineComponent({
           // never on an outside pointer-down
           "onPointerDownOutside": preventDefaultHandler,
           "onFocusOutside": (event: Event) => {
+            props.exitGuard.onInteractOutside(event)
+            if (event.defaultPrevented) return
             // We prevent closing when the trigger is focused to avoid triggering a re-open animation
             // on pointer interaction.
             if (event.target !== subInternals.trigger.value) subLevel.onOpenChange(false)
             event.preventDefault()
           },
           "onEscapeKeyDown": preventDefaultHandler,
+          "onInteractOutside": props.exitGuard.onInteractOutside,
           ...handlers,
+          "onFocusin": (event: FocusEvent) => {
+            const content = subLevel.content.value
+            if (phone.value.mobile && event.target === content && content && internals.isUsingKeyboard.current) {
+              event.preventDefault()
+              focusPhoneSubmenuEntry(content)
+            } else handlers.onFocusin(event)
+          },
           onKeydown,
           // A blur inside a submenu reaches its parent menus in React's tree
           "onFocusout": () => {
@@ -1119,7 +1245,18 @@ const MenuSubContentImpl = defineComponent({
             parentContent?.resetSearch()
           },
         },
-        { default: () => slots.default?.() },
+        { default: () => [
+          phone.value.mobile ? h(MenuItemInteractive, {
+            "className": s.SubMenuItem,
+            "data-submenu-collapse": "",
+            "onSelect": collapse,
+            "onItemClick": () => {},
+          }, { default: () => [
+            phone.value.mobile ? phone.value.label : "",
+            h(ChevronDown, { width: "16", height: "16", class: s.SubTriggerIcon }),
+          ] }) : null,
+          slots.default?.(),
+        ] },
       )
   },
 })
@@ -1136,7 +1273,7 @@ export const MenuSubContent = defineComponent({
     /** Defines the `width` property of the content. @default "auto" */
     width: { type: sizeProp, default: "auto" },
     /** Defines the `min-width` property of the content. @default "auto" */
-    minWidth: { type: sizeProp, default: "auto" },
+    minWidth: sizeProp,
     /** Defines the `max-height` property of the content, in pixels. */
     maxHeight: Number,
     /**
@@ -1147,6 +1284,7 @@ export const MenuSubContent = defineComponent({
   },
   setup(props, { slots }) {
     const { open } = useSubmenuContext()
+    const exitGuard = createExitGuard()
 
     return () =>
       h(
@@ -1156,11 +1294,11 @@ export const MenuSubContent = defineComponent({
           default: () => [
             h(
               TransitionGroup,
-              { class: s.Menu, ...overlayTimingQuick, overlay: true },
+              { class: s.Menu, ...overlayTimingQuick, ...exitGuard.transition, overlay: true },
               {
                 default: () => [
                   open.value
-                    ? h(MenuSubContentImpl, { key: "submenu", ...props }, { default: () => slots.default?.() })
+                    ? h(MenuSubContentImpl, { key: "submenu", ...props, exitGuard }, { default: () => slots.default?.() })
                     : createCommentVNode(),
                 ],
               },
@@ -1210,9 +1348,9 @@ export const MenuRadioGroup = defineComponent({
     indicatorPosition: { type: String as PropType<"start" | "end">, default: "end" },
   },
   emits: {
-    "update:value": (_value: string) => true,
+    "update:value": (value: string) => typeof value === "string",
     /** Fired when selection changes */
-    "change": (_value: string) => true,
+    "change": (value: string) => typeof value === "string",
   },
   setup(props, { slots, emit }) {
     provide(RadioGroupKey, {
@@ -1239,7 +1377,7 @@ export const MenuRadioItem = defineComponent({
   },
   emits: {
     /** The radio item was pressed; `event.preventDefault()` keeps the menu open */
-    select: (_event: Event) => true,
+    select: (event: Event) => typeof event.type === "string",
   },
   setup(props, { slots, attrs, emit }) {
     const group = inject(RadioGroupKey, { value: () => undefined, onValueChange: () => {} })
@@ -1273,7 +1411,11 @@ export const MenuRadioItem = defineComponent({
         },
         [
           h("div", { class: s.PressableInner }, [
-            h("div", { class: s.RadioIndicator }, [h(MenuItemIndicator, { class: s.RadioIndicatorActive })]),
+            h("div", { class: s.RadioIndicator }, [
+              h(MenuItemIndicator, { class: s.RadioIndicatorActive }, {
+                default: () => [h(Check, { class: s.SelectionCheck })],
+              }),
+            ]),
             slots.default?.(),
           ]),
         ],
@@ -1303,11 +1445,11 @@ export const MenuCheckboxItem = defineComponent({
     indicatorVariant: { type: String as PropType<"solid" | "ghost">, default: "solid" },
   },
   emits: {
-    "update:checked": (_checked: boolean) => true,
+    "update:checked": (checked: boolean) => typeof checked === "boolean",
     /** Event handler called when the checked state changes */
-    "checkedChange": (_checked: boolean) => true,
+    "checkedChange": (checked: boolean) => typeof checked === "boolean",
     /** The checkbox item was pressed; `event.preventDefault()` keeps the menu open */
-    "select": (_event: Event) => true,
+    "select": (event: Event) => typeof event.type === "string",
   },
   setup(props, { slots, attrs, emit }) {
     provide(ItemIndicatorKey, { checked: () => props.checked })
@@ -1348,8 +1490,8 @@ export const MenuCheckboxItem = defineComponent({
               h(MenuItemIndicator, null, {
                 default: () =>
                   props.indicatorVariant === "ghost"
-                    ? [h(Check, { class: "size-4" })]
-                    : [h("div", { class: s.CheckboxCircle }, [h(Check, { class: "size-4" })])],
+                    ? [h(Check, { class: s.SelectionCheck })]
+                    : [h("div", { class: s.CheckboxCircle }, [h(Check, { class: s.SelectionCheck })])],
               }),
             ]),
             slots.default?.(),

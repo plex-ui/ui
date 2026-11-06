@@ -6,6 +6,8 @@ import { Button } from '@plexui/ui/components/Button';
 import { Page, type PageWidth } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { useDemoControlSync } from './PreviewEmbed';
+import s from './PageDemos.module.css';
 
 const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
 
@@ -13,7 +15,7 @@ const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
 const HALF_WIDTHS = { '--page-width-wide': '640px', '--page-width-column': '384px' } as CSSProperties;
 
 function Frame({ children }: { children: ReactNode }) {
-  return <div className="h-[420px] w-full overflow-hidden rounded-xl border border-default">{children}</div>;
+  return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;
 }
 
 function Rows() {
@@ -51,6 +53,7 @@ export function PageOverviewDemo() {
 
 export function PageWidthsDemo() {
   const [width, setWidth] = useState<PageWidth>('column');
+  useDemoControlSync('width', width, setWidth);
 
   return (
     <>
@@ -63,8 +66,7 @@ export function PageWidthsDemo() {
           </SegmentedControl>
         </DemoControlRow>
       </div>
-      <div data-demo-stage>
-        <Frame>
+      <Frame>
           <Page style={HALF_WIDTHS} width={width}>
             <Page.Header>
               <Page.Bar>
@@ -78,8 +80,7 @@ export function PageWidthsDemo() {
               <Rows />
             </Page.Content>
           </Page>
-        </Frame>
-      </div>
+      </Frame>
     </>
   );
 }
@@ -92,8 +93,10 @@ export function PageHeadingDemo() {
           <Page.Bar>
             <Page.Heading>
               <Page.Title>Menu</Page.Title>
-              <Badge color="info" size="sm" variant="outline">Draft</Badge>
-              <Page.Subtitle>Saved a minute ago</Page.Subtitle>
+              <Page.Subtitle>
+                <Badge color="info" size="sm" variant="outline">Draft</Badge>
+                <span>Saved a minute ago</span>
+              </Page.Subtitle>
             </Page.Heading>
             <Page.Actions>
               <Button color="primary" pill size="md">Publish</Button>

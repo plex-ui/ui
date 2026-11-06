@@ -23,6 +23,8 @@ export const ButtonLink = defineComponent({
     variant: { type: String as PropType<Variants<"solid" | "soft" | "outline" | "ghost">>, default: "solid" },
     /** Fully rounded pill shape. @default false */
     pill: { type: Boolean, default: false },
+    /** Phone surface for neutral soft/ghost buttons; desktop retains the variant. */
+    mobileMaterial: String as PropType<"glass" | "flat">,
     /** Control height and typography scale. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
     gutterSize: String as PropType<Sizes<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,
@@ -39,7 +41,10 @@ export const ButtonLink = defineComponent({
     to: [String, Object] as PropType<RouteTarget>,
   },
   emits: {
-    click: (_event: MouseEvent) => true,
+    click: (event: MouseEvent) => {
+      void event
+      return true
+    },
   },
   setup(props, { slots, attrs, emit }) {
     const DefaultComponent = useLinkComponent()
@@ -62,6 +67,7 @@ export const ButtonLink = defineComponent({
         "data-color": props.color,
         "data-variant": props.variant,
         "data-pill": props.pill ? "" : undefined,
+        "data-mobile-material": props.mobileMaterial,
         "data-block": props.block ? "" : undefined,
         "data-optically-align": props.opticallyAlign,
         "data-size": props.size,

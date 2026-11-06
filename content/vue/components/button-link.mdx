@@ -16,7 +16,7 @@ export const external = `<ButtonLink href="#" color="primary">
   External link <ArrowUpRight />
 </ButtonLink>`
 
-export const colors = `<div class="w-[calc(100%+48px)] -mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+export const colors = `<div class="w-full min-w-0 md:w-[calc(100%+48px)] md:-mx-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
   <div class="pt-1 pb-6 px-8 w-fit min-w-full">
     <div class="grid gap-6 items-center justify-center" style="grid-template-columns: auto repeat(8, min-content)">
       <div />
@@ -114,6 +114,8 @@ export const disabled = `<ButtonLink href="#" color="primary" :disabled="disable
 
 ## API
 
+For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
+
 <PropsTable data={[
   { prop: "default slot", type: "VNode[]", description: "Content inside the link button" },
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color" },
@@ -127,6 +129,7 @@ export const disabled = `<ButtonLink href="#" color="primary" :disabled="disable
   { prop: "external", type: "boolean", description: "Force external-link behavior" },
   { prop: "optically-align", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
   { prop: "disabled-tone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },

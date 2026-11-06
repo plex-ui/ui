@@ -7,32 +7,40 @@ metaDescription: Mobile-first React file upload component with MIME-type and siz
 import {
   FileUploadDemo,
   FileUploadWithFilesDemo,
-  FileUploadDisabledDemo,
-  FileUploadErrorDemo,
   FileCardDemo,
   FileCardWithRemoveDemo,
   FileCardListDemo,
   FileCardReadOnlyListDemo,
 } from '@/components/docs/FileUploadDemos'
+import { fileRemovalFocusCode } from '@/components/docs/fileRemovalFocus'
 
 <UsageBlock>{`import { FileUpload, FileCard, FileCardGroup } from "@plexui/ui/components/FileUpload";`}</UsageBlock>
 
 ## Examples
 
+<span id="error-state" />
+<span id="disabled" />
+
 ### Overview
 
-<ComponentPreview code={`const [files, setFiles] = useState<File[]>([])
+<ComponentPreview details={<>Toggle <code>errorMessage</code> and <code>disabled</code> while keeping the selected files. The error control demonstrates a supplied message; it does not validate the number of files. Accepted types and size limits still apply.</>} code={`function Example({ errorMessage = false, disabled = false }) {
+  const [files, setFiles] = useState<File[]>([]);
 
-<div className="w-[360px]">
-  <FileUpload
-    accept=".pdf,.png,.jpg,.jpeg"
-    multiple
-    maxFiles={5}
-    maxSize={10 * 1024 * 1024}
-    value={files}
-    onValueChange={setFiles}
-  />
-</div>`}>
+  return (
+    <div className="w-[360px]">
+      <FileUpload
+        accept=".pdf,.png,.jpg,.jpeg"
+        multiple
+        maxFiles={5}
+        maxSize={10 * 1024 * 1024}
+        value={files}
+        onValueChange={setFiles}
+        errorMessage={errorMessage ? "Please upload at least 2 documents." : undefined}
+        disabled={disabled}
+      />
+    </div>
+  );
+}`}>
   <FileUploadDemo />
 </ComponentPreview>
 
@@ -52,28 +60,6 @@ import {
   <FileUploadWithFilesDemo />
 </ComponentPreview>
 
-### Error state
-
-<ComponentPreview code={`<div className="w-[360px]">
-  <FileUpload
-    accept=".pdf"
-    multiple
-    value={files}
-    onValueChange={setFiles}
-    errorMessage="Please upload at least 2 documents."
-  />
-</div>`}>
-  <FileUploadErrorDemo />
-</ComponentPreview>
-
-### Disabled
-
-<ComponentPreview code={`<div className="w-[360px]">
-  <FileUpload disabled />
-</div>`}>
-  <FileUploadDisabledDemo />
-</ComponentPreview>
-
 ## File Card
 
 Standalone file card component. Wrap with `FileCardGroup` for the bordered container. Omit `onRemove` to hide the delete button.
@@ -90,34 +76,42 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
 
 ### With remove
 
-<ComponentPreview code={`const [file, setFile] = useState<File | null>(initialFile)
+<ComponentPreview details={<>Removing the focused file moves focus to the existing File removed status without scrolling. Pointer removal does not move focus if the remove button was not focused.</>} code={`${fileRemovalFocusCode}
 
-{file ? (
-  <div className="w-[360px]">
-    <FileCardGroup>
-      <FileCard file={file} onRemove={() => setFile(null)} />
-    </FileCardGroup>
+const cards = useRef<HTMLDivElement>(null)
+const [file, setFile] = useState<File | null>(initialFile)
+
+<div ref={cards} className="w-[360px]">
+  {file && <FileCardGroup>
+    <FileCard file={file} onRemove={() => removeFileWithFocus(cards.current, 0, () => setFile(null))} />
+  </FileCardGroup>}
+  <div role="status" tabIndex={-1} data-file-removal-status className={file ? "sr-only" : "text-center text-sm text-tertiary"}>
+    {file ? "" : "File removed"}
   </div>
-) : (
-  <div className="w-[360px] text-center text-sm text-tertiary">File removed</div>
-)}`}>
+</div>`}>
   <FileCardWithRemoveDemo />
 </ComponentPreview>
 
 ### Multiple files
 
-<ComponentPreview code={`const [files, setFiles] = useState<File[]>(initialFiles)
+<ComponentPreview details={<>After keyboard removal, focus moves to the next file, then the previous one, or the Files removed status when the list becomes empty. The same helper preserves the scroll position.</>} code={`${fileRemovalFocusCode}
 
-<div className="w-[360px]">
-  <FileCardGroup>
+const cards = useRef<HTMLDivElement>(null)
+const [files, setFiles] = useState<File[]>(initialFiles)
+
+<div ref={cards} className="w-[360px]">
+  {files.length > 0 && <FileCardGroup>
     {files.map((file, index) => (
       <FileCard
         key={\`\${file.name}-\${file.size}\`}
         file={file}
-        onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
+        onRemove={() => removeFileWithFocus(cards.current, index, () => setFiles((prev) => prev.filter((_, i) => i !== index)))}
       />
     ))}
-  </FileCardGroup>
+  </FileCardGroup>}
+  <div role="status" tabIndex={-1} data-file-removal-status className={files.length > 0 ? "sr-only" : "text-center text-sm text-tertiary"}>
+    {files.length > 0 ? "" : "Files removed"}
+  </div>
 </div>`}>
   <FileCardListDemo />
 </ComponentPreview>
@@ -142,7 +136,7 @@ Standalone file card component. Wrap with `FileCardGroup` for the bordered conta
   { prop: "description", type: "string", description: "Helper text below the icon (area variant only)" },
   { prop: "accept", type: "string", description: 'Accepted file types (e.g. ".pdf,.png,image/*")' },
   { prop: "multiple", type: "boolean", default: "false", description: "Allow selecting multiple files. Without it, a new pick replaces the current file" },
-  { prop: "maxFiles", type: "number", description: "Maximum number of files. Button disables at limit." },
+  { prop: "maxFiles", type: "number", description: "Maximum number of files. In multiple mode, the button disables at the limit. Single-file mode keeps the button available for replacement." },
   { prop: "maxSize", type: "number", description: "Maximum file size in bytes" },
   { prop: "value", type: "File[]", description: "Controlled file list" },
   { prop: "onValueChange", type: "(files: File[]) => void", description: "Callback when files are added or removed" },

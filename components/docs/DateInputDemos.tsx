@@ -1,62 +1,18 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { DateInput } from '@plexui/ui/components/DateInput';
 import { Field } from '@plexui/ui/components/Field';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
 export function DateInputBaseDemo() {
   const [date, setDate] = useState<DateTime | null>(null);
+  const [disabled, setDisabled] = useState(false);
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [pill, setPill] = useState(false);
   const [clearable, setClearable] = useState(true);
@@ -90,11 +46,13 @@ export function DateInputBaseDemo() {
         </DemoControlRow>
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
         <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <div data-demo-stage className="py-10">
         <div className="w-[200px]">
           <DateInput
             value={date}
+            disabled={disabled}
             onChange={(v) => setDate(v)}
             size={size}
             variant={variant}
@@ -177,15 +135,6 @@ export function DateInputWithSecondsDemo() {
   return (
     <div className="w-[300px]">
       <DateInput value={date} onChange={(v) => setDate(v)} timeMode="HH:MM:SS" clearable />
-    </div>
-  );
-}
-
-export function DateInputDisabledDemo() {
-  const [date, setDate] = useState<DateTime | null>(DateTime.local(2025, 1, 1));
-  return (
-    <div className="w-[200px]">
-      <DateInput value={date} onChange={(v) => setDate(v)} disabled />
     </div>
   );
 }

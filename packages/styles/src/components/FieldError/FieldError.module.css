@@ -3,23 +3,26 @@
   grid-template-rows: 1fr;
   padding-inline-start: var(--field-error-padding-inline);
   color: var(--field-error-color);
-  font-size: var(--field-error-font-size);
-  line-height: var(--field-error-line-height);
-  text-align: left;
+  font-size: var(--mobile-field-error-font-size, var(--field-error-font-size));
+  line-height: var(--mobile-field-error-line-height, var(--field-error-line-height));
+  font-weight: var(--mobile-field-error-font-weight, inherit);
+  letter-spacing: var(--mobile-field-error-letter-spacing, inherit);
+  text-align: var(--field-error-text-align, left);
 }
 
 .FieldError:first-of-type {
-  margin-top: var(--field-error-margin-top);
+  margin-top: var(--mobile-field-error-offset, var(--field-error-margin-top));
 }
 
 .FieldError:last-of-type {
-  margin-bottom: var(--field-error-margin-bottom);
+  margin-bottom: var(--mobile-field-error-margin-bottom, var(--field-error-margin-bottom));
 }
 
 .Inner {
   display: flex;
   align-items: flex-start;
-  gap: var(--field-error-gap);
+  justify-content: var(--field-error-content-justify, flex-start);
+  gap: var(--mobile-field-error-icon-gap, var(--field-error-gap));
   min-height: 0;
   overflow: hidden;
 }
@@ -37,11 +40,11 @@
 }
 
 .Icon {
-  width: var(--field-error-icon-size);
-  height: var(--field-error-icon-size);
-  display: block;
+  width: var(--mobile-field-error-icon-size, var(--field-error-icon-size));
+  height: var(--mobile-field-error-icon-size, var(--field-error-icon-size));
+  display: var(--mobile-field-error-icon-display, var(--field-error-icon-display, block));
   align-self: flex-start;
-  margin-block-start: calc((var(--field-error-line-height) - var(--field-error-icon-size)) / 2);
+  margin-block-start: calc((var(--mobile-field-error-line-height, var(--field-error-line-height)) - var(--mobile-field-error-icon-size, var(--field-error-icon-size))) / 2);
 }
 
 /* The room opens first, so what stands below slides down instead of dropping. */

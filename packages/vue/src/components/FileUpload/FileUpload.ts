@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { defineComponent, h, ref, shallowRef, useId, type PropType } from "vue"
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, shallowRef, useId, watch, type PropType } from "vue"
 import { FileBlank, FileDocument, ImageSquare, UploadDocuments, X } from "../Icon/index.js"
 import { Button } from "../Button/index.js"
 import { FieldError } from "../FieldError/index.js"
@@ -149,7 +149,7 @@ export const FileUpload = defineComponent({
     accept: String,
     /** Allow selecting multiple files. @default false */
     multiple: { type: Boolean, default: false },
-    /** Maximum number of files. The button disables at the limit. */
+    /** Maximum number of files. In multiple mode, the button disables at the limit. */
     maxFiles: Number,
     /** Maximum file size in bytes */
     maxSize: Number,
@@ -166,16 +166,50 @@ export const FileUpload = defineComponent({
   },
   emits: {
     /** Files were added or removed (`v-model:value`) */
-    "update:value": (_files: File[]) => true,
+    "update:value": (files: File[]) => Array.isArray(files),
     /** A file was rejected (wrong type, too large, over the limit) */
-    "fileReject": (_file: File, _reason: string) => true,
+    "fileReject": (file: File, reason: string) => typeof file.name === "string" && typeof reason === "string",
   },
   setup(props, { attrs, emit }) {
     const internalFiles = shallowRef<File[]>([])
     const inputRef = ref<HTMLInputElement | null>(null)
+    const rootRef = ref<HTMLDivElement | null>(null)
+    const listRef = ref<HTMLUListElement | null>(null)
+    let pendingRemovalFocus: { file: File; index: number; source: HTMLButtonElement } | null = null
+    let stopTrackingFocus: (() => void) | undefined
     const generatedId = useId()
 
     const getFiles = () => props.value ?? internalFiles.value
+
+    // Like React, wait for accepted deletion and cancel when the user moves on.
+    onMounted(() => {
+      const doc = rootRef.value?.ownerDocument
+      if (!doc) return
+      const cancelAfterMoving = (event: Event) => {
+        if (pendingRemovalFocus && event.target instanceof Node && !pendingRemovalFocus.source.contains(event.target)) {
+          pendingRemovalFocus = null
+        }
+      }
+      doc.addEventListener("focusin", cancelAfterMoving, true)
+      doc.addEventListener("pointerdown", cancelAfterMoving, true)
+      stopTrackingFocus = () => {
+        doc.removeEventListener("focusin", cancelAfterMoving, true)
+        doc.removeEventListener("pointerdown", cancelAfterMoving, true)
+      }
+    })
+    onBeforeUnmount(() => stopTrackingFocus?.())
+
+    watch(() => getFiles().slice(), (files) => {
+      const pending = pendingRemovalFocus
+      if (!pending || files.includes(pending.file)) return
+      pendingRemovalFocus = null
+      const doc = pending.source.ownerDocument
+      if (props.disabled || (doc.activeElement !== doc.body && !pending.source.contains(doc.activeElement))) return
+      const buttons = Array.from(listRef.value?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? [])
+      const target = buttons[Math.min(pending.index, buttons.length - 1)]
+        ?? rootRef.value?.querySelector<HTMLButtonElement>("button:not(:disabled):not([aria-disabled=true])")
+      target?.focus({ preventScroll: true })
+    }, { flush: "post" })
 
     const updateFiles = (next: File[]) => {
       emit("update:value", next)
@@ -217,6 +251,11 @@ export const FileUpload = defineComponent({
     }
 
     const removeFile = (index: number) => {
+      const file = getFiles()[index]
+      const source = listRef.value?.querySelectorAll<HTMLButtonElement>("button")[index]
+      if (file && source?.contains(source.ownerDocument.activeElement)) {
+        pendingRemovalFocus = { file, index, source }
+      }
       const next = getFiles().filter((_, i) => i !== index)
       updateFiles(next)
     }
@@ -237,9 +276,9 @@ export const FileUpload = defineComponent({
         [attrs["aria-describedby"] as string | undefined, errorMessage ? errorId : undefined]
           .filter(Boolean)
           .join(" ") || undefined
-      const atLimit = !!maxFiles && files.length >= maxFiles
+      const atLimit = props.multiple && !!maxFiles && files.length >= maxFiles
 
-      return h("div", { class: clsx(s.Root, attrs.class as string | undefined) }, [
+      return h("div", { "ref": rootRef, "class": clsx(s.Root, attrs.class as string | undefined), "role": "group", "aria-describedby": ariaDescribedBy }, [
         variant === "area"
           ? h(
               "button",
@@ -252,9 +291,8 @@ export const FileUpload = defineComponent({
                   if (!(disabled || atLimit)) openPicker()
                 },
                 "disabled": disabled || atLimit,
-                // The visible trigger is what keyboard and screen-reader users reach
+                // Announce the error from the action; invalid belongs to the file input.
                 "aria-describedby": ariaDescribedBy,
-                "aria-invalid": ariaInvalid,
               },
               [
                 h(UploadDocuments, { class: s.AreaIcon }),
@@ -272,9 +310,7 @@ export const FileUpload = defineComponent({
                 "block": true,
                 "disabled": disabled || atLimit,
                 "onClick": openPicker,
-                "class": "h-[3.25rem]",
                 "aria-describedby": ariaDescribedBy,
-                "aria-invalid": ariaInvalid,
               },
               { default: () => [label || "Upload file"] },
             ),
@@ -282,7 +318,7 @@ export const FileUpload = defineComponent({
         files.length > 0
           ? h(
               "ul",
-              { "class": s.FileList, "data-variant": variant, "aria-label": "Attached files" },
+              { "ref": listRef, "class": s.FileList, "data-variant": variant, "aria-label": "Attached files" },
               files.map((file, index) =>
                 h("li", { key: `${file.name}-${file.size}-${file.lastModified}` }, [
                   h(FileCard, { file, onRemove: () => removeFile(index), disabled }),
@@ -300,6 +336,8 @@ export const FileUpload = defineComponent({
           "onChange": handleFileSelect,
           "disabled": disabled,
           "id": inputId,
+          "aria-label": label || (variant === "area" ? "Tap to upload files" : "Upload file"),
+          "aria-invalid": ariaInvalid,
           "aria-describedby": ariaDescribedBy,
           "tabindex": -1,
         }),

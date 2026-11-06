@@ -2,10 +2,11 @@
 
 import clsx from "clsx"
 import { Tooltip as RadixTooltip, Slot } from "radix-ui"
-import { useState, type MouseEventHandler, type PointerEventHandler } from "react"
+import { createContext, useContext, useRef, useState, type MouseEventHandler, type PointerEventHandler } from "react"
 import { useTimeout } from "usehooks-ts"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { preventDefaultHandler } from "../../lib/helpers"
+import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Tooltip/Tooltip.module.css"
 
 export type TooltipProps = {
@@ -128,7 +129,7 @@ export const Tooltip = (props: TooltipProps) => {
       onOpenChange={handleOpenChange}
       disableHoverableContent={!interactive}
     >
-      <RadixTooltip.Trigger asChild>
+      <Trigger asChild>
         <Slot.Root
           {...restProps}
           ref={forwardedRef}
@@ -143,7 +144,7 @@ export const Tooltip = (props: TooltipProps) => {
         >
           {children}
         </Slot.Root>
-      </RadixTooltip.Trigger>
+      </Trigger>
       <Content
         maxWidth={maxWidth}
         compact={compact}
@@ -160,6 +161,11 @@ export const Tooltip = (props: TooltipProps) => {
   )
 }
 
+const RecoverFocusContext = createContext<{
+  recover: () => void
+  state: "instant-open" | undefined
+} | undefined>(undefined)
+
 const Root = ({
   children,
   open,
@@ -169,14 +175,29 @@ const Root = ({
   open: boolean
   onOpenChange: (nextState: boolean) => void
 }) => {
-  useEscCloseStack(open, () => {
-    onOpenChange(false)
-  })
+  const [recoveredFocus, setRecoveredFocus] = useState(false)
+  const handleOpenChange = (nextState: boolean) => {
+    setRecoveredFocus(false)
+    onOpenChange(nextState)
+  }
+  useEscCloseStack(open, () => handleOpenChange(false))
 
   return (
     <RadixTooltip.Provider>
-      <RadixTooltip.Root open={open} onOpenChange={onOpenChange} {...restProps}>
-        {children}
+      <RadixTooltip.Root open={open} onOpenChange={handleOpenChange} {...restProps}>
+        <RecoverFocusContext.Provider value={{
+          recover: () => {
+            if (open) return
+            // Match a keyboard open even if Radix retained its cancelled
+            // pointer flag and a previous hover's delayed-open state.
+            document.dispatchEvent(new CustomEvent("tooltip.open"))
+            setRecoveredFocus(true)
+            onOpenChange(true)
+          },
+          state: open && recoveredFocus ? "instant-open" : undefined,
+        }}>
+          {children}
+        </RecoverFocusContext.Provider>
       </RadixTooltip.Root>
     </RadixTooltip.Provider>
   )
@@ -214,10 +235,12 @@ export const Content = ({
   style,
   ...restProps
 }: TooltipContentProps) => {
+  const focusRecovery = useContext(RecoverFocusContext)
   return (
     <RadixTooltip.Portal>
       <RadixTooltip.Content
         {...restProps}
+        {...(focusRecovery?.state && { "data-state": focusRecovery.state })}
         className={clsx(s.Tooltip, className)}
         data-compact={compact}
         data-clickable={clickable}
@@ -255,10 +278,58 @@ type TooltipTriggerProps = RadixTooltip.TooltipTriggerProps & {
 export const Trigger = ({
   children,
   asChild = true,
+  onPointerMove,
+  onPointerLeave,
+  onPointerDown,
+  onPointerCancel,
+  onFocus,
+  onBlur,
   ...restProps
 }: RadixTooltip.TooltipTriggerProps) => {
+  const focusRecovery = useContext(RecoverFocusContext)
+  const cancelledPointer = useRef(false)
+
   return (
-    <RadixTooltip.Trigger asChild={asChild} {...restProps}>
+    <RadixTooltip.Trigger
+      asChild={asChild}
+      {...restProps}
+      {...(focusRecovery?.state && { "data-state": focusRecovery.state })}
+      onPointerDown={(event) => {
+        cancelledPointer.current = false
+        onPointerDown?.(event)
+      }}
+      onPointerCancel={(event) => {
+        // Radix only clears its pointer-down flag on pointerup. A cancelled
+        // touch gesture has no pointerup, so recover the next keyboard focus.
+        cancelledPointer.current = true
+        onPointerCancel?.(event)
+      }}
+      onFocus={(event) => {
+        onFocus?.(event)
+        if (event.defaultPrevented) return
+        if (event.currentTarget.hasAttribute("data-menu-pointer-focus")) {
+          event.preventDefault()
+        } else if (cancelledPointer.current) {
+          event.preventDefault()
+          focusRecovery?.recover()
+        }
+      }}
+      onBlur={(event) => {
+        onBlur?.(event)
+        // Clipboard fallback borrows focus synchronously, then restores it.
+        if (event.relatedTarget instanceof Element && event.relatedTarget.hasAttribute("data-plex-clipboard-fallback")) {
+          event.preventDefault()
+        }
+      }}
+      onPointerMove={(event) => {
+        onPointerMove?.(event)
+        if (!isHoverPointer(event)) event.preventDefault()
+      }}
+      onPointerLeave={(event) => {
+        onPointerLeave?.(event)
+        if (!isHoverPointer(event)) event.preventDefault()
+      }}
+    >
       {children}
     </RadixTooltip.Trigger>
   )

@@ -1,58 +1,14 @@
 'use client';
 
-import type React from 'react';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { Checkbox } from '@plexui/ui/components/Checkbox';
-import { Switch } from '@plexui/ui/components/Switch';
+
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Field } from '@plexui/ui/components/Field';
-
-const controlsTableStyle: React.CSSProperties = {
-  background: 'var(--docs-surface-elevated)',
-  width: '100%',
-};
-
-const controlRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '6px 16px 6px 8px',
-  borderTop: '1px solid var(--color-fd-border)',
-};
-
-const controlLabelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-  fontSize: '0.8125rem',
-  padding: '2px 8px',
-};
-
-function DemoControlBoolean({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const controlId = useId();
-
-  return (
-    <div style={controlRowStyle}>
-      <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
-      <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
-    </div>
-  );
-}
-
-function DemoControlRow({ name, children }: { name: string; children: React.ReactNode }) {
-  return (
-    <div style={controlRowStyle}>
-      <span style={controlLabelStyle}>{name}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-    </div>
-  );
-}
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import { FormScreen } from './FormRowsDemos';
+import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const VARIANT_OPTIONS = ['solid', 'ghost'] as const;
 const ORIENTATION_OPTIONS = ['left', 'right'] as const;
@@ -171,33 +127,6 @@ export function CheckboxIndeterminateDemo() {
         }
         label="Select all"
       />
-    </div>
-  );
-}
-
-export function CheckboxDisabledDemo() {
-  return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
-      <div className="flex flex-wrap gap-x-12 gap-y-6">
-        <div className="flex flex-col gap-3 items-start">
-          <span className="text-xs text-secondary font-mono mb-1">solid</span>
-          <Checkbox label="Unchecked" disabled />
-          <Checkbox label="Checked" disabled defaultChecked />
-          <Checkbox label="Indeterminate" disabled checked="indeterminate" />
-        </div>
-        <div className="flex flex-col gap-3 items-start">
-          <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-          <Checkbox label="Unchecked" pill disabled />
-          <Checkbox label="Checked" pill disabled defaultChecked />
-          <Checkbox label="Indeterminate" pill disabled checked="indeterminate" />
-        </div>
-        <div className="flex flex-col gap-3 items-start">
-          <span className="text-xs text-secondary font-mono mb-1">ghost</span>
-          <Checkbox label="Unchecked" variant="ghost" disabled />
-          <Checkbox label="Checked" variant="ghost" disabled defaultChecked />
-          <Checkbox label="Indeterminate" variant="ghost" disabled checked="indeterminate" />
-        </div>
-      </div>
     </div>
   );
 }
@@ -435,6 +364,21 @@ export function CheckboxNotificationSettingsDemo() {
 
   const toggle = (key: keyof typeof settings) => () =>
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const wide = useBreakpoint('md');
+  if (!wide) return (
+    <FormScreen title="Notifications">
+      <FieldGroup title="Email notifications" description="Configure which emails you receive.">
+        <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox checked={settings.emailMarketing} onCheckedChange={toggle('emailMarketing')} /></Field>
+        <Field row label="Security" description="Receive emails about account activity and security."><Checkbox checked={settings.emailSecurity} onCheckedChange={toggle('emailSecurity')} /></Field>
+      </FieldGroup>
+      <FieldGroup title="Push notifications" description="Configure which push notifications you receive.">
+        <Field row label="Everything"><Checkbox checked={settings.pushEverything} onCheckedChange={toggle('pushEverything')} /></Field>
+        <Field row label="Direct messages and mentions"><Checkbox checked={settings.pushMentions} onCheckedChange={toggle('pushMentions')} /></Field>
+        <Field row label="Nothing"><Checkbox checked={settings.pushNothing} onCheckedChange={toggle('pushNothing')} /></Field>
+      </FieldGroup>
+    </FormScreen>
+  );
 
   return (
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">

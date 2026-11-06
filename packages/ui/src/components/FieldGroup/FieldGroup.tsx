@@ -74,7 +74,9 @@ export function FieldGroup({
         </div>
       )}
       <div className={clsx(s.Body, bodyClassName)}>{children}</div>
-      {footer}
+      {footer != null && typeof footer !== "boolean" && footer !== "" && (
+        <div className={s.Footer}>{footer}</div>
+      )}
     </section>
   )
 }

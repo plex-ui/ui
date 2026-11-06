@@ -135,7 +135,7 @@ In the calendars, the arrow keys move focus by a day or a week, Home and End mov
   { prop: "maxRangeDays", type: "number", description: "Max length of range in days (inclusive)" },
   { prop: "weekStartsOn", type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "0", description: "The day each week starts on, from 0 (Sunday) to 6 (Saturday)" },
   { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
-  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side for popover" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement." },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },
   { prop: "alignOffset", type: "number", default: '0 (center), -5 (start, end)', description: "Offset from start/end alignment in pixels" },

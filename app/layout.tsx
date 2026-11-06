@@ -145,8 +145,12 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="flex min-h-screen flex-1 flex-col">{children}</div>
           </PlexThemeSync>
         </DocsRootProvider>
-        <Analytics />
-        <SpeedInsights />
+        {process.env.VERCEL === '1' ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );

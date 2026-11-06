@@ -308,11 +308,11 @@
 
 /* Hover state */
 @media (hover: hover) and (pointer: fine) {
-  .MenuButton:hover {
+  .MenuButton:hover:where(:not(:root[data-input="touch"] *)) {
     color: var(--sidebar-menu-text-active);
   }
 
-  .MenuButton:hover::before {
+  .MenuButton:hover:where(:not(:root[data-input="touch"] *))::before {
     opacity: 0.5;
     transform: scale(1);
   }
@@ -552,8 +552,23 @@
   transition: opacity var(--transition-duration-basic) var(--cubic-enter);
 }
 
-.MenuItem:hover .MenuAction,
 .MenuItem:focus-within .MenuAction {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .MenuItem:hover:where(:not(:root[data-input="touch"] *)) .MenuAction {
+    opacity: 1;
+  }
+}
+
+/* Touch actions remain discoverable without a hover state. */
+@media (hover: none), (pointer: coarse) {
+  .MenuAction {
+    opacity: 1;
+  }
+}
+:where(:root[data-input="touch"]) .MenuAction {
   opacity: 1;
 }
 
@@ -624,11 +639,11 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .MenuSubButton:hover {
+  .MenuSubButton:hover:where(:not(:root[data-input="touch"] *)) {
     color: var(--sidebar-menu-text-active);
   }
 
-  .MenuSubButton:hover::before {
+  .MenuSubButton:hover:where(:not(:root[data-input="touch"] *))::before {
     opacity: 0.5;
     transform: scale(1);
   }
@@ -807,8 +822,10 @@
     opacity 0.5s ease 0.25s;
 }
 
-.Card:hover {
-  border-color: var(--color-border-strong);
+@media (hover: hover) and (pointer: fine) {
+  .Card:hover:where(:not(:root[data-input="touch"] *)) {
+    border-color: var(--color-border-strong);
+  }
 }
 
 .CardHeader {
@@ -858,9 +875,11 @@
     transform 0.15s ease;
 }
 
-.Card:hover .CardTitleChevron {
-  opacity: 1;
-  transform: translateX(0);
+@media (hover: hover) and (pointer: fine) {
+  .Card:hover:where(:not(:root[data-input="touch"] *)) .CardTitleChevron {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Hide card when collapsed - fully collapse height */
@@ -935,7 +954,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .Trigger:hover::before {
+  .Trigger:hover:where(:not(:root[data-input="touch"] *))::before {
     opacity: 0.5;
   }
 }
@@ -1033,8 +1052,10 @@
   transition: opacity 0.15s ease;
 }
 
-.MobileMenuButton:hover::before {
-  opacity: 0.65;
+@media (hover: hover) and (pointer: fine) {
+  .MobileMenuButton:hover:where(:not(:root[data-input="touch"] *))::before {
+    opacity: 0.65;
+  }
 }
 
 .MobileMenuButton:active::before,
@@ -1268,7 +1289,7 @@
   }
 }
 
-/* Contained mode - for demos where drawer should stay within container */
+/* Containment changes positioning; keep the token-based drawer/backdrop stacking. */
 .MobileBackdrop.contained {
   position: absolute;
 }
@@ -1294,7 +1315,6 @@
   right: 0;
   width: auto;
   background: var(--color-surface);
-  z-index: 10;
 }
 
 /* =============================================
@@ -1348,8 +1368,10 @@
   }
 }
 
-.Sidebar[data-variant="docs"] .MenuButton:hover:not([data-active="true"]) {
-  background: light-dark(var(--gray-150), var(--gray-300));
+@media (hover: hover) and (pointer: fine) {
+  .Sidebar[data-variant="docs"] .MenuButton:hover:where(:not(:root[data-input="touch"] *)):not([data-active="true"]) {
+    background: light-dark(var(--gray-150), var(--gray-300));
+  }
 }
 
 .Sidebar[data-variant="docs"] .MenuButton[data-active="true"] {
@@ -1654,4 +1676,47 @@
 
 .SidebarLayout[dir="rtl"] .DocsNavChild.indent3 {
   margin-right: 48px;
+}
+
+
+/* Sidebar owns timings beyond the global motion tokens, including literal
+   delays on staggered rows and visibility. End states remain unchanged. */
+@media (prefers-reduced-motion: reduce) {
+  .Sidebar,
+  .HeaderTitle,
+  .GroupLabel,
+  .MenuButton,
+  .MenuButtonLabel,
+  .MenuBadge,
+  .MenuAction,
+  .MenuSubButton,
+  .MenuSub,
+  .MenuChevron,
+  .Separator,
+  .Card,
+  .CardTitleChevron,
+  .MobileMenuButton,
+  .MobileMenuLine,
+  .MobileMenuMiddle,
+  .MobileBackdrop,
+  .MobileSidebar,
+  .MobileSidebar > *,
+  .FooterLinks,
+  .DocsNavChevron,
+  .App .Header,
+  .App .Header span,
+  .App .Inset,
+  :is(.MenuButton, .MenuSubButton, .Trigger, .MobileMenuButton, .MobileMenuLine)::before,
+  .MenuButtonIcon::after,
+  .MobileSidebar::after {
+    /* Preference overrides every state/variant's duration and delay, including
+       nth-child stagger rules; it does not target arbitrary descendants. */
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  .MenuSkeletonIcon,
+  .MenuSkeletonLabel {
+    animation: none;
+  }
 }

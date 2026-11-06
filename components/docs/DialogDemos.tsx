@@ -9,15 +9,21 @@ import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
+import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
+
+export function DialogViewOptionsDemo() {
+  const phonePreview = usePreviewEmbed() !== null;
+  return <ViewOptionsSheetDemo initialOpen={phonePreview} />;
+}
 
 function useDialogDemoState() {
   const phonePreview = usePreviewEmbed() !== null;
   const [open, setOpen] = useState(phonePreview);
-  return [phonePreview || open, setOpen] as const;
+  return [phonePreview || open, setOpen, phonePreview] as const;
 }
 
 export function DialogOverviewDemo() {
-  const [open, setOpen] = useDialogDemoState();
+  const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
 
   return (
@@ -26,7 +32,7 @@ export function DialogOverviewDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Open dialog</Button>
         </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Unsaved changes</Dialog.Title></div>
             <Dialog.Description>You have unsaved changes that will be lost if you close this page. Do you want to save before leaving?</Dialog.Description>
@@ -44,7 +50,7 @@ export function DialogOverviewDemo() {
 }
 
 export function DialogDeleteConfirmDemo() {
-  const [open, setOpen] = useDialogDemoState();
+  const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
 
   return (
@@ -53,7 +59,7 @@ export function DialogDeleteConfirmDemo() {
         <Dialog.Trigger>
           <Button color="danger" variant="outline">Delete</Button>
         </Dialog.Trigger>
-        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Delete assistant?</Dialog.Title></div>
             <Dialog.Description>
@@ -86,7 +92,7 @@ const TERMS = [
 ];
 
 export function DialogBodyDemo() {
-  const [open, setOpen] = useDialogDemoState();
+  const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
 
   return (
@@ -95,13 +101,13 @@ export function DialogBodyDemo() {
         <Dialog.Trigger>
           <Button color="secondary" variant="outline">Review terms</Button>
         </Dialog.Trigger>
-        <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }}>
+        <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }}>
           <Dialog.Header>
             <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Terms of service</Dialog.Title></div>
             <Dialog.Description>Please read them before you continue.</Dialog.Description>
           </Dialog.Header>
           <Dialog.Body>
-            <div className="flex flex-col gap-4 text-sm text-secondary max-[640px]:text-[length:var(--dialog-mobile-type-size)] max-[640px]:leading-[var(--dialog-mobile-type-leading)]">
+            <div className="flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
               {[...TERMS, ...TERMS].map((term, index) => (
                 <p key={index}>{term}</p>
               ))}
@@ -122,7 +128,7 @@ export function DialogBodyDemo() {
 const PLACEMENTS = ['center', 'top', 'bottom', 'start', 'end', 'fullscreen'] as const;
 
 export function DialogPlacementDemo() {
-  const [open, setOpen] = useDialogDemoState();
+  const [open, setOpen, phonePreview] = useDialogDemoState();
   const heading = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('end');
   const phoneViewport = usePhoneViewport();
@@ -147,7 +153,7 @@ export function DialogPlacementDemo() {
           <Dialog.Trigger>
             <Button color="secondary" variant="outline">Open filters</Button>
           </Dialog.Trigger>
-          <Dialog.Content mobileVariant="sheet" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus(); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
+          <Dialog.Content mobileVariant="sheet" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
             <Dialog.Header>
               <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
               <Dialog.Description>Narrow the list down.</Dialog.Description>

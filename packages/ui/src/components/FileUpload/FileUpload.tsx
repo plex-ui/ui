@@ -1,7 +1,7 @@
 "use client"
 
 import clsx from "clsx"
-import { useCallback, useId, useRef, useState } from "react"
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react"
 import {
   FileDocument,
   ImageSquare,
@@ -155,6 +155,9 @@ export const FileUpload = (props: FileUploadProps) => {
 
   const [internalFiles, setInternalFiles] = useState<File[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const pendingRemovalFocus = useRef<{ file: File; index: number; source: HTMLButtonElement } | null>(null)
   const generatedId = useId()
   const inputId = idProp || `file-upload-${generatedId}`
   const errorId = `${inputId}-error`
@@ -163,6 +166,37 @@ export const FileUpload = (props: FileUploadProps) => {
   const isControlled = controlledValue !== undefined
   const invalid = invalidProp ?? !!errorMessage
   const ariaInvalid = ariaInvalidProp ?? (invalid || undefined)
+
+  // Restore only after the owner accepts deletion. A later user interaction
+  // cancels the request, even if focus subsequently returns to the document body.
+  useEffect(() => {
+    const doc = rootRef.current?.ownerDocument
+    if (!doc) return
+    const cancelAfterMoving = (event: Event) => {
+      const pending = pendingRemovalFocus.current
+      if (pending && event.target instanceof Node && !pending.source.contains(event.target)) {
+        pendingRemovalFocus.current = null
+      }
+    }
+    doc.addEventListener("focusin", cancelAfterMoving, true)
+    doc.addEventListener("pointerdown", cancelAfterMoving, true)
+    return () => {
+      doc.removeEventListener("focusin", cancelAfterMoving, true)
+      doc.removeEventListener("pointerdown", cancelAfterMoving, true)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const pending = pendingRemovalFocus.current
+    if (!pending || files.includes(pending.file)) return
+    pendingRemovalFocus.current = null
+    const doc = pending.source.ownerDocument
+    if (disabled || (doc.activeElement !== doc.body && !pending.source.contains(doc.activeElement))) return
+    const buttons = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? [])
+    const target = buttons[Math.min(pending.index, buttons.length - 1)]
+      ?? rootRef.current?.querySelector<HTMLButtonElement>("button:not(:disabled):not([aria-disabled=true])")
+    target?.focus({ preventScroll: true })
+  }, [files, disabled])
 
   const ariaDescribedBy =
     [ariaDescribedByProp, errorMessage ? errorId : undefined].filter(Boolean).join(" ") ||
@@ -212,6 +246,11 @@ export const FileUpload = (props: FileUploadProps) => {
 
   const removeFile = useCallback(
     (index: number) => {
+      const file = files[index]
+      const source = listRef.current?.querySelectorAll<HTMLButtonElement>("button")[index]
+      if (file && source?.contains(source.ownerDocument.activeElement)) {
+        pendingRemovalFocus.current = { file, index, source }
+      }
       const next = files.filter((_, i) => i !== index)
       updateFiles(next)
     },
@@ -222,10 +261,10 @@ export const FileUpload = (props: FileUploadProps) => {
     inputRef.current?.click()
   }, [])
 
-  const atLimit = !!maxFiles && files.length >= maxFiles
+  const atLimit = multiple && !!maxFiles && files.length >= maxFiles
 
   return (
-    <div className={clsx(s.Root, className)}>
+    <div ref={rootRef} className={clsx(s.Root, className)} role="group" aria-describedby={ariaDescribedBy}>
       {variant === "area" ? (
         <button
           type="button"
@@ -233,9 +272,8 @@ export const FileUpload = (props: FileUploadProps) => {
           data-invalid={invalid ? "" : undefined}
           onClick={openPicker}
           disabled={disabled || atLimit}
-          // The visible trigger is what keyboard and screen-reader users reach
+          // Announce the error from the action; invalid belongs to the file input.
           aria-describedby={ariaDescribedBy}
-          aria-invalid={ariaInvalid}
         >
           <UploadDocuments className={s.AreaIcon} />
           <span className={s.AreaLabel}>{label || "Tap to upload files"}</span>
@@ -250,9 +288,7 @@ export const FileUpload = (props: FileUploadProps) => {
           block
           disabled={disabled || atLimit}
           onClick={openPicker}
-          className="h-[3.25rem]"
           aria-describedby={ariaDescribedBy}
-          aria-invalid={ariaInvalid}
         >
           {label || "Upload file"}
         </Button>
@@ -260,6 +296,7 @@ export const FileUpload = (props: FileUploadProps) => {
 
       {files.length > 0 && (
         <ul
+          ref={listRef}
           className={s.FileList}
           data-variant={variant}
           aria-label="Attached files"
@@ -285,6 +322,8 @@ export const FileUpload = (props: FileUploadProps) => {
         onChange={handleFileSelect}
         disabled={disabled}
         id={inputId}
+        aria-label={label || (variant === "area" ? "Tap to upload files" : "Upload file")}
+        aria-invalid={ariaInvalid}
         aria-describedby={ariaDescribedBy}
         tabIndex={-1}
       />

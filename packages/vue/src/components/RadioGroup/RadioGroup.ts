@@ -21,6 +21,7 @@ import {
 import { Presence, RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import { bubbleInputStyle, useIsFormControl, useSize } from "../Checkbox/bubbleInput.js"
 import { CheckMd } from "../Icon/index.js"
+import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/RadioGroup/RadioGroup.module.css"
 
 // Vue port of packages/ui/src/components/RadioGroup/RadioGroup.tsx. Props,
@@ -44,7 +45,7 @@ type RadioGroupContextValue = {
   required: ComputedRef<boolean>
   name: ComputedRef<string | undefined>
   value: ComputedRef<string | null>
-  setValue: (value: string) => void
+  setValue: (value: string | null) => void
   bubbleInputEffects: Set<BubbleInputEffect>
   runBubbleInputEffects: () => void
 }
@@ -103,6 +104,8 @@ const GroupElement = defineComponent({
   setup(props, { attrs, slots }) {
     return () => {
       const { onMousedown, onMouseup: _onMouseup, onFocus, onBlur, ...restAttrs } = attrs
+      // Reka's mouseup focus behavior is deliberately omitted.
+      void _onMouseup
       const caller = props.listeners
       const handlers: Record<string, (event: Event) => void> = {
         onMousedown: (event) => {
@@ -132,8 +135,8 @@ const RadioGroupComponent = defineComponent({
   props: {
     /** Initial selected value when uncontrolled */
     defaultValue: String,
-    /** Controlled selected value. Bind with `v-model:value`; leave unset for an uncontrolled group. */
-    value: { type: String, default: undefined },
+    /** Controlled selection, including `null` for none. Bind with `v-model:value`; leave undefined for an uncontrolled group. */
+    value: { type: String as PropType<string | null>, default: undefined },
     /** Name submitted with the owning form */
     name: String,
     /** Determines the layout direction of the radio items. @default "row" */
@@ -144,10 +147,10 @@ const RadioGroupComponent = defineComponent({
     required: { type: Boolean, default: false },
   },
   emits: {
-    /** The selected value changed (`v-model:value`) */
-    "update:value": (_value: string) => true,
+    /** The selection changed (`v-model:value`). Resetting an initially empty form reports `null`. */
+    "update:value": (value: string | null) => value === null || typeof value === "string",
     /** Same payload as `update:value`, named after React's `onChange` */
-    "change": (_value: string) => true,
+    "change": (value: string | null) => value === null || typeof value === "string",
   },
   setup(props, { attrs, slots, emit }) {
     const groupRef = ref<ExposedRovingFocusGroup | null>(null)
@@ -156,12 +159,12 @@ const RadioGroupComponent = defineComponent({
     const uncontrolledValue = ref<string | null>(props.defaultValue ?? null)
     const value = computed(() => (props.value !== undefined ? props.value : uncontrolledValue.value))
 
-    const reportChange = (nextValue: string) => {
+    const reportChange = (nextValue: string | null) => {
       emit("update:value", nextValue)
       emit("change", nextValue)
     }
 
-    const setValue = (nextValue: string) => {
+    const setValue = (nextValue: string | null) => {
       if (props.value !== undefined) {
         if (nextValue !== props.value) reportChange(nextValue)
       } else {
@@ -175,7 +178,7 @@ const RadioGroupComponent = defineComponent({
       uncontrolledValue,
       (nextValue) => {
         void nextTick(() => {
-          if (nextValue !== null) reportChange(nextValue)
+          reportChange(nextValue)
         })
       },
       { flush: "post" },
@@ -213,7 +216,7 @@ const RadioGroupComponent = defineComponent({
       const form = element instanceof Element ? element.closest("form") : null
       if (!form) return
       const reset = () => {
-        if (initialValue !== null) setValue(initialValue)
+        setValue(initialValue)
       }
       form.addEventListener("reset", reset)
       onBeforeUnmount(() => form.removeEventListener("reset", reset))
@@ -354,6 +357,7 @@ const RadioGroupItemComponent = defineComponent({
 
     // Radix RadioGroupItem: an arrow key that moves focus onto a radio checks it
     let isArrowKeyPressed = false
+    let focusSelectionTimer: ReturnType<typeof setTimeout> | undefined
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
       if (ARROW_KEYS.includes(event.key)) isArrowKeyPressed = true
     }
@@ -370,6 +374,7 @@ const RadioGroupItemComponent = defineComponent({
     onBeforeUnmount(() => {
       document.removeEventListener("keydown", handleDocumentKeyDown)
       document.removeEventListener("keyup", handleDocumentKeyUp)
+      if (focusSelectionTimer !== undefined) clearTimeout(focusSelectionTimer)
     })
 
     // Radix's RadioBubbleInput effect: the radio the user clicked reports its
@@ -419,8 +424,18 @@ const RadioGroupItemComponent = defineComponent({
     }
 
     const handleFocus = (event: FocusEvent) => {
-      // Roving focus moved here with an arrow key: check this radio by clicking it
-      if (isArrowKeyPressed) (event.currentTarget as HTMLButtonElement).click()
+      const radio = event.currentTarget
+      if (!(radio instanceof HTMLButtonElement)) return
+      if (focusSelectionTimer !== undefined) clearTimeout(focusSelectionTimer)
+      // Reka moves focus in nextTick, which a browser can flush before the
+      // keydown reaches document. Check the arrow flag after that listener,
+      // like Reka's RadioGroupItem, without selecting a radio the user left.
+      focusSelectionTimer = setTimeout(() => {
+        focusSelectionTimer = undefined
+        if (isArrowKeyPressed && !disabled.value && radio.isConnected && radio.ownerDocument.activeElement === radio) {
+          radio.click()
+        }
+      }, 0)
     }
 
     // Prevents text selection when double-clicking the label
@@ -450,11 +465,13 @@ const RadioGroupItemComponent = defineComponent({
       // NOTE: Important that this is `flex` to prevent the `inline-flex` label from extra, unintentional whitespace.
       const description = slots.description ? slots.description() : props.description
       const descriptionId = slots.description || props.description ? `${itemId}-description` : undefined
+      const children = slots.default?.()
       const label = h(
         "label",
         {
           "for": itemId,
           "class": [s.RadioLabel, className],
+          "data-has-label": hasContent(children) ? "" : undefined,
           "data-disabled": isDisabled ? "" : undefined,
           "data-block": props.block ? "" : undefined,
           "data-orientation": props.orientation,
@@ -527,7 +544,7 @@ const RadioGroupItemComponent = defineComponent({
                 })
               : null,
           ]),
-          slots.default?.(),
+          children,
         ],
       )
 

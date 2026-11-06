@@ -27,35 +27,35 @@
 }
 
 .Checkbox {
+  --checkbox-paint-border-color: var(--alpha-16);
+  --checkbox-paint-background: transparent;
+
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--checkbox-indicator-size);
-  max-width: var(--checkbox-indicator-size);
-  height: var(--checkbox-indicator-size);
+  width: var(--checkbox-target-size, var(--checkbox-indicator-size));
+  max-width: var(--checkbox-target-size, var(--checkbox-indicator-size));
+  height: var(--checkbox-target-size, var(--checkbox-indicator-size));
   /* Center indicator with first line of label text (mirrors RadioGroup's RadioIndicatorWrapper approach) */
-  margin-top: calc((var(--checkbox-label-line-height) - var(--checkbox-indicator-size)) / 2);
+  margin-top: var(--checkbox-target-offset, calc((var(--checkbox-label-line-height) - var(--checkbox-indicator-size)) / 2));
   padding: 0;
-  border: 1px solid var(--alpha-16);
-  border-radius: var(--radius-xs);
+  border: 0;
+  border-radius: var(--checkbox-radius, var(--radius-xs));
   background-color: transparent;
   cursor: pointer;
-  transition:
-    border-color 150ms ease,
-    background-color 150ms ease;
 
   &:where(:not([data-disabled], [data-state="checked"])) {
     @mixin hover {
-      border-color: var(--alpha-20);
+      --checkbox-paint-border-color: var(--alpha-20);
     }
   }
 
   &[data-state="indeterminate"],
   &[data-state="checked"] {
-    border-color: var(--gray-900);
-    background-color: var(--gray-900);
+    --checkbox-paint-border-color: var(--checkbox-checked-background, var(--gray-900));
+    --checkbox-paint-background: var(--checkbox-checked-background, var(--gray-900));
   }
 
   &:focus {
@@ -71,12 +71,12 @@
     Invalid
   ============================================= */
   &[aria-invalid="true"] {
-    border-color: var(--input-border-color-invalid);
+    --checkbox-paint-border-color: var(--input-border-color-invalid);
 
     &[data-state="indeterminate"],
     &[data-state="checked"] {
-      border-color: var(--input-border-color-invalid);
-      background-color: var(--input-border-color-invalid);
+      --checkbox-paint-border-color: var(--input-border-color-invalid);
+      --checkbox-paint-background: var(--input-border-color-invalid);
     }
   }
 
@@ -95,23 +95,39 @@
     Ghost variant
   ============================================= */
   &[data-variant="ghost"] {
-    border-color: transparent;
-    background-color: transparent;
+    --checkbox-paint-border-color: transparent;
+    --checkbox-paint-background: transparent;
 
     &:where(:not([data-disabled], [data-state="checked"])) {
       @mixin hover {
-        border-color: transparent;
-        background-color: light-dark(var(--gray-50), var(--gray-800));
+        --checkbox-paint-border-color: transparent;
+        --checkbox-paint-background: light-dark(var(--gray-50), var(--gray-800));
       }
     }
 
     &[data-state="indeterminate"],
     &[data-state="checked"] {
-      border-color: transparent;
-      background-color: transparent;
+      --checkbox-paint-border-color: transparent;
+      --checkbox-paint-background: transparent;
     }
 
   }
+}
+
+/* The interaction slot can grow independently of the indicator's paint. */
+.IndicatorBox {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: var(--checkbox-indicator-size);
+  height: var(--checkbox-indicator-size);
+  border: var(--checkbox-border-width, 1px) solid var(--checkbox-paint-border-color);
+  border-radius: inherit;
+  background-color: var(--checkbox-paint-background);
+  pointer-events: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
 .CheckMark {
@@ -128,7 +144,7 @@
 
   /* The indicator stays mounted, so a long list of boxes cleared at once costs
      no style pass per box and first render plays no animation. */
-  [data-state="unchecked"] > & {
+  .Checkbox[data-state="unchecked"] & {
     opacity: 0;
   }
 
@@ -145,23 +161,24 @@
   &::after {
     position: absolute;
     display: block;
-    background: var(--gray-0);
+    background: var(--checkbox-checkmark-color, var(--gray-0));
     content: "";
     will-change: transform;
   }
 
-  .Container:is(:hover, :focus-within) &::before,
-  .Container:is(:hover, :focus-within) &::after {
+  .Container:focus-within &::before,
+  .Container:focus-within &::after {
     @starting-style {
       transform: scale(0);
     }
   }
 
-  /* Ghost variant — checkmark uses text color instead of white */
-  .Checkbox[data-variant="ghost"] & {
-    &::before,
-    &::after {
-      background: var(--gray-900);
+  @media (hover: hover) and (pointer: fine) {
+    .Container:hover:where(:not(:root[data-input="touch"] *)) &::before,
+    .Container:hover:where(:not(:root[data-input="touch"] *)) &::after {
+      @starting-style {
+        transform: scale(0);
+      }
     }
   }
 
@@ -190,11 +207,39 @@
   }
 }
 
+/* Ghost: the PlexUI Check icon, and Minus when indeterminate, in the text color. */
+.GhostMark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--checkbox-ghost-check-color, var(--gray-900));
+  transition: opacity 150ms ease;
+
+  .Checkbox[data-state="unchecked"] & {
+    opacity: 0;
+  }
+}
+
+.GhostCheck,
+.GhostDash {
+  flex-shrink: 0;
+  width: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
+  height: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
+}
+
+.Checkbox[data-state="indeterminate"] .GhostCheck,
+.Checkbox:not([data-state="indeterminate"]) .GhostDash {
+  display: none;
+}
+
 .Label {
   display: block;
+  padding-block: var(--checkbox-label-inset, 0px);
   min-height: var(--checkbox-label-line-height);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--checkbox-label-font-size, 14px);
   line-height: var(--checkbox-label-line-height);
 
   [data-orientation="left"] & {
@@ -209,6 +254,7 @@
 /* Label with a second line: the group carries the gap, the label inside it does not */
 .LabelGroup {
   display: flex;
+  padding-block: var(--checkbox-label-inset, 0px);
   flex-direction: column;
 
   [data-orientation="left"] & {
@@ -220,14 +266,14 @@
   }
 
   > .Label {
-    padding-inline: 0;
+    padding: 0;
   }
 }
 
 .Description {
   color: var(--color-text-secondary);
-  font-size: var(--font-text-xs-size);
-  line-height: var(--font-text-xs-line-height);
+  font-size: var(--checkbox-description-font-size, var(--font-text-xs-size));
+  line-height: var(--checkbox-description-line-height, var(--font-text-xs-line-height));
 
   [data-disabled] & {
     cursor: not-allowed;
