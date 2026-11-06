@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 54
+Components: 55
 
 ## Setup
 
@@ -670,6 +670,22 @@ Props:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
     - class (string) — Class of the element that scrolls
 Examples: Overview, Widths, Heading, Fill
+
+## Page Control
+A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+Import: import { PageControl } from "@plexui/vue/components/PageControl"
+Docs: https://plexui.com/vue/components/page-control
+Props:
+  - count (number) — Number of pages
+  - value (number) — Controlled index of the current page, from 0; bind with v-model:value
+  - default-value (number) default: 0 — Initial page (uncontrolled)
+  - background ("automatic" | "prominent" | "minimal") default: "automatic" — When the capsule behind the dots shows; minimal also turns off scrubbing
+  - value-text ((index: number, count: number) => string) default: Page 2 of 5 — Text assistive technology reads for the current page
+  - aria-label (string) default: "Pages" — Name of the page control, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the page control
+  - aria-controls (string) — The id of the element that shows the pages
+  - id (string) — The id of the page control
+Examples: Overview, Many pages, Background
 
 ## Popover
 A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.

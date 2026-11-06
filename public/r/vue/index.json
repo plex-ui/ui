@@ -263,6 +263,14 @@
       ]
     },
     {
+      "name": "page-control",
+      "type": "registry:ui",
+      "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "popover",
       "type": "registry:ui",
       "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",

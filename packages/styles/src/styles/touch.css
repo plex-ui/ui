@@ -196,6 +196,8 @@
     --stepper-segment-background-active: var(--stepper-mobile-segment-background-active);
     --stepper-separator-color: var(--stepper-mobile-separator-color);
     --stepper-icon-disabled-color: var(--mobile-label-tertiary);
+    /* Page control: the kit component is 44pt tall around its 24px capsule. */
+    --page-control-target-size: 44px;
 
     --checkbox-target-size: 44px;
     --checkbox-target-offset: 0px;

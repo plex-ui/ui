@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 54,
+  "componentCount": 55,
   "components": [
     {
       "slug": "accordion",
@@ -3985,6 +3985,104 @@
       "docsUrl": "https://plexui.com/components/otp-input"
     },
     {
+      "slug": "page-control",
+      "name": "Page Control",
+      "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+      "importPath": "@plexui/ui/components/PageControl",
+      "exports": [
+        "PageControl"
+      ],
+      "props": [
+        {
+          "name": "count",
+          "type": "number",
+          "description": "Number of pages"
+        },
+        {
+          "name": "value",
+          "type": "number",
+          "description": "Controlled index of the current page, from 0"
+        },
+        {
+          "name": "defaultValue",
+          "type": "number",
+          "default": "0",
+          "description": "Initial page (uncontrolled)"
+        },
+        {
+          "name": "onChange",
+          "type": "(index: number, details: { scrubbing: boolean }) => void",
+          "description": "Called with the index of the next page; scrubbing is true while a drag scrubs"
+        },
+        {
+          "name": "background",
+          "type": "\"automatic\" | \"prominent\" | \"minimal\"",
+          "default": "\"automatic\"",
+          "description": "When the capsule behind the dots shows; minimal also turns off scrubbing"
+        },
+        {
+          "name": "valueText",
+          "type": "(index: number, count: number) => string",
+          "default": "Page 2 of 5",
+          "description": "Text assistive technology reads for the current page"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Pages\"",
+          "description": "Name of the page control, when no visible label names it"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "The id of the visible label of the page control"
+        },
+        {
+          "name": "aria-controls",
+          "type": "string",
+          "description": "The id of the element that shows the pages"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the page control"
+        },
+        {
+          "name": "onFocus",
+          "type": "FocusEventHandler<HTMLDivElement>",
+          "description": "Called when the page control gains focus"
+        },
+        {
+          "name": "onBlur",
+          "type": "FocusEventHandler<HTMLDivElement>",
+          "description": "Called when the page control loses focus"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "CSS classes applied to the page control"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const pagesId = useId()\nconst scroller = useRef<HTMLDivElement>(null)\nconst [page, setPage] = useState(0)\n\n<div\nid={pagesId}\nref={scroller}\nclassName=\"flex snap-x snap-mandatory overflow-x-auto\"\nonScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}\n>\n{pages.map((number) => <div key={number} className=\"w-full shrink-0 snap-center\">{number}</div>)}\n</div>\n<PageControl\ncount={pages.length}\nvalue={page}\naria-controls={pagesId}\nonChange={(index, { scrubbing }) => {\n  setPage(index)\n  scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' })\n}}\n/>",
+          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells."
+        },
+        {
+          "name": "Many pages",
+          "code": "const [page, setPage] = useState(0)\n\n<PageControl count={12} value={page} onChange={setPage} />",
+          "details": "From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show."
+        },
+        {
+          "name": "Background",
+          "code": "<PageControl count={4} />\n<PageControl count={4} background=\"prominent\" />\n<PageControl count={4} background=\"minimal\" />",
+          "details": "The capsule behind the dots shows while a pointer presses or scrubs with automatic, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback."
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/page-control"
+    },
+    {
       "slug": "page",
       "name": "Page",
       "description": "\"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar.\"",
@@ -7245,5 +7343,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T13:42:48.748Z"
+  "generatedAt": "2026-11-06T13:53:23.313Z"
 }

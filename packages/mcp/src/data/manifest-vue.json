@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 54,
+  "componentCount": 55,
   "components": [
     {
       "slug": "accordion",
@@ -4101,6 +4101,84 @@
       "docsUrl": "https://plexui.com/vue/components/page"
     },
     {
+      "slug": "page-control",
+      "name": "Page Control",
+      "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+      "importPath": "@plexui/vue/components/PageControl",
+      "exports": [
+        "PageControl"
+      ],
+      "props": [
+        {
+          "name": "count",
+          "type": "number",
+          "description": "Number of pages"
+        },
+        {
+          "name": "value",
+          "type": "number",
+          "description": "Controlled index of the current page, from 0; bind with v-model:value"
+        },
+        {
+          "name": "default-value",
+          "type": "number",
+          "default": "0",
+          "description": "Initial page (uncontrolled)"
+        },
+        {
+          "name": "background",
+          "type": "\"automatic\" | \"prominent\" | \"minimal\"",
+          "default": "\"automatic\"",
+          "description": "When the capsule behind the dots shows; minimal also turns off scrubbing"
+        },
+        {
+          "name": "value-text",
+          "type": "(index: number, count: number) => string",
+          "default": "Page 2 of 5",
+          "description": "Text assistive technology reads for the current page"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Pages\"",
+          "description": "Name of the page control, when no visible label names it"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "The id of the visible label of the page control"
+        },
+        {
+          "name": "aria-controls",
+          "type": "string",
+          "description": "The id of the element that shows the pages"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the page control"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex w-full max-w-[320px] flex-col items-center gap-3\">\n  <div\n    id=\"page-control-pages\"\n    ref=\"pages\"\n    class=\"flex w-full snap-x snap-mandatory overflow-x-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]\"\n    @scroll=\"page = Math.round($event.target.scrollLeft / $event.target.clientWidth)\"\n  >\n    <div v-for=\"number in 5\" :key=\"number\" class=\"flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums\">\n      {{ number }}\n    </div>\n  </div>\n  <PageControl\n    :count=\"5\"\n    v-model:value=\"page\"\n    aria-controls=\"page-control-pages\"\n    @change=\"(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'smooth' })\"\n  />\n</div>",
+          "details": "Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells."
+        },
+        {
+          "name": "Many pages",
+          "code": "<div class=\"flex flex-col items-center gap-2\">\n  <PageControl :count=\"12\" v-model:value=\"page\" />\n  <span class=\"text-sm text-secondary tabular-nums\" aria-hidden=\"true\">Page {{ page + 1 }} of 12</span>\n</div>",
+          "details": "From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show."
+        },
+        {
+          "name": "Background",
+          "code": "<div class=\"grid grid-cols-[auto_auto] items-center gap-x-6 gap-y-4\">\n  <span class=\"text-sm text-secondary\">Automatic</span>\n  <PageControl :count=\"4\" aria-label=\"Automatic background\" />\n  <span class=\"text-sm text-secondary\">Prominent</span>\n  <PageControl :count=\"4\" aria-label=\"Prominent background\" background=\"prominent\" />\n  <span class=\"text-sm text-secondary\">Minimal</span>\n  <PageControl :count=\"4\" aria-label=\"Minimal background\" background=\"minimal\" />\n</div>",
+          "details": "The capsule behind the dots shows while a pointer presses or scrubs with automatic, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/page-control"
+    },
+    {
       "slug": "popover",
       "name": "Popover",
       "description": "A floating panel for contextual UI, with flexible sizing, hover triggers, a controllable open state and nesting.",
@@ -7299,5 +7377,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T13:42:49.966Z"
+  "generatedAt": "2026-11-06T13:53:24.738Z"
 }

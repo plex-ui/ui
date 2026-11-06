@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 54
+Components: 55
 
 ## Setup
 
@@ -652,6 +652,26 @@ Props:
   - autoFocus (boolean) default: false — Auto-focus first cell on mount
   - className (string) — Applied to the root element
 Examples: Overview, Grouped (3+3)
+
+## Page Control
+A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+Import: import { PageControl } from "@plexui/ui/components/PageControl"
+Docs: https://plexui.com/components/page-control
+Props:
+  - count (number) — Number of pages
+  - value (number) — Controlled index of the current page, from 0
+  - defaultValue (number) default: 0 — Initial page (uncontrolled)
+  - onChange ((index: number, details: { scrubbing: boolean }) => void) — Called with the index of the next page; scrubbing is true while a drag scrubs
+  - background ("automatic" | "prominent" | "minimal") default: "automatic" — When the capsule behind the dots shows; minimal also turns off scrubbing
+  - valueText ((index: number, count: number) => string) default: Page 2 of 5 — Text assistive technology reads for the current page
+  - aria-label (string) default: "Pages" — Name of the page control, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the page control
+  - aria-controls (string) — The id of the element that shows the pages
+  - id (string) — The id of the page control
+  - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the page control gains focus
+  - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the page control loses focus
+  - className (string) — CSS classes applied to the page control
+Examples: Overview, Many pages, Background
 
 ## Page
 "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."

@@ -1,0 +1,94 @@
+---
+title: Page Control
+description: A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+metaDescription: Vue 3 page control component with indicator dots for carousels and onboarding, v-model:value, tap, pointer and scrub navigation, shrinking dots for long lists, background styles, and slider keyboard support.
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const overview = `<div class="flex w-full max-w-[320px] flex-col items-center gap-3">
+  <div
+    id="page-control-pages"
+    ref="pages"
+    class="flex w-full snap-x snap-mandatory overflow-x-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
+    @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+  >
+    <div v-for="number in 5" :key="number" class="flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums">
+      {{ number }}
+    </div>
+  </div>
+  <PageControl
+    :count="5"
+    v-model:value="page"
+    aria-controls="page-control-pages"
+    @change="(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'smooth' })"
+  />
+</div>`
+
+export const many = `<div class="flex flex-col items-center gap-2">
+  <PageControl :count="12" v-model:value="page" />
+  <span class="text-sm text-secondary tabular-nums" aria-hidden="true">Page {{ page + 1 }} of 12</span>
+</div>`
+
+export const backgrounds = `<div class="grid grid-cols-[auto_auto] items-center gap-x-6 gap-y-4">
+  <span class="text-sm text-secondary">Automatic</span>
+  <PageControl :count="4" aria-label="Automatic background" />
+  <span class="text-sm text-secondary">Prominent</span>
+  <PageControl :count="4" aria-label="Prominent background" background="prominent" />
+  <span class="text-sm text-secondary">Minimal</span>
+  <PageControl :count="4" aria-label="Minimal background" background="minimal" />
+</div>`
+
+<UsageBlock>{`import { PageControl } from "@plexui/vue/components/PageControl";`}</UsageBlock>
+
+A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. It follows the iOS 26 kit Page control on every screen: 8px dots 8px apart in a 24px capsule, with a 44px target on a phone.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells.</>} code={overview} previewMinHeight={260}>
+  <VueDemo template={overview} state={{ page: 0 }} />
+</ComponentPreview>
+
+### Many pages
+
+<ComponentPreview language="vue" details={<>From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show.</>} code={many} previewMinHeight={140}>
+  <VueDemo template={many} state={{ page: 0 }} />
+</ComponentPreview>
+
+### Background
+
+<ComponentPreview language="vue" details={<>The capsule behind the dots shows while a pointer presses or scrubs with <code>automatic</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback.</>} code={backgrounds} previewMinHeight={180}>
+  <VueDemo template={backgrounds} />
+</ComponentPreview>
+
+## API
+
+<PropsTable data={[
+  { prop: "count", type: "number", description: "Number of pages" },
+  { prop: "value", type: "number", description: "Controlled index of the current page, from 0; bind with v-model:value" },
+  { prop: "default-value", type: "number", default: "0", description: "Initial page (uncontrolled)" },
+  { prop: "background", type: '"automatic" | "prominent" | "minimal"', default: '"automatic"', description: "When the capsule behind the dots shows; minimal also turns off scrubbing" },
+  { prop: "value-text", type: "(index: number, count: number) => string", default: "Page 2 of 5", description: "Text assistive technology reads for the current page" },
+  { prop: "aria-label", type: "string", default: '"Pages"', description: "Name of the page control, when no visible label names it" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the page control" },
+  { prop: "aria-controls", type: "string", description: "The id of the element that shows the pages" },
+  { prop: "id", type: "string", description: "The id of the page control" },
+]} />
+
+**Events**: `update:value` with the index of the next page; `change` with the index and `{ scrubbing }`, true while a drag scrubs; `focus` and `blur`.
+
+The page control is a slider whose value is the page, read as Page 2 of 5, as VoiceOver reads the native control as adjustable. With the keyboard, Left and Right (mirrored in a right-to-left layout) or Up and Down move one page, Home and End go to the first and last page. The dots are presentation only.
+
+## Styling
+
+PageControl reads these component tokens. Override them at any scope to restyle it:
+
+- `--page-control-height`, `--page-control-padding-inline`: the capsule (default `24px`, `12px`)
+- `--page-control-gap`: space between dots (default `8px`)
+- `--page-control-dot-size`, `--page-control-dot-size-small`, `--page-control-dot-size-smaller`: the full dot and the two shrinking ones (default `8px`, `6px`, `4px`)
+- `--page-control-dot-color`, `--page-control-dot-color-current`: the dots (default `var(--alpha-30)`, `var(--color-text)`)
+- `--page-control-background`: the capsule fill with `automatic` and `prominent` (default `var(--alpha-08)`)
+- `--page-control-target-size`: height of the touch target (`44px` at 767px and below)
+- `--page-control-transition-duration`: how fast dots change (default `200ms`, none with reduced motion)

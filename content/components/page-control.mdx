@@ -1,0 +1,91 @@
+---
+title: Page Control
+description: A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+metaDescription: React page control component with indicator dots for carousels and onboarding, tap, pointer and scrub navigation, shrinking dots for long lists, background styles, and slider keyboard support.
+---
+
+import {
+  PageControlOverviewDemo,
+  PageControlManyDemo,
+  PageControlBackgroundDemo,
+} from "@/components/docs/PageControlDemos"
+
+<UsageBlock>{`import { PageControl } from "@plexui/ui/components/PageControl";`}</UsageBlock>
+
+A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. It follows the iOS 26 kit Page control on every screen: 8px dots 8px apart in a 24px capsule, with a 44px target on a phone.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells.</>} code={`const pagesId = useId()
+const scroller = useRef<HTMLDivElement>(null)
+const [page, setPage] = useState(0)
+
+<div
+  id={pagesId}
+  ref={scroller}
+  className="flex snap-x snap-mandatory overflow-x-auto"
+  onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
+>
+  {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
+</div>
+<PageControl
+  count={pages.length}
+  value={page}
+  aria-controls={pagesId}
+  onChange={(index, { scrubbing }) => {
+    setPage(index)
+    scroller.current?.scrollTo({ left: index * scroller.current.clientWidth, behavior: scrubbing ? 'instant' : 'smooth' })
+  }}
+/>`} previewMinHeight={260}>
+  <PageControlOverviewDemo />
+</ComponentPreview>
+
+### Many pages
+
+<ComponentPreview details={<>From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show.</>} code={`const [page, setPage] = useState(0)
+
+<PageControl count={12} value={page} onChange={setPage} />`} previewMinHeight={140}>
+  <PageControlManyDemo />
+</ComponentPreview>
+
+### Background
+
+<ComponentPreview details={<>The capsule behind the dots shows while a pointer presses or scrubs with <code>automatic</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback.</>} code={`<PageControl count={4} />
+<PageControl count={4} background="prominent" />
+<PageControl count={4} background="minimal" />`} previewMinHeight={180}>
+  <PageControlBackgroundDemo />
+</ComponentPreview>
+
+## API
+
+<PropsTable data={[
+  { prop: "count", type: "number", description: "Number of pages" },
+  { prop: "value", type: "number", description: "Controlled index of the current page, from 0" },
+  { prop: "defaultValue", type: "number", default: "0", description: "Initial page (uncontrolled)" },
+  { prop: "onChange", type: "(index: number, details: { scrubbing: boolean }) => void", description: "Called with the index of the next page; scrubbing is true while a drag scrubs" },
+  { prop: "background", type: '"automatic" | "prominent" | "minimal"', default: '"automatic"', description: "When the capsule behind the dots shows; minimal also turns off scrubbing" },
+  { prop: "valueText", type: "(index: number, count: number) => string", default: "Page 2 of 5", description: "Text assistive technology reads for the current page" },
+  { prop: "aria-label", type: "string", default: '"Pages"', description: "Name of the page control, when no visible label names it" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the page control" },
+  { prop: "aria-controls", type: "string", description: "The id of the element that shows the pages" },
+  { prop: "id", type: "string", description: "The id of the page control" },
+  { prop: "onFocus", type: "FocusEventHandler<HTMLDivElement>", description: "Called when the page control gains focus" },
+  { prop: "onBlur", type: "FocusEventHandler<HTMLDivElement>", description: "Called when the page control loses focus" },
+  { prop: "className", type: "string", description: "CSS classes applied to the page control" },
+]} />
+
+The page control is a slider whose value is the page, read as Page 2 of 5, as VoiceOver reads the native control as adjustable. With the keyboard, Left and Right (mirrored in a right-to-left layout) or Up and Down move one page, Home and End go to the first and last page. The dots are presentation only.
+
+## Styling
+
+PageControl reads these component tokens. Override them at any scope to restyle it:
+
+- `--page-control-height`, `--page-control-padding-inline`: the capsule (default `24px`, `12px`)
+- `--page-control-gap`: space between dots (default `8px`)
+- `--page-control-dot-size`, `--page-control-dot-size-small`, `--page-control-dot-size-smaller`: the full dot and the two shrinking ones (default `8px`, `6px`, `4px`)
+- `--page-control-dot-color`, `--page-control-dot-color-current`: the dots (default `var(--alpha-30)`, `var(--color-text)`)
+- `--page-control-background`: the capsule fill with `automatic` and `prominent` (default `var(--alpha-08)`)
+- `--page-control-target-size`: height of the touch target (`44px` at 767px and below)
+- `--page-control-transition-duration`: how fast dots change (default `200ms`, none with reduced motion)

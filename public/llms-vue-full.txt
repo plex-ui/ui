@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 54
+Components: 55
 
 ## Setup
 
@@ -5858,6 +5858,66 @@ fill stops the page scrolling from 768px up, so a table can scroll inside itself
     <div class="min-h-0 flex-1 overflow-auto">...</div>
   </PageContent>
 </Page>
+```
+
+## Page Control
+A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+Import: import { PageControl } from "@plexui/vue/components/PageControl"
+Docs: https://plexui.com/vue/components/page-control
+Props:
+  - count (number) — Number of pages
+  - value (number) — Controlled index of the current page, from 0; bind with v-model:value
+  - default-value (number) default: 0 — Initial page (uncontrolled)
+  - background ("automatic" | "prominent" | "minimal") default: "automatic" — When the capsule behind the dots shows; minimal also turns off scrubbing
+  - value-text ((index: number, count: number) => string) default: Page 2 of 5 — Text assistive technology reads for the current page
+  - aria-label (string) default: "Pages" — Name of the page control, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the page control
+  - aria-controls (string) — The id of the element that shows the pages
+  - id (string) — The id of the page control
+
+### Overview
+Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells.
+```vue
+<div class="flex w-full max-w-[320px] flex-col items-center gap-3">
+  <div
+    id="page-control-pages"
+    ref="pages"
+    class="flex w-full snap-x snap-mandatory overflow-x-auto rounded-2xl bg-[var(--color-surface-secondary)] [scrollbar-width:none]"
+    @scroll="page = Math.round($event.target.scrollLeft / $event.target.clientWidth)"
+  >
+    <div v-for="number in 5" :key="number" class="flex h-40 w-full shrink-0 snap-center items-center justify-center text-2xl font-semibold tabular-nums">
+      {{ number }}
+    </div>
+  </div>
+  <PageControl
+    :count="5"
+    v-model:value="page"
+    aria-controls="page-control-pages"
+    @change="(index, details) => $refs.pages.scrollTo({ left: index * $refs.pages.clientWidth, behavior: details.scrubbing ? 'instant' : 'smooth' })"
+  />
+</div>
+```
+
+### Many pages
+From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show.
+```vue
+<div class="flex flex-col items-center gap-2">
+  <PageControl :count="12" v-model:value="page" />
+  <span class="text-sm text-secondary tabular-nums" aria-hidden="true">Page {{ page + 1 }} of 12</span>
+</div>
+```
+
+### Background
+The capsule behind the dots shows while a pointer presses or scrubs with automatic, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback.
+```vue
+<div class="grid grid-cols-[auto_auto] items-center gap-x-6 gap-y-4">
+  <span class="text-sm text-secondary">Automatic</span>
+  <PageControl :count="4" aria-label="Automatic background" />
+  <span class="text-sm text-secondary">Prominent</span>
+  <PageControl :count="4" aria-label="Prominent background" background="prominent" />
+  <span class="text-sm text-secondary">Minimal</span>
+  <PageControl :count="4" aria-label="Minimal background" background="minimal" />
+</div>
 ```
 
 ## Popover

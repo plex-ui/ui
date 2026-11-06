@@ -1,0 +1,84 @@
+/* One dot for each page, after the iOS 26 kit Page control (507:24679): 8px dots 8px apart in a 24px capsule
+   with 12px ends, the current dot in the primary label and the others at 30%. Past the window of full dots two
+   dots shrink to 6px (in an 8px slot) and 4px (in a 6px slot). The capsule fills only while a pointer presses or
+   scrubs (`automatic`), always (`prominent`) or never (`minimal`), as UIPageControl background styles do. */
+.PageControl {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--page-control-gap);
+  height: var(--page-control-height);
+  padding-inline: var(--page-control-padding-inline);
+  border-radius: calc(var(--page-control-height) / 2);
+  background: transparent;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  /* A horizontal drag scrubs; the page still scrolls vertically. */
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--page-control-transition-duration, 200ms) ease;
+
+  &[data-background="prominent"],
+  &[data-background="automatic"][data-interacting] {
+    background: var(--page-control-background);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  /* The target reaches 44px where the capsule is shorter. */
+  &::after {
+    position: absolute;
+    inset: min(0px, calc((var(--page-control-height) - var(--page-control-target-size, 0px)) / 2)) 0;
+    content: "";
+  }
+}
+
+.Dot {
+  flex-shrink: 0;
+  width: var(--page-control-dot-size);
+  height: var(--page-control-dot-size);
+  border-radius: 50%;
+  background: var(--page-control-dot-color);
+  transition-property: background-color, width, height, margin;
+  transition-duration: var(--page-control-transition-duration, 200ms);
+  transition-timing-function: ease;
+
+  &[data-current] {
+    background: var(--page-control-dot-color-current);
+  }
+
+  &[data-size="small"] {
+    width: var(--page-control-dot-size-small);
+    height: var(--page-control-dot-size-small);
+    margin-inline: calc((var(--page-control-dot-size) - var(--page-control-dot-size-small)) / 2);
+  }
+
+  &[data-size="smaller"] {
+    width: var(--page-control-dot-size-smaller);
+    height: var(--page-control-dot-size-smaller);
+    margin-inline: calc((var(--page-control-dot-size-small) - var(--page-control-dot-size-smaller)) / 2);
+  }
+
+  &[data-size="hidden"] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .PageControl,
+  .Dot {
+    transition-duration: 0ms;
+  }
+}

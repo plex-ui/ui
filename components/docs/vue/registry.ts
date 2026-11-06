@@ -102,6 +102,7 @@ import {
   PageSubtitle,
   PageTitle,
 } from '@plexui/vue/components/Page';
+import { PageControl } from '@plexui/vue/components/PageControl';
 import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
 import { Progress } from '@plexui/vue/components/Progress';
 import {
@@ -332,6 +333,7 @@ const components: Record<string, Component> = {
   PageLeading,
   PageSubtitle,
   PageTitle,
+  PageControl,
   Popover,
   PopoverContent,
   PopoverTrigger,

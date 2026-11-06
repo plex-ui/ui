@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "page-control",
+  "type": "registry:ui",
+  "title": "Page Control",
+  "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/page-control/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/PageControl\"\n"
+    }
+  ],
+  "docs": "Import as `import { PageControl } from '@/components/ui/page-control'`. See https://plexui.com/vue/components/page-control for props and examples."
+}

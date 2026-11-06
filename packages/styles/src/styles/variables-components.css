@@ -554,6 +554,22 @@
     );
 
     /* =============================================
+      Page control
+    ============================================= */
+    /* The iOS 26 kit Page control (507:24679) on every screen: dots of 8px, 8px apart, in a 24px capsule with
+       12px ends; past the window of full dots 6px and 4px. The current dot is the primary label and the others
+       labels/primary at 30% (alpha-30). The capsule fill has no kit or native measurement: alpha-08 (agent). */
+    --page-control-height: 24px;
+    --page-control-padding-inline: 12px;
+    --page-control-gap: 8px;
+    --page-control-dot-size: 8px;
+    --page-control-dot-size-small: 6px;
+    --page-control-dot-size-smaller: 4px;
+    --page-control-dot-color: var(--alpha-30);
+    --page-control-dot-color-current: var(--color-text);
+    --page-control-background: var(--alpha-08);
+
+    /* =============================================
       Stepper
     ============================================= */
     --stepper-height: var(--control-size-md);

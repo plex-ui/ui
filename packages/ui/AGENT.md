@@ -248,6 +248,12 @@ Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `c
 
 `CopyTooltip` props: `copyValue` (required), `openDelay`, `side`, `align`.
 
+### PageControl
+
+**Import:** `@plexui/ui/components/PageControl`
+
+Props: `count` (required), `value` / `defaultValue` (page index from 0), `onChange(index, { scrubbing })`, `background` (`"automatic"` | `"prominent"` | `"minimal"`), `valueText`, `aria-label` (default "Pages") / `aria-labelledby`, `aria-controls`. Dots for a carousel or onboarding; scroll without animation while `scrubbing`.
+
 ### Popover
 
 **Import:** `@plexui/ui/components/Popover` -- exports `Popover`, `usePopoverController`
