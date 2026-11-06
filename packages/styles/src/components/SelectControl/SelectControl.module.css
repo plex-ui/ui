@@ -703,6 +703,13 @@
     color: var(--mobile-label-tertiary, var(--color-text-disabled));
   }
 
+  /* In columns the chevrons step back to the tertiary label next to the primary value, as in an Apple
+     Account billing address (iOS IMG_5489: the value at 0, its chevrons at 197 on white), enabled or not. */
+  :where([data-field-columns] [data-row][data-orientation="horizontal"]) .DropdownIcon:not(.DropdownIconChevron),
+  :where([data-field-columns] [data-row][data-orientation="horizontal"]) .SelectControl[data-disabled] .DropdownIcon:not(.DropdownIconChevron) {
+    color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+  }
+
   .SelectControl[data-variant="ghost"]:not([data-row] *) {
     --select-control-size: 44px;
     --select-control-gutter: 0px;
