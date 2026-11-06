@@ -57,11 +57,11 @@ export const groupedFormStyles = `.grouped-form-screen[data-width] {
     height: 20px;
     flex-shrink: 0;
     margin-inline: -5px;
-    color: var(--mobile-accessory-secondary, var(--color-text-secondary));
+    color: var(--mobile-label-tertiary, var(--color-text-tertiary));
   }
 
   .grouped-form-screen :is([disabled], [data-disabled], [aria-disabled="true"]) [data-row-disclosure] {
-    color: var(--color-text-disabled);
+    color: var(--mobile-label-tertiary, var(--color-text-disabled));
   }
 }`
 

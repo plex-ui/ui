@@ -116,7 +116,8 @@
   height: 20px;
   flex-shrink: 0;
   margin-inline: -5px;
-  color: var(--mobile-accessory-secondary, var(--color-text-tertiary));
+  /* Lighter than the value, as the native chevron (iOS IMG_5512: value 138, chevron 197 on white). */
+  color: var(--mobile-label-tertiary, var(--color-text-tertiary));
 }
 
 :is(.Screen, .Dialog) [data-settings-title]:focus {

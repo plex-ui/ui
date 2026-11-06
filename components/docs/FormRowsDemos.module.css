@@ -116,11 +116,13 @@
     height: 20px;
     flex-shrink: 0;
     margin-inline: -5px;
-    color: var(--mobile-accessory-secondary, var(--color-text-secondary));
+    /* A disclosure is lighter than the row value, as in iOS 26 Settings and Mail (iOS IMG_5512: the value
+       shows at 138 on white, its chevron at 197; iOS2 IMG_5530: 89 on a dark card): the tertiary label. */
+    color: var(--mobile-label-tertiary, var(--color-text-tertiary));
   }
 
   :is(.TagSummary, :is(.ScreenStage, .FormDialog) [data-account-row]):is([disabled], [data-disabled], [aria-disabled="true"]) [data-row-disclosure] {
-    color: var(--color-text-disabled);
+    color: var(--mobile-label-tertiary, var(--color-text-disabled));
   }
 
   [data-field-columns] .TagSummary [data-tag-summary-content] {

@@ -1,10 +1,17 @@
 /* Contextual iOS background roles. Import with touch.css; no global body color is changed. */
 @media (max-width: 767px) {
   :root {
-    --mobile-label-secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.7));
-    --mobile-label-tertiary: light-dark(rgb(60 60 67 / 0.3), rgb(235 235 245 / 0.3));
-    --mobile-label-quaternary: light-dark(rgb(60 60 67 / 0.18), rgb(235 235 245 / 0.18));
-    --mobile-accessory-secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.6));
+    /* The iOS label roles take the nearest PlexUI alpha of each theme, translucent like the native labels, so a
+       row on a card and a footer on the canvas read as in iOS 26. Native secondary is 60% (light: a count shows
+       at 138 on a white card, a subtitle at 133 on #f2f2f7, iOS2 IMG_5534; dark: 152 on a #1c1c1e card, 141 on
+       black, IMG_5530), tertiary 30% (a chevron at 197 on white, 89 on #1c1c1e), quaternary 18%. alpha-50 shows
+       at 134 on white and 141 on gray-150, alpha-25 at 194 and 85, alpha-15 at 219 and 62. A secondary
+       accessory (units and the pop-up chevrons of a row value) takes the secondary label: a pop-up shows at
+       138 next to its value (iOS IMG_5442); a disclosure chevron is tertiary (197 next to a value at 138, IMG_5512). */
+    --mobile-label-secondary: var(--alpha-50);
+    --mobile-label-tertiary: var(--alpha-25);
+    --mobile-label-quaternary: var(--alpha-15);
+    --mobile-accessory-secondary: var(--mobile-label-secondary);
     /* The iOS background roles take the nearest PlexUI gray of each theme: white stays gray-0, iOS #f2f2f7
        is gray-75 (#f3f3f3, without the blue cast), #1c1c1e gray-150 (#1c1c1c), #2c2c2e gray-300 (#303030, the
        PlexUI elevated surface), #3a3a3c gray-350 (#393939), and black the PlexUI canvas gray-0 (#0d0d0d). */
