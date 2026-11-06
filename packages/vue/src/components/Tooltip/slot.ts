@@ -50,7 +50,6 @@ export const firstElementChild = (nodes: VNodeArrayChildren | undefined): VNode 
   const [first] = flattenSlot(nodes)
   if (first?.type !== Text) return first
   if (isDev) {
-    // eslint-disable-next-line no-console
     console.warn(
       "[plexui] Slot failed to slot onto its children. Expected a single element or component child, not text.",
     )
@@ -82,8 +81,9 @@ export const mergeSlotProps = (child: VNode, slotProps: Props): VNode => {
   for (const [key, childValue] of Object.entries(child.props ?? {})) {
     const slotValue = slotProps[key]
 
-    if (isHandler(key) && slotValue != null && childValue != null) {
-      merged[key] = [...toHandlers(childValue), ...toHandlers(slotValue)]
+    if (isHandler(key) && slotValue != null) {
+      // As Radix's Slot: the child's handler runs first, and a child without one keeps the slot's.
+      merged[key] = childValue == null ? slotValue : [...toHandlers(childValue), ...toHandlers(slotValue)]
     } else if (key === "class" || key === "style") {
       merged[key] = [slotValue, childValue]
     } else if (key === "aria-describedby") {

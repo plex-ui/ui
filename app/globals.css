@@ -1320,6 +1320,12 @@ body [data-radix-popper-content-wrapper] {
   z-index: 5 !important;
 }
 
+/* A context menu dims the page at z-index 49 under its menu (z-index 50 in the library): above the dimming,
+   the menu keeps its own place in the docs too. */
+body:has([data-context-menu-dimming]) [data-radix-popper-content-wrapper]:not([data-aria-hidden]) {
+  z-index: 60 !important;
+}
+
 /* Hide Fumadocs default sidebar/search controls — we provide our own via nav.component */
 #nd-docs-layout button[aria-label='Collapse Sidebar'],
 #nd-docs-layout button[aria-label='Open Search'],

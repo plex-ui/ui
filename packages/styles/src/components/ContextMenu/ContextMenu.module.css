@@ -1,0 +1,66 @@
+/* A context menu, after the iOS 26 kit Context Menu (507:25994). The items are the ones of Menu. */
+
+/* A touch and hold opens the menu, so the element shows neither the system callout nor a text selection. */
+:root[data-input="touch"] .Trigger {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The invisible box the menu is placed against: the pointer, or the element. */
+.Anchor {
+  position: fixed;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.Dimming {
+  /* Top-level selector needs to exist */
+}
+
+/* Context Menu - Dimming Overlay: black at 23% over a 30px background blur, with the element cut out so it stays
+   clear, as iOS lifts its preview. A press on the dimming closes the menu and reaches nothing under it. */
+.Overlay {
+  position: fixed;
+  z-index: 49;
+  inset: 0;
+  background: var(--context-menu-dimming-background);
+  -webkit-backdrop-filter: var(--context-menu-dimming-backdrop-filter);
+  backdrop-filter: var(--context-menu-dimming-backdrop-filter);
+  -webkit-mask-image: var(--context-menu-hole);
+  mask-image: var(--context-menu-hole);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  touch-action: none;
+
+  .Dimming[data-entering] & {
+    opacity: 0;
+  }
+
+  .Dimming[data-entering-active] &,
+  .Dimming[data-entering][data-interrupted] & {
+    opacity: 1;
+    transition: opacity var(--motion-enter) var(--cubic-enter);
+  }
+
+  .Dimming[data-exiting-active] &,
+  .Dimming[data-exiting][data-interrupted] & {
+    opacity: 0;
+    transition: opacity var(--motion-exit) var(--cubic-exit);
+  }
+}
+
+/* The kit's preview shadow around the element (Content Area: drop shadow 32, black at 20%). */
+.Preview {
+  position: absolute;
+  box-shadow: var(--context-menu-preview-shadow);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Overlay {
+    transition: none !important;
+  }
+}

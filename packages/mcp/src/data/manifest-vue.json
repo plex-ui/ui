@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 56,
+  "componentCount": 57,
   "components": [
     {
       "slug": "accordion",
@@ -1383,6 +1383,88 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/code-block"
+    },
+    {
+      "slug": "context-menu",
+      "name": "Context Menu",
+      "description": "\"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu.\"",
+      "importPath": "@plexui/vue/components/ContextMenu",
+      "exports": [
+        "ContextMenu",
+        "ContextMenuContent",
+        "ContextMenuTrigger",
+        "MenuItem",
+        "MenuSeparator"
+      ],
+      "imports": [
+        {
+          "path": "@plexui/vue/components/ContextMenu",
+          "names": [
+            "ContextMenu",
+            "ContextMenuContent",
+            "ContextMenuTrigger"
+          ]
+        },
+        {
+          "path": "@plexui/vue/components/Menu",
+          "names": [
+            "MenuItem",
+            "MenuSeparator"
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<ContextMenu>\n  <ContextMenuTrigger>\n    <div tabindex=\"0\">Groceries</div>\n  </ContextMenuTrigger>\n  <ContextMenuContent>\n    <MenuItem @select=\"copy\"><Copy /> Copy</MenuItem>\n    <MenuItem @select=\"share\"><Share /> Share</MenuItem>\n    <MenuItem @select=\"pin\"><Pin /> Pin</MenuItem>\n    <MenuSeparator />\n    <MenuItem danger @select=\"remove\"><RemoveTrash /> Delete</MenuItem>\n  </ContextMenuContent>\n</ContextMenu>",
+          "details": "Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element."
+        },
+        {
+          "name": "Rounded elements",
+          "code": "<ContextMenu>\n  <ContextMenuTrigger>\n    <div tabindex=\"0\" role=\"img\" aria-label=\"Photos\" class=\"rounded-2xl\">\n      <Images />\n    </div>\n  </ContextMenuTrigger>\n  <ContextMenuContent>...</ContextMenuContent>\n</ContextMenu>",
+          "details": "The element is cut out of the dimming with its own corners. An element without corners of its own gets the 30px corner of the kit's preview, at most half its height."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ContextMenuTrigger",
+          "props": [
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "The element keeps the browser's own context menu"
+            }
+          ]
+        },
+        {
+          "name": "ContextMenuContent",
+          "props": [
+            {
+              "name": "width",
+              "type": "number | string",
+              "description": "Defines the width of the menu"
+            },
+            {
+              "name": "min-width",
+              "type": "number | string",
+              "description": "Defines the min-width of the menu, in pixels"
+            },
+            {
+              "name": "max-height",
+              "type": "number",
+              "description": "Defines the max-height of the menu, in pixels"
+            },
+            {
+              "name": "pill",
+              "type": "boolean",
+              "default": "false",
+              "description": "Rounder list with fully rounded rows"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/context-menu"
     },
     {
       "slug": "copy-tooltip",
@@ -7473,5 +7555,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T14:19:42.779Z"
+  "generatedAt": "2026-11-06T15:01:40.636Z"
 }

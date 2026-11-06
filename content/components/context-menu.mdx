@@ -1,0 +1,76 @@
+---
+title: Context Menu
+description: "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+metaDescription: "React context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
+---
+
+import { ContextMenuOverviewDemo, ContextMenuTilesDemo } from "@/components/docs/ContextMenuDemos"
+
+<UsageBlock>{`import { ContextMenu } from "@plexui/ui/components/ContextMenu";`}</UsageBlock>
+
+A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element.</>} code={`<ContextMenu>
+  <ContextMenu.Trigger>
+    <div tabIndex={0}>Groceries</div>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <ContextMenu.Item onSelect={copy}><Copy /> Copy</ContextMenu.Item>
+    <ContextMenu.Item onSelect={share}><Share /> Share</ContextMenu.Item>
+    <ContextMenu.Item onSelect={pin}><Pin /> Pin</ContextMenu.Item>
+    <ContextMenu.Separator />
+    <ContextMenu.Item danger onSelect={remove}><RemoveTrash /> Delete</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu>`} previewMinHeight={240}>
+  <ContextMenuOverviewDemo />
+</ComponentPreview>
+
+### Rounded elements
+
+<ComponentPreview details={<>The element is cut out of the dimming with its own corners. An element without corners of its own gets the 30px corner of the kit's preview, at most half its height.</>} code={`<ContextMenu>
+  <ContextMenu.Trigger>
+    <div tabIndex={0} role="img" aria-label="Photos" className="rounded-2xl">
+      <Images />
+    </div>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>...</ContextMenu.Content>
+</ContextMenu>`} previewMinHeight={240}>
+  <ContextMenuTilesDemo />
+</ComponentPreview>
+
+## API
+
+### ContextMenu
+
+<PropsTable data={[
+  { prop: "onOpen", type: "() => void", description: "Called when the menu opens" },
+  { prop: "onClose", type: "() => void", description: "Called when the menu closes" },
+]} />
+
+### ContextMenu.Trigger
+
+<PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "The element the menu is for; it receives the handlers" },
+  { prop: "disabled", type: "boolean", default: "false", description: "The element keeps the browser's own context menu" },
+]} />
+
+### ContextMenu.Content
+
+The props of `Menu.Content` but its placement, which follows how the menu opened: `width`, `minWidth`, `maxHeight` and `pill`.
+
+The items are the ones of Menu, also under `ContextMenu`: `ContextMenu.Item`, `ContextMenu.Link`, `ContextMenu.Separator`, `ContextMenu.Label`, `ContextMenu.Group`, `ContextMenu.Sub`, `ContextMenu.SubTrigger`, `ContextMenu.SubContent`, `ContextMenu.CheckboxItem`, `ContextMenu.RadioGroup` and `ContextMenu.RadioItem`.
+
+The menu is a `menu` with `menuitem` rows, as Menu is. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
+
+## Styling
+
+ContextMenu reads these component tokens, and the menu the Menu ones. Override them at any scope to restyle it:
+
+- `--context-menu-dimming-background`: the dimming (default `light-dark(rgb(0 0 0 / 23%), rgb(0 0 0 / 50%))`)
+- `--context-menu-dimming-backdrop-filter`: the blur under the dimming (default `blur(30px)`)
+- `--context-menu-preview-radius`: the corner of an element without its own (default `30px`)
+- `--context-menu-preview-shadow`: the shadow around the element (default `0 0 32px rgb(0 0 0 / 20%)`)

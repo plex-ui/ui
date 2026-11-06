@@ -71,7 +71,8 @@ type MenuContextValue = {
 
 const MenuContext = createContext<MenuContextValue | null>(null)
 
-const useMenuContext = () => {
+/** @internal The open state of the enclosing Menu, for ContextMenu. Not exported from the package. */
+export const useMenuContext = () => {
   const context = useContext(MenuContext)
 
   if (!context) {

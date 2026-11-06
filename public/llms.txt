@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 56
+Components: 57
 
 ## Setup
 
@@ -239,6 +239,18 @@ Props:
     - copyable (boolean) default: true — Show copy button
     - className (string) — Additional wrapper class
 Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
+
+## Context Menu
+"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+Import: import { ContextMenu } from "@plexui/ui/components/ContextMenu"
+Docs: https://plexui.com/components/context-menu
+Props:
+  - onOpen (() => void) — Called when the menu opens
+  - onClose (() => void) — Called when the menu closes
+  ContextMenu.Trigger:
+    - children (ReactElement) — The element the menu is for; it receives the handlers
+    - disabled (boolean) default: false — The element keeps the browser's own context menu
+Examples: Overview, Rounded elements
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.

@@ -264,6 +264,14 @@ Sub: `TabBar.Item` -- props: `value`, `label`, `icon` (a PlexUI icon), `href`, `
 
 Phone only (under 768px): put it last in a `Page`, which reserves its height. Two to five top-level sections; desktop layouts use Sidebar or Tabs. Tabs are buttons (links with `href`) with `aria-current="page"`, not a tablist.
 
+### ContextMenu
+
+**Import:** `@plexui/ui/components/ContextMenu`
+
+Props: `onOpen`, `onClose`. Sub: `ContextMenu.Trigger` (renders its child; `disabled`), `ContextMenu.Content` (Menu.Content props but placement: `width`, `minWidth`, `maxHeight`, `pill`), and the Menu items as `ContextMenu.Item`, `.Link`, `.Separator`, `.Label`, `.Group`, `.Sub`, `.SubTrigger`, `.SubContent`, `.CheckboxItem`, `.RadioGroup`, `.RadioItem`.
+
+A secondary click opens it at the pointer; a touch and hold (500ms) opens it 18px below the element, over a dimmed, blurred page with the element cut out; Shift F10 or the Context Menu key opens it under a focused element. Use it for actions the element also offers elsewhere.
+
 ### Popover
 
 **Import:** `@plexui/ui/components/Popover` -- exports `Popover`, `usePopoverController`

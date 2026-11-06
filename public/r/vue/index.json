@@ -111,6 +111,14 @@
       ]
     },
     {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "description": "\"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu.\"",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "copy-tooltip",
       "type": "registry:ui",
       "description": "A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.",

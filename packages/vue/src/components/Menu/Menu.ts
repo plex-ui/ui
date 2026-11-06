@@ -135,7 +135,8 @@ type MenuContextValue = {
 
 const MenuContextKey: InjectionKey<MenuContextValue> = Symbol("PlexUIMenu")
 
-const useMenuContext = () => {
+/** @internal The open state of the enclosing Menu, for ContextMenu. Not exported from the package index. */
+export const useMenuContext = () => {
   const context = inject(MenuContextKey, null)
   if (!context) throw new Error("Menu components must be wrapped in <Menu />")
   return context
@@ -344,7 +345,9 @@ export const MenuTrigger = defineComponent({
         "aria-controls": open ? rootContext.contentId : undefined,
         "data-state": getOpenState(open),
         "data-disabled": props.disabled ? "" : undefined,
-        "disabled": props.disabled,
+        // React leaves `disabled={false}` off an element, so an element that is not a button gets no attribute; a
+        // component child still receives false, as Radix passes it.
+        "disabled": typeof child.type === "string" ? props.disabled || undefined : props.disabled,
         ...restAttrs,
         "onPointerdown": (event: PointerEvent) => {
           handledClick = false

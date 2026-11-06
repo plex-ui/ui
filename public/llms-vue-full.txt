@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 56
+Components: 57
 
 ## Setup
 
@@ -1720,6 +1720,49 @@ Use CollapsibleCodeBlock to display code in a compact view with gradient overlay
 A pragmatic set of Prism grammars are pre-registered out of the box.
 ```vue
 <CodeBlock language="javascript">{{ code }}</CodeBlock>
+```
+
+## Context Menu
+"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+Import: import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu"
+Import: import { MenuItem, MenuSeparator } from "@plexui/vue/components/Menu"
+Docs: https://plexui.com/vue/components/context-menu
+  ContextMenuTrigger:
+    - disabled (boolean) default: false — The element keeps the browser's own context menu
+  ContextMenuContent:
+    - width (number | string) — Defines the width of the menu
+    - min-width (number | string) — Defines the min-width of the menu, in pixels
+    - max-height (number) — Defines the max-height of the menu, in pixels
+    - pill (boolean) default: false — Rounder list with fully rounded rows
+
+### Overview
+Wrap the element in ContextMenuTrigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element.
+```vue
+<ContextMenu>
+  <ContextMenuTrigger>
+    <div tabindex="0">Groceries</div>
+  </ContextMenuTrigger>
+  <ContextMenuContent>
+    <MenuItem @select="copy"><Copy /> Copy</MenuItem>
+    <MenuItem @select="share"><Share /> Share</MenuItem>
+    <MenuItem @select="pin"><Pin /> Pin</MenuItem>
+    <MenuSeparator />
+    <MenuItem danger @select="remove"><RemoveTrash /> Delete</MenuItem>
+  </ContextMenuContent>
+</ContextMenu>
+```
+
+### Rounded elements
+The element is cut out of the dimming with its own corners. An element without corners of its own gets the 30px corner of the kit's preview, at most half its height.
+```vue
+<ContextMenu>
+  <ContextMenuTrigger>
+    <div tabindex="0" role="img" aria-label="Photos" class="rounded-2xl">
+      <Images />
+    </div>
+  </ContextMenuTrigger>
+  <ContextMenuContent>...</ContextMenuContent>
+</ContextMenu>
 ```
 
 ## Copy Tooltip

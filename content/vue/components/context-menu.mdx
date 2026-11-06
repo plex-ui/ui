@@ -1,0 +1,116 @@
+---
+title: Context Menu
+description: "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+metaDescription: "Vue 3 context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+import demoStyles from "@/components/docs/ContextMenuDemos.module.css"
+import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
+
+export const actions = `<ContextMenuContent>
+    <MenuItem @select="() => {}"><Copy width="20" height="20" /> Copy</MenuItem>
+    <MenuItem @select="() => {}"><Share width="20" height="20" /> Share</MenuItem>
+    <MenuItem @select="() => {}"><Pin width="20" height="20" /> Pin</MenuItem>
+    <MenuSeparator />
+    <MenuItem danger @select="() => {}"><RemoveTrash width="20" height="20" /> Delete</MenuItem>
+  </ContextMenuContent>`
+
+export const overview = `<FieldGroup class="${demoStyles.List}">
+  <ContextMenu v-for="note in ['Groceries', 'Trip to Lisbon', 'Book club']" :key="note">
+    <ContextMenuTrigger>
+      <div data-row tabindex="0" class="${toolbarStyles.Row} ${demoStyles.Row}">{{ note }}</div>
+    </ContextMenuTrigger>
+  ${actions}
+  </ContextMenu>
+</FieldGroup>`
+
+export const tile = (label, icon) => `<ContextMenu>
+    <ContextMenuTrigger>
+      <div tabindex="0" role="img" aria-label="${label}" class="${demoStyles.Tile}"><${icon} /></div>
+    </ContextMenuTrigger>
+  ${actions}
+  </ContextMenu>`
+
+export const tiles = `<div class="${demoStyles.Tiles}">
+  ${tile('Home', 'Home')}
+  ${tile('Calendar', 'Calendar')}
+  ${tile('Photos', 'Images')}
+</div>`
+
+export const overviewCode = `<ContextMenu>
+  <ContextMenuTrigger>
+    <div tabindex="0">Groceries</div>
+  </ContextMenuTrigger>
+  <ContextMenuContent>
+    <MenuItem @select="copy"><Copy /> Copy</MenuItem>
+    <MenuItem @select="share"><Share /> Share</MenuItem>
+    <MenuItem @select="pin"><Pin /> Pin</MenuItem>
+    <MenuSeparator />
+    <MenuItem danger @select="remove"><RemoveTrash /> Delete</MenuItem>
+  </ContextMenuContent>
+</ContextMenu>`
+
+export const tilesCode = `<ContextMenu>
+  <ContextMenuTrigger>
+    <div tabindex="0" role="img" aria-label="Photos" class="rounded-2xl">
+      <Images />
+    </div>
+  </ContextMenuTrigger>
+  <ContextMenuContent>...</ContextMenuContent>
+</ContextMenu>`
+
+<UsageBlock>{`import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu";
+import { MenuItem, MenuSeparator } from "@plexui/vue/components/Menu";`}</UsageBlock>
+
+A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first.
+
+## Examples
+
+### Overview
+
+<ComponentPreview language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element.</>} code={overviewCode} previewMinHeight={240}>
+  <VueDemo template={overview} />
+</ComponentPreview>
+
+### Rounded elements
+
+<ComponentPreview language="vue" details={<>The element is cut out of the dimming with its own corners. An element without corners of its own gets the 30px corner of the kit's preview, at most half its height.</>} code={tilesCode} previewMinHeight={240}>
+  <VueDemo template={tiles} />
+</ComponentPreview>
+
+## API
+
+### ContextMenu
+
+**Events**: `open` when the menu opens, `close` when it closes.
+
+### ContextMenuTrigger
+
+<PropsTable data={[
+  { prop: "disabled", type: "boolean", default: "false", description: "The element keeps the browser's own context menu" },
+]} />
+
+Its default slot is the element the menu is for; it receives the handlers.
+
+### ContextMenuContent
+
+<PropsTable data={[
+  { prop: "width", type: "number | string", description: "Defines the width of the menu" },
+  { prop: "min-width", type: "number | string", description: "Defines the min-width of the menu, in pixels" },
+  { prop: "max-height", type: "number", description: "Defines the max-height of the menu, in pixels" },
+  { prop: "pill", type: "boolean", default: "false", description: "Rounder list with fully rounded rows" },
+]} />
+
+Its placement follows how the menu opened. The items are the Menu ones: `MenuItem`, `MenuLink`, `MenuSeparator`, `MenuLabel`, `MenuGroup`, `MenuSub`, `MenuSubTrigger`, `MenuSubContent`, `MenuCheckboxItem`, `MenuRadioGroup` and `MenuRadioItem`.
+
+The menu is a `menu` with `menuitem` rows, as Menu is. With a focused element, the Context Menu key or Shift F10 opens it under the element, and closing it returns focus to the element; a pointer or a touch leaves focus where it was. A press on the dimming closes the menu and reaches nothing under it.
+
+## Styling
+
+ContextMenu reads these component tokens, and the menu the Menu ones. Override them at any scope to restyle it:
+
+- `--context-menu-dimming-background`: the dimming (default `light-dark(rgb(0 0 0 / 23%), rgb(0 0 0 / 50%))`)
+- `--context-menu-dimming-backdrop-filter`: the blur under the dimming (default `blur(30px)`)
+- `--context-menu-preview-radius`: the corner of an element without its own (default `30px`)
+- `--context-menu-preview-shadow`: the shadow around the element (default `0 0 32px rgb(0 0 0 / 20%)`)

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "context-menu",
+  "type": "registry:ui",
+  "title": "Context Menu",
+  "description": "\"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/context-menu/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ContextMenu\"\nexport * from \"@plexui/vue/components/Menu\"\n"
+    }
+  ],
+  "docs": "Import as `import { ContextMenu, ContextMenuContent, ContextMenuTrigger, MenuItem, MenuSeparator } from '@/components/ui/context-menu'`. See https://plexui.com/vue/components/context-menu for props and examples."
+}

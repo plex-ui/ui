@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 56
+Components: 57
 
 ## Setup
 
@@ -240,6 +240,20 @@ Props:
     - copyable (boolean) default: true — Show copy button
     - class (string) — Additional wrapper class
 Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
+
+## Context Menu
+"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+Import: import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@plexui/vue/components/ContextMenu"
+Import: import { MenuItem, MenuSeparator } from "@plexui/vue/components/Menu"
+Docs: https://plexui.com/vue/components/context-menu
+  ContextMenuTrigger:
+    - disabled (boolean) default: false — The element keeps the browser's own context menu
+  ContextMenuContent:
+    - width (number | string) — Defines the width of the menu
+    - min-width (number | string) — Defines the min-width of the menu, in pixels
+    - max-height (number) — Defines the max-height of the menu, in pixels
+    - pill (boolean) default: false — Rounder list with fully rounded rows
+Examples: Overview, Rounded elements
 
 ## Copy Tooltip
 A copy-to-clipboard tooltip that wraps any trigger element and confirms when the value has been copied.
