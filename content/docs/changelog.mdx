@@ -16,6 +16,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Page, Toolbar and Sheet titles are centered on their 44px bar, so the title sits on the buttons' center as in native iOS 26 bars, 2px higher than before.
 - `SidebarMobileMenuButton` (React and Vue) shows the PlexUI `SidebarMenuMobile` icon, which turns into `X` while the menu is open, instead of drawn lines. Its tokens are `--sidebar-mobile-icon-size` (now `24px`, the icon canvas), `--sidebar-mobile-icon-color` and `--sidebar-mobile-icon-transition-duration`; `--sidebar-mobile-line-*` are removed.
 - `Dialog` on a phone: a Sheet dims the page with the new `--dialog-sheet-scrim`, black at 20% in light as native iOS 26 Sheets do (a white page shows at 204), instead of 50%. Alerts, the dark theme and desktop keep the 50% dim.
+- `SegmentedControl` and segmented `Tabs` on a phone match the iOS 26 kit segmented control: the track is `--segmented-control-mobile-background` (gray 118/118/128 at 12% in light, 24% in dark) and the thumb `--segmented-control-mobile-thumb-background` (white, white at 27% in dark) with no shadow; every label is the primary label color, so only the weight (590 against 510) marks the selection; labels are tracked with the new `--segmented-control-letter-spacing`, -0.08px at the 13.333px phone size. The Segmented composer header keeps its glass track and tracks its 17px labels at -0.43px.
 
 ### Fixed
 

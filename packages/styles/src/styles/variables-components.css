@@ -534,6 +534,9 @@
     --segmented-control-font-weight: var(--font-weight-semibold);
     --segmented-control-thumb-background: light-dark(var(--gray-0), var(--alpha-12));
     --segmented-control-thumb-shadow: 0 1px 4px -1px rgb(0 0 0 / 20%);
+    /* Phone (touch.css): Apple iOS 26 kit Fills/Tertiary and Segmented Control - Selected Fill. */
+    --segmented-control-mobile-background: light-dark(rgb(118 118 128 / 12%), rgb(118 118 128 / 24%));
+    --segmented-control-mobile-thumb-background: light-dark(rgb(255 255 255), rgb(255 255 255 / 27%));
     --segmented-control-option-highlight-gutter: 1px;
     --segmented-control-option-highlight-background-color: light-dark(
       var(--gray-200),

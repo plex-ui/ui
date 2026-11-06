@@ -51,6 +51,8 @@
     --segmented-control-option-gutter: 0px;
     --segmented-control-font-size: 17px;
     --segmented-control-line-height: 22px;
+    /* SF Pro 17 tracking, as Menu items at 17px. */
+    --segmented-control-letter-spacing: -0.43px;
     --segmented-control-font-weight: var(--font-weight-normal);
     --segmented-control-active-font-weight: var(--font-weight-normal);
     --segmented-control-background: var(--mobile-glass-background);

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { useState } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
@@ -1105,5 +1106,30 @@ describe("Tabs thumb positioning matches React", () => {
     expect(vue).toEqual(react)
     expect(runs[1]).toEqual(runs[0])
     expect(runs[0]).toEqual(['Settings {"block":"center","inline":"nearest","behavior":"smooth"}'])
+  })
+})
+
+describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
+  const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+
+  test("track and thumb use the kit fills from root tokens, with no thumb shadow", () => {
+    const touch = read("styles/touch.css")
+    const block = touch.match(/html \[data-variant="segmented"\]\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
+    expect(block).toContain("--segmented-control-background: var(--segmented-control-mobile-background);")
+    expect(block).toContain("--segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);")
+    expect(block).toContain("--segmented-control-thumb-shadow: none;")
+    // light-dark() resolves per theme only on root tokens: an element selector under html would miss dark.
+    expect(block).not.toMatch(/:\s*light-dark\(/)
+    const tokens = read("styles/variables-components.css")
+    expect(tokens).toContain("--segmented-control-mobile-background: light-dark(rgb(118 118 128 / 12%), rgb(118 118 128 / 24%));")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(rgb(255 255 255), rgb(255 255 255 / 27%));")
+  })
+
+  test("every segment label is primary, tracked -0.08px at the kit size; only the weight marks the selection", () => {
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.match(/@media \(max-width: 767px\) \{\s*\.Tabs\[data-variant="segmented"\]\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
+    expect(phone).toContain("color: var(--color-text);")
+    expect(phone).toContain("letter-spacing: var(--segmented-control-letter-spacing, normal);")
+    expect(read("styles/touch.css")).toContain("--segmented-control-letter-spacing: -0.08px;")
   })
 })

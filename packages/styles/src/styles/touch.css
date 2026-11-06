@@ -339,8 +339,14 @@
     --segmented-control-option-gutter: 6px;
     --segmented-control-font-size: 13.333px;
     --segmented-control-line-height: 18px;
+    --segmented-control-letter-spacing: -0.08px;
     --segmented-control-font-weight: 510;
     --segmented-control-active-font-weight: 590;
+    /* Apple iOS 26 kit Segmented control (6:57374): Fills/Tertiary track, Segmented Control - Selected Fill
+       thumb with no shadow. The theme pair lives on the root tokens, where light-dark() resolves per theme. */
+    --segmented-control-background: var(--segmented-control-mobile-background);
+    --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
+    --segmented-control-thumb-shadow: none;
   }
 
   /* Fixed-width mobile segments keep their labels on one line. */
