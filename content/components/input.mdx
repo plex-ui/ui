@@ -8,7 +8,11 @@ import { Input } from "@plexui/ui/components/Input"
 import { Button } from "@plexui/ui/components/Button"
 import { Field } from "@plexui/ui/components/Field"
 import { Search } from "@plexui/ui/components/Icon"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import {
+  InputOverviewDemo,
+  InputVariantsDemo,
+  InputStartAdornmentDemo,
   InputSizingDemo,
   InputEndAdornmentDemo,
   InputCharacterCounterDemo,
@@ -26,69 +30,107 @@ import {
 
 <UsageBlock>{`import { Input } from "@plexui/ui/components/Input";`}</UsageBlock>
 
+On Phone, put an input in a row of a `FieldGroup`, as the [Form Examples](/components/form-examples) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutterSize`, `pill` and `variant` controls.
+
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`<Input placeholder="Enter text..." />`} previewMinHeight={168}>
-  <div className="w-[320px]">
-    <Input placeholder="Enter text..." />
-  </div>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
+<Input placeholder="Enter text..." />
+
+// Phone: the input is the value of a row.
+<FieldGroup>
+  <Field row label="Email">
+    <Input type="email" placeholder="name@example.com" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <InputOverviewDemo />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to stylize the input. <code>ghost</code> has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when <code>invalid</code>.</>} code={`<div className="flex flex-col gap-2 w-[320px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the input. <code>ghost</code> has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when <code>invalid</code>. On Phone the row is the frame: the default <code>outline</code> input stands beside its label, a <code>ghost</code> input under it.</>} code={`// Desktop
+<div className="flex flex-col gap-2 w-[320px]">
   <Input placeholder="Enter text..." variant="outline" />
   <Input placeholder="Enter text..." variant="soft" />
   <Input placeholder="Enter text..." variant="ghost" />
-</div>`} previewMinHeight={168}>
-  <div className="flex flex-col gap-2 w-[320px]">
-    <Input placeholder="Enter text..." variant="outline" />
-    <Input placeholder="Enter text..." variant="soft" />
-    <Input placeholder="Enter text..." variant="ghost" />
-  </div>
+</div>
+
+// Phone: outline beside its label, ghost under it.
+<FieldGroup>
+  <Field row label="First name">
+    <Input defaultValue="Jane" />
+  </Field>
+  <Field row orientation="vertical" label="Address">
+    <Input variant="ghost" placeholder="Street and building" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <InputVariantsDemo />
 </ComponentPreview>
 
 ### Sizing & roundness
 
-<ComponentPreview details={<>Sizing of the input is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the input to a specific control <code>height</code>, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code>. Each of these values can be overridden independently.</>} code={`<div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the input is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the input to a specific control <code>height</code>, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code>. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with <code>touch.css</code> the <code>sm</code> to <code>xl</code> sizes are all 44px, so the Phone preview has no size controls.</>} code={`// Desktop
+<div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
   <Input placeholder="Enter text..." size="lg" />
   <Input placeholder="Search..." startAdornment={<Search className="fill-tertiary" />} size="lg" />
   <Input value={username} placeholder="Username" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{username.length}/16</span>} />
-</div>`} previewMinHeight={168}>
+</div>
+
+// Phone: the row sets the height, insets and type.
+<FieldGroup columns>
+  <Field row label="Name">
+    <Input placeholder="Enter text..." />
+  </Field>
+  <Field row label="Username">
+    <Input value={username} placeholder="Required" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputSizingDemo />
 </ComponentPreview>
 
 ### Start adornment
 
-<ComponentPreview details={<>You can add arbitrary content to the beginning of an input with <code>startAdornment</code>, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: <code>gutterSize</code> determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by <code>gutterSize</code>, use negative left margin on your adornment directly, e.g. <code>-ml-2</code>). The spacing between the adornment and the input is controlled with <code>gap</code> on the container, which you can customize as needed with Tailwind classes.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>You can add arbitrary content to the beginning of an input with <code>startAdornment</code>, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: <code>gutterSize</code> determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by <code>gutterSize</code>, use negative left margin on your adornment directly, e.g. <code>-ml-2</code>). The spacing between the adornment and the input is controlled with <code>gap</code> on the container, which you can customize as needed with Tailwind classes. On Phone, search is the <a href="/components/toolbar#search">Toolbar search field</a>; in a row a start adornment is a prefix of the value, such as a currency.</>} code={`// Desktop
+<Input
   placeholder="Start adornment"
   startAdornment={<Search className="fill-tertiary" />}
-/>`} previewMinHeight={168}>
-  <div className="w-[320px]">
-    <Input
-      placeholder="Start adornment"
-      startAdornment={<Search className="fill-tertiary" />}
-    />
-  </div>
+/>
+
+// Phone: a prefix of the value, which starts at the column.
+<FieldGroup columns>
+  <Field row label="Amount">
+    <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
+  <InputStartAdornmentDemo />
 </ComponentPreview>
 
 ### Clear button
 
-<ComponentPreview details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>onClear</code> prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input.</>} code={`// Desktop
+<Input
   placeholder="Enter text..."
   value={value}
   onChange={(evt) => setValue(evt.target.value)}
   onClear={() => setValue("")}
   pill
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Name">
+    <Input placeholder="Enter text..." value={value} onChange={(evt) => setValue(evt.target.value)} onClear={() => setValue("")} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputEndAdornmentDemo />
 </ComponentPreview>
 
 ### End adornment
 
-<ComponentPreview details={<>You can add arbitrary content to the end of an input with <code>endAdornment</code>, like a character counter or custom icon. The same spacing guidance from <code>startAdornment</code> applies here.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>You can add arbitrary content to the end of an input with <code>endAdornment</code>, like a character counter or custom icon. The same spacing guidance from <code>startAdornment</code> applies here. On Phone, trailing <code>text-secondary</code> text takes the row's accessory color.</>} code={`// Desktop
+<Input
   placeholder="Username"
   value={username}
   onChange={(evt) => setUsername(evt.target.value)}
@@ -98,13 +140,21 @@ import {
       {username.length}/16
     </span>
   }
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Username">
+    <Input placeholder="Required" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputCharacterCounterDemo />
 </ComponentPreview>
 
 ### Password with visibility toggle
 
-<ComponentPreview details={<>Combine <code>endAdornment</code> with an <code>Input.AdornmentButton</code> to switch between <code>type="password"</code> and <code>type="text"</code>. Works across all sizes, variants, and with <code>pill</code>.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Combine <code>endAdornment</code> with an <code>Input.AdornmentButton</code> to switch between <code>type="password"</code> and <code>type="text"</code>. Works across all sizes, variants, and with <code>pill</code>. On Phone, the button stands at the end of the row.</>} code={`// Desktop
+<Input
   placeholder="Password"
   type={visible ? 'text' : 'password'}
   endAdornment={
@@ -112,13 +162,29 @@ import {
       {visible ? <EyeOff /> : <Eye />}
     </Input.AdornmentButton>
   }
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Password">
+    <Input
+      placeholder="Required"
+      type={visible ? 'text' : 'password'}
+      endAdornment={
+        <Input.AdornmentButton aria-pressed={visible} onClick={toggle}>
+          {visible ? <EyeOff /> : <Eye />}
+        </Input.AdornmentButton>
+      }
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputPasswordToggleDemo />
 </ComponentPreview>
 
 ### SSN input
 
-<ComponentPreview details={<>A masked SSN field that formats input as <code>XXX-XX-XXXX</code>, hides digits behind bullets when masked, and reveals the value via an <code>Input.AdornmentButton</code> in <code>endAdornment</code>. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A masked SSN field that formats input as <code>XXX-XX-XXXX</code>, hides digits behind bullets when masked, and reveals the value via an <code>Input.AdornmentButton</code> in <code>endAdornment</code>. An inline mask suffix highlights the next expected segment. Adapts to all sizes automatically. On Phone the row is the input's frame, and the overlay needs a wrapper that the row cannot frame: the field formats as you type and hides as a secure field.</>} code={`// Desktop
+<Input
   placeholder="Social Security Number"
   value={formatted}
   inputMode="numeric"
@@ -128,42 +194,94 @@ import {
     </Input.AdornmentButton>
   }
   style={!visible && rawDigits ? { color: 'transparent', caretColor: 'var(--color-text)' } : undefined}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="SSN">
+    <Input
+      placeholder="XXX-XX-XXXX"
+      value={formatted}
+      type={visible ? 'text' : 'password'}
+      maxLength={11}
+      inputMode="numeric"
+      autoComplete="off"
+      allowAutofillExtensions={false}
+      endAdornment={
+        <Input.AdornmentButton aria-pressed={visible} onClick={toggle}>
+          {visible ? <EyeOff /> : <Eye />}
+        </Input.AdornmentButton>
+      }
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputSSNDemo />
 </ComponentPreview>
 
 
 ### Birthday input
 
-<ComponentPreview details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A date-of-birth input with inline formatting that inserts separators as you type (<code>MM / DD / YYYY</code>). An inline mask suffix highlights the next expected segment. Works across all sizes, variants, and with <code>pill</code>. On Phone the field formats as you type and the pattern is its placeholder, as in the <a href="/components/form-examples#about-you-without-labels">About you</a> form.</>} code={`// Desktop
+<Input
   placeholder="Birthday (MM / DD / YYYY)"
   value={birthday}
   inputMode="numeric"
   maxLength={14}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Birthday">
+    <Input placeholder="MM / DD / YYYY" value={birthday} inputMode="numeric" maxLength={14} autoComplete="bday" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputBirthdayDemo />
 </ComponentPreview>
 
 ### Birthday with validation
 
-<ComponentPreview details={<>Use <code>invalid</code> and <code>FieldError</code> to display a validation state when the entered date is not valid.</>} code={`<Input
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>invalid</code> and <code>FieldError</code> to display a validation state when the entered date is not valid. On Phone, give the message to the row's <code>Field</code> as <code>errorMessage</code>: it stands under the row.</>} code={`// Desktop
+<Input
   placeholder="Birthday (MM / DD / YYYY)"
   value={birthday}
   inputMode="numeric"
   invalid={!!errorMessage}
-/>`} previewMinHeight={200}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Birthday" errorMessage={errorMessage}>
+    <Input placeholder="MM / DD / YYYY" value={birthday} inputMode="numeric" maxLength={14} invalid={!!errorMessage} />
+  </Field>
+</FieldGroup>`} previewMinHeight={200}>
   <InputBirthdayValidationDemo />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={`<Input disabled defaultValue="Jane Doe" />`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>disabled</code> prop to disable the input, greying it out and preventing user interactions.</>} code={`// Desktop
+<Input disabled defaultValue="Jane Doe" />
+
+// Phone
+<FieldGroup>
+  <Field row label="Name">
+    <Input disabled defaultValue="Jane Doe" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputDisabledDemo />
 </ComponentPreview>
 
 ### Invalid
 
-<ComponentPreview details={<>Use the <code>invalid</code> prop to mark the input as invalid. You decide how this state is removed, whether that's through <code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler, etc. Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={`<Input invalid placeholder="Invalid input" />`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>invalid</code> prop to mark the input as invalid. You decide how this state is removed, whether that's through <code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler, etc. Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling. A row has no frame to color: on Phone, pair <code>invalid</code> with the row's <code>errorMessage</code>.</>} code={`// Desktop
+<Input invalid placeholder="Invalid input" />
+
+// Phone
+<FieldGroup>
+  <Field row label="Email" errorMessage="Enter a valid email address.">
+    <Input type="email" defaultValue="jane@example" invalid />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputInvalidDemo />
 </ComponentPreview>
 
@@ -171,30 +289,56 @@ Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldErro
 
 ### Auto select text
 
-<ComponentPreview details={<>Pass <code>autoSelect</code> to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>autoSelect</code> to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={`// Desktop
+<Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
+
+// Phone
+<FieldGroup>
+  <Field row label="Name">
+    <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputAutoSelectDemo />
 </ComponentPreview>
 
 ### Autofill extensions
 
-<ComponentPreview details={<>By default, autofill extensions are prevented by <code>Input</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling. When <code>name</code> is passed, or <code>type</code> is set to <code>"password"</code>, this value will default to <code>true</code>.</>} code={`<Input allowAutofillExtensions name="email" placeholder="Allowed" />`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>By default, autofill extensions are prevented by <code>Input</code>. For the occasions where you want browser extensions to be present, pass <code>allowAutofillExtensions</code> to remove the disabling. When <code>name</code> is passed, or <code>type</code> is set to <code>"password"</code>, this value will default to <code>true</code>.</>} code={`// Desktop
+<Input allowAutofillExtensions name="email" placeholder="Allowed" />
+
+// Phone
+<FieldGroup>
+  <Field row label="Email">
+    <Input allowAutofillExtensions name="email" placeholder="Allowed" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputAutofillExtensionsDemo />
 </ComponentPreview>
 
 ### With button
 
-<ComponentPreview details={<>You can pair <code>Input</code> and <code>Button</code> components together by using the same <code>size</code> value.</>} code={`<div className="flex gap-2">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>You can pair <code>Input</code> and <code>Button</code> components together by using the same <code>size</code> value. On Phone, the button is the 50px main action under the group, <code>size="3xl"</code>.</>} code={`// Desktop
+<div className="flex gap-2">
   <Input placeholder="jane.doe@gmail.com" size="lg" variant="outline" />
   <Button color="primary" size="lg" variant="outline" pill={false}>Subscribe</Button>
-</div>`} previewMinHeight={168}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Email">
+    <Input type="email" placeholder="jane.doe@gmail.com" />
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Subscribe</Button>`} previewMinHeight={168}>
   <InputWithButtonDemo />
 </ComponentPreview>
 
 ### Optical alignment
 
-Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, aligning the input text with surrounding content. Works with `Field`: pass `opticallyAlign` on the Field and it forwards to the child control automatically.
+Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, aligning the input text with surrounding content. Works with `Field`: pass `opticallyAlign` on the Field and it forwards to the child control automatically. On Phone, a row starts its label and its text at the row's inset, so there is nothing to offset.
 
-<ComponentPreview code={`<Field label="Full name" opticallyAlign="start">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
+<Field label="Full name" opticallyAlign="start">
   <Input placeholder="Jane Doe" pill />
 </Field>
 <Field
@@ -208,11 +352,22 @@ Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, alig
 </Field>
 <Button className="mt-6" color="primary" variant="soft" pill>
   Submit
-</Button>`}>
+</Button>
+
+// Phone: the help is the group's footer.
+<FieldGroup footer="We'll never share your email.">
+  <Field row label="Full name">
+    <Input placeholder="Jane Doe" />
+  </Field>
+  <Field row label="Email" errorMessage="Please enter a valid email address.">
+    <Input placeholder="jane@example.com" />
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Submit</Button>`}>
   <InputOpticalAlignDemo />
 </ComponentPreview>
 
-Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl. Set the same `size` on adjacent controls and they'll align perfectly.
+Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl. Set the same `size` on adjacent controls and they'll align perfectly. On a phone with `touch.css`, `sm` to `xl` are all 44px.
 
 
 ## API

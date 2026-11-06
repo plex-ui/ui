@@ -607,6 +607,23 @@
       }
     }
   }
+
+  /* In a grouped row (Field row) the row sets the input to its 22px line, which left the button a 14px face
+     and an 11px glyph. There it is the row's accessory, as the password eye of the Apps 2.4 row
+     (38679:310818) and the Form Examples sign-in: a 19px glyph centred on the 44px target, its ink at the
+     row's trailing inset, the glyph alone showing the state. */
+  :where([data-row]) .Container > .AdornmentButton:last-child {
+    --input-adornment-background: transparent;
+
+    padding-inline: 0;
+    margin-inline-end: calc((19px - var(--input-adornment-hit-size)) / 2);
+    justify-content: center;
+
+    > svg {
+      width: 19px;
+      height: 19px;
+    }
+  }
 }
 
 @keyframes native-autofill-in {

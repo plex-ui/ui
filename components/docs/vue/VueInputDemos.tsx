@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import { VueDemo } from './VueDemo';
+import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 
 // The masked SSN and birthday examples call these helpers from their
 // templates (a real app defines them in <script setup>). MDX cannot pass
@@ -109,10 +109,10 @@ export const inputDemoScope = {
   measureInput,
 };
 
-/** A VueDemo whose template can also use the mask helpers above. */
-export function VueInputDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
+/** A VueDemo whose template can also use the mask helpers above, with phone rows below 768px. */
+export function VueInputDemo({ state, ...props }: ComponentProps<typeof VuePhoneRowsDemo>) {
   return (
-    <VueDemo
+    <VuePhoneRowsDemo
       {...props}
       state={{ ...inputDemoScope, metrics: { padding: '13px', fontSize: '16px', lineHeight: '24px' }, focused: false, ...state }}
     />

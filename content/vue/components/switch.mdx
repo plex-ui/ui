@@ -37,7 +37,7 @@ export const base = `<table class="w-full max-w-sm border-separate border-spacin
 
 export const stateControls = [{ name: "color", type: "select", options: ["primary", "accent"], default: "accent" }]
 
-export const basePhone = `<div data-switch-phone-rows class="flex w-full flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const basePhone = `<div data-switch-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup v-for="disabled in [false, true]" :key="String(disabled)" :title="disabled ? 'Disabled' : 'Enabled'">
     <Field row label="Initially off"><Switch :color="color" :disabled="disabled" /></Field>
     <Field row label="Initially on"><Switch :color="color" :disabled="disabled" default-checked /></Field>
@@ -50,7 +50,7 @@ export const labels = `<div class="flex w-full max-w-sm flex-col gap-6">
   <Switch color="accent" label="Weekly summary" description="Sent on Mondays." :label-position="labelPosition" name="summary" />
 </div>`
 
-export const labelsPhone = `<div data-switch-phone-rows class="w-full bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const labelsPhone = `<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup>
     <Field row label="Notifications"><Switch color="accent" name="notifications" default-checked /></Field>
     <Field row label="Weekly summary" description="Sent on Mondays."><Switch color="accent" name="summary" /></Field>
@@ -61,7 +61,7 @@ export const labelControls = [{ name: "labelPosition", type: "select", options: 
 
 export const controlled = `<Switch color="accent" label="Airplane mode" v-model:checked="checked" />`
 
-export const controlledPhone = `<div data-switch-phone-rows class="w-full bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
+export const controlledPhone = `<div data-switch-phone-rows class="w-full grow bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
   <FieldGroup><Field row label="Airplane mode"><Switch color="accent" v-model:checked="checked" /></Field></FieldGroup>
 </div>`
 

@@ -5,20 +5,10 @@ import { Switch } from '@plexui/ui/components/Switch';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { FormScreen } from './FormRowsDemos';
-import { usePhoneViewport } from './PreviewEmbed';
+import { phoneRowsClassName, usePhoneRows } from './PhoneRows';
 
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-
-// A compact slice of a grouped settings screen, at the phone's actual width.
-const phoneRowsClassName = 'flex w-full flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]';
-
-function usePhoneRows() {
-  const preview = usePhoneViewport();
-  const wide = useBreakpoint('md');
-  return preview || !wide;
-}
 
 function PhoneSwitchGroup({ children, title, footer }: { children: ReactNode; title?: string; footer?: string }) {
   return (

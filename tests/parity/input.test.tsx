@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useLayoutEffect, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from "react"
+import postcss from "postcss"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString as reactRenderToString } from "react-dom/server"
 import { describe, expect, test, vi } from "vitest"
@@ -689,4 +691,34 @@ test("Input numeric zero is a clearable value in controlled and default-value us
       expect(document.querySelector("input")?.value).toBe("0")
     },
   )
+})
+
+describe("Input.AdornmentButton in a phone row", () => {
+  // jsdom does not evaluate media queries; the contract is read from the source rules the phone applies.
+  const phoneRules = () => {
+    const rules = new Map<string, postcss.Rule>()
+    postcss.parse(readFileSync("packages/styles/src/components/Input/Input.module.css", "utf8")).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.each((node) => { if (node.type === "rule") rules.set(node.selector, node) })
+    })
+    return rules
+  }
+  const decls = (rule: postcss.Rule) => Object.fromEntries(rule.nodes.filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value]))
+
+  test("is the row's accessory: a 19px glyph centred on the 44px target, its ink at the trailing inset, no face", () => {
+    const rules = phoneRules()
+    const row = rules.get(":where([data-row]) .Container > .AdornmentButton:last-child")
+    expect(row).toBeDefined()
+    expect(decls(row!)).toEqual({
+      "--input-adornment-background": "transparent",
+      "padding-inline": "0",
+      "margin-inline-end": "calc((19px - var(--input-adornment-hit-size)) / 2)",
+      "justify-content": "center",
+    })
+    const svg = row!.nodes.find((n): n is postcss.Rule => n.type === "rule" && n.selector === "> svg")
+    expect(svg && decls(svg)).toEqual({ width: "19px", height: "19px" })
+    // The 44px target it centres on is the phone rule of every adornment button, declared before it.
+    const target = rules.get(".Container > .AdornmentButton")
+    expect(target && decls(target)["--input-adornment-hit-size"]).toBe("max(44px, var(--input-adornment-face-size))")
+    expect([...rules.keys()].indexOf(".Container > .AdornmentButton")).toBeLessThan([...rules.keys()].indexOf(":where([data-row]) .Container > .AdornmentButton:last-child"))
+  })
 })

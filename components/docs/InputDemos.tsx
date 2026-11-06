@@ -1,26 +1,131 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Button } from '@plexui/ui/components/Button';
 import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Eye, EyeOff, Search } from '@plexui/ui/components/Icon';
 import { FieldError } from '@plexui/ui/components/FieldError';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { PhoneRows, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const GUTTER_OPTIONS = ['auto', '2xs', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
 type GutterOption = (typeof GUTTER_OPTIONS)[number];
 
+// On a phone an input is the value of a grouped row, as in the Form Examples: the row
+// sets its height, insets and type, so size, gutterSize, pill and variant stay on the web.
+function PhoneStage({ children }: { children: ReactNode }) {
+  return (
+    <div data-demo-stage className="w-full">
+      <PhoneRows>{children}</PhoneRows>
+    </div>
+  );
+}
+
+function PhoneCounter({ length }: { length: number }) {
+  return <span className="tabular-nums text-secondary">{length}/16</span>;
+}
+
+export function InputOverviewDemo() {
+  const phone = usePhoneRows();
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="Email">
+            <Input type="email" placeholder="name@example.com" />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
+  return (
+    <div className="w-[320px]">
+      <Input placeholder="Enter text..." />
+    </div>
+  );
+}
+
+export function InputVariantsDemo() {
+  const phone = usePhoneRows();
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="First name">
+            <Input defaultValue="Jane" />
+          </Field>
+          <Field row orientation="vertical" label="Address">
+            <Input variant="ghost" placeholder="Street and building" />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-2 w-[320px]">
+      <Input placeholder="Enter text..." variant="outline" />
+      <Input placeholder="Enter text..." variant="soft" />
+      <Input placeholder="Enter text..." variant="ghost" />
+    </div>
+  );
+}
+
+export function InputStartAdornmentDemo() {
+  const phone = usePhoneRows();
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup columns>
+          <Field row label="Amount">
+            <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
+  return (
+    <div className="w-[320px]">
+      <Input
+        placeholder="Start adornment"
+        startAdornment={<Search className="fill-tertiary" />}
+      />
+    </div>
+  );
+}
+
 export function InputSizingDemo() {
+  const phone = usePhoneRows();
   const [username, setUsername] = useState('');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [gutterSize, setGutterSize] = useState<GutterOption>('auto');
   const [pill, setPill] = useState(false);
   const resolvedGutterSize = gutterSize === 'auto' ? undefined : gutterSize;
   const args = { size, gutterSize: resolvedGutterSize, pill };
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup columns>
+          <Field row label="Name">
+            <Input placeholder="Enter text..." />
+          </Field>
+          <Field row label="Username">
+            <Input
+              value={username}
+              placeholder="Required"
+              onChange={(evt) => setUsername(evt.target.value)}
+              maxLength={16}
+              endAdornment={<PhoneCounter length={username.length} />}
+            />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -81,9 +186,26 @@ export function InputSizingDemo() {
 }
 
 export function InputEndAdornmentDemo() {
+  const phone = usePhoneRows();
   const [value, setValue] = useState('Clearable value');
   const [pill, setPill] = useState(true);
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="Name">
+            <Input
+              placeholder="Enter text..."
+              value={value}
+              onChange={(evt) => setValue(evt.target.value)}
+              onClear={() => setValue('')}
+            />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -120,7 +242,25 @@ export function InputEndAdornmentDemo() {
 }
 
 export function InputCharacterCounterDemo() {
+  const phone = usePhoneRows();
   const [username, setUsername] = useState('');
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="Username">
+            <Input
+              placeholder="Required"
+              value={username}
+              onChange={(evt) => setUsername(evt.target.value)}
+              maxLength={16}
+              endAdornment={<PhoneCounter length={username.length} />}
+            />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <div className="w-[320px]">
       <Input
@@ -139,58 +279,93 @@ export function InputCharacterCounterDemo() {
 }
 
 export function InputDisabledDemo() {
+  const phone = usePhoneRows();
   const [disabled, setDisabled] = useState(true);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Input placeholder="Jane Doe" disabled={disabled} defaultValue="Jane Doe" />
+      {phone ? (
+        <PhoneStage>
+          <FieldGroup>
+            <Field row label="Name">
+              <Input placeholder="Required" disabled={disabled} defaultValue="Jane Doe" />
+            </Field>
+          </FieldGroup>
+        </PhoneStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[320px]">
+            <Input placeholder="Jane Doe" disabled={disabled} defaultValue="Jane Doe" />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
 export function InputInvalidDemo() {
+  const phone = usePhoneRows();
   const [invalid, setInvalid] = useState(true);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Input placeholder="Invalid input" invalid={invalid} />
+      {phone ? (
+        <PhoneStage>
+          <FieldGroup>
+            {/* A row is the field's frame, so the error is the line under it */}
+            <Field row label="Email" errorMessage={invalid ? 'Enter a valid email address.' : undefined}>
+              <Input type="email" placeholder="name@example.com" defaultValue="jane@example" invalid={invalid} />
+            </Field>
+          </FieldGroup>
+        </PhoneStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[320px]">
+            <Input placeholder="Invalid input" invalid={invalid} />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
 export function InputAutoSelectDemo() {
+  const phone = usePhoneRows();
   const [autoSelect, setAutoSelect] = useState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="autoSelect" value={autoSelect} onChange={setAutoSelect} />
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Input
-            placeholder="Add text..."
-            autoSelect={autoSelect}
-            defaultValue="Toggle to auto select"
-          />
+      {phone ? (
+        <PhoneStage>
+          <FieldGroup>
+            <Field row label="Name">
+              <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
+            </Field>
+          </FieldGroup>
+        </PhoneStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[320px]">
+            <Input
+              placeholder="Add text..."
+              autoSelect={autoSelect}
+              defaultValue="Toggle to auto select"
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
 export function InputAutofillExtensionsDemo() {
+  const phone = usePhoneRows();
   const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true);
   return (
     <>
@@ -201,23 +376,58 @@ export function InputAutofillExtensionsDemo() {
           onChange={setAllowAutofillExtensions}
         />
       </div>
-      <div data-demo-stage className="py-10">
-        <div className="w-[320px]">
-          <Input
-            key={String(allowAutofillExtensions)}
-            name="email"
-            allowAutofillExtensions={allowAutofillExtensions}
-            placeholder={allowAutofillExtensions ? 'Allowed' : 'Not allowed'}
-          />
+      {phone ? (
+        <PhoneStage>
+          <FieldGroup>
+            <Field row label="Email">
+              <Input
+                key={String(allowAutofillExtensions)}
+                name="email"
+                allowAutofillExtensions={allowAutofillExtensions}
+                placeholder={allowAutofillExtensions ? 'Allowed' : 'Not allowed'}
+              />
+            </Field>
+          </FieldGroup>
+        </PhoneStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[320px]">
+            <Input
+              key={String(allowAutofillExtensions)}
+              name="email"
+              allowAutofillExtensions={allowAutofillExtensions}
+              placeholder={allowAutofillExtensions ? 'Allowed' : 'Not allowed'}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
 
 export function InputOpticalAlignDemo() {
+  const phone = usePhoneRows();
   const [opticallyAlign, setOpticallyAlign] = useState(true);
   const [pill, setPill] = useState(true);
+
+  if (phone) {
+    // A row starts its label and its text at the row's inset: there is no gutter to offset
+    return (
+      <PhoneStage>
+        <FieldGroup footer="We'll never share your email.">
+          <Field row label="Full name">
+            <Input placeholder="Jane Doe" />
+          </Field>
+          <Field row label="Email" errorMessage="Please enter a valid email address.">
+            <Input placeholder="jane@example.com" />
+          </Field>
+        </FieldGroup>
+        <Button color="primary" size="3xl" pill block>
+          Submit
+        </Button>
+      </PhoneStage>
+    );
+  }
 
   return (
     <>
@@ -264,8 +474,23 @@ export function InputOpticalAlignDemo() {
 }
 
 export function InputWithButtonDemo() {
+  const phone = usePhoneRows();
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="Email">
+            <Input type="email" placeholder="jane.doe@gmail.com" />
+          </Field>
+        </FieldGroup>
+        <Button color="primary" size="3xl" pill block>
+          Subscribe
+        </Button>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -347,10 +572,31 @@ function splitSSNMaskSuffix(suffix: string): { before: string; highlight: string
 // ---------------------------------------------------------------------------
 
 export function InputPasswordToggleDemo() {
+  const phone = usePhoneRows();
   const [visible, setVisible] = useState(false);
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
   const [pill, setPill] = useState(false);
+  const toggle = (
+    <Input.AdornmentButton
+      aria-label={visible ? 'Hide' : 'Show'}
+      aria-pressed={visible}
+      onClick={() => setVisible((v) => !v)}
+    >
+      {visible ? <EyeOff /> : <Eye />}
+    </Input.AdornmentButton>
+  );
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="Password">
+            <Input placeholder="Required" type={visible ? 'text' : 'password'} endAdornment={toggle} />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -389,15 +635,7 @@ export function InputPasswordToggleDemo() {
             size={size}
             variant={variant}
             pill={pill}
-            endAdornment={
-              <Input.AdornmentButton
-                aria-label={visible ? 'Hide' : 'Show'}
-                aria-pressed={visible}
-                onClick={() => setVisible((v) => !v)}
-              >
-                {visible ? <EyeOff /> : <Eye />}
-              </Input.AdornmentButton>
-            }
+            endAdornment={toggle}
           />
         </div>
       </div>
@@ -410,6 +648,7 @@ export function InputPasswordToggleDemo() {
 // ---------------------------------------------------------------------------
 
 export function InputSSNDemo() {
+  const phone = usePhoneRows();
   const inputRef = useRef<HTMLInputElement>(null);
   const [rawDigits, setRawDigits] = useState('');
   const [visible, setVisible] = useState(false);
@@ -448,6 +687,38 @@ export function InputSSNDemo() {
     },
     [rawDigits, formatted],
   );
+
+  if (phone) {
+    // A row is the input's frame, so the phone field formats as you type and hides as a
+    // secure field: the overlay of the web needs a wrapper the row cannot frame.
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <Field row label="SSN">
+            <Input
+              placeholder="XXX-XX-XXXX"
+              value={formatted}
+              type={visible ? 'text' : 'password'}
+              maxLength={11}
+              inputMode="numeric"
+              autoComplete="off"
+              allowAutofillExtensions={false}
+              onChange={handleChange}
+              endAdornment={
+                <Input.AdornmentButton
+                  aria-label={visible ? 'Hide' : 'Show'}
+                  aria-pressed={visible}
+                  onClick={() => setVisible((v) => !v)}
+                >
+                  {visible ? <EyeOff /> : <Eye />}
+                </Input.AdornmentButton>
+              }
+            />
+          </Field>
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
 
   const maskSuffix = getSSNMaskSuffix(formatted);
   const showBulletOverlay = !visible && rawDigits.length > 0;
@@ -755,15 +1026,46 @@ function InputBirthdayMaskedInput({
   );
 }
 
+/** The phone row: formatting as you type and the pattern as the placeholder, as in the Form Examples. */
+function PhoneBirthdayRow({ value, onChange, errorMessage }: { value: string; onChange: (value: string) => void; errorMessage?: string }) {
+  return (
+    <Field row label="Birthday" errorMessage={errorMessage}>
+      <Input
+        placeholder="MM / DD / YYYY"
+        value={value}
+        maxLength={14}
+        inputMode="numeric"
+        autoComplete="bday"
+        invalid={!!errorMessage}
+        onChange={(evt) => {
+          const raw = evt.target.value;
+          const digits = getBirthdayDigits(raw);
+          onChange(formatBirthdayValue(raw.length < value.length && digits.length === getBirthdayDigits(value).length ? digits.slice(0, -1) : raw));
+        }}
+      />
+    </Field>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Birthday input demo
 // ---------------------------------------------------------------------------
 
 export function InputBirthdayDemo() {
+  const phone = usePhoneRows();
   const [birthday, setBirthday] = useState('');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
   const [pill, setPill] = useState(false);
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <PhoneBirthdayRow value={birthday} onChange={setBirthday} />
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -814,12 +1116,22 @@ export function InputBirthdayDemo() {
 // ---------------------------------------------------------------------------
 
 export function InputBirthdayValidationDemo() {
+  const phone = usePhoneRows();
   const [birthday, setBirthday] = useState('02 / 30 / 2001');
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
   const [pill, setPill] = useState(false);
   const errorMessage = birthday ? (isValidBirthday(birthday) ? undefined : 'Please enter a valid date.') : undefined;
   const errorId = 'input-birthday-validation-demo-error';
+  if (phone) {
+    return (
+      <PhoneStage>
+        <FieldGroup>
+          <PhoneBirthdayRow value={birthday} onChange={setBirthday} errorMessage={errorMessage} />
+        </FieldGroup>
+      </PhoneStage>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>

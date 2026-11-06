@@ -1,0 +1,5 @@
+/* The row examples own the grouped surface and its 16px screen gutters. */
+.PhoneRowsPreview:has([data-phone-rows]),
+.PhoneRowsPreview [data-demo-stage]:has([data-phone-rows]) {
+  padding: 0 !important;
+}
