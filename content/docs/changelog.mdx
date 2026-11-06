@@ -22,6 +22,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Toolbar` large title: it starts 21px under the row of controls (`--toolbar-large-title-gap`, was 10px), as in iOS 26 Mail and Freeform. On a page it scrolls up with the content under the controls, which then show the title inline, as UIKit does in iOS 26; before, it stayed in place and the list scrolled under it. `Page.Content` writes its scroll offset to the page as `--page-scroll-y`.
 - Sidebar docs: the phone drawer of the examples is a grouped page with a large Navigation title and a glass Close button (`NavigationButton action="close"`), in React and Vue.
 - Phone text takes the tracking of the system font only: menu items and Select options (`--menu-letter-spacing`), the calendar month label, the EmptyMessage title and description and field errors drop the iOS kit tracking (`-0.43px` at 17px, `-0.26px` at 22px, `-0.23px` at 15px). The system font applies it itself, so the copy tracked the text twice: native iOS 26 menus and empty states match the untracked text within 2px at @3x and were 7 to 16px wider than ours.
+- `Menu` and `Select` lists on a phone in the dark theme are glass, as native iOS 26 pop-up menus and popovers are: the button glass `--alpha-12` over the page blurred by 10px (`--menu-mobile-background`, `--menu-mobile-backdrop-filter`), so a sheet of 28 shows at 55 as in native, instead of the solid elevated surface. The light theme keeps the elevated surface.
 
 ### Fixed
 

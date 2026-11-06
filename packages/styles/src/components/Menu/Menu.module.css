@@ -484,6 +484,15 @@
 
 /* iPhone menu items share label/subtitle and selection geometry. */
 @media (max-width: 767px) {
+  .MenuList {
+    background: var(--menu-mobile-background, var(--color-surface-elevated));
+
+    @mixin dark {
+      -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+      backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+    }
+  }
+
   /* No tracking of its own: the system font tracks the labels. Nine labels of native iOS 26 menus
      (iOS2 IMG_5524, 5525, 17/400) measure within 2px at @3x without it and 7 to 16px short with -0.43px. */
   .MenuList:not([data-layout="horizontal"]) :is(.MenuItem, .MenuItemContent) {

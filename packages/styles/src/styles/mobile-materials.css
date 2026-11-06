@@ -17,5 +17,11 @@
     --mobile-glass-shadow-raised: 0 8px 40px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 8%)), var(--mobile-glass-shadow);
     --mobile-glass-backdrop-filter: blur(4px);
     --mobile-grabber-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
+    /* Dark menus and Select lists are glass, as native iOS 26 pop-up menus and popovers are: the glass
+       of the buttons, alpha-12, over a blurred backdrop (iOS2 IMG_5524, 5525, 5528: a sheet of 28 shows at
+       56, a card of 44 at 69, a switch behind spreads over about 10pt). Light menus keep the elevated
+       surface; the blur applies in dark only. */
+    --menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
+    --menu-mobile-backdrop-filter: blur(10px);
   }
 }

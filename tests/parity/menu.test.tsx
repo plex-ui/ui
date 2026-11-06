@@ -1846,3 +1846,21 @@ describe("Menu.Item disabled click ownership", () => {
     )
   })
 })
+
+describe("dark phone menus are glass (iOS2 IMG_5524, 5525, 5528)", () => {
+  const read = (path: string) => readFileSync(`${process.cwd()}/packages/styles/src/${path}`, "utf8")
+
+  test("the pair lives on the root tokens: elevated surface in light, the button glass alpha-12 in dark", () => {
+    const materials = read("styles/mobile-materials.css")
+    expect(materials).toContain("--menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));")
+    expect(materials).toContain("--menu-mobile-backdrop-filter: blur(10px);")
+    expect(read("styles/touch.css")).not.toContain("--menu-mobile-background")
+  })
+
+  test.each(["components/Menu/Menu.module.css", "components/Select/Select.module.css"])("%s: phone lists take it, with the blur in dark only", (path) => {
+    const css = read(path)
+    const start = css.indexOf("@media (max-width: 767px) {\n  ", css.indexOf("@media (max-width: 767px)") - 1)
+    const block = css.slice(start, css.indexOf("\n  }\n", css.indexOf("@mixin dark", start)) + 4)
+    expect(block).toMatch(/\.MenuList \{\s*background: var\(--menu-mobile-background, var\(--color-surface-elevated\)\);\s*@mixin dark \{\s*-webkit-backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*backdrop-filter: var\(--menu-mobile-backdrop-filter, none\);\s*\}\s*\}/)
+  })
+})

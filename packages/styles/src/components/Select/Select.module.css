@@ -406,6 +406,16 @@
 
 /* iPhone menu selection geometry. Search and multiple selection keep their behavior. */
 @media (max-width: 767px) {
+  /* Dark lists are glass, as the Menu is (see --menu-mobile-background). */
+  .MenuList {
+    background: var(--menu-mobile-background, var(--color-surface-elevated));
+
+    @mixin dark {
+      -webkit-backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+      backdrop-filter: var(--menu-mobile-backdrop-filter, none);
+    }
+  }
+
   .Option,
   .Option[data-selected],
   .Option:has(.OptionDescription) {
