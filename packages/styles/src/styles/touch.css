@@ -112,7 +112,6 @@
     --menu-radius-pill: 32px;
     --menu-font-size: 17px;
     --menu-line-height: 20px;
-    --menu-letter-spacing: -0.43px;
     --menu-description-color: var(--mobile-label-secondary);
     --menu-disabled-label-color: var(--mobile-label-tertiary);
     --menu-disabled-description-color: var(--mobile-label-quaternary);
@@ -217,10 +216,10 @@
     --empty-message-title-gap: 4px;
     --empty-message-title-only-gap: 0px;
     --empty-message-title-weight: var(--font-weight-bold);
-    --empty-message-title-tracking: -0.26px;
+    /* No tracking of its own: the system font tracks it (22/700 "Нет приглашений" 564 at @3x, native 563). */
+    --empty-message-title-tracking: normal;
     --empty-message-description-size: 17px;
     --empty-message-description-leading: 22px;
-    --empty-message-description-tracking: -0.43px;
     --empty-message-description-color: var(--color-text-secondary);
     --empty-message-compact-description-size: 15px;
     --empty-message-compact-description-leading: 20px;
@@ -266,7 +265,7 @@
     --mobile-field-error-font-size: 15px;
     --mobile-field-error-line-height: 20px;
     --mobile-field-error-font-weight: var(--font-weight-normal);
-    --mobile-field-error-letter-spacing: -0.23px;
+    --mobile-field-error-letter-spacing: normal;
     --mobile-field-error-offset: 4px;
     --mobile-field-error-icon-size: 16px;
     --mobile-field-error-icon-gap: 4px;

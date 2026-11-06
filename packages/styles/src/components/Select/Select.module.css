@@ -413,7 +413,7 @@
   }
 
   .Option {
-    letter-spacing: var(--menu-letter-spacing, -0.43px);
+    letter-spacing: var(--menu-letter-spacing, normal);
   }
 
   .Search,
