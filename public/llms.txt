@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 53
+Components: 54
 
 ## Setup
 
@@ -955,6 +955,33 @@ Props:
   - accentColor ("primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning") default: "primary" — Left border color (accent variant)
   - className (string) — Extra classes on the card element
 Examples: Overview, Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border, Inverted trend
+
+## Stepper
+Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+Import: import { Stepper } from "@plexui/ui/components/Stepper"
+Docs: https://plexui.com/components/stepper
+Props:
+  - value (number) — Controlled value
+  - defaultValue (number) default: min — Initial value (uncontrolled)
+  - onChange ((value: number) => void) — Called with the next value after a step
+  - min (number) default: 0 — Lowest value
+  - max (number) default: 100 — Highest value
+  - step (number) default: 1 — Amount each step adds or removes
+  - wrap (boolean) default: false — A step past max continues from min, and one below min from max
+  - autoRepeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
+  - disabled (boolean) default: false — Prevent interaction and focus
+  - pill (boolean) default: true — Fully rounded ends
+  - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
+  - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
+  - name (string) — Submits the value with the owning form through a hidden input
+  - aria-label (string) — Name of the value, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the value
+  - aria-describedby (string) — The id of an element that describes the stepper
+  - id (string) — The id of the stepper
+  - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the stepper gains focus
+  - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the stepper loses focus
+  - className (string) — CSS classes applied to the stepper
+Examples: Overview, In rows, Range, step and wrap, States
 
 ## Switch
 Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.

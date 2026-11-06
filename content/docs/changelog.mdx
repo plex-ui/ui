@@ -11,6 +11,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Added
 
+- `Stepper` in React and Vue: two segments that decrease and increase a number between `min` and `max` by `step`, with optional `wrap`, hold to repeat (`autoRepeat`), a `name` that submits the value, and the keyboard of a spin button (Up, Down, Page Up, Page Down, Home, End). It shows no value of its own; the value sits beside it, as in iOS 26. A segment at an end of the range is dimmed. On a phone it takes the iOS 26 kit size, a 92 x 32 capsule with 46px segments, a 44px touch target and 22px icons, on a PlexUI alpha fill; on a desktop it uses the PlexUI control size and the Segmented Control track color.
 - Dialog docs: a Text field example, an alert that asks for one short value with a 48px capsule field, its text selected on open, in React and Vue.
 - Popover docs: a Confirmation example in React and Vue, a destructive action confirmed from the button that asks for it. On a phone the panel covers its button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message at 17/22 in the primary label 31px from the edge and the action as a 48px capsule 16px from the edges, as an iPhone confirmation popover measures. Opening focuses the panel, not the action. The shared styles are `components/docs/PopoverConfirmation.module.css`.
 

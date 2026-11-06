@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 53,
+  "componentCount": 54,
   "components": [
     {
       "slug": "accordion",
@@ -5899,6 +5899,130 @@
       "docsUrl": "https://plexui.com/vue/components/stat-card"
     },
     {
+      "slug": "stepper",
+      "name": "Stepper",
+      "description": "Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.",
+      "importPath": "@plexui/vue/components/Stepper",
+      "exports": [
+        "Stepper"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "number",
+          "description": "Controlled value; bind with v-model:value"
+        },
+        {
+          "name": "default-value",
+          "type": "number",
+          "default": "min",
+          "description": "Initial value (uncontrolled)"
+        },
+        {
+          "name": "min",
+          "type": "number",
+          "default": "0",
+          "description": "Lowest value"
+        },
+        {
+          "name": "max",
+          "type": "number",
+          "default": "100",
+          "description": "Highest value"
+        },
+        {
+          "name": "step",
+          "type": "number",
+          "default": "1",
+          "description": "Amount each step adds or removes"
+        },
+        {
+          "name": "wrap",
+          "type": "boolean",
+          "default": "false",
+          "description": "A step past max continues from min, and one below min from max"
+        },
+        {
+          "name": "auto-repeat",
+          "type": "boolean",
+          "default": "true",
+          "description": "Holding a segment keeps stepping: after 400ms, every 100ms"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Prevent interaction and focus"
+        },
+        {
+          "name": "pill",
+          "type": "boolean",
+          "default": "true",
+          "description": "Fully rounded ends"
+        },
+        {
+          "name": "decrement-label",
+          "type": "string",
+          "default": "\"Decrease\"",
+          "description": "Accessible name of the minus segment"
+        },
+        {
+          "name": "increment-label",
+          "type": "string",
+          "default": "\"Increase\"",
+          "description": "Accessible name of the plus segment"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Submits the value with the owning form through a hidden input"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "description": "Name of the value, when no visible label names it"
+        },
+        {
+          "name": "aria-labelledby",
+          "type": "string",
+          "description": "The id of the visible label of the value"
+        },
+        {
+          "name": "aria-describedby",
+          "type": "string",
+          "description": "The id of an element that describes the stepper"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the stepper"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "<div class=\"flex items-center gap-4\">\n  <span id=\"stepper-guests-label\">Guests</span>\n  <span class=\"min-w-5 text-end font-medium tabular-nums\" aria-hidden=\"true\">{{ guests }}</span>\n  <Stepper aria-labelledby=\"stepper-guests-label\" v-model:value=\"guests\" :min=\"1\" :max=\"8\" />\n</div>",
+          "details": "Name the stepper with aria-labelledby, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does."
+        },
+        {
+          "name": "In rows",
+          "code": "<FieldGroup class=\"w-full max-w-[400px]\" footer=\"Up to 20 copies and 14 nights.\">\n  <Field row :label=\"copies === 1 ? '1 copy' : copies + ' copies'\">\n    <Stepper v-model:value=\"copies\" :min=\"1\" :max=\"20\" />\n  </Field>\n  <Field row :label=\"nights === 1 ? '1 night' : nights + ' nights'\">\n    <Stepper v-model:value=\"nights\" :min=\"1\" :max=\"14\" />\n  </Field>\n</FieldGroup>",
+          "details": "In a Field row the label names the stepper. Put the value in the label, such as 3 copies."
+        },
+        {
+          "name": "Range, step and wrap",
+          "code": "<div class=\"grid grid-cols-[auto_auto_auto] items-center gap-x-4 gap-y-3\">\n  <span id=\"stepper-opacity-label\">Opacity</span>\n  <span class=\"text-end font-medium tabular-nums\" aria-hidden=\"true\">{{ Math.round(opacity * 100) }}%</span>\n  <Stepper aria-labelledby=\"stepper-opacity-label\" v-model:value=\"opacity\" :min=\"0\" :max=\"1\" :step=\"0.1\" />\n  <span id=\"stepper-hour-label\">Hour</span>\n  <span class=\"text-end font-medium tabular-nums\" aria-hidden=\"true\">{{ String(hour).padStart(2, '0') }}:00</span>\n  <Stepper aria-labelledby=\"stepper-hour-label\" v-model:value=\"hour\" :min=\"0\" :max=\"23\" wrap />\n</div>",
+          "details": "Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops."
+        },
+        {
+          "name": "States",
+          "code": "<div class=\"flex flex-wrap items-center gap-4\">\n  <Stepper aria-label=\"At the lowest value\" :default-value=\"0\" />\n  <Stepper aria-label=\"Disabled\" :default-value=\"3\" disabled />\n  <Stepper aria-label=\"Square ends\" :default-value=\"3\" :pill=\"false\" />\n</div>",
+          "details": "At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set :pill=\"false\" for square ends, as other controls in a dense layout have."
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/stepper"
+    },
+    {
       "slug": "switch",
       "name": "Switch",
       "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
@@ -7175,5 +7299,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T13:00:47.526Z"
+  "generatedAt": "2026-11-06T13:42:49.966Z"
 }

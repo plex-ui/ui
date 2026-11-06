@@ -1,0 +1,102 @@
+---
+title: Stepper
+description: Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+metaDescription: React stepper component with minus and plus segments for small number changes, a min, max and step, wrapping, hold to repeat, and spin button keyboard support.
+---
+
+import {
+  StepperOverviewDemo,
+  StepperRowsDemo,
+  StepperRangeDemo,
+  StepperStatesDemo,
+} from "@/components/docs/StepperDemos"
+
+<UsageBlock>{`import { Stepper } from "@plexui/ui/components/Stepper";`}</UsageBlock>
+
+A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value. For values that vary widely, pair it with an input. On a phone it is the 92 × 32 capsule of the iOS 26 kit with a 44px target; on a desktop it follows the PlexUI control size.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>Name the stepper with <code>aria-labelledby</code>, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does.</>} code={`const label = useId()
+const [guests, setGuests] = useState(2)
+
+<div className="flex items-center gap-4">
+  <span id={label}>Guests</span>
+  <span className="min-w-5 text-end font-medium tabular-nums" aria-hidden="true">{guests}</span>
+  <Stepper aria-labelledby={label} value={guests} onChange={setGuests} min={1} max={8} />
+</div>`} previewMinHeight={168}>
+  <StepperOverviewDemo />
+</ComponentPreview>
+
+### In rows
+
+<ComponentPreview details={<>In a <code>Field</code> row the label names the stepper. Put the value in the label, such as 3 copies.</>} code={`const [copies, setCopies] = useState(1)
+const [nights, setNights] = useState(3)
+
+<FieldGroup footer="Up to 20 copies and 14 nights.">
+  <Field row label={copies === 1 ? '1 copy' : \`\${copies} copies\`}>
+    <Stepper value={copies} onChange={setCopies} min={1} max={20} />
+  </Field>
+  <Field row label={nights === 1 ? '1 night' : \`\${nights} nights\`}>
+    <Stepper value={nights} onChange={setNights} min={1} max={14} />
+  </Field>
+</FieldGroup>`} previewMinHeight={200}>
+  <StepperRowsDemo />
+</ComponentPreview>
+
+### Range, step and wrap
+
+<ComponentPreview details={<>Decimal steps add without rounding drift. With <code>wrap</code> a step past <code>max</code> continues from <code>min</code>, so the hour goes from 23 to 0, and neither segment stops.</>} code={`<Stepper aria-labelledby={opacityLabel} value={opacity} onChange={setOpacity} min={0} max={1} step={0.1} />
+<Stepper aria-labelledby={hourLabel} value={hour} onChange={setHour} min={0} max={23} wrap />`} previewMinHeight={168}>
+  <StepperRangeDemo />
+</ComponentPreview>
+
+### States
+
+<ComponentPreview details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have.</>} code={`<Stepper aria-label="At the lowest value" defaultValue={0} />
+<Stepper aria-label="Disabled" defaultValue={3} disabled />
+<Stepper aria-label="Square ends" defaultValue={3} pill={false} />`} previewMinHeight={140}>
+  <StepperStatesDemo />
+</ComponentPreview>
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "number", description: "Controlled value" },
+  { prop: "defaultValue", type: "number", default: "min", description: "Initial value (uncontrolled)" },
+  { prop: "onChange", type: "(value: number) => void", description: "Called with the next value after a step" },
+  { prop: "min", type: "number", default: "0", description: "Lowest value" },
+  { prop: "max", type: "number", default: "100", description: "Highest value" },
+  { prop: "step", type: "number", default: "1", description: "Amount each step adds or removes" },
+  { prop: "wrap", type: "boolean", default: "false", description: "A step past max continues from min, and one below min from max" },
+  { prop: "autoRepeat", type: "boolean", default: "true", description: "Holding a segment keeps stepping: after 400ms, every 100ms" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevent interaction and focus" },
+  { prop: "pill", type: "boolean", default: "true", description: "Fully rounded ends" },
+  { prop: "decrementLabel", type: "string", default: '"Decrease"', description: "Accessible name of the minus segment" },
+  { prop: "incrementLabel", type: "string", default: '"Increase"', description: "Accessible name of the plus segment" },
+  { prop: "name", type: "string", description: "Submits the value with the owning form through a hidden input" },
+  { prop: "aria-label", type: "string", description: "Name of the value, when no visible label names it" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the visible label of the value" },
+  { prop: "aria-describedby", type: "string", description: "The id of an element that describes the stepper" },
+  { prop: "id", type: "string", description: "The id of the stepper" },
+  { prop: "onFocus", type: "FocusEventHandler<HTMLDivElement>", description: "Called when the stepper gains focus" },
+  { prop: "onBlur", type: "FocusEventHandler<HTMLDivElement>", description: "Called when the stepper loses focus" },
+  { prop: "className", type: "string", description: "CSS classes applied to the stepper" },
+]} />
+
+The stepper is a spin button with the current value, range and name. Its two segments are buttons that a pointer or assistive technology presses; they take no keyboard focus, and pressing one keeps the focus where it was. With the keyboard, Up and Down step, Page Up and Page Down step ten times, Home and End go to `min` and `max`.
+
+## Styling
+
+Stepper reads these component tokens. Override them at any scope to restyle it:
+
+- `--stepper-height`: height (default `var(--control-size-md)`, `32px` at 767px and below)
+- `--stepper-segment-width`: width of each segment (default `40px`, `46px` at 767px and below)
+- `--stepper-radius`: corner radius with `pill={false}` (default `var(--control-radius-md)`)
+- `--stepper-background`: fill (default `light-dark(var(--gray-100), var(--alpha-08))`, `--stepper-mobile-background` at 767px and below: `--alpha-05` and `--alpha-08`, the kit fill)
+- `--stepper-segment-background-hover`, `--stepper-segment-background-active`: fill a segment adds on hover and while pressed (`--alpha-05`, `--alpha-10`; on a phone no hover and `--alpha-08`)
+- `--stepper-separator-color`, `--stepper-separator-inset`: separator color and its inset from the top and bottom (default `var(--color-border)`, `4px`; `--alpha-25` at 767px and below)
+- `--stepper-icon-size`, `--stepper-icon-color`, `--stepper-icon-disabled-color`: the minus and plus (default `var(--control-icon-size-md)`, `var(--color-text)`, `var(--color-text-disabled)`; `22px` and the tertiary label at 767px and below)
+- `--stepper-target-size`: height of the touch target (`44px` at 767px and below)

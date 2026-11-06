@@ -332,6 +332,12 @@ type Tag = { value: string; valid: boolean }
 Single: `value` (number), `onChange`, `min`, `max`, `step` (all three required), `label`, `marks`, `unit`, `disabled`
 Range: `range={true}`, `value` (number[]), `onChange`
 
+### Stepper
+
+**Import:** `@plexui/ui/components/Stepper`
+
+Props: `value` / `defaultValue` (number), `onChange`, `min` (default 0), `max` (default 100), `step` (default 1), `wrap`, `autoRepeat` (default true), `disabled`, `pill` (default true), `decrementLabel`, `incrementLabel`, `name`, `aria-label` / `aria-labelledby`. Shows no value: render the value beside it.
+
 ### Skeleton
 
 **Import:** `@plexui/ui/components/Skeleton`

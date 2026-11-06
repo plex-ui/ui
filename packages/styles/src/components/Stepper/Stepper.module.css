@@ -1,0 +1,102 @@
+/* Two segments that decrease and increase a value, after the iOS 26 kit Stepper (507:24687): a minus and a
+   plus over one fill, a short separator between them, the pressed segment darker, a segment at the end of
+   the range in the tertiary label. Sizes and colors are tokens: the PlexUI control size on a desktop, the
+   kit's 92 x 32 capsule on a phone (touch.css). */
+.Stepper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: stretch;
+  vertical-align: middle;
+  height: var(--stepper-height);
+  border-radius: var(--stepper-radius);
+  background: var(--stepper-background);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  &[data-pill] {
+    border-radius: calc(var(--stepper-height) / 2);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.Segment {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--stepper-segment-width);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--stepper-icon-color);
+  font: inherit;
+  cursor: pointer;
+  z-index: 1;
+  transition: background-color var(--stepper-transition-duration, 150ms) ease;
+
+  &:first-child {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  &:last-of-type {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  /* Hover gives way to the pressed fill, which a pointer always presses over. */
+  @mixin hover {
+    &:not([data-disabled]):not([data-pressed]) {
+      background: var(--stepper-segment-background-hover);
+    }
+  }
+
+  &[data-pressed] {
+    background: var(--stepper-segment-background-active);
+    transition-duration: 0ms;
+  }
+
+  &[data-disabled] {
+    color: var(--stepper-icon-disabled-color);
+    cursor: default;
+  }
+
+  /* The pressed fill stays on the visible segment; the target reaches 44px where the control is shorter. */
+  &::after {
+    position: absolute;
+    inset: min(0px, calc((var(--stepper-height) - var(--stepper-target-size, 0px)) / 2)) 0;
+    content: "";
+  }
+}
+
+/* As in the kit, the separator sits under the two segments at the center and adds no width: 46 + 46 = 92. */
+.Separator {
+  position: absolute;
+  top: var(--stepper-separator-inset);
+  left: 50%;
+  width: 1px;
+  height: calc(var(--stepper-height) - 2 * var(--stepper-separator-inset));
+  border-radius: 1px;
+  background: var(--stepper-separator-color);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.Icon {
+  width: var(--stepper-icon-size);
+  height: var(--stepper-icon-size);
+}

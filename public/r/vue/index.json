@@ -359,6 +359,14 @@
       ]
     },
     {
+      "name": "stepper",
+      "type": "registry:ui",
+      "description": "Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "switch",
       "type": "registry:ui",
       "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",

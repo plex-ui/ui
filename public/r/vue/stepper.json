@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "stepper",
+  "type": "registry:ui",
+  "title": "Stepper",
+  "description": "Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/stepper/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/Stepper\"\n"
+    }
+  ],
+  "docs": "Import as `import { Stepper } from '@/components/ui/stepper'`. See https://plexui.com/vue/components/stepper for props and examples."
+}

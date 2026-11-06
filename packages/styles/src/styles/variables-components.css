@@ -554,6 +554,27 @@
     );
 
     /* =============================================
+      Stepper
+    ============================================= */
+    --stepper-height: var(--control-size-md);
+    --stepper-segment-width: 40px;
+    --stepper-radius: var(--control-radius-md);
+    --stepper-background: light-dark(var(--gray-100), var(--alpha-08));
+    --stepper-segment-background-hover: var(--alpha-05);
+    --stepper-segment-background-active: var(--alpha-10);
+    --stepper-separator-color: var(--color-border);
+    --stepper-separator-inset: 4px;
+    --stepper-icon-size: var(--control-icon-size-md);
+    --stepper-icon-color: var(--color-text);
+    --stepper-icon-disabled-color: var(--color-text-disabled);
+    /* Phone (touch.css), the iOS 26 kit Stepper in PlexUI alpha colors: the fill (116/116/128 at 8%, 118/118/128
+       at 18%: 244 on white, 21 on black) is alpha-05 and alpha-08, the pressed segment adds 8% (alpha-08), and the
+       separator (60/60/67 and 235/235/245 at 30%) and a segment at the end of the range are alpha-25. */
+    --stepper-mobile-background: light-dark(var(--alpha-05), var(--alpha-08));
+    --stepper-mobile-segment-background-active: var(--alpha-08);
+    --stepper-mobile-separator-color: var(--alpha-25);
+
+    /* =============================================
       Tabs — Underline variant
     ============================================= */
     --tabs-underline-indicator-height: 2px;

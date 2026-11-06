@@ -160,6 +160,7 @@ import { Skeleton } from '@plexui/vue/components/Skeleton';
 import { Slider } from '@plexui/vue/components/Slider';
 import { Sortable, SortableHandle } from '@plexui/vue/components/Sortable';
 import { StatCard } from '@plexui/vue/components/StatCard';
+import { Stepper } from '@plexui/vue/components/Stepper';
 import { Switch } from '@plexui/vue/components/Switch';
 import {
   Table,
@@ -394,6 +395,7 @@ const components: Record<string, Component> = {
   Sortable,
   SortableHandle,
   StatCard,
+  Stepper,
   Switch,
   Table,
   TableBody,

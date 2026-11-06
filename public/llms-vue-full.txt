@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 53
+Components: 54
 
 ## Setup
 
@@ -9070,6 +9070,74 @@ Use invert-trend for metrics where positive values are bad (e.g., error rate, re
     :trend="{ value: 15.3, label: 'vs last hour' }"
     :invert-trend="invertTrend"
   />
+</div>
+```
+
+## Stepper
+Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+Import: import { Stepper } from "@plexui/vue/components/Stepper"
+Docs: https://plexui.com/vue/components/stepper
+Props:
+  - value (number) — Controlled value; bind with v-model:value
+  - default-value (number) default: min — Initial value (uncontrolled)
+  - min (number) default: 0 — Lowest value
+  - max (number) default: 100 — Highest value
+  - step (number) default: 1 — Amount each step adds or removes
+  - wrap (boolean) default: false — A step past max continues from min, and one below min from max
+  - auto-repeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
+  - disabled (boolean) default: false — Prevent interaction and focus
+  - pill (boolean) default: true — Fully rounded ends
+  - decrement-label (string) default: "Decrease" — Accessible name of the minus segment
+  - increment-label (string) default: "Increase" — Accessible name of the plus segment
+  - name (string) — Submits the value with the owning form through a hidden input
+  - aria-label (string) — Name of the value, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the value
+  - aria-describedby (string) — The id of an element that describes the stepper
+  - id (string) — The id of the stepper
+
+### Overview
+Name the stepper with aria-labelledby, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does.
+```vue
+<div class="flex items-center gap-4">
+  <span id="stepper-guests-label">Guests</span>
+  <span class="min-w-5 text-end font-medium tabular-nums" aria-hidden="true">{{ guests }}</span>
+  <Stepper aria-labelledby="stepper-guests-label" v-model:value="guests" :min="1" :max="8" />
+</div>
+```
+
+### In rows
+In a Field row the label names the stepper. Put the value in the label, such as 3 copies.
+```vue
+<FieldGroup class="w-full max-w-[400px]" footer="Up to 20 copies and 14 nights.">
+  <Field row :label="copies === 1 ? '1 copy' : copies + ' copies'">
+    <Stepper v-model:value="copies" :min="1" :max="20" />
+  </Field>
+  <Field row :label="nights === 1 ? '1 night' : nights + ' nights'">
+    <Stepper v-model:value="nights" :min="1" :max="14" />
+  </Field>
+</FieldGroup>
+```
+
+### Range, step and wrap
+Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops.
+```vue
+<div class="grid grid-cols-[auto_auto_auto] items-center gap-x-4 gap-y-3">
+  <span id="stepper-opacity-label">Opacity</span>
+  <span class="text-end font-medium tabular-nums" aria-hidden="true">{{ Math.round(opacity * 100) }}%</span>
+  <Stepper aria-labelledby="stepper-opacity-label" v-model:value="opacity" :min="0" :max="1" :step="0.1" />
+  <span id="stepper-hour-label">Hour</span>
+  <span class="text-end font-medium tabular-nums" aria-hidden="true">{{ String(hour).padStart(2, '0') }}:00</span>
+  <Stepper aria-labelledby="stepper-hour-label" v-model:value="hour" :min="0" :max="23" wrap />
+</div>
+```
+
+### States
+At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set :pill="false" for square ends, as other controls in a dense layout have.
+```vue
+<div class="flex flex-wrap items-center gap-4">
+  <Stepper aria-label="At the lowest value" :default-value="0" />
+  <Stepper aria-label="Disabled" :default-value="3" disabled />
+  <Stepper aria-label="Square ends" :default-value="3" :pill="false" />
 </div>
 ```
 

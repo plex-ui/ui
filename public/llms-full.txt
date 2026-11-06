@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt and https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 53
+Components: 54
 
 ## Setup
 
@@ -7717,6 +7717,76 @@ value="234ms"
 trend={{ value: 15.3, label: "vs last hour" }}
 invertTrend={invertTrend}
 />
+```
+
+## Stepper
+Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+Import: import { Stepper } from "@plexui/ui/components/Stepper"
+Docs: https://plexui.com/components/stepper
+Props:
+  - value (number) — Controlled value
+  - defaultValue (number) default: min — Initial value (uncontrolled)
+  - onChange ((value: number) => void) — Called with the next value after a step
+  - min (number) default: 0 — Lowest value
+  - max (number) default: 100 — Highest value
+  - step (number) default: 1 — Amount each step adds or removes
+  - wrap (boolean) default: false — A step past max continues from min, and one below min from max
+  - autoRepeat (boolean) default: true — Holding a segment keeps stepping: after 400ms, every 100ms
+  - disabled (boolean) default: false — Prevent interaction and focus
+  - pill (boolean) default: true — Fully rounded ends
+  - decrementLabel (string) default: "Decrease" — Accessible name of the minus segment
+  - incrementLabel (string) default: "Increase" — Accessible name of the plus segment
+  - name (string) — Submits the value with the owning form through a hidden input
+  - aria-label (string) — Name of the value, when no visible label names it
+  - aria-labelledby (string) — The id of the visible label of the value
+  - aria-describedby (string) — The id of an element that describes the stepper
+  - id (string) — The id of the stepper
+  - onFocus (FocusEventHandler<HTMLDivElement>) — Called when the stepper gains focus
+  - onBlur (FocusEventHandler<HTMLDivElement>) — Called when the stepper loses focus
+  - className (string) — CSS classes applied to the stepper
+
+### Overview
+Name the stepper with aria-labelledby, the visible label of its value. A segment at the end of the range turns tertiary and stops stepping. Holding a segment keeps stepping, as a native stepper does.
+```tsx
+const label = useId()
+const [guests, setGuests] = useState(2)
+
+<div className="flex items-center gap-4">
+<span id={label}>Guests</span>
+<span className="min-w-5 text-end font-medium tabular-nums" aria-hidden="true">{guests}</span>
+<Stepper aria-labelledby={label} value={guests} onChange={setGuests} min={1} max={8} />
+</div>
+```
+
+### In rows
+In a Field row the label names the stepper. Put the value in the label, such as 3 copies.
+```tsx
+const [copies, setCopies] = useState(1)
+const [nights, setNights] = useState(3)
+
+<FieldGroup footer="Up to 20 copies and 14 nights.">
+<Field row label={copies === 1 ? '1 copy' : `${copies} copies`}>
+  <Stepper value={copies} onChange={setCopies} min={1} max={20} />
+</Field>
+<Field row label={nights === 1 ? '1 night' : `${nights} nights`}>
+  <Stepper value={nights} onChange={setNights} min={1} max={14} />
+</Field>
+</FieldGroup>
+```
+
+### Range, step and wrap
+Decimal steps add without rounding drift. With wrap a step past max continues from min, so the hour goes from 23 to 0, and neither segment stops.
+```tsx
+<Stepper aria-labelledby={opacityLabel} value={opacity} onChange={setOpacity} min={0} max={1} step={0.1} />
+<Stepper aria-labelledby={hourLabel} value={hour} onChange={setHour} min={0} max={23} wrap />
+```
+
+### States
+At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set pill to false for square ends, as other controls in a dense layout have.
+```tsx
+<Stepper aria-label="At the lowest value" defaultValue={0} />
+<Stepper aria-label="Disabled" defaultValue={3} disabled />
+<Stepper aria-label="Square ends" defaultValue={3} pill={false} />
 ```
 
 ## Switch
