@@ -460,6 +460,11 @@
 
 /* iOS presentations are opt-in; placement and all desktop styles remain independent. */
 @media (width <= 767px) {
+  /* A Sheet dims the page less than a desktop modal does; an Alert keeps the shared dim. */
+  .Overlay:has(+ .Content[data-mobile-variant="sheet"]) {
+    background: var(--dialog-sheet-scrim);
+  }
+
   .Content[data-mobile-variant="alert"] {
     --dialog-content-align: center;
     --dialog-content-justify: center;

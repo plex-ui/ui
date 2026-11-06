@@ -668,6 +668,26 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(rule(".Content")).toContain("pointer-events: none !important;")
     expect(rule(".Panel")).toContain("pointer-events: auto;")
   })
+
+  test.each(["React", "Vue"])("%s: a phone Sheet dims with the sheet scrim; an Alert keeps the shared dim", async (framework) => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8")
+    expect(css).toMatch(/\.Overlay:has\(\+ \.Content\[data-mobile-variant="sheet"\]\) \{\s*background: var\(--dialog-sheet-scrim\);/)
+    expect(css).not.toMatch(/\.Overlay:has\(\+ \.Content\[data-mobile-variant="alert"\]\)/)
+    // The selector needs the overlay right before its content in both frameworks
+    for (const mobileVariant of ["sheet", "alert"] as const) {
+      let unmount = () => {}
+      if (framework === "React") {
+        await act(async () => { render(<ReactExample open content={{ mobileVariant }} />) })
+        unmount = cleanup
+      } else {
+        unmount = mountVue(() => vueExample({ open: true, content: { mobileVariant } })).unmount
+        await flushVue()
+      }
+      const overlay = document.querySelector('[class~="Overlay"]')
+      expect(overlay?.nextElementSibling?.getAttribute("data-mobile-variant")).toBe(mobileVariant)
+      unmount()
+    }
+  })
 })
 
 describe("Dialog body and focus hooks", () => {

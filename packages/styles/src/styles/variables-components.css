@@ -390,6 +390,9 @@
     --dialog-alert-action-height: 48px;
     --dialog-sheet-action-height: 50px;
     --dialog-sheet-radius: 38px;
+    /* Native iOS 26 dims the page under a phone Sheet to 80% in light (IMG_5437/5444/5453/5470/5471/5491:
+       white 255 to 204, grouped 242/242/247 to 193/193/197). Dark keeps the shared dim: no native reference yet. */
+    --dialog-sheet-scrim: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
     --dialog-sheet-close-size: var(--control-size-2xl);
     --dialog-sheet-close-icon-size: 34px;
     --dialog-mobile-type-size: 17px;
