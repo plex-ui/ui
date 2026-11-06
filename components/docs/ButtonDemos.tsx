@@ -33,18 +33,21 @@ export function DemoControlBoolean({
   value,
   onChange,
   phoneOnly = false,
+  desktopOnly = false,
 }: {
   name: string;
   value: boolean;
   onChange: (v: boolean) => void;
   phoneOnly?: boolean;
+  /** Hidden on a phone (narrow page or Phone preview), where the value looks the same; it stays mounted */
+  desktopOnly?: boolean;
 }) {
   // Unique per instance: two demos with the same control name share a page
   const controlId = useId();
   useDemoControlSync(name, value, onChange);
 
   return (
-    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined}>
+    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
       <label htmlFor={controlId} style={controlLabelStyle}>{name}</label>
       <Switch id={controlId} checked={value} onCheckedChange={onChange} aria-label={name} />
     </div>
@@ -66,12 +69,12 @@ function syncedControl(children: React.ReactNode): { value: unknown; onChange: (
   return null;
 }
 
-export function DemoControlRow({ name, children, phoneOnly = false }: { name: string; children: React.ReactNode; phoneOnly?: boolean }) {
+export function DemoControlRow({ name, children, phoneOnly = false, desktopOnly = false }: { name: string; children: React.ReactNode; phoneOnly?: boolean; desktopOnly?: boolean }) {
   const control = syncedControl(children);
   useDemoControlSync(name, control?.value, control?.onChange);
 
   return (
-    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined}>
+    <div style={controlRowStyle} data-demo-phone-only={phoneOnly || undefined} data-demo-desktop-only={desktopOnly || undefined}>
       <span style={controlLabelStyle}>{name}</span>
       <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
     </div>

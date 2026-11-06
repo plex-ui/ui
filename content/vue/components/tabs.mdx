@@ -15,8 +15,8 @@ export const STAGE = "flex-1 flex items-center justify-center py-12 w-full"
 export const overviewControls = [
   { name: "variant", type: "select", options: VARIANTS, default: "segmented" },
   { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" },
-  { name: "size", type: "select", options: SIZES, default: "md" },
-  { name: "pill", type: "boolean", default: true },
+  { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" },
+  { name: "pill", desktopOnly: true, type: "boolean", default: true },
   { name: "flush", type: "boolean", default: false },
   { name: "block", type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
@@ -156,85 +156,88 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 ### Segmented with icons
 
 <ComponentPreview language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={segmentedIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} />
+  <VueDemo stageClassName={STAGE} template={segmentedIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Icon only
 
 <ComponentPreview language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={iconOnly} state={{ tab: "home" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: true }]} />
+  <VueDemo stageClassName={STAGE} template={iconOnly} state={{ tab: "home" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Segmented with badge
 
 <ComponentPreview language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={segmentedBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
+  <VueDemo stageClassName={STAGE} template={segmentedBadge} state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Underline
 
 <ComponentPreview language="vue" details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.</>} code={underline} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underline} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={underline} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline flush
 
 <ComponentPreview language="vue" details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.</>} code={underlineFlush} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineFlush} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={underlineFlush} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline block
 
 <ComponentPreview language="vue" details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container.</>} code={underlineBlock} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineBlock} state={{ tab: "overview" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={underlineBlock} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline with icons
 
 <ComponentPreview language="vue" details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> slot on individual tabs.</>} code={underlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }]} />
+  <VueDemo stageClassName={STAGE} template={underlineIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
 </ComponentPreview>
 
 ### Underline with badge
 
 <ComponentPreview language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineBadge} state={{ tab: "all" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
+  <VueDemo stageClassName={STAGE} template={underlineBadge} state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Vertical segmented
 
 <ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down.</>} code={verticalSegmented} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalSegmented} state={{ tab: "account" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={verticalSegmented} state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Vertical underline
 
 <ComponentPreview language="vue" details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side.</>} code={verticalUnderline} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalUnderline} state={{ tab: "account" }} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={verticalUnderline} state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Vertical underline with icons
 
 <ComponentPreview language="vue" details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={verticalUnderlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalUnderlineIcons} state={{ tab: "home" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }]} />
+  <VueDemo stageClassName={STAGE} template={verticalUnderlineIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview language="vue" details={<>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</>} code={sizing} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={sizing} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</p>
+  <p>On a phone with <code>touch.css</code> horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 22, 24 and 26px at <code>3xs</code> to <code>xs</code>, 44px from <code>sm</code> to <code>2xl</code> and 50px at <code>3xl</code>. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
+</>} code={sizing} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueDemo stageClassName={STAGE} template={sizing} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Scrollable
 
 <ComponentPreview language="vue" details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={scrollable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={scrollable} state={{ tab: "1" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", type: "select", options: SIZES, default: "md" }]} />
+  <VueDemo stageClassName={STAGE} template={scrollable} state={{ tab: "1" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Overflow menu
 
 <ComponentPreview language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={overflowMenu} state={{ tab: "code" }} controls={[{ name: "width", type: "select", options: ["240", "360", "560"], default: "360" }]} />
+  <VueDemo stageClassName={STAGE} template={overflowMenu} state={{ tab: "code" }} controls={[{ name: "width", label: "container width", type: "select", options: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }, { value: "560", label: "560px" }], default: "360" }]} />
 </ComponentPreview>
 
 Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.

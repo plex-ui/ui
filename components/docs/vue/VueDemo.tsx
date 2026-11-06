@@ -6,13 +6,20 @@ import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from '../Butto
 import { SliderValueControl } from '../SliderValueControl';
 import { VuePreview } from '../VuePreview';
 import { usePreviewEmbed } from '../PreviewEmbed';
+import { usePhoneRows } from '../PhoneRows';
 import { createInitialDemoState } from './initialDemoState';
 
 /** A select option: the value itself, or a value shown under another label (`Per-digit`). */
 export type VueDemoOption = string | { value: string | boolean; label: string };
 
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
-export type VueDemoControl = { name: string; label?: string; phoneOnly?: boolean } & (
+export type VueDemoControl = {
+  name: string;
+  label?: string;
+  phoneOnly?: boolean;
+  /** Hidden on a phone (narrow page or Phone preview), where the template gets its `default` */
+  desktopOnly?: boolean;
+} & (
   | { type: 'boolean'; default: boolean }
   /** `phoneOptions`: the options shown on a phone; a value outside them shows as `default` there */
   | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean }
@@ -36,24 +43,23 @@ const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-
  * variable the template reads (`:size="size"`), so the code shown is the
  * template that runs. Mirrors the React `*DemoWithControls` layout.
  */
-export function VueDemo({
-  template,
-  controls = [],
-  hiddenControls = [],
-  phone = false,
-  reactiveControlDefaults = false,
-  state,
-  context,
-  phoneState,
-  phoneTemplate,
-  loop,
-  stageClassName,
-}: {
+export function VueDemo(props: VueDemoProps) {
+  // A page's own phone layout passes `phone`; desktop-only controls need to know it themselves
+  return props.phone === undefined && props.controls?.some((control) => control.desktopOnly)
+    ? <VueDemoOnPhone {...props} />
+    : <VueDemoView {...props} />;
+}
+
+function VueDemoOnPhone(props: VueDemoProps) {
+  return <VueDemoView {...props} phone={usePhoneRows()} />;
+}
+
+type VueDemoProps = {
   template: string;
   controls?: VueDemoControl[];
   /** Names of controls that keep their value but are not shown, such as the desktop controls of a phone layout */
   hiddenControls?: readonly string[];
-  /** A phone layout (`VuePhoneRowsDemo` sets it): select controls offer their `phoneOptions` */
+  /** A phone layout (`VuePhoneRowsDemo` sets it): select controls offer their `phoneOptions`, desktop-only controls give their `default` */
   phone?: boolean;
   /** Apply changing defaults until a control is explicitly changed; preserve the mounted form. */
   reactiveControlDefaults?: boolean;
@@ -68,7 +74,21 @@ export function VueDemo({
   loop?: VueDemoLoop;
   /** Classes of the demo stage; without controls the stage renders only when set */
   stageClassName?: string;
-}) {
+};
+
+function VueDemoView({
+  template,
+  controls = [],
+  hiddenControls = [],
+  phone = false,
+  reactiveControlDefaults = false,
+  state,
+  context,
+  phoneState,
+  phoneTemplate,
+  loop,
+  stageClassName,
+}: VueDemoProps) {
   const phonePreview = usePreviewEmbed() !== null;
   const [values, setValues] = useState<Record<string, unknown>>(() => ({
     ...createInitialDemoState(state),
@@ -92,6 +112,11 @@ export function VueDemo({
       .map((control) => [control.name, control.default])) : {}),
     ...context,
   }), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
+  // A hidden desktop-only control keeps the chosen value; the template shows its default
+  const templateProps = useMemo(() => (phone ? {
+    ...props,
+    ...Object.fromEntries(controls.filter((control) => control.desktopOnly).map((control) => [control.name, control.default])),
+  } : props), [controls, phone, props]);
   const set = (name: string) => (value: unknown) => {
     setValues((current) => ({ ...current, [name]: value }));
     if (reactiveControlDefaults) {
@@ -121,7 +146,7 @@ export function VueDemo({
     <VuePreview
       key={run}
       template={phonePreview ? phoneTemplate ?? template : template}
-      props={props}
+      props={templateProps}
       onPropChange={(name, value) => {
         if (controls.some((control) => control.name === name)) set(name)(value);
       }}
@@ -150,9 +175,10 @@ export function VueDemo({
               value={props[control.name] as boolean}
               onChange={set(control.name)}
               phoneOnly={control.phoneOnly}
+              desktopOnly={control.desktopOnly}
             />
           ) : control.type === 'range' ? (
-            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
               <SliderValueControl
                 ariaLabel={control.label ?? control.name}
                 min={control.min}
@@ -164,7 +190,7 @@ export function VueDemo({
               />
             </DemoControlRow>
           ) : (
-            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly}>
+            <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly} desktopOnly={control.desktopOnly}>
               <SegmentedControl<string>
                 value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
                 onChange={(label) => set(control.name)(optionsFor(control).find((option) => option.label === label)?.value)}

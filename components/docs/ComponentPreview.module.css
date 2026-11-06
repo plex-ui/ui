@@ -11,6 +11,46 @@
   }
 }
 
+/* Desktop-only controls (sizes that look the same on a phone) stay mounted, hidden on a phone:
+   in the Phone preview and on a narrow docs page. */
+.Wrapper[data-preview-viewport="phone"] [data-demo-desktop-only] {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .Wrapper [data-demo-desktop-only] {
+    display: none !important;
+  }
+}
+
+/* Without them the first and last shown rows take the edges of the controls table. */
+.Wrapper[data-preview-viewport="phone"] .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+  border-top: none !important;
+}
+
+.Wrapper[data-preview-viewport="phone"] .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+  border-bottom: 1px solid var(--demo-controls-edge);
+}
+
+@media (max-width: 767px) {
+  .Wrapper .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:not([data-demo-desktop-only]) ~ *) {
+    border-top: none !important;
+  }
+
+  .Wrapper .PreviewInner>[data-demo-controls]>:not([data-demo-desktop-only]):not(:has(~ :not([data-demo-desktop-only]))) {
+    border-bottom: 1px solid var(--demo-controls-edge);
+  }
+}
+
+.PreviewInner {
+  --demo-controls-edge: rgb(0 0 0 / 5%);
+}
+
+[data-theme='dark'] .PreviewInner,
+html.dark .PreviewInner {
+  --demo-controls-edge: rgb(255 255 255 / 5%);
+}
+
 /* The toolbar owns its row: descriptions and wrapped headings can precede it. */
 
 .TabBar {
@@ -273,12 +313,7 @@ html.dark .PreviewInner>[data-demo-controls]>* {
 }
 
 .PreviewInner>[data-demo-controls]> :last-child {
-  border-bottom: 1px solid rgb(0 0 0 / 5%);
-}
-
-[data-theme='dark'] .PreviewInner>[data-demo-controls]> :last-child,
-html.dark .PreviewInner>[data-demo-controls]> :last-child {
-  border-bottom-color: rgb(255 255 255 / 5%);
+  border-bottom: 1px solid var(--demo-controls-edge);
 }
 
 .PreviewInner [data-demo-stage] {

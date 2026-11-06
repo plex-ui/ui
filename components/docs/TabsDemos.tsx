@@ -9,18 +9,26 @@ import {
 import { Tabs } from '@plexui/ui/components/Tabs';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const VARIANT_OPTIONS = ['segmented', 'underline'] as const;
 const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
+
+/** A size or pill control is desktop-only: on a phone, where it is hidden, the demo shows its initial value. */
+function useDesktopOnlyState<T>(initial: T) {
+  const phone = usePhoneRows();
+  const [value, setValue] = useState(initial);
+  return [value, setValue, phone ? initial : value] as const;
+}
 
 // ─── Overview demo with all controls ───
 export function TabsOverviewDemo() {
   const [tab, setTab] = useState('overview');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('segmented');
   const [orientation, setOrientation] = useState<(typeof ORIENTATION_OPTIONS)[number]>('horizontal');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-  const [pill, setPill] = useState(true);
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [pill, setPill, shownPill] = useDesktopOnlyState(true);
   const [flush, setFlush] = useState(false);
   const [block, setBlock] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -43,14 +51,14 @@ export function TabsOverviewDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
         <DemoControlBoolean name="flush" value={flush} onChange={setFlush} />
         <DemoControlBoolean name="block" value={block} onChange={setBlock} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
@@ -62,8 +70,8 @@ export function TabsOverviewDemo() {
           onChange={setTab}
           variant={variant}
           orientation={orientation}
-          size={size}
-          pill={pill}
+          size={shownSize}
+          pill={shownPill}
           flush={flush}
           block={block}
           disabled={disabled}
@@ -82,12 +90,12 @@ export function TabsOverviewDemo() {
 // ─── Underline horizontal ───
 export function TabsUnderlineDemo() {
   const [tab, setTab] = useState('overview');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -100,7 +108,7 @@ export function TabsUnderlineDemo() {
           value={tab}
           onChange={setTab}
           variant="underline"
-          size={size}
+          size={shownSize}
           aria-label="Sections"
         >
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -116,12 +124,12 @@ export function TabsUnderlineDemo() {
 // ─── Underline flush ───
 export function TabsUnderlineFlushDemo() {
   const [tab, setTab] = useState('overview');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -135,7 +143,7 @@ export function TabsUnderlineFlushDemo() {
           onChange={setTab}
           variant="underline"
           flush
-          size={size}
+          size={shownSize}
           aria-label="Sections"
         >
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -151,12 +159,12 @@ export function TabsUnderlineFlushDemo() {
 // ─── Underline block ───
 export function TabsUnderlineBlockDemo() {
   const [tab, setTab] = useState('overview');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -170,7 +178,7 @@ export function TabsUnderlineBlockDemo() {
           onChange={setTab}
           variant="underline"
           block
-          size={size}
+          size={shownSize}
           aria-label="Sections"
         >
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -185,12 +193,12 @@ export function TabsUnderlineBlockDemo() {
 // ─── Underline with icons ───
 export function TabsUnderlineIconsDemo() {
   const [tab, setTab] = useState('home');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -203,7 +211,7 @@ export function TabsUnderlineIconsDemo() {
           value={tab}
           onChange={setTab}
           variant="underline"
-          size={size}
+          size={shownSize}
           aria-label="Navigation"
         >
           <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
@@ -218,27 +226,27 @@ export function TabsUnderlineIconsDemo() {
 // ─── Segmented with icons ───
 export function TabsSegmentedIconsDemo() {
   const [tab, setTab] = useState('home');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
-  const [pill, setPill] = useState(true);
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
+  const [pill, setPill, shownPill] = useDesktopOnlyState(true);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
         <Tabs
           value={tab}
           onChange={setTab}
-          size={size}
-          pill={pill}
+          size={shownSize}
+          pill={shownPill}
           aria-label="Navigation"
         >
           <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
@@ -254,8 +262,8 @@ export function TabsSegmentedIconsDemo() {
 export function TabsIconOnlyDemo() {
   const [tab, setTab] = useState('home');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('segmented');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
-  const [pill, setPill] = useState(true);
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [pill, setPill, shownPill] = useDesktopOnlyState(true);
 
   return (
     <>
@@ -267,7 +275,7 @@ export function TabsIconOnlyDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -275,7 +283,7 @@ export function TabsIconOnlyDemo() {
           </SegmentedControl>
         </DemoControlRow>
         {variant === 'segmented' && (
-          <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+          <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
         )}
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
@@ -283,8 +291,8 @@ export function TabsIconOnlyDemo() {
           value={tab}
           onChange={setTab}
           variant={variant}
-          size={size}
-          pill={pill}
+          size={shownSize}
+          pill={shownPill}
           aria-label="Navigation"
         >
           <Tabs.Tab value="home" icon={<Home />} aria-label="Home" />
@@ -299,29 +307,29 @@ export function TabsIconOnlyDemo() {
 // ─── Segmented with badge ───
 export function TabsSegmentedBadgeDemo() {
   const [tab, setTab] = useState('all');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
-  const [pill, setPill] = useState(true);
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
+  const [pill, setPill, shownPill] = useDesktopOnlyState(true);
   const [badgePill, setBadgePill] = useState(true);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" desktopOnly value={pill} onChange={setPill} />
         <DemoControlBoolean name="badgePill" value={badgePill} onChange={setBadgePill} />
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
         <Tabs
           value={tab}
           onChange={setTab}
-          size={size}
-          pill={pill}
+          size={shownSize}
+          pill={shownPill}
           aria-label="Filter"
         >
           <Tabs.Tab value="all" badge={{ content: 128, pill: badgePill }}>All</Tabs.Tab>
@@ -336,13 +344,13 @@ export function TabsSegmentedBadgeDemo() {
 // ─── Underline with badge ───
 export function TabsUnderlineBadgeDemo() {
   const [tab, setTab] = useState('all');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [badgePill, setBadgePill] = useState(true);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -356,7 +364,7 @@ export function TabsUnderlineBadgeDemo() {
           value={tab}
           onChange={setTab}
           variant="underline"
-          size={size}
+          size={shownSize}
           aria-label="Filter"
         >
           <Tabs.Tab value="all" badge={{ content: 128, pill: badgePill }}>All</Tabs.Tab>
@@ -371,12 +379,12 @@ export function TabsUnderlineBadgeDemo() {
 // ─── Vertical segmented ───
 export function TabsVerticalSegmentedDemo() {
   const [tab, setTab] = useState('account');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -389,7 +397,7 @@ export function TabsVerticalSegmentedDemo() {
           value={tab}
           onChange={setTab}
           orientation="vertical"
-          size={size}
+          size={shownSize}
           aria-label="Settings"
         >
           <Tabs.Tab value="account">Account</Tabs.Tab>
@@ -405,12 +413,12 @@ export function TabsVerticalSegmentedDemo() {
 // ─── Vertical underline ───
 export function TabsVerticalUnderlineDemo() {
   const [tab, setTab] = useState('account');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -424,7 +432,7 @@ export function TabsVerticalUnderlineDemo() {
           onChange={setTab}
           variant="underline"
           orientation="vertical"
-          size={size}
+          size={shownSize}
           aria-label="Settings"
         >
           <Tabs.Tab value="account">Account</Tabs.Tab>
@@ -440,12 +448,12 @@ export function TabsVerticalUnderlineDemo() {
 // ─── Vertical underline with icons ───
 export function TabsVerticalUnderlineIconsDemo() {
   const [tab, setTab] = useState('home');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('lg');
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -459,7 +467,7 @@ export function TabsVerticalUnderlineIconsDemo() {
           onChange={setTab}
           variant="underline"
           orientation="vertical"
-          size={size}
+          size={shownSize}
           aria-label="Navigation"
         >
           <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
@@ -475,7 +483,7 @@ export function TabsVerticalUnderlineIconsDemo() {
 export function TabsSizingDemo() {
   const [tab, setTab] = useState('overview');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('underline');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
@@ -487,7 +495,7 @@ export function TabsSizingDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -500,7 +508,7 @@ export function TabsSizingDemo() {
           value={tab}
           onChange={setTab}
           variant={variant}
-          size={size}
+          size={shownSize}
           aria-label="Demo tabs"
         >
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -516,7 +524,7 @@ export function TabsSizingDemo() {
 export function TabsScrollableDemo() {
   const [tab, setTab] = useState('1');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('segmented');
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
 
   return (
     <>
@@ -528,7 +536,7 @@ export function TabsScrollableDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl value={size} onChange={setSize} size="xs" aria-label="size">
             {SIZE_OPTIONS.map((s) => (
               <SegmentedControl.Option key={s} value={s}>{s}</SegmentedControl.Option>
@@ -542,7 +550,7 @@ export function TabsScrollableDemo() {
             value={tab}
             onChange={setTab}
             variant={variant}
-            size={size}
+            size={shownSize}
             aria-label="Scrollable tabs"
           >
             <Tabs.Tab value="1">Overview</Tabs.Tab>

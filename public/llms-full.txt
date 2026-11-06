@@ -9627,7 +9627,7 @@ Vertical underline tabs with icons provide a rich navigation experience commonly
 ```
 
 ### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs.
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 22, 24 and 26px at 3xs to xs, 44px from sm to 2xl and 50px at 3xl. The phone view shows each example at its default size, without the size and pill controls.
 ```tsx
 <Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>

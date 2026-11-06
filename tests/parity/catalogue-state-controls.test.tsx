@@ -51,6 +51,8 @@ const interact = async (action: () => void) => { await act(async () => { action(
 
 beforeEach(() => {
   vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  // A desktop page: demos with desktop-only controls (Tabs size and pill) ask for the viewport
+  vi.stubGlobal('matchMedia', (media: string) => ({ matches: media.includes('min-width'), media, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }));
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 

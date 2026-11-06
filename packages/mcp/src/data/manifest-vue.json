@@ -6994,7 +6994,7 @@
         {
           "name": "Sizing",
           "code": "<Tabs v-model:value=\"tab\" :variant=\"variant\" :size=\"size\" aria-label=\"Demo tabs\">\n  <TabsTab value=\"overview\">Overview</TabsTab>\n  <TabsTab value=\"analytics\">Analytics</TabsTab>\n  <TabsTab value=\"reports\">Reports</TabsTab>\n</Tabs>",
-          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs."
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 22, 24 and 26px at 3xs to xs, 44px from sm to 2xl and 50px at 3xl. The phone view shows each example at its default size, without the size and pill controls."
         },
         {
           "name": "Scrollable",
@@ -7693,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T22:30:49.460Z"
+  "generatedAt": "2026-11-06T23:28:28.320Z"
 }
