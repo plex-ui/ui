@@ -1320,8 +1320,8 @@ body [data-radix-popper-content-wrapper] {
   z-index: 5 !important;
 }
 
-/* A context menu dims the page at z-index 49 under its menu (z-index 50 in the library): above the dimming,
-   the menu keeps its own place in the docs too. */
+/* A context menu dims the page under its menu (both on the library's overlay layer, 50, the menu later in the
+   body): above the dimming, the menu keeps its own place in the docs too. */
 body:has([data-context-menu-dimming]) [data-radix-popper-content-wrapper]:not([data-aria-hidden]) {
   z-index: 60 !important;
 }

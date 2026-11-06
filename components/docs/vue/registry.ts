@@ -26,6 +26,7 @@ import {
   CodeBlockBaseCopyButton,
   CollapsibleCodeBlock,
 } from '@plexui/vue/components/CodeBlock';
+import { ColorPicker, ColorWell } from '@plexui/vue/components/ColorPicker';
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@plexui/vue/components/ContextMenu';
 import { DataTable, DataTableColumnHeader, DataTablePagination } from '@plexui/vue/components/DataTable';
 import { DateInput } from '@plexui/vue/components/DateInput';
@@ -257,6 +258,8 @@ const components: Record<string, Component> = {
   CodeBlockBaseCode,
   CodeBlockBaseCopyButton,
   CollapsibleCodeBlock,
+  ColorPicker,
+  ColorWell,
   ContextMenu,
   ContextMenuContent,
   ContextMenuTrigger,

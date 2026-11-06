@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 57
+Components: 58
 
 ## Setup
 
@@ -239,6 +239,35 @@ Props:
     - copyable (boolean) default: true — Show copy button
     - className (string) — Additional wrapper class
 Examples: Overview, Collapsible, Expanded by default, Custom collapsed height, Max expanded height, Without copy button, Supported languages
+
+## Color Picker
+"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+Import: import { ColorPicker, ColorWell } from "@plexui/ui/components/ColorPicker"
+Docs: https://plexui.com/components/color-picker
+Props:
+  - value (string) — The controlled color, `#rrggbb` or `#rrggbbaa`
+  - defaultValue (string) default: "#000000" — The color when it is initially rendered
+  - onChange ((value: string) => void) — Called with the next color: `#rrggbb`, or `#rrggbbaa` when it is not opaque
+  - supportsAlpha (boolean) default: true — Shows the Opacity slider
+  - mode ("grid" | "spectrum" | "sliders") — The controlled way to choose a color
+  - defaultMode ("grid" | "spectrum" | "sliders") default: "grid" — The way to choose a color when it is initially rendered
+  - onModeChange ((mode) => void) — Called when another way is chosen
+  - swatches (string[]) — The controlled saved colors
+  - defaultSwatches (string[]) default: [] — The saved colors when it is initially rendered
+  - onSwatchesChange ((swatches: string[]) => void) — Called after Add saves the current color or Delete removes one
+  - aria-label (string) default: "Colors" — Accessible name of the picker
+  ColorWell:
+    - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; `null` shows the well with no color
+    - defaultValue (string | null) default: null — The color when it is initially rendered
+    - onChange ((value: string) => void) — Called with the color the picker chose
+    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - title (string) default: "Colors" — The title of the picker
+    - supportsEyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
+    - disabled (boolean) default: false — Prevents opening the picker
+    - name (string) — Submits the color with the owning form
+    - aria-label (string) default: "Color" — Accessible name of the well
+    - aria-labelledby (string) — The `id` of the visible label of the well
+Examples: Color well, Sizes and states, Picker, Without opacity
 
 ## Context Menu
 "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."

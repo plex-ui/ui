@@ -272,6 +272,16 @@ Props: `onOpen`, `onClose`. Sub: `ContextMenu.Trigger` (renders its child; `disa
 
 A secondary click opens it at the pointer; a touch and hold (500ms) opens it 18px below the element, over a dimmed, blurred page with the element cut out; Shift F10 or the Context Menu key opens it under a focused element. Use it for actions the element also offers elsewhere.
 
+### ColorPicker
+
+**Import:** `@plexui/ui/components/ColorPicker` -- exports `ColorPicker`, `ColorWell`
+
+ColorWell props: `value` (`#rrggbb` / `#rrggbbaa` or `null`), `defaultValue` (null), `onChange`, `size` ("sm" 28px | "lg" 36px), `title` ("Colors"), `supportsEyedropper` (true), `disabled`, `name`, `aria-label`, `aria-labelledby`, plus the picker props below. It opens the picker in a Popover; under 768px in a sheet.
+
+ColorPicker props: `value`, `defaultValue` ("#000000"), `onChange`, `supportsAlpha` (true), `mode` / `defaultMode` ("grid" | "spectrum" | "sliders"), `onModeChange`, `swatches` / `defaultSwatches` ([]), `onSwatchesChange`, `aria-label` ("Colors").
+
+Use ColorWell for a setting that is a color; ColorPicker alone inside a surface of your own. Colors are hex strings; a color with opacity is `#rrggbbaa`.
+
 ### Popover
 
 **Import:** `@plexui/ui/components/Popover` -- exports `Popover`, `usePopoverController`

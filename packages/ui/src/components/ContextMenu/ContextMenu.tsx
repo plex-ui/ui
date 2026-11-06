@@ -77,20 +77,29 @@ export type ContextMenuTriggerProps = {
 
 type Press = { id: number; x: number; y: number; timer: number; opened: boolean }
 
-/** Swallows the click that ends a touch and hold, so the element under the finger does not activate. */
+/**
+ * Swallows the mouse events a browser sends after the touch and hold that opened the menu: the compatibility mousedown
+ * would focus the element under the finger, and focus leaving the menu closes it (inside a Dialog or a Sheet, whose
+ * content takes the press), and the click would activate the element.
+ */
 const suppressNextClick = (doc: Document) => {
-  const swallow = (event: Event) => {
+  const hold = (event: Event) => {
     event.preventDefault()
     event.stopPropagation()
+  }
+  const swallow = (event: Event) => {
+    hold(event)
     stop()
   }
   const stop = () => {
+    doc.removeEventListener("mousedown", hold, true)
     doc.removeEventListener("click", swallow, true)
     doc.removeEventListener("pointerdown", stop, true)
     window.clearTimeout(timer)
   }
   // A browser that sends no click after the hold must not swallow the next tap: a new press ends the wait too.
   const timer = window.setTimeout(stop, 600)
+  doc.addEventListener("mousedown", hold, true)
   doc.addEventListener("click", swallow, true)
   doc.addEventListener("pointerdown", stop, true)
 }

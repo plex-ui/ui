@@ -554,6 +554,77 @@
     );
 
     /* =============================================
+      Color picker
+    ============================================= */
+    /* A desktop scale of the iOS 26 kit Color Picker (0:5275) in PlexUI sizes: a 264px column, 22px grid cells,
+       28px tracks and fields. The phone takes the kit's own sizes (touch.css). */
+    --color-picker-width: 264px;
+    --color-picker-modes-gap: 16px;
+    --color-picker-body-aspect-ratio: 358 / 300;
+    --color-picker-body-radius: var(--radius-xl);
+    --color-picker-section-gap: 16px;
+    --color-picker-row-gap: 4px;
+    --color-picker-opacity-padding-bottom: 16px;
+    --color-picker-label-font-size: var(--font-text-sm-size);
+    --color-picker-label-line-height: var(--font-text-sm-line-height);
+    --color-picker-selection-color: #fff;
+    --color-picker-selection-width: 2px;
+    --color-picker-track-height: 28px;
+    --color-picker-track-inset: 2px;
+    --color-picker-checker-size: 6px;
+    --color-picker-knob-size: 24px;
+    --color-picker-knob-border: 2px;
+    --color-picker-knob-shadow: 0 0 3px rgb(0 0 0 / 10%);
+    --color-picker-loupe-size: 22px;
+    --color-picker-field-gap: 8px;
+    --color-picker-field-width: 56px;
+    --color-picker-field-wide-width: 88px;
+    --color-picker-field-height: 28px;
+    --color-picker-field-radius: var(--radius-md);
+    --color-picker-field-font-size: var(--font-text-sm-size);
+    --color-picker-field-line-height: var(--font-text-sm-line-height);
+    --color-picker-field-background: var(--color-background-secondary-soft-alpha);
+    --color-picker-separator-color: var(--color-border);
+    --color-picker-current-size: 56px;
+    --color-picker-current-radius: var(--radius-xl);
+    --color-picker-current-gap: 24px;
+    --color-picker-swatch-size: 24px;
+    --color-picker-swatch-row-gap: 16px;
+    --color-picker-swatch-ring-inset: 2px;
+    --color-picker-swatch-ring-width: 2px;
+    --color-picker-add-icon-size: 16px;
+    --color-picker-page-control-row-height: 8px;
+    --color-picker-page-control-empty-display: none;
+    --color-picker-popover-padding: 12px 16px 16px;
+    --color-picker-popover-header-gap: 12px;
+    --color-picker-sheet-radius: 34px 34px 58px 58px;
+    /* Phone (touch.css): the kit's Percentage field and Add button (120/120/120 at 20%: 228 on white) are alpha-12,
+       and its separator (198 on white) alpha-25. */
+    --color-picker-mobile-field-background: var(--alpha-12);
+    --color-picker-mobile-separator-color: var(--alpha-25);
+
+    /* =============================================
+      Color well
+    ============================================= */
+    /* The kit's Picker Button (5739:34128): an angular rainbow from yellow at the top, a 3px ring 2px from the color;
+       28px and 36px. */
+    --color-well-size-sm: 28px;
+    --color-well-size-lg: 36px;
+    --color-well-ring-width: 3px;
+    --color-well-ring-gap: 2px;
+    --color-well-rainbow: conic-gradient(
+      rgb(231 224 64) 0%,
+      rgb(238 170 60) 12.4%,
+      rgb(232 64 59) 24.9%,
+      rgb(179 62 213) 36.6%,
+      rgb(105 74 232) 50.6%,
+      rgb(60 202 231) 64.3%,
+      rgb(60 232 133) 74.9%,
+      rgb(137 231 67) 87%,
+      rgb(231 224 64) 100%
+    );
+
+    /* =============================================
       Context menu
     ============================================= */
     /* The iOS 26 kit Context Menu - Dimming Overlay (507:25994): black at 23% over a 30px background blur; the

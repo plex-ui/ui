@@ -19,11 +19,15 @@
 }
 
 /* Context Menu - Dimming Overlay: black at 23% over a 30px background blur, with the element cut out so it stays
-   clear, as iOS lifts its preview. A press on the dimming closes the menu and reaches nothing under it. */
+   clear, as iOS lifts its preview. A press on the dimming closes the menu and reaches nothing under it. It shares
+   the overlay layer (50): it comes after a Dialog or Popover the element sits in, so it dims that too, as iOS dims a
+   sheet, and before its own menu, which stays above it. */
 .Overlay {
   position: fixed;
-  z-index: 49;
+  z-index: 50;
   inset: 0;
+  /* Takes the press even over a modal Dialog, whose content stays pressable while the rest of the page is not. */
+  pointer-events: auto;
   background: var(--context-menu-dimming-background);
   -webkit-backdrop-filter: var(--context-menu-dimming-backdrop-filter);
   backdrop-filter: var(--context-menu-dimming-backdrop-filter);

@@ -1,0 +1,474 @@
+/* The system color picker, after the iOS 26 kit Color Picker - iPhone (0:5275): a segmented control over the
+   grid, spectrum or sliders, the Opacity slider, a separator, then the current color and the saved colors. On a
+   phone the sizes are the kit's (touch.css); on a desktop the same layout in PlexUI sizes. */
+.ColorPicker {
+  display: flex;
+  flex-direction: column;
+  width: var(--color-picker-width);
+  max-width: 100%;
+  color: var(--color-text);
+}
+
+.Modes {
+  /* The kit's picker segmented control is 36px on a phone, against 32 elsewhere (touch.css). */
+  --segmented-control-mobile-size: 36px;
+  margin-bottom: var(--color-picker-modes-gap);
+}
+
+.Body {
+  position: relative;
+  aspect-ratio: var(--color-picker-body-aspect-ratio);
+}
+
+/* ===== Grid ===== */
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--color-picker-body-radius);
+}
+
+.Cell {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &[aria-checked="true"] {
+    box-shadow: inset 0 0 0 var(--color-picker-selection-width) var(--color-picker-selection-color);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    z-index: 1;
+    outline: 2px solid var(--color-ring);
+    outline-offset: 0;
+  }
+}
+
+/* ===== Spectrum ===== */
+
+/* The hue runs from top to bottom; across, white fades to the full hue at the middle, then the hue to black. */
+.Spectrum {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--color-picker-body-radius);
+  background:
+    linear-gradient(to right, #fff, rgb(255 255 255 / 0%) 50%, rgb(0 0 0 / 0%) 50%, #000),
+    linear-gradient(to bottom, #f00, #ff0 16.667%, #0f0 33.333%, #0ff 50%, #00f 66.667%, #f0f 83.333%, #f00);
+  cursor: crosshair;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.Loupe {
+  position: absolute;
+  width: var(--color-picker-loupe-size);
+  height: var(--color-picker-loupe-size);
+  box-sizing: border-box;
+  border: var(--color-picker-knob-border) solid var(--color-picker-selection-color);
+  border-radius: var(--radius-full);
+  box-shadow: var(--color-picker-knob-shadow);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ===== Sliders ===== */
+
+.Sliders {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.Channel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--color-picker-row-gap);
+}
+
+.Hex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--color-picker-field-gap);
+}
+
+/* ===== Opacity ===== */
+
+.Opacity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--color-picker-row-gap);
+  padding-top: var(--color-picker-section-gap);
+  padding-bottom: var(--color-picker-opacity-padding-bottom);
+  border-bottom: 1px solid var(--color-picker-separator-color);
+}
+
+.Label {
+  font-size: var(--color-picker-label-font-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--color-picker-label-line-height);
+}
+
+.Row {
+  display: flex;
+  align-items: center;
+  gap: var(--color-picker-field-gap);
+}
+
+/* The track: the color over a checkerboard, so a clear color shows as clear. */
+.Track {
+  flex: 1;
+  min-width: 0;
+  height: var(--color-picker-track-height);
+  padding: var(--color-picker-track-inset);
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  background:
+    var(--color-picker-track),
+    repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
+}
+
+.SliderRoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.SliderTrack {
+  position: relative;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.Knob {
+  display: block;
+  width: var(--color-picker-knob-size);
+  height: var(--color-picker-knob-size);
+  box-sizing: border-box;
+  border: var(--color-picker-knob-border) solid var(--color-picker-selection-color);
+  border-radius: var(--radius-full);
+  box-shadow: var(--color-picker-knob-shadow);
+  cursor: grab;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.Field {
+  flex-shrink: 0;
+  width: var(--color-picker-field-width);
+  height: var(--color-picker-field-height);
+  margin: 0;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--color-picker-field-radius);
+  background: var(--color-picker-field-background);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--color-picker-field-font-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--color-picker-field-line-height);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  &[data-wide] {
+    width: var(--color-picker-field-wide-width);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 0;
+  }
+}
+
+/* ===== Swatches ===== */
+
+.Swatches {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--color-picker-current-gap);
+  padding-top: var(--color-picker-section-gap);
+}
+
+/* The current color, over a checkerboard when it is not opaque. */
+.Current {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--color-picker-current-size);
+  height: var(--color-picker-current-size);
+  overflow: hidden;
+  border-radius: var(--color-picker-current-radius);
+  background: repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(2 * var(--color-picker-checker-size)) calc(2 * var(--color-picker-checker-size));
+}
+
+.CurrentFill,
+.SwatchFill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.Saved {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--color-picker-swatch-row-gap);
+  min-width: 0;
+}
+
+/* Pages of ten that scroll sideways, a page at a time. */
+.Pages {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.Page {
+  display: grid;
+  flex: 0 0 100%;
+  grid-template-columns: repeat(5, var(--color-picker-swatch-size));
+  grid-auto-rows: var(--color-picker-swatch-size);
+  align-content: start;
+  justify-content: space-between;
+  row-gap: var(--color-picker-swatch-row-gap);
+  height: calc(2 * var(--color-picker-swatch-size) + var(--color-picker-swatch-row-gap));
+  scroll-snap-align: start;
+}
+
+.Swatch,
+.Add {
+  position: relative;
+  width: var(--color-picker-swatch-size);
+  height: var(--color-picker-swatch-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.Swatch {
+  overflow: hidden;
+  background: repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / calc(var(--color-picker-swatch-size) / 3) calc(var(--color-picker-swatch-size) / 3);
+
+  &[aria-checked="true"]::after {
+    position: absolute;
+    inset: var(--color-picker-swatch-ring-inset);
+    border: var(--color-picker-swatch-ring-width) solid var(--color-picker-selection-color);
+    border-radius: inherit;
+    content: "";
+  }
+}
+
+.Add {
+  display: grid;
+  place-items: center;
+  background: var(--color-picker-field-background);
+  color: var(--color-text);
+
+  & > svg {
+    width: var(--color-picker-add-icon-size);
+    height: var(--color-picker-add-icon-size);
+  }
+
+}
+
+.PageControlRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--color-picker-page-control-row-height);
+
+  /* With one page the row is left out on a desktop; a phone keeps it, so the sheet keeps the kit's height. */
+  &:empty {
+    display: var(--color-picker-page-control-empty-display);
+  }
+}
+
+/* ===== Color well ===== */
+
+/* The kit's Picker Button: a 3px rainbow ring (angular, from yellow at the top), and inside it, 2px apart, the
+   chosen color; with no color, the full rainbow with a light wash toward the middle. */
+.Well {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--color-well-size);
+  height: var(--color-well-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &[data-size="sm"] {
+    --color-well-size: var(--color-well-size-sm);
+  }
+
+  &[data-size="lg"] {
+    --color-well-size: var(--color-well-size-lg);
+  }
+
+  /* The rainbow is drawn under the button, so the focus ring is not cut by the ring's mask. */
+  &::before {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      radial-gradient(closest-side, rgb(228 228 228), rgb(228 228 228 / 0%) 88%),
+      var(--color-well-rainbow);
+    content: "";
+  }
+
+  &[data-selected]::before {
+    background: var(--color-well-rainbow);
+    -webkit-mask: radial-gradient(closest-side, transparent calc(100% - var(--color-well-ring-width) - 0.5px), #000 calc(100% - var(--color-well-ring-width) + 0.5px));
+    mask: radial-gradient(closest-side, transparent calc(100% - var(--color-well-ring-width) - 0.5px), #000 calc(100% - var(--color-well-ring-width) + 0.5px));
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+.WellColor {
+  position: absolute;
+  inset: calc(var(--color-well-ring-width) + var(--color-well-ring-gap));
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--color-well-color), var(--color-well-color)),
+    repeating-conic-gradient(#fff 0 25%, #000 0 50%) 0 0 / 50% 50%;
+}
+
+/* ===== Presentation ===== */
+
+.Popover {
+  padding: var(--color-picker-popover-padding);
+}
+
+.PopoverHeader {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: var(--color-picker-popover-header-gap);
+}
+
+.PopoverLeading {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.PopoverTrailing {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.PopoverTitle {
+  font-size: var(--font-text-sm-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-text-sm-line-height);
+}
+
+/* The kit's Sheet - Inspector - iPhone: a glass panel 6px from the sides and the bottom, its corners 34px at the
+   top and 58px at the bottom, concentric with the display. */
+.Sheet {
+  --dialog-panel-width: calc(100% - 12px);
+  --dialog-panel-radius: var(--color-picker-sheet-radius);
+  --dialog-panel-hidden-transform: translateY(calc(100% + 6px));
+  --dialog-panel-background: var(--mobile-glass-background);
+  margin: 0 6px 6px;
+  box-shadow: var(--mobile-glass-shadow);
+  -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+  backdrop-filter: var(--mobile-glass-backdrop-filter);
+}
+
+/* One glass surface: the bar is clear (it is solid, so no scroll edge blurs the segmented control), and the picker
+   starts right under it, as the kit's 70px Toolbar keeps its own 10px bottom padding. The body does not run under
+   the bar, so on a short screen the picker scrolls below it. This outranks the Dialog's
+   `.Content[data-mobile-variant="sheet"] .Panel > .Body`. */
+.Sheet > [data-toolbar] {
+  --dialog-panel-background: transparent;
+}
+
+[data-mobile-variant="sheet"] .Sheet.Sheet > .SheetBody.SheetBody {
+  margin-top: 0;
+  padding-top: 0;
+  padding-inline: var(--mobile-layout-margin, 16px);
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  scroll-padding-top: 0;
+}
+
+.SheetBody > .ColorPicker {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Pages {
+    scroll-behavior: auto;
+  }
+}

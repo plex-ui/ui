@@ -1,0 +1,135 @@
+---
+title: Color Picker
+description: "The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+metaDescription: "Vue 3 color picker in the iOS 26 style: a grid of colors, a spectrum, RGB sliders and hex, opacity, saved colors with Add, v-model:value, and a color well that opens the picker in a popover or a phone sheet."
+---
+
+import { VueDemo } from "@/components/docs/vue/VueDemo"
+
+export const kitSwatches = ['#000000', '#007aff', '#34c759', '#ffcc00', '#ff3b30', '#7ac6f5', '#af52de', '#5856d6', '#ff2d55']
+
+export const overview = `<FieldGroup class="w-full max-w-[400px]">
+  <Field row label="Tint">
+    <ColorWell aria-label="Tint" v-model:value="tint" v-model:swatches="swatches" />
+  </Field>
+  <Field row label="Highlight">
+    <ColorWell aria-label="Highlight" v-model:value="highlight" v-model:swatches="swatches" />
+  </Field>
+</FieldGroup>`
+
+export const overviewCode = `<script setup lang="ts">
+const tint = ref('#af52de')
+const swatches = ref(['#000000', '#007aff', '#34c759'])
+</script>
+
+<template>
+  <FieldGroup>
+    <Field row label="Tint">
+      <ColorWell aria-label="Tint" v-model:value="tint" v-model:swatches="swatches" />
+    </Field>
+  </FieldGroup>
+</template>`
+
+export const sizes = `<div class="flex items-center gap-4">
+  <ColorWell aria-label="Small, no color" />
+  <ColorWell aria-label="Small" default-value="#af52de" />
+  <ColorWell aria-label="Large, no color" size="lg" />
+  <ColorWell aria-label="Large" size="lg" default-value="#af52de" />
+  <ColorWell aria-label="Disabled" default-value="#007aff" disabled />
+</div>`
+
+export const inline = `<div class="flex flex-col items-center gap-3">
+  <ColorPicker v-model:value="color" :default-swatches="swatches" />
+  <span class="text-sm text-secondary tabular-nums" aria-live="polite">{{ color }}</span>
+</div>`
+
+export const inlineCode = `<script setup lang="ts">
+const color = ref('#be38f3')
+</script>
+
+<template>
+  <ColorPicker v-model:value="color" :default-swatches="['#000000', '#007aff', '#34c759']" />
+</template>`
+
+export const opaque = `<ColorPicker default-value="#007aff" default-mode="sliders" :supports-alpha="false" />`
+
+<UsageBlock>{`import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker";`}</UsageBlock>
+
+A color well shows a color and opens the system color picker, where people choose a color from a grid, a spectrum or sliders, set its opacity and save colors they use again, as in iOS 26. Use `ColorWell` for a setting that is a color; use `ColorPicker` on its own to put the picker in a surface of your own.
+
+## Examples
+
+### Color well
+
+<ComponentPreview language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors.</>} code={overviewCode} previewMinHeight={200}>
+  <VueDemo template={overview} state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
+</ComponentPreview>
+
+### Sizes and states
+
+<ComponentPreview language="vue" details={<>The kit's two sizes: <code>sm</code> 28px and <code>lg</code> 36px.</>} code={sizes} previewMinHeight={140}>
+  <VueDemo template={sizes} />
+</ComponentPreview>
+
+### Picker
+
+<ComponentPreview language="vue" details={<>The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of ten that scroll sideways.</>} code={inlineCode} previewMinHeight={640}>
+  <VueDemo template={inline} state={{ color: '#be38f3', swatches: kitSwatches }} />
+</ComponentPreview>
+
+### Without opacity
+
+<ComponentPreview language="vue" details={<>With <code>:supports-alpha="false"</code> there is no Opacity slider, and every color is opaque.</>} code={opaque} previewMinHeight={520}>
+  <VueDemo template={opaque} />
+</ComponentPreview>
+
+## API
+
+### ColorWell
+
+<PropsTable data={[
+  { prop: "value", type: "string | null", description: "The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color" },
+  { prop: "default-value", type: "string | null", default: "null", description: "The color when it is initially rendered" },
+  { prop: "size", type: "\"sm\" | \"lg\"", default: "\"sm\"", description: "28px or 36px" },
+  { prop: "title", type: "string", default: "\"Colors\"", description: "The title of the picker" },
+  { prop: "supports-eyedropper", type: "boolean", default: "true", description: "Shows the eyedropper where the browser has the EyeDropper API" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Prevents opening the picker" },
+  { prop: "name", type: "string", description: "Submits the color with the owning form" },
+  { prop: "aria-label", type: "string", default: "\"Color\"", description: "Accessible name of the well" },
+  { prop: "aria-labelledby", type: "string", description: "The `id` of the visible label of the well" },
+]} />
+
+The well also takes the picker props `supports-alpha`, `mode`, `default-mode`, `swatches` and `default-swatches`.
+
+**Events**: `update:value` and `change` with the color the picker chose; `update:mode` and `modeChange`, `update:swatches` and `swatchesChange` from the picker.
+
+### ColorPicker
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value" },
+  { prop: "default-value", type: "string", default: "\"#000000\"", description: "The color when it is initially rendered" },
+  { prop: "supports-alpha", type: "boolean", default: "true", description: "Shows the Opacity slider" },
+  { prop: "mode", type: "\"grid\" | \"spectrum\" | \"sliders\"", description: "The controlled way to choose a color; bind with v-model:mode" },
+  { prop: "default-mode", type: "\"grid\" | \"spectrum\" | \"sliders\"", default: "\"grid\"", description: "The way to choose a color when it is initially rendered" },
+  { prop: "swatches", type: "string[]", description: "The controlled saved colors; bind with v-model:swatches" },
+  { prop: "default-swatches", type: "string[]", default: "[]", description: "The saved colors when it is initially rendered" },
+  { prop: "aria-label", type: "string", default: "\"Colors\"", description: "Accessible name of the picker" },
+]} />
+
+**Events**: `update:value` and `change` with the next color, `#rrggbb`, or `#rrggbbaa` when it is not opaque; `update:mode` and `modeChange` when another way is chosen; `update:swatches` and `swatchesChange` after Add saves the current color or Delete removes one.
+
+The well is a button, described by its color. In the picker, Grid and the saved colors are radio groups: the arrow keys move and choose, Home and End go to the ends of a row in Grid and to the first and last saved color. Spectrum is a slider: Up and Down change the hue, Left and Right the lightness, by 1%, or 10% with Shift or Page Up and Page Down. The Opacity and channel sliders are sliders, and their fields take a typed value on Enter or when they lose focus.
+
+## Styling
+
+ColorPicker and ColorWell read these component tokens. Override them at any scope to restyle them:
+
+- `--color-picker-width`: the picker's column (default `264px`, the full width of the sheet on a phone)
+- `--color-picker-body-radius`: the corner of the grid and the spectrum (default `var(--radius-xl)`, `18px` on a phone)
+- `--color-picker-selection-color`: the ring of the selected cell, swatch, knob and loupe (default `#fff`)
+- `--color-picker-track-height` and `--color-picker-knob-size`: the sliders (default `28px` and `24px`, `40px` and `36px` on a phone)
+- `--color-picker-field-background`: the fields and Add (default `var(--color-background-secondary-soft-alpha)`, `var(--alpha-12)` on a phone)
+- `--color-picker-separator-color`: the line over the saved colors (default `var(--color-border)`, `var(--alpha-25)` on a phone)
+- `--color-picker-swatch-size`: a saved color (default `24px`, `30px` on a phone)
+- `--color-well-size-sm` and `--color-well-size-lg`: the well (default `28px` and `36px`)
+- `--color-well-rainbow`: the ring of the well (the kit's angular gradient)

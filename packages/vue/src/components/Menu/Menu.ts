@@ -230,12 +230,25 @@ export const Menu = defineComponent({
       }
     }
     provide(MenuContextKey, { open: isOpen, setOpen: handleOpenChange, prepareFocusRestore })
+    // Radix's Menu root: an open menu closes when the window loses focus, to another app or another frame of the page.
+    let stopBlur: (() => void) | undefined
+    const closeOnBlur = (nextOpen: boolean) => {
+      stopBlur?.()
+      stopBlur = undefined
+      if (!nextOpen) return
+      const handleBlur = () => setOpen(false)
+      window.addEventListener("blur", handleBlur)
+      stopBlur = () => window.removeEventListener("blur", handleBlur)
+    }
+    watch(isOpen, closeOnBlur, { flush: "post" })
     let stopTracking: (() => void) | undefined
     onMounted(() => {
       stopTracking = trackKeyboardUse(isUsingKeyboard)
+      closeOnBlur(isOpen.value)
     })
     onBeforeUnmount(() => {
       stopTracking?.()
+      stopBlur?.()
       clearPointerFocus?.()
     })
 

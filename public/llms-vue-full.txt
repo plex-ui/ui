@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 57
+Components: 58
 
 ## Setup
 
@@ -1720,6 +1720,77 @@ Use CollapsibleCodeBlock to display code in a compact view with gradient overlay
 A pragmatic set of Prism grammars are pre-registered out of the box.
 ```vue
 <CodeBlock language="javascript">{{ code }}</CodeBlock>
+```
+
+## Color Picker
+"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+Import: import { ColorPicker, ColorWell } from "@plexui/vue/components/ColorPicker"
+Docs: https://plexui.com/vue/components/color-picker
+Props:
+  - value (string) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value
+  - default-value (string) default: "#000000" — The color when it is initially rendered
+  - supports-alpha (boolean) default: true — Shows the Opacity slider
+  - mode ("grid" | "spectrum" | "sliders") — The controlled way to choose a color; bind with v-model:mode
+  - default-mode ("grid" | "spectrum" | "sliders") default: "grid" — The way to choose a color when it is initially rendered
+  - swatches (string[]) — The controlled saved colors; bind with v-model:swatches
+  - default-swatches (string[]) default: [] — The saved colors when it is initially rendered
+  - aria-label (string) default: "Colors" — Accessible name of the picker
+  ColorWell:
+    - value (string | null) — The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color
+    - default-value (string | null) default: null — The color when it is initially rendered
+    - size ("sm" | "lg") default: "sm" — 28px or 36px
+    - title (string) default: "Colors" — The title of the picker
+    - supports-eyedropper (boolean) default: true — Shows the eyedropper where the browser has the EyeDropper API
+    - disabled (boolean) default: false — Prevents opening the picker
+    - name (string) — Submits the color with the owning form
+    - aria-label (string) default: "Color" — Accessible name of the well
+    - aria-labelledby (string) — The `id` of the visible label of the well
+
+### Color well
+The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors.
+```vue
+<script setup lang="ts">
+const tint = ref('#af52de')
+const swatches = ref(['#000000', '#007aff', '#34c759'])
+</script>
+
+<template>
+  <FieldGroup>
+    <Field row label="Tint">
+      <ColorWell aria-label="Tint" v-model:value="tint" v-model:swatches="swatches" />
+    </Field>
+  </FieldGroup>
+</template>
+```
+
+### Sizes and states
+The kit's two sizes: sm 28px and lg 36px.
+```vue
+<div class="flex items-center gap-4">
+  <ColorWell aria-label="Small, no color" />
+  <ColorWell aria-label="Small" default-value="#af52de" />
+  <ColorWell aria-label="Large, no color" size="lg" />
+  <ColorWell aria-label="Large" size="lg" default-value="#af52de" />
+  <ColorWell aria-label="Disabled" default-value="#007aff" disabled />
+</div>
+```
+
+### Picker
+The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of ten that scroll sideways.
+```vue
+<script setup lang="ts">
+const color = ref('#be38f3')
+</script>
+
+<template>
+  <ColorPicker v-model:value="color" :default-swatches="['#000000', '#007aff', '#34c759']" />
+</template>
+```
+
+### Without opacity
+With :supports-alpha="false" there is no Opacity slider, and every color is opaque.
+```vue
+<ColorPicker default-value="#007aff" default-mode="sliders" :supports-alpha="false" />
 ```
 
 ## Context Menu

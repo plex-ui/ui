@@ -166,8 +166,13 @@ describe.each([
     expect(hole).toContain("M0 0H1024V768H0ZM42 100H360A26 26 0 0 1 386 126V126A26 26 0 0 1 360 152H42A26 26 0 0 1 16 126V126A26 26 0 0 1 42 100Z")
     expect(dimming?.firstElementChild?.getAttribute("style")).toBe("left: 16px; top: 100px; width: 370px; height: 52px; border-radius: 26px;")
     await touch("pointerUp", 900, 120)
+    // The compatibility mousedown after the hold must not move focus to the element: the menu would close.
+    let mousedownNotPrevented = true
+    await act(async () => { mousedownNotPrevented = fireEvent.mouseDown(region(), { button: 0 }) })
+    expect(mousedownNotPrevented).toBe(false)
     await act(async () => { fireEvent.click(region()) })
     expect(spies.clicks).toBe(0)
+    expect(menu()).not.toBeNull()
     // The next tap is a tap again.
     await settle(700)
     await act(async () => { fireEvent.click(region()) })
@@ -259,5 +264,8 @@ describe("ContextMenu tokens follow the iOS 26 kit Context Menu (507:25994)", ()
     ]) expect(tokens).toContain(line)
     const css = read("packages/styles/src/components/ContextMenu/ContextMenu.module.css")
     for (const line of ["mask-image: var(--context-menu-hole);", "touch-action: none;", "-webkit-touch-callout: none;"]) expect(css).toContain(line)
+    // The dimming shares the overlay layer, after a Dialog it opens from, and takes the press over its content too.
+    const overlay = css.slice(css.indexOf(".Overlay {"), css.indexOf("}", css.indexOf(".Overlay {")))
+    for (const line of ["z-index: 50;", "pointer-events: auto;"]) expect(overlay).toContain(line)
   })
 })

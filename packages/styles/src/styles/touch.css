@@ -196,6 +196,41 @@
     --stepper-segment-background-active: var(--stepper-mobile-segment-background-active);
     --stepper-separator-color: var(--stepper-mobile-separator-color);
     --stepper-icon-disabled-color: var(--mobile-label-tertiary);
+    /* Color picker: the iOS 26 kit Color Picker - iPhone (0:5275), 358px wide in its sheet. The segmented control
+       is the kit's 36px one, grid cells 30, the Opacity track 40 with a 36px knob (3px white ring), the field 75 x 40,
+       the current color 82 and saved colors 30, 24 apart, in rows 22 apart; the checkerboard is 13.6px. */
+    --color-picker-width: 100%;
+    --color-picker-modes-gap: 24px;
+    --color-picker-body-radius: 18px;
+    --color-picker-section-gap: 26px;
+    --color-picker-row-gap: 3px;
+    /* The Opacity block: 22 under the row and 3 more, the 1px separator inside them (kit 515:47431, 114 tall). */
+    --color-picker-opacity-padding-bottom: 24px;
+    --color-picker-label-font-size: 15px;
+    --color-picker-label-line-height: 20px;
+    --color-picker-selection-width: 3px;
+    --color-picker-track-height: 40px;
+    --color-picker-checker-size: 13.6px;
+    --color-picker-knob-size: 36px;
+    --color-picker-knob-border: 3px;
+    --color-picker-loupe-size: 30px;
+    --color-picker-field-gap: 11px;
+    --color-picker-field-width: 75px;
+    --color-picker-field-wide-width: 110px;
+    --color-picker-field-height: 40px;
+    --color-picker-field-font-size: 17px;
+    --color-picker-field-line-height: 22px;
+    --color-picker-field-background: var(--color-picker-mobile-field-background);
+    --color-picker-separator-color: var(--color-picker-mobile-separator-color);
+    --color-picker-current-size: 82px;
+    --color-picker-current-radius: 18px;
+    --color-picker-current-gap: 30px;
+    --color-picker-swatch-size: 30px;
+    --color-picker-swatch-row-gap: 22px;
+    --color-picker-swatch-ring-inset: 3px;
+    --color-picker-add-icon-size: 20px;
+    --color-picker-page-control-row-height: 10px;
+    --color-picker-page-control-empty-display: flex;
     /* Page control: the kit component is 44pt tall around its 24px capsule. */
     --page-control-target-size: 44px;
 
@@ -354,7 +389,8 @@
   /* Horizontal segmented controls use the native 32px track; underline and
      vertical tabs retain their own layout. */
   html [data-variant="segmented"][data-orientation="horizontal"] {
-    --segmented-control-size: 32px;
+    /* A component can ask for another kit height, such as the Color Picker's 36px segmented control. */
+    --segmented-control-size: var(--segmented-control-mobile-size, 32px);
     --segmented-control-gutter: 2px;
     --segmented-control-gap: 4px;
     --segmented-control-radius: 100px;

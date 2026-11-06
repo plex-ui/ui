@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "color-picker",
+  "type": "registry:ui",
+  "title": "Color Picker",
+  "description": "\"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/color-picker/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/ColorPicker\"\n"
+    }
+  ],
+  "docs": "Import as `import { ColorPicker, ColorWell } from '@/components/ui/color-picker'`. See https://plexui.com/vue/components/color-picker for props and examples."
+}

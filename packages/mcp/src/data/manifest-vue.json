@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 57,
+  "componentCount": 58,
   "components": [
     {
       "slug": "accordion",
@@ -1383,6 +1383,144 @@
         }
       ],
       "docsUrl": "https://plexui.com/vue/components/code-block"
+    },
+    {
+      "slug": "color-picker",
+      "name": "Color Picker",
+      "description": "\"The iOS 26 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet.\"",
+      "importPath": "@plexui/vue/components/ColorPicker",
+      "exports": [
+        "ColorPicker",
+        "ColorWell"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "default": "\"#000000\"",
+          "description": "The color when it is initially rendered"
+        },
+        {
+          "name": "supports-alpha",
+          "type": "boolean",
+          "default": "true",
+          "description": "Shows the Opacity slider"
+        },
+        {
+          "name": "mode",
+          "type": "\"grid\" | \"spectrum\" | \"sliders\"",
+          "description": "The controlled way to choose a color; bind with v-model:mode"
+        },
+        {
+          "name": "default-mode",
+          "type": "\"grid\" | \"spectrum\" | \"sliders\"",
+          "default": "\"grid\"",
+          "description": "The way to choose a color when it is initially rendered"
+        },
+        {
+          "name": "swatches",
+          "type": "string[]",
+          "description": "The controlled saved colors; bind with v-model:swatches"
+        },
+        {
+          "name": "default-swatches",
+          "type": "string[]",
+          "default": "[]",
+          "description": "The saved colors when it is initially rendered"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Colors\"",
+          "description": "Accessible name of the picker"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Color well",
+          "code": "<script setup lang=\"ts\">\nconst tint = ref('#af52de')\nconst swatches = ref(['#000000', '#007aff', '#34c759'])\n</script>\n\n<template>\n  <FieldGroup>\n    <Field row label=\"Tint\">\n      <ColorWell aria-label=\"Tint\" v-model:value=\"tint\" v-model:swatches=\"swatches\" />\n    </Field>\n  </FieldGroup>\n</template>",
+          "details": "The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors."
+        },
+        {
+          "name": "Sizes and states",
+          "code": "<div class=\"flex items-center gap-4\">\n  <ColorWell aria-label=\"Small, no color\" />\n  <ColorWell aria-label=\"Small\" default-value=\"#af52de\" />\n  <ColorWell aria-label=\"Large, no color\" size=\"lg\" />\n  <ColorWell aria-label=\"Large\" size=\"lg\" default-value=\"#af52de\" />\n  <ColorWell aria-label=\"Disabled\" default-value=\"#007aff\" disabled />\n</div>",
+          "details": "The kit's two sizes: sm 28px and lg 36px."
+        },
+        {
+          "name": "Picker",
+          "code": "<script setup lang=\"ts\">\nconst color = ref('#be38f3')\n</script>\n\n<template>\n  <ColorPicker v-model:value=\"color\" :default-swatches=\"['#000000', '#007aff', '#34c759']\" />\n</template>",
+          "details": "The picker on its own. Grid shows the kit's 120 colors; Spectrum runs the hues from top to bottom, from white through the full hue to black across; Sliders sets red, green and blue, or a hex color. Add saves the current color; Delete or Backspace, or Delete in a saved color's context menu, removes one. Saved colors fill pages of ten that scroll sideways."
+        },
+        {
+          "name": "Without opacity",
+          "code": "<ColorPicker default-value=\"#007aff\" default-mode=\"sliders\" :supports-alpha=\"false\" />",
+          "details": "With :supports-alpha=\"false\" there is no Opacity slider, and every color is opaque."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "ColorWell",
+          "props": [
+            {
+              "name": "value",
+              "type": "string | null",
+              "description": "The controlled color, `#rrggbb` or `#rrggbbaa`; bind with v-model:value. `null` shows the well with no color"
+            },
+            {
+              "name": "default-value",
+              "type": "string | null",
+              "default": "null",
+              "description": "The color when it is initially rendered"
+            },
+            {
+              "name": "size",
+              "type": "\"sm\" | \"lg\"",
+              "default": "\"sm\"",
+              "description": "28px or 36px"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "default": "\"Colors\"",
+              "description": "The title of the picker"
+            },
+            {
+              "name": "supports-eyedropper",
+              "type": "boolean",
+              "default": "true",
+              "description": "Shows the eyedropper where the browser has the EyeDropper API"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "Prevents opening the picker"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": "Submits the color with the owning form"
+            },
+            {
+              "name": "aria-label",
+              "type": "string",
+              "default": "\"Color\"",
+              "description": "Accessible name of the well"
+            },
+            {
+              "name": "aria-labelledby",
+              "type": "string",
+              "description": "The `id` of the visible label of the well"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/vue/components/color-picker"
     },
     {
       "slug": "context-menu",
@@ -7555,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T15:01:40.636Z"
+  "generatedAt": "2026-11-06T16:33:12.458Z"
 }

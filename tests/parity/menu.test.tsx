@@ -826,6 +826,19 @@ describe("Menu behaviour parity", () => {
     expect(result.react[0]!.active).not.toBe('button "Options"')
   })
 
+  test("the window losing focus closes the menu, as Radix's Menu root does", async () => {
+    const result = await walk({}, async (snap) => {
+      await pointerDown(trigger())
+      await settle(5)
+      await interact(() => { window.dispatchEvent(new FocusEvent("blur")) })
+      await settle()
+      snap()
+    })
+    expectSame(result)
+    expect(result.react[0]!.log).toEqual(["open", "close", "closeAutoFocus"])
+    expect(result.react[0]!.dom).not.toContain('role="menu"')
+  })
+
   test("focus moving outside closes a non-modal menu, not a modal one", async () => {
     for (const modal of [false, true]) {
       const result = await walk({ modal }, async (snap) => {
