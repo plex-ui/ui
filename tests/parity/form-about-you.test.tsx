@@ -129,5 +129,7 @@ describe.each(["React", "Vue"])("%s mobile About you", (framework) => {
       const selected = await page.findByRole("button", { name: /^Country Spain/ })
       expect(selected.getAttribute("aria-invalid")).not.toBe("true")
     }
-  })
+    // Each role query computes names across the whole page with its country list: about 1.5 s here
+    // and up to 5.4 s on the release runner, past the default 5 s.
+  }, 30_000)
 })
