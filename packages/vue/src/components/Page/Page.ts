@@ -33,6 +33,8 @@ type PageContext = {
   headerHeight: Ref<number | undefined>
   /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
   setScrollY: (scrollY: number) => void
+  /** Tells the bars that follow the scroll, such as a minimizing TabBar, the content's scroll offset. */
+  notifyScroll: (scrollY: number) => void
 }
 const PAGE_CONTEXT: InjectionKey<PageContext> = Symbol("Page")
 
@@ -67,7 +69,13 @@ const PageComponent = defineComponent({
     }
     // Written straight to the element: a scroll frame must not render the page again.
     const setScrollY = (scrollY: number) => root?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY)))
-    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY }
+    const scrollListeners = new Set<(scrollTop: number) => void>()
+    const notifyScroll = (scrollY: number) => scrollListeners.forEach((listener) => listener(scrollY))
+    const subscribeScroll = (listener: (scrollTop: number) => void) => {
+      scrollListeners.add(listener)
+      return () => { scrollListeners.delete(listener) }
+    }
+    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY, notifyScroll }
     provide(PAGE_CONTEXT, context)
     // A phone Toolbar replaces the header and footer bars; it reports its own heights.
     const toolbarTop = ref<number>()
@@ -75,6 +83,7 @@ const PageComponent = defineComponent({
     provide(TOOLBAR_HOST, {
       kind: "page",
       scrolled: context.scrolled,
+      subscribeScroll,
       setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
     })
     return () => h("div", { "ref": setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
@@ -184,12 +193,13 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const { scrolled, setScrollY } = injectPageContext("PageContent")
+    const { scrolled, setScrollY, notifyScroll } = injectPageContext("PageContent")
 
     const onScroll = (event: Event) => {
       const top = (event.currentTarget as HTMLElement).scrollTop
       scrolled.value = top > SCROLLED_AFTER
       setScrollY(top)
+      notifyScroll(top)
     }
 
     return () =>

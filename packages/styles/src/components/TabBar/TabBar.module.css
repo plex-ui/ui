@@ -1,0 +1,208 @@
+/* The tab bar of a phone screen, after the iOS 26 kit Tab Bar - iPhone (507:24689). A desktop layout navigates
+   with a Sidebar or Tabs, so the bar never renders there. */
+.TabBar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  /* 402 x 95: the capsule 62 tall, 21px from the sides and the bottom, 12px below the top of the bar. */
+  .TabBar {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex: none;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--tab-bar-gap);
+    min-width: 0;
+    padding: var(--tab-bar-padding-top) var(--tab-bar-gutter) var(--tab-bar-padding-bottom);
+    color: var(--color-text);
+
+    /* The soft scroll edge of a bottom Toolbar: the canvas fades out over content under the bar. */
+    &::before {
+      position: absolute;
+      z-index: -1;
+      inset: -16px 0 0;
+      background: var(--tab-bar-edge-background, var(--page-background));
+      -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      content: "";
+      -webkit-mask-image: linear-gradient(to top, #000, transparent);
+      mask-image: linear-gradient(to top, #000, transparent);
+      pointer-events: none;
+    }
+
+    /* With a search tab, or minimized, the capsule keeps to the leading edge and search to the trailing one. */
+    &[data-search],
+    &[data-minimized] {
+      justify-content: space-between;
+    }
+
+    &[data-minimized] {
+      padding-top: var(--tab-bar-minimized-padding-top);
+    }
+  }
+
+  /* The glass capsule (Liquid Glass Regular, the shared mobile glass with its raised shadow). Tabs are 94px
+     apart at most and share the width when there are more: four or five fill 360px, three take 302. The search
+     circle names both classes to outrank the reset of `.Item`. */
+  .Tabs,
+  .Item.Search {
+    border-radius: var(--radius-full);
+    background-color: var(--mobile-glass-background);
+    background-image: var(--mobile-glass-sheen);
+    box-shadow: var(--mobile-glass-shadow-raised);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  .Tabs {
+    display: flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: var(--tab-bar-capsule-padding-block) var(--tab-bar-capsule-padding-inline);
+  }
+
+  .Item {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    /* A width rather than a basis: the capsule sizes itself from it, then the tabs shrink together. */
+    flex: 0 1 auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    width: var(--tab-bar-item-width);
+    min-width: 0;
+    height: var(--tab-bar-item-height);
+    margin: 0;
+    padding: 6px 0 7px;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: none;
+    color: var(--tab-bar-item-color);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    /* The selection pill reaches 6px past the tab and 4px from the capsule, as the kit's Selection does. */
+    &::before {
+      position: absolute;
+      z-index: -1;
+      inset: 0 calc(-1 * var(--tab-bar-pill-outset));
+      border-radius: var(--radius-full);
+      background: transparent;
+      content: "";
+    }
+
+    &[data-selected] {
+      color: var(--tab-bar-item-color-selected);
+
+      &::before {
+        background: var(--tab-bar-item-background-selected);
+      }
+    }
+
+    &[data-disabled] {
+      color: var(--color-text-disabled);
+      cursor: default;
+    }
+
+    @mixin hover {
+      &:not([data-selected], [data-disabled]) {
+        color: var(--tab-bar-item-color-selected);
+      }
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-ring);
+      outline-offset: -2px;
+    }
+  }
+
+  .Icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    height: var(--tab-bar-icon-box);
+
+    & > svg {
+      width: var(--tab-bar-icon-size);
+      height: var(--tab-bar-icon-size);
+    }
+  }
+
+  .Label {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: var(--tab-bar-label-font-size);
+    font-weight: var(--tab-bar-label-font-weight);
+    line-height: var(--tab-bar-label-line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The separate search tab: a 62px glass circle, its pill 54. */
+  .Item.Search {
+    flex: none;
+    justify-content: center;
+    width: var(--tab-bar-search-size);
+    height: var(--tab-bar-search-size);
+    padding: 0;
+
+    &::before {
+      inset: var(--tab-bar-capsule-padding-block);
+    }
+  }
+
+  /* Minimized: the capsule is a 48px circle with the selected tab's symbol in the primary label, and search a
+     48px circle too; the other tabs hide. Both circles keep their bottom edge. */
+  .TabBar[data-minimized] {
+    & .Tabs {
+      flex: none;
+      padding: var(--tab-bar-capsule-padding-block);
+    }
+
+    & .Tabs > .Item {
+      display: none;
+    }
+
+    & .Tabs > .Item[data-selected],
+    & .Tabs:not(:has(> .Item[data-selected])) > .Item:first-child {
+      display: flex;
+      flex: none;
+      justify-content: center;
+      width: calc(var(--tab-bar-minimized-size) - 2 * var(--tab-bar-capsule-padding-block));
+      height: calc(var(--tab-bar-minimized-size) - 2 * var(--tab-bar-capsule-padding-block));
+      padding: 0;
+      color: var(--tab-bar-item-color-minimized);
+
+      &::before {
+        background: transparent;
+      }
+    }
+
+    /* The label still names the tab for assistive technology. */
+    & .Tabs .Label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    & .Item.Search {
+      width: var(--tab-bar-minimized-size);
+      height: var(--tab-bar-minimized-size);
+    }
+  }
+}

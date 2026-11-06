@@ -36,7 +36,7 @@
     "outline",
     "ghost"
   ],
-  "componentCount": 55,
+  "componentCount": 56,
   "components": [
     {
       "slug": "accordion",
@@ -6214,6 +6214,131 @@
       "docsUrl": "https://plexui.com/components/switch"
     },
     {
+      "slug": "tab-bar",
+      "name": "Tab Bar",
+      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+      "importPath": "@plexui/ui/components/TabBar",
+      "exports": [
+        "TabBar"
+      ],
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "Controlled value of the selected tab"
+        },
+        {
+          "name": "defaultValue",
+          "type": "string",
+          "description": "Selected tab (uncontrolled)"
+        },
+        {
+          "name": "onValueChange",
+          "type": "(value: string) => void",
+          "description": "Called with the value of the tab a person selects"
+        },
+        {
+          "name": "search",
+          "type": "{ value: string; label?: string }",
+          "description": "A search tab in a glass circle of its own at the trailing end; label defaults to Search"
+        },
+        {
+          "name": "minimizeBehavior",
+          "type": "\"never\" | \"onScrollDown\"",
+          "default": "\"never\"",
+          "description": "Minimize to the selected tab while the Page content scrolls down"
+        },
+        {
+          "name": "minimized",
+          "type": "boolean",
+          "description": "Controlled minimized state"
+        },
+        {
+          "name": "defaultMinimized",
+          "type": "boolean",
+          "default": "false",
+          "description": "Minimized state (uncontrolled)"
+        },
+        {
+          "name": "onMinimizedChange",
+          "type": "(minimized: boolean) => void",
+          "description": "Called when the bar minimizes or expands"
+        },
+        {
+          "name": "aria-label",
+          "type": "string",
+          "default": "\"Tabs\"",
+          "description": "Name of the navigation"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "description": "CSS classes applied to the bar"
+        }
+      ],
+      "examples": [
+        {
+          "name": "Overview",
+          "code": "const [tab, setTab] = useState('home')\n\n<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Home</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab}>\n  <TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n  <TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n  <TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n  <TabBar.Item value=\"settings\" label=\"Settings\" icon={<SettingsCog />} />\n</TabBar>\n</Page>",
+          "details": "Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are."
+        },
+        {
+          "name": "Search tab",
+          "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }}>\n<TabBar.Item value=\"home\" label=\"Home\" icon={<Home />} />\n<TabBar.Item value=\"calendar\" label=\"Calendar\" icon={<Calendar />} />\n<TabBar.Item value=\"photos\" label=\"Photos\" icon={<Images />} />\n</TabBar>",
+          "details": "With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected."
+        },
+        {
+          "name": "Minimize on scroll",
+          "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior=\"onScrollDown\">\n...\n</TabBar>",
+          "details": "With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back."
+        }
+      ],
+      "subComponents": [
+        {
+          "name": "TabBar.Item",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Value of the tab"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "description": "Label under the symbol and the name of the tab"
+            },
+            {
+              "name": "icon",
+              "type": "ReactNode",
+              "description": "The symbol, a PlexUI icon"
+            },
+            {
+              "name": "href",
+              "type": "string",
+              "description": "Makes the tab a link"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "default": "false",
+              "description": "The tab cannot be selected"
+            },
+            {
+              "name": "onClick",
+              "type": "(event: MouseEvent) => void",
+              "description": "Called when the tab is pressed, before it is selected"
+            },
+            {
+              "name": "className",
+              "type": "string",
+              "description": "CSS classes applied to the tab"
+            }
+          ]
+        }
+      ],
+      "docsUrl": "https://plexui.com/components/tab-bar"
+    },
+    {
       "slug": "table",
       "name": "Table",
       "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",
@@ -7343,5 +7468,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T13:53:23.313Z"
+  "generatedAt": "2026-11-06T14:19:41.407Z"
 }

@@ -254,6 +254,16 @@ Sub: `RadioGroup.Item` -- props: `value`, `disabled`, `orientation`, `block`, `c
 
 Props: `count` (required), `value` / `defaultValue` (page index from 0), `onChange(index, { scrubbing })`, `background` (`"automatic"` | `"prominent"` | `"minimal"`), `valueText`, `aria-label` (default "Pages") / `aria-labelledby`, `aria-controls`. Dots for a carousel or onboarding; scroll without animation while `scrubbing`.
 
+### TabBar
+
+**Import:** `@plexui/ui/components/TabBar` -- also exports the types `TabBarItemProps`, `TabBarSearch`
+
+Props: `value` / `defaultValue`, `onValueChange`, `search` (`{ value, label? }`, a search tab in a circle of its own), `minimizeBehavior` (`"never"` | `"onScrollDown"`), `minimized` / `defaultMinimized`, `onMinimizedChange`, `aria-label` (default "Tabs")
+
+Sub: `TabBar.Item` -- props: `value`, `label`, `icon` (a PlexUI icon), `href`, `disabled`, `onClick`
+
+Phone only (under 768px): put it last in a `Page`, which reserves its height. Two to five top-level sections; desktop layouts use Sidebar or Tabs. Tabs are buttons (links with `href`) with `aria-current="page"`, not a tablist.
+
 ### Popover
 
 **Import:** `@plexui/ui/components/Popover` -- exports `Popover`, `usePopoverController`

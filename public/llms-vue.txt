@@ -7,7 +7,7 @@ Every example's code: https://plexui.com/llms-vue-full.txt
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 55
+Components: 56
 
 ## Setup
 
@@ -1022,6 +1022,25 @@ Props:
   - @focus ((event: FocusEvent) => void) — Emitted when the switch gains focus
   - @blur ((event: FocusEvent) => void) — Emitted when the switch loses focus
 Examples: Overview, Label and description, Controlled state, Grouped settings
+
+## Tab Bar
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+Import: import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar"
+Docs: https://plexui.com/vue/components/tab-bar
+Props:
+  - value (string) — Controlled value of the selected tab; bind with v-model:value
+  - default-value (string) — Selected tab (uncontrolled)
+  - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
+  - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
+  - default-minimized (boolean) default: false — Minimized state (uncontrolled)
+  - aria-label (string) default: "Tabs" — Name of the navigation
+  TabBarItem:
+    - value (string) — Value of the tab
+    - label (string) — Label under the symbol and the name of the tab
+    - href (string) — Makes the tab a link
+    - disabled (boolean) default: false — The tab cannot be selected
+Examples: Overview, Search tab, Minimize on scroll
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

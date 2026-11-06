@@ -29,6 +29,8 @@ export type ToolbarHost = {
   setHeight?: (placement: ToolbarPlacement, height: number | undefined) => void
   /** Content has scrolled under the top bar, so its glass casts a shadow. */
   scrolled?: boolean
+  /** Calls the listener with the content's scroll offset on every scroll; returns the unsubscribe. A TabBar minimizes with it. */
+  subscribeScroll?: (listener: (scrollTop: number) => void) => () => void
 }
 
 export const ToolbarHostContext = createContext<ToolbarHost | null>(null)

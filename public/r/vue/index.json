@@ -383,6 +383,14 @@
       ]
     },
     {
+      "name": "tab-bar",
+      "type": "registry:ui",
+      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+      "dependencies": [
+        "@plexui/vue"
+      ]
+    },
+    {
       "name": "table",
       "type": "registry:ui",
       "description": "Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.",

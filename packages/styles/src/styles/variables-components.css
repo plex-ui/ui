@@ -591,6 +591,38 @@
     --stepper-mobile-separator-color: var(--alpha-25);
 
     /* =============================================
+      Tab bar (phone)
+    ============================================= */
+    /* The iOS 26 kit Tab Bar - iPhone (507:24689), 402 x 95: a 62px glass capsule 21px from the sides and the
+       bottom; tabs of a symbol (18pt in a 28pt line) over a 10/12 semibold label, 6px above and 7px below,
+       94px apart at most, the selected one on a 54px pill 6px wider than the tab; a separate 62px search
+       circle 8px away; minimized, two 48px circles. The selection pill (237 burnt into the light glass, 18
+       dodged into the dark one: about 8% either way) is alpha-08. The kit tints the selected tab systemBlue;
+       PlexUI colors navigation as its Sidebar does: the selected tab in the primary text, the others
+       --gray-750 (dark --gray-850). Minimized, the symbol is the primary label, as in the kit. */
+    --tab-bar-gutter: 21px;
+    --tab-bar-gap: 8px;
+    --tab-bar-padding-top: 12px;
+    --tab-bar-padding-bottom: max(21px, calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) - 13px));
+    --tab-bar-minimized-padding-top: 26px;
+    --tab-bar-capsule-padding-block: 4px;
+    --tab-bar-capsule-padding-inline: 10px;
+    --tab-bar-item-width: 94px;
+    --tab-bar-item-height: 54px;
+    --tab-bar-pill-outset: 6px;
+    --tab-bar-icon-box: 28px;
+    --tab-bar-icon-size: 24px;
+    --tab-bar-label-font-size: 10px;
+    --tab-bar-label-line-height: 12px;
+    --tab-bar-label-font-weight: var(--font-weight-semibold);
+    --tab-bar-search-size: 62px;
+    --tab-bar-minimized-size: 48px;
+    --tab-bar-item-color: light-dark(var(--gray-750), var(--gray-850));
+    --tab-bar-item-color-selected: var(--color-text);
+    --tab-bar-item-color-minimized: var(--color-text);
+    --tab-bar-item-background-selected: var(--alpha-08);
+
+    /* =============================================
       Tabs — Underline variant
     ============================================= */
     --tabs-underline-indicator-height: 2px;

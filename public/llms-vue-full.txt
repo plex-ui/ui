@@ -5,7 +5,7 @@ Vue 3 components with the same names, props, defaults and markup as the React li
 
 Install: npm install @plexui/vue @plexui/styles
 Docs: https://plexui.com
-Components: 55
+Components: 56
 
 ## Setup
 
@@ -9311,6 +9311,73 @@ Group related settings with FieldGroup. Use a row description to explain a locke
   <Field row label="Security alerts" description="Required for your account."><Switch color="accent" default-checked disabled /></Field>
   <template #footer>You can change your data sharing preference at any time.</template>
 </FieldGroup></div>
+```
+
+## Tab Bar
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+Import: import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar"
+Docs: https://plexui.com/vue/components/tab-bar
+Props:
+  - value (string) — Controlled value of the selected tab; bind with v-model:value
+  - default-value (string) — Selected tab (uncontrolled)
+  - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
+  - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
+  - default-minimized (boolean) default: false — Minimized state (uncontrolled)
+  - aria-label (string) default: "Tabs" — Name of the navigation
+  TabBarItem:
+    - value (string) — Value of the tab
+    - label (string) — Label under the symbol and the name of the tab
+    - href (string) — Makes the tab a link
+    - disabled (boolean) default: false — The tab cannot be selected
+
+### Overview
+Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 94px apart; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are.
+```vue
+<Page surface="grouped">
+  <Toolbar>
+    <ToolbarTitle>Home</ToolbarTitle>
+  </Toolbar>
+  <PageContent>...</PageContent>
+  <TabBar v-model:value="tab">
+    <TabBarItem value="home" label="Home">
+      <template #icon><Home /></template>
+    </TabBarItem>
+    <TabBarItem value="calendar" label="Calendar">
+      <template #icon><Calendar /></template>
+    </TabBarItem>
+    <TabBarItem value="photos" label="Photos">
+      <template #icon><Images /></template>
+    </TabBarItem>
+    <TabBarItem value="settings" label="Settings">
+      <template #icon><SettingsCog /></template>
+    </TabBarItem>
+  </TabBar>
+</Page>
+```
+
+### Search tab
+With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does. It is a tab like the others: show the search screen when its value is selected.
+```vue
+<TabBar v-model:value="tab" :search="{ value: 'search' }">
+  <TabBarItem value="home" label="Home">
+    <template #icon><Home /></template>
+  </TabBarItem>
+  <TabBarItem value="calendar" label="Calendar">
+    <template #icon><Calendar /></template>
+  </TabBarItem>
+  <TabBarItem value="photos" label="Photos">
+    <template #icon><Images /></template>
+  </TabBarItem>
+</TabBar>
+```
+
+### Minimize on scroll
+With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back.
+```vue
+<TabBar v-model:value="tab" :search="{ value: 'search' }" minimize-behavior="onScrollDown">
+  ...
+</TabBar>
 ```
 
 ## Table

@@ -32,6 +32,8 @@ type PageContextValue = {
   setHeaderHeight: (height: number | undefined) => void
   /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
   setScrollY: (scrollY: number) => void
+  /** Tells the bars that follow the scroll, such as a minimizing TabBar, the content's scroll offset. */
+  notifyScroll: (scrollY: number) => void
 }
 
 const PageContext = createContext<PageContextValue | null>(null)
@@ -83,12 +85,19 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
   const [headerHeight, setHeaderHeight] = useState<number>()
   // Written straight to the element: a scroll frame must not render the page again.
   const setScrollY = useCallback((scrollY: number) => root.current?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY))), [])
-  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight, setScrollY }), [scrolled, setScrollY])
+  const scrollListeners = useRef(new Set<(scrollTop: number) => void>())
+  const notifyScroll = useCallback((scrollY: number) => scrollListeners.current.forEach((listener) => listener(scrollY)), [])
+  const subscribeScroll = useCallback((listener: (scrollTop: number) => void) => {
+    const listeners = scrollListeners.current
+    listeners.add(listener)
+    return () => { listeners.delete(listener) }
+  }, [])
+  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight, setScrollY, notifyScroll }), [scrolled, setScrollY, notifyScroll])
   // A phone Toolbar replaces the header and footer bars; it reports its own heights.
   const [toolbarTop, setToolbarTop] = useState<number>()
   const [toolbarBottom, setToolbarBottom] = useState<number>()
   const setToolbarHeight = useCallback((placement: ToolbarPlacement, height: number | undefined) => (placement === "top" ? setToolbarTop : setToolbarBottom)(height), [])
-  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled }), [setToolbarHeight, scrolled])
+  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled, subscribeScroll }), [setToolbarHeight, scrolled, subscribeScroll])
   const pageStyle = {
     "--page-footer-height": `${footerHeight}px`,
     ...(headerHeight !== undefined ? { "--page-header-height": `${headerHeight}px` } : {}),
@@ -235,11 +244,12 @@ export type PageContentProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 function PageContent({ fill = false, className, children, onScroll, ...restProps }: PageContentProps) {
-  const { setScrolled, setScrollY } = usePageContext("Content")
+  const { setScrolled, setScrollY, notifyScroll } = usePageContext("Content")
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     setScrolled(event.currentTarget.scrollTop > SCROLLED_AFTER)
     setScrollY(event.currentTarget.scrollTop)
+    notifyScroll(event.currentTarget.scrollTop)
     onScroll?.(event)
   }
 

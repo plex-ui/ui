@@ -6,7 +6,7 @@ Vue 3: https://plexui.com/llms-vue.txt
 
 Install: npm install @plexui/ui
 Docs: https://plexui.com
-Components: 55
+Components: 56
 
 ## Setup
 
@@ -1024,6 +1024,31 @@ Props:
   - onFocus (FocusEventHandler<HTMLButtonElement>) — Called when the switch gains focus
   - onBlur (FocusEventHandler<HTMLButtonElement>) — Called when the switch loses focus
 Examples: Overview, Label and description, Controlled state, Grouped settings
+
+## Tab Bar
+"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+Import: import { TabBar } from "@plexui/ui/components/TabBar"
+Docs: https://plexui.com/components/tab-bar
+Props:
+  - value (string) — Controlled value of the selected tab
+  - defaultValue (string) — Selected tab (uncontrolled)
+  - onValueChange ((value: string) => void) — Called with the value of the tab a person selects
+  - search ({ value: string; label?: string }) — A search tab in a glass circle of its own at the trailing end; label defaults to Search
+  - minimizeBehavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
+  - minimized (boolean) — Controlled minimized state
+  - defaultMinimized (boolean) default: false — Minimized state (uncontrolled)
+  - onMinimizedChange ((minimized: boolean) => void) — Called when the bar minimizes or expands
+  - aria-label (string) default: "Tabs" — Name of the navigation
+  - className (string) — CSS classes applied to the bar
+  TabBar.Item:
+    - value (string) — Value of the tab
+    - label (string) — Label under the symbol and the name of the tab
+    - icon (ReactNode) — The symbol, a PlexUI icon
+    - href (string) — Makes the tab a link
+    - disabled (boolean) default: false — The tab cannot be selected
+    - onClick ((event: MouseEvent) => void) — Called when the tab is pressed, before it is selected
+    - className (string) — CSS classes applied to the tab
+Examples: Overview, Search tab, Minimize on scroll
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.

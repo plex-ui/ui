@@ -173,6 +173,7 @@ import {
   TableHeader,
   TableRow,
 } from '@plexui/vue/components/Table';
+import { TabBar, TabBarItem } from '@plexui/vue/components/TabBar';
 import { Tabs, TabsOption, TabsTab } from '@plexui/vue/components/Tabs';
 import { TagInput } from '@plexui/vue/components/TagInput';
 import { Textarea } from '@plexui/vue/components/Textarea';
@@ -407,6 +408,8 @@ const components: Record<string, Component> = {
   TableHead,
   TableHeader,
   TableRow,
+  TabBar,
+  TabBarItem,
   Tabs,
   TabsOption,
   TabsTab,

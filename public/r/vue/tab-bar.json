@@ -1,0 +1,21 @@
+{
+  "$schema": "https://shadcn-vue.com/schema/registry-item.json",
+  "name": "tab-bar",
+  "type": "registry:ui",
+  "title": "Tab Bar",
+  "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+  "dependencies": [
+    "@plexui/vue"
+  ],
+  "registryDependencies": [
+    "https://plexui.com/r/vue/styles.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/tab-bar/index.ts",
+      "type": "registry:ui",
+      "content": "export * from \"@plexui/vue/components/TabBar\"\n"
+    }
+  ],
+  "docs": "Import as `import { TabBar, TabBarItem } from '@/components/ui/tab-bar'`. See https://plexui.com/vue/components/tab-bar for props and examples."
+}
