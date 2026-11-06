@@ -690,6 +690,19 @@
     color: var(--color-text-disabled);
   }
 
+  /* A pop-up at the end of a labeled row shows its value in the secondary label, as the option rows of
+     iOS 26 Reminders and Calendar do (iOS IMG_5442: the value and its chevrons at 138 on white; iOS2
+     IMG_5523). In columns the value is the row's data and stays primary, as in an Apple Account billing
+     address (IMG_5489). Disabled, the value and the chevrons take the tertiary label. */
+  :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl[data-selected="true"]:not([data-disabled]) {
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl[data-disabled][data-variant],
+  :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl[data-disabled] .DropdownIcon:not(.DropdownIconChevron) {
+    color: var(--mobile-label-tertiary, var(--color-text-disabled));
+  }
+
   .SelectControl[data-variant="ghost"]:not([data-row] *) {
     --select-control-size: 44px;
     --select-control-gutter: 0px;

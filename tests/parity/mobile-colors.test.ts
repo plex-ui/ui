@@ -54,7 +54,17 @@ describe("phone colors use PlexUI tokens", () => {
     expect(Math.abs(over("--alpha-20", "--gray-0", 0) - 197)).toBeGreaterThan(Math.abs(over("--alpha-25", "--gray-0", 0) - 197))
   })
 
-  test("a row disclosure is tertiary, a pop-up chevron secondary (iOS IMG_5512, IMG_5442)", () => {
+  test("an off switch track is the tertiary label (iOS IMG_5442, iOS2 IMG_5526)", () => {
+    const touch = readFileSync(`${styles}/touch.css`, "utf8")
+    expect(touch).toContain("--switch-track-color: var(--alpha-25);")
+    expect(touch).toContain("--switch-track-color-hover: var(--alpha-30);")
+    expect(touch).toContain("--switch-track-color-disabled: var(--alpha-15);")
+    // native: 197 on a white card, 101 on a #2c2c2e sheet card (the elevated card is gray-300 here)
+    expect(Math.abs(over("--alpha-25", "--gray-0", 0) - 197)).toBeLessThanOrEqual(4)
+    expect(Math.abs(over("--alpha-25", "--gray-300", 1) - 101)).toBeLessThanOrEqual(4)
+  })
+
+  test("a row disclosure is tertiary, a pop-up value and its chevrons secondary (iOS IMG_5512, IMG_5442)", () => {
     const docs = `${process.cwd()}/components/docs`
     const rows = readFileSync(`${docs}/FormRowsDemos.module.css`, "utf8")
     const settings = readFileSync(`${docs}/SettingsChecklistDemo.module.css`, "utf8")
@@ -63,6 +73,12 @@ describe("phone colors use PlexUI tokens", () => {
     expect(rule(rows, "[data-account-row]) [data-row-disclosure] {")).toContain("color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
     expect(rule(settings, ".Disclosure {")).toContain("color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
     expect(popup).toContain("color: var(--mobile-accessory-secondary, var(--color-text-secondary));")
+    // The value of a pop-up at the end of a labeled row is secondary too (IMG_5442, IMG_5523); in columns it is the
+    // row's data and stays primary (IMG_5489), and a disabled one steps down to tertiary.
+    const trailing = ':where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl'
+    expect(rule(popup, `${trailing}[data-selected="true"]:not([data-disabled]) {`)).toContain("color: var(--mobile-label-secondary, var(--color-text-secondary));")
+    expect(rule(popup, `${trailing}[data-disabled] .DropdownIcon:not(.DropdownIconChevron) {`)).toContain("color: var(--mobile-label-tertiary, var(--color-text-disabled));")
+    expect(popup).toContain(`${trailing}[data-disabled][data-variant],\n`)
     for (const page of ["content/components/form-examples.mdx", "content/vue/components/form-examples.mdx"]) {
       const mdx = readFileSync(`${process.cwd()}/${page}`, "utf8")
       expect(rule(mdx, ".grouped-form-screen [data-row-disclosure] {")).toContain("color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
