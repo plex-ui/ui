@@ -105,8 +105,10 @@
   color: var(--mobile-label-secondary, var(--color-text-secondary));
 }
 
+/* A disabled row takes the iOS tertiary label on a phone, as a disabled Menu item does, so its value and
+   disclosure do not read as an enabled row's secondary text. */
 .RowButton:disabled :is(.RowLabel, .RowValue, .Disclosure) {
-  color: var(--color-text-disabled);
+  color: var(--mobile-label-tertiary, var(--color-text-disabled));
 }
 
 .Disclosure {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
 import Image from 'next/image';
 import type { DateTime } from 'luxon';
 import { Badge } from '@plexui/ui/components/Badge';
@@ -536,6 +536,8 @@ export function FormRowsActionsDemo() {
   const editFormId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const restoreButton = useRef<HTMLButtonElement>(null);
+  const firstAction = useRef<HTMLButtonElement>(null);
+  const focusRestored = useRef(false);
   const [panel, setPanel] = useState<'email' | 'password' | 'delete' | null>(null);
   const [email, setEmail] = useState('jane@example.com');
   const [emailDraft, setEmailDraft] = useState(email);
@@ -549,7 +551,14 @@ export function FormRowsActionsDemo() {
     setEmail('jane@example.com');
     setPasswordDescription('Last changed in March.');
     setDeleted(false);
+    focusRestored.current = true;
   };
+  // Restore removes its own button: focus moves to the first action of the restored account.
+  useEffect(() => {
+    if (deleted || !focusRestored.current) return;
+    focusRestored.current = false;
+    firstAction.current?.focus();
+  }, [deleted]);
   const save = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -572,7 +581,7 @@ export function FormRowsActionsDemo() {
         ) : wide ? (
           <FieldGroup title="Account">
             <Field row label="Email" description={email}>
-              <div><Button pill color="secondary" variant="soft" onClick={openEmail}>Change</Button></div>
+              <div><Button ref={firstAction} pill color="secondary" variant="soft" onClick={openEmail}>Change</Button></div>
             </Field>
             <Field row label="Password" description={passwordDescription}>
               <div><Button pill color="secondary" variant="soft" onClick={openPassword}>Reset</Button></div>
@@ -585,7 +594,7 @@ export function FormRowsActionsDemo() {
           <>
             <FieldGroup title="Account" bodyClassName="overflow-hidden">
               <div data-row>
-                <Button data-account-row block color="primary" variant="ghost" aria-label={`Email ${email}`} aria-haspopup="dialog" onClick={openEmail}>
+                <Button ref={firstAction} data-account-row block color="primary" variant="ghost" aria-label={`Email ${email}`} aria-haspopup="dialog" onClick={openEmail}>
                   <span className="flex w-full min-w-0 items-center justify-between gap-4">
                     <span className="min-w-0"><span className="block">Email</span><span data-account-detail>{email}</span></span>
                     <Disclosure data-no-autosize="" data-row-disclosure="" />

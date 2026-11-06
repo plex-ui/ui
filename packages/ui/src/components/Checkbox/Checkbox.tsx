@@ -101,15 +101,12 @@ export const Checkbox = ({
         aria-describedby={ariaDescribedBy}
       >
         <span className={s.IndicatorBox} aria-hidden="true">
-          {variant === "ghost" ? (
-            // A ghost marks the choice with the PlexUI icons of a list row, not with drawn arms.
-            <RadixCheckbox.Indicator className={s.GhostMark} forceMount>
-              <Check className={s.GhostCheck} />
-              <Minus className={s.GhostDash} />
-            </RadixCheckbox.Indicator>
-          ) : (
-            <RadixCheckbox.Indicator className={s.CheckMark} forceMount />
-          )}
+          {/* The mark is the PlexUI Check icon, and Minus when indeterminate: white on a solid box,
+              in the text color for a ghost. */}
+          <RadixCheckbox.Indicator className={variant === "ghost" ? s.GhostMark : s.CheckMark} forceMount>
+            <Check className={s.MarkCheck} />
+            <Minus className={s.MarkDash} />
+          </RadixCheckbox.Indicator>
         </span>
       </RadixCheckbox.Root>
       {descriptionId ? (

@@ -16,6 +16,7 @@ import {
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
 import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
+import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
 import { ToolbarHostContext, type ToolbarHost } from "../Toolbar/Toolbar"
 import { TransitionGroup } from "../Transition"
@@ -148,6 +149,13 @@ const Content = ({
   const crossesScreen =
     placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || mobilePlacement === "bottom" || mobilePlacement === "fullscreen"
 
+  // The content of a closing dialog is frozen for its exit, so this reads the owner's latest
+  // handler: state that changes together with the close decides where focus returns.
+  const handleCloseAutoFocus = useStableCallback((event: Event) => {
+    onCloseAutoFocus?.(event)
+    keepMovedFocus(event)
+  })
+
   useEscCloseStack(open, () => {
     setOpen(false)
   })
@@ -215,10 +223,7 @@ const Content = ({
                 else exitGuard.onInteractOutside(event)
               }}
               onOpenAutoFocus={onOpenAutoFocus}
-              onCloseAutoFocus={(event) => {
-                onCloseAutoFocus?.(event)
-                keepMovedFocus(event)
-              }}
+              onCloseAutoFocus={handleCloseAutoFocus}
             >
               <div ref={setPanelRef} className={clsx(s.Panel, className)}>
                 {showClose && (

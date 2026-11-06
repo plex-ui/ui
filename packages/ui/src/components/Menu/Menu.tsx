@@ -18,6 +18,7 @@ import React, {
 
 import clsx from "clsx"
 import { useFloatingBoundary } from "../../hooks/useFloatingBoundary"
+import { useStableCallback } from "../../hooks/useStableCallback"
 import { usePhoneSubmenu } from "../../hooks/usePhoneSubmenu"
 import { focusPhoneSubmenuEntry } from "../../lib/menuSubmenuPlacement"
 import { captureInitialPhoneSubmenuFocus, completeInitialPhoneSubmenuFocus, delegateInitialPhoneSubmenuFocus } from "../../lib/menuInitialFocus"
@@ -455,6 +456,16 @@ const Content = ({
   const floatingBoundary = useFloatingBoundary(open, { bottom: 30, top: 30, left: 12, right: 12 })
   const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
+  // The content of a closing menu is frozen for its exit, so this reads the owner's latest handler.
+  const handleCloseAutoFocus = useStableCallback((event: Event) => {
+    onCloseAutoFocus?.(event)
+    keepMovedFocus(event)
+    if (event.defaultPrevented) return
+    const content = event.target
+    if (!(content instanceof HTMLElement)) return
+    const trigger = content.ownerDocument.getElementById(content.getAttribute("aria-labelledby") ?? "")
+    if (trigger) prepareFocusRestore(trigger)
+  })
 
   return (
     <DropdownMenu.Portal forceMount>
@@ -475,15 +486,7 @@ const Content = ({
             {...floatingBoundary}
             onEscapeKeyDown={preventDefaultHandler}
             onInteractOutside={exitGuard.onInteractOutside}
-            onCloseAutoFocus={(event) => {
-              onCloseAutoFocus?.(event)
-              keepMovedFocus(event)
-              if (event.defaultPrevented) return
-              const content = event.target
-              if (!(content instanceof HTMLElement)) return
-              const trigger = content.ownerDocument.getElementById(content.getAttribute("aria-labelledby") ?? "")
-              if (trigger) prepareFocusRestore(trigger)
-            }}
+            onCloseAutoFocus={handleCloseAutoFocus}
             data-layout={isHorizontal ? "horizontal" : undefined}
             data-size={isHorizontal && size ? size : undefined}
             style={toCssVariables({

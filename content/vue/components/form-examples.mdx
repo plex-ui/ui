@@ -1068,12 +1068,12 @@ export const rowActions = formScreen("Account settings", `<template v-if="accoun
   <EmptyMessage>
     <EmptyMessageTitle>No sample account</EmptyMessageTitle>
     <EmptyMessageDescription>The account was removed from this preview.</EmptyMessageDescription>
-    <EmptyMessageActionRow><Button ref="restoreAccount" color="primary" size="xl" @click="accountEmail = 'jane@example.com'; accountPasswordDescription = 'Last changed in March.'; accountDeleted = false">Restore sample account</Button></EmptyMessageActionRow>
+    <EmptyMessageActionRow><Button ref="restoreAccount" color="primary" size="xl" @click="accountEmail = 'jane@example.com'; accountPasswordDescription = 'Last changed in March.'; accountDeleted = false; $nextTick(() => $refs.accountFirstAction?.$el?.focus())">Restore sample account</Button></EmptyMessageActionRow>
   </EmptyMessage>
 </template>
 <FieldGroup v-else-if="wide" title="Account">
   <Field row label="Email" :description="accountEmail">
-    <div><Button pill color="secondary" variant="soft" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">Change</Button></div>
+    <div><Button ref="accountFirstAction" pill color="secondary" variant="soft" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">Change</Button></div>
   </Field>
   <Field row label="Password" :description="accountPasswordDescription">
     <div><Button pill color="secondary" variant="soft" @click="accountTrigger = $event.currentTarget; accountPasswordDraft = ''; accountPanel = 'password'">Reset</Button></div>
@@ -1085,7 +1085,7 @@ export const rowActions = formScreen("Account settings", `<template v-if="accoun
 <template v-else>
   <FieldGroup title="Account" body-class-name="overflow-hidden">
     <div data-row>
-      <Button data-account-row block color="primary" variant="ghost" :aria-label="'Email ' + accountEmail" aria-haspopup="dialog" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">
+      <Button ref="accountFirstAction" data-account-row block color="primary" variant="ghost" :aria-label="'Email ' + accountEmail" aria-haspopup="dialog" @click="accountTrigger = $event.currentTarget; accountEmailDraft = accountEmail; accountPanel = 'email'">
         <span class="flex w-full min-w-0 items-center justify-between gap-4">
           <span class="min-w-0"><span class="block">Email</span><span data-account-detail>{{ accountEmail }}</span></span>
           <Disclosure data-no-autosize="" data-row-disclosure="" />

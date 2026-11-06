@@ -346,4 +346,41 @@ describe.each<Framework>(["React", "Vue"])("%s animated Dialog accessibility lif
     expect(closedFocus).toHaveBeenCalledTimes(1)
     expect(document.activeElement).not.toBe(trigger)
   })
+
+  test("a close that changes the owner's state runs the owner's latest close-focus handler", async () => {
+    // Rows with actions: Delete account closes its alert and deletes the account in one update, and the
+    // close-focus handler of that update sends focus to Restore. The closing content is frozen for its exit,
+    // so a handler read from it would be the earlier one.
+    const earlier = vi.fn<(event: Event) => void>((event) => event.preventDefault())
+    const latest = vi.fn<(event: Event) => void>((event) => event.preventDefault())
+    const state = reactive({ open: true })
+    const reactTree = () => <ReactDialog open={state.open}>
+      <ReactDialog.Trigger><button type="button">Open Account</button></ReactDialog.Trigger>
+      <ReactDialog.Content mobileVariant="sheet" onCloseAutoFocus={state.open ? earlier : latest}>
+        <ReactDialog.Title>Account</ReactDialog.Title>
+        <ReactDialog.Description>Delete the account.</ReactDialog.Description>
+      </ReactDialog.Content>
+    </ReactDialog>
+    let setClosed = () => { state.open = false }
+    if (framework === "React") {
+      const view = render(reactTree())
+      setClosed = () => { state.open = false; view.rerender(reactTree()) }
+    } else {
+      mountVue(() => h(Dialog, { open: state.open }, () => [
+        h(DialogTrigger, null, () => h("button", { type: "button" }, "Open Account")),
+        h(DialogContent, { mobileVariant: "sheet", onCloseAutoFocus: state.open ? earlier : latest }, () => [
+          h(DialogTitle, null, () => "Account"),
+          h(DialogDescription, null, () => "Delete the account."),
+        ]),
+      ]))
+      await flushVue()
+    }
+    await settle()
+    const dialog = within(document.body).getByRole("dialog", { name: "Account", exact: true })
+    await interact(setClosed)
+    await settle()
+    expect(dialog.isConnected).toBe(false)
+    expect(earlier).not.toHaveBeenCalled()
+    expect(latest).toHaveBeenCalledTimes(1)
+  })
 })

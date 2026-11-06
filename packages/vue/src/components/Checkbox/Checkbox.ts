@@ -170,12 +170,11 @@ const CheckboxComponent = defineComponent({
                   // a long list of boxes cleared at once forces one style pass per box.
                   {
                     default: () => h("span", { class: s.IndicatorBox, "aria-hidden": "true" }, [
-                      // A ghost marks the choice with the PlexUI icons of a list row, not with drawn arms.
-                      props.variant === "ghost"
-                        ? h(RekaCheckboxIndicator, { class: s.GhostMark, forceMount: true }, {
-                            default: () => [h(Check, { class: s.GhostCheck }), h(Minus, { class: s.GhostDash })],
-                          })
-                        : h(RekaCheckboxIndicator, { class: s.CheckMark, forceMount: true }),
+                      // The mark is the PlexUI Check icon, and Minus when indeterminate: white on a solid
+                      // box, in the text color for a ghost.
+                      h(RekaCheckboxIndicator, { class: props.variant === "ghost" ? s.GhostMark : s.CheckMark, forceMount: true }, {
+                        default: () => [h(Check, { class: s.MarkCheck }), h(Minus, { class: s.MarkDash })],
+                      }),
                     ]),
                   },
                 ),

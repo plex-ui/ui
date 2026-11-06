@@ -130,84 +130,36 @@
     background-color 150ms ease;
 }
 
+/* Solid: the PlexUI Check icon, and Minus when indeterminate, on the filled box. The mark stays
+   mounted, so a long list of boxes cleared at once costs no style pass per box and first render
+   plays no animation. A new mark is revealed from the left; a cleared one fades out. */
 .CheckMark {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 64%;
-  height: 32%;
-  transform: rotate(-45deg) translate(-10%, 100%);
-  transform-origin: center;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--checkbox-checkmark-color, var(--gray-0));
+  clip-path: inset(0);
   transition:
     opacity 150ms ease,
-    transform 150ms ease;
+    clip-path 200ms ease;
 
-  /* The indicator stays mounted, so a long list of boxes cleared at once costs
-     no style pass per box and first render plays no animation. */
   .Checkbox[data-state="unchecked"] & {
     opacity: 0;
-  }
-
-  [data-state="indeterminate"] & {
-    transform: translate(30%, 80%);
-
-    &::before {
-      opacity: 0;
-    }
-  }
-
-  /* CheckMark arms */
-  &::before,
-  &::after {
-    position: absolute;
-    display: block;
-    background: var(--checkbox-checkmark-color, var(--gray-0));
-    content: "";
-    will-change: transform;
-  }
-
-  .Container:focus-within &::before,
-  .Container:focus-within &::after {
-    @starting-style {
-      transform: scale(0);
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .Container:hover:where(:not(:root[data-input="touch"] *)) &::before,
-    .Container:hover:where(:not(:root[data-input="touch"] *)) &::after {
-      @starting-style {
-        transform: scale(0);
-      }
-    }
-  }
-
-  &::before {
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 2px;
-    transform-origin: 0 0;
+    clip-path: inset(0 100% 0 0);
     transition:
-      transform 100ms ease 80ms,
-      opacity 200ms ease;
+      opacity 150ms ease,
+      clip-path 0s 150ms;
   }
 
-  [data-state="indeterminate"]::before {
-    opacity: 0;
-  }
-
-  &::after {
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    transform-origin: 0 100%;
-    transition: transform 100ms ease 160ms;
+  > svg {
+    width: var(--checkbox-check-icon-size, var(--checkbox-indicator-size));
+    height: var(--checkbox-check-icon-size, var(--checkbox-indicator-size));
   }
 }
 
-/* Ghost: the PlexUI Check icon, and Minus when indeterminate, in the text color. */
+/* Ghost: the same icons in the text color, without a box. */
 .GhostMark {
   position: absolute;
   inset: 0;
@@ -220,17 +172,20 @@
   .Checkbox[data-state="unchecked"] & {
     opacity: 0;
   }
+
+  > svg {
+    width: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
+    height: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
+  }
 }
 
-.GhostCheck,
-.GhostDash {
+.MarkCheck,
+.MarkDash {
   flex-shrink: 0;
-  width: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
-  height: var(--checkbox-ghost-icon-size, var(--checkbox-indicator-size));
 }
 
-.Checkbox[data-state="indeterminate"] .GhostCheck,
-.Checkbox:not([data-state="indeterminate"]) .GhostDash {
+.Checkbox[data-state="indeterminate"] .MarkCheck,
+.Checkbox:not([data-state="indeterminate"]) .MarkDash {
   display: none;
 }
 

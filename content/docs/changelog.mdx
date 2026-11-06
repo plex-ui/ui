@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Changed
+
+- `Checkbox` (solid and pill) marks a choice with the PlexUI `Check` icon, and `Minus` when indeterminate, in React and Vue instead of drawn arms, the same icons as the ghost variant. The icon fills the indicator (`--checkbox-check-icon-size`, the indicator size by default) and keeps `--checkbox-checkmark-color`; a new mark is revealed from the left and a cleared one fades out.
+
+### Fixed
+
+- `Dialog.Content` and `Menu.Content` (React) call the owner's latest `onCloseAutoFocus` when the close and an owner state change render together. The closing content is frozen for its exit, so the handler from before the close ran and focus went to the wrong place. Vue already read the current handler.
+- Rows with actions example: after Delete account, focus moves to Restore sample account; after restoring, it moves to the first action of the restored account instead of falling to the page.
+- Settings with selection pages example: on a phone a disabled row (Weekly digest) draws its label, value and disclosure in the iOS tertiary label color, as a disabled Menu item does, so it no longer reads like an enabled row's secondary value.
+
 ## 0.29.0 (2026-11-06)
 
 ### Added
