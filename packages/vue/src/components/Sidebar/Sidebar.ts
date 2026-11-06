@@ -1,15 +1,19 @@
 import {
   computed,
   defineComponent,
+  Fragment,
   h,
+  inject,
   onBeforeUnmount,
   onMounted,
+  provide,
   ref,
   Text,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
   type DefineComponent,
   type HTMLAttributes,
+  type InjectionKey,
   type LiHTMLAttributes,
   type PropType,
   type Slots,
@@ -17,7 +21,7 @@ import {
   type VNodeArrayChildren,
 } from "vue"
 import { Button } from "../Button/index.js"
-import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon/index.js"
+import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon/index.js"
 import { Input, type InputProps } from "../Input/index.js"
 import { Tooltip } from "../Tooltip/index.js"
 import { composeEventHandlers, firstElementChild, flattenSlot, mergeSlotProps } from "../Tooltip/slot.js"
@@ -325,6 +329,12 @@ export const SidebarMenuItem = SidebarMenuItemComponent as typeof SidebarMenuIte
 // Shared by every row of the rail: moving to the next one shows its label at once.
 let railLeftAt = 0
 
+// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles).
+const sidebarDrawerKey: InjectionKey<boolean> = Symbol("SidebarDrawer")
+
+/** The chevron of a drawer row that leads to another page. */
+const menuDisclosure = () => h("span", { "class": s.MenuDisclosure, "aria-hidden": "true" }, [h(Disclosure)])
+
 const SidebarMenuButtonComponent = defineComponent({
   name: "SidebarMenuButton",
   inheritAttrs: false,
@@ -341,6 +351,7 @@ const SidebarMenuButtonComponent = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
+    const inDrawer = inject(sidebarDrawerKey, false)
     const openDelay = ref<number>()
 
     return () => {
@@ -361,7 +372,8 @@ const SidebarMenuButtonComponent = defineComponent({
         })
       }
       const content = slots.default?.()
-      const wrap = (children: VNodeArrayChildren | undefined) => h("span", { class: s.MenuButtonInner }, children)
+      const wrap = (children: VNodeArrayChildren | undefined) =>
+        h("span", { class: s.MenuButtonInner }, inDrawer ? [children, menuDisclosure()] : children)
       let button: VNode
       if (props.asChild) {
         // With asChild the child element is the button, so the inner wrapper
@@ -562,6 +574,7 @@ const SidebarMenuSubButtonComponent = defineComponent({
     indent: { type: Number as PropType<0 | 1 | 2 | 3>, default: 0 },
   },
   setup(props, { attrs, slots }) {
+    const inDrawer = inject(sidebarDrawerKey, false)
     return () => {
       const { className, rest } = cleanAttrs(attrs)
       const ownProps = {
@@ -570,7 +583,14 @@ const SidebarMenuSubButtonComponent = defineComponent({
         "class": [s.MenuSubButton, s[`indent${props.indent}`], className],
         ...rest,
       }
-      return props.asChild ? renderAsChild(slots.default?.(), ownProps) : h("button", ownProps, slots.default?.())
+      const content = slots.default?.()
+      if (!inDrawer) return props.asChild ? renderAsChild(content, ownProps) : h("button", ownProps, content)
+      // In the drawer the disclosure follows the content, inside the child element with asChild
+      if (props.asChild) {
+        const child = firstElementChild(content)
+        return child ? mergeSlotProps(wrapChildContent(child, (inner) => h(Fragment, null, [inner, menuDisclosure()])), ownProps) : null
+      }
+      return h("button", ownProps, [content, menuDisclosure()])
     }
   },
 })
@@ -796,6 +816,7 @@ const SidebarMobileComponent = defineComponent({
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
+    provide(sidebarDrawerKey, true)
 
     return () => {
       const { className, rest } = cleanAttrs(attrs)

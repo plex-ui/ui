@@ -20,8 +20,10 @@
     padding: var(--toolbar-padding-top, 0px) var(--toolbar-gutter) var(--toolbar-padding-bottom) var(--toolbar-gutter);
     color: var(--color-text);
 
-    /* Soft scroll edge: the canvas color fades out over the content, which shows only once content
-       is under the bar. It reaches 16px past the bar, as the reference effect does. */
+    /* Soft scroll edge: the canvas color covers content scrolled under the row of controls and fades
+       out over the bar's bottom padding and 16px past the bar, as the reference effect reaches. Native
+       iOS 26 bars hide content under the row almost entirely (IMG_5484, 5503: text behind the title at
+       7-10% of its contrast), so the fade starts below the row, not at the top of the bar. */
     &::before {
       position: absolute;
       z-index: -1;
@@ -30,8 +32,8 @@
       -webkit-backdrop-filter: blur(var(--toolbar-edge-blur));
       backdrop-filter: blur(var(--toolbar-edge-blur));
       content: "";
-      -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-      mask-image: linear-gradient(to bottom, #000, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);
       pointer-events: none;
     }
 
@@ -375,6 +377,54 @@
     --toolbar-padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     position: absolute;
     inset: 0 0 auto;
+  }
+
+  /* A large title on a page sits at the top of the content and scrolls up with it under the row of
+     controls, which then shows the title inline, as UIKit does in iOS 26 (WWDC25 "Build a UIKit app
+     with the new design": large titles scroll with the content underneath the bar). Page.Content
+     writes its scroll offset to --page-scroll-y and the Toolbar measures how far the title travels.
+     The title fades out over 8px as it passes under the row; the soft edge then covers the row only,
+     as it does for an inline title. */
+  .Toolbar[data-host="page"][data-title-style="large"] {
+    --toolbar-edge-blur: var(--toolbar-edge-blur-small);
+    --toolbar-large-title-scroll: calc(min(var(--page-scroll-y, 0), var(--toolbar-large-title-travel, 0) + 16) * 1px);
+    grid-template-areas:
+      "leading collapsed trailing"
+      "heading heading heading";
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+    /* Content scrolled into the place of the title stays under the pointer. */
+    pointer-events: none;
+
+    &::before {
+      inset: 0 0 auto;
+      height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);
+    }
+
+    & > :is(.Leading, .Trailing, .Content),
+    &:not([data-scrolled]) > .Heading {
+      pointer-events: auto;
+    }
+
+    & > .Heading {
+      transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));
+      -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));
+      mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));
+    }
+
+    /* The inline title fades in over the last 8px of the large title's way. */
+    & > .CollapsedTitle {
+      grid-area: collapsed;
+      min-width: 0;
+      overflow: hidden;
+      color: var(--color-text);
+      font-size: var(--toolbar-title-font-size);
+      font-weight: var(--toolbar-title-font-weight);
+      line-height: var(--toolbar-title-line-height);
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);
+    }
   }
 
   .Toolbar[data-host="dialog"][data-placement="top"] {

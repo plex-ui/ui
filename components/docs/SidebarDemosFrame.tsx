@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { NavigationButton } from '@plexui/ui/components/Button';
 import { Page } from '@plexui/ui/components/Page';
 import {
   Sidebar,
@@ -12,6 +13,7 @@ import {
   type SidebarProps,
   type SidebarProviderProps,
 } from '@plexui/ui/components/Sidebar';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import s from './SidebarDemos.module.css';
 import { isSidebarNavigationSelection } from './SidebarDemos.utils';
@@ -34,13 +36,13 @@ export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
   if (!isMobile) return <Sidebar {...props}>{children}</Sidebar>;
   return (
     <SidebarMobile contained className={s.Drawer} inert={!openMobile} role="navigation" aria-label="Main navigation">
-      <Page>
-        <Page.Header background="solid">
-          <Page.Bar>
-            <Page.Title>Navigation</Page.Title>
-            <Page.Actions><SidebarMobileMenuButton ref={closeRef} /></Page.Actions>
-          </Page.Bar>
-        </Page.Header>
+      <Page surface="grouped">
+        <Toolbar titleStyle="large">
+          <Toolbar.Title>Navigation</Toolbar.Title>
+          <Toolbar.Trailing>
+            <NavigationButton action="close" aria-label="Close menu" ref={closeRef} onClick={() => setOpenMobile(false)} />
+          </Toolbar.Trailing>
+        </Toolbar>
         <Page.Content className={s.NavigationContent} onClick={(event) => {
           if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) setOpenMobile(false);
         }}>

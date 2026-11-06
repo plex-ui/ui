@@ -744,9 +744,9 @@
   .Tabs[data-variant="segmented"][data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);
     /* iOS 26 draws every segment label in the primary label color; only the weight marks the selection
-       (590 against 510), kit 6:57374 and IMG_5433/5434. Tracking follows the label size: -0.08px at 13.333. */
+       (590 against 510), kit 6:57374 and IMG_5433/5434. No tracking: the system font applies its own, as
+       native text widths show (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
     color: var(--color-text);
-    letter-spacing: var(--segmented-control-letter-spacing, normal);
   }
 }
 

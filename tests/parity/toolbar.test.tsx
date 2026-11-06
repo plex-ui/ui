@@ -339,3 +339,74 @@ describe("Toolbar disabled buttons", () => {
     expect(tokens).toContain("--toolbar-prominent-disabled-color: light-dark(var(--gray-0), var(--alpha-30));")
   })
 })
+
+describe("A large title on a page scrolls with the content (iOS 26)", () => {
+  const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
+  const reactLarge = (titleStyle: string) => createElement(
+    RPage as unknown as AnyComponent,
+    null,
+    reactBar({ root: { titleStyle }, title: {} }),
+    createElement(RPage.Content, null, "Body"),
+  )
+  const vueLarge = (titleStyle: string) => () => h(Page as never, null, () => [vueBar({ root: { titleStyle }, title: {} }), h(PageContent, null, () => "Body")])
+  const mount = async (framework: "React" | "Vue", titleStyle: string) => {
+    const view = framework === "React" ? render(reactLarge(titleStyle)) : null
+    const vue = framework === "Vue" ? mountVue(vueLarge(titleStyle) as () => VNode) : null
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    return () => { view?.unmount(); vue?.unmount() }
+  }
+
+  test.each(["React", "Vue"] as const)("%s: the page writes its scroll, the bar measures the title's way and holds an inline copy", async (framework) => {
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+      if (this.hasAttribute("data-toolbar")) return 168
+      return this.classList.contains("Heading") ? 41 : 0
+    })
+    const unmount = await mount(framework, "large")
+    const bar = document.querySelector<HTMLElement>('[data-toolbar][data-title-style="large"]')
+    expect(bar?.style.getPropertyValue("--toolbar-large-title-travel")).toBe("41")
+    const copy = bar?.querySelector(":scope > .CollapsedTitle")
+    expect(copy?.getAttribute("aria-hidden")).toBe("true")
+    expect(copy?.textContent).toBe("Orders")
+    expect(bar?.querySelectorAll("h1")).toHaveLength(1)
+    const content = document.querySelector<HTMLElement>(".Page > .Content")
+    if (!content) throw new Error("Page.Content is missing")
+    content.scrollTop = 60
+    if (framework === "React") await act(async () => { fireEvent.scroll(content) })
+    else { content.dispatchEvent(new Event("scroll")); await flushVue() }
+    expect(pageStyle()).toContain("--page-scroll-y: 60")
+    expect(bar?.hasAttribute("data-scrolled")).toBe(true)
+    unmount()
+  })
+
+  test.each(["React", "Vue"] as const)("%s: an inline title on a page and a large title off a page keep one heading", async (framework) => {
+    const unmount = await mount(framework, "inline")
+    expect(document.querySelector("[data-toolbar] > .CollapsedTitle")).toBeNull()
+    unmount()
+    if (framework === "React") render(reactBar({ root: { titleStyle: "large" }, title: {} }))
+    else mountVue(() => vueBar({ root: { titleStyle: "large" }, title: {} }))
+    await (framework === "React" ? act(async () => {}) : flushVue())
+    expect(document.querySelector("[data-toolbar] > .CollapsedTitle")).toBeNull()
+  })
+
+  test("the title moves with the scroll, fades under the row of controls and shows inline at the end of its way", () => {
+    const start = css.indexOf('.Toolbar[data-host="page"][data-title-style="large"] {')
+    expect(start).toBeGreaterThan(-1)
+    const block = css.slice(start, css.indexOf("\n  }\n", start))
+    for (const declaration of [
+      "--toolbar-large-title-scroll: calc(min(var(--page-scroll-y, 0), var(--toolbar-large-title-travel, 0) + 16) * 1px);",
+      '"leading collapsed trailing"',
+      "grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);",
+      "pointer-events: none;",
+      "height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);",
+      "transform: translateY(calc(-1 * var(--toolbar-large-title-scroll)));",
+      "mask-image: linear-gradient(to bottom, transparent calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap)), #000 calc(var(--toolbar-large-title-scroll) - var(--toolbar-large-title-gap) + 8px));",
+      "grid-area: collapsed;",
+      "opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);",
+    ]) expect(block).toContain(declaration)
+  })
+
+  test("the soft edge of a top bar covers the row of controls and fades below it (native IMG_5484, 5503)", () => {
+    expect(css).toContain("mask-image: linear-gradient(to bottom, #000 calc(100% - var(--toolbar-padding-bottom) - 16px), transparent);")
+    expect(css).not.toContain("mask-image: linear-gradient(to bottom, #000, transparent);")
+  })
+})

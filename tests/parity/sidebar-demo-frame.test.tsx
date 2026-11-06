@@ -14,6 +14,10 @@ vi.mock("@plexui/ui/components/Sidebar", async () => await import("../../package
 vi.mock("@plexui/vue/components/Sidebar", async () => await import("../../packages/vue/src/components/Sidebar"))
 vi.mock("@plexui/ui/components/Page", async () => await import("../../packages/ui/src/components/Page"))
 vi.mock("@plexui/vue/components/Page", async () => await import("../../packages/vue/src/components/Page"))
+vi.mock("@plexui/ui/components/Button", async () => await import("../../packages/ui/src/components/Button"))
+vi.mock("@plexui/vue/components/Button", async () => await import("../../packages/vue/src/components/Button"))
+vi.mock("@plexui/ui/components/Toolbar", async () => await import("../../packages/ui/src/components/Toolbar"))
+vi.mock("@plexui/vue/components/Toolbar", async () => await import("../../packages/vue/src/components/Toolbar"))
 
 beforeEach(() => {
   viewport.mobile = true
@@ -78,6 +82,9 @@ describe.each(["React", "Vue"])("%s responsive sidebar demo", (framework) => {
     expect(navigation.hasAttribute("inert")).toBe(false)
     expect(document.querySelector("main")?.hasAttribute("inert")).toBe(true)
     expect(document.activeElement).toBe(navigation.querySelector('[aria-label="Close menu"]'))
+    // A grouped page with a large title and the glass Close of iOS 26
+    expect(navigation.querySelector('[data-surface="grouped"] > [data-toolbar][data-title-style="large"] h1')?.textContent).toBe("Navigation")
+    expect(navigation.querySelector('[aria-label="Close menu"]')?.getAttribute("data-navigation-action")).toBe("close")
     await act(async () => { fireEvent.click(navigation.querySelector('[aria-expanded="false"]')!); await flushVue() })
     expect(navigation.hasAttribute("inert")).toBe(false)
     await act(async () => { fireEvent.click(navigation.querySelector('[data-testid="leaf"]')!); await flushVue() })

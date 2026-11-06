@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, createRef, useSyncExternalStore, type ComponentType, type ReactElement, type ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
@@ -1292,5 +1293,79 @@ describe("Sidebar parts behaviour", () => {
     expect(react[1]).toBe("ui")
     expect(react[2]).not.toContain("Clear input")
     expect(react[3]).toBe("")
+  })
+})
+
+describe("Sidebar drawer on a phone is an iOS 26 grouped list", () => {
+  const leaf = n(
+    "SidebarMenuItem",
+    null,
+    n("SidebarMenuButton", null, n("SidebarMenuButtonIcon", null, n("Bell")), n("SidebarMenuButtonLabel", null, "Inbox"), n("SidebarMenuBadge", null, "4")),
+  )
+  const disclosures = (html: string) => html.match(/class="MenuDisclosure"/g)?.length ?? 0
+
+  test("a row inside SidebarMobile ends with the PlexUI Disclosure; the same row outside it has none", async () => {
+    const menu = () => n("SidebarMenu", null, leaf)
+    const { react, vue } = await pair(n("SidebarProvider", null, n("SidebarMobile", { contained: true }, menu()), n("nav", null, menu())))
+    expect(vue).toBe(react)
+    expect(disclosures(react)).toBe(1)
+    // After the count, inside the row's inner span: the glyph of the Disclosure icon
+    expect(react).toMatch(/class="MenuBadge">\s*"4"\s*<span aria-hidden="true" class="MenuDisclosure">\s*<svg[^>]*viewBox="0 0 20 20"/)
+  })
+
+  test("submenu rows carry it too, inside the child element with asChild", async () => {
+    const { react, vue } = await pair(
+      n(
+        "SidebarProvider",
+        null,
+        n(
+          "SidebarMobile",
+          { contained: true },
+          n(
+            "SidebarMenuSub",
+            null,
+            n("SidebarMenuSubItem", null, n("SidebarMenuSubButton", { indent: 1 }, "Files")),
+            n("SidebarMenuSubItem", null, n("SidebarMenuSubButton", { asChild: true, indent: 1 }, n("a", { href: "#skills" }, "Skills"))),
+            n("SidebarMenuSubItem", null, n("SidebarMenuButton", { asChild: true }, n("a", { href: "#logs" }, "Logs"))),
+          ),
+        ),
+      ),
+    )
+    expect(vue).toBe(react)
+    expect(disclosures(react)).toBe(3)
+    expect(react).toMatch(/href="#skills">\s*"Skills"\s*<span aria-hidden="true" class="MenuDisclosure">/)
+    expect(react).toMatch(/href="#logs">\s*<span class="MenuButtonInner">\s*"Logs"\s*<span aria-hidden="true" class="MenuDisclosure">/)
+  })
+
+  test("the styles: cards, 52px rows, section headers, separators, counts and chevrons; the App drawer keeps its look", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Sidebar/Sidebar.module.css`, "utf8")
+    const start = css.indexOf("Mobile drawer list")
+    const block = css.slice(start, css.indexOf("/* Desktop breakpoint", start))
+    expect(css.slice(start, css.indexOf("@media", start))).toMatch(/\.MenuDisclosure \{\s*display: none;\s*\}/)
+    expect(block).toContain(".MobileSidebar:not(:where(.App *)) {")
+    for (const declaration of [
+      "--sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-layout-margin, 16px));",
+      "--sidebar-menu-item-height: var(--sidebar-mobile-list-row-height, 52px);",
+      "--sidebar-menu-text: var(--color-text);",
+      "background: var(--sidebar-mobile-background, var(--mobile-surface-grouped-primary, var(--color-surface-secondary)));",
+      "border-radius: var(--sidebar-mobile-list-radius, 26px);",
+      "var(--mobile-surface-secondary, var(--mobile-surface-grouped-secondary, var(--color-surface)))",
+      "min-height: var(--sidebar-mobile-list-header-height, 44px);",
+      "font-size: var(--sidebar-mobile-list-header-font-size, 20px);",
+      "font-weight: var(--sidebar-mobile-list-header-font-weight, var(--font-weight-semibold));",
+      "inset-inline: var(--sidebar-row-inset) var(--sidebar-list-inset);",
+      "inset-inline-start: calc(var(--sidebar-row-inset) + var(--sidebar-list-icon-column));",
+      "color: var(--mobile-label-tertiary, var(--color-text-tertiary));",
+      "margin-inline-start: var(--sidebar-mobile-list-disclosure-gap, 8px);",
+      "--sidebar-row-inset: calc(var(--sidebar-list-inset) + var(--sidebar-list-icon-column));",
+    ]) expect(block).toContain(declaration)
+    // Counts and the submenu chevron are secondary labels
+    expect(block.match(/color: var\(--mobile-label-secondary, var\(--color-text-secondary\)\);/g)).toHaveLength(2)
+    // Rows that open a menu, expand or carry their own controls lead nowhere
+    expect(block).toContain(":is([aria-haspopup], [aria-expanded], :has(.MenuChevron)) .MenuDisclosure")
+    expect(block).toContain("> :is(.MenuButton, .MenuSubButton):has(~ :not(.MenuSub)) .MenuDisclosure")
+    expect(block).toContain("> * > :is(.MenuButton, .MenuSubButton):has(~ *) .MenuDisclosure")
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(tokens).toContain("--toolbar-large-title-gap: 21px;")
   })
 })

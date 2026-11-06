@@ -1125,11 +1125,11 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--gray-0), var(--alpha-25));")
   })
 
-  test("every segment label is primary, tracked -0.08px at the kit size; only the weight marks the selection", () => {
+  test("every segment label is primary and untracked (the system font tracks it); only the weight marks the selection", () => {
     const css = read("components/Tabs/Tabs.module.css")
     const phone = css.match(/@media \(max-width: 767px\) \{\s*\.Tabs\[data-variant="segmented"\]\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
     expect(phone).toContain("color: var(--color-text);")
-    expect(phone).toContain("letter-spacing: var(--segmented-control-letter-spacing, normal);")
-    expect(read("styles/touch.css")).toContain("--segmented-control-letter-spacing: -0.08px;")
+    expect(phone).not.toContain("letter-spacing")
+    expect(read("styles/touch.css")).not.toContain("--segmented-control-letter-spacing")
   })
 })

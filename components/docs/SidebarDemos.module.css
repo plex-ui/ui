@@ -4,18 +4,10 @@
 
 .Drawer {
   padding: 0;
-  background: var(--color-surface);
 }
 
 .NavigationContent {
   --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
-}
-
-.NavigationContent :global([class*="Sidebar-module__Content"]) {
-  padding-top: 0;
-  overflow: visible;
-  mask-image: none;
-  -webkit-mask-image: none;
 }
 
 @media (max-width: 767px) {

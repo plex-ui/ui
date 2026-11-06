@@ -33,6 +33,9 @@ export type ToolbarHost = {
 
 export const ToolbarHostContext = createContext<ToolbarHost | null>(null)
 
+// The title style of the top bar, which a large title on a page needs to show itself inline once scrolled.
+const ToolbarTitleStyleContext = createContext<ToolbarTitleStyle | undefined>(undefined)
+
 /* ------------------------------------------------------------------ */
 /*  Root                                                               */
 /* ------------------------------------------------------------------ */
@@ -55,6 +58,7 @@ function ToolbarRoot({
   titleAlign = "center",
   background = "edge",
   className,
+  children,
   ref,
   ...restProps
 }: ToolbarProps) {
@@ -70,7 +74,10 @@ function ToolbarRoot({
     const bar = element.current
     if (!bar || !setHeight) return
     // A desktop layout hides the bar; its height then leaves the host's own header in charge.
-    const update = () => setHeight(placement, bar.offsetHeight || undefined)
+    const update = () => {
+      setHeight(placement, bar.offsetHeight || undefined)
+      measureLargeTitle(bar)
+    }
     update()
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
     observer?.observe(bar, { box: "border-box" })
@@ -89,10 +96,25 @@ function ToolbarRoot({
       data-host={host?.kind}
       data-scrolled={placement === "top" && host?.scrolled ? "" : undefined}
       {...restProps}
-    />
+    >
+      <ToolbarTitleStyleContext.Provider value={placement === "top" ? titleStyle : undefined}>{children}</ToolbarTitleStyleContext.Provider>
+    </div>
   )
 }
 ToolbarRoot.displayName = "Toolbar"
+
+/**
+ * A large title on a page scrolls up with the content under the row of controls; the row shows the
+ * title inline once it has gone. The distance it travels (the gap above it and its height) goes to
+ * `--toolbar-large-title-travel`, in pixels as a number, as the page's `--page-scroll-y` is.
+ */
+function measureLargeTitle(bar: HTMLElement) {
+  if (bar.dataset.titleStyle !== "large") return
+  const heading = Array.from(bar.children).find((child): child is HTMLElement => child instanceof HTMLElement && child.classList.contains(s.Heading))
+  if (!heading) return
+  const gap = Number.parseFloat(getComputedStyle(bar).rowGap) || 0
+  bar.style.setProperty("--toolbar-large-title-travel", String(heading.offsetHeight + gap))
+}
 
 /* ------------------------------------------------------------------ */
 /*  Parts                                                              */
@@ -141,13 +163,22 @@ export type ToolbarTitleProps = Omit<HTMLAttributes<HTMLHeadingElement>, "childr
 
 function ToolbarTitle({ children, subtitle, as, className, ref, ...restProps }: ToolbarTitleProps) {
   const host = useContext(ToolbarHostContext)
+  const titleStyle = useContext(ToolbarTitleStyleContext)
   const decorative = host?.kind === "dialog"
   const Tag = as ?? "h1"
-  return (
+  const heading = (
     <div className={s.Heading} aria-hidden={decorative || undefined}>
       <Tag ref={ref} className={clsx(s.Title, className)} {...restProps}>{children}</Tag>
       {subtitle != null && subtitle !== false && <p className={s.Subtitle}>{subtitle}</p>}
     </div>
+  )
+  if (titleStyle !== "large" || host?.kind !== "page") return heading
+  // The inline copy the row of controls shows once the large title has scrolled under it.
+  return (
+    <>
+      {heading}
+      <span className={s.CollapsedTitle} aria-hidden="true">{children}</span>
+    </>
   )
 }
 ToolbarTitle.displayName = "Toolbar.Title"

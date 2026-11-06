@@ -30,6 +30,8 @@ type PageContextValue = {
   setScrolled: (scrolled: boolean) => void
   setFooterHeight: (height: number) => void
   setHeaderHeight: (height: number | undefined) => void
+  /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
+  setScrollY: (scrollY: number) => void
 }
 
 const PageContext = createContext<PageContextValue | null>(null)
@@ -65,11 +67,13 @@ export type PageProps = HTMLAttributes<HTMLDivElement> & {
 function PageRoot({ width = "full", surface = "plain", className, children, style, ref, ...restProps }: PageProps) {
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
+  const root = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {
+    root.current = node
     setRoot(node)
     if (typeof ref === "function") {
       const cleanup = ref(node)
-      if (typeof cleanup === "function") return () => { setRoot(null); cleanup() }
+      if (typeof cleanup === "function") return () => { root.current = null; setRoot(null); cleanup() }
       return
     }
     if (ref) ref.current = node
@@ -77,7 +81,9 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
   const [scrolled, setScrolled] = useState(false)
   const [footerHeight, setFooterHeight] = useState(0)
   const [headerHeight, setHeaderHeight] = useState<number>()
-  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight }), [scrolled])
+  // Written straight to the element: a scroll frame must not render the page again.
+  const setScrollY = useCallback((scrollY: number) => root.current?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY))), [])
+  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight, setScrollY }), [scrolled, setScrollY])
   // A phone Toolbar replaces the header and footer bars; it reports its own heights.
   const [toolbarTop, setToolbarTop] = useState<number>()
   const [toolbarBottom, setToolbarBottom] = useState<number>()
@@ -229,10 +235,11 @@ export type PageContentProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 function PageContent({ fill = false, className, children, onScroll, ...restProps }: PageContentProps) {
-  const { setScrolled } = usePageContext("Content")
+  const { setScrolled, setScrollY } = usePageContext("Content")
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     setScrolled(event.currentTarget.scrollTop > SCROLLED_AFTER)
+    setScrollY(event.currentTarget.scrollTop)
     onScroll?.(event)
   }
 

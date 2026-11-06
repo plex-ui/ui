@@ -1,8 +1,10 @@
 'use client';
 
 import { defineComponent, h, ref, watch, type PropType } from 'vue';
-import { Page, PageActions, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
+import { NavigationButton } from '@plexui/vue/components/Button';
+import { Page, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
 import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
+import { Toolbar, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import { useBreakpoint as breakpoint } from '@plexui/vue/composables/useBreakpoints';
 import { isSidebarNavigationSelection } from '../SidebarDemos.utils';
 import s from '../SidebarDemos.module.css';
@@ -41,11 +43,11 @@ export const ResponsiveSidebar = defineComponent({
     }, { flush: 'post' });
     return () => sidebar.isMobile
       ? h(SidebarMobile, { contained: true, class: s.Drawer, inert: sidebar.openMobile ? undefined : true, role: 'navigation', 'aria-label': 'Main navigation' }, () =>
-        h(Page, null, () => [
-          h(PageHeader, { background: 'solid' }, () => h(PageBar, null, () => [
-            h(PageTitle, null, () => 'Navigation'),
-            h(PageActions, null, () => h(SidebarMobileMenuButton, { ref: closeRef })),
-          ])),
+        h(Page, { surface: 'grouped' }, () => [
+          h(Toolbar, { titleStyle: 'large' }, () => [
+            h(ToolbarTitle, null, () => 'Navigation'),
+            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', ref: closeRef, onClick: () => sidebar.setOpenMobile(false) })),
+          ]),
           h(PageContent, { class: s.NavigationContent, onClick: (event: MouseEvent) => {
             if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) sidebar.setOpenMobile(false);
           } }, slots),

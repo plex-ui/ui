@@ -459,7 +459,9 @@
     --toolbar-search-icon-size: 26px;
     --toolbar-flat-opacity: 80%;
     --toolbar-flat-blur: 60px;
-    --toolbar-large-title-gap: 10px;
+    /* The large title starts 21pt under the row of controls in iOS 26 Mail and Freeform (iOS2 IMG_5530, 5531,
+       5534: controls 59 to 103, title baseline 157 at 430pt); the kit's 10 sets it 11pt too high. */
+    --toolbar-large-title-gap: 21px;
     --toolbar-icon-size: 24px;
     --toolbar-label-font-size: 17px;
     --toolbar-label-line-height: 22px;

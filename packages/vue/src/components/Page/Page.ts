@@ -27,7 +27,13 @@ export type PageWidth = "full" | "wide" | "column"
 // A trackpad's small settle at the top must not flash the line.
 const SCROLLED_AFTER = 4
 
-type PageContext = { scrolled: Ref<boolean>; footerHeight: Ref<number>; headerHeight: Ref<number | undefined> }
+type PageContext = {
+  scrolled: Ref<boolean>
+  footerHeight: Ref<number>
+  headerHeight: Ref<number | undefined>
+  /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
+  setScrollY: (scrollY: number) => void
+}
 const PAGE_CONTEXT: InjectionKey<PageContext> = Symbol("Page")
 
 function injectPageContext(part: string): PageContext {
@@ -54,7 +60,14 @@ const PageComponent = defineComponent({
   },
   setup(props, { slots }) {
     const boundary = provideFloatingBoundaryScope()
-    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>() }
+    let root: HTMLElement | null = null
+    const setRoot = (node: unknown) => {
+      root = node instanceof HTMLElement ? node : null
+      boundary.setRoot(node)
+    }
+    // Written straight to the element: a scroll frame must not render the page again.
+    const setScrollY = (scrollY: number) => root?.style.setProperty("--page-scroll-y", String(Math.max(0, scrollY)))
+    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY }
     provide(PAGE_CONTEXT, context)
     // A phone Toolbar replaces the header and footer bars; it reports its own heights.
     const toolbarTop = ref<number>()
@@ -64,7 +77,7 @@ const PageComponent = defineComponent({
       scrolled: context.scrolled,
       setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
     })
-    return () => h("div", { "ref": boundary.setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
+    return () => h("div", { "ref": setRoot, "class": s.Page, "data-width": props.width, "data-surface": props.surface,
       style: {
         "--page-footer-height": `${context.footerHeight.value}px`,
         ...(context.headerHeight.value !== undefined ? { "--page-header-height": `${context.headerHeight.value}px` } : {}),
@@ -171,10 +184,12 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const { scrolled } = injectPageContext("PageContent")
+    const { scrolled, setScrollY } = injectPageContext("PageContent")
 
     const onScroll = (event: Event) => {
-      scrolled.value = (event.currentTarget as HTMLElement).scrollTop > SCROLLED_AFTER
+      const top = (event.currentTarget as HTMLElement).scrollTop
+      scrolled.value = top > SCROLLED_AFTER
+      setScrollY(top)
     }
 
     return () =>

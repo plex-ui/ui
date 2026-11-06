@@ -498,7 +498,7 @@ const SIDEBAR_DEMO_STYLES = `
   [data-demo-stage] [data-sidebar="collapsed"] .demo-sidebar-wordmark { opacity: 0; max-width: 0; pointer-events: none; }
 
   .console-demo .console-content { -webkit-mask-image: none; mask-image: none; padding-top: 0; }
-  .console-demo .console-menu-button > span > span:first-child > svg { width: 16px; height: 16px; }
+  @media (min-width: 768px) { .console-demo .console-menu-button > span > span:first-child > svg { width: 16px; height: 16px; } }
   .console-demo .console-workspace-chevron {
     transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
   }

@@ -1226,6 +1226,229 @@
   pointer-events: auto !important;
 }
 
+/* =============================================
+   Mobile drawer list
+   On an iPhone the sidebar of an app is a list on a grouped page (Mail and
+   Freeform in iOS 26). Each menu is a card of 52px rows: the icon in a 40px
+   column, the label at 17px, counts in the secondary label color and a
+   disclosure chevron on a row that leads somewhere. A group label heads its
+   section in semibold 20px; an item with a submenu stays a row of the card, its
+   chevron turns down and its items follow it, indented, as nested folders do
+   in iOS lists. The App variant keeps its side drawer.
+============================================= */
+
+.MenuDisclosure {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .MobileSidebar:not(:where(.App *)) {
+    --sidebar-list-inset: var(--sidebar-mobile-list-inset, var(--mobile-layout-margin, 16px));
+    --sidebar-list-icon-column: var(--sidebar-mobile-list-icon-column, 40px);
+    --sidebar-list-indent: var(--sidebar-mobile-list-indent, 20px);
+    --sidebar-row-inset: var(--sidebar-list-inset);
+    --sidebar-menu-item-height: var(--sidebar-mobile-list-row-height, 52px);
+    --sidebar-menu-sub-item-padding-y: calc(
+      (var(--sidebar-mobile-list-row-height, 52px) - var(--sidebar-menu-sub-item-line-height, 20px)) / 2
+    );
+    --sidebar-menu-item-trailing-padding: var(--sidebar-list-inset);
+    --sidebar-menu-item-radius: 0px;
+    --sidebar-menu-text: var(--color-text);
+    --sidebar-menu-text-active: var(--color-text);
+    --sidebar-icon-size: var(--sidebar-mobile-list-icon-size, 24px);
+    --sidebar-icon-wrapper-size: var(--sidebar-icon-size);
+    --sidebar-icon-margin: 0 calc(var(--sidebar-list-icon-column) - var(--sidebar-icon-size)) 0 0;
+
+    background: var(--sidebar-mobile-background, var(--mobile-surface-grouped-primary, var(--color-surface-secondary)));
+
+    & .Content {
+      padding: 0;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    & .FooterSeparator {
+      display: none;
+    }
+
+    & .Content + .Footer,
+    & .Header + .Content {
+      margin-top: var(--sidebar-mobile-list-section-gap, 20px);
+    }
+
+    & .Group {
+      padding-bottom: 0;
+    }
+
+    /* Cards without a header stand 20px apart (iOS 26 Settings); a header
+       takes its own 44px, 18px below the card above it, as in Mail. */
+    & .Group + .Group {
+      margin-top: var(--sidebar-mobile-list-section-gap, 20px);
+    }
+
+    & .Group + .Group:has(> .GroupLabel:first-child) {
+      margin-top: var(--sidebar-mobile-list-header-gap, 18px);
+    }
+
+    & .Group .GroupLabel,
+    & .Group .GroupLabel[data-size] {
+      display: flex;
+      align-items: center;
+      min-height: var(--sidebar-mobile-list-header-height, 44px);
+      margin: 0;
+      padding: 0 var(--sidebar-list-inset);
+      color: var(--color-text);
+      font-size: var(--sidebar-mobile-list-header-font-size, 20px);
+      font-weight: var(--sidebar-mobile-list-header-font-weight, var(--font-weight-semibold));
+      line-height: var(--sidebar-mobile-list-header-line-height, 25px);
+      letter-spacing: normal;
+    }
+
+    /* The card. The page's surface sets its color: white on a grouped page. */
+    & .Menu {
+      overflow: hidden;
+      border-radius: var(--sidebar-mobile-list-radius, 26px);
+      background: var(
+        --sidebar-mobile-list-background,
+        var(--mobile-surface-secondary, var(--mobile-surface-grouped-secondary, var(--color-surface)))
+      );
+    }
+
+    & .Menu .Menu,
+    & .MenuSub {
+      border-radius: 0;
+      background: none;
+    }
+
+    & .MenuButton {
+      margin: 0;
+    }
+
+    & .MenuButtonInner {
+      padding-inline: var(--sidebar-row-inset) var(--sidebar-list-inset);
+    }
+
+    & .MenuButtonLabel:first-child {
+      padding-left: 0;
+    }
+
+    /* Every submenu button has an indent class: this outranks their desktop padding */
+    & .Menu .MenuSubButton:is(.indent0, .indent1, .indent2, .indent3) {
+      margin: 0;
+      padding-inline: var(--sidebar-row-inset) var(--sidebar-list-inset);
+    }
+
+    /* An item of a submenu starts under its parent's label, one step further
+       for every level below. */
+    & .MenuSubButton.indent1 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + var(--sidebar-list-indent));
+    }
+
+    & .MenuSub[data-has-icons="true"] .MenuSubButton.indent1 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + var(--sidebar-list-icon-column));
+    }
+
+    & .MenuSubButton.indent2 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + 2 * var(--sidebar-list-indent));
+    }
+
+    & .MenuSubButton.indent3 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + 3 * var(--sidebar-list-indent));
+    }
+
+    /* A selected or pressed row fills its cell edge to edge; the card clips
+       the corners. */
+    & :is(.MenuButton, .MenuSubButton):is(*, :hover, :active, :focus-visible)::before {
+      border-radius: 0;
+      transform: none;
+    }
+
+    & :is(.MenuButton, .MenuSubButton):focus-visible::before {
+      opacity: 1;
+      box-shadow: inset 0 0 0 2px var(--color-ring);
+    }
+
+    & :is(.MenuButton, .MenuSubButton):focus-visible:not([data-active="true"])::before {
+      background: transparent;
+    }
+
+    /* Separators between the rows of a card start at the label and end at
+       the inset, like FieldGroup rows. */
+    & .Menu :is(.MenuButton, .MenuSubButton)::after {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      inset-inline: var(--sidebar-row-inset) var(--sidebar-list-inset);
+      height: 1px;
+      background: var(--color-border);
+      content: "";
+      pointer-events: none;
+    }
+
+    & .Menu .MenuButton:has(> .MenuButtonInner > .MenuButtonIcon)::after {
+      inset-inline-start: calc(var(--sidebar-row-inset) + var(--sidebar-list-icon-column));
+    }
+
+    & .Menu > .MenuItem:first-child > .MenuButton::after,
+    & .Menu > .MenuItem:first-child > * > .MenuButton::after {
+      display: none;
+    }
+
+    /* A selected cell hides the separators at its edges, as in iOS lists. */
+    & .Menu :is(.MenuButton, .MenuSubButton)[data-active="true"]::after,
+    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + * > :is(.MenuButton, .MenuSubButton)::after,
+    & .Menu :is(.MenuItem, .MenuSubItem):has(> :is(.MenuButton, .MenuSubButton)[data-active="true"], > * > :is(.MenuButton, .MenuSubButton)[data-active="true"]) + * > * > :is(.MenuButton, .MenuSubButton)::after,
+    & .Menu .MenuItem:has(> .MenuButton[data-active="true"], > * > .MenuButton[data-active="true"]) > .MenuSub > :first-child > :is(.MenuButton, .MenuSubButton)::after {
+      opacity: 0;
+    }
+
+    /* Counts read as values of the row */
+    & .MenuBadge {
+      color: var(--mobile-label-secondary, var(--color-text-secondary));
+      font-size: var(--sidebar-menu-item-font-size);
+      line-height: var(--sidebar-menu-item-line-height);
+    }
+
+    & .MenuChevron {
+      color: var(--mobile-label-secondary, var(--color-text-secondary));
+      margin-right: var(--sidebar-mobile-list-chevron-offset, -2.83px);
+    }
+
+    & .MenuChevron svg {
+      width: var(--sidebar-mobile-list-chevron-size, 20px);
+      height: var(--sidebar-mobile-list-chevron-size, 20px);
+    }
+
+    /* The disclosure ends 3px inside the inset (Mail): its glyph has 6.67px
+       of air on the right in its 20px box. It keeps 8px after a count. */
+    & .MenuDisclosure {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-shrink: 0;
+      margin-inline: auto var(--sidebar-mobile-list-disclosure-offset, -3.67px);
+      color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    }
+
+    & .MenuDisclosure svg {
+      width: var(--sidebar-mobile-list-chevron-size, 20px);
+      height: var(--sidebar-mobile-list-chevron-size, 20px);
+    }
+
+    & .MenuBadge ~ .MenuDisclosure {
+      margin-inline-start: var(--sidebar-mobile-list-disclosure-gap, 8px);
+    }
+
+    /* Rows that open a menu, expand a level or carry their own controls do
+       not lead to another page. */
+    & :is(.MenuButton, .MenuSubButton):is([aria-haspopup], [aria-expanded], :has(.MenuChevron)) .MenuDisclosure,
+    & :is(.MenuItem, .MenuSubItem) > :is(.MenuButton, .MenuSubButton):has(~ :not(.MenuSub)) .MenuDisclosure,
+    & :is(.MenuItem, .MenuSubItem) > * > :is(.MenuButton, .MenuSubButton):has(~ *) .MenuDisclosure {
+      display: none;
+    }
+  }
+}
+
 /* Desktop breakpoint - sidebar becomes fixed */
 @media (min-width: 768px) {
   .MobileSidebar {

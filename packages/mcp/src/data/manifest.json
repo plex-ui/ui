@@ -6929,7 +6929,7 @@
         {
           "name": "Titles",
           "code": "<Toolbar titleStyle=\"large\">\n<Toolbar.Leading>\n  <NavigationButton action=\"back\" />\n</Toolbar.Leading>\n<Toolbar.Title subtitle=\"24 orders\">Orders</Toolbar.Title>\n<Toolbar.Trailing>\n  <NavigationButton action=\"confirm\" />\n</Toolbar.Trailing>\n</Toolbar>",
-          "details": "titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them, and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. titleAlign=\"start\" puts an inline title after the leading items."
+          "details": "titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it scrolls up with the content under the controls, which then show it inline), and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. titleAlign=\"start\" puts an inline title after the leading items."
         },
         {
           "name": "Group",
@@ -7091,5 +7091,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T08:33:47.571Z"
+  "generatedAt": "2026-11-06T10:01:39.772Z"
 }

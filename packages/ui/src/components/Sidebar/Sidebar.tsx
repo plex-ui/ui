@@ -69,9 +69,11 @@ import clsx from "clsx"
 import { Slot } from "radix-ui"
 import {
   cloneElement,
+  createContext,
   forwardRef,
   isValidElement,
   useCallback,
+  useContext,
   useLayoutEffect,
   useState,
   type ComponentProps,
@@ -80,7 +82,7 @@ import {
 } from "react"
 
 import { Button } from "../Button"
-import { ChevronRightMd, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon"
+import { ChevronRightMd, Disclosure, Search as SearchIcon, Sidebar as SidebarIcon, SidebarMenuMobile, X } from "../Icon"
 import { Input, type InputProps } from "../Input"
 import { Tooltip } from "../Tooltip"
 import s from "@plexui/styles/components/Sidebar/Sidebar.module.css"
@@ -102,6 +104,16 @@ const cleanProps = <P extends object>(props: P): Omit<P, "data-toggle"> => {
 // Re-export provider and hook
 export { SidebarProvider, useSidebar }
 export type { SidebarCollapsible, SidebarProviderVariant, SidebarSide, SidebarVariant }
+
+// Rows inside the mobile drawer end with a disclosure chevron (see the drawer list in the styles).
+const SidebarDrawerContext = createContext(false)
+
+/** The chevron of a drawer row that leads to another page. */
+const MenuDisclosure = () => (
+  <span className={s.MenuDisclosure} aria-hidden="true">
+    <Disclosure />
+  </span>
+)
 
 // =============================================
 // Sidebar Root
@@ -346,8 +358,10 @@ let railLeftAt = 0
 export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({ isActive = false, tooltip, asChild = false, className, children, onPointerEnter, onPointerLeave, ...props }, ref) => {
     const { state, isMobile } = useSidebar()
+    const inDrawer = useContext(SidebarDrawerContext)
     const [openDelay, setOpenDelay] = useState<number>()
     const Comp = asChild ? Slot.Root : "button"
+    const disclosure = inDrawer ? <MenuDisclosure /> : null
     // With asChild the child element is the button, so the inner wrapper
     // goes inside it. Wrapping the child instead would make Slot merge the
     // button props onto the wrapper span.
@@ -356,10 +370,10 @@ export const SidebarMenuButton = forwardRef<HTMLButtonElement, SidebarMenuButton
         cloneElement(
           children,
           undefined,
-          <span className={s.MenuButtonInner}>{children.props.children}</span>,
+          <span className={s.MenuButtonInner}>{children.props.children}{disclosure}</span>,
         )
       ) : (
-        <span className={s.MenuButtonInner}>{children}</span>
+        <span className={s.MenuButtonInner}>{children}{disclosure}</span>
       )
 
     const button = (
@@ -546,8 +560,15 @@ export type SidebarMenuSubButtonProps = ComponentProps<"button"> & {
 }
 
 export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
-  ({ isActive = false, asChild = false, indent = 0, className, ...props }, ref) => {
+  ({ isActive = false, asChild = false, indent = 0, className, children, ...props }, ref) => {
+    const inDrawer = useContext(SidebarDrawerContext)
     const Comp = asChild ? Slot.Root : "button"
+    // In the drawer the disclosure follows the content, inside the child element with asChild
+    const content = !inDrawer
+      ? children
+      : asChild && isValidElement<{ children?: ReactNode }>(children)
+        ? cloneElement(children, undefined, <>{children.props.children}<MenuDisclosure /></>)
+        : <>{children}<MenuDisclosure /></>
     return (
       <Comp
         ref={ref}
@@ -555,7 +576,9 @@ export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSub
         aria-current={isActive ? "page" : undefined}
         className={clsx(s.MenuSubButton, s[`indent${indent}`], className)}
         {...cleanProps(props)}
-      />
+      >
+        {content}
+      </Comp>
     )
   },
 )
@@ -791,7 +814,7 @@ export const SidebarMobile = forwardRef<HTMLDivElement, SidebarMobileProps>(
           className={clsx(s.MobileSidebar, contained && s.contained, className)}
           {...cleanProps(props)}
         >
-          {children}
+          <SidebarDrawerContext.Provider value>{children}</SidebarDrawerContext.Provider>
         </div>
       </>
     )

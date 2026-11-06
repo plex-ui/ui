@@ -2345,7 +2345,7 @@ function SidebarConsoleDemoPreview() {
     <div data-demo-stage data-bordered={bordered ? 'true' : 'false'} className="flex-1 w-full !p-0 !items-stretch !justify-stretch [&>*]:!m-0">
       <style>{`
         .console-demo .console-content { -webkit-mask-image: none; mask-image: none; padding-top: 0; }
-        .console-demo .console-menu-button > span > span:first-child > svg { width: 16px; height: 16px; }
+        @media (min-width: 768px) { .console-demo .console-menu-button > span > span:first-child > svg { width: 16px; height: 16px; } }
         .console-demo .console-workspace-chevron {
           transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
         }

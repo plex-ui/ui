@@ -689,15 +689,18 @@ The examples read their navigation data (`navGroups`, `docsSections`, `iconSecti
 
 ## Responsive composition
 
-These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
 
 Save the helpers in `responsive-sidebar.ts` and the styles in `responsive-sidebar.module.css`:
 
 ```ts
 import { defineComponent, h, ref, watch, type PropType } from 'vue';
-import { Page, PageActions, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
+import { NavigationButton } from '@plexui/vue/components/Button';
+import { Page, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
 import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
+import { Toolbar, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import { useBreakpoint as breakpoint } from '@plexui/vue/composables/useBreakpoints';
+import s from './responsive-sidebar.module.css';
 /** Leaf navigation closes the drawer; disclosure and popup buttons keep it open. */
 export function isSidebarNavigationSelection(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
@@ -705,7 +708,6 @@ export function isSidebarNavigationSelection(target: EventTarget | null) {
   return Boolean(button && !button.hasAttribute('aria-haspopup') &&
     !button.hasAttribute('aria-expanded') && !button.closest('li')?.querySelector(':scope > ul'));
 }
-import s from './responsive-sidebar.module.css';
 
 export const ResponsiveSidebarProvider = defineComponent({
   name: 'ResponsiveSidebarProvider',
@@ -741,11 +743,11 @@ export const ResponsiveSidebar = defineComponent({
     }, { flush: 'post' });
     return () => sidebar.isMobile
       ? h(SidebarMobile, { contained: true, class: s.Drawer, inert: sidebar.openMobile ? undefined : true, role: 'navigation', 'aria-label': 'Main navigation' }, () =>
-        h(Page, null, () => [
-          h(PageHeader, { background: 'solid' }, () => h(PageBar, null, () => [
-            h(PageTitle, null, () => 'Navigation'),
-            h(PageActions, null, () => h(SidebarMobileMenuButton, { ref: closeRef })),
-          ])),
+        h(Page, { surface: 'grouped' }, () => [
+          h(Toolbar, { titleStyle: 'large' }, () => [
+            h(ToolbarTitle, null, () => 'Navigation'),
+            h(ToolbarTrailing, null, () => h(NavigationButton, { action: 'close', 'aria-label': 'Close menu', ref: closeRef, onClick: () => sidebar.setOpenMobile(false) })),
+          ]),
           h(PageContent, { class: s.NavigationContent, onClick: (event: MouseEvent) => {
             if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) sidebar.setOpenMobile(false);
           } }, slots),
@@ -779,18 +781,10 @@ export const SidebarDemoPage = defineComponent({
 
 .Drawer {
   padding: 0;
-  background: var(--color-surface);
 }
 
 .NavigationContent {
   --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
-}
-
-.NavigationContent :global([class*="Sidebar-module__Content"]) {
-  padding-top: 0;
-  overflow: visible;
-  mask-image: none;
-  -webkit-mask-image: none;
 }
 
 @media (max-width: 767px) {

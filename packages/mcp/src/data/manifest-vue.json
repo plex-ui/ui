@@ -6997,7 +6997,7 @@
         {
           "name": "Titles",
           "code": "<Toolbar title-style=\"large\">\n  <ToolbarLeading>\n    <NavigationButton action=\"back\" />\n  </ToolbarLeading>\n  <ToolbarTitle subtitle=\"24 orders\">Orders</ToolbarTitle>\n  <ToolbarTrailing>\n    <NavigationButton action=\"confirm\" />\n  </ToolbarTrailing>\n</Toolbar>",
-          "details": "title-style sets the size and place of the title: inline in the row of controls, large on a row of its own below them, and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. title-align=\"start\" puts an inline title after the leading items."
+          "details": "title-style sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it scrolls up with the content under the controls, which then show it inline), and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. title-align=\"start\" puts an inline title after the leading items."
         },
         {
           "name": "Group",
@@ -7165,5 +7165,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T08:33:48.614Z"
+  "generatedAt": "2026-11-06T10:01:41.054Z"
 }

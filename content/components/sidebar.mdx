@@ -394,12 +394,13 @@ const subMenuId = treeId + "-" + id;
 
 ## Responsive composition
 
-These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
+These application-local helpers choose the layout from the viewport. Desktop collapse remains independent of the mobile drawer. On a phone the drawer is a grouped page with a large title and a close button, as the sidebar of an iPhone app is: each menu is a card of 52px rows, a group label heads its section, a row that leads to a page ends with a disclosure chevron, and an item with a submenu keeps its own chevron, which turns down as its items open under it. The page and hidden drawer are inert at the appropriate time, and focus returns to the menu button after closing. Keep navigation selection handlers on the row buttons; popup and disclosure buttons do not close the drawer.
 
 Save the helpers in `responsive-sidebar.tsx` and the styles in `responsive-sidebar.module.css`:
 
 ```tsx
 import { useEffect, useRef, type ReactNode } from 'react';
+import { NavigationButton } from '@plexui/ui/components/Button';
 import { Page } from '@plexui/ui/components/Page';
 import {
   Sidebar,
@@ -411,6 +412,7 @@ import {
   type SidebarProps,
   type SidebarProviderProps,
 } from '@plexui/ui/components/Sidebar';
+import { Toolbar } from '@plexui/ui/components/Toolbar';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import s from './responsive-sidebar.module.css';
 /** Leaf navigation closes the drawer; disclosure and popup buttons keep it open. */
@@ -439,13 +441,13 @@ export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
   if (!isMobile) return <Sidebar {...props}>{children}</Sidebar>;
   return (
     <SidebarMobile contained className={s.Drawer} inert={!openMobile} role="navigation" aria-label="Main navigation">
-      <Page>
-        <Page.Header background="solid">
-          <Page.Bar>
-            <Page.Title>Navigation</Page.Title>
-            <Page.Actions><SidebarMobileMenuButton ref={closeRef} /></Page.Actions>
-          </Page.Bar>
-        </Page.Header>
+      <Page surface="grouped">
+        <Toolbar titleStyle="large">
+          <Toolbar.Title>Navigation</Toolbar.Title>
+          <Toolbar.Trailing>
+            <NavigationButton action="close" aria-label="Close menu" ref={closeRef} onClick={() => setOpenMobile(false)} />
+          </Toolbar.Trailing>
+        </Toolbar>
         <Page.Content className={s.NavigationContent} onClick={(event) => {
           if (!event.defaultPrevented && isSidebarNavigationSelection(event.target)) setOpenMobile(false);
         }}>
@@ -488,18 +490,10 @@ export function SidebarDemoPage({ title, children }: { title: ReactNode; childre
 
 .Drawer {
   padding: 0;
-  background: var(--color-surface);
 }
 
 .NavigationContent {
   --page-content-padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
-}
-
-.NavigationContent :global([class*="Sidebar-module__Content"]) {
-  padding-top: 0;
-  overflow: visible;
-  mask-image: none;
-  -webkit-mask-image: none;
 }
 
 @media (max-width: 767px) {

@@ -10182,7 +10182,7 @@ Leading and trailing items take 44px targets; the title is centered across the w
 ```
 
 ### Titles
-title-style sets the size and place of the title: inline in the row of controls, large on a row of its own below them, and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. title-align="start" puts an inline title after the leading items.
+title-style sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it scrolls up with the content under the controls, which then show it inline), and compact-large or compact-medium at the leading edge of the row. subtitle adds a second line. title-align="start" puts an inline title after the leading items.
 ```vue
 <Toolbar title-style="large">
   <ToolbarLeading>

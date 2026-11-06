@@ -1,10 +1,13 @@
 import {
+  computed,
   defineComponent,
   h,
   inject,
   onBeforeUnmount,
   onMounted,
+  provide,
   ref,
+  type ComputedRef,
   type HTMLAttributes,
   type InjectionKey,
   type PropType,
@@ -35,6 +38,22 @@ export type ToolbarHost = {
 
 export const TOOLBAR_HOST: InjectionKey<ToolbarHost> = Symbol("ToolbarHost")
 
+// The title style of the top bar, which a large title on a page needs to show itself inline once scrolled.
+const TOOLBAR_TITLE_STYLE: InjectionKey<ComputedRef<ToolbarTitleStyle | undefined>> = Symbol("ToolbarTitleStyle")
+
+/**
+ * A large title on a page scrolls up with the content under the row of controls; the row shows the
+ * title inline once it has gone. The distance it travels (the gap above it and its height) goes to
+ * `--toolbar-large-title-travel`, in pixels as a number, as the page's `--page-scroll-y` is.
+ */
+function measureLargeTitle(bar: HTMLElement) {
+  if (bar.dataset.titleStyle !== "large") return
+  const heading = Array.from(bar.children).find((child): child is HTMLElement => child instanceof HTMLElement && child.classList.contains(s.Heading))
+  if (!heading) return
+  const gap = Number.parseFloat(getComputedStyle(bar).rowGap) || 0
+  bar.style.setProperty("--toolbar-large-title-travel", String(heading.offsetHeight + gap))
+}
+
 const ToolbarComponent = defineComponent({
   name: "Toolbar",
   props: {
@@ -49,6 +68,7 @@ const ToolbarComponent = defineComponent({
   },
   setup(props, { slots }) {
     const host = inject(TOOLBAR_HOST, null)
+    provide(TOOLBAR_TITLE_STYLE, computed(() => (props.placement === "top" ? props.titleStyle : undefined)))
     const element = ref<HTMLElement | null>(null)
     let observer: ResizeObserver | undefined
     let reported: ToolbarPlacement | undefined
@@ -61,6 +81,7 @@ const ToolbarComponent = defineComponent({
         if (reported && reported !== props.placement) setHeight(reported, undefined)
         reported = props.placement
         setHeight(props.placement, bar.offsetHeight || undefined)
+        measureLargeTitle(bar)
       }
       update()
       observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : undefined
@@ -139,12 +160,16 @@ export const ToolbarTitle = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const host = inject(TOOLBAR_HOST, null)
+    const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
     return () => {
       const subtitle = slots.subtitle?.() ?? props.subtitle
-      return h("div", { "class": s.Heading, "aria-hidden": host?.kind === "dialog" ? "true" : undefined }, [
+      const heading = h("div", { "class": s.Heading, "aria-hidden": host?.kind === "dialog" ? "true" : undefined }, [
         h(props.as, { ...attrs, class: [s.Title, attrs.class] }, slots.default?.()),
         subtitle != null && subtitle !== "" ? h("p", { class: s.Subtitle }, subtitle) : null,
       ])
+      if (titleStyle?.value !== "large" || host?.kind !== "page") return heading
+      // The inline copy the row of controls shows once the large title has scrolled under it.
+      return [heading, h("span", { "class": s.CollapsedTitle, "aria-hidden": "true" }, slots.default?.())]
     }
   },
 })
