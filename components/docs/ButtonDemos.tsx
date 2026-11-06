@@ -7,6 +7,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Popover } from '@plexui/ui/components/Popover';
 import { Mail, PlusLg, ArrowRight } from '@plexui/ui/components/Icon';
 import { useDemoControlSync } from './PreviewEmbed';
+import { usePhoneRows } from './PhoneRows';
 
 export const controlsTableStyle: React.CSSProperties = {
   background: 'var(--docs-surface-elevated)',
@@ -84,6 +85,13 @@ const VARIANT_OPTIONS = ['solid', 'soft', 'outline', 'ghost'] as const;
 const OPTIONAL_SIZE_OPTIONS = ['auto', ...GUTTER_OPTIONS] as const;
 const OPTIONAL_ICON_SIZE_OPTIONS = ['auto', ...ICON_SIZE_OPTIONS] as const;
 const COLOR_MATRIX_VARIANTS = ['soft', 'solid', 'outline', 'ghost'] as const;
+// On a phone (touch.css) a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34
+// (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and icon of its size. The phone examples
+// show those three sizes and the two colors of the iOS buttons: accent (primary) and destructive (danger).
+const PHONE_SIZE_OPTIONS = ['sm', 'md', 'xl'] as const;
+const PHONE_COLOR_OPTIONS: readonly (typeof COLOR_OPTIONS)[number][] = ['primary', 'danger'];
+// A color chosen on a desktop that the phone examples do not offer shows as primary there
+const phoneColorOf = (color: (typeof COLOR_OPTIONS)[number]) => (PHONE_COLOR_OPTIONS.includes(color) ? color : 'primary');
 const COLOR_OPTIONS = [
   'primary',
   'secondary',
@@ -94,6 +102,34 @@ const COLOR_OPTIONS = [
   'caution',
   'warning',
 ] as const;
+
+function ButtonVariantControl({ value, onChange }: { value: (typeof VARIANT_OPTIONS)[number]; onChange: (value: (typeof VARIANT_OPTIONS)[number]) => void }) {
+  return (
+    <DemoControlRow name="variant">
+      <SegmentedControl<(typeof VARIANT_OPTIONS)[number]> value={value} onChange={onChange} aria-label="variant" size="xs">
+        {VARIANT_OPTIONS.map((v) => (
+          <SegmentedControl.Option key={v} value={v}>
+            {v}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
+
+function ButtonColorControl({ value, onChange, options = COLOR_OPTIONS }: { value: (typeof COLOR_OPTIONS)[number]; onChange: (value: (typeof COLOR_OPTIONS)[number]) => void; options?: readonly (typeof COLOR_OPTIONS)[number][] }) {
+  return (
+    <DemoControlRow name="color">
+      <SegmentedControl<(typeof COLOR_OPTIONS)[number]> value={value} onChange={onChange} aria-label="color" size="xs">
+        {options.map((c) => (
+          <SegmentedControl.Option key={c} value={c}>
+            {c}
+          </SegmentedControl.Option>
+        ))}
+      </SegmentedControl>
+    </DemoControlRow>
+  );
+}
 
 export function ButtonColorsDemo() {
   return (
@@ -145,7 +181,29 @@ export function ButtonSizingDemo() {
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('solid');
   const [pill, setPill] = useState(true);
+  const phone = usePhoneRows();
   const args = { color, variant, size, pill };
+  if (phone) {
+    const phoneColor = phoneColorOf(color);
+    return (
+      <>
+        <div data-demo-controls style={controlsTableStyle}>
+          <ButtonVariantControl value={variant} onChange={setVariant} />
+          <ButtonColorControl value={phoneColor} onChange={setColor} options={PHONE_COLOR_OPTIONS} />
+        </div>
+        <div className="flex-1 flex flex-col gap-4 justify-center items-center py-12 w-full" data-demo-stage>
+          {PHONE_SIZE_OPTIONS.map((phoneSize) => (
+            <div key={phoneSize} className="flex gap-2 items-center">
+              <Button color={phoneColor} variant={variant} size={phoneSize}>
+                <Mail /> Button
+              </Button>
+              <Button color={phoneColor} variant={variant} size={phoneSize}>Button</Button>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -163,34 +221,8 @@ export function ButtonSizingDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="variant">
-          <SegmentedControl<(typeof VARIANT_OPTIONS)[number]>
-            value={variant}
-            onChange={setVariant}
-            aria-label="variant"
-            size="xs"
-          >
-            {VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
-        <DemoControlRow name="color">
-          <SegmentedControl<(typeof COLOR_OPTIONS)[number]>
-            value={color}
-            onChange={setColor}
-            aria-label="color"
-            size="xs"
-          >
-            {COLOR_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <ButtonVariantControl value={variant} onChange={setVariant} />
+        <ButtonColorControl value={color} onChange={setColor} />
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
       </div>
       <div className="flex-1 flex flex-col gap-2 justify-center items-center py-12 w-full" data-demo-stage style={{ minHeight: 312 }}>
@@ -216,23 +248,32 @@ export function ButtonIconDemo() {
   const [uniform, setUniform] = useState(false);
   const [variant, setVariant] = useState<(typeof VARIANT_OPTIONS)[number]>('solid');
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('primary');
+  const phone = usePhoneRows();
+  if (phone) {
+    // uniform is left out: on a phone a uniform button is currently 44px at every size
+    const phoneColor = phoneColorOf(color);
+    return (
+      <>
+        <div data-demo-controls style={controlsTableStyle}>
+          <ButtonVariantControl value={variant} onChange={setVariant} />
+          <ButtonColorControl value={phoneColor} onChange={setColor} options={PHONE_COLOR_OPTIONS} />
+        </div>
+        <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
+          <div className="flex gap-2 items-center">
+            {PHONE_SIZE_OPTIONS.map((phoneSize) => (
+              <Button key={phoneSize} color={phoneColor} size={phoneSize} variant={variant} aria-label="Add">
+                <PlusLg />
+              </Button>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="variant">
-          <SegmentedControl<(typeof VARIANT_OPTIONS)[number]>
-            value={variant}
-            onChange={setVariant}
-            aria-label="variant"
-            size="xs"
-          >
-            {VARIANT_OPTIONS.map((v) => (
-              <SegmentedControl.Option key={v} value={v}>
-                {v}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <ButtonVariantControl value={variant} onChange={setVariant} />
         <DemoControlBoolean name="uniform" value={uniform} onChange={setUniform} />
         <DemoControlRow name="size">
           <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
@@ -276,20 +317,7 @@ export function ButtonIconDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="color">
-          <SegmentedControl<(typeof COLOR_OPTIONS)[number]>
-            value={color}
-            onChange={setColor}
-            aria-label="color"
-            size="xs"
-          >
-            {COLOR_OPTIONS.map((c) => (
-              <SegmentedControl.Option key={c} value={c}>
-                {c}
-              </SegmentedControl.Option>
-            ))}
-          </SegmentedControl>
-        </DemoControlRow>
+        <ButtonColorControl value={color} onChange={setColor} />
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
         <Button
@@ -310,6 +338,8 @@ export function ButtonIconDemo() {
 
 export function ButtonBlockDemo() {
   const [block, setBlock] = useState(true);
+  // On a phone the main action of a screen is the large 50px button of iOS
+  const phone = usePhoneRows();
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -317,7 +347,7 @@ export function ButtonBlockDemo() {
       </div>
       <div className="flex-1 flex items-center justify-center py-12 w-full" data-demo-stage>
         <div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
-          <Button color="primary" size="lg" block={block}>
+          <Button color="primary" size={phone ? 'xl' : 'lg'} block={block}>
             Continue
           </Button>
         </div>

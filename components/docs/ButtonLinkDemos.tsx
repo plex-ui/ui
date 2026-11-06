@@ -5,6 +5,7 @@ import { ButtonLink } from '@plexui/ui/components/Button';
 import { ArrowRight, Globe, Key } from '@plexui/ui/components/Icon';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 
 const matrixLabelStyle: React.CSSProperties = {
   color: 'var(--color-text-tertiary)',
@@ -13,6 +14,9 @@ const matrixLabelStyle: React.CSSProperties = {
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const ICON_SIZE_OPTIONS = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
+// On a phone (touch.css) a button link takes the three heights of iOS buttons (28, 34, 50), always a capsule, with
+// the icon of its size; the phone examples show those three sizes without the desktop controls.
+const PHONE_SIZE_OPTIONS = ['sm', 'md', 'xl'] as const;
 const VARIANTS = ['soft', 'solid', 'outline', 'ghost'] as const;
 const COLORS = [
   'primary',
@@ -76,7 +80,19 @@ export function ButtonLinkColorsMatrixDemo() {
 export function ButtonLinkSizingDemoWithControls() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [pill, setPill] = useState(false);
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <div data-demo-stage className="flex flex-col gap-4 items-center justify-center py-12">
+        {PHONE_SIZE_OPTIONS.map((phoneSize) => (
+          <ButtonLink key={phoneSize} as="a" color="primary" size={phoneSize} href="#" className="whitespace-nowrap">
+            View account <ArrowRight />
+          </ButtonLink>
+        ))}
+      </div>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -127,7 +143,19 @@ export function ButtonLinkSizingDemoWithControls() {
 export function ButtonLinkIconDemoWithControls() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [iconSize, setIconSize] = useState<(typeof ICON_SIZE_OPTIONS)[number]>('lg');
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <div data-demo-stage className="flex flex-col gap-4 items-center justify-center py-12">
+        {PHONE_SIZE_OPTIONS.map((phoneSize) => (
+          <ButtonLink key={phoneSize} as="a" color="info" size={phoneSize} variant="soft" href="#" className="whitespace-nowrap">
+            <Globe /> View website
+          </ButtonLink>
+        ))}
+      </div>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -180,6 +208,8 @@ export function ButtonLinkIconDemoWithControls() {
 
 export function ButtonLinkBlockDemoWithControls() {
   const [block, setBlock] = useState(true);
+  // On a phone the main action of a screen is the large 50px button of iOS
+  const phone = usePhoneRows();
 
   return (
     <>
@@ -191,7 +221,7 @@ export function ButtonLinkBlockDemoWithControls() {
           <ButtonLink
             as="a"
             block={block}
-            size="lg"
+            size={phone ? 'xl' : 'lg'}
             pill={false}
             href="#"
             className="whitespace-nowrap"

@@ -869,8 +869,9 @@ const variants = ["soft", "solid", "outline", "ghost"] as const
 ```
 
 ### Sizing & roundness
-Sizing of the link is controlled with size and gutterSize props. size sets the control height, and gutterSize sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link.
+Sizing of the link is controlled with size and gutterSize props. size sets the control height, and gutterSize sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link. On a phone with touch.css a link takes one of the three heights of iOS buttons, small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule; the Phone example shows the three.
 ```tsx
+// Desktop
 <div className="flex flex-col gap-2 justify-start items-start">
 <ButtonLink color="primary" size="lg" href="#" className="whitespace-nowrap">
   View account <ArrowRight />
@@ -879,21 +880,42 @@ Sizing of the link is controlled with size and gutterSize props. size sets the c
   View account
 </ButtonLink>
 </div>
+
+// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50
+<div className="flex flex-col gap-4 items-center">
+<ButtonLink color="primary" size="sm" href="#" className="whitespace-nowrap">View account <ArrowRight /></ButtonLink>
+<ButtonLink color="primary" size="md" href="#" className="whitespace-nowrap">View account <ArrowRight /></ButtonLink>
+<ButtonLink color="primary" size="xl" href="#" className="whitespace-nowrap">View account <ArrowRight /></ButtonLink>
+</div>
 ```
 
 ### Icons
-Icon sizing is controlled by the iconSize prop, which makes it easy to add icons as children without additional props. size will provide a default value for iconSize, but setting the prop will force the specified size.
+Icon sizing is controlled by the iconSize prop, which makes it easy to add icons as children without additional props. size will provide a default value for iconSize, but setting the prop will force the specified size. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set.
 ```tsx
+// Desktop
 <ButtonLink color="info" size="lg" iconSize="lg" variant="soft" href="#" className="whitespace-nowrap">
 <Globe /> View website
 </ButtonLink>
+
+// Phone: the three sizes of iOS buttons, each with the icon of its size
+<div className="flex flex-col gap-4 items-center">
+<ButtonLink color="info" size="sm" variant="soft" href="#" className="whitespace-nowrap"><Globe /> View website</ButtonLink>
+<ButtonLink color="info" size="md" variant="soft" href="#" className="whitespace-nowrap"><Globe /> View website</ButtonLink>
+<ButtonLink color="info" size="xl" variant="soft" href="#" className="whitespace-nowrap"><Globe /> View website</ButtonLink>
+</div>
 ```
 
 ### Block
-Create full-width links with the block prop.
+Create full-width links with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
 ```tsx
+// Desktop
 <div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
 <ButtonLink block size="lg" href="#" className="whitespace-nowrap">Continue to dashboard</ButtonLink>
+</div>
+
+// Phone: the large iOS button
+<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+<ButtonLink block size="xl" href="#" className="whitespace-nowrap">Continue to dashboard</ButtonLink>
 </div>
 ```
 
@@ -973,29 +995,54 @@ const variants = ["soft", "solid", "outline", "ghost"] as const
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button.
+Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and font of its size. The Phone example shows the three. Its styles are those of iOS buttons, Filled (solid), Tinted and Gray (soft) and Plain (ghost), in their two colors, accent (primary) and destructive (danger).
 ```tsx
+// Desktop
 <div className="flex flex-col gap-2 items-center">
 <Button color="primary" size="xl" pill><Mail /> Button <ArrowRight /></Button>
 <Button color="primary" size="xl" pill>Button <ArrowRight /></Button>
 <Button color="primary" size="xl" pill><Mail /> Button</Button>
 <Button color="primary" size="xl" pill>Button</Button>
 </div>
+
+// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50
+<div className="flex flex-col gap-4 items-center">
+{(["sm", "md", "xl"] as const).map((size) => (
+  <div key={size} className="flex gap-2 items-center">
+    <Button color="primary" size={size}><Mail /> Button</Button>
+    <Button color="primary" size={size}>Button</Button>
+  </div>
+))}
+</div>
 ```
 
 ### Icons
-Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons.
+Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set. With uniform the button is currently a 44px circle at every size on a phone.
 ```tsx
+// Desktop
 <Button color="primary" size="lg" aria-label="Add">
 <PlusLg />
 </Button>
+
+// Phone: the three sizes of iOS buttons
+<div className="flex gap-2 items-center">
+<Button color="primary" size="sm" aria-label="Add"><PlusLg /></Button>
+<Button color="primary" size="md" aria-label="Add"><PlusLg /></Button>
+<Button color="primary" size="xl" aria-label="Add"><PlusLg /></Button>
+</div>
 ```
 
 ### Block
-Create full-width buttons with the block prop.
+Create full-width buttons with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
 ```tsx
+// Desktop
 <div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
 <Button color="primary" size="lg" block>Continue</Button>
+</div>
+
+// Phone: the large iOS button
+<div className="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+<Button color="primary" size="xl" block>Continue</Button>
 </div>
 ```
 

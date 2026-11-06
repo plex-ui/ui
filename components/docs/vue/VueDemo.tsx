@@ -14,7 +14,8 @@ export type VueDemoOption = string | { value: string | boolean; label: string };
 /** `name` is the template variable; `label`, when set, is what the control row shows. */
 export type VueDemoControl = { name: string; label?: string; phoneOnly?: boolean } & (
   | { type: 'boolean'; default: boolean }
-  | { type: 'select'; options: readonly VueDemoOption[]; default: string | boolean }
+  /** `phoneOptions`: the options shown on a phone; a value outside them shows as `default` there */
+  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean }
   | { type: 'range'; min: number; max: number; step: number; default: number }
 );
 
@@ -39,6 +40,7 @@ export function VueDemo({
   template,
   controls = [],
   hiddenControls = [],
+  phone = false,
   reactiveControlDefaults = false,
   state,
   context,
@@ -51,6 +53,8 @@ export function VueDemo({
   controls?: VueDemoControl[];
   /** Names of controls that keep their value but are not shown, such as the desktop controls of a phone layout */
   hiddenControls?: readonly string[];
+  /** A phone layout (`VuePhoneRowsDemo` sets it): select controls offer their `phoneOptions` */
+  phone?: boolean;
   /** Apply changing defaults until a control is explicitly changed; preserve the mounted form. */
   reactiveControlDefaults?: boolean;
   /** Initial values the template reads and may change (`v-model:value="value"`) */
@@ -81,8 +85,13 @@ export function VueDemo({
     ...(reactiveControlDefaults ? Object.fromEntries(controls
       .filter((control) => !modifiedControls.has(control.name) && control.name !== loop?.name)
       .map((control) => [control.name, control.default])) : {}),
+    // A value chosen on a desktop that a phone does not offer (a color) shows as the default there
+    ...(phone ? Object.fromEntries(controls
+      .filter((control) => control.type === 'select' && control.phoneOptions
+        && !optionsOf(control.phoneOptions).some((option) => option.value === values[control.name]))
+      .map((control) => [control.name, control.default])) : {}),
     ...context,
-  }), [context, controls, loop?.name, modifiedControls, reactiveControlDefaults, values]);
+  }), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
   const set = (name: string) => (value: unknown) => {
     setValues((current) => ({ ...current, [name]: value }));
     if (reactiveControlDefaults) {
@@ -119,6 +128,7 @@ export function VueDemo({
     />
   );
   const shownControls = controls.filter((control) => !hiddenControls.includes(control.name));
+  const optionsFor = (control: Extract<VueDemoControl, { type: 'select' }>) => optionsOf(phone && control.phoneOptions ? control.phoneOptions : control.options);
   if (shownControls.length === 0) {
     return stageClassName ? (
       <div className={stageClassName} data-demo-stage>
@@ -156,12 +166,12 @@ export function VueDemo({
           ) : (
             <DemoControlRow key={control.name} name={control.label ?? control.name} phoneOnly={control.phoneOnly}>
               <SegmentedControl<string>
-                value={optionsOf(control.options).find((option) => option.value === props[control.name])?.label ?? ''}
-                onChange={(label) => set(control.name)(optionsOf(control.options).find((option) => option.label === label)?.value)}
+                value={optionsFor(control).find((option) => option.value === props[control.name])?.label ?? ''}
+                onChange={(label) => set(control.name)(optionsFor(control).find((option) => option.label === label)?.value)}
                 aria-label={control.label ?? control.name}
                 size="xs"
               >
-                {optionsOf(control.options).map((option) => (
+                {optionsFor(control).map((option) => (
                   <SegmentedControl.Option key={option.label} value={option.label}>
                     {option.label}
                   </SegmentedControl.Option>

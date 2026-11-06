@@ -16,5 +16,5 @@ export function VuePhoneRowsDemo({ template, phoneTemplate, stageClassName, phon
   // Every control keeps its value from the first render (a phone layout may come first while the page hydrates);
   // a phone only hides the desktop ones
   const hiddenControls = phone ? [...desktopControlNames, ...desktopControls.map((control) => control.name)] : [];
-  return <VueDemo {...props} controls={[...controls, ...desktopControls]} hiddenControls={hiddenControls} template={phone ? phoneTemplate ?? template : template} stageClassName={phone ? phoneStageClassName ?? (stageClassName ? 'w-full' : undefined) : stageClassName} />;
+  return <VueDemo {...props} phone={phone} controls={[...controls, ...desktopControls]} hiddenControls={hiddenControls} template={phone ? phoneTemplate ?? template : template} stageClassName={phone ? phoneStageClassName ?? (stageClassName ? 'w-full' : undefined) : stageClassName} />;
 }

@@ -841,18 +841,18 @@
         },
         {
           "name": "Sizing & roundness",
-          "code": "<div className=\"flex flex-col gap-2 justify-start items-start\">\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account <ArrowRight />\n</ButtonLink>\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account\n</ButtonLink>\n</div>",
-          "details": "Sizing of the link is controlled with size and gutterSize props. size sets the control height, and gutterSize sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link."
+          "code": "// Desktop\n<div className=\"flex flex-col gap-2 justify-start items-start\">\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account <ArrowRight />\n</ButtonLink>\n<ButtonLink color=\"primary\" size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">\n  View account\n</ButtonLink>\n</div>\n\n// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50\n<div className=\"flex flex-col gap-4 items-center\">\n<ButtonLink color=\"primary\" size=\"sm\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n<ButtonLink color=\"primary\" size=\"md\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n<ButtonLink color=\"primary\" size=\"xl\" href=\"#\" className=\"whitespace-nowrap\">View account <ArrowRight /></ButtonLink>\n</div>",
+          "details": "Sizing of the link is controlled with size and gutterSize props. size sets the control height, and gutterSize sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link. On a phone with touch.css a link takes one of the three heights of iOS buttons, small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule; the Phone example shows the three."
         },
         {
           "name": "Icons",
-          "code": "<ButtonLink color=\"info\" size=\"lg\" iconSize=\"lg\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\">\n<Globe /> View website\n</ButtonLink>",
-          "details": "Icon sizing is controlled by the iconSize prop, which makes it easy to add icons as children without additional props. size will provide a default value for iconSize, but setting the prop will force the specified size."
+          "code": "// Desktop\n<ButtonLink color=\"info\" size=\"lg\" iconSize=\"lg\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\">\n<Globe /> View website\n</ButtonLink>\n\n// Phone: the three sizes of iOS buttons, each with the icon of its size\n<div className=\"flex flex-col gap-4 items-center\">\n<ButtonLink color=\"info\" size=\"sm\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n<ButtonLink color=\"info\" size=\"md\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n<ButtonLink color=\"info\" size=\"xl\" variant=\"soft\" href=\"#\" className=\"whitespace-nowrap\"><Globe /> View website</ButtonLink>\n</div>",
+          "details": "Icon sizing is controlled by the iconSize prop, which makes it easy to add icons as children without additional props. size will provide a default value for iconSize, but setting the prop will force the specified size. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set."
         },
         {
           "name": "Block",
-          "code": "<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<ButtonLink block size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>",
-          "details": "Create full-width links with the block prop."
+          "code": "// Desktop\n<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<ButtonLink block size=\"lg\" href=\"#\" className=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>\n\n// Phone: the large iOS button\n<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<ButtonLink block size=\"xl\" href=\"#\" className=\"whitespace-nowrap\">Continue to dashboard</ButtonLink>\n</div>",
+          "details": "Create full-width links with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px)."
         },
         {
           "name": "Disabled",
@@ -981,18 +981,18 @@
         },
         {
           "name": "Sizing & roundness",
-          "code": "<div className=\"flex flex-col gap-2 items-center\">\n<Button color=\"primary\" size=\"xl\" pill><Mail /> Button <ArrowRight /></Button>\n<Button color=\"primary\" size=\"xl\" pill>Button <ArrowRight /></Button>\n<Button color=\"primary\" size=\"xl\" pill><Mail /> Button</Button>\n<Button color=\"primary\" size=\"xl\" pill>Button</Button>\n</div>",
-          "details": "Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button."
+          "code": "// Desktop\n<div className=\"flex flex-col gap-2 items-center\">\n<Button color=\"primary\" size=\"xl\" pill><Mail /> Button <ArrowRight /></Button>\n<Button color=\"primary\" size=\"xl\" pill>Button <ArrowRight /></Button>\n<Button color=\"primary\" size=\"xl\" pill><Mail /> Button</Button>\n<Button color=\"primary\" size=\"xl\" pill>Button</Button>\n</div>\n\n// Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50\n<div className=\"flex flex-col gap-4 items-center\">\n{([\"sm\", \"md\", \"xl\"] as const).map((size) => (\n  <div key={size} className=\"flex gap-2 items-center\">\n    <Button color=\"primary\" size={size}><Mail /> Button</Button>\n    <Button color=\"primary\" size={size}>Button</Button>\n  </div>\n))}\n</div>",
+          "details": "Control height with size and horizontal padding with gutterSize. Use pill for fully rounded corners. size sets the button to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize and iconSize props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and font of its size. The Phone example shows the three. Its styles are those of iOS buttons, Filled (solid), Tinted and Gray (soft) and Plain (ghost), in their two colors, accent (primary) and destructive (danger)."
         },
         {
           "name": "Icons",
-          "code": "<Button color=\"primary\" size=\"lg\" aria-label=\"Add\">\n<PlusLg />\n</Button>",
-          "details": "Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons."
+          "code": "// Desktop\n<Button color=\"primary\" size=\"lg\" aria-label=\"Add\">\n<PlusLg />\n</Button>\n\n// Phone: the three sizes of iOS buttons\n<div className=\"flex gap-2 items-center\">\n<Button color=\"primary\" size=\"sm\" aria-label=\"Add\"><PlusLg /></Button>\n<Button color=\"primary\" size=\"md\" aria-label=\"Add\"><PlusLg /></Button>\n<Button color=\"primary\" size=\"xl\" aria-label=\"Add\"><PlusLg /></Button>\n</div>",
+          "details": "Add icons as children. Sizing is automatic via the iconSize prop. Default values for iconSize are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutterSize is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutterSize than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless iconSize is set. With uniform the button is currently a 44px circle at every size on a phone."
         },
         {
           "name": "Block",
-          "code": "<div className=\"w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<Button color=\"primary\" size=\"lg\" block>Continue</Button>\n</div>",
-          "details": "Create full-width buttons with the block prop."
+          "code": "// Desktop\n<div className=\"w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<Button color=\"primary\" size=\"lg\" block>Continue</Button>\n</div>\n\n// Phone: the large iOS button\n<div className=\"w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<Button color=\"primary\" size=\"xl\" block>Continue</Button>\n</div>",
+          "details": "Create full-width buttons with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px)."
         },
         {
           "name": "States",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T21:46:33.300Z"
+  "generatedAt": "2026-11-06T22:30:48.196Z"
 }

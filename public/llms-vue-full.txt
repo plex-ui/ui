@@ -737,17 +737,27 @@ You can stylize the display of the button using the color and variant props.
 ```
 
 ### Sizing & roundness
-Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button.
+Control height with size and horizontal padding with gutter-size. Use pill for fully rounded corners. size sets the button to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size and icon-size props, as well as font-size. Each of these values can be overridden independently. When pill is set, extra horizontal gutter is dynamically applied to the button. On a phone with touch.css a button takes one of the three heights of iOS buttons: small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule, with the gutters and font of its size. The Phone example shows the three. Its styles are those of iOS buttons, Filled (solid), Tinted and Gray (soft) and Plain (ghost), in their two colors, accent (primary) and destructive (danger).
 ```vue
+<!-- Desktop -->
 <Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button <ArrowRight /></Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill">Button <ArrowRight /></Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button</Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill">Button</Button>
+
+<!-- Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50 -->
+<div class="flex flex-col gap-4 items-center">
+  <div v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" class="flex gap-2 items-center">
+    <Button :color="color" :variant="variant" :size="phoneSize"><Mail /> Button</Button>
+    <Button :color="color" :variant="variant" :size="phoneSize">Button</Button>
+  </div>
+</div>
 ```
 
 ### Icons
-Add icons to the default slot. Sizing is automatic via the icon-size prop. Default values for icon-size are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutter-size is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutter-size than size can create well-sized, but not exactly square, icon buttons.
+Add icons to the default slot. Sizing is automatic via the icon-size prop. Default values for icon-size are provided through the size prop, but you can pass the prop directly to change the defaults. For icon-only buttons, there are two common approaches: Square: create perfect square icon buttons with the uniform prop. When uniform is passed, gutter-size is ignored. Combine with pill to make circular icons. Tighter gutters: applying a smaller gutter-size than size can create well-sized, but not exactly square, icon buttons. On a phone with touch.css the icon follows the three iOS sizes unless icon-size is set. With uniform the button is currently a 44px circle at every size on a phone.
 ```vue
+<!-- Desktop -->
 <Button
   :color="color"
   :size="size"
@@ -759,13 +769,33 @@ Add icons to the default slot. Sizing is automatic via the icon-size prop. Defau
 >
   <PlusLg />
 </Button>
+
+<!-- Phone: the three sizes of iOS buttons -->
+<div class="flex gap-2 items-center">
+  <Button
+    v-for="phoneSize in ['sm', 'md', 'xl']"
+    :key="phoneSize"
+    :color="color"
+    :size="phoneSize"
+    :variant="variant"
+    aria-label="Add"
+  >
+    <PlusLg />
+  </Button>
+</div>
 ```
 
 ### Block
-Create full-width buttons with the block prop.
+Create full-width buttons with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
 ```vue
+<!-- Desktop -->
 <div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <Button color="primary" size="lg" :block="block">Continue</Button>
+</div>
+
+<!-- Phone: the large iOS button -->
+<div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <Button color="primary" size="xl" :block="block">Continue</Button>
 </div>
 ```
 
@@ -1116,8 +1146,9 @@ Stylize the link with color and variant props.
 ```
 
 ### Sizing & roundness
-Sizing of the link is controlled with size and gutter-size. size sets the control height, and gutter-size sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link.
+Sizing of the link is controlled with size and gutter-size. size sets the control height, and gutter-size sets the horizontal padding. Create fully rounded links with the pill prop. When pill is set, extra horizontal gutter is dynamically applied to the link. On a phone with touch.css a link takes one of the three heights of iOS buttons, small 28 (3xs to sm), medium 34 (md, lg) and large 50 (xl to 3xl), always a capsule; the Phone example shows the three.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2 justify-start items-start">
   <ButtonLink color="primary" :size="size" :pill="pill" href="#" class="whitespace-nowrap">
     View account <ArrowRight />
@@ -1126,21 +1157,42 @@ Sizing of the link is controlled with size and gutter-size. size sets the contro
     View account
   </ButtonLink>
 </div>
+
+<!-- Phone: the three sizes of iOS buttons, small 28, medium 34 and large 50 -->
+<div class="flex flex-col gap-4 items-center">
+  <ButtonLink v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" color="primary" :size="phoneSize" href="#" class="whitespace-nowrap">
+    View account <ArrowRight />
+  </ButtonLink>
+</div>
 ```
 
 ### Icons
-Icon sizing is controlled by the icon-size prop, which makes it easy to add icons to the slot without additional props. size provides a default value for icon-size, but setting the prop forces the specified size.
+Icon sizing is controlled by the icon-size prop, which makes it easy to add icons to the slot without additional props. size provides a default value for icon-size, but setting the prop forces the specified size. On a phone with touch.css the icon follows the three iOS sizes unless icon-size is set.
 ```vue
+<!-- Desktop -->
 <ButtonLink color="info" :size="size" :icon-size="iconSize" variant="soft" href="#" class="whitespace-nowrap">
   <Globe /> View website
 </ButtonLink>
+
+<!-- Phone: the three sizes of iOS buttons, each with the icon of its size -->
+<div class="flex flex-col gap-4 items-center">
+  <ButtonLink v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" color="info" :size="phoneSize" variant="soft" href="#" class="whitespace-nowrap">
+    <Globe /> View website
+  </ButtonLink>
+</div>
 ```
 
 ### Block
-Create full-width links with the block prop.
+Create full-width links with the block prop. On a phone the main action of a screen is the large iOS button, xl (50px).
 ```vue
+<!-- Desktop -->
 <div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <ButtonLink :block="block" size="lg" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
+</div>
+
+<!-- Phone: the large iOS button -->
+<div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <ButtonLink :block="block" size="xl" href="#" class="whitespace-nowrap">Continue to dashboard</ButtonLink>
 </div>
 ```
 

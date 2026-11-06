@@ -6,6 +6,8 @@ metaDescription: Vue 3 button component with four variants (solid, soft, outline
 
 import { VuePreview } from "@/components/docs/VuePreview"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import { withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const overview = `<div class="flex flex-wrap gap-3">
   <Button color="primary">Submit</Button>
@@ -44,6 +46,28 @@ export const sizing = `<Button :color="color" :variant="variant" :size="size" :p
 <Button :color="color" :variant="variant" :size="size" :pill="pill"><Mail /> Button</Button>
 <Button :color="color" :variant="variant" :size="size" :pill="pill">Button</Button>`
 
+export const sizingPhone = `<div class="flex flex-col gap-4 items-center">
+  <div v-for="phoneSize in ['sm', 'md', 'xl']" :key="phoneSize" class="flex gap-2 items-center">
+    <Button :color="color" :variant="variant" :size="phoneSize"><Mail /> Button</Button>
+    <Button :color="color" :variant="variant" :size="phoneSize">Button</Button>
+  </div>
+</div>`
+
+export const iconsPhone = `<div class="flex gap-2 items-center">
+  <Button
+    v-for="phoneSize in ['sm', 'md', 'xl']"
+    :key="phoneSize"
+    :color="color"
+    :size="phoneSize"
+    :variant="variant"
+    aria-label="Add"
+  >
+    <PlusLg />
+  </Button>
+</div>`
+
+export const phoneColorOptions = ["primary", "danger"]
+
 export const icons = `<Button
   :color="color"
   :size="size"
@@ -58,6 +82,10 @@ export const icons = `<Button
 
 export const block = `<div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <Button color="primary" size="lg" :block="block">Continue</Button>
+</div>`
+
+export const blockPhone = `<div class="w-[290px] mx-auto text-center p-2 border border-dashed border-alpha/20 rounded-md">
+  <Button color="primary" size="xl" :block="block">Continue</Button>
 </div>`
 
 export const states = `<Button color="primary" :disabled="disabled" :loading="loading">Submit</Button>`
@@ -129,16 +157,20 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
   <p>Control height with <code>size</code> and horizontal padding with <code>gutter-size</code>. Use <code>pill</code> for fully rounded corners.</p>
   <p><code>size</code> sets the button to a specific control height, and <code>gutter-size</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutter-size</code> and <code>icon-size</code> props, as well as <code>font-size</code>. Each of these values can be overridden independently.</p>
   <p>When <code>pill</code> is set, extra horizontal gutter is dynamically applied to the button.</p>
-</>} code={sizing} previewMinHeight={296}>
-  <VueDemo
+  <p>On a phone with <code>touch.css</code> a button takes one of the three heights of iOS buttons: small 28 (<code>3xs</code> to <code>sm</code>), medium 34 (<code>md</code>, <code>lg</code>) and large 50 (<code>xl</code> to <code>3xl</code>), always a capsule, with the gutters and font of its size. The Phone example shows the three. Its styles are those of iOS buttons, Filled (<code>solid</code>), Tinted and Gray (<code>soft</code>) and Plain (<code>ghost</code>), in their two colors, accent (<code>primary</code>) and destructive (<code>danger</code>).</p>
+</>} code={withPhone(sizing, sizingPhone, "the three sizes of iOS buttons, small 28, medium 34 and large 50")} previewMinHeight={296}>
+  <VuePhoneRowsDemo
     template={sizing}
+    phoneTemplate={sizingPhone}
     stageClassName="flex-1 flex flex-col gap-2 justify-center items-center py-12 w-full min-h-[312px]"
+    phoneStageClassName="flex-1 flex justify-center items-center py-12 w-full"
     controls={[
       { name: "size", type: "select", options: sizeOptions, default: "xl" },
       { name: "variant", type: "select", options: variantOptions, default: "solid" },
-      { name: "color", type: "select", options: colorOptions, default: "primary" },
+      { name: "color", type: "select", options: colorOptions, phoneOptions: phoneColorOptions, default: "primary" },
       { name: "pill", type: "boolean", default: true },
     ]}
+    desktopControlNames={["size", "pill"]}
   />
 </ComponentPreview>
 
@@ -150,9 +182,12 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
   <p>For icon-only buttons, there are two common approaches:</p>
   <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutter-size</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
   <p><strong>Tighter gutters</strong>: applying a smaller <code>gutter-size</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
-</>} code={icons} previewMinHeight={216}>
-  <VueDemo
+  <p>On a phone with <code>touch.css</code> the icon follows the three iOS sizes unless <code>icon-size</code> is set. With <code>uniform</code> the button is currently a 44px circle at every size on a phone.</p>
+</>} code={withPhone(icons, iconsPhone, "the three sizes of iOS buttons")} previewMinHeight={216}>
+  <VuePhoneRowsDemo
     template={icons}
+    phoneTemplate={iconsPhone}
+    phoneStageClassName="flex-1 flex items-center justify-center py-12 w-full"
     stageClassName="flex-1 flex items-center justify-center py-12 w-full"
     controls={[
       { name: "variant", type: "select", options: variantOptions, default: "solid" },
@@ -160,15 +195,16 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
       { name: "size", type: "select", options: sizeOptions, default: "lg" },
       { name: "gutterSize", type: "select", options: ["auto", "2xs", "xs", "sm", "md", "lg", "xl"], default: "auto" },
       { name: "iconSize", type: "select", options: ["auto", "sm", "md", "lg", "xl", "2xl"], default: "auto" },
-      { name: "color", type: "select", options: colorOptions, default: "primary" },
+      { name: "color", type: "select", options: colorOptions, phoneOptions: phoneColorOptions, default: "primary" },
     ]}
+    desktopControlNames={["uniform", "size", "gutterSize", "iconSize"]}
   />
 </ComponentPreview>
 
 ### Block
 
-<ComponentPreview language="vue" details={<>Create full-width buttons with the <code>block</code> prop.</>} code={block} previewMinHeight={168} resizable>
-  <VueDemo template={block} stageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "block", type: "boolean", default: true }]} />
+<ComponentPreview language="vue" details={<>Create full-width buttons with the <code>block</code> prop. On a phone the main action of a screen is the large iOS button, <code>xl</code> (50px).</>} code={withPhone(block, blockPhone, "the large iOS button")} previewMinHeight={168} resizable>
+  <VuePhoneRowsDemo template={block} phoneTemplate={blockPhone} stageClassName="flex-1 flex items-center justify-center py-12 w-full" phoneStageClassName="flex-1 flex items-center justify-center py-12 w-full" controls={[{ name: "block", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 <span id="disabled" />
