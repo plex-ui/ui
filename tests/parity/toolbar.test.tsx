@@ -335,7 +335,7 @@ describe("Toolbar disabled buttons", () => {
     // Inside a Group the button glass is cleared, so a disabled item never paints a capsule of its own.
     expect(css).toMatch(/\.Group \{[\s\S]*?& > :where\(button, a\) \{\s*--mobile-glass-background: transparent;/)
     const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
-    expect(tokens).toContain("--toolbar-prominent-disabled-background: light-dark(rgb(0 0 0 / 13%), rgb(255 255 255 / 22%));")
-    expect(tokens).toContain("--toolbar-prominent-disabled-color: light-dark(rgb(255 255 255), rgb(255 255 255 / 30%));")
+    expect(tokens).toContain("--toolbar-prominent-disabled-background: light-dark(var(--alpha-12), var(--alpha-20));")
+    expect(tokens).toContain("--toolbar-prominent-disabled-color: light-dark(var(--gray-0), var(--alpha-30));")
   })
 })

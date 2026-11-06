@@ -1121,8 +1121,8 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
     // light-dark() resolves per theme only on root tokens: an element selector under html would miss dark.
     expect(block).not.toMatch(/:\s*light-dark\(/)
     const tokens = read("styles/variables-components.css")
-    expect(tokens).toContain("--segmented-control-mobile-background: light-dark(rgb(118 118 128 / 12%), rgb(118 118 128 / 24%));")
-    expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(rgb(255 255 255), rgb(255 255 255 / 27%));")
+    expect(tokens).toContain("--segmented-control-mobile-background: light-dark(var(--alpha-06), var(--alpha-12));")
+    expect(tokens).toContain("--segmented-control-mobile-thumb-background: light-dark(var(--gray-0), var(--alpha-25));")
   })
 
   test("every segment label is primary, tracked -0.08px at the kit size; only the weight marks the selection", () => {

@@ -460,9 +460,9 @@
 
 /* iOS presentations are opt-in; placement and all desktop styles remain independent. */
 @media (width <= 767px) {
-  /* A Sheet dims the page less than a desktop modal does; an Alert keeps the shared dim. */
-  .Overlay:has(+ .Content[data-mobile-variant="sheet"]) {
-    background: var(--dialog-sheet-scrim);
+  /* A phone Sheet or Alert dims the page as iOS does: less than a desktop modal in light. */
+  .Overlay:has(+ .Content:is([data-mobile-variant="sheet"], [data-mobile-variant="alert"])) {
+    background: var(--dialog-mobile-scrim);
   }
 
   .Content[data-mobile-variant="alert"] {

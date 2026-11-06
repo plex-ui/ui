@@ -56,7 +56,9 @@
     --segmented-control-font-weight: var(--font-weight-normal);
     --segmented-control-active-font-weight: var(--font-weight-normal);
     --segmented-control-background: var(--mobile-glass-background);
-    --segmented-control-thumb-background: var(--color-background-secondary-soft-alpha);
+    /* The thumb is darker than the glass track: about 8% black in light (228 on 247, IMG_5433/5434), alpha-08;
+       32-34 on a 54-58 track in dark (iOS2 IMG_5522/5523), gray-200 (#212121). */
+    --segmented-control-thumb-background: light-dark(var(--alpha-08), var(--gray-200));
     --segmented-control-thumb-shadow: none;
     box-shadow: var(--mobile-glass-shadow);
     -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);

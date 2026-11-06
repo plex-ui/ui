@@ -390,9 +390,10 @@
     --dialog-alert-action-height: 48px;
     --dialog-sheet-action-height: 50px;
     --dialog-sheet-radius: 38px;
-    /* Native iOS 26 dims the page under a phone Sheet to 80% in light (IMG_5437/5444/5453/5470/5471/5491:
-       white 255 to 204, grouped 242/242/247 to 193/193/197). Dark keeps the shared dim: no native reference yet. */
-    --dialog-sheet-scrim: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
+    /* Native iOS 26 dims the page under a phone Sheet or Alert to 80% in light (Sheets IMG_5437/5444/5453/5470/
+       5471/5491, Alert iOS2 IMG_5533: white 255 to 204, grouped 242/242/247 to 193/193/197) and to 50% in dark
+       (Alert iOS2 IMG_5532: 28 to 14, red 255 to 128). A dark Sheet keeps the same 50%: no native frame shows it. */
+    --dialog-mobile-scrim: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
     --dialog-sheet-close-size: var(--control-size-2xl);
     --dialog-sheet-close-icon-size: 34px;
     --dialog-mobile-type-size: 17px;
@@ -483,11 +484,12 @@
     --toolbar-edge-blur-large: 10px;
     --toolbar-group-item-hover: color-mix(in srgb, var(--color-text) 4%, transparent);
     --toolbar-group-item-active: color-mix(in srgb, var(--color-text) 8%, transparent);
-    /* A disabled prominent bar button gives up its tint for a gray capsule. Native iOS 26, light (IMG_5441/5471/
-       5472/5473): 210-213 on the grouped 242/242/246 bar, black at about 13%, under a white label. Dark (iOS2
-       IMG_5523/5526): 79/79/81 on the 28/28/29 sheet, white at about 22%, under a 131/131/133 glyph, white at 30%. */
-    --toolbar-prominent-disabled-background: light-dark(rgb(0 0 0 / 13%), rgb(255 255 255 / 22%));
-    --toolbar-prominent-disabled-color: light-dark(rgb(255 255 255), rgb(255 255 255 / 30%));
+    /* A disabled prominent bar button gives up its tint for a gray capsule, in PlexUI alpha colors. Native iOS 26,
+       light (IMG_5441/5471/5472/5473): 210-213 on the grouped 242/242/246 bar, about 13% black, under a white
+       label: alpha-12 and gray-0. Dark (iOS2 IMG_5523/5526): 79/79/81 on the 28/28/29 sheet, about 22% white,
+       under a 131/131/133 glyph, 30% white: alpha-20 and alpha-30. */
+    --toolbar-prominent-disabled-background: light-dark(var(--alpha-12), var(--alpha-20));
+    --toolbar-prominent-disabled-color: light-dark(var(--gray-0), var(--alpha-30));
 
     /* =============================================
       Page
@@ -539,9 +541,10 @@
     --segmented-control-font-weight: var(--font-weight-semibold);
     --segmented-control-thumb-background: light-dark(var(--gray-0), var(--alpha-12));
     --segmented-control-thumb-shadow: 0 1px 4px -1px rgb(0 0 0 / 20%);
-    /* Phone (touch.css): Apple iOS 26 kit Fills/Tertiary and Segmented Control - Selected Fill. */
-    --segmented-control-mobile-background: light-dark(rgb(118 118 128 / 12%), rgb(118 118 128 / 24%));
-    --segmented-control-mobile-thumb-background: light-dark(rgb(255 255 255), rgb(255 255 255 / 27%));
+    /* Phone (touch.css), the iOS 26 kit in PlexUI alpha colors: Fills/Tertiary (118/118/128 at 12% and 24%: 240 on
+       white, 28 on black) is alpha-06 and alpha-12; the Selected Fill thumb (white, white at 27%) gray-0 and alpha-25. */
+    --segmented-control-mobile-background: light-dark(var(--alpha-06), var(--alpha-12));
+    --segmented-control-mobile-thumb-background: light-dark(var(--gray-0), var(--alpha-25));
     --segmented-control-option-highlight-gutter: 1px;
     --segmented-control-option-highlight-background-color: light-dark(
       var(--gray-200),

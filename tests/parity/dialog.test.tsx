@@ -669,10 +669,11 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(rule(".Panel")).toContain("pointer-events: auto;")
   })
 
-  test.each(["React", "Vue"])("%s: a phone Sheet dims with the sheet scrim; an Alert keeps the shared dim", async (framework) => {
+  test.each(["React", "Vue"])("%s: a phone Sheet and Alert dim with the mobile scrim; other phone dialogs keep the shared dim", async (framework) => {
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8")
-    expect(css).toMatch(/\.Overlay:has\(\+ \.Content\[data-mobile-variant="sheet"\]\) \{\s*background: var\(--dialog-sheet-scrim\);/)
-    expect(css).not.toMatch(/\.Overlay:has\(\+ \.Content\[data-mobile-variant="alert"\]\)/)
+    expect(css).toMatch(/\.Overlay:has\(\+ \.Content:is\(\[data-mobile-variant="sheet"\], \[data-mobile-variant="alert"\]\)\) \{\s*background: var\(--dialog-mobile-scrim\);/)
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(tokens).toContain("--dialog-mobile-scrim: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));")
     // The selector needs the overlay right before its content in both frameworks
     for (const mobileVariant of ["sheet", "alert"] as const) {
       let unmount = () => {}
