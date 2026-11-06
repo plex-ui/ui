@@ -398,6 +398,8 @@
 @media (min-width: 414px) and (max-width: 767px) {
   html:root {
     --mobile-layout-margin: 20px;
+    /* A native alert is 320 wide at 430pt (iOS2 IMG_5532, IMG_5533); the kit's 300 stays up to 413. */
+    --dialog-alert-width: 320px;
   }
 }
 

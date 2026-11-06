@@ -9,6 +9,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ## Unreleased
 
+### Added
+
+- Dialog docs: a Text field example, an alert that asks for one short value with a 48px capsule field, its text selected on open, in React and Vue.
+
 ### Changed
 
 - `Checkbox` (solid and pill) marks a choice with the PlexUI `Check` icon, and `Minus` when indeterminate, in React and Vue instead of drawn arms, the same icons as the ghost variant. The icon fills the indicator (`--checkbox-check-icon-size`, the indicator size by default) and keeps `--checkbox-checkmark-color`; a new mark is revealed from the left and a cleared one fades out.
@@ -26,6 +30,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Phone labels use PlexUI colors. `--mobile-label-secondary`, `--mobile-label-tertiary` and `--mobile-label-quaternary` are the PlexUI `--alpha-50`, `--alpha-25` and `--alpha-15` instead of iOS rgb values, translucent as native labels are, and `--mobile-accessory-secondary` takes the secondary label. In the dark theme the secondary label is 50% white instead of 70%, closer to iPhone: a value on a dark card shows at 141 (native 152) instead of 173. Row values, counts, units and pop-up chevrons stay secondary.
 - `Select` at the end of a labeled row on a phone (React and Vue) shows its value in the secondary label, with its chevrons, as the option rows of iOS 26 Reminders and Calendar do (a value at 138 on white) instead of the primary text. In a columns group the value is the row's data and stays primary, as in an Apple Account billing address. A disabled one takes the tertiary label.
 - `Switch` on a phone: the off track is `--alpha-25`, the native off track (197 on a white card, 101 on a dark sheet card) instead of `--gray-150` / `--gray-400`, hover `--alpha-30`, and a disabled off track `--alpha-15`, so it stays visible on a dark elevated card, whose color the desktop `--gray-300` is.
+- `Dialog` alert on a phone (React and Vue) follows the native iOS 26 alert (an iPhone alert with a text field at 430pt) instead of the kit layout: glass (`--dialog-alert-background`, `--dialog-alert-backdrop-filter`), a field and the actions 16px from the edge (`--dialog-alert-padding`, was 14px), the title and message 31px from the edge, the message at 15/20 in the secondary label (`--dialog-alert-message-color`) instead of 17/22 in the primary text, 20px from the text to a control, 8px between two actions (was 16px) and semibold actions. A soft Cancel and a soft field share `--dialog-alert-fill`. The alert is 320px wide from a 414px wide phone (300px below, as in the kit).
 
 ### Fixed
 

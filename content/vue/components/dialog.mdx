@@ -49,6 +49,27 @@ export const destructive = `<Dialog v-model:open="open">
   </DialogContent>
 </Dialog>`
 
+export const textField = `<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'New folder' }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">New folder</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.field.$el.querySelector('input').select()">
+    <DialogHeader>
+      <DialogTitle>New folder</DialogTitle>
+      <DialogDescription>Enter a name for this folder.</DialogDescription>
+    </DialogHeader>
+    <DialogBody>
+      <Input ref="field" v-model="name" aria-label="Folder name" variant="soft" size="3xl" pill @clear="name = ''" />
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" :disabled="!name.trim()" @click="open = false">Create</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>`
+
 export const terms = [
   "Accounts. You are responsible for the activity on your account and for keeping its password safe.",
   "Content. You keep the rights to what you upload; you give us the rights we need to run the service.",
@@ -523,7 +544,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => \`https://preview-
   DialogTrigger,
 } from "@plexui/vue/components/Dialog";`}</UsageBlock>
 
-At 767px and below, `mobile-variant="alert"` presents a compact centered confirmation with inline actions and no close icon. Use `mobile-variant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
+At 767px and below, `mobile-variant="alert"` presents a compact centered glass alert, a confirmation or a request for one short value, with inline actions and no close icon. Use `mobile-variant="sheet"` for forms and details: it opens at the bottom with a grabber, a leading Close button and a centered title. Both variants preserve the desktop appearance.
 
 Alert actions wrap onto separate rows when their labels need more space. Set `<DialogFooter mobile-layout="stacked">` when the actions should always stack. Put long sheet content in `DialogBody` to keep the header and actions visible while the body scrolls.
 
@@ -539,6 +560,12 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 <ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Use <code>color="danger"</code> on the action button for destructive operations.</>} code={destructive} previewMinHeight={120}>
   <VueDemo template={destructive} phoneTemplate={destructive.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false }} />
+</ComponentPreview>
+
+### Text field
+
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.</>} code={textField} previewMinHeight={120}>
+  <VueDemo template={textField} phoneTemplate={textField.replace('v-model:open="open"', ':open="true"').replace("; $refs.field.$el.querySelector('input').select()", '')} phoneState={{ open: true, name: 'New folder' }} stageClassName="py-10 flex justify-center" state={{ open: false, name: 'New folder' }} />
 </ComponentPreview>
 
 ### Metadata details
@@ -674,10 +701,14 @@ Standard mobile appearance uses these tokens:
 
 Alert and Sheet use these additional tokens:
 
-- `--dialog-alert-width`: compact alert width (default `300px`, capped by the viewport)
+- `--dialog-alert-width`: compact alert width (default `300px`, `320px` from a 414px wide phone with `touch.css`, as a native alert at 430pt; capped by the viewport)
 - `--dialog-alert-radius`: alert corner radius (default `34px`)
-- `--dialog-alert-padding`: alert outer padding (default `14px`)
-- `--dialog-alert-action-height`: minimum Alert action height (default `48px`)
+- `--dialog-alert-padding`: alert outer padding, the inset of a field and the actions (default `16px`)
+- `--dialog-alert-action-height`: minimum Alert action height, also the height of a field in the alert (default `48px`)
+- `--dialog-alert-background`, `--dialog-alert-backdrop-filter`: alert material on a phone (with `touch.css` the mobile glass, `--mobile-glass-background`, over `blur(10px)`)
+- `--dialog-alert-message-color`, `--dialog-alert-message-size`, `--dialog-alert-message-leading`: alert message (with `touch.css` `light-dark(var(--mobile-label-secondary), var(--alpha-40))`, `15px`, `20px`)
+- `--dialog-alert-fill`: fill of a soft Cancel and a soft field in the alert (with `touch.css` `--alpha-12`)
+- `--dialog-alert-action-gap`, `--dialog-alert-action-font-weight`: gap between two inline actions and their weight (default `8px`, `600`)
 - `--dialog-sheet-action-height`: minimum Sheet action height (default `50px`)
 - `--dialog-sheet-radius`: sheet top corner radius (default `38px`; fullscreen stays square)
 - `--dialog-mobile-scrim`: dim behind a phone Sheet or Alert (default black at 20% in light and 50% in dark, as native iOS 26); desktop keeps `rgb(0 0 0 / 0.5)`

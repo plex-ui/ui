@@ -475,9 +475,15 @@
     --dialog-panel-radius: var(--dialog-alert-radius);
   }
 
+  /* Native iOS 26 alerts (iOS2 IMG_5532 dark, IMG_5533 light, 430pt): glass, fields and actions 16 from
+     the edge, the title and message 31 (aligned with the text of a field), the message at 15/20 in the
+     secondary label, 20 from the text to a control and 16 under the actions, 8 between two actions. */
   .Content[data-mobile-variant="alert"] .Panel {
     gap: 10px;
     padding: var(--dialog-alert-padding);
+    background: var(--dialog-alert-background, var(--dialog-panel-background, var(--color-surface-elevated)));
+    -webkit-backdrop-filter: var(--dialog-alert-backdrop-filter, none);
+    backdrop-filter: var(--dialog-alert-backdrop-filter, none);
   }
 
   .Content[data-mobile-variant="alert"] .CloseButton,
@@ -486,8 +492,8 @@
   }
 
   .Content[data-mobile-variant="alert"] .Header {
-    gap: 10px;
-    padding: 8px 8px 24px;
+    gap: var(--dialog-alert-header-gap, 6px);
+    padding: var(--dialog-alert-header-padding, 5px 15px 6px);
   }
 
   .Content[data-mobile-variant="alert"] .Header > :first-child {
@@ -505,12 +511,16 @@
   }
 
   .Content[data-mobile-variant="alert"] .Description {
-    color: var(--color-text);
+    color: var(--dialog-alert-message-color, var(--color-text-secondary));
+    font-size: var(--dialog-alert-message-size, 15px);
+    line-height: var(--dialog-alert-message-leading, 20px);
   }
 
+  /* A text field fills the alert like its actions: a 48px capsule (IMG_5532, IMG_5533). */
   .Content[data-mobile-variant="alert"] .Body {
+    --control-size-3xl: var(--dialog-alert-action-height);
     margin-inline: 0;
-    padding: 2px 8px;
+    padding: 0 0 10px;
   }
 
   .Content[data-mobile-variant] .Footer {
@@ -547,6 +557,28 @@
     max-width: 100%;
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  /* Native alert actions are semibold, and a soft action and a field share the fill of the glass,
+     about 13% of the label color in both themes (light 202 on 232, dark 73 on 46). */
+  .Content[data-mobile-variant="alert"] .Footer > :where(button, a, [role="link"]) {
+    --button-font-weight: var(--dialog-alert-action-font-weight, 600);
+  }
+
+  .Content[data-mobile-variant="alert"] .Footer > [data-variant="soft"]:where([data-color="primary"], [data-color="secondary"]) {
+    --button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  }
+
+  .Content[data-mobile-variant="alert"] .Body {
+    --input-soft-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));
+  }
+
+  .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"]) {
+    column-gap: var(--dialog-alert-action-gap, 8px);
+
+    & > * {
+      min-width: calc(50% - var(--dialog-alert-action-gap, 8px) / 2);
+    }
   }
 
   .Content[data-mobile-variant="sheet"] {

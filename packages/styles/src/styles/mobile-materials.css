@@ -23,5 +23,13 @@
        surface; the blur applies in dark only. */
     --menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
     --menu-mobile-backdrop-filter: blur(10px);
+    /* An Alert is glass in both themes, as native iOS 26 alerts are: light 233 over a page dimmed to 204
+       (iOS2 IMG_5533), dark 34 to 45 over a page dimmed to 0 to 14 (IMG_5532); the backdrop is blurred. */
+    --dialog-alert-background: var(--mobile-glass-background);
+    --dialog-alert-backdrop-filter: blur(10px);
+    /* The message is the secondary label; over dark glass the native one is dimmer, 128 on 45 (IMG_5532),
+       as alpha-40 shows, while light is 131 on 233 (IMG_5533), as alpha-50 does (123). */
+    --dialog-alert-message-color: light-dark(var(--mobile-label-secondary), var(--alpha-40));
+    --dialog-alert-fill: var(--alpha-12);
   }
 }

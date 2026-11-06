@@ -80,6 +80,37 @@ export function DialogDeleteConfirmDemo() {
   );
 }
 
+export function DialogTextFieldDemo() {
+  const [open, setOpen, phonePreview] = useDialogDemoState();
+  const [name, setName] = useState('New folder');
+  const field = useRef<HTMLInputElement>(null);
+
+  return (
+    <div data-demo-stage className="py-10 flex justify-center">
+      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName('New folder'); }}>
+        <Dialog.Trigger>
+          <Button color="secondary" variant="outline">New folder</Button>
+        </Dialog.Trigger>
+        <Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) field.current?.select(); }}>
+          <Dialog.Header>
+            <Dialog.Title>New folder</Dialog.Title>
+            <Dialog.Description>Enter a name for this folder.</Dialog.Description>
+          </Dialog.Header>
+          <Dialog.Body>
+            <Input ref={field} aria-label="Folder name" variant="soft" size="3xl" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName('')} />
+          </Dialog.Body>
+          <Dialog.Footer>
+            <Dialog.Close>
+              <Button color="primary" variant="soft">Cancel</Button>
+            </Dialog.Close>
+            <Button color="primary" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
+    </div>
+  );
+}
+
 const TERMS = [
   'Accounts. You are responsible for the activity on your account and for keeping its password safe.',
   'Content. You keep the rights to what you upload; you give us the rights we need to run the service.',

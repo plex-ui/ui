@@ -2196,6 +2196,31 @@ Use color="danger" on the action button for destructive operations.
 </Dialog>
 ```
 
+### Text field
+An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
+```vue
+<Dialog v-model:open="open" @update:open="(next) => { if (next) name = 'New folder' }">
+  <DialogTrigger>
+    <Button color="secondary" variant="outline">New folder</Button>
+  </DialogTrigger>
+  <DialogContent mobile-variant="alert" @open-auto-focus="$event.preventDefault(); $refs.field.$el.querySelector('input').select()">
+    <DialogHeader>
+      <DialogTitle>New folder</DialogTitle>
+      <DialogDescription>Enter a name for this folder.</DialogDescription>
+    </DialogHeader>
+    <DialogBody>
+      <Input ref="field" v-model="name" aria-label="Folder name" variant="soft" size="3xl" pill @clear="name = ''" />
+    </DialogBody>
+    <DialogFooter>
+      <DialogClose>
+        <Button color="primary" variant="soft">Cancel</Button>
+      </DialogClose>
+      <Button color="primary" :disabled="!name.trim()" @click="open = false">Create</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
 ### Metadata details
 Use a definition list and CopyTooltip with a ghost Button. The full value is copied even when the visible ID is truncated. Focus starts at the heading; Tab reaches the controls.
 ```vue

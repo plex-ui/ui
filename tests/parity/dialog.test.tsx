@@ -669,6 +669,32 @@ describe("Dialog parity, radix-ui 1.8", () => {
     expect(rule(".Panel")).toContain("pointer-events: auto;")
   })
 
+  test("a phone Alert follows the native iOS 26 alert (iOS2 IMG_5532, IMG_5533)", () => {
+    const root = `${process.cwd()}/packages/styles/src`
+    const css = readFileSync(`${root}/components/Dialog/Dialog.module.css`, "utf8")
+    const rule = (selector: string) => css.slice(css.indexOf(`${selector} {`)).match(/\{([^}]*)\}/)?.[1] ?? ""
+    const alert = '.Content[data-mobile-variant="alert"]'
+    // glass, fields and actions 16 from the edge, text at 31, message 15/20, 20 from text to a control, 8 between actions
+    expect(rule(`${alert} .Panel`)).toContain("background: var(--dialog-alert-background, var(--dialog-panel-background, var(--color-surface-elevated)));")
+    expect(rule(`${alert} .Panel`)).toContain("backdrop-filter: var(--dialog-alert-backdrop-filter, none);")
+    expect(rule(`${alert} .Header`)).toContain("padding: var(--dialog-alert-header-padding, 5px 15px 6px);")
+    expect(rule(`${alert} .Description`)).toContain("font-size: var(--dialog-alert-message-size, 15px);")
+    expect(rule(`${alert} .Description`)).toContain("line-height: var(--dialog-alert-message-leading, 20px);")
+    expect(rule(`${alert} .Description`)).toContain("color: var(--dialog-alert-message-color, var(--color-text-secondary));")
+    expect(rule(`${alert} .Body`)).toContain("--control-size-3xl: var(--dialog-alert-action-height);")
+    expect(rule(`${alert} .Footer:not([data-mobile-layout="stacked"])`)).toContain("column-gap: var(--dialog-alert-action-gap, 8px);")
+    expect(readFileSync(`${root}/styles/variables-components.css`, "utf8")).toContain("--dialog-alert-padding: 16px;")
+    const touch = readFileSync(`${root}/styles/touch.css`, "utf8")
+    expect(touch.slice(touch.indexOf("@media (min-width: 414px) and (max-width: 767px)"))).toMatch(/^[^}]*--dialog-alert-width: 320px;/)
+    const materials = readFileSync(`${root}/styles/mobile-materials.css`, "utf8")
+    expect(materials).toContain("--dialog-alert-background: var(--mobile-glass-background);")
+    expect(materials).toContain("--dialog-alert-message-color: light-dark(var(--mobile-label-secondary), var(--alpha-40));")
+    expect(materials).toContain("--dialog-alert-fill: var(--alpha-12);")
+    expect(rule(`${alert} .Footer > :where(button, a, [role="link"])`)).toContain("--button-font-weight: var(--dialog-alert-action-font-weight, 600);")
+    expect(rule(`${alert} .Footer > [data-variant="soft"]:where([data-color="primary"], [data-color="secondary"])`)).toContain("--button-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));")
+    expect(css).toContain(`${alert} .Body {\n    --input-soft-background-color: var(--dialog-alert-fill, var(--color-background-primary-soft-alpha));`)
+  })
+
   test.each(["React", "Vue"])("%s: a phone Sheet and Alert dim with the mobile scrim; other phone dialogs keep the shared dim", async (framework) => {
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Dialog/Dialog.module.css`, "utf8")
     expect(css).toMatch(/\.Overlay:has\(\+ \.Content:is\(\[data-mobile-variant="sheet"\], \[data-mobile-variant="alert"\]\)\) \{\s*background: var\(--dialog-mobile-scrim\);/)

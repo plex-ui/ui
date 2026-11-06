@@ -2263,6 +2263,35 @@ const heading = useRef<HTMLDivElement>(null)
 </Dialog>
 ```
 
+### Text field
+An alert can ask for one short value. The field fills the alert like its actions, a 48px capsule on a phone, and its text is selected when the alert opens. Create is unavailable while the field is empty.
+```tsx
+const [open, setOpen] = useState(false)
+const [name, setName] = useState("New folder")
+const field = useRef<HTMLInputElement>(null)
+
+<Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) setName("New folder"); }}>
+<Dialog.Trigger>
+  <Button color="secondary" variant="outline">New folder</Button>
+</Dialog.Trigger>
+<Dialog.Content mobileVariant="alert" onOpenAutoFocus={(event) => { event.preventDefault(); field.current?.select(); }}>
+  <Dialog.Header>
+    <Dialog.Title>New folder</Dialog.Title>
+    <Dialog.Description>Enter a name for this folder.</Dialog.Description>
+  </Dialog.Header>
+  <Dialog.Body>
+    <Input ref={field} aria-label="Folder name" variant="soft" size="3xl" pill value={name} onChange={(event) => setName(event.target.value)} onClear={() => setName("")} />
+  </Dialog.Body>
+  <Dialog.Footer>
+    <Dialog.Close>
+      <Button color="primary" variant="soft">Cancel</Button>
+    </Dialog.Close>
+    <Button color="primary" disabled={!name.trim()} onClick={() => setOpen(false)}>Create</Button>
+  </Dialog.Footer>
+</Dialog.Content>
+</Dialog>
+```
+
 ### Metadata details
 Use a definition list for labels and values. CopyTooltip wraps a real ghost Button, so the value supports pointer and keyboard copying. The visible value truncates in the middle while the full value is copied. Focus starts at the heading, then Tab reaches the actions.
 ```tsx
