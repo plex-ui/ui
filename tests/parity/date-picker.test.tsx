@@ -1211,3 +1211,21 @@ test("Enter opens the date trigger without synthesizing a pointer event", async 
     expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   })
 })
+
+describe("Phone today marker", () => {
+  // The phone selection follows the desktop fill (plan 98), so today keeps the desktop dot there too
+  // instead of losing every visual marker. jsdom does not evaluate media queries; read the phone rules.
+  test.each([
+    "packages/styles/src/components/DatePicker/Calendar.module.css",
+    "packages/styles/src/components/DateRangePicker/Calendar.module.css",
+  ])("%s shows a 4px dot centered on the 44px cell", (file) => {
+    const found: Record<string, string>[] = []
+    postcss.parse(readFileSync(file, "utf8")).walkAtRules("media", (media) => {
+      if (media.params !== "(max-width: 767px)") return
+      media.walkRules(".TodayDot", (rule) => {
+        found.push(Object.fromEntries(rule.nodes.filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value])))
+      })
+    })
+    expect(found).toEqual([{ "bottom": "8px", "width": "4px", "height": "4px", "margin-left": "-2px" }])
+  })
+})

@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs"
 import { act, fireEvent, render, waitFor, within } from "@testing-library/react"
 import { DateTime } from "luxon"
+import postcss from "postcss"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 import { h } from "vue"
 import { DatePicker as RDatePicker } from "../../packages/ui/src/components/DatePicker"
@@ -112,6 +114,15 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
     expect(page.queryByRole("dialog", { hidden: true })).toBeNull()
   })
 
+  test("a date row marks its trigger as the compact date capsule, open and closed", async () => {
+    const { control, page } = await mountPopup("date")
+    expect(control.getAttribute("data-date-picker")).toBe("")
+    expect(control.getAttribute("data-selected")).toBe("true")
+    await press(control)
+    await waitFor(() => expect(control.getAttribute("aria-expanded")).toBe("true"))
+    expect(page.getAllByRole("dialog", { hidden: true })).toHaveLength(1)
+  })
+
   test("nested actions, unrelated labels and text inputs do not activate a popup; native label clicks stay single", async () => {
     const toggle = vi.fn()
     if (framework === "React") render(
@@ -179,5 +190,43 @@ describe.each(["React", "Vue"])("%s Field popup row", (framework) => {
     expect(unit).not.toHaveBeenCalled()
     await press(page.getByRole("button", { name: "Unit" }))
     expect(unit).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("Phone date capsule in a row (iOS 26 kit Date and time - Collapsed)", () => {
+  // jsdom does not evaluate media queries; the contract is read from the source rules the phone applies.
+  const phone = (file: string) => {
+    const rules: postcss.Rule[] = []
+    postcss.parse(readFileSync(file, "utf8")).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.includes("[data-date-picker]")) rules.push(rule) })
+    })
+    return rules
+  }
+  const decls = (rule: postcss.Rule) => Object.fromEntries(rule.nodes.filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value]))
+
+  test("the row trigger is a 34px capsule with 11px insets on the time pill fill", () => {
+    const [root] = phone("packages/styles/src/components/Field/Field.module.css")
+    expect(root.selector).toContain(".Control > [data-date-picker][data-variant][role=\"button\"][aria-haspopup]")
+    expect(decls(root)).toEqual({
+      "--select-control-size": "34px",
+      "margin-block": "calc((var(--field-row-label-line-height) - 34px) / 2)",
+      "padding-inline": "11px",
+      "border-radius": "var(--radius-full)",
+      "color": "var(--color-text)",
+    })
+    const nested = Object.fromEntries(root.nodes.filter((n): n is postcss.Rule => n.type === "rule").map((r) => [r.selector, decls(r)]))
+    expect(nested).toEqual({
+      "&::before": { "background-color": "var(--color-background-secondary-soft-alpha)" },
+      "&[data-selected=\"false\"],\n    &[data-disabled]": { color: "var(--mobile-label-tertiary, var(--color-text-tertiary))" },
+      "&[aria-expanded=\"true\"]:not([data-disabled])": { color: "var(--link-primary-text-color)" },
+    })
+    // The calendar's time pill paints the same fill.
+    expect(readFileSync("packages/styles/src/components/DatePicker/Calendar.module.css", "utf8")).toContain("background: var(--color-background-secondary-soft-alpha);")
+  })
+
+  test("the capsule hides the pop-up chevrons only in a horizontal row", () => {
+    const [rule] = phone("packages/styles/src/components/SelectControl/SelectControl.module.css")
+    expect(rule.selector).toBe(":where([data-row][data-orientation=\"horizontal\"]) .SelectControl[data-date-picker] .DropdownIcon")
+    expect(decls(rule)).toEqual({ display: "none" })
   })
 })

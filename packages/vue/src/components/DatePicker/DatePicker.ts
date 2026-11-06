@@ -152,6 +152,7 @@ const DatePickerComponent = defineComponent({
                   "aria-describedby": props.ariaDescribedby,
                   "aria-invalid": props.ariaInvalid,
                   "class": props.triggerClassName,
+                  "data-date-picker": "",
                   "selected": !!value,
                   "variant": props.variant,
                   "pill": props.pill,

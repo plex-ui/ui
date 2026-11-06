@@ -467,8 +467,14 @@
     line-height: 22px;
   }
 
+  /* Today keeps the PlexUI dot that marks it from 768px up; the selection already follows the desktop
+     fill. A 4px dot centers on the 44px cell, and it sits under the 17px digits at the desktop gap
+     scaled by 17/14. */
   .TodayDot {
-    display: none;
+    bottom: 8px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
   }
 }
 

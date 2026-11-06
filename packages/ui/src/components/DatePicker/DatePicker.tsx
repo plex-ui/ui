@@ -236,6 +236,7 @@ export const DatePicker = (props: DatePickerProps) => {
             aria-describedby={ariaDescribedBy}
             aria-invalid={ariaInvalid}
             className={triggerClassName}
+            data-date-picker=""
             selected={!!value}
             variant={variant}
             pill={pill}

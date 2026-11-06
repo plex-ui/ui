@@ -1368,4 +1368,30 @@ describe("Sidebar drawer on a phone is an iOS 26 grouped list", () => {
     const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
     expect(tokens).toContain("--toolbar-large-title-gap: 21px;")
   })
+
+  test("the mobile menu button fills hover, press and the open menu like its neighbours in both themes", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Sidebar/Sidebar.module.css`, "utf8")
+    const rule = css.slice(css.indexOf(".MobileMenuButton::before {"), css.indexOf("}", css.indexOf(".MobileMenuButton::before {")))
+    expect(rule).toContain("background: var(--sidebar-accent);")
+    expect(rule).not.toContain("--color-surface")
+  })
+
+  test("the drawer search is the kit Sidebar Search Field: a 44px capsule with the toolbar search magnifier", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Sidebar/Sidebar.module.css`, "utf8")
+    const start = css.indexOf("Phone drawer search")
+    const block = css.slice(start, css.indexOf("/* ====", start))
+    expect(block).toContain("@media (max-width: 767px) {\n  .MobileSidebar .Input > [data-slot=\"input\"][data-variant] {")
+    for (const declaration of [
+      "--input-size: 44px;",
+      "--input-gap: var(--toolbar-search-icon-gap);",
+      "--input-adornment-offset: 0px;",
+      "--input-placeholder-text-color: var(--mobile-label-secondary, var(--color-text-secondary));",
+      "border-radius: var(--radius-full);",
+      "width: var(--toolbar-search-icon-size);",
+      "height: var(--toolbar-search-icon-size);",
+      "color: var(--mobile-label-secondary, var(--color-text-secondary));",
+    ]) expect(block).toContain(declaration)
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    for (const token of ["--toolbar-search-icon-gap: 4px;", "--toolbar-search-icon-size: 26px;"]) expect(tokens).toContain(token)
+  })
 })

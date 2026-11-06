@@ -1024,6 +1024,29 @@
   padding: 12px 0 8px; /* No horizontal padding - Input component has its own */
 }
 
+/* Phone drawer search: the iOS 26 kit Sidebar Search Field (5840:30501), a 44px capsule with 11px insets
+   on the field's own soft fill. The magnifier and its gap are those of the toolbar search (26px PlexUI
+   Search and 4px: text at 41; the kit glyph frame 21 and gap 8 put it at 40). The glyph and the
+   placeholder take the secondary label, as the kit's Vibrant Secondary. */
+@media (max-width: 767px) {
+  .MobileSidebar .Input > [data-slot="input"][data-variant] {
+    --input-size: 44px;
+    --input-gap: var(--toolbar-search-icon-gap);
+    --input-adornment-offset: 0px;
+    --control-gutter-pill-scaling: 1;
+    --input-placeholder-text-color: var(--mobile-label-secondary, var(--color-text-secondary));
+
+    border-radius: var(--radius-full);
+
+    & > svg {
+      flex: none;
+      width: var(--toolbar-search-icon-size);
+      height: var(--toolbar-search-icon-size);
+      color: var(--mobile-label-secondary, var(--color-text-secondary));
+    }
+  }
+}
+
 /* =============================================
    Mobile Menu Button (PlexUI SidebarMenuMobile → X)
 ============================================= */
@@ -1042,12 +1065,14 @@
   transition: box-shadow 0.3s var(--cubic-enter);
 }
 
+/* Hover, press and the open menu take the fill of the neighbouring Trigger and menu rows, which shows in
+   both themes; the surface color matched a white page in light and only showed in dark (plan 124). */
 .MobileMenuButton::before {
   position: absolute;
   inset: 0;
   display: block;
   border-radius: var(--sidebar-mobile-button-radius);
-  background: var(--color-surface);
+  background: var(--sidebar-accent);
   content: "";
   opacity: 0;
   transition: opacity 0.15s ease;

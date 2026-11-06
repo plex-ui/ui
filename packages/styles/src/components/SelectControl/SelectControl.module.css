@@ -679,6 +679,11 @@
     display: none;
   }
 
+  /* The compact date capsule of a row (Field) shows no pop-up chevrons, as in the iOS 26 kit. */
+  :where([data-row][data-orientation="horizontal"]) .SelectControl[data-date-picker] .DropdownIcon {
+    display: none;
+  }
+
   :where([data-row]) .DropdownIcon > .MobileDropdownGlyph {
     display: block;
     flex-shrink: 0;

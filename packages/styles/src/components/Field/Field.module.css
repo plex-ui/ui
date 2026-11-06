@@ -616,6 +616,31 @@
     cursor: pointer;
   }
 
+  /* A date in a row is the compact date picker of iOS 26 (kit Date and time - Collapsed 30:53803): a 34px
+     capsule with 11px insets on the fill of the calendar's time pill, the date in the primary label and in
+     the accent text while its calendar is open. It keeps the 52px row; the row stays its target. */
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
+    --select-control-size: 34px;
+
+    margin-block: calc((var(--field-row-label-line-height) - 34px) / 2);
+    padding-inline: 11px;
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+
+    &::before {
+      background-color: var(--color-background-secondary-soft-alpha);
+    }
+
+    &[data-selected="false"],
+    &[data-disabled] {
+      color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    }
+
+    &[aria-expanded="true"]:not([data-disabled]) {
+      color: var(--link-primary-text-color);
+    }
+  }
+
   /* Trailing units share the accessory tone; the input and the button keep their own disabled states. */
   .Field:where([data-row]) .Control > [data-slot="input"]:not([data-disabled]) > span:global(.text-secondary):last-child,
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child:not([data-uniform], [disabled], [data-disabled], [aria-disabled="true"]) {
