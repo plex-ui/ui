@@ -198,6 +198,48 @@ export function ToolbarBottomDemo() {
   );
 }
 
+export function ToolbarDisabledDemo() {
+  const [disabled, setDisabled] = useState(true);
+
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      <Frame>
+        <Page surface="grouped">
+          <Toolbar>
+            <Toolbar.Leading>
+              <Button color="secondary" variant="soft" pill>Cancel</Button>
+            </Toolbar.Leading>
+            <Toolbar.Title>New order</Toolbar.Title>
+            <Toolbar.Trailing>
+              <NavigationButton action="confirm" disabled={disabled} />
+            </Toolbar.Trailing>
+          </Toolbar>
+          <Page.Content>
+            <Rows />
+          </Page.Content>
+          <Toolbar placement="bottom">
+            <Toolbar.Leading>
+              <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled={disabled}><Filter /></Button>
+            </Toolbar.Leading>
+            <Toolbar.Content>
+              <Button color="primary" pill disabled={disabled}>Place order</Button>
+            </Toolbar.Content>
+            <Toolbar.Trailing>
+              <Toolbar.Group aria-label="Order actions">
+                <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled={disabled}><Translate /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+              </Toolbar.Group>
+            </Toolbar.Trailing>
+          </Toolbar>
+        </Page>
+      </Frame>
+    </>
+  );
+}
+
 export function ToolbarSheetDemo() {
   const phonePreview = usePreviewEmbed() !== null;
   const [open, setOpen] = useState(phonePreview);

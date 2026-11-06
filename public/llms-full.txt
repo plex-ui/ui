@@ -8815,6 +8815,37 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
 </Toolbar>
 ```
 
+### Disabled
+A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside Toolbar.Group the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, NavigationButton action="confirm" or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.
+```tsx
+<Page surface="grouped">
+<Toolbar>
+  <Toolbar.Leading>
+    <Button color="secondary" variant="soft" pill>Cancel</Button>
+  </Toolbar.Leading>
+  <Toolbar.Title>New order</Toolbar.Title>
+  <Toolbar.Trailing>
+    <NavigationButton action="confirm" disabled />
+  </Toolbar.Trailing>
+</Toolbar>
+<Page.Content>...</Page.Content>
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled><Filter /></Button>
+  </Toolbar.Leading>
+  <Toolbar.Content>
+    <Button color="primary" pill disabled>Place order</Button>
+  </Toolbar.Content>
+  <Toolbar.Trailing>
+    <Toolbar.Group aria-label="Order actions">
+      <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled><Translate /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+    </Toolbar.Group>
+  </Toolbar.Trailing>
+</Toolbar>
+</Page>
+```
+
 ### Sheet
 In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up.
 ```tsx

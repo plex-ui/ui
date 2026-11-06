@@ -10257,6 +10257,37 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
 </Toolbar>
 ```
 
+### Disabled
+A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside ToolbarGroup the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, NavigationButton action="confirm" or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.
+```vue
+<Page surface="grouped">
+  <Toolbar>
+    <ToolbarLeading>
+      <Button color="secondary" variant="soft" pill>Cancel</Button>
+    </ToolbarLeading>
+    <ToolbarTitle>New order</ToolbarTitle>
+    <ToolbarTrailing>
+      <NavigationButton action="confirm" disabled />
+    </ToolbarTrailing>
+  </Toolbar>
+  <PageContent>...</PageContent>
+  <Toolbar placement="bottom">
+    <ToolbarLeading>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled><Filter /></Button>
+    </ToolbarLeading>
+    <ToolbarContent>
+      <Button color="primary" pill disabled>Place order</Button>
+    </ToolbarContent>
+    <ToolbarTrailing>
+      <ToolbarGroup aria-label="Order actions">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled><Translate /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </ToolbarGroup>
+    </ToolbarTrailing>
+  </Toolbar>
+</Page>
+```
+
 ### Sheet
 In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep DialogHeader with DialogTitle: it still names the dialog for assistive technology, and it is the header from 768px up.
 ```vue

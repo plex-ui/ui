@@ -6947,6 +6947,11 @@
           "details": "placement=\"bottom\" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars."
         },
         {
+          "name": "Disabled",
+          "code": "<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Leading>\n    <Button color=\"secondary\" variant=\"soft\" pill>Cancel</Button>\n  </Toolbar.Leading>\n  <Toolbar.Title>New order</Toolbar.Title>\n  <Toolbar.Trailing>\n    <NavigationButton action=\"confirm\" disabled />\n  </Toolbar.Trailing>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Leading>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\" disabled><Filter /></Button>\n  </Toolbar.Leading>\n  <Toolbar.Content>\n    <Button color=\"primary\" pill disabled>Place order</Button>\n  </Toolbar.Content>\n  <Toolbar.Trailing>\n    <Toolbar.Group aria-label=\"Order actions\">\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Translate\" disabled><Translate /></Button>\n      <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"More\"><DotsHorizontal /></Button>\n    </Toolbar.Group>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>",
+          "details": "A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside Toolbar.Group the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, NavigationButton action=\"confirm\" or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled."
+        },
+        {
           "name": "Sheet",
           "code": "<Dialog.Content mobileVariant=\"sheet\" surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Leading>\n    <Dialog.Close>\n      <NavigationButton action=\"close\" />\n    </Dialog.Close>\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Dialog.Header>\n  <Dialog.Title>Orders</Dialog.Title>\n</Dialog.Header>\n<Dialog.Body>...</Dialog.Body>\n</Dialog.Content>",
           "details": "In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep Dialog.Header with Dialog.Title: it still names the dialog for assistive technology, and it is the header from 768px up."
@@ -7086,5 +7091,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T01:25:11.155Z"
+  "generatedAt": "2026-11-06T08:33:47.571Z"
 }

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, type ComponentType, type ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
@@ -276,5 +277,65 @@ describe("Toolbar in a Sheet", () => {
       expect(title?.id).toBeTruthy()
       expect(dialog?.getAttribute("aria-labelledby")).toBe(title?.id)
     })
+  })
+})
+
+describe("Toolbar disabled buttons", () => {
+  const secondary = { color: "secondary", variant: "soft", uniform: true, pill: true }
+  const reactDisabledBar = () =>
+    createElement(
+      RToolbar as unknown as AnyComponent,
+      { placement: "bottom" },
+      createElement(RToolbar.Leading, null, createElement(RButton as unknown as AnyComponent, { ...secondary, "aria-label": "Filter", disabled: true }, "F")),
+      createElement(RToolbar.Content, null, createElement(RButton as unknown as AnyComponent, { color: "primary", pill: true, disabled: true }, "Place order")),
+      createElement(
+        RToolbar.Trailing,
+        null,
+        createElement(
+          RToolbar.Group,
+          { "aria-label": "Order actions" },
+          createElement(RButton as unknown as AnyComponent, { ...secondary, "aria-label": "Translate", disabled: true }, "T"),
+          createElement(RButton as unknown as AnyComponent, { ...secondary, "aria-label": "More" }, "M"),
+        ),
+        createElement(RNavigationButton, { action: "confirm", disabled: true }),
+      ),
+    )
+  const vueDisabledBar = () =>
+    h(Toolbar as never, { placement: "bottom" }, () => [
+      h(ToolbarLeading, null, () => h(Button, { ...secondary, "aria-label": "Filter", disabled: true }, () => "F")),
+      h(ToolbarContent, null, () => h(Button, { color: "primary", pill: true, disabled: true }, () => "Place order")),
+      h(ToolbarTrailing, null, () => [
+        h(ToolbarGroup, { "aria-label": "Order actions" }, () => [
+          h(Button, { ...secondary, "aria-label": "Translate", disabled: true }, () => "T"),
+          h(Button, { ...secondary, "aria-label": "More" }, () => "M"),
+        ]),
+        h(NavigationButton, { action: "confirm", disabled: true }),
+      ]),
+    ])
+
+  test("disabled bar buttons render the same disabled DOM in React and Vue", async () => {
+    const { react, vue } = await renderPair(reactDisabledBar() as never, () => vueDisabledBar())
+    expect(vue).toBe(react)
+    // Filter, Place order, Translate and Confirm; More stays enabled.
+    expect(react.match(/data-disabled=""/g)?.length).toBe(4)
+    expect(react.match(/aria-disabled="true"/g)?.length).toBe(4)
+  })
+
+  test("a disabled glass button keeps the glass and dims its ink; a prominent one turns gray", () => {
+    const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
+    const rule = (head: string) => css.slice(css.indexOf(head), css.indexOf("}", css.indexOf(head)))
+    const glass = rule(".Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant]:where(")
+    expect(glass).toContain("--button-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
+    expect(glass).toContain("--button-mobile-material-background: var(--mobile-glass-background);")
+    expect(glass).toContain("--button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);")
+    expect(glass).toContain("--button-mobile-material-opacity: 1;")
+    const prominent = rule(".Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant=\"solid\"]")
+    expect(prominent).toContain("--button-background-color: var(--toolbar-prominent-disabled-background);")
+    expect(prominent).toContain("--button-text-color: var(--toolbar-prominent-disabled-color);")
+    // Inside a Group the button glass is cleared, so a disabled item never paints a capsule of its own.
+    expect(css).toMatch(/\.Group \{[\s\S]*?& > :where\(button, a\) \{\s*--mobile-glass-background: transparent;/)
+    const tokens = readFileSync(`${process.cwd()}/packages/styles/src/styles/variables-components.css`, "utf8")
+    expect(tokens).toContain("--toolbar-prominent-disabled-background: light-dark(rgb(0 0 0 / 13%), rgb(255 255 255 / 22%));")
+    expect(tokens).toContain("--toolbar-prominent-disabled-color: light-dark(rgb(255 255 255), rgb(255 255 255 / 30%));")
   })
 })

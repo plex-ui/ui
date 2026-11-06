@@ -483,6 +483,11 @@
     --toolbar-edge-blur-large: 10px;
     --toolbar-group-item-hover: color-mix(in srgb, var(--color-text) 4%, transparent);
     --toolbar-group-item-active: color-mix(in srgb, var(--color-text) 8%, transparent);
+    /* A disabled prominent bar button gives up its tint for a gray capsule. Native iOS 26, light (IMG_5441/5471/
+       5472/5473): 210-213 on the grouped 242/242/246 bar, black at about 13%, under a white label. Dark (iOS2
+       IMG_5523/5526): 79/79/81 on the 28/28/29 sheet, white at about 22%, under a 131/131/133 glyph, white at 30%. */
+    --toolbar-prominent-disabled-background: light-dark(rgb(0 0 0 / 13%), rgb(255 255 255 / 22%));
+    --toolbar-prominent-disabled-color: light-dark(rgb(255 255 255), rgb(255 255 255 / 30%));
 
     /* =============================================
       Page

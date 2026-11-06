@@ -233,6 +233,26 @@
     --button-mobile-material-active: var(--mobile-glass-background-active);
   }
 
+  /* Disabled (iOS 26 kit _Button - Symbol, Text and Back, State=Disabled): a bar button keeps the glass of its
+     capsule, which inside a Group is the Group's, and draws its symbol or label in the tertiary label color.
+     Button drops the material of a disabled button elsewhere; the extra attribute outweighs it and the shared
+     disabled color in any style sheet order. */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant]:where(:not([data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));
+    --button-mobile-material-background: var(--mobile-glass-background);
+    --button-mobile-material-sheen: var(--mobile-glass-sheen);
+    --button-mobile-material-shadow: var(--mobile-glass-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+  }
+
+  /* A prominent action (NavigationButton confirm, a solid Button) gives up its color when disabled. */
+  .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant="solid"] {
+    --button-background-color: var(--toolbar-prominent-disabled-background);
+    --button-text-color: var(--toolbar-prominent-disabled-color);
+  }
+
   /* A search field (iOS 26 kit Search Top and Bottom): the row height and the glass of the bar buttons.
      The extra attribute outweighs the field's own focus and hover outlines, which a bar does not draw. */
   .Toolbar :is(.Leading, .Trailing, .Content) > [data-slot="input"][data-variant] {

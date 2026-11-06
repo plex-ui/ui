@@ -20,6 +20,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ### Fixed
 
+- `Toolbar` disabled buttons on a phone follow iOS 26: a disabled glass button kept its 44px target but lost its glass and painted a 5% gray circle, also inside `Toolbar.Group`, and a disabled prominent action (`NavigationButton action="confirm"`, a solid Button) showed the shared disabled fill. Now a glass button keeps its glass, or the Group's, and draws its symbol or label in `--mobile-label-tertiary`; a prominent action turns into a gray capsule from the new `--toolbar-prominent-disabled-background` and `--toolbar-prominent-disabled-color` (black at 13% under a white label in light, white at 22% under white at 30% in dark, as measured on native screens). The Toolbar page has a Disabled example in React and Vue.
 - `Dialog.Content` and `Menu.Content` (React) call the owner's latest `onCloseAutoFocus` when the close and an owner state change render together. The closing content is frozen for its exit, so the handler from before the close ran and focus went to the wrong place. Vue already read the current handler.
 - Rows with actions example: after Delete account, focus moves to Restore sample account; after restoring, it moves to the first action of the restored account instead of falling to the page.
 - Settings with selection pages example: on a phone a disabled row (Weekly digest) draws its label, value and disclosure in the iOS tertiary label color, as a disabled Menu item does, so it no longer reads like an enabled row's secondary value.

@@ -10,6 +10,7 @@ import {
   ToolbarGroupDemo,
   ToolbarSearchDemo,
   ToolbarBottomDemo,
+  ToolbarDisabledDemo,
   ToolbarSheetDemo,
 } from "@/components/docs/ToolbarDemos"
 
@@ -108,6 +109,37 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
   <ToolbarBottomDemo />
 </ComponentPreview>
 
+### Disabled
+
+<ComponentPreview phoneOnly details={<>A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside <code>Toolbar.Group</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.</>} code={`<Page surface="grouped">
+  <Toolbar>
+    <Toolbar.Leading>
+      <Button color="secondary" variant="soft" pill>Cancel</Button>
+    </Toolbar.Leading>
+    <Toolbar.Title>New order</Toolbar.Title>
+    <Toolbar.Trailing>
+      <NavigationButton action="confirm" disabled />
+    </Toolbar.Trailing>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+  <Toolbar placement="bottom">
+    <Toolbar.Leading>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled><Filter /></Button>
+    </Toolbar.Leading>
+    <Toolbar.Content>
+      <Button color="primary" pill disabled>Place order</Button>
+    </Toolbar.Content>
+    <Toolbar.Trailing>
+      <Toolbar.Group aria-label="Order actions">
+        <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled><Translate /></Button>
+        <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
+      </Toolbar.Group>
+    </Toolbar.Trailing>
+  </Toolbar>
+</Page>`}>
+  <ToolbarDisabledDemo />
+</ComponentPreview>
+
 ### Sheet
 
 <ComponentPreview phoneOnly phoneDialog details={<>In a Sheet the toolbar sits below the grabber and takes the place of the Sheet's own bar and Close button on a phone. Keep <code>Dialog.Header</code> with <code>Dialog.Title</code>: it still names the dialog for assistive technology, and it is the header from 768px up.</>} code={`<Dialog.Content mobileVariant="sheet" surface="grouped">
@@ -184,3 +216,4 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
 - `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
 - `--toolbar-background`: color of the fading edge (defaults to the Sheet or page canvas)
+- `--toolbar-prominent-disabled-background`, `--toolbar-prominent-disabled-color`: capsule and label of a disabled prominent action (default black at 13% and white in light, white at 22% and white at 30% in dark). A disabled glass button keeps the glass and takes `--mobile-label-tertiary`
