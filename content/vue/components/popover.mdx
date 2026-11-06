@@ -5,7 +5,8 @@ metaDescription: Vue 3 popover component for contextual floating UI, with flexib
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
-import { VuePopoverDemo } from "@/components/docs/vue/VuePopoverDemos"
+import { VuePopoverConfirmationDemo, VuePopoverDemo } from "@/components/docs/vue/VuePopoverDemos"
+import { PopoverConfirmationStage } from "@/components/docs/PopoverDemos"
 
 export const overview = `<Popover>
   <PopoverTrigger>
@@ -108,6 +109,33 @@ export const controller = `<Popover :open="open" @update:open="setOpen">
   </PopoverContent>
 </Popover>`
 
+export const confirmation = `<Popover>
+  <PopoverTrigger>
+    <Button color="danger" variant="soft" :size="wide ? 'md' : '3xl'" :block="!wide" :pill="!wide">
+      Delete event
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent side="top" :side-offset="wide ? 8 : -34" :class="styles.Confirmation" v-slot="{ close }">
+    <p :class="styles.Message">Are you sure you want to delete this event?</p>
+    <Button color="danger" variant="soft" block :pill="!wide" :class="styles.Action" @click="close()">
+      Delete event
+    </Button>
+  </PopoverContent>
+</Popover>`
+
+export const confirmationCode = `<script setup lang="ts">
+import { Button } from '@plexui/vue/components/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import styles from './PopoverConfirmation.module.css';
+
+const wide = useBreakpoint('md');
+</script>
+
+<template>
+${confirmation}
+</template>`
+
 export const responsiveCode = (template) => `<script setup lang="ts">
 import { Button } from '@plexui/vue/components/Button';
 import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
@@ -205,6 +233,14 @@ These examples keep the panel beside the trigger on desktop and below it on phon
   <VuePopoverDemo template={controller} />
 </ComponentPreview>
 
+### Confirmation
+
+<ComponentPreview language="vue" details={<>Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the <a href="https://github.com/plex-ui/ui/blob/master/components/docs/PopoverConfirmation.module.css">shared styles</a> with the example.</>} code={confirmationCode} previewMinHeight={168}>
+  <PopoverConfirmationStage data-demo-stage>
+    <VuePopoverConfirmationDemo template={confirmation} />
+  </PopoverConfirmationStage>
+</ComponentPreview>
+
 ### Nesting
 
 All floating UI components in Plex UI can be infinitely nested by relying on `z-index: auto;` and natural stacking order.
@@ -249,4 +285,8 @@ Additionally, `esc` keypresses are handled independently as a stacking order.
 
 Popover reads these component tokens. Override them at any scope to restyle it:
 
-- `--popover-radius`: radius (default `var(--radius-xl)`)
+- `--popover-radius`: radius (default `var(--radius-xl)`, `34px` at 767px and below, the corner of an iOS 26 action sheet)
+- `--popover-mobile-background`: panel surface at 767px and below (default the menu material, `--menu-mobile-background`: the elevated surface in light, glass in dark)
+- `--popover-mobile-backdrop-filter`: blur behind the panel at 767px and below in the dark theme (default `--menu-mobile-backdrop-filter`, `blur(10px)`)
+
+A `translucent` panel keeps its own surface on phones.

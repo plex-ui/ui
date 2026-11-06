@@ -12,6 +12,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Added
 
 - Dialog docs: a Text field example, an alert that asks for one short value with a 48px capsule field, its text selected on open, in React and Vue.
+- Popover docs: a Confirmation example in React and Vue, a destructive action confirmed from the button that asks for it. On a phone the panel covers its button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message at 17/22 in the primary label 31px from the edge and the action as a 48px capsule 16px from the edges, as an iPhone confirmation popover measures. Opening focuses the panel, not the action. The shared styles are `components/docs/PopoverConfirmation.module.css`.
 
 ### Changed
 
@@ -31,6 +32,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - `Select` at the end of a labeled row on a phone (React and Vue) shows its value in the secondary label, with its chevrons, as the option rows of iOS 26 Reminders and Calendar do (a value at 138 on white) instead of the primary text. In a columns group the value is the row's data and stays primary, with its chevrons in the tertiary label, as in an Apple Account billing address (a value at 0, its chevrons at 197 on white), also when disabled. A disabled trailing one takes the tertiary label.
 - `Switch` on a phone: the off track is `--alpha-25`, the native off track (197 on a white card, 101 on a dark sheet card) instead of `--gray-150` / `--gray-400`, hover `--alpha-30`, and a disabled off track `--alpha-15`, so it stays visible on a dark elevated card, whose color the desktop `--gray-300` is.
 - `Dialog` alert on a phone (React and Vue) follows the native iOS 26 alert (an iPhone alert with a text field at 430pt) instead of the kit layout: glass (`--dialog-alert-background`, `--dialog-alert-backdrop-filter`), a field and the actions 16px from the edge (`--dialog-alert-padding`, was 14px), the title and message 31px from the edge, the message at 15/20 in the secondary label (`--dialog-alert-message-color`) instead of 17/22 in the primary text, 20px from the text to a control, 8px between two actions (was 16px) and semibold actions. A soft Cancel and a soft field share `--dialog-alert-fill`. The alert is 320px wide from a 414px wide phone (300px below, as in the kit).
+- `Popover` on a phone (React and Vue): the panel takes the material of the phone menus, the elevated surface in light and glass in dark (`--popover-mobile-background`, `--popover-mobile-backdrop-filter`), as an iPhone confirmation popover is (a dark sheet of 28 shows at 55), and a 34px corner (`--popover-radius` at 767px and below), the corner of an iOS 26 action sheet. A `translucent` panel and the DatePicker calendar keep their own surface.
 
 ### Fixed
 

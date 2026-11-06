@@ -6074,6 +6074,35 @@ function submitPrompt(close: () => void, shake: () => void) {
 </template>
 ```
 
+### Confirmation
+Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the shared styles with the example.
+```vue
+<script setup lang="ts">
+import { Button } from '@plexui/vue/components/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '@plexui/vue/components/Popover';
+import { useBreakpoint } from '@plexui/vue/composables/useBreakpoints';
+import styles from './PopoverConfirmation.module.css';
+
+const wide = useBreakpoint('md');
+</script>
+
+<template>
+<Popover>
+  <PopoverTrigger>
+    <Button color="danger" variant="soft" :size="wide ? 'md' : '3xl'" :block="!wide" :pill="!wide">
+      Delete event
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent side="top" :side-offset="wide ? 8 : -34" :class="styles.Confirmation" v-slot="{ close }">
+    <p :class="styles.Message">Are you sure you want to delete this event?</p>
+    <Button color="danger" variant="soft" block :pill="!wide" :class="styles.Action" @click="close()">
+      Delete event
+    </Button>
+  </PopoverContent>
+</Popover>
+</template>
+```
+
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
 Import: import { Progress } from "@plexui/vue/components/Progress"

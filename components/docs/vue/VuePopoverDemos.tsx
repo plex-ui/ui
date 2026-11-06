@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { VueDemo } from './VueDemo';
+import confirmationStyles from '../PopoverConfirmation.module.css';
 
 /** Responsive examples with a controller request owned by the mounted preview. */
 export function VuePopoverDemo({ context, ...props }: ComponentProps<typeof VueDemo>) {
@@ -45,4 +46,9 @@ export function VuePopoverDemo({ context, ...props }: ComponentProps<typeof VueD
   };
 
   return <VueDemo {...props} context={{ ...context, wide, open, prompt, submitting, setOpen: changeOpen, setPrompt, submitPrompt }} />;
+}
+
+/** The confirmation example reads the shared docs styles as `styles`. */
+export function VuePopoverConfirmationDemo({ context, ...props }: ComponentProps<typeof VueDemo>) {
+  return <VuePopoverDemo {...props} context={{ ...context, styles: confirmationStyles }} />;
 }

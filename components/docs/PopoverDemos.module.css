@@ -1,0 +1,8 @@
+/* Docs stage of the confirmation example, not part of the copied styles. On a phone its button sits at the
+   bottom of the stage, as a delete button ends a native form, so the panel has room to open over it upward. */
+@media (max-width: 767px) {
+  .ConfirmationStage[data-demo-stage] {
+    justify-content: flex-end !important;
+    min-height: 280px;
+  }
+}

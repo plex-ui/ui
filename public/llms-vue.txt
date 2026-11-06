@@ -695,7 +695,7 @@ Props:
     - data-* (string) — Data attributes land on the panel
     - class (string) — Applied to the panel
     - default slot ({ close, shake }) — Panel content; receives the controller functions
-Examples: Overview, Sizing the popover, Open on hover, Using the controller
+Examples: Overview, Sizing the popover, Open on hover, Using the controller, Confirmation
 
 ## Progress
 A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Textarea } from '@plexui/ui/components/Textarea';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
@@ -14,6 +14,8 @@ import {
   Sparkles,
 } from '@plexui/ui/components/Icon';
 import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
+import confirmationStyles from './PopoverConfirmation.module.css';
+import demoStyles from './PopoverDemos.module.css';
 
 export function PopoverBaseDemo() {
   const wide = useBreakpoint('md');
@@ -213,4 +215,38 @@ export function PopoverControllerDemo() {
       </Popover.Content>
     </Popover>
   );
+}
+
+function ConfirmationBody({ wide }: { wide: boolean }) {
+  const { close } = usePopoverController();
+  return (
+    <>
+      <p className={confirmationStyles.Message}>Are you sure you want to delete this event?</p>
+      <Button color="danger" variant="soft" block pill={!wide} className={confirmationStyles.Action} onClick={close}>
+        Delete event
+      </Button>
+    </>
+  );
+}
+
+export function PopoverConfirmationDemo() {
+  const wide = useBreakpoint('md');
+  return (
+    <Popover>
+      <Popover.Trigger>
+        <Button color="danger" variant="soft" size={wide ? 'md' : '3xl'} block={!wide} pill={!wide}>
+          Delete event
+        </Button>
+      </Popover.Trigger>
+      {/* On a phone the panel covers its 50px button and ends 16px above the button's bottom edge. */}
+      <Popover.Content side="top" sideOffset={wide ? 8 : -34} className={confirmationStyles.Confirmation}>
+        <ConfirmationBody wide={wide} />
+      </Popover.Content>
+    </Popover>
+  );
+}
+
+/** Docs stage of the confirmation example in React and Vue: on a phone its button sits at the bottom. */
+export function PopoverConfirmationStage({ children }: { children: ReactNode; 'data-demo-stage'?: boolean }) {
+  return <div data-demo-stage className={demoStyles.ConfirmationStage}>{children}</div>;
 }

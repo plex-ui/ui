@@ -5678,6 +5678,44 @@ export function PopoverControllerDemo() {
 }
 ```
 
+### Confirmation
+Confirm a destructive action from the button that asks for it. On a desktop the panel opens above the button. On a phone it covers the button, as iOS 26 presents an action sheet from its source: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48px capsule. Opening moves focus to the panel, not to the action. Copy the shared styles with the example.
+```tsx
+import { Button } from '@plexui/ui/components/Button';
+import { Popover, usePopoverController } from '@plexui/ui/components/Popover';
+import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
+import styles from './PopoverConfirmation.module.css';
+
+function ConfirmationBody({ wide }: { wide: boolean }) {
+  const { close } = usePopoverController();
+  return (
+    <>
+      <p className={styles.Message}>Are you sure you want to delete this event?</p>
+      <Button color="danger" variant="soft" block pill={!wide} className={styles.Action} onClick={close}>
+        Delete event
+      </Button>
+    </>
+  );
+}
+
+export function PopoverConfirmationDemo() {
+  const wide = useBreakpoint('md');
+  return (
+    <Popover>
+      <Popover.Trigger>
+        <Button color="danger" variant="soft" size={wide ? 'md' : '3xl'} block={!wide} pill={!wide}>
+          Delete event
+        </Button>
+      </Popover.Trigger>
+      {/* On a phone the panel covers its 50px button and ends 16px above the button's bottom edge. */}
+      <Popover.Content side="top" sideOffset={wide ? 8 : -34} className={styles.Confirmation}>
+        <ConfirmationBody wide={wide} />
+      </Popover.Content>
+    </Popover>
+  );
+}
+```
+
 ## Progress Steps
 Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
 Import: import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"

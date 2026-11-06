@@ -23,6 +23,10 @@
        surface; the blur applies in dark only. */
     --menu-mobile-background: light-dark(var(--color-surface-elevated), var(--alpha-12));
     --menu-mobile-backdrop-filter: blur(10px);
+    /* A popover takes the material of the menus: iOS 26 presents an action sheet from its source in the same
+       dark glass (iOS2 IMG_5528: a card of 44 under it at 65 to 69, the sheet of 28 at 55). */
+    --popover-mobile-background: var(--menu-mobile-background);
+    --popover-mobile-backdrop-filter: var(--menu-mobile-backdrop-filter);
     /* An Alert is glass in both themes, as native iOS 26 alerts are: light 233 over a page dimmed to 204
        (iOS2 IMG_5533), dark 34 to 45 over a page dimmed to 0 to 14 (IMG_5532); the backdrop is blurred. */
     --dialog-alert-background: var(--mobile-glass-background);
