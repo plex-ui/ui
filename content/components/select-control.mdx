@@ -24,8 +24,11 @@ import {
   PhoneFormDemo,
   CountrySelectorDemo,
 } from "@/components/docs/PhoneInputDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { SelectControl } from "@plexui/ui/components/SelectControl";`}</UsageBlock>
+
+On Phone, a select control is the value of a row in a `FieldGroup`, as the [Form Examples](/components/form-examples) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button. The row sets the control's height, insets, type and colors, so the Phone previews show rows without the `size`, `pill`, `variant`, `StartIcon`, `dropdownIconType`, `block` and `opticallyAlign` controls.
 
 The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` accepts `"dropdown"` or `"chevronDown"`; the indicator keeps its proportions inside a Button.
 
@@ -33,104 +36,214 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Overview
 
-<ComponentPreview code={`const [value, setValue] = useState("")
-const placeholder = "Select date..."
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`const [value, setValue] = useState("")
 
-return (
-  <Menu>
-    <Menu.Trigger>
-      <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-        {value || placeholder}
-      </SelectControl>
-    </Menu.Trigger>
-    <Menu.Content minWidth={200} width={200}>
-      <Menu.RadioGroup value={value} onChange={setValue}>
-        <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-        <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-        <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-        <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-      </Menu.RadioGroup>
-    </Menu.Content>
-  </Menu>
-)`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+// Desktop
+<Menu>
+  <Menu.Trigger>
+    <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
+      {value || "Select date..."}
+    </SelectControl>
+  </Menu.Trigger>
+  <Menu.Content minWidth={200} width={200}>
+    <Menu.RadioGroup value={value} onChange={setValue}>
+      <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+      <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+      <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+      <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+    </Menu.RadioGroup>
+  </Menu.Content>
+</Menu>
+
+// Phone: the control is the value of a row; its label reaches the trigger, and None clears it.
+<FieldGroup>
+  <Field row label="Period">
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl {...control} selected={!!value}>
+            {value || "None"}
+          </SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={200} align="end">
+          <Menu.RadioGroup value={value} onChange={setValue}>
+            <Menu.RadioItem value="">None</Menu.RadioItem>
+            <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+            <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+            <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+            <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+          </Menu.RadioGroup>
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlBaseDemo />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={`<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={`// Desktop
+<div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
   <SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
   <SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
   <SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
-</div>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Folder" errorMessage={invalid ? "Choose a folder you can edit." : undefined}>
+    <SelectControl selected invalid={invalid} disabled={disabled}>Sample value</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlVariantsDemo />
 </ComponentPreview>
 
 ### Sizing & roundness
 
-<ComponentPreview details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>.</>} code={`<SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>.</>} code={`// Desktop
+<SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
 <SelectControl size="md" loading>Select...</SelectControl>
 <SelectControl size="md">Select...</SelectControl>
 <SelectControl size="md" StartIcon={Tools} dropdownIconType="none">Tool calls</SelectControl>
-...`} previewMinHeight={276}>
+...
+
+// Phone
+<FieldGroup>
+  <Field row label="Model">
+    <SelectControl>None</SelectControl>
+  </Field>
+  <Field row label="Tools">
+    <SelectControl loading>Loading...</SelectControl>
+  </Field>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={276}>
   <SelectControlSizingDemo />
 </ComponentPreview>
 
 ### Selected
 
-<ComponentPreview details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you.</>} code={`<SelectControl selected={false}>Select...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one.</>} code={`// Desktop
+<SelectControl selected={false}>Select...</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Fruit">
+    <SelectControl selected={false}>Mango</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlSelectedDemo />
 </ComponentPreview>
 
 ### Start icon
 
-<ComponentPreview details={<>Use <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically.</>} code={`<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.</>} code={`// Desktop
+<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlStartIconDemo />
 </ComponentPreview>
 
 ### Dropdown icon
 
-<ComponentPreview details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator.</>} code={`<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>dropdownIconType</code> to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.</>} code={`// Desktop
+<SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlDropdownIconDemo />
 </ComponentPreview>
 
 ### Clearable
 
-<ComponentPreview details={<>Pass a callback <code>onClearClick</code> to enable the clearable action.</>} code={`<SelectControl selected onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass a callback <code>onClearClick</code> to enable the clearable action.</>} code={`// Desktop
+<SelectControl selected onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
   {value || "Select..."}
-</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl selected={!!value} onClearClick={() => setValue("")}>
+      {value || "None"}
+    </SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlClearableDemo />
 </ComponentPreview>
 
 ### Loading
 
-<ComponentPreview details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={`<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={`// Desktop
+<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Calendar">
+    <SelectControl selected loading>Loading...</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlLoadingDemo />
 </ComponentPreview>
 
 ### Invalid
 
-<ComponentPreview details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state.</>} code={`<SelectControl invalid selected>Pineapple on pizza</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair <code>invalid</code> with the row's <code>errorMessage</code>.</>} code={`// Desktop
+<SelectControl invalid selected>Pineapple on pizza</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Topping" errorMessage="Choose another topping.">
+    <SelectControl invalid selected>Pineapple</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlInvalidDemo />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={`<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={`// Desktop
+<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Role">
+    <SelectControl disabled selected>Reader</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlDisabledDemo />
 </ComponentPreview>
 
 ### Block
 
-<ComponentPreview details={<>Create full-width controls with the <code>block</code> prop.</>} code={`<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>.</>} code={`// Desktop
+<div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
-</div>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <SelectControlBlockDemo />
 </ComponentPreview>
 
 ### Country selector
 
-<ComponentPreview details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={`const countries = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={`const countries = [
   { value: "us", label: "United States" },
   { value: "gb", label: "United Kingdom" },
   // ...60 countries
@@ -143,6 +256,7 @@ const CountryView = ({ value, label }: Option) => (
   </span>
 );
 
+// Desktop
 <Select
   value={country}
   options={countries}
@@ -154,13 +268,29 @@ const CountryView = ({ value, label }: Option) => (
   TriggerView={CountryView}
   OptionView={CountryView}
   listMinWidth={300}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone: the country at the row's end; the flags stay in the list.
+<FieldGroup>
+  <Field row label="Country">
+    <Select
+      value={country}
+      options={countries}
+      onChange={(option) => setCountry(option.value)}
+      block={false}
+      align="end"
+      searchPlaceholder="Search countries..."
+      OptionView={CountryView}
+      listMinWidth={300}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <CountrySelectorDemo />
 </ComponentPreview>
 
 ### Country code selector
 
-<ComponentPreview details={<>A searchable country selector built with <code>Select</code>. Custom <code>TriggerView</code> and <code>OptionView</code> render flag icons and dial codes. Search matches both country name and dial code.</>} code={`const countries = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A searchable country selector built with <code>Select</code>. Custom <code>TriggerView</code> and <code>OptionView</code> render flag icons and dial codes. Search matches both country name and dial code.</>} code={`const countries = [
   { value: "us", label: "United States (+1)", dialCode: "+1" },
   { value: "gb", label: "United Kingdom (+44)", dialCode: "+44" },
   // ...60 countries
@@ -176,6 +306,7 @@ const CountryTriggerView = ({ value }) => {
   );
 };
 
+// Desktop
 <Select
   value={country}
   options={countries}
@@ -186,7 +317,24 @@ const CountryTriggerView = ({ value }) => {
   searchPredicate={searchPredicate}
   TriggerView={CountryTriggerView}
   listMinWidth={300}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone: the country and its code at the row's end; the flags stay in the list.
+<FieldGroup>
+  <Field row label="Country">
+    <Select
+      value={country}
+      options={countries}
+      onChange={(option) => setCountry(option.value)}
+      block={false}
+      align="end"
+      searchPlaceholder="Search countries..."
+      searchPredicate={searchPredicate}
+      OptionView={CountryOptionView}
+      listMinWidth={300}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <CountryCodeSelectorDemo />
 </ComponentPreview>
 
@@ -361,7 +509,15 @@ function PhoneForm() {
 
 ### Optical alignment
 
-<ComponentPreview details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control.</>} code={`<SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>`} previewMinHeight={292}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>opticallyAlign</code> is for desktop.</>} code={`// Desktop
+<SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
+
+// Phone
+<FieldGroup>
+  <Field row label="Theme">
+    <SelectControl selected>System</SelectControl>
+  </Field>
+</FieldGroup>`} previewMinHeight={292}>
   <SelectControlOpticalAlignmentDemo />
 </ComponentPreview>
 

@@ -12,7 +12,8 @@ export const overview = `<div class="flex items-center gap-4">
   <Stepper aria-labelledby="stepper-guests-label" v-model:value="guests" :min="1" :max="8" />
 </div>`
 
-export const rows = `<FieldGroup class="w-full max-w-[400px]" footer="Up to 20 copies and 14 nights.">
+export const rows = `<FieldGroup class="w-full max-w-[400px]">
+  <template #footer>Up to 20 copies and 14 nights.</template>
   <Field row :label="copies === 1 ? '1 copy' : copies + ' copies'">
     <Stepper v-model:value="copies" :min="1" :max="20" />
   </Field>
@@ -62,7 +63,7 @@ A stepper changes a value by small amounts and shows no value of its own. Show t
 
 ### States
 
-<ComponentPreview language="vue" details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set <code>:pill="false"</code> for square ends, as other controls in a dense layout have.</>} code={states} previewMinHeight={140}>
+<ComponentPreview language="vue" details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={states} previewMinHeight={140}>
   <VueDemo template={states} />
 </ComponentPreview>
 
@@ -97,7 +98,7 @@ Stepper reads these component tokens. Override them at any scope to restyle it:
 
 - `--stepper-height`: height (default `var(--control-size-md)`, `32px` at 767px and below)
 - `--stepper-segment-width`: width of each segment (default `40px`, `46px` at 767px and below)
-- `--stepper-radius`: corner radius with `:pill="false"` (default `var(--control-radius-md)`)
+- `--stepper-radius`: corner radius with `:pill="false"` on a desktop (default `var(--control-radius-md)`; 16px, the capsule, on a phone)
 - `--stepper-background`: fill (default `light-dark(var(--gray-100), var(--alpha-08))`, `--stepper-mobile-background` at 767px and below: `--alpha-05` and `--alpha-08`, the kit fill)
 - `--stepper-segment-background-hover`, `--stepper-segment-background-active`: fill a segment adds on hover and while pressed (`--alpha-05`, `--alpha-10`; on a phone no hover and `--alpha-08`)
 - `--stepper-separator-color`, `--stepper-separator-inset`: separator color and its inset from the top and bottom (default `var(--color-border)`, `4px`; `--alpha-25` at 767px and below)

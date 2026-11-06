@@ -13,15 +13,19 @@ import {
   SelectMultiSelectDemo,
   SelectColumnConfigDemo,
 } from "@/components/docs/SelectDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Select } from "@plexui/ui/components/Select";`}</UsageBlock>
+
+On Phone, put a select in a row of a `FieldGroup` with `block={false}` and `align="end"`, as the [Form Examples](/components/form-examples) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button. The row sets its height, insets and type, so the Phone previews show rows without the `variant` and `size` controls.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`const [fruit, setFruit] = useState("")
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the selection as <code>value</code>: a string, or an array of strings with <code>multiple</code>. <code>onChange</code> receives the selected option (or options).</>} code={`const [fruit, setFruit] = useState("")
 
+// Desktop
 <Select
   value={fruit}
   options={fruits}
@@ -30,13 +34,28 @@ import {
   name="fruits"
   variant="outline"
   size="md"
-/>`} previewMinHeight={168}>
+/>
+
+// Phone: the select is the value of a row.
+<FieldGroup>
+  <Field row label="Fruit">
+    <Select
+      value={fruit}
+      options={fruits}
+      onChange={({ value }) => setFruit(value)}
+      placeholder="None"
+      name="fruits"
+      block={false}
+      align="end"
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <SelectBaseDemo />
 </ComponentPreview>
 
 ### With descriptions
 
-<ComponentPreview details={<>Options carrying a <code>description</code> field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no <code>optionClassName</code> needed. Use <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger.</>} code={`const RoleOptionDescription = ({ children }: { children: ReactNode }) => (
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Options carrying a <code>description</code> field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no <code>optionClassName</code> needed. Use <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon.</>} code={`const RoleOptionDescription = ({ children }: { children: ReactNode }) => (
   <div className="font-normal text-secondary text-[0.935em] leading-[1.45]">
     {children}
   </div>
@@ -73,13 +92,28 @@ const roles = [
   size="md"
   onChange={({ value }) => setRole(value)}
   TriggerStartIcon={role === "owner" ? UserLock : User}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Role">
+    <Select
+      value={role}
+      options={roles}
+      block={false}
+      align="end"
+      listMinWidth={260}
+      onChange={({ value }) => setRole(value)}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <SelectCustomViewsDemo />
 </ComponentPreview>
 
 ### Actions
 
-<ComponentPreview details={<>Custom, arbitrary actions can be displayed below the options list via the <code>actions</code> prop.</>} code={`<Select
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Custom, arbitrary actions can be displayed below the options list via the <code>actions</code> prop.</>} code={`// Desktop
+<Select
   value={value}
   onChange={handleChange}
   options={items}
@@ -90,13 +124,30 @@ const roles = [
     { id: "create", label: "Create project", Icon: Plus, onSelect: () => {} },
     { id: "overview", label: "Organization overview", Icon: Workspace, onSelect: () => {} },
   ]}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Project">
+    <Select
+      value={value}
+      onChange={handleChange}
+      options={items}
+      placeholder="None"
+      block={false}
+      align="end"
+      listMinWidth={240}
+      actions={actions}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <SelectActionsDemo />
 </ComponentPreview>
 
 ### Grouped options
 
-<ComponentPreview details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={`<Select
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={`// Desktop
+<Select
   value={value}
   options={groupedItems}
   onChange={(v) => setValue(v.value)}
@@ -106,13 +157,29 @@ const roles = [
   listMinWidth={300}
   searchPlaceholder="Select an option..."
   clearable
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Plan">
+    <Select
+      value={value}
+      options={groupedItems}
+      onChange={(v) => setValue(v.value)}
+      block={false}
+      align="end"
+      listMinWidth={300}
+      searchPlaceholder="Select an option..."
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <SelectGroupedOptionsDemo />
 </ComponentPreview>
 
 ### Multiple selection
 
-<ComponentPreview details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>value</code>, <code>onChange</code>, and <code>TriggerView</code> are typed, accepting and returning arrays of values.</>} code={`<Select
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>value</code>, <code>onChange</code>, and <code>TriggerView</code> are typed, accepting and returning arrays of values.</>} code={`// Desktop
+<Select
   variant="soft"
   placeholder="Select fruits..."
   options={fruitsOptions}
@@ -122,7 +189,25 @@ const roles = [
   value={fruits}
   onChange={(values) => setFruits(values.map(({ value }) => value))}
   TriggerView={MultiFruitTriggerView}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Fruits">
+    <Select
+      placeholder="None"
+      options={fruitsOptions}
+      name="fruits"
+      multiple
+      clearable
+      block={false}
+      align="end"
+      value={fruits}
+      onChange={(values) => setFruits(values.map(({ value }) => value))}
+      TriggerView={MultiFruitTriggerView}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <SelectMultiSelectDemo />
 </ComponentPreview>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@plexui/ui/components/Input';
 import { Button } from '@plexui/ui/components/Button';
 import { Field } from '@plexui/ui/components/Field';
@@ -10,7 +10,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Eye, EyeOff, Search } from '@plexui/ui/components/Icon';
 import { FieldError } from '@plexui/ui/components/FieldError';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
-import { PhoneRows, usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const GUTTER_OPTIONS = ['auto', '2xs', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
@@ -18,14 +18,6 @@ type GutterOption = (typeof GUTTER_OPTIONS)[number];
 
 // On a phone an input is the value of a grouped row, as in the Form Examples: the row
 // sets its height, insets and type, so size, gutterSize, pill and variant stay on the web.
-function PhoneStage({ children }: { children: ReactNode }) {
-  return (
-    <div data-demo-stage className="w-full">
-      <PhoneRows>{children}</PhoneRows>
-    </div>
-  );
-}
-
 function PhoneCounter({ length }: { length: number }) {
   return <span className="tabular-nums text-secondary">{length}/16</span>;
 }
@@ -34,13 +26,13 @@ export function InputOverviewDemo() {
   const phone = usePhoneRows();
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Email">
             <Input type="email" placeholder="name@example.com" />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -54,7 +46,7 @@ export function InputVariantsDemo() {
   const phone = usePhoneRows();
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="First name">
             <Input defaultValue="Jane" />
@@ -63,7 +55,7 @@ export function InputVariantsDemo() {
             <Input variant="ghost" placeholder="Street and building" />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -79,13 +71,13 @@ export function InputStartAdornmentDemo() {
   const phone = usePhoneRows();
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup columns>
           <Field row label="Amount">
             <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -108,7 +100,7 @@ export function InputSizingDemo() {
   const args = { size, gutterSize: resolvedGutterSize, pill };
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup columns>
           <Field row label="Name">
             <Input placeholder="Enter text..." />
@@ -123,7 +115,7 @@ export function InputSizingDemo() {
             />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -192,7 +184,7 @@ export function InputEndAdornmentDemo() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Name">
             <Input
@@ -203,7 +195,7 @@ export function InputEndAdornmentDemo() {
             />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -246,7 +238,7 @@ export function InputCharacterCounterDemo() {
   const [username, setUsername] = useState('');
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Username">
             <Input
@@ -258,7 +250,7 @@ export function InputCharacterCounterDemo() {
             />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -287,13 +279,13 @@ export function InputDisabledDemo() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       {phone ? (
-        <PhoneStage>
+        <PhoneRowsStage>
           <FieldGroup>
             <Field row label="Name">
               <Input placeholder="Required" disabled={disabled} defaultValue="Jane Doe" />
             </Field>
           </FieldGroup>
-        </PhoneStage>
+        </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
           <div className="w-[320px]">
@@ -314,14 +306,14 @@ export function InputInvalidDemo() {
         <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
       {phone ? (
-        <PhoneStage>
+        <PhoneRowsStage>
           <FieldGroup>
             {/* A row is the field's frame, so the error is the line under it */}
             <Field row label="Email" errorMessage={invalid ? 'Enter a valid email address.' : undefined}>
               <Input type="email" placeholder="name@example.com" defaultValue="jane@example" invalid={invalid} />
             </Field>
           </FieldGroup>
-        </PhoneStage>
+        </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
           <div className="w-[320px]">
@@ -342,13 +334,13 @@ export function InputAutoSelectDemo() {
         <DemoControlBoolean name="autoSelect" value={autoSelect} onChange={setAutoSelect} />
       </div>
       {phone ? (
-        <PhoneStage>
+        <PhoneRowsStage>
           <FieldGroup>
             <Field row label="Name">
               <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
             </Field>
           </FieldGroup>
-        </PhoneStage>
+        </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
           <div className="w-[320px]">
@@ -377,7 +369,7 @@ export function InputAutofillExtensionsDemo() {
         />
       </div>
       {phone ? (
-        <PhoneStage>
+        <PhoneRowsStage>
           <FieldGroup>
             <Field row label="Email">
               <Input
@@ -388,7 +380,7 @@ export function InputAutofillExtensionsDemo() {
               />
             </Field>
           </FieldGroup>
-        </PhoneStage>
+        </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
           <div className="w-[320px]">
@@ -413,7 +405,7 @@ export function InputOpticalAlignDemo() {
   if (phone) {
     // A row starts its label and its text at the row's inset: there is no gutter to offset
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup footer="We'll never share your email.">
           <Field row label="Full name">
             <Input placeholder="Jane Doe" />
@@ -425,7 +417,7 @@ export function InputOpticalAlignDemo() {
         <Button color="primary" size="3xl" pill block>
           Submit
         </Button>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
 
@@ -479,7 +471,7 @@ export function InputWithButtonDemo() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Email">
             <Input type="email" placeholder="jane.doe@gmail.com" />
@@ -488,7 +480,7 @@ export function InputWithButtonDemo() {
         <Button color="primary" size="3xl" pill block>
           Subscribe
         </Button>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -588,13 +580,13 @@ export function InputPasswordToggleDemo() {
   );
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Password">
             <Input placeholder="Required" type={visible ? 'text' : 'password'} endAdornment={toggle} />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -692,7 +684,7 @@ export function InputSSNDemo() {
     // A row is the input's frame, so the phone field formats as you type and hides as a
     // secure field: the overlay of the web needs a wrapper the row cannot frame.
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <Field row label="SSN">
             <Input
@@ -716,7 +708,7 @@ export function InputSSNDemo() {
             />
           </Field>
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
 
@@ -1059,11 +1051,11 @@ export function InputBirthdayDemo() {
   const [pill, setPill] = useState(false);
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <PhoneBirthdayRow value={birthday} onChange={setBirthday} />
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (
@@ -1125,11 +1117,11 @@ export function InputBirthdayValidationDemo() {
   const errorId = 'input-birthday-validation-demo-error';
   if (phone) {
     return (
-      <PhoneStage>
+      <PhoneRowsStage>
         <FieldGroup>
           <PhoneBirthdayRow value={birthday} onChange={setBirthday} errorMessage={errorMessage} />
         </FieldGroup>
-      </PhoneStage>
+      </PhoneRowsStage>
     );
   }
   return (

@@ -1,14 +1,32 @@
 'use client';
 
 import { DateTime } from 'luxon';
+import type React from 'react';
 import { useState } from 'react';
 import {
   DateRangePicker,
   type DateRange,
   type DateRangeShortcut,
 } from '@plexui/ui/components/DateRangePicker';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
+
+// On a phone a date range picker is the value of a row in a FieldGroup: the range (short dates, None when empty)
+// and its up-down chevrons at the row's end, as a pop-up, opening our calendar. The row sets its height and
+// insets, so the phone examples drop the desktop size, pill, icon and clear button. In a row the month of a
+// month stepper keeps the width of the longest month, so its arrows stay put.
+function PhoneRangeRow({ label, children }: { label: string; children: React.ReactElement }) {
+  return (
+    <PhoneRowsStage>
+      <FieldGroup>
+        <Field row label={label}>{children}</Field>
+      </FieldGroup>
+    </PhoneRowsStage>
+  );
+}
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
@@ -59,6 +77,12 @@ const dayShortcuts: DateRangeShortcut[] = [
 
 export function DateRangePickerBaseDemo() {
   const [value, setValue] = useState<DateRange | null>(null);
+  const phone = usePhoneRows();
+  if (phone) return (
+    <PhoneRangeRow label="Dates">
+      <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} shortcuts={dayShortcuts} />
+    </PhoneRangeRow>
+  );
   return (
     <div style={{ width: 'fit-content' }}>
       <DateRangePicker
@@ -80,6 +104,12 @@ export function DateRangePickerLimitsDemo() {
   const [value, setValue] = useState<DateRange | null>(() =>
     getMonthStartAndEnd(today, { min: minDate, max: maxDate }),
   );
+  const phone = usePhoneRows();
+  if (phone) return (
+    <PhoneRangeRow label="Dates">
+      <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} min={minDate} max={maxDate} />
+    </PhoneRangeRow>
+  );
   return (
     <div style={{ width: 'fit-content' }}>
       <DateRangePicker
@@ -97,6 +127,12 @@ export function DateRangePickerLimitsDemo() {
 
 export function DateRangePickerShortcutsDemo() {
   const [value, setValue] = useState<DateRange | null>(null);
+  const phone = usePhoneRows();
+  if (phone) return (
+    <PhoneRangeRow label="Dates">
+      <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} shortcuts={dayShortcuts} />
+    </PhoneRangeRow>
+  );
   return (
     <div style={{ width: 'fit-content' }}>
       <DateRangePicker
@@ -140,7 +176,15 @@ export function DateRangePickerMonthStepperDemoWithControls() {
   );
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [pill, setPill] = useState(true);
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <PhoneRangeRow label="Month">
+        <DateRangePicker triggerStepperUnit="month" value={value} onChange={setValue} max={maxDate} />
+      </PhoneRangeRow>
+    );
+  }
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>

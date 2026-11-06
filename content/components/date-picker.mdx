@@ -15,11 +15,13 @@ import {
   DatePickerMaskedDateDemo,
   DatePickerMaskedDateTimeDemo,
 } from "@/components/docs/DatePickerDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 export const overviewCode = `import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 
+// Desktop
 export default function DatePickerExample() {
   const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
   const [disabled] = useState(false);
@@ -36,9 +38,26 @@ export default function DatePickerExample() {
       onChange={setSelectedDate}
     />
   );
-}`
+}
+
+// Phone: the date is the value of a row, in the compact date that opens the calendar.
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-base"
+      triggerDateFormat="MMM d, yyyy"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      disabled={disabled}
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { DatePicker } from "@plexui/ui/components/DatePicker";`}</UsageBlock>
+
+On Phone, put a date picker in a row of a `FieldGroup`, as the [Form Examples](/components/form-examples) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar. The row is its frame and sets its height, insets and type, so the phone examples leave out `size`, `pill` and `clearable` and set `triggerShowIcon={false}`. To type a date instead, put a [Date Input](/components/date-input) in the row.
 
 ## Examples
 
@@ -46,17 +65,18 @@ export default function DatePickerExample() {
 
 ### Overview
 
-<ComponentPreview details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</>} code={overviewCode} previewMinHeight={168}>
   <DatePickerBaseDemo />
 </ComponentPreview>
 
 ### Limits
 
-<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day.</>} code={`const today = DateTime.local()
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>min</code> and <code>max</code> to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day.</>} code={`const today = DateTime.local()
 const minDate = today.minus({ days: 30 }).startOf("day")
 const maxDate = today.plus({ days: 30 }).endOf("day")
 const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
 
+// Desktop
 <DatePicker
   id="date-picker-limits"
   triggerDateFormat="MM/dd/yy"
@@ -67,13 +87,29 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   onChange={setSelectedDate}
   min={minDate}
   max={maxDate}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-limits"
+      triggerDateFormat="MMM d, yyyy"
+      triggerShowIcon={false}
+      value={selectedDate}
+      onChange={setSelectedDate}
+      min={minDate}
+      max={maxDate}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <DatePickerLimitsDemo />
 </ComponentPreview>
 
 ### Date of birth
 
-<ComponentPreview details={<>Set <code>captionLayout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={`<DatePicker
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>captionLayout="dropdown"</code> to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.</>} code={`// Desktop
+<DatePicker
   id="date-picker-dob"
   triggerDateFormat="MMMM d, yyyy"
   size="lg"
@@ -84,13 +120,30 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   value={selectedDate}
   onChange={setSelectedDate}
   max={DateTime.local()}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Birthday">
+    <DatePicker
+      id="date-picker-dob"
+      triggerDateFormat="MMM d, yyyy"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      captionLayout="dropdown"
+      value={selectedDate}
+      onChange={setSelectedDate}
+      max={DateTime.local()}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <DatePickerDobDemo />
 </ComponentPreview>
 
 ### Time picker
 
-<ComponentPreview details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={`<DatePicker
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Enable <code>showTime</code> to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.</>} code={`// Desktop
+<DatePicker
   id="date-picker-time"
   triggerDateFormat="MM/dd/yy HH:mm"
   size="lg"
@@ -100,13 +153,29 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   showTime
   value={selectedDate}
   onChange={setSelectedDate}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Starts">
+    <DatePicker
+      id="date-picker-time"
+      triggerDateFormat="MMM d, yyyy HH:mm"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      showTime
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <DatePickerTimeDemo />
 </ComponentPreview>
 
 ### Dropdown + time
 
-<ComponentPreview details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={`<DatePicker
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Combine <code>captionLayout="dropdown"</code> with <code>showTime</code> for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.</>} code={`// Desktop
+<DatePicker
   id="date-picker-datetime-dropdown"
   triggerDateFormat="MMM d, yyyy HH:mm"
   size="lg"
@@ -118,13 +187,30 @@ const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
   yearRange={[2020, 2030]}
   value={selectedDate}
   onChange={setSelectedDate}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Event">
+    <DatePicker
+      id="date-picker-datetime-dropdown"
+      triggerDateFormat="MMM d, yyyy HH:mm"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      captionLayout="dropdown"
+      showTime
+      yearRange={[2020, 2030]}
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <DatePickerDateTimeDropdownDemo />
 </ComponentPreview>
 
 ### Two fields
 
-<ComponentPreview details={<>Compose <code>DatePicker</code> and <code>Input</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here <code>handleTimeInput</code> masks the typed time as HH:MM and moves the date to a complete typed time, and a newly picked date takes the typed time.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Compose <code>DatePicker</code> and <code>Input</code> side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here <code>handleTimeInput</code> masks the typed time as HH:MM and moves the date to a complete typed time, and a newly picked date takes the typed time.</>} code={`const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)
 const [time, setTime] = useState("10:30")
 
 // Mask the typed time as HH:MM; a complete time moves the picked date's time
@@ -147,6 +233,17 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 }
 
+// A picked date takes the typed time
+const onDateChange = (next: DateTime | null) => {
+  if (next && time) {
+    const [hour, minute] = time.split(":").map(Number)
+    setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))
+  } else {
+    setSelectedDate(next)
+  }
+}
+
+// Desktop
 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
   <DatePicker
     id="date-picker-two-field-date"
@@ -158,15 +255,7 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     dropdownIconType="none"
     placeholder="Select date"
     value={selectedDate}
-    onChange={(next) => {
-      // A picked date takes the typed time
-      if (next && time) {
-        const [hour, minute] = time.split(":").map(Number)
-        setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))
-      } else {
-        setSelectedDate(next)
-      }
-    }}
+    onChange={onDateChange}
   />
   <Input
     id="date-picker-two-field-time"
@@ -178,21 +267,55 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     maxLength={5}
     style={{ width: "72px" }}
   />
-</div>`} previewMinHeight={100}>
+</div>
+
+// Phone: two rows, the compact date and the time typed at the row's end
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-two-field-date"
+      triggerDateFormat="MMM d, yyyy"
+      captionLayout="dropdown"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      value={selectedDate}
+      onChange={onDateChange}
+    />
+  </Field>
+  <Field row label="Time">
+    <Input
+      id="date-picker-two-field-time"
+      value={time}
+      onChange={handleTimeInput}
+      placeholder="HH:MM"
+      maxLength={5}
+      inputMode="numeric"
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={100}>
   <DatePickerTwoFieldDemo />
 </ComponentPreview>
 
 ### Date input
 
-<ComponentPreview details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`<div className="w-[200px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>For typing a date directly instead of picking it, use <a href="/components/date-input"><code>DateInput</code></a>, a masked input that auto-formats as you type.</>} code={`// Desktop
+<div className="w-[200px]">
   <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" aria-label="Date" />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DatePickerMaskedDateDemo />
 </ComponentPreview>
 
 ### DateTime input
 
-<ComponentPreview details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`<div className="w-[260px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>timeMode="HH:MM"</code> to <code>DateInput</code> to type the date and time in one field.</>} code={`// Desktop
+<div className="w-[260px]">
   <DateInput
     value={dateTime}
     onChange={setDateTime}
@@ -201,13 +324,21 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     timeMode="HH:MM"
     aria-label="Date and time"
   />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Starts">
+    <DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DatePickerMaskedDateTimeDemo />
 </ComponentPreview>
 
 ### Without Icon
 
-<ComponentPreview details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false.</>} code={`<DatePicker
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Remove the calendar icon from the trigger by setting <code>triggerShowIcon</code> to false.</>} code={`// Desktop
+<DatePicker
   id="date-picker-no-icon"
   triggerDateFormat="MM/dd/yy"
   size="lg"
@@ -215,7 +346,21 @@ const handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
   placeholder="Choose a date"
   value={selectedDate}
   onChange={setSelectedDate}
-/>`} previewMinHeight={168}>
+/>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-no-icon"
+      triggerDateFormat="MMM d, yyyy"
+      triggerShowIcon={false}
+      placeholder="Choose a date"
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <DatePickerWithoutIconDemo />
 </ComponentPreview>
 

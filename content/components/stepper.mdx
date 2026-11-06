@@ -55,7 +55,7 @@ const [nights, setNights] = useState(3)
 
 ### States
 
-<ComponentPreview details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have.</>} code={`<Stepper aria-label="At the lowest value" defaultValue={0} />
+<ComponentPreview details={<>At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set <code>pill</code> to <code>false</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.</>} code={`<Stepper aria-label="At the lowest value" defaultValue={0} />
 <Stepper aria-label="Disabled" defaultValue={3} disabled />
 <Stepper aria-label="Square ends" defaultValue={3} pill={false} />`} previewMinHeight={140}>
   <StepperStatesDemo />
@@ -94,7 +94,7 @@ Stepper reads these component tokens. Override them at any scope to restyle it:
 
 - `--stepper-height`: height (default `var(--control-size-md)`, `32px` at 767px and below)
 - `--stepper-segment-width`: width of each segment (default `40px`, `46px` at 767px and below)
-- `--stepper-radius`: corner radius with `pill={false}` (default `var(--control-radius-md)`)
+- `--stepper-radius`: corner radius with `pill={false}` on a desktop (default `var(--control-radius-md)`; 16px, the capsule, on a phone)
 - `--stepper-background`: fill (default `light-dark(var(--gray-100), var(--alpha-08))`, `--stepper-mobile-background` at 767px and below: `--alpha-05` and `--alpha-08`, the kit fill)
 - `--stepper-segment-background-hover`, `--stepper-segment-background-active`: fill a segment adds on hover and while pressed (`--alpha-05`, `--alpha-10`; on a phone no hover and `--alpha-08`)
 - `--stepper-separator-color`, `--stepper-separator-inset`: separator color and its inset from the top and bottom (default `var(--color-border)`, `4px`; `--alpha-25` at 767px and below)

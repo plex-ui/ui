@@ -1,5 +1,6 @@
 'use client';
 
+import type React from 'react';
 import { useState, type ReactNode } from 'react';
 import { Plus, SettingsSlider, User, UserLock, Workspace } from '@plexui/ui/components/Icon';
 import { Select } from '@plexui/ui/components/Select';
@@ -7,7 +8,22 @@ import { Popover } from '@plexui/ui/components/Popover';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Button } from '@plexui/ui/components/Button';
+import { Field } from '@plexui/ui/components/Field';
+import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
+
+// On a phone a select is the value of a row in a FieldGroup, a pop-up button at the row's end, as in the
+// Form Examples. The row sets its type and insets, so the phone examples drop the desktop variant and size controls.
+function PhoneSelectRow({ label, children }: { label: string; children: React.ReactElement }) {
+  return (
+    <PhoneRowsStage>
+      <FieldGroup>
+        <Field row label={label}>{children}</Field>
+      </FieldGroup>
+    </PhoneRowsStage>
+  );
+}
 
 const fruitsOptions = [
   { label: 'Apple', value: 'apple' },
@@ -132,10 +148,12 @@ export function SelectBaseDemo() {
 
   const [singleFruit, setSingleFruit] = useState<string>('');
   const [multiFruits, setMultiFruits] = useState<string[]>([]);
+  const phone = usePhoneRows();
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        {!phone && (<>
         <DemoControlRow name="variant">
           <SegmentedControl<(typeof SELECT_VARIANT_OPTIONS)[number]>
             value={variant}
@@ -164,6 +182,7 @@ export function SelectBaseDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
+        </>)}
         <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
@@ -181,6 +200,40 @@ export function SelectBaseDemo() {
         <DemoControlBoolean name="clearable" value={clearable} onChange={setClearable} />
         <DemoControlBoolean name="multiple" value={multiple} onChange={setMultiple} />
       </div>
+      {phone ? (
+        <PhoneSelectRow label={multiple ? 'Fruits' : 'Fruit'}>
+          {multiple ? (
+            <Select
+              key="multi"
+              placeholder="None"
+              options={fruitsOptions}
+              name="fruits"
+              multiple
+              block={false}
+              align="end"
+              clearable={clearable}
+              checkPosition={checkPosition}
+              value={multiFruits}
+              onChange={(values) => setMultiFruits(values.map(({ value }) => value))}
+              TriggerView={MultiFruitTriggerView}
+            />
+          ) : (
+            <Select
+              key="single"
+              placeholder="None"
+              options={fruitsOptions}
+              name="fruits"
+              multiple={false}
+              block={false}
+              align="end"
+              clearable={clearable}
+              checkPosition={checkPosition}
+              value={singleFruit}
+              onChange={(params) => setSingleFruit(params.value)}
+            />
+          )}
+        </PhoneSelectRow>
+      ) : (
       <div
         data-demo-stage
         className="flex-1 w-full py-12 flex items-center justify-center"
@@ -218,6 +271,7 @@ export function SelectBaseDemo() {
           )}
         </div>
       </div>
+      )}
     </>
   );
 }
@@ -228,10 +282,12 @@ export function SelectCustomViewsDemo() {
   const [size, setSize] = useState<(typeof SELECT_SIZE_OPTIONS)[number]>('md');
   const [checkPosition, setCheckPosition] = useState<(typeof CHECK_POSITION_OPTIONS)[number]>('start');
   const [showIcon, setShowIcon] = useState(true);
+  const phone = usePhoneRows();
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
+        {!phone && (<>
         <DemoControlRow name="variant">
           <SegmentedControl<(typeof SELECT_VARIANT_OPTIONS)[number]>
             value={variant}
@@ -260,6 +316,7 @@ export function SelectCustomViewsDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
+        </>)}
         <DemoControlRow name="checkPosition">
           <SegmentedControl<(typeof CHECK_POSITION_OPTIONS)[number]>
             value={checkPosition}
@@ -274,8 +331,21 @@ export function SelectCustomViewsDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="triggerIcon" value={showIcon} onChange={setShowIcon} />
+        {!phone && <DemoControlBoolean name="triggerIcon" value={showIcon} onChange={setShowIcon} />}
       </div>
+      {phone ? (
+        <PhoneSelectRow label="Role">
+          <Select
+            value={role}
+            options={roles}
+            block={false}
+            align="end"
+            listMinWidth={260}
+            checkPosition={checkPosition}
+            onChange={({ value }) => setRole(value)}
+          />
+        </PhoneSelectRow>
+      ) : (
       <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
         <div style={{ width: 220 }}>
           <Select
@@ -292,13 +362,27 @@ export function SelectCustomViewsDemo() {
           />
         </div>
       </div>
+      )}
     </>
   );
 }
 
+const ACTIONS = [
+  { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
+  { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
+];
+
 export function SelectActionsDemo() {
   const [value, setValue] = useState<string>('');
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <PhoneSelectRow label="Project">
+        <Select value={value} block={false} options={items} placeholder="None" align="end" listMinWidth={240} onChange={(v) => setValue(v.value)} actions={ACTIONS} />
+      </PhoneSelectRow>
+    );
+  }
   return (
     <div style={{ width: 150 }}>
       <Select
@@ -310,10 +394,7 @@ export function SelectActionsDemo() {
         align="start"
         listMinWidth={240}
         onChange={(v) => setValue(v.value)}
-        actions={[
-          { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
-          { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
-        ]}
+        actions={ACTIONS}
       />
     </div>
   );
@@ -321,7 +402,15 @@ export function SelectActionsDemo() {
 
 export function SelectGroupedOptionsDemo() {
   const [value, setValue] = useState<string>('1');
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <PhoneSelectRow label="Plan">
+        <Select value={value} block={false} align="end" options={groupedItems} listMinWidth={300} searchPlaceholder="Select an option..." onChange={(v) => setValue(v.value)} />
+      </PhoneSelectRow>
+    );
+  }
   return (
     <div style={{ width: 200 }}>
       <Select
@@ -357,7 +446,26 @@ function MultiFruitTriggerView({
 
 export function SelectMultiSelectDemo() {
   const [fruits, setFruits] = useState<string[]>([]);
+  const phone = usePhoneRows();
 
+  if (phone) {
+    return (
+      <PhoneSelectRow label="Fruits">
+        <Select
+          placeholder="None"
+          options={fruitsOptions}
+          name="fruits"
+          multiple
+          clearable
+          block={false}
+          align="end"
+          value={fruits}
+          onChange={(values) => setFruits(values.map(({ value }) => value))}
+          TriggerView={MultiFruitTriggerView}
+        />
+      </PhoneSelectRow>
+    );
+  }
   return (
     <div style={{ width: 200 }}>
       <Select

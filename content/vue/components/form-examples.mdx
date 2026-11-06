@@ -914,7 +914,7 @@ export const rowGroups = formScreen("Edit product", `      <img src="/demo/pictu
               <InputGroupAddon align="inline-end">
                 <Menu>
                   <MenuTrigger>
-                    <InputGroupButton aria-label="Unit" class="text-secondary md:text-sm font-normal">
+                    <InputGroupButton :aria-label="'Unit: ' + unit" class="text-secondary md:text-sm font-normal">
                       {{ unit }}<span class="ms-1"><DropdownIcon icon-type="dropdown" /></span>
                     </InputGroupButton>
                   </MenuTrigger>

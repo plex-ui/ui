@@ -1903,31 +1903,56 @@ const disabled = ref(false);
 </script>
 
 <template>
+<!-- Desktop -->
 <div class="w-[200px]">
   <DateInput v-model:value="date" size="md" variant="outline" clearable :disabled="disabled" />
 </div>
+
+<!-- Phone: the date is the value of a row. -->
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput v-model:value="date" clearable :disabled="disabled" />
+  </Field>
+</FieldGroup>
 </template>
 ```
 
 ### With time
 Pass time-mode="HH:MM" to enable date + time input in one field.
 ```vue
+<!-- Desktop -->
 <div class="w-[260px]">
   <DateInput v-model:value="date" time-mode="HH:MM" clearable />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Starts">
+    <DateInput v-model:value="date" time-mode="HH:MM" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ### With seconds
 Use time-mode="HH:MM:SS" for second-level precision.
 ```vue
+<!-- Desktop -->
 <div class="w-[300px]">
   <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Logged">
+    <DateInput v-model:value="date" time-mode="HH:MM:SS" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ### Limits
 Use min and max to restrict the date range. The mask prevents entering values outside the allowed range. today is DateTime.local().
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <DateInput
     v-model:value="date"
@@ -1936,42 +1961,86 @@ Use min and max to restrict the date range. The mask prevents entering values ou
     clearable
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput
+      v-model:value="date"
+      :min="today.minus({ days: 30 }).startOf('day')"
+      :max="today.plus({ days: 30 }).endOf('day')"
+      clearable
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### US format
 Set mode="mm/dd/yyyy" and separator="/" for US-style date formatting.
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput v-model:value="date" mode="mm/dd/yyyy" separator="/" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ### ISO format
 Set mode="yyyy/mm/dd" and separator="-" for ISO 8601 formatting.
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput v-model:value="date" mode="yyyy/mm/dd" separator="-" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ### With Field
 Wrap with Field to add a label, description, and automatic accessibility attributes.
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <Field label="Date of birth" description="Enter your date of birth">
     <DateInput v-model:value="date" clearable />
   </Field>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date of birth" description="Enter your date of birth">
+    <DateInput v-model:value="date" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ### Validation
 Pass error-message to Field to display a validation error.
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <Field label="Date of birth" :error-message="!date ? 'Date is required' : undefined">
     <DateInput v-model:value="date" clearable />
   </Field>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date of birth" :error-message="!date ? 'Date is required' : undefined">
+    <DateInput v-model:value="date" clearable />
+  </Field>
+</FieldGroup>
 ```
 
 ## Date Picker
@@ -2016,6 +2085,7 @@ const disabled = ref(false);
 </script>
 
 <template>
+<!-- Desktop -->
 <DatePicker
   id="date-picker-base"
   trigger-date-format="MM/dd/yy"
@@ -2025,12 +2095,27 @@ const disabled = ref(false);
   :disabled="disabled"
   v-model:value="selectedDate"
 />
+
+<!-- Phone: the date is the value of a row, in the compact date that opens the calendar. -->
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-base"
+      trigger-date-format="MMM d, yyyy"
+      :trigger-show-icon="false"
+      placeholder="Select date"
+      :disabled="disabled"
+      v-model:value="selectedDate"
+    />
+  </Field>
+</FieldGroup>
 </template>
 ```
 
 ### Limits
 Use min and max to limit selectable dates to a specific timeframe. Here minDate is {"today.minus({ days: 30 }).startOf('day')"} and maxDate is {"today.plus({ days: 30 }).endOf('day')"}. Equal bounds leave one selectable day.
 ```vue
+<!-- Desktop -->
 <DatePicker
   id="date-picker-limits"
   trigger-date-format="MM/dd/yy"
@@ -2041,11 +2126,26 @@ Use min and max to limit selectable dates to a specific timeframe. Here minDate 
   :min="minDate"
   :max="maxDate"
 />
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-limits"
+      trigger-date-format="MMM d, yyyy"
+      :trigger-show-icon="false"
+      v-model:value="selectedDate"
+      :min="minDate"
+      :max="maxDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Date of birth
 Set caption-layout="dropdown" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.
 ```vue
+<!-- Desktop -->
 <DatePicker
   id="date-picker-dob"
   trigger-date-format="MMMM d, yyyy"
@@ -2057,11 +2157,27 @@ Set caption-layout="dropdown" to add month and year dropdowns inline with the ar
   v-model:value="selectedDate"
   :max="DateTime.local()"
 />
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Birthday">
+    <DatePicker
+      id="date-picker-dob"
+      trigger-date-format="MMM d, yyyy"
+      :trigger-show-icon="false"
+      placeholder="Select date"
+      caption-layout="dropdown"
+      v-model:value="selectedDate"
+      :max="DateTime.local()"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Time picker
 Enable show-time to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.
 ```vue
+<!-- Desktop -->
 <DatePicker
   id="date-picker-time"
   trigger-date-format="MM/dd/yy HH:mm"
@@ -2072,11 +2188,26 @@ Enable show-time to add hour and minute inputs below the calendar. The popover s
   show-time
   v-model:value="selectedDate"
 />
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Starts">
+    <DatePicker
+      id="date-picker-time"
+      trigger-date-format="MMM d, yyyy HH:mm"
+      :trigger-show-icon="false"
+      placeholder="Select date"
+      show-time
+      v-model:value="selectedDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Dropdown + time
 Combine caption-layout="dropdown" with show-time for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.
 ```vue
+<!-- Desktop -->
 <DatePicker
   id="date-picker-datetime-dropdown"
   trigger-date-format="MMM d, yyyy HH:mm"
@@ -2089,11 +2220,28 @@ Combine caption-layout="dropdown" with show-time for quick month/year jumps and 
   :year-range="[2020, 2030]"
   v-model:value="selectedDate"
 />
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Event">
+    <DatePicker
+      id="date-picker-datetime-dropdown"
+      trigger-date-format="MMM d, yyyy HH:mm"
+      :trigger-show-icon="false"
+      placeholder="Select date"
+      caption-layout="dropdown"
+      show-time
+      :year-range="[2020, 2030]"
+      v-model:value="selectedDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Two fields
 Compose DatePicker and Input side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here formatTime masks the typed time as HH:MM, applyTime moves the date to a complete typed time, and withTime gives a newly picked date the typed time.
 ```vue
+<!-- Desktop -->
 <div style="display: flex; gap: 8px; align-items: center">
   <DatePicker
     id="date-picker-two-field-date"
@@ -2118,19 +2266,53 @@ Compose DatePicker and Input side by side for maximum flexibility in form layout
     style="width: 72px"
   />
 </div>
+
+<!-- Phone: two rows, the compact date and the time typed at the row's end -->
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-two-field-date"
+      trigger-date-format="MMM d, yyyy"
+      caption-layout="dropdown"
+      :trigger-show-icon="false"
+      placeholder="Select date"
+      :value="selectedDate"
+      @update:value="selectedDate = withTime($event, time)"
+    />
+  </Field>
+  <Field row label="Time">
+    <Input
+      id="date-picker-two-field-time"
+      :value="time"
+      @update:value="time = formatTime($event); selectedDate = applyTime(selectedDate, time)"
+      placeholder="HH:MM"
+      maxlength="5"
+      inputmode="numeric"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Date input
 For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type.
 ```vue
+<!-- Desktop -->
 <div class="w-[200px]">
   <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" aria-label="Date" />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" />
+  </Field>
+</FieldGroup>
 ```
 
 ### DateTime input
 Pass time-mode="HH:MM" to DateInput to type the date and time in one field.
 ```vue
+<!-- Desktop -->
 <div class="w-[260px]">
   <DateInput
     v-model:value="selectedDate"
@@ -2140,11 +2322,19 @@ Pass time-mode="HH:MM" to DateInput to type the date and time in one field.
     aria-label="Date and time"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Starts">
+    <DateInput v-model:value="selectedDate" mode="mm/dd/yyyy" separator="/" time-mode="HH:MM" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Without Icon
 Remove the calendar icon from the trigger by setting trigger-show-icon to false.
 ```vue
+<!-- Desktop -->
 <DatePicker
   id="date-picker-no-icon"
   trigger-date-format="MM/dd/yy"
@@ -2153,6 +2343,19 @@ Remove the calendar icon from the trigger by setting trigger-show-icon to false.
   placeholder="Choose a date"
   v-model:value="selectedDate"
 />
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-no-icon"
+      trigger-date-format="MMM d, yyyy"
+      :trigger-show-icon="false"
+      placeholder="Choose a date"
+      v-model:value="selectedDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ## Date Range Picker
@@ -2187,6 +2390,7 @@ Props:
 ### Overview
 Bind the range ([start, end] luxon DateTimes, or null) with v-model:value. The @change event carries the same range and, when a shortcut was picked, that shortcut as its second argument, like React's onChange(range, shortcut).
 ```vue
+<!-- Desktop -->
 <div style="width: fit-content">
   <DateRangePicker
     size="lg"
@@ -2196,11 +2400,25 @@ Bind the range ([start, end] luxon DateTimes, or null) with v-model:value. The @
     :shortcuts="dayShortcuts"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Dates">
+    <DateRangePicker
+      :trigger-show-icon="false"
+      trigger-date-format="MMM d"
+      placeholder="None"
+      v-model:value="value"
+      :shortcuts="dayShortcuts"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Limits
 Use min and max to limit the selectable range. Use max-range-days to limit the range length. Here minDate is 30 days ago (start of day) and maxDate is the end of today.
 ```vue
+<!-- Desktop -->
 <div style="width: fit-content">
   <DateRangePicker
     size="lg"
@@ -2211,11 +2429,26 @@ Use min and max to limit the selectable range. Use max-range-days to limit the r
     :max="maxDate"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Dates">
+    <DateRangePicker
+      :trigger-show-icon="false"
+      trigger-date-format="MMM d"
+      placeholder="None"
+      v-model:value="value"
+      :min="minDate"
+      :max="maxDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Shortcuts
 Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled.
 ```vue
+<!-- Desktop -->
 <div style="width: fit-content">
   <DateRangePicker
     size="lg"
@@ -2225,11 +2458,25 @@ Use the shortcuts array to provide quick date range options. When a shortcut is 
     :shortcuts="dayShortcuts"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Dates">
+    <DateRangePicker
+      :trigger-show-icon="false"
+      trigger-date-format="MMM d"
+      placeholder="None"
+      v-model:value="value"
+      :shortcuts="dayShortcuts"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Month stepper
 Enable a stepper in the trigger with trigger-stepper-unit="month". When the selected range matches the unit, the trigger shows the stepper.
 ```vue
+<!-- Desktop -->
 <div style="width: fit-content">
   <DateRangePicker
     :size="size"
@@ -2240,6 +2487,17 @@ Enable a stepper in the trigger with trigger-stepper-unit="month". When the sele
     :max="maxDate"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Month">
+    <DateRangePicker
+      trigger-stepper-unit="month"
+      v-model:value="value"
+      :max="maxDate"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ## Dialog
@@ -5240,6 +5498,7 @@ Props:
 ### Overview
 Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup :size="size" :variant="variant" :pill="pill" :disabled="disabled" :invalid="invalid">
     <InputGroupInput placeholder="Search..." />
@@ -5268,11 +5527,39 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone: the group is the value of a row; with a prefix the rows take columns. -->
+<FieldGroup columns>
+  <Field row label="Website" :error-message="invalid ? 'Enter a valid address.' : undefined">
+    <template #default="control">
+      <InputGroup :disabled="disabled" :invalid="invalid">
+        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Amount">
+    <template #default="control">
+      <InputGroup :disabled="disabled">
+        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupAddon>
+          <InputGroupText>$</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>USD</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Variants
-Use variant to stylize the group, like Input.
+Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup variant="outline">
     <InputGroupInput placeholder="Outline" />
@@ -5287,11 +5574,26 @@ Use variant to stylize the group, like Input.
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone -->
+<FieldGroup columns>
+  <Field row label="Website">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset.
+Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[360px]">
   <div v-for="size in sizes" :key="size" class="flex items-center gap-4">
     <span class="w-8 shrink-0 text-right text-sm text-tertiary">{{ size }}</span>
@@ -5306,11 +5608,39 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with th
     </InputGroup>
   </div>
 </div>
+
+<!-- Phone -->
+<FieldGroup columns>
+  <Field row label="Website">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Amount">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupAddon>
+          <InputGroupText>$</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>USD</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Align
 Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup>
     <InputGroupInput placeholder="inline-start" />
@@ -5337,11 +5667,36 @@ Use align on InputGroupAddon to place it before (inline-start, the default) or a
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone -->
+<FieldGroup columns>
+  <Field row label="Amount">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupAddon align="inline-start">
+          <InputGroupText>$</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Weight">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="0" inputmode="decimal" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>kg</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Text
 Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup>
     <InputGroupInput placeholder="0.00" inputmode="decimal" />
@@ -5377,11 +5732,55 @@ Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or 
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone: a counter is the group's footer. -->
+<FieldGroup columns>
+  <Field row label="Amount">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupAddon>
+          <InputGroupText>$</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>USD</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Website">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Email">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="name" inputmode="email" autocapitalize="none" spellcheck="false" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>@plexui.com</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
+<FieldGroup>
+  <template #footer>{{ 280 - post.length }} characters left</template>
+  <Field row orientation="vertical" label="Post">
+    <Textarea v-model:value="post" variant="ghost" placeholder="What's happening?" maxlength="280" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Button
 InputGroupButton is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup :size="size" :pill="pill">
     <InputGroupInput default-value="plexui.com/r/input-group" readonly />
@@ -5410,11 +5809,37 @@ InputGroupButton is a Button that defaults to ghost and secondary and takes its 
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone: the main action is the button under the rows. -->
+<FieldGroup columns>
+  <Field row label="Link">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="plexui.com/r/input-group" readonly />
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton uniform aria-label="Copy link">
+            <Copy />
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Card">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="Card number" inputmode="numeric" autocomplete="cc-number" />
+
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Pay</Button>
 ```
 
 ### Dropdown
 Wrap an InputGroupButton in a Menu to pick a unit of measurement next to the value.
 ```vue
+<!-- Desktop -->
 <script setup lang="ts">
 import { ref } from "vue"
 import { ChevronDownMd } from "@plexui/vue/components/Icon"
@@ -5463,11 +5888,72 @@ const unit = ref("kg")
     </InputGroupAddon>
   </InputGroup>
 </template>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Weight">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="72" inputmode="decimal" />
+        <InputGroupAddon align="inline-end">
+          <Menu>
+            <MenuTrigger>
+              <InputGroupButton :aria-label="'Unit: ' + weightUnit" class="text-secondary font-normal">
+                {{ weightUnit }}<span class="ms-1"><DropdownIcon icon-type="dropdown" /></span>
+              </InputGroupButton>
+            </MenuTrigger>
+            <MenuContent align="end" min-width="auto">
+              <MenuCheckboxItem
+                v-for="unit in weightUnits"
+                :key="unit.value"
+                :checked="weightUnit === unit.value"
+                indicator-position="start"
+                indicator-variant="ghost"
+                @update:checked="weightUnit = unit.value"
+              >
+                {{ unit.label }}
+              </MenuCheckboxItem>
+            </MenuContent>
+          </Menu>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Height">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="180" inputmode="decimal" />
+        <InputGroupAddon align="inline-end">
+          <Menu>
+            <MenuTrigger>
+              <InputGroupButton :aria-label="'Unit: ' + lengthUnit" class="text-secondary font-normal">
+                {{ lengthUnit }}<span class="ms-1"><DropdownIcon icon-type="dropdown" /></span>
+              </InputGroupButton>
+            </MenuTrigger>
+            <MenuContent align="end" min-width="auto">
+              <MenuCheckboxItem
+                v-for="unit in lengthUnits"
+                :key="unit.value"
+                :checked="lengthUnit === unit.value"
+                indicator-position="start"
+                indicator-variant="ghost"
+                @update:checked="lengthUnit = unit.value"
+              >
+                {{ unit.label }}
+              </MenuCheckboxItem>
+            </MenuContent>
+          </Menu>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Spinner
 Show a LoadingIndicator in an addon while a value is searched or saved.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
   <InputGroup>
     <InputGroupInput default-value="Searching..." readonly />
@@ -5489,11 +5975,36 @@ Show a LoadingIndicator in an addon while a value is searched or saved.
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Library">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="Searching..." readonly />
+        <InputGroupAddon align="inline-end">
+          <LoadingIndicator />
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Changes">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" default-value="Saving..." readonly />
+        <InputGroupAddon align="inline-end">
+          <LoadingIndicator />
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Textarea
 With InputGroupTextarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <InputGroup>
     <InputGroupTextarea placeholder="console.log('Hello, world!');" :rows="4" class="font-mono" />
@@ -5513,6 +6024,15 @@ With InputGroupTextarea, use block-start and block-end addons for a header and a
     </InputGroupAddon>
   </InputGroup>
 </div>
+
+<!-- Phone: the header is the row's label, the status line the group's footer. -->
+<FieldGroup>
+  <template #footer>Line 1, Column 1</template>
+  <Field row orientation="vertical" label="script.js">
+    <Textarea variant="ghost" placeholder="console.log('Hello, world!');" :rows="4" class="font-mono" autocapitalize="none" spellcheck="false" />
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Run</Button>
 ```
 
 ## Kbd
@@ -7042,6 +7562,7 @@ Props:
 ### Overview
 Bind the selection with v-model:value: a string, or an array of strings with multiple. The @change event carries the selected option (or options), like React's onChange.
 ```vue
+<!-- Desktop -->
 <div style="width: 200px">
   <Select
     v-if="multiple"
@@ -7072,11 +7593,46 @@ Bind the selection with v-model:value: a string, or an array of strings with mul
     v-model:value="fruit"
   />
 </div>
+
+<!-- Phone: the select is the value of a row. -->
+<FieldGroup>
+  <Field row :label="multiple ? 'Fruits' : 'Fruit'">
+    <Select
+      v-if="multiple"
+      key="multi"
+      placeholder="None"
+      :options="fruitsOptions"
+      name="fruits"
+      multiple
+      :block="false"
+      align="end"
+      :clearable="clearable"
+      :check-position="checkPosition"
+      v-model:value="multiFruits"
+    >
+      <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+    </Select>
+    <Select
+      v-else
+      key="single"
+      placeholder="None"
+      :options="fruitsOptions"
+      name="fruits"
+      :multiple="false"
+      :block="false"
+      align="end"
+      :clearable="clearable"
+      :check-position="checkPosition"
+      v-model:value="fruit"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### With descriptions
-Options carrying a description field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning {''}. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no option-class-name needed. Pass a component to TriggerStartIcon to reflect the selected option's identity in the trigger.
+Options carrying a description field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning {''}. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no option-class-name needed. Pass a component to TriggerStartIcon to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon.
 ```vue
+<!-- Desktop -->
 <div style="width: 220px">
   <Select
     v-model:value="role"
@@ -7090,11 +7646,26 @@ Options carrying a description field render a secondary line under each label. A
     :TriggerStartIcon="triggerIcon ? (role === 'owner' ? UserLock : User) : undefined"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Role">
+    <Select
+      v-model:value="role"
+      :options="roles"
+      :block="false"
+      align="end"
+      :list-min-width="260"
+      :check-position="checkPosition"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Actions
 Custom, arbitrary actions can be displayed below the options list via the actions prop. Each action has an id, a label, an optional Icon component and className, and an onSelect callback.
 ```vue
+<!-- Desktop -->
 <div style="width: 150px">
   <Select
     variant="soft"
@@ -7110,11 +7681,30 @@ Custom, arbitrary actions can be displayed below the options list via the action
     ]"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Project">
+    <Select
+      v-model:value="value"
+      :block="false"
+      :options="items"
+      placeholder="None"
+      align="end"
+      :list-min-width="240"
+      :actions="[
+        { id: 'create', label: 'Create project', Icon: Plus, onSelect: () => {} },
+        { id: 'overview', label: 'Organization overview', Icon: Workspace, onSelect: () => {} },
+      ]"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Grouped options
 Select supports option groups, similar to the native &lt;optgroup&gt; element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
 ```vue
+<!-- Desktop -->
 <div style="width: 200px">
   <Select
     variant="outline"
@@ -7127,11 +7717,26 @@ Select supports option groups, similar to the native &lt;optgroup&gt; element, a
     clearable
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Plan">
+    <Select
+      v-model:value="value"
+      :block="false"
+      align="end"
+      :options="groupedItems"
+      :list-min-width="300"
+      search-placeholder="Select an option..."
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Multiple selection
 Multiple selection is supported through the multiple property. This changes how v-model:value, @change, and the #triggerView slot are typed, accepting and returning arrays of values.
 ```vue
+<!-- Desktop -->
 <div style="width: 200px">
   <Select
     variant="soft"
@@ -7145,6 +7750,24 @@ Multiple selection is supported through the multiple property. This changes how 
     <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
   </Select>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Fruits">
+    <Select
+      placeholder="None"
+      :options="fruitsOptions"
+      name="fruits"
+      multiple
+      clearable
+      :block="false"
+      align="end"
+      v-model:value="fruits"
+    >
+      <template #triggerView="{ values, selectedAll }">{{ selectedAll ? "All fruits" : values.length === 1 ? values[0].label : values.length + " fruits" }}</template>
+    </Select>
+  </Field>
+</FieldGroup>
 ```
 
 ### Column configuration
@@ -7206,6 +7829,7 @@ Props:
 
 ### Overview
 ```vue
+<!-- Desktop -->
 <Menu>
   <MenuTrigger>
     <SelectControl class="w-[200px]" :selected="!!value" @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select date..." }}</SelectControl>
@@ -7219,11 +7843,34 @@ Props:
     </MenuRadioGroup>
   </MenuContent>
 </Menu>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Period">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl v-bind="control" :selected="!!value">{{ value || "None" }}</SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" align="end">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem value="">None</MenuRadioItem>
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+</FieldGroup>
 ```
 
 ### Variants
 Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <div class="flex flex-col gap-6">
     <div v-for="variant in ['soft', 'outline', 'ghost']" :key="variant" class="flex items-center">
@@ -7242,11 +7889,19 @@ Use the variant prop to stylize the select control. Available variant styles are
     </div>
   </div>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Folder" :error-message="invalid ? 'Choose a folder you can edit.' : undefined">
+    <SelectControl selected :invalid="invalid" :disabled="disabled">Sample value</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Sizing & roundness
-Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill.
+Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-2 justify-start items-start w-[240px]">
   <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" dropdown-icon-type="none">Select...</SelectControl>
   <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" loading>Select...</SelectControl>
@@ -7256,61 +7911,139 @@ Sizing of the control is determined with the size prop. Each size provides dynam
   <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt" dropdown-icon-type="chevronDown">Today</SelectControl>
   <SelectControl class="w-[200px]" :size="size" :pill="pill" :variant="variant" @clear-click="() => {}" selected :StartIcon="CalendarAlt">Today</SelectControl>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Model">
+    <SelectControl>None</SelectControl>
+  </Field>
+  <Field row label="Tools">
+    <SelectControl loading>Loading...</SelectControl>
+  </Field>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Selected
-Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you.
+Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" :selected="selected">Select...</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Fruit">
+    <SelectControl :selected="selected">Mango</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Start icon
-Pass a component to StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically.
+Pass a component to StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" :StartIcon="CalendarAlt">Select date...</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Dropdown icon
-Use dropdown-icon-type to control the presentation of the dropdown indicator.
+Use dropdown-icon-type to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" selected :dropdown-icon-type="dropdownIconType" :StartIcon="CalendarAlt">Select date...</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Clearable
 Listen to @clear-click to enable the clearable action. The clear button shows while the control is selected.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" selected @clear-click="value = ''" :StartIcon="CalendarAlt">{{ value || "Select..." }}</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl :selected="!!value" @clear-click="value = ''">{{ value || "None" }}</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Loading
 During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" selected :loading="loading" :StartIcon="CalendarAlt">Loading...</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Calendar">
+    <SelectControl selected :loading="loading">{{ loading ? "Loading..." : "Work" }}</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Invalid
-Use invalid to visually indicate the control is in an invalid state.
+Use invalid to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair invalid with the row's error-message.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" :invalid="invalid" selected>Pineapple on pizza</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Topping" :error-message="invalid ? 'Choose another topping.' : undefined">
+    <SelectControl :invalid="invalid" selected>Pineapple</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Disabled
 Use disabled to both visually and accessibly disable the control.
 ```vue
+<!-- Desktop -->
 <SelectControl class="w-[200px]" :disabled="disabled" selected :StartIcon="User">Reader</SelectControl>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Role">
+    <SelectControl :disabled="disabled" selected>Reader</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Block
-Create full-width controls with the block prop.
+Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block.
 ```vue
+<!-- Desktop -->
 <div class="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
   <SelectControl size="lg" :block="block" :StartIcon="CalendarAlt">Select...</SelectControl>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ### Country selector
 A plain country selector built with Select. The #triggerView and #optionView slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. countries holds {"{ value, label }"} options, and FlagIcon renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.
 ```vue
+<!-- Desktop -->
 <div class="w-[320px]">
   <Select
     v-model:value="country"
@@ -7332,11 +8065,31 @@ A plain country selector built with Select. The #triggerView and #optionView slo
     </template>
   </Select>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countries"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>
 ```
 
 ### Country code selector
 A searchable country selector built with Select. The #triggerView and #optionView slots render flag icons and dial codes. A search-predicate matches both country name and dial code.
 ```vue
+<!-- Desktop -->
 <div class="w-[320px]">
   <Select
     v-model:value="country"
@@ -7360,6 +8113,26 @@ A searchable country selector built with Select. The #triggerView and #optionVie
     </template>
   </Select>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countryOptions"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate"
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>
 ```
 
 ### Phone form
@@ -7395,8 +8168,9 @@ Country selector with flag icons and phone input composed into a form. Selecting
 ```
 
 ### Optical alignment
-Use optically-align with either "start" or "end" to offset the gutter of the control.
+Use optically-align with either "start" or "end" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so optically-align is for desktop.
 ```vue
+<!-- Desktop -->
 <div class="flex flex-col gap-3 w-[280px]">
   <div class="border border-dashed border-alpha/20 rounded-md py-4 px-6">
     <div class="mb-2 text-secondary text-sm">Default</div>
@@ -7407,6 +8181,13 @@ Use optically-align with either "start" or "end" to offset the gutter of the con
     <SelectControl class="w-full" selected variant="ghost" :optically-align="opticallyAlign">Ghost control</SelectControl>
   </div>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Theme">
+    <SelectControl selected>System</SelectControl>
+  </Field>
+</FieldGroup>
 ```
 
 ## Separator
@@ -9477,7 +10258,8 @@ Name the stepper with aria-labelledby, the visible label of its value. A segment
 ### In rows
 In a Field row the label names the stepper. Put the value in the label, such as 3 copies.
 ```vue
-<FieldGroup class="w-full max-w-[400px]" footer="Up to 20 copies and 14 nights.">
+<FieldGroup class="w-full max-w-[400px]">
+  <template #footer>Up to 20 copies and 14 nights.</template>
   <Field row :label="copies === 1 ? '1 copy' : copies + ' copies'">
     <Stepper v-model:value="copies" :min="1" :max="20" />
   </Field>
@@ -9501,7 +10283,7 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 ```
 
 ### States
-At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set :pill="false" for square ends, as other controls in a dense layout have.
+At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set :pill="false" for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.
 ```vue
 <div class="flex flex-wrap items-center gap-4">
   <Stepper aria-label="At the lowest value" :default-value="0" />
@@ -10345,14 +11127,23 @@ Props:
 
 ### Overview
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[480px]">
   <TagInput placeholder="Add a tag..." :size="size" :rows="Number(rows)" :pill="pill" />
 </div>
+
+<!-- Phone: the tags are the value of a row, under its label. -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Tags">
+    <TagInput variant="ghost" placeholder="Add a tag..." :rows="Number(rows)" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Inline filter row
 When rows=1, TagInput matches the height of an Input or SelectControl of the same size, so it composes cleanly into horizontal filter rows. Toggle pill on both controls to keep the pair visually consistent.
 ```vue
+<!-- Desktop -->
 <div class="flex w-full max-w-2xl items-start gap-2">
   <Field label="Where" class="w-[160px] shrink-0">
     <Menu>
@@ -10378,11 +11169,42 @@ When rows=1, TagInput matches the height of an Input or SelectControl of the sam
     <TagInput :size="size" :pill="pill" v-model:value="tags" placeholder="Add value, press Enter…" />
   </Field>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row label="Where">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl v-bind="control" :selected="!!field">
+            {{ fieldOptions.find((option) => option.value === field)?.label ?? '' }}
+          </SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="160" align="end" @close-auto-focus="(event) => event.preventDefault()">
+          <MenuCheckboxItem
+            v-for="option in fieldOptions"
+            :key="option.value"
+            :checked="field === option.value"
+            indicator-position="start"
+            indicator-variant="ghost"
+            @update:checked="field = option.value"
+          >
+            {{ option.label }}
+          </MenuCheckboxItem>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+  <Field row orientation="vertical" label="Is in">
+    <TagInput variant="ghost" v-model:value="tags" placeholder="Add a value" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Suggestions
 Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.
 ```vue
+<!-- Desktop -->
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { Button } from "@plexui/vue/components/Button"
@@ -10419,6 +11241,22 @@ const available = computed(() => {
     </div>
   </div>
 </template>
+
+<!-- Phone: each suggestion is a row with its Add button. -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Skills">
+    <TagInput variant="ghost" v-model:value="tags" placeholder="Add a skill..." />
+  </Field>
+</FieldGroup>
+<FieldGroup v-if="suggestions.some((s) => !tags.some((t) => t.value === s))" title="Suggestions">
+  <template v-for="s in suggestions" :key="s">
+    <Field v-if="!tags.some((t) => t.value === s)" row :label="s">
+      <Button color="primary" variant="ghost" :aria-label="'Add ' + s" @click="tags = [...tags, { value: s, valid: true }]">
+        Add
+      </Button>
+    </Field>
+  </template>
+</FieldGroup>
 ```
 
 ## Text Link
@@ -10502,7 +11340,7 @@ Docs: https://plexui.com/vue/components/textarea
 Props:
   - value / v-model:value (string | number) — Controlled value; uncontrolled when omitted
   - default-value (string | number) — Initial value when uncontrolled
-  - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
   - gutter-size ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
   - disabled (boolean) default: false — Disable the textarea
@@ -10519,14 +11357,23 @@ Props:
 
 ### Overview
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Enter text..." auto-resize :rows="3" />
 </div>
+
+<!-- Phone: the textarea is the value of a row, under its label. -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" placeholder="Add a note" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Variants
-Use variant to stylize the textarea.
+Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <div class="flex flex-col gap-6">
     <div v-for="variant in ['outline', 'soft']" :key="variant" class="flex items-center">
@@ -10537,11 +11384,19 @@ Use variant to stylize the textarea.
     </div>
   </div>
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Note for the courier">
+    <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Auto resize
-Enable auto-resize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and max-rows. Bind the text with v-model:value.
+Enable auto-resize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and max-rows. Bind the text with v-model:value. On Phone the row grows with it.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea
     v-model:value="value"
@@ -10551,43 +11406,90 @@ Enable auto-resize to automatically grow/shrink the textarea as the user types. 
     :max-rows="Number(maxRows)"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea
+      v-model:value="value"
+      variant="ghost"
+      placeholder="Type to grow..."
+      :auto-resize="autoResize"
+      :rows="Number(rows)"
+      :max-rows="Number(maxRows)"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Sizing
-Sizing of the textarea is controlled with size and gutter-size props. size sets the textarea to a specific control height for single-line equivalent, and gutter-size sets the horizontal padding.Each size provides default values for gutter-size, as well as font-size and border-radius. Each of these values can be overridden independently.
+Sizing of the textarea is controlled with size and gutter-size props. size sets the textarea to a specific control height for single-line equivalent, and gutter-size sets the horizontal padding.Each size provides default values for gutter-size, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutter-size; rows sets its height.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Write a message..." :size="size" :gutter-size="gutterSize" />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Message">
+    <Textarea variant="ghost" placeholder="Write a message..." :rows="4" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Disabled
 Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea :disabled="disabled" default-value="Jane Doe" aria-label="Name" />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" :disabled="disabled" default-value="Leave it at the front desk." auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Invalid
-Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through @focus, @input, a submit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.
+Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through @focus, @input, a submit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the error-message line under the row.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea :invalid="invalid" placeholder="Invalid textarea" />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Reference" :error-message="invalid ? 'Keep it under 140 characters.' : undefined">
+    <Textarea variant="ghost" :default-value="reference" :invalid="invalid" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Auto select text
 Pass auto-select to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea default-value="Toggle to auto select" :auto-select="autoSelect" aria-label="Notes" />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" default-value="Toggle to auto select" :auto-select="autoSelect" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>
 ```
 
 ### Autofill extensions
 By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling.When name is passed this value will default to true.
 ```vue
+<!-- Desktop -->
 <div class="w-full min-w-0 max-w-[400px]">
   <Textarea
     :key="String(allowAutofillExtensions)"
@@ -10596,6 +11498,22 @@ By default, autofill extensions are prevented by Textarea. For the occasions whe
     :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
   />
 </div>
+
+<!-- Phone -->
+<FieldGroup>
+  <Field row orientation="vertical" label="Address">
+    <Textarea
+      :key="String(allowAutofillExtensions)"
+      variant="ghost"
+      name="address"
+      autocomplete="street-address"
+      :allow-autofill-extensions="allowAutofillExtensions"
+      :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+      auto-resize
+      :rows="2"
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ## Toast

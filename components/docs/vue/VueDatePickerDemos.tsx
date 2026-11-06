@@ -3,6 +3,7 @@
 import { DateTime } from 'luxon';
 import { useState, type ComponentProps } from 'react';
 import { VueDemo } from './VueDemo';
+import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass
 // luxon DateTimes or functions to a client component. The DatePicker and
@@ -101,7 +102,7 @@ export function VueDatePickerDemo({
   state,
   startAtToday = false,
   ...props
-}: ComponentProps<typeof VueDemo> & { startAtToday?: boolean }) {
+}: ComponentProps<typeof VuePhoneRowsDemo> & { startAtToday?: boolean }) {
   const [scope] = useState(() => {
     const today = DateTime.local();
     return {
@@ -114,6 +115,8 @@ export function VueDatePickerDemo({
       withTime,
     };
   });
+  // A demo with a phone template switches to it in Phone previews and on a narrow viewport
+  if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;
 }
 
@@ -127,7 +130,7 @@ export function VueDateRangePickerDemo({
   state,
   initialRange,
   ...props
-}: ComponentProps<typeof VueDemo> & { initialRange?: 'limits' | 'month' }) {
+}: ComponentProps<typeof VuePhoneRowsDemo> & { initialRange?: 'limits' | 'month' }) {
   const [scope] = useState(() => {
     const today = DateTime.local();
     const minDate = today.minus({ days: 30 }).startOf('day');
@@ -140,5 +143,6 @@ export function VueDateRangePickerDemo({
           : null;
     return { DateTime, dayShortcuts, minDate, maxDate, value };
   });
+  if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;
 }

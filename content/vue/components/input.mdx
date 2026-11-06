@@ -6,6 +6,7 @@ metaDescription: Vue 3 text input component with start and end adornment slots, 
 
 import { VueInputDemo } from "@/components/docs/vue/VueInputDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
@@ -322,16 +323,6 @@ export const opticalAlign = `<div class="w-full min-w-0 max-w-[400px]">
     <Button class="mt-6" color="primary" variant="soft" :pill="pill">Submit</Button>
   </div>
 </div>`
-
-export const phoneRows = (rows) => `<div data-phone-rows class="flex w-full grow flex-col gap-6 bg-[var(--mobile-surface-grouped-primary)] px-4 py-6 [--field-group-background:var(--mobile-surface-grouped-secondary)]">
-${rows}
-</div>`
-
-export const withPhone = (desktop, phone, note) => `<!-- Desktop -->
-${desktop}
-
-<!-- Phone${note ? ": " + note : ""} -->
-${phone}`
 
 export const overviewPhone = `<FieldGroup>
   <Field row label="Email">

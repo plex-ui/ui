@@ -3,6 +3,7 @@
 import { DateTime } from 'luxon';
 import { useState, type ComponentProps } from 'react';
 import { VueDemo } from './VueDemo';
+import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 
 // DateInput's value is a Luxon DateTime, which MDX (a server component)
 // cannot hand to a client component. Dates come in as ISO strings (or
@@ -18,10 +19,12 @@ export function VueDateInputDemo({
   state,
   dates,
   ...props
-}: ComponentProps<typeof VueDemo> & { dates?: Record<string, string | null> }) {
+}: ComponentProps<typeof VuePhoneRowsDemo> & { dates?: Record<string, string | null> }) {
   const [scope] = useState(() => ({
     today: DateTime.local(),
     ...Object.fromEntries(Object.entries(dates ?? {}).map(([name, value]) => [name, toDateTime(value)])),
   }));
+  // A demo with a phone template switches to it in Phone previews and on a narrow viewport
+  if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;
 }

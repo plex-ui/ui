@@ -15,16 +15,20 @@ import {
   InputGroupSpinnerDemo,
   InputGroupTextareaDemo,
 } from "@/components/docs/InputGroupDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { InputGroup } from "@plexui/ui/components/InputGroup";`}</UsageBlock>
 
 For a single icon or action button inside a plain field, [Input](/components/input) with `startAdornment` / `endAdornment` is enough. Reach for `InputGroup` when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row.
 
+On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight row of the [Form Examples](/components/form-examples): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes `columns`, so the value starts at the column. A header becomes the row's label, a counter or status line the group's `footer`, and a main action the full-width button under the group. The Phone previews show rows without the `size`, `variant` and `pill` controls.
+
 ## Examples
 
 ### Overview
 
-<ComponentPreview details={<>Put an <code>InputGroup.Input</code> and one or more <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Put an <code>InputGroup.Input</code> and one or more <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. The group draws the frame and passes <code>size</code>, <code>pill</code>, <code>disabled</code> and <code>invalid</code> down to the control and the buttons.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Input placeholder="Search..." />
   <InputGroup.Addon>
     <Search />
@@ -32,20 +36,63 @@ For a single icon or action button inside a plain field, [Input](/components/inp
   <InputGroup.Addon align="inline-end">
     <InputGroup.Text>12 results</InputGroup.Text>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={280}>
+</InputGroup>
+
+// Phone: the group is the value of a row; with a prefix the rows take columns.
+<FieldGroup columns>
+  <Field row label="Website" errorMessage={invalid ? "Enter a valid address." : undefined}>
+    {(control) => (
+      <InputGroup disabled={disabled} invalid={invalid}>
+        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Amount">
+    {(control) => (
+      <InputGroup disabled={disabled}>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon>
+          <InputGroup.Text>$</InputGroup.Text>
+        </InputGroup.Addon>
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>USD</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={280}>
   <InputGroupOverviewDemo />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>.</>} code={`<InputGroup variant="outline">...</InputGroup>
-<InputGroup variant="soft">...</InputGroup>`} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>. On Phone the row is the frame, so a group in a row keeps the default <code>outline</code>, which the row draws without a border.</>} code={`// Desktop
+<InputGroup variant="outline">...</InputGroup>
+<InputGroup variant="soft">...</InputGroup>
+
+// Phone
+<FieldGroup columns>
+  <Field row label="Website">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <InputGroupVariantsDemo />
 </ComponentPreview>
 
 ### Sizes
 
-<ComponentPreview details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset.</>} code={`<InputGroup size="lg">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>sm</code> to <code>xl</code> are all 44px, and in a row the row sets the height.</>} code={`// Desktop
+<InputGroup size="lg">
   <InputGroup.Input placeholder="Search..." />
   <InputGroup.Addon>
     <Search />
@@ -53,24 +100,77 @@ For a single icon or action button inside a plain field, [Input](/components/inp
   <InputGroup.Addon align="inline-end">
     <InputGroup.Button>Search</InputGroup.Button>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={480}>
+</InputGroup>
+
+// Phone
+<FieldGroup columns>
+  <Field row label="Website">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Amount">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon>
+          <InputGroup.Text>$</InputGroup.Text>
+        </InputGroup.Addon>
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>USD</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={480}>
   <InputGroupSizesDemo />
 </ComponentPreview>
 
 ### Align
 
-<ComponentPreview details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Input placeholder="Ada Lovelace" />
   <InputGroup.Addon align="block-start">
     <InputGroup.Text>Full name</InputGroup.Text>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={280}>
+</InputGroup>
+
+// Phone
+<FieldGroup columns>
+  <Field row label="Amount">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon align="inline-start">
+          <InputGroup.Text>$</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Weight">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="0" inputMode="decimal" />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>kg</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={280}>
   <InputGroupAlignDemo />
 </ComponentPreview>
 
 ### Text
 
-<ComponentPreview details={<>Use <code>InputGroup.Text</code> for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>InputGroup.Text</code> for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Input placeholder="0.00" inputMode="decimal" />
   <InputGroup.Addon>
     <InputGroup.Text>$</InputGroup.Text>
@@ -78,30 +178,98 @@ For a single icon or action button inside a plain field, [Input](/components/inp
   <InputGroup.Addon align="inline-end">
     <InputGroup.Text>USD</InputGroup.Text>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={320}>
+</InputGroup>
+
+// Phone: a counter is the group's footer.
+<FieldGroup columns>
+  <Field row label="Amount">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon>
+          <InputGroup.Text>$</InputGroup.Text>
+        </InputGroup.Addon>
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>USD</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Website">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon>
+          <InputGroup.Text>https://</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Email">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="name" inputMode="email" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>@plexui.com</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>
+<FieldGroup footer={\`\${280 - post.length} characters left\`}>
+  <Field row orientation="vertical" label="Post">
+    <Textarea variant="ghost" placeholder="What's happening?" maxLength={280} value={post} onChange={(event) => setPost(event.target.value)} autoResize rows={2} />
+  </Field>
+</FieldGroup>`} previewMinHeight={320}>
   <InputGroupTextDemo />
 </ComponentPreview>
 
 ### Button
 
-<ComponentPreview details={<><code>InputGroup.Button</code> is a <a href="/components/button"><code>Button</code></a> that defaults to <code>ghost</code> and <code>secondary</code> and takes its size from the group. Pass <code>uniform</code> for icon buttons.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<><code>InputGroup.Button</code> is a <a href="/components/button"><code>Button</code></a> that defaults to <code>ghost</code> and <code>secondary</code> and takes its size from the group. Pass <code>uniform</code> for icon buttons.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Input placeholder="Search the docs..." />
   <InputGroup.Addon align="inline-end">
     <InputGroup.Button variant="soft">Search</InputGroup.Button>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={280}>
+</InputGroup>
+
+// Phone: the main action is the button under the rows.
+<FieldGroup columns>
+  <Field row label="Link">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} defaultValue="plexui.com/r/input-group" readOnly />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Button uniform aria-label="Copy link">
+            <Copy />
+          </InputGroup.Button>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Card">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Pay</Button>`} previewMinHeight={280}>
   <InputGroupButtonDemo />
 </ComponentPreview>
 
 ### Dropdown
 
-<ComponentPreview details={<>Wrap an <code>InputGroup.Button</code> in a <a href="/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={`const UNITS = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap an <code>InputGroup.Button</code> in a <a href="/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={`const UNITS = [
   { value: "kg", label: "Kilograms" },
   { value: "lb", label: "Pounds" },
   { value: "st", label: "Stones" },
 ]
 const [unit, setUnit] = useState("kg")
 
+// Desktop
 return (
   <InputGroup>
     <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
@@ -131,25 +299,75 @@ return (
       </Menu>
     </InputGroup.Addon>
   </InputGroup>
-)`} previewMinHeight={280}>
+)
+
+// Phone
+<FieldGroup>
+  <Field row label="Weight">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} defaultValue="72" inputMode="decimal" />
+        <InputGroup.Addon align="inline-end">
+          <Menu>
+            <Menu.Trigger>
+              <InputGroup.Button aria-label={\`Unit: \${weightUnit}\`} className="text-secondary font-normal">
+                {weightUnit}
+                <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
+              </InputGroup.Button>
+            </Menu.Trigger>
+            <Menu.Content align="end" minWidth="auto">
+              {units.map((unit) => (
+                <Menu.CheckboxItem
+                  key={unit.value}
+                  checked={weightUnit === unit.value}
+                  onCheckedChange={() => setWeightUnit(unit.value)}
+                  indicatorPosition="start"
+                  indicatorVariant="ghost"
+                >
+                  {unit.label}
+                </Menu.CheckboxItem>
+              ))}
+            </Menu.Content>
+          </Menu>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={280}>
   <InputGroupDropdownDemo />
 </ComponentPreview>
 
 ### Spinner
 
-<ComponentPreview details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched or saved.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched or saved.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Input defaultValue="Saving changes" readOnly />
   <InputGroup.Addon align="inline-end">
     <InputGroup.Text>Saving...</InputGroup.Text>
     <LoadingIndicator />
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={200}>
+</InputGroup>
+
+// Phone
+<FieldGroup>
+  <Field row label="Library">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} defaultValue="Searching..." readOnly />
+        <InputGroup.Addon align="inline-end">
+          <LoadingIndicator />
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>`} previewMinHeight={200}>
   <InputGroupSpinnerDemo />
 </ComponentPreview>
 
 ### Textarea
 
-<ComponentPreview details={<>With <code>InputGroup.Textarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={`<InputGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>InputGroup.Textarea</code>, use <code>block-start</code> and <code>block-end</code> addons for a header and a footer. Utility classes such as <code>ml-auto</code> push a button to the far side.</>} code={`// Desktop
+<InputGroup>
   <InputGroup.Textarea placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
   <InputGroup.Addon align="block-start">
     <InputGroup.Text>
@@ -167,7 +385,15 @@ return (
       <Play />
     </InputGroup.Button>
   </InputGroup.Addon>
-</InputGroup>`} previewMinHeight={280}>
+</InputGroup>
+
+// Phone: the header is the row's label, the status line the group's footer.
+<FieldGroup footer="Line 1, Column 1">
+  <Field row orientation="vertical" label="script.js">
+    <Textarea variant="ghost" placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
+  </Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Run</Button>`} previewMinHeight={280}>
   <InputGroupTextareaDemo />
 </ComponentPreview>
 

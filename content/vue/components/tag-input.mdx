@@ -4,7 +4,9 @@ description: Input for entering multiple unique values as chip-style tokens, wit
 metaDescription: Vue 3 tag input component for entering multiple unique values as chip-style tokens, with suggestion buttons, validation, and keyboard editing.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const overview = `<div class="w-full min-w-0 max-w-[480px]">
   <TagInput placeholder="Add a tag..." :size="size" :rows="Number(rows)" :pill="pill" />
@@ -54,6 +56,56 @@ export const suggestions = `<div class="flex w-full max-w-sm flex-col gap-3">
   </div>
 </div>`
 
+export const overviewPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Tags">
+    <TagInput variant="ghost" placeholder="Add a tag..." :rows="Number(rows)" />
+  </Field>
+</FieldGroup>`
+
+export const inlineFilterRowPhone = `<FieldGroup>
+  <Field row label="Where">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl v-bind="control" :selected="!!field">
+            {{ fieldOptions.find((option) => option.value === field)?.label ?? '' }}
+          </SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="160" align="end" @close-auto-focus="(event) => event.preventDefault()">
+          <MenuCheckboxItem
+            v-for="option in fieldOptions"
+            :key="option.value"
+            :checked="field === option.value"
+            indicator-position="start"
+            indicator-variant="ghost"
+            @update:checked="field = option.value"
+          >
+            {{ option.label }}
+          </MenuCheckboxItem>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+  <Field row orientation="vertical" label="Is in">
+    <TagInput variant="ghost" v-model:value="tags" placeholder="Add a value" />
+  </Field>
+</FieldGroup>`
+
+export const suggestionsPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Skills">
+    <TagInput variant="ghost" v-model:value="tags" placeholder="Add a skill..." />
+  </Field>
+</FieldGroup>
+<FieldGroup v-if="suggestions.some((s) => !tags.some((t) => t.value === s))" title="Suggestions">
+  <template v-for="s in suggestions" :key="s">
+    <Field v-if="!tags.some((t) => t.value === s)" row :label="s">
+      <Button color="primary" variant="ghost" :aria-label="'Add ' + s" @click="tags = [...tags, { value: s, valid: true }]">
+        Add
+      </Button>
+    </Field>
+  </template>
+</FieldGroup>`
+
 export const suggestionsCode = `<script setup lang="ts">
 import { computed, ref } from "vue"
 import { Button } from "@plexui/vue/components/Button"
@@ -93,13 +145,18 @@ const available = computed(() => {
 
 <UsageBlock>{`import { TagInput } from "@plexui/vue/components/TagInput";`}</UsageBlock>
 
+On Phone, put a tag input under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Form Examples](/vue/components/form-examples) put a textarea. The row is its frame and sets its insets and type, so the Phone previews show rows without the `size` and `pill` controls. To pick tags from a fixed list, use the tag row of the Form Examples, which opens a sheet.
+
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
-  <VueDemo
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone, "the tags are the value of a row, under its label.")} previewMinHeight={168}>
+  <VuePhoneRowsDemo
     template={overview}
+    phoneTemplate={phoneRows(overviewPhone)}
+    phoneStageClassName="w-full"
+    desktopControlNames={["size", "pill"]}
     controls={[
       { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
       { name: "rows", label: "minRows", type: "select", options: [{ value: "1", label: "auto" }, { value: "2", label: "min 2" }, { value: "3", label: "min 3" }], default: "1" },
@@ -110,9 +167,12 @@ const available = computed(() => {
 
 ### Inline filter row
 
-<ComponentPreview language="vue" details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={inlineFilterRow} previewMinHeight={168}>
-  <VueDemo
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={withPhone(inlineFilterRow, inlineFilterRowPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo
     template={inlineFilterRow}
+    phoneTemplate={phoneRows(inlineFilterRowPhone)}
+    phoneStageClassName="w-full"
+    desktopControlNames={["size", "pill"]}
     controls={[
       { name: "size", type: "select", options: ["sm", "md", "lg", "xl", "2xl", "3xl"], default: "md" },
       { name: "pill", type: "boolean", default: false },
@@ -136,9 +196,12 @@ const available = computed(() => {
 
 ### Suggestions
 
-<ComponentPreview language="vue" details={<>Combine <code>TagInput</code> with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.</>} code={suggestionsCode} previewMinHeight={168}>
-  <VueDemo
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Combine <code>TagInput</code> with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.</>} code={withPhone(suggestionsCode, suggestionsPhone, "each suggestion is a row with its Add button.")} previewMinHeight={168}>
+  <VuePhoneRowsDemo
     template={suggestions}
+    phoneTemplate={phoneRows(suggestionsPhone)}
+    phoneStageClassName="w-full"
+    desktopControlNames={["size", "pill"]}
     state={{
       tags: [{ value: "React", valid: true }, { value: "TypeScript", valid: true }],
       suggestions: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Node.js", "GraphQL", "PostgreSQL", "Redis", "Docker", "AWS"],

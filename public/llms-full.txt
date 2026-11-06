@@ -1852,6 +1852,7 @@ import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { DateInput } from '@plexui/ui/components/DateInput';
 
+// Desktop
 export default function DateInputExample() {
   const [date, setDate] = useState<DateTime | null>(null);
   const [disabled] = useState(false);
@@ -1863,22 +1864,45 @@ export default function DateInputExample() {
     </div>
   );
 }
+
+// Phone: the date is the value of a row.
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput value={date} onChange={setDate} clearable disabled={disabled} />
+  </Field>
+</FieldGroup>
 ```
 
 ### With time
 Pass timeMode="HH:MM" to enable date + time input in one field.
 ```tsx
+// Desktop
 <div className="w-[260px]">
 <DateInput value={date} onChange={setDate} timeMode="HH:MM" clearable />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Starts">
+  <DateInput value={date} onChange={setDate} timeMode="HH:MM" clearable />
+</Field>
+</FieldGroup>
 ```
 
 ### With seconds
 Use timeMode="HH:MM:SS" for second-level precision.
 ```tsx
+// Desktop
 <div className="w-[300px]">
 <DateInput value={date} onChange={setDate} timeMode="HH:MM:SS" clearable />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Logged">
+  <DateInput value={date} onChange={setDate} timeMode="HH:MM:SS" clearable />
+</Field>
+</FieldGroup>
 ```
 
 ### Limits
@@ -1887,6 +1911,7 @@ Use min and max to restrict the date range. The mask prevents entering values ou
 const today = DateTime.local()
 const [date, setDate] = useState<DateTime | null>(today)
 
+// Desktop
 <div className="w-[200px]">
 <DateInput
   value={date}
@@ -1896,42 +1921,87 @@ const [date, setDate] = useState<DateTime | null>(today)
   clearable
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DateInput
+    value={date}
+    onChange={setDate}
+    min={today.minus({ days: 30 }).startOf("day")}
+    max={today.plus({ days: 30 }).endOf("day")}
+    clearable
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### US format
 Set mode="mm/dd/yyyy" and separator="/" for US-style date formatting.
 ```tsx
+// Desktop
 <div className="w-[200px]">
 <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" clearable />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" clearable />
+</Field>
+</FieldGroup>
 ```
 
 ### ISO format
 Set mode="yyyy/mm/dd" and separator="-" for ISO 8601 formatting.
 ```tsx
+// Desktop
 <div className="w-[200px]">
 <DateInput value={date} onChange={setDate} mode="yyyy/mm/dd" separator="-" clearable />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DateInput value={date} onChange={setDate} mode="yyyy/mm/dd" separator="-" clearable />
+</Field>
+</FieldGroup>
 ```
 
 ### With Field
 Wrap with Field to add a label, description, and automatic accessibility attributes.
 ```tsx
+// Desktop
 <div className="w-[200px]">
 <Field label="Date of birth" description="Enter your date of birth">
   <DateInput value={date} onChange={setDate} clearable />
 </Field>
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date of birth" description="Enter your date of birth">
+  <DateInput value={date} onChange={setDate} clearable />
+</Field>
+</FieldGroup>
 ```
 
 ### Validation
 Pass errorMessage to Field to display a validation error.
 ```tsx
+// Desktop
 <div className="w-[200px]">
 <Field label="Date of birth" errorMessage={!date ? "Date is required" : undefined}>
   <DateInput value={date} onChange={setDate} clearable />
 </Field>
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date of birth" errorMessage={!date ? "Date is required" : undefined}>
+  <DateInput value={date} onChange={setDate} clearable />
+</Field>
+</FieldGroup>
 ```
 
 ## Date Picker
@@ -1970,6 +2040,7 @@ import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
 
+// Desktop
 export default function DatePickerExample() {
   const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
   const [disabled] = useState(false);
@@ -1987,6 +2058,21 @@ export default function DatePickerExample() {
     />
   );
 }
+
+// Phone: the date is the value of a row, in the compact date that opens the calendar.
+<FieldGroup>
+  <Field row label="Date">
+    <DatePicker
+      id="date-picker-base"
+      triggerDateFormat="MMM d, yyyy"
+      triggerShowIcon={false}
+      placeholder="Select date"
+      disabled={disabled}
+      value={selectedDate}
+      onChange={setSelectedDate}
+    />
+  </Field>
+</FieldGroup>
 ```
 
 ### Limits
@@ -1997,6 +2083,7 @@ const minDate = today.minus({ days: 30 }).startOf("day")
 const maxDate = today.plus({ days: 30 }).endOf("day")
 const [selectedDate, setSelectedDate] = useState<DateTime | null>(today)
 
+// Desktop
 <DatePicker
 id="date-picker-limits"
 triggerDateFormat="MM/dd/yy"
@@ -2008,11 +2095,27 @@ onChange={setSelectedDate}
 min={minDate}
 max={maxDate}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DatePicker
+    id="date-picker-limits"
+    triggerDateFormat="MMM d, yyyy"
+    triggerShowIcon={false}
+    value={selectedDate}
+    onChange={setSelectedDate}
+    min={minDate}
+    max={maxDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Date of birth
 Set captionLayout="dropdown" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical.
 ```tsx
+// Desktop
 <DatePicker
 id="date-picker-dob"
 triggerDateFormat="MMMM d, yyyy"
@@ -2025,11 +2128,28 @@ value={selectedDate}
 onChange={setSelectedDate}
 max={DateTime.local()}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Birthday">
+  <DatePicker
+    id="date-picker-dob"
+    triggerDateFormat="MMM d, yyyy"
+    triggerShowIcon={false}
+    placeholder="Select date"
+    captionLayout="dropdown"
+    value={selectedDate}
+    onChange={setSelectedDate}
+    max={DateTime.local()}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Time picker
 Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values.
 ```tsx
+// Desktop
 <DatePicker
 id="date-picker-time"
 triggerDateFormat="MM/dd/yy HH:mm"
@@ -2041,11 +2161,27 @@ showTime
 value={selectedDate}
 onChange={setSelectedDate}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Starts">
+  <DatePicker
+    id="date-picker-time"
+    triggerDateFormat="MMM d, yyyy HH:mm"
+    triggerShowIcon={false}
+    placeholder="Select date"
+    showTime
+    value={selectedDate}
+    onChange={setSelectedDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Dropdown + time
 Combine captionLayout="dropdown" with showTime for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time.
 ```tsx
+// Desktop
 <DatePicker
 id="date-picker-datetime-dropdown"
 triggerDateFormat="MMM d, yyyy HH:mm"
@@ -2059,6 +2195,23 @@ yearRange={[2020, 2030]}
 value={selectedDate}
 onChange={setSelectedDate}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Event">
+  <DatePicker
+    id="date-picker-datetime-dropdown"
+    triggerDateFormat="MMM d, yyyy HH:mm"
+    triggerShowIcon={false}
+    placeholder="Select date"
+    captionLayout="dropdown"
+    showTime
+    yearRange={[2020, 2030]}
+    value={selectedDate}
+    onChange={setSelectedDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Two fields
@@ -2087,6 +2240,17 @@ if (parts.length === 2 && parts[1].length === 2 && selectedDate) {
 }
 }
 
+// A picked date takes the typed time
+const onDateChange = (next: DateTime | null) => {
+if (next && time) {
+  const [hour, minute] = time.split(":").map(Number)
+  setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))
+} else {
+  setSelectedDate(next)
+}
+}
+
+// Desktop
 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
 <DatePicker
   id="date-picker-two-field-date"
@@ -2098,15 +2262,7 @@ if (parts.length === 2 && parts[1].length === 2 && selectedDate) {
   dropdownIconType="none"
   placeholder="Select date"
   value={selectedDate}
-  onChange={(next) => {
-    // A picked date takes the typed time
-    if (next && time) {
-      const [hour, minute] = time.split(":").map(Number)
-      setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))
-    } else {
-      setSelectedDate(next)
-    }
-  }}
+  onChange={onDateChange}
 />
 <Input
   id="date-picker-two-field-time"
@@ -2119,19 +2275,53 @@ if (parts.length === 2 && parts[1].length === 2 && selectedDate) {
   style={{ width: "72px" }}
 />
 </div>
+
+// Phone: two rows, the compact date and the time typed at the row's end
+<FieldGroup>
+<Field row label="Date">
+  <DatePicker
+    id="date-picker-two-field-date"
+    triggerDateFormat="MMM d, yyyy"
+    captionLayout="dropdown"
+    triggerShowIcon={false}
+    placeholder="Select date"
+    value={selectedDate}
+    onChange={onDateChange}
+  />
+</Field>
+<Field row label="Time">
+  <Input
+    id="date-picker-two-field-time"
+    value={time}
+    onChange={handleTimeInput}
+    placeholder="HH:MM"
+    maxLength={5}
+    inputMode="numeric"
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Date input
 For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type.
 ```tsx
+// Desktop
 <div className="w-[200px]">
 <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" aria-label="Date" />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />
+</Field>
+</FieldGroup>
 ```
 
 ### DateTime input
 Pass timeMode="HH:MM" to DateInput to type the date and time in one field.
 ```tsx
+// Desktop
 <div className="w-[260px]">
 <DateInput
   value={dateTime}
@@ -2142,11 +2332,19 @@ Pass timeMode="HH:MM" to DateInput to type the date and time in one field.
   aria-label="Date and time"
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Starts">
+  <DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />
+</Field>
+</FieldGroup>
 ```
 
 ### Without Icon
 Remove the calendar icon from the trigger by setting triggerShowIcon to false.
 ```tsx
+// Desktop
 <DatePicker
 id="date-picker-no-icon"
 triggerDateFormat="MM/dd/yy"
@@ -2156,6 +2354,20 @@ placeholder="Choose a date"
 value={selectedDate}
 onChange={setSelectedDate}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <DatePicker
+    id="date-picker-no-icon"
+    triggerDateFormat="MMM d, yyyy"
+    triggerShowIcon={false}
+    placeholder="Choose a date"
+    value={selectedDate}
+    onChange={setSelectedDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ## Date Range Picker
@@ -2192,6 +2404,7 @@ Pass the range ([start, end] luxon DateTimes, or null) as value and update it in
 ```tsx
 const [value, setValue] = useState<DateRange | null>(null)
 
+// Desktop
 <div style={{ width: "fit-content" }}>
 <DateRangePicker
   size="lg"
@@ -2202,6 +2415,20 @@ const [value, setValue] = useState<DateRange | null>(null)
   shortcuts={dayShortcuts}
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Dates">
+  <DateRangePicker
+    triggerShowIcon={false}
+    triggerDateFormat="MMM d"
+    placeholder="None"
+    value={value}
+    onChange={setValue}
+    shortcuts={dayShortcuts}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Limits
@@ -2215,6 +2442,7 @@ DateTime.max(minDate, today.startOf("month")),
 DateTime.min(maxDate, today.endOf("month")),
 ])
 
+// Desktop
 <div style={{ width: "fit-content" }}>
 <DateRangePicker
   size="lg"
@@ -2226,6 +2454,21 @@ DateTime.min(maxDate, today.endOf("month")),
   max={maxDate}
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Dates">
+  <DateRangePicker
+    triggerShowIcon={false}
+    triggerDateFormat="MMM d"
+    placeholder="None"
+    value={value}
+    onChange={setValue}
+    min={minDate}
+    max={maxDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Shortcuts
@@ -2263,6 +2506,7 @@ const dayShortcuts: DateRangeShortcut[] = [
 ]
 const [value, setValue] = useState<DateRange | null>(null)
 
+// Desktop
 <div style={{ width: "fit-content" }}>
 <DateRangePicker
   size="lg"
@@ -2273,6 +2517,20 @@ const [value, setValue] = useState<DateRange | null>(null)
   shortcuts={dayShortcuts}
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Dates">
+  <DateRangePicker
+    triggerShowIcon={false}
+    triggerDateFormat="MMM d"
+    placeholder="None"
+    value={value}
+    onChange={setValue}
+    shortcuts={dayShortcuts}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Month stepper
@@ -2282,6 +2540,7 @@ const today = DateTime.local()
 const maxDate = today.endOf("day")
 const [value, setValue] = useState<DateRange | null>([today.startOf("month"), today])
 
+// Desktop
 <div style={{ width: "fit-content" }}>
 <DateRangePicker
   size="lg"
@@ -2293,6 +2552,18 @@ const [value, setValue] = useState<DateRange | null>([today.startOf("month"), to
   max={maxDate}
 />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Month">
+  <DateRangePicker
+    triggerStepperUnit="month"
+    value={value}
+    onChange={setValue}
+    max={maxDate}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ## Dialog
@@ -4654,6 +4925,7 @@ Props:
 ### Overview
 Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Input placeholder="Search..." />
 <InputGroup.Addon>
@@ -4663,18 +4935,61 @@ Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. 
   <InputGroup.Text>12 results</InputGroup.Text>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone: the group is the value of a row; with a prefix the rows take columns.
+<FieldGroup columns>
+<Field row label="Website" errorMessage={invalid ? "Enter a valid address." : undefined}>
+  {(control) => (
+    <InputGroup disabled={disabled} invalid={invalid}>
+      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Amount">
+  {(control) => (
+    <InputGroup disabled={disabled}>
+      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon>
+        <InputGroup.Text>$</InputGroup.Text>
+      </InputGroup.Addon>
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>USD</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Variants
-Use variant to stylize the group, like Input.
+Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border.
 ```tsx
+// Desktop
 <InputGroup variant="outline">...</InputGroup>
 <InputGroup variant="soft">...</InputGroup>
+
+// Phone
+<FieldGroup columns>
+<Field row label="Website">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset.
+Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height.
 ```tsx
+// Desktop
 <InputGroup size="lg">
 <InputGroup.Input placeholder="Search..." />
 <InputGroup.Addon>
@@ -4684,22 +4999,75 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with t
   <InputGroup.Button>Search</InputGroup.Button>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone
+<FieldGroup columns>
+<Field row label="Website">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Amount">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon>
+        <InputGroup.Text>$</InputGroup.Text>
+      </InputGroup.Addon>
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>USD</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Align
 Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Input placeholder="Ada Lovelace" />
 <InputGroup.Addon align="block-start">
   <InputGroup.Text>Full name</InputGroup.Text>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone
+<FieldGroup columns>
+<Field row label="Amount">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon align="inline-start">
+        <InputGroup.Text>$</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Weight">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="0" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>kg</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Text
 Use InputGroup.Text for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Input placeholder="0.00" inputMode="decimal" />
 <InputGroup.Addon>
@@ -4709,17 +5077,84 @@ Use InputGroup.Text for prefixes, suffixes, units and counters. Clicking text or
   <InputGroup.Text>USD</InputGroup.Text>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone: a counter is the group's footer.
+<FieldGroup columns>
+<Field row label="Amount">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon>
+        <InputGroup.Text>$</InputGroup.Text>
+      </InputGroup.Addon>
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>USD</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Website">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Email">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="name" inputMode="email" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>@plexui.com</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
+<FieldGroup footer={`${280 - post.length} characters left`}>
+<Field row orientation="vertical" label="Post">
+  <Textarea variant="ghost" placeholder="What's happening?" maxLength={280} value={post} onChange={(event) => setPost(event.target.value)} autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Button
 InputGroup.Button is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Input placeholder="Search the docs..." />
 <InputGroup.Addon align="inline-end">
   <InputGroup.Button variant="soft">Search</InputGroup.Button>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone: the main action is the button under the rows.
+<FieldGroup columns>
+<Field row label="Link">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} defaultValue="plexui.com/r/input-group" readOnly />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Button uniform aria-label="Copy link">
+          <Copy />
+        </InputGroup.Button>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Card">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Pay</Button>
 ```
 
 ### Dropdown
@@ -4732,6 +5167,7 @@ const UNITS = [
 ]
 const [unit, setUnit] = useState("kg")
 
+// Desktop
 return (
 <InputGroup>
   <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
@@ -4762,11 +5198,46 @@ return (
   </InputGroup.Addon>
 </InputGroup>
 )
+
+// Phone
+<FieldGroup>
+<Field row label="Weight">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} defaultValue="72" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        <Menu>
+          <Menu.Trigger>
+            <InputGroup.Button aria-label={`Unit: ${weightUnit}`} className="text-secondary font-normal">
+              {weightUnit}
+              <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
+            </InputGroup.Button>
+          </Menu.Trigger>
+          <Menu.Content align="end" minWidth="auto">
+            {units.map((unit) => (
+              <Menu.CheckboxItem
+                key={unit.value}
+                checked={weightUnit === unit.value}
+                onCheckedChange={() => setWeightUnit(unit.value)}
+                indicatorPosition="start"
+                indicatorVariant="ghost"
+              >
+                {unit.label}
+              </Menu.CheckboxItem>
+            ))}
+          </Menu.Content>
+        </Menu>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Spinner
 Show a LoadingIndicator in an addon while a value is searched or saved.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Input defaultValue="Saving changes" readOnly />
 <InputGroup.Addon align="inline-end">
@@ -4774,11 +5245,26 @@ Show a LoadingIndicator in an addon while a value is searched or saved.
   <LoadingIndicator />
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone
+<FieldGroup>
+<Field row label="Library">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} defaultValue="Searching..." readOnly />
+      <InputGroup.Addon align="inline-end">
+        <LoadingIndicator />
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Textarea
 With InputGroup.Textarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side.
 ```tsx
+// Desktop
 <InputGroup>
 <InputGroup.Textarea placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
 <InputGroup.Addon align="block-start">
@@ -4798,6 +5284,14 @@ With InputGroup.Textarea, use block-start and block-end addons for a header and 
   </InputGroup.Button>
 </InputGroup.Addon>
 </InputGroup>
+
+// Phone: the header is the row's label, the status line the group's footer.
+<FieldGroup footer="Line 1, Column 1">
+<Field row orientation="vertical" label="script.js">
+  <Textarea variant="ghost" placeholder="console.log('Hello, world!');" rows={4} className="font-mono" />
+</Field>
+</FieldGroup>
+<Button color="primary" size="3xl" pill block>Run</Button>
 ```
 
 ## Input
@@ -6487,97 +6981,207 @@ Props:
 ### Overview
 ```tsx
 const [value, setValue] = useState("")
-const placeholder = "Select date..."
 
-return (
+// Desktop
 <Menu>
-  <Menu.Trigger>
-    <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
-      {value || placeholder}
-    </SelectControl>
-  </Menu.Trigger>
-  <Menu.Content minWidth={200} width={200}>
-    <Menu.RadioGroup value={value} onChange={setValue}>
-      <Menu.RadioItem value="Today">Today</Menu.RadioItem>
-      <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
-      <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
-      <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
-    </Menu.RadioGroup>
-  </Menu.Content>
+<Menu.Trigger>
+  <SelectControl className="w-[200px]" selected={!!value} onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
+    {value || "Select date..."}
+  </SelectControl>
+</Menu.Trigger>
+<Menu.Content minWidth={200} width={200}>
+  <Menu.RadioGroup value={value} onChange={setValue}>
+    <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+    <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+    <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+    <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+  </Menu.RadioGroup>
+</Menu.Content>
 </Menu>
-)
+
+// Phone: the control is the value of a row; its label reaches the trigger, and None clears it.
+<FieldGroup>
+<Field row label="Period">
+  {(control) => (
+    <Menu>
+      <Menu.Trigger>
+        <SelectControl {...control} selected={!!value}>
+          {value || "None"}
+        </SelectControl>
+      </Menu.Trigger>
+      <Menu.Content minWidth={200} align="end">
+        <Menu.RadioGroup value={value} onChange={setValue}>
+          <Menu.RadioItem value="">None</Menu.RadioItem>
+          <Menu.RadioItem value="Today">Today</Menu.RadioItem>
+          <Menu.RadioItem value="Last week">Last week</Menu.RadioItem>
+          <Menu.RadioItem value="Last month">Last month</Menu.RadioItem>
+          <Menu.RadioItem value="Last 3 months">Last 3 months</Menu.RadioItem>
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu>
+  )}
+</Field>
+</FieldGroup>
 ```
 
 ### Variants
 Use the variant prop to stylize the select control. Available variant styles are similar to {""}, but aligned with subtle differences from {""} variant treatments.
 ```tsx
+// Desktop
 <div className="flex w-full min-w-0 max-w-[400px] flex-col gap-6">
 <SelectControl className="w-full" variant="soft" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
 <SelectControl className="w-full" variant="outline" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
 <SelectControl className="w-full" variant="ghost" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Folder" errorMessage={invalid ? "Choose a folder you can edit." : undefined}>
+  <SelectControl selected invalid={invalid} disabled={disabled}>Sample value</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Sizing & roundness
-Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill.
+Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill.
 ```tsx
+// Desktop
 <SelectControl size="md" pill={false} dropdownIconType="none">Select...</SelectControl>
 <SelectControl size="md" loading>Select...</SelectControl>
 <SelectControl size="md">Select...</SelectControl>
 <SelectControl size="md" StartIcon={Tools} dropdownIconType="none">Tool calls</SelectControl>
 ...
+
+// Phone
+<FieldGroup>
+<Field row label="Model">
+  <SelectControl>None</SelectControl>
+</Field>
+<Field row label="Tools">
+  <SelectControl loading>Loading...</SelectControl>
+</Field>
+<Field row label="Date">
+  <SelectControl selected>Today</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Selected
-Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you.
+Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one.
 ```tsx
+// Desktop
 <SelectControl selected={false}>Select...</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Fruit">
+  <SelectControl selected={false}>Mango</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Start icon
-Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically.
+Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.
 ```tsx
+// Desktop
 <SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <SelectControl>None</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Dropdown icon
-Use dropdownIconType to control the presentation of the dropdown indicator.
+Use dropdownIconType to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.
 ```tsx
+// Desktop
 <SelectControl selected dropdownIconType="dropdown" StartIcon={CalendarAlt}>Select date...</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <SelectControl selected>Today</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Clearable
 Pass a callback onClearClick to enable the clearable action.
 ```tsx
+// Desktop
 <SelectControl selected onClearClick={() => setValue("")} StartIcon={CalendarAlt}>
 {value || "Select..."}
 </SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <SelectControl selected={!!value} onClearClick={() => setValue("")}>
+    {value || "None"}
+  </SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Loading
 During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement.
 ```tsx
+// Desktop
 <SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Calendar">
+  <SelectControl selected loading>Loading...</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Invalid
-Use invalid to visually indicate the control is in an invalid state.
+Use invalid to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair invalid with the row's errorMessage.
 ```tsx
+// Desktop
 <SelectControl invalid selected>Pineapple on pizza</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Topping" errorMessage="Choose another topping.">
+  <SelectControl invalid selected>Pineapple</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Disabled
 Use disabled to both visually and accessibly disable the control.
 ```tsx
+// Desktop
 <SelectControl disabled selected StartIcon={User}>Reader</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Role">
+  <SelectControl disabled selected>Reader</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Block
-Create full-width controls with the block prop.
+Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block.
 ```tsx
+// Desktop
 <div className="w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md">
 <SelectControl block size="lg" StartIcon={CalendarAlt}>Select...</SelectControl>
 </div>
+
+// Phone
+<FieldGroup>
+<Field row label="Date">
+  <SelectControl>None</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ### Country selector
@@ -6596,6 +7200,7 @@ const CountryView = ({ value, label }: Option) => (
 </span>
 );
 
+// Desktop
 <Select
 value={country}
 options={countries}
@@ -6608,6 +7213,22 @@ TriggerView={CountryView}
 OptionView={CountryView}
 listMinWidth={300}
 />
+
+// Phone: the country at the row's end; the flags stay in the list.
+<FieldGroup>
+<Field row label="Country">
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block={false}
+    align="end"
+    searchPlaceholder="Search countries..."
+    OptionView={CountryView}
+    listMinWidth={300}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Country code selector
@@ -6629,6 +7250,7 @@ return (
 );
 };
 
+// Desktop
 <Select
 value={country}
 options={countries}
@@ -6640,6 +7262,23 @@ searchPredicate={searchPredicate}
 TriggerView={CountryTriggerView}
 listMinWidth={300}
 />
+
+// Phone: the country and its code at the row's end; the flags stay in the list.
+<FieldGroup>
+<Field row label="Country">
+  <Select
+    value={country}
+    options={countries}
+    onChange={(option) => setCountry(option.value)}
+    block={false}
+    align="end"
+    searchPlaceholder="Search countries..."
+    searchPredicate={searchPredicate}
+    OptionView={CountryOptionView}
+    listMinWidth={300}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Phone form
@@ -6812,9 +7451,17 @@ return (
 ```
 
 ### Optical alignment
-Use opticallyAlign with either "start" or "end" to offset the gutter of the control.
+Use opticallyAlign with either "start" or "end" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so opticallyAlign is for desktop.
 ```tsx
+// Desktop
 <SelectControl selected variant="ghost" opticallyAlign="start">Ghost control</SelectControl>
+
+// Phone
+<FieldGroup>
+<Field row label="Theme">
+  <SelectControl selected>System</SelectControl>
+</Field>
+</FieldGroup>
 ```
 
 ## Select
@@ -6859,9 +7506,11 @@ Props:
   - aria-label / aria-labelledby (string) — Accessible name of the trigger and the list
 
 ### Overview
+Pass the selection as value: a string, or an array of strings with multiple. onChange receives the selected option (or options).
 ```tsx
 const [fruit, setFruit] = useState("")
 
+// Desktop
 <Select
 value={fruit}
 options={fruits}
@@ -6871,10 +7520,25 @@ name="fruits"
 variant="outline"
 size="md"
 />
+
+// Phone: the select is the value of a row.
+<FieldGroup>
+<Field row label="Fruit">
+  <Select
+    value={fruit}
+    options={fruits}
+    onChange={({ value }) => setFruit(value)}
+    placeholder="None"
+    name="fruits"
+    block={false}
+    align="end"
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### With descriptions
-Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger.
+Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon.
 ```tsx
 const RoleOptionDescription = ({ children }: { children: ReactNode }) => (
 <div className="font-normal text-secondary text-[0.935em] leading-[1.45]">
@@ -6914,11 +7578,26 @@ size="md"
 onChange={({ value }) => setRole(value)}
 TriggerStartIcon={role === "owner" ? UserLock : User}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Role">
+  <Select
+    value={role}
+    options={roles}
+    block={false}
+    align="end"
+    listMinWidth={260}
+    onChange={({ value }) => setRole(value)}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Actions
 Custom, arbitrary actions can be displayed below the options list via the actions prop.
 ```tsx
+// Desktop
 <Select
 value={value}
 onChange={handleChange}
@@ -6931,11 +7610,28 @@ actions={[
   { id: "overview", label: "Organization overview", Icon: Workspace, onSelect: () => {} },
 ]}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Project">
+  <Select
+    value={value}
+    onChange={handleChange}
+    options={items}
+    placeholder="None"
+    block={false}
+    align="end"
+    listMinWidth={240}
+    actions={actions}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Grouped options
 Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.
 ```tsx
+// Desktop
 <Select
 value={value}
 options={groupedItems}
@@ -6947,11 +7643,27 @@ listMinWidth={300}
 searchPlaceholder="Select an option..."
 clearable
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Plan">
+  <Select
+    value={value}
+    options={groupedItems}
+    onChange={(v) => setValue(v.value)}
+    block={false}
+    align="end"
+    listMinWidth={300}
+    searchPlaceholder="Select an option..."
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Multiple selection
 Multiple selection is supported through the multiple property. This changes how value, onChange, and TriggerView are typed, accepting and returning arrays of values.
 ```tsx
+// Desktop
 <Select
 variant="soft"
 placeholder="Select fruits..."
@@ -6963,6 +7675,24 @@ value={fruits}
 onChange={(values) => setFruits(values.map(({ value }) => value))}
 TriggerView={MultiFruitTriggerView}
 />
+
+// Phone
+<FieldGroup>
+<Field row label="Fruits">
+  <Select
+    placeholder="None"
+    options={fruitsOptions}
+    name="fruits"
+    multiple
+    clearable
+    block={false}
+    align="end"
+    value={fruits}
+    onChange={(values) => setFruits(values.map(({ value }) => value))}
+    TriggerView={MultiFruitTriggerView}
+  />
+</Field>
+</FieldGroup>
 ```
 
 ### Column configuration
@@ -8110,7 +8840,7 @@ Decimal steps add without rounding drift. With wrap a step past max continues fr
 ```
 
 ### States
-At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set pill to false for square ends, as other controls in a dense layout have.
+At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS.
 ```tsx
 <Stepper aria-label="At the lowest value" defaultValue={0} />
 <Stepper aria-label="Disabled" defaultValue={3} disabled />
@@ -8913,9 +9643,17 @@ Props:
 
 ### Overview
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[480px]">
 <TagInput placeholder="Add a tag..." size="md" rows={1} pill={false} />
 </div>
+
+// Phone: the tags are the value of a row, under its label.
+<FieldGroup>
+<Field row orientation="vertical" label="Tags">
+  <TagInput variant="ghost" placeholder="Add a tag..." rows={1} />
+</Field>
+</FieldGroup>
 ```
 
 ### Inline filter row
@@ -8936,6 +9674,7 @@ const [tags, setTags] = useState<Tag[]>([
 ])
 const fieldLabel = FIELD_OPTIONS.find((option) => option.value === field)?.label ?? ""
 
+// Desktop
 return (
 <div className="flex w-full max-w-2xl items-start gap-2">
   <Field label="Where" className="w-[160px] shrink-0">
@@ -8964,6 +9703,35 @@ return (
   </Field>
 </div>
 )
+
+// Phone
+<FieldGroup>
+<Field row label="Where">
+  {(control) => (
+    <Menu>
+      <Menu.Trigger>
+        <SelectControl {...control} selected={!!field}>{fieldLabel}</SelectControl>
+      </Menu.Trigger>
+      <Menu.Content minWidth={160} align="end">
+        {FIELD_OPTIONS.map((option) => (
+          <Menu.CheckboxItem
+            key={option.value}
+            checked={field === option.value}
+            onCheckedChange={() => setField(option.value)}
+            indicatorPosition="start"
+            indicatorVariant="ghost"
+          >
+            {option.label}
+          </Menu.CheckboxItem>
+        ))}
+      </Menu.Content>
+    </Menu>
+  )}
+</Field>
+<Field row orientation="vertical" label="Is in">
+  <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a value" />
+</Field>
+</FieldGroup>
 ```
 
 ### Suggestions
@@ -8979,6 +9747,7 @@ const [tags, setTags] = useState([
 const selectedValues = new Set(tags.map((t) => t.value));
 const available = SUGGESTIONS.filter((s) => !selectedValues.has(s));
 
+// Desktop
 return (
 <div className="flex flex-col gap-3">
   <TagInput value={tags} onChange={setTags} placeholder="Add a skill..." size="md" />
@@ -8994,6 +9763,24 @@ return (
   )}
 </div>
 );
+
+// Phone: the suggestions follow the group.
+<FieldGroup>
+<Field row orientation="vertical" label="Skills">
+  <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a skill..." />
+</Field>
+</FieldGroup>
+{available.length > 0 && (
+<FieldGroup title="Suggestions">
+  {available.map((s) => (
+    <Field row key={s} label={s}>
+      <Button color="primary" variant="ghost" aria-label={`Add ${s}`} onClick={() => setTags([...tags, { value: s, valid: true }])}>
+        Add
+      </Button>
+    </Field>
+  ))}
+</FieldGroup>
+)}
 ```
 
 ## Text Link
@@ -9078,7 +9865,7 @@ Props:
   - value (string | number) — Controlled value; uncontrolled when omitted
   - defaultValue (string | number) — Initial value when uncontrolled
   - onChange ((event: ChangeEvent<HTMLTextAreaElement>) => void) — Called on every input
-  - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
   - disabled (boolean) default: false — Disable the textarea
@@ -9095,70 +9882,132 @@ Props:
 
 ### Overview
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Enter text..." autoResize rows={3} />
 </div>
+
+// Phone: the textarea is the value of a row, under its label.
+<FieldGroup>
+<Field row orientation="vertical" label="Notes">
+  <Textarea variant="ghost" placeholder="Add a note" autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Variants
-Use variant to stylize the textarea.
+Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label.
 ```tsx
+// Desktop
 <div className="flex flex-col gap-6 w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Enter text..." variant="outline" rows={3} />
 <Textarea placeholder="Enter text..." variant="soft" rows={3} />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Note for the courier">
+  <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Auto resize
-Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows.
+Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows. On Phone the row grows with it.
 ```tsx
 const [value, setValue] = useState("Line 1\nLine 2\nLine 3")
 
-return (
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
-  <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+<Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
 </div>
-)
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Notes">
+  <Textarea variant="ghost" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Type to grow..." autoResize rows={3} maxRows={8} />
+</Field>
+</FieldGroup>
 ```
 
 ### Sizing
-Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.
+Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height.
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea placeholder="Write a message..." size="lg" gutterSize="md" />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Message">
+  <Textarea variant="ghost" placeholder="Write a message..." rows={4} />
+</Field>
+</FieldGroup>
 ```
 
 ### Disabled
 Use the disabled prop to disable the textarea, greying it out and preventing user interactions.
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea disabled defaultValue="Jane Doe" aria-label="Name" />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Notes">
+  <Textarea variant="ghost" disabled defaultValue="Leave it at the front desk." autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Invalid
-Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.
+Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the errorMessage line under the row.
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea invalid placeholder="Invalid textarea" />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Reference" errorMessage={invalid ? "Keep it under 140 characters." : undefined}>
+  <Textarea variant="ghost" defaultValue={reference} invalid={invalid} autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Auto select text
 Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea defaultValue="Toggle to auto select" autoSelect={false} aria-label="Notes" />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Notes">
+  <Textarea variant="ghost" defaultValue="Toggle to auto select" autoSelect={false} autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ### Autofill extensions
 By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true.
 ```tsx
+// Desktop
 <div className="w-full min-w-0 max-w-[400px]">
 <Textarea name="email" placeholder="Allowed" allowAutofillExtensions />
 </div>
+
+// Phone
+<FieldGroup>
+<Field row orientation="vertical" label="Address">
+  <Textarea variant="ghost" name="address" autoComplete="street-address" placeholder="Allowed" allowAutofillExtensions autoResize rows={2} />
+</Field>
+</FieldGroup>
 ```
 
 ## Toast

@@ -3,6 +3,7 @@
 import countryLabelStyles from '../CountryLabel.module.css';
 
 import type { ComponentProps } from 'react';
+import { usePhoneRows } from '../PhoneRows';
 import { h, type FunctionalComponent } from 'vue';
 import {
   Cabinet,
@@ -24,6 +25,7 @@ import {
   stripFormatting,
 } from '../PhoneInputDemos';
 import { VueDemo } from './VueDemo';
+import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 import { VueFormScreenDemo } from './VueFormScreenDemo';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass
@@ -188,12 +190,14 @@ const scope = {
 };
 
 /** A VueDemo whose template can use the icons, option lists and helpers above. */
-export function VueSelectDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
+export function VueSelectDemo({ state, ...props }: ComponentProps<typeof VuePhoneRowsDemo>) {
+  // A demo with a phone template switches to it in Phone previews and on a narrow viewport
+  if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;
 }
 
 /** VueSelectDemo plus the stylesheet the React country demos add for their option rows. */
-export function VueCountrySelectDemo(props: ComponentProps<typeof VueDemo>) {
+export function VueCountrySelectDemo(props: ComponentProps<typeof VueSelectDemo>) {
   return (
     <>
       <style>{COUNTRY_OPTION_STYLE}</style>
@@ -202,6 +206,8 @@ export function VueCountrySelectDemo(props: ComponentProps<typeof VueDemo>) {
   );
 }
 
-export function VueCountryFormDemo({ state, ...props }: ComponentProps<typeof VueDemo>) {
-  return <><style>{COUNTRY_OPTION_STYLE}</style><VueFormScreenDemo {...props} state={{ ...scope, ...state }} /></>;
+/** The phone form screen of the country selector: as in the React demo, the size and pill controls are desktop only. */
+export function VueCountryFormDemo({ state, controls, ...props }: ComponentProps<typeof VueDemo>) {
+  const phone = usePhoneRows();
+  return <><style>{COUNTRY_OPTION_STYLE}</style><VueFormScreenDemo {...props} controls={controls} hiddenControls={phone ? controls?.map((control) => control.name) : undefined} state={{ ...scope, ...state }} /></>;
 }

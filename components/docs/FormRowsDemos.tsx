@@ -462,7 +462,7 @@ function ProductFields({ columns: columnsOverride, state }: { columns?: boolean;
             <InputGroup.Addon align="inline-end">
               <Menu>
                 <Menu.Trigger>
-                  <InputGroup.Button aria-label="Unit" className="text-secondary md:text-sm font-normal">
+                  <InputGroup.Button aria-label={`Unit: ${unit}`} className="text-secondary md:text-sm font-normal">
                     {unit}
                     <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
                   </InputGroup.Button>

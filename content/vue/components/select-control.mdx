@@ -6,6 +6,8 @@ metaDescription: Vue 3 select control primitive for building custom dropdowns, w
 
 import { VueCountrySelectDemo, VueCountryFormDemo, VueSelectDemo } from "@/components/docs/vue/VueSelectDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const STAGE = "flex-1 flex flex-col items-center justify-center py-12 w-full"
 export const NARROW_STAGE = "flex-1 flex flex-col gap-2 justify-center items-center py-10 w-full"
@@ -179,7 +181,140 @@ export const opticalAlignment = `<div class="flex flex-col gap-3 w-[280px]">
 
 import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
+export const overviewPhone = `<FieldGroup>
+  <Field row label="Period">
+    <template #default="control">
+      <Menu>
+        <MenuTrigger>
+          <SelectControl v-bind="control" :selected="!!value">{{ value || "None" }}</SelectControl>
+        </MenuTrigger>
+        <MenuContent :min-width="200" align="end">
+          <MenuRadioGroup v-model:value="value">
+            <MenuRadioItem value="">None</MenuRadioItem>
+            <MenuRadioItem value="Today">Today</MenuRadioItem>
+            <MenuRadioItem value="Last week">Last week</MenuRadioItem>
+            <MenuRadioItem value="Last month">Last month</MenuRadioItem>
+            <MenuRadioItem value="Last 3 months">Last 3 months</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>
+    </template>
+  </Field>
+</FieldGroup>`
+
+export const variantsPhone = `<FieldGroup>
+  <Field row label="Folder" :error-message="invalid ? 'Choose a folder you can edit.' : undefined">
+    <SelectControl selected :invalid="invalid" :disabled="disabled">Sample value</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const sizingPhone = `<FieldGroup>
+  <Field row label="Model">
+    <SelectControl>None</SelectControl>
+  </Field>
+  <Field row label="Tools">
+    <SelectControl loading>Loading...</SelectControl>
+  </Field>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const selectedPhone = `<FieldGroup>
+  <Field row label="Fruit">
+    <SelectControl :selected="selected">Mango</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const startIconPhone = `<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const dropdownIconPhone = `<FieldGroup>
+  <Field row label="Date">
+    <SelectControl selected>Today</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const clearablePhone = `<FieldGroup>
+  <Field row label="Date">
+    <SelectControl :selected="!!value" @clear-click="value = ''">{{ value || "None" }}</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const loadingPhone = `<FieldGroup>
+  <Field row label="Calendar">
+    <SelectControl selected :loading="loading">{{ loading ? "Loading..." : "Work" }}</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const invalidPhone = `<FieldGroup>
+  <Field row label="Topping" :error-message="invalid ? 'Choose another topping.' : undefined">
+    <SelectControl :invalid="invalid" selected>Pineapple</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const disabledPhone = `<FieldGroup>
+  <Field row label="Role">
+    <SelectControl :disabled="disabled" selected>Reader</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const blockPhone = `<FieldGroup>
+  <Field row label="Date">
+    <SelectControl>None</SelectControl>
+  </Field>
+</FieldGroup>`
+
+export const countrySelectorPhone = `<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countries"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>`
+
+export const countryCodeSelectorPhone = `<FieldGroup>
+  <Field row label="Country">
+    <Select
+      v-model:value="country"
+      :options="countryOptions"
+      :block="false"
+      align="end"
+      search-placeholder="Search countries..."
+      :search-predicate="countrySearchPredicate"
+      :list-min-width="300"
+      :option-class-name="countryOptionClass"
+    >
+      <template #optionView="{ value, label }">
+        <span :class="countryLabelStyles.Root"><component :is="FlagIcon" :code="value" /><span :class="countryLabelStyles.Text">{{ label }}</span></span>
+      </template>
+    </Select>
+  </Field>
+</FieldGroup>`
+
+export const opticalAlignmentPhone = `<FieldGroup>
+  <Field row label="Theme">
+    <SelectControl selected>System</SelectControl>
+  </Field>
+</FieldGroup>`
+
+
 <UsageBlock>{`import { SelectControl } from "@plexui/vue/components/SelectControl";`}</UsageBlock>
+
+On Phone, a select control is the value of a row in a `FieldGroup`, as the [Form Examples](/vue/components/form-examples) do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button. The row sets the control's height, insets, type and colors, so the Phone previews show rows without the `size`, `pill`, `variant`, `StartIcon`, `dropdown-icon-type`, `block` and `optically-align` controls.
 
 The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type` accepts `"dropdown"` or `"chevronDown"`; the indicator keeps its proportions inside a Button.
 
@@ -187,80 +322,80 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo stageClassName={STAGE} template={overview} state={{ value: "" }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={overview} state={{ value: "" }} />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={variants} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={variants} controls={[{ name: "invalid", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>variant</code> prop to stylize the select control. Available <code>variant</code> styles are similar to <code>{"<Button>"}</code>, but aligned with subtle differences from <code>{"<Input>"}</code> variant treatments.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" template={variants} controls={[{ name: "invalid", type: "boolean", default: false }, { name: "disabled", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Sizing & roundness
 
-<ComponentPreview language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>.</>} code={sizing} previewMinHeight={276}>
-  <VueSelectDemo template={sizing} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: false }, { name: "variant", type: "select", options: VARIANTS, default: "outline" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Sizing of the control is determined with the <code>size</code> prop. Each <code>size</code> provides dynamic values for various aspects of the control, including icon and indicator placement, as well <code>font-size</code> and gutter values.<br/><br/>Create fully rounded controls with the <code>pill</code> prop. When <code>pill</code> is set, extra horizontal gutter is dynamically applied, and the clear action is also set to <code>pill</code>. On Phone the row sets the control's size, so a row's control takes no <code>size</code> or <code>pill</code>.</>} code={withPhone(sizing, sizingPhone)} previewMinHeight={276}>
+  <VueSelectDemo phoneTemplate={phoneRows(sizingPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "pill", "variant"]} template={sizing} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }, { name: "pill", type: "boolean", default: false }, { name: "variant", type: "select", options: VARIANTS, default: "outline" }]} />
 </ComponentPreview>
 
 ### Selected
 
-<ComponentPreview language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you.</>} code={selected} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo stageClassName={NARROW_STAGE} template={selected} controls={[{ name: "selected", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>selected</code> to indicate if the control has a selected value, which toggles visual placeholder styling.<br/><br/>As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with <code>columns</code>), a placeholder the tertiary one.</>} code={withPhone(selected, selectedPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(selectedPhone)} phoneStageClassName="w-full" stageClassName={NARROW_STAGE} template={selected} controls={[{ name: "selected", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Start icon
 
-<ComponentPreview language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically.</>} code={startIcon} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo stageClassName={STAGE} template={startIcon} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a component to <code>StartIcon</code> to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon.</>} code={withPhone(startIcon, startIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(startIconPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={startIcon} />
 </ComponentPreview>
 
 ### Dropdown icon
 
-<ComponentPreview language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator.</>} code={dropdownIcon} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={dropdownIcon} controls={[{ name: "dropdownIconType", type: "select", options: ["chevronDown", "dropdown", "none"], default: "dropdown" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>dropdown-icon-type</code> to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button.</>} code={withPhone(dropdownIcon, dropdownIconPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(dropdownIconPhone)} phoneStageClassName="w-full" desktopControlNames={["dropdownIconType"]} template={dropdownIcon} controls={[{ name: "dropdownIconType", type: "select", options: ["chevronDown", "dropdown", "none"], default: "dropdown" }]} />
 </ComponentPreview>
 
 ### Clearable
 
-<ComponentPreview language="vue" details={<>Listen to <code>@clear-click</code> to enable the clearable action. The clear button shows while the control is <code>selected</code>.</>} code={clearable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo stageClassName={STAGE} template={clearable} state={{ value: "Selected value" }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Listen to <code>@clear-click</code> to enable the clearable action. The clear button shows while the control is <code>selected</code>.</>} code={withPhone(clearable, clearablePhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(clearablePhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={clearable} state={{ value: "Today" }} />
 </ComponentPreview>
 
 ### Loading
 
-<ComponentPreview language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={loading} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={loading} controls={[{ name: "loading", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>During loading, the dropdown icon and clear action are automatically hidden, the control is marked <code>aria-busy</code>, and it ignores pointer and keyboard interaction. Use <code>disabled</code> to add visual disablement.</>} code={withPhone(loading, loadingPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(loadingPhone)} phoneStageClassName="w-full" template={loading} controls={[{ name: "loading", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Invalid
 
-<ComponentPreview language="vue" details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state.</>} code={invalid} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>invalid</code> to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair <code>invalid</code> with the row's <code>error-message</code>.</>} code={withPhone(invalid, invalidPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(invalidPhone)} phoneStageClassName="w-full" template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={disabled} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>disabled</code> to both visually and accessibly disable the control.</>} code={withPhone(disabled, disabledPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(disabledPhone)} phoneStageClassName="w-full" template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Block
 
-<ComponentPreview language="vue" details={<>Create full-width controls with the <code>block</code> prop.</>} code={block} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueSelectDemo template={block} controls={[{ name: "block", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Create full-width controls with the <code>block</code> prop. In a phone row the value sits at the row's end, so the row's control takes no <code>block</code>.</>} code={withPhone(block, blockPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VueSelectDemo phoneTemplate={phoneRows(blockPhone)} phoneStageClassName="w-full" desktopControlNames={["block"]} template={block} controls={[{ name: "block", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Country selector
 
-<ComponentPreview language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={countrySelector} previewMinHeight={168}>
-  <VueCountrySelectDemo stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={withPhone(countrySelector, countrySelectorPhone)} previewMinHeight={168}>
+  <VueCountrySelectDemo phoneTemplate={phoneRows(countrySelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Country code selector
 
-<ComponentPreview language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={countryCodeSelector} previewMinHeight={168}>
-  <VueCountrySelectDemo stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={withPhone(countryCodeSelector, countryCodeSelectorPhone)} previewMinHeight={168}>
+  <VueCountrySelectDemo phoneTemplate={phoneRows(countryCodeSelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup title="Phone number" description="Choose your country and enter the number you want to use." columns>
@@ -287,8 +422,8 @@ export const phoneFormMobile = formScreenTemplate("Phone number", `<FieldGroup t
 
 ### Optical alignment
 
-<ComponentPreview language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control.</>} code={opticalAlignment} previewMinHeight={292}>
-  <VueSelectDemo stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>optically-align</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the control. In a phone row the row aligns the value with its inset, so <code>optically-align</code> is for desktop.</>} code={withPhone(opticalAlignment, opticalAlignmentPhone)} previewMinHeight={292}>
+  <VueSelectDemo phoneTemplate={phoneRows(opticalAlignmentPhone)} phoneStageClassName="w-full" desktopControlNames={["opticallyAlign"]} stageClassName={NARROW_STAGE} template={opticalAlignment} controls={[{ name: "opticallyAlign", type: "select", options: ["start", "end"], default: "start" }]} />
 </ComponentPreview>
 
 ## API

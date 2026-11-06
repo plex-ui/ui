@@ -540,6 +540,12 @@
 }
 
 @media (max-width: 767px) {
+  /* In a grouped row the clear button shows only while the value is being edited, as
+     the text fields of iOS forms show theirs (UITextField clearButtonMode whileEditing). */
+  :where([data-row]) .Container:not(:focus-within) > .Clear {
+    display: none;
+  }
+
   /* Reserve the target in flow; only the outer four-pixel breathing space
      is reclaimed. The remainder comes out of the input's available width. */
   .Container:where(:has(> .AdornmentButton)) {

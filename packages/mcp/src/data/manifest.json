@@ -1774,42 +1774,42 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "import { useState } from 'react';\nimport { DateTime } from 'luxon';\nimport { DateInput } from '@plexui/ui/components/DateInput';\n\nexport default function DateInputExample() {\n  const [date, setDate] = useState<DateTime | null>(null);\n  const [disabled] = useState(false);\n\n  return (\n    <div className=\"w-[200px]\">\n      <DateInput value={date} onChange={setDate} size=\"md\" variant=\"outline\"\n        clearable disabled={disabled} />\n    </div>\n  );\n}",
+          "code": "import { useState } from 'react';\nimport { DateTime } from 'luxon';\nimport { DateInput } from '@plexui/ui/components/DateInput';\n\n// Desktop\nexport default function DateInputExample() {\n  const [date, setDate] = useState<DateTime | null>(null);\n  const [disabled] = useState(false);\n\n  return (\n    <div className=\"w-[200px]\">\n      <DateInput value={date} onChange={setDate} size=\"md\" variant=\"outline\"\n        clearable disabled={disabled} />\n    </div>\n  );\n}\n\n// Phone: the date is the value of a row.\n<FieldGroup>\n  <Field row label=\"Date\">\n    <DateInput value={date} onChange={setDate} clearable disabled={disabled} />\n  </Field>\n</FieldGroup>",
           "details": "Pass a Luxon DateTime (or null) as value with onChange. onChange fires once a complete, valid date is typed, and with null when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again."
         },
         {
           "name": "With time",
-          "code": "<div className=\"w-[260px]\">\n<DateInput value={date} onChange={setDate} timeMode=\"HH:MM\" clearable />\n</div>",
+          "code": "// Desktop\n<div className=\"w-[260px]\">\n<DateInput value={date} onChange={setDate} timeMode=\"HH:MM\" clearable />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Starts\">\n  <DateInput value={date} onChange={setDate} timeMode=\"HH:MM\" clearable />\n</Field>\n</FieldGroup>",
           "details": "Pass timeMode=\"HH:MM\" to enable date + time input in one field."
         },
         {
           "name": "With seconds",
-          "code": "<div className=\"w-[300px]\">\n<DateInput value={date} onChange={setDate} timeMode=\"HH:MM:SS\" clearable />\n</div>",
+          "code": "// Desktop\n<div className=\"w-[300px]\">\n<DateInput value={date} onChange={setDate} timeMode=\"HH:MM:SS\" clearable />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Logged\">\n  <DateInput value={date} onChange={setDate} timeMode=\"HH:MM:SS\" clearable />\n</Field>\n</FieldGroup>",
           "details": "Use timeMode=\"HH:MM:SS\" for second-level precision."
         },
         {
           "name": "Limits",
-          "code": "const today = DateTime.local()\nconst [date, setDate] = useState<DateTime | null>(today)\n\n<div className=\"w-[200px]\">\n<DateInput\n  value={date}\n  onChange={setDate}\n  min={today.minus({ days: 30 }).startOf(\"day\")}\n  max={today.plus({ days: 30 }).endOf(\"day\")}\n  clearable\n/>\n</div>",
+          "code": "const today = DateTime.local()\nconst [date, setDate] = useState<DateTime | null>(today)\n\n// Desktop\n<div className=\"w-[200px]\">\n<DateInput\n  value={date}\n  onChange={setDate}\n  min={today.minus({ days: 30 }).startOf(\"day\")}\n  max={today.plus({ days: 30 }).endOf(\"day\")}\n  clearable\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DateInput\n    value={date}\n    onChange={setDate}\n    min={today.minus({ days: 30 }).startOf(\"day\")}\n    max={today.plus({ days: 30 }).endOf(\"day\")}\n    clearable\n  />\n</Field>\n</FieldGroup>",
           "details": "Use min and max to restrict the date range. The mask prevents entering values outside the allowed range. today is DateTime.local()."
         },
         {
           "name": "US format",
-          "code": "<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" clearable />\n</div>",
+          "code": "// Desktop\n<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" clearable />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" clearable />\n</Field>\n</FieldGroup>",
           "details": "Set mode=\"mm/dd/yyyy\" and separator=\"/\" for US-style date formatting."
         },
         {
           "name": "ISO format",
-          "code": "<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"yyyy/mm/dd\" separator=\"-\" clearable />\n</div>",
+          "code": "// Desktop\n<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"yyyy/mm/dd\" separator=\"-\" clearable />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DateInput value={date} onChange={setDate} mode=\"yyyy/mm/dd\" separator=\"-\" clearable />\n</Field>\n</FieldGroup>",
           "details": "Set mode=\"yyyy/mm/dd\" and separator=\"-\" for ISO 8601 formatting."
         },
         {
           "name": "With Field",
-          "code": "<div className=\"w-[200px]\">\n<Field label=\"Date of birth\" description=\"Enter your date of birth\">\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</div>",
+          "code": "// Desktop\n<div className=\"w-[200px]\">\n<Field label=\"Date of birth\" description=\"Enter your date of birth\">\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date of birth\" description=\"Enter your date of birth\">\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</FieldGroup>",
           "details": "Wrap with Field to add a label, description, and automatic accessibility attributes."
         },
         {
           "name": "Validation",
-          "code": "<div className=\"w-[200px]\">\n<Field label=\"Date of birth\" errorMessage={!date ? \"Date is required\" : undefined}>\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</div>",
+          "code": "// Desktop\n<div className=\"w-[200px]\">\n<Field label=\"Date of birth\" errorMessage={!date ? \"Date is required\" : undefined}>\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date of birth\" errorMessage={!date ? \"Date is required\" : undefined}>\n  <DateInput value={date} onChange={setDate} clearable />\n</Field>\n</FieldGroup>",
           "details": "Pass errorMessage to Field to display a validation error."
         }
       ],
@@ -1960,47 +1960,47 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "import { useState } from 'react';\nimport { DateTime } from 'luxon';\nimport { DatePicker } from '@plexui/ui/components/DatePicker';\n\nexport default function DatePickerExample() {\n  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);\n  const [disabled] = useState(false);\n\n  return (\n    <DatePicker\n      id=\"date-picker-base\"\n      triggerDateFormat=\"MM/dd/yy\"\n      size=\"lg\"\n      pill\n      clearable\n      disabled={disabled}\n      value={selectedDate}\n      onChange={setSelectedDate}\n    />\n  );\n}",
+          "code": "import { useState } from 'react';\nimport { DateTime } from 'luxon';\nimport { DatePicker } from '@plexui/ui/components/DatePicker';\n\n// Desktop\nexport default function DatePickerExample() {\n  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);\n  const [disabled] = useState(false);\n\n  return (\n    <DatePicker\n      id=\"date-picker-base\"\n      triggerDateFormat=\"MM/dd/yy\"\n      size=\"lg\"\n      pill\n      clearable\n      disabled={disabled}\n      value={selectedDate}\n      onChange={setSelectedDate}\n    />\n  );\n}\n\n// Phone: the date is the value of a row, in the compact date that opens the calendar.\n<FieldGroup>\n  <Field row label=\"Date\">\n    <DatePicker\n      id=\"date-picker-base\"\n      triggerDateFormat=\"MMM d, yyyy\"\n      triggerShowIcon={false}\n      placeholder=\"Select date\"\n      disabled={disabled}\n      value={selectedDate}\n      onChange={setSelectedDate}\n    />\n  </Field>\n</FieldGroup>",
           "details": "Pass the date (a luxon DateTime, or null) as value and update it in onChange."
         },
         {
           "name": "Limits",
-          "code": "const today = DateTime.local()\nconst minDate = today.minus({ days: 30 }).startOf(\"day\")\nconst maxDate = today.plus({ days: 30 }).endOf(\"day\")\nconst [selectedDate, setSelectedDate] = useState<DateTime | null>(today)\n\n<DatePicker\nid=\"date-picker-limits\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\npill\ntriggerShowIcon\nvalue={selectedDate}\nonChange={setSelectedDate}\nmin={minDate}\nmax={maxDate}\n/>",
+          "code": "const today = DateTime.local()\nconst minDate = today.minus({ days: 30 }).startOf(\"day\")\nconst maxDate = today.plus({ days: 30 }).endOf(\"day\")\nconst [selectedDate, setSelectedDate] = useState<DateTime | null>(today)\n\n// Desktop\n<DatePicker\nid=\"date-picker-limits\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\npill\ntriggerShowIcon\nvalue={selectedDate}\nonChange={setSelectedDate}\nmin={minDate}\nmax={maxDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DatePicker\n    id=\"date-picker-limits\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    value={selectedDate}\n    onChange={setSelectedDate}\n    min={minDate}\n    max={maxDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Use min and max to limit selectable dates to a specific timeframe. Equal bounds leave one selectable day."
         },
         {
           "name": "Date of birth",
-          "code": "<DatePicker\nid=\"date-picker-dob\"\ntriggerDateFormat=\"MMMM d, yyyy\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select your birthday\"\ncaptionLayout=\"dropdown\"\nvalue={selectedDate}\nonChange={setSelectedDate}\nmax={DateTime.local()}\n/>",
+          "code": "// Desktop\n<DatePicker\nid=\"date-picker-dob\"\ntriggerDateFormat=\"MMMM d, yyyy\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select your birthday\"\ncaptionLayout=\"dropdown\"\nvalue={selectedDate}\nonChange={setSelectedDate}\nmax={DateTime.local()}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Birthday\">\n  <DatePicker\n    id=\"date-picker-dob\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    captionLayout=\"dropdown\"\n    value={selectedDate}\n    onChange={setSelectedDate}\n    max={DateTime.local()}\n  />\n</Field>\n</FieldGroup>",
           "details": "Set captionLayout=\"dropdown\" to add month and year dropdowns inline with the arrow navigation. Ideal for selecting a date of birth where navigating month-by-month would be impractical."
         },
         {
           "name": "Time picker",
-          "code": "<DatePicker\nid=\"date-picker-time\"\ntriggerDateFormat=\"MM/dd/yy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select date & time\"\nshowTime\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>",
+          "code": "// Desktop\n<DatePicker\nid=\"date-picker-time\"\ntriggerDateFormat=\"MM/dd/yy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Select date & time\"\nshowTime\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Starts\">\n  <DatePicker\n    id=\"date-picker-time\"\n    triggerDateFormat=\"MMM d, yyyy HH:mm\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    showTime\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Enable showTime to add hour and minute inputs below the calendar. The popover stays open after selecting a date so the user can adjust the time. Use arrow keys to increment or decrement values."
         },
         {
           "name": "Dropdown + time",
-          "code": "<DatePicker\nid=\"date-picker-datetime-dropdown\"\ntriggerDateFormat=\"MMM d, yyyy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Schedule event\"\ncaptionLayout=\"dropdown\"\nshowTime\nyearRange={[2020, 2030]}\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>",
+          "code": "// Desktop\n<DatePicker\nid=\"date-picker-datetime-dropdown\"\ntriggerDateFormat=\"MMM d, yyyy HH:mm\"\nsize=\"lg\"\npill\nclearable\nplaceholder=\"Schedule event\"\ncaptionLayout=\"dropdown\"\nshowTime\nyearRange={[2020, 2030]}\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Event\">\n  <DatePicker\n    id=\"date-picker-datetime-dropdown\"\n    triggerDateFormat=\"MMM d, yyyy HH:mm\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    captionLayout=\"dropdown\"\n    showTime\n    yearRange={[2020, 2030]}\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Combine captionLayout=\"dropdown\" with showTime for quick month/year jumps and time selection in a single picker, useful for scheduling events at a specific date and time."
         },
         {
           "name": "Two fields",
-          "code": "const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)\nconst [time, setTime] = useState(\"10:30\")\n\n// Mask the typed time as HH:MM; a complete time moves the picked date's time\nconst handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {\nconst raw = event.target.value.replace(/[^\\d:]/g, \"\")\nconst digits = raw.replace(/:/g, \"\")\nlet formatted = digits\nif (digits.length >= 3) {\n  formatted = digits.slice(0, 2) + \":\" + digits.slice(2, 4)\n} else if (digits.length === 2 && !raw.includes(\":\")) {\n  formatted = digits + \":\"\n}\nsetTime(formatted.slice(0, 5))\n\nconst parts = formatted.split(\":\")\nif (parts.length === 2 && parts[1].length === 2 && selectedDate) {\n  const hour = Math.min(23, Number(parts[0]) || 0)\n  const minute = Math.min(59, Number(parts[1]) || 0)\n  setSelectedDate(selectedDate.set({ hour, minute }))\n}\n}\n\n<div style={{ display: \"flex\", gap: \"8px\", alignItems: \"center\" }}>\n<DatePicker\n  id=\"date-picker-two-field-date\"\n  triggerDateFormat=\"MMM d, yyyy\"\n  size=\"lg\"\n  pill\n  captionLayout=\"dropdown\"\n  triggerShowIcon={false}\n  dropdownIconType=\"none\"\n  placeholder=\"Select date\"\n  value={selectedDate}\n  onChange={(next) => {\n    // A picked date takes the typed time\n    if (next && time) {\n      const [hour, minute] = time.split(\":\").map(Number)\n      setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))\n    } else {\n      setSelectedDate(next)\n    }\n  }}\n/>\n<Input\n  id=\"date-picker-two-field-time\"\n  size=\"lg\"\n  pill\n  value={time}\n  onChange={handleTimeInput}\n  placeholder=\"HH:MM\"\n  maxLength={5}\n  style={{ width: \"72px\" }}\n/>\n</div>",
+          "code": "const [selectedDate, setSelectedDate] = useState<DateTime | null>(null)\nconst [time, setTime] = useState(\"10:30\")\n\n// Mask the typed time as HH:MM; a complete time moves the picked date's time\nconst handleTimeInput = (event: React.ChangeEvent<HTMLInputElement>) => {\nconst raw = event.target.value.replace(/[^\\d:]/g, \"\")\nconst digits = raw.replace(/:/g, \"\")\nlet formatted = digits\nif (digits.length >= 3) {\n  formatted = digits.slice(0, 2) + \":\" + digits.slice(2, 4)\n} else if (digits.length === 2 && !raw.includes(\":\")) {\n  formatted = digits + \":\"\n}\nsetTime(formatted.slice(0, 5))\n\nconst parts = formatted.split(\":\")\nif (parts.length === 2 && parts[1].length === 2 && selectedDate) {\n  const hour = Math.min(23, Number(parts[0]) || 0)\n  const minute = Math.min(59, Number(parts[1]) || 0)\n  setSelectedDate(selectedDate.set({ hour, minute }))\n}\n}\n\n// A picked date takes the typed time\nconst onDateChange = (next: DateTime | null) => {\nif (next && time) {\n  const [hour, minute] = time.split(\":\").map(Number)\n  setSelectedDate(next.set({ hour: hour || 0, minute: minute || 0 }))\n} else {\n  setSelectedDate(next)\n}\n}\n\n// Desktop\n<div style={{ display: \"flex\", gap: \"8px\", alignItems: \"center\" }}>\n<DatePicker\n  id=\"date-picker-two-field-date\"\n  triggerDateFormat=\"MMM d, yyyy\"\n  size=\"lg\"\n  pill\n  captionLayout=\"dropdown\"\n  triggerShowIcon={false}\n  dropdownIconType=\"none\"\n  placeholder=\"Select date\"\n  value={selectedDate}\n  onChange={onDateChange}\n/>\n<Input\n  id=\"date-picker-two-field-time\"\n  size=\"lg\"\n  pill\n  value={time}\n  onChange={handleTimeInput}\n  placeholder=\"HH:MM\"\n  maxLength={5}\n  style={{ width: \"72px\" }}\n/>\n</div>\n\n// Phone: two rows, the compact date and the time typed at the row's end\n<FieldGroup>\n<Field row label=\"Date\">\n  <DatePicker\n    id=\"date-picker-two-field-date\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    captionLayout=\"dropdown\"\n    triggerShowIcon={false}\n    placeholder=\"Select date\"\n    value={selectedDate}\n    onChange={onDateChange}\n  />\n</Field>\n<Field row label=\"Time\">\n  <Input\n    id=\"date-picker-two-field-time\"\n    value={time}\n    onChange={handleTimeInput}\n    placeholder=\"HH:MM\"\n    maxLength={5}\n    inputMode=\"numeric\"\n  />\n</Field>\n</FieldGroup>",
           "details": "Compose DatePicker and Input side by side for maximum flexibility in form layouts. Each field operates independently while sharing the same DateTime value. Here handleTimeInput masks the typed time as HH:MM and moves the date to a complete typed time, and a newly picked date takes the typed time."
         },
         {
           "name": "Date input",
-          "code": "<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" aria-label=\"Date\" />\n</div>",
+          "code": "// Desktop\n<div className=\"w-[200px]\">\n<DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" aria-label=\"Date\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DateInput value={date} onChange={setDate} mode=\"mm/dd/yyyy\" separator=\"/\" />\n</Field>\n</FieldGroup>",
           "details": "For typing a date directly instead of picking it, use DateInput, a masked input that auto-formats as you type."
         },
         {
           "name": "DateTime input",
-          "code": "<div className=\"w-[260px]\">\n<DateInput\n  value={dateTime}\n  onChange={setDateTime}\n  mode=\"mm/dd/yyyy\"\n  separator=\"/\"\n  timeMode=\"HH:MM\"\n  aria-label=\"Date and time\"\n/>\n</div>",
+          "code": "// Desktop\n<div className=\"w-[260px]\">\n<DateInput\n  value={dateTime}\n  onChange={setDateTime}\n  mode=\"mm/dd/yyyy\"\n  separator=\"/\"\n  timeMode=\"HH:MM\"\n  aria-label=\"Date and time\"\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Starts\">\n  <DateInput value={dateTime} onChange={setDateTime} mode=\"mm/dd/yyyy\" separator=\"/\" timeMode=\"HH:MM\" />\n</Field>\n</FieldGroup>",
           "details": "Pass timeMode=\"HH:MM\" to DateInput to type the date and time in one field."
         },
         {
           "name": "Without Icon",
-          "code": "<DatePicker\nid=\"date-picker-no-icon\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\ntriggerShowIcon={false}\nplaceholder=\"Choose a date\"\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>",
+          "code": "// Desktop\n<DatePicker\nid=\"date-picker-no-icon\"\ntriggerDateFormat=\"MM/dd/yy\"\nsize=\"lg\"\ntriggerShowIcon={false}\nplaceholder=\"Choose a date\"\nvalue={selectedDate}\nonChange={setSelectedDate}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <DatePicker\n    id=\"date-picker-no-icon\"\n    triggerDateFormat=\"MMM d, yyyy\"\n    triggerShowIcon={false}\n    placeholder=\"Choose a date\"\n    value={selectedDate}\n    onChange={setSelectedDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Remove the calendar icon from the trigger by setting triggerShowIcon to false."
         }
       ],
@@ -2149,22 +2149,22 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [value, setValue] = useState<DateRange | null>(null)\n\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>",
+          "code": "const [value, setValue] = useState<DateRange | null>(null)\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Dates\">\n  <DateRangePicker\n    triggerShowIcon={false}\n    triggerDateFormat=\"MMM d\"\n    placeholder=\"None\"\n    value={value}\n    onChange={setValue}\n    shortcuts={dayShortcuts}\n  />\n</Field>\n</FieldGroup>",
           "details": "Pass the range ([start, end] luxon DateTimes, or null) as value and update it in onChange. When a shortcut was picked, onChange receives that shortcut as its second argument."
         },
         {
           "name": "Limits",
-          "code": "const today = DateTime.local()\nconst minDate = today.minus({ days: 30 }).startOf(\"day\")\nconst maxDate = today.endOf(\"day\")\nconst [value, setValue] = useState<DateRange | null>([\nDateTime.max(minDate, today.startOf(\"month\")),\nDateTime.min(maxDate, today.endOf(\"month\")),\n])\n\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  triggerShowIcon\n  value={value}\n  onChange={setValue}\n  min={minDate}\n  max={maxDate}\n/>\n</div>",
+          "code": "const today = DateTime.local()\nconst minDate = today.minus({ days: 30 }).startOf(\"day\")\nconst maxDate = today.endOf(\"day\")\nconst [value, setValue] = useState<DateRange | null>([\nDateTime.max(minDate, today.startOf(\"month\")),\nDateTime.min(maxDate, today.endOf(\"month\")),\n])\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  triggerShowIcon\n  value={value}\n  onChange={setValue}\n  min={minDate}\n  max={maxDate}\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Dates\">\n  <DateRangePicker\n    triggerShowIcon={false}\n    triggerDateFormat=\"MMM d\"\n    placeholder=\"None\"\n    value={value}\n    onChange={setValue}\n    min={minDate}\n    max={maxDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Use min and max to limit the selectable range. Use maxRangeDays to limit the range length. Here minDate is 30 days ago (start of day) and maxDate is the end of today."
         },
         {
           "name": "Shortcuts",
-          "code": "const dayShortcuts: DateRangeShortcut[] = [\n{\n  label: \"Today\",\n  getDateRange: () => {\n    const today = DateTime.local()\n    return [today.startOf(\"day\"), today.endOf(\"day\")]\n  },\n},\n{\n  label: \"Yesterday\",\n  getDateRange: () => {\n    const yesterday = DateTime.local().minus({ days: 1 })\n    return [yesterday.startOf(\"day\"), yesterday.endOf(\"day\")]\n  },\n},\n{\n  label: \"Last 7 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 6 }).startOf(\"day\"), today]\n  },\n},\n{\n  label: \"Last 30 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 29 }).startOf(\"day\"), today]\n  },\n},\n]\nconst [value, setValue] = useState<DateRange | null>(null)\n\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>",
+          "code": "const dayShortcuts: DateRangeShortcut[] = [\n{\n  label: \"Today\",\n  getDateRange: () => {\n    const today = DateTime.local()\n    return [today.startOf(\"day\"), today.endOf(\"day\")]\n  },\n},\n{\n  label: \"Yesterday\",\n  getDateRange: () => {\n    const yesterday = DateTime.local().minus({ days: 1 })\n    return [yesterday.startOf(\"day\"), yesterday.endOf(\"day\")]\n  },\n},\n{\n  label: \"Last 7 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 6 }).startOf(\"day\"), today]\n  },\n},\n{\n  label: \"Last 30 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 29 }).startOf(\"day\"), today]\n  },\n},\n]\nconst [value, setValue] = useState<DateRange | null>(null)\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Dates\">\n  <DateRangePicker\n    triggerShowIcon={false}\n    triggerDateFormat=\"MMM d\"\n    placeholder=\"None\"\n    value={value}\n    onChange={setValue}\n    shortcuts={dayShortcuts}\n  />\n</Field>\n</FieldGroup>",
           "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled."
         },
         {
           "name": "Month stepper",
-          "code": "const today = DateTime.local()\nconst maxDate = today.endOf(\"day\")\nconst [value, setValue] = useState<DateRange | null>([today.startOf(\"month\"), today])\n\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  clearable\n  pill\n  triggerStepperUnit=\"month\"\n  value={value}\n  onChange={setValue}\n  max={maxDate}\n/>\n</div>",
+          "code": "const today = DateTime.local()\nconst maxDate = today.endOf(\"day\")\nconst [value, setValue] = useState<DateRange | null>([today.startOf(\"month\"), today])\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  clearable\n  pill\n  triggerStepperUnit=\"month\"\n  value={value}\n  onChange={setValue}\n  max={maxDate}\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Month\">\n  <DateRangePicker\n    triggerStepperUnit=\"month\"\n    value={value}\n    onChange={setValue}\n    max={maxDate}\n  />\n</Field>\n</FieldGroup>",
           "details": "Enable a stepper in the trigger with triggerStepperUnit=\"month\". When the selected range matches the unit, the trigger shows the stepper."
         }
       ],
@@ -3320,47 +3320,47 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>12 results</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>12 results</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone: the group is the value of a row; with a prefix the rows take columns.\n<FieldGroup columns>\n<Field row label=\"Website\" errorMessage={invalid ? \"Enter a valid address.\" : undefined}>\n  {(control) => (\n    <InputGroup disabled={disabled} invalid={invalid}>\n      <InputGroup.Input {...control} placeholder=\"acme.com\" inputMode=\"url\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon>\n        <InputGroup.Text>https://</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Amount\">\n  {(control) => (\n    <InputGroup disabled={disabled}>\n      <InputGroup.Input {...control} placeholder=\"0.00\" inputMode=\"decimal\" />\n      <InputGroup.Addon>\n        <InputGroup.Text>$</InputGroup.Text>\n      </InputGroup.Addon>\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>USD</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
           "details": "Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons."
         },
         {
           "name": "Variants",
-          "code": "<InputGroup variant=\"outline\">...</InputGroup>\n<InputGroup variant=\"soft\">...</InputGroup>",
-          "details": "Use variant to stylize the group, like Input."
+          "code": "// Desktop\n<InputGroup variant=\"outline\">...</InputGroup>\n<InputGroup variant=\"soft\">...</InputGroup>\n\n// Phone\n<FieldGroup columns>\n<Field row label=\"Website\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"acme.com\" inputMode=\"url\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon>\n        <InputGroup.Text>https://</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
+          "details": "Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border."
         },
         {
           "name": "Sizes",
-          "code": "<InputGroup size=\"lg\">\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button>Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
-          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset."
+          "code": "// Desktop\n<InputGroup size=\"lg\">\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button>Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone\n<FieldGroup columns>\n<Field row label=\"Website\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"acme.com\" inputMode=\"url\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon>\n        <InputGroup.Text>https://</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Amount\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"0.00\" inputMode=\"decimal\" />\n      <InputGroup.Addon>\n        <InputGroup.Text>$</InputGroup.Text>\n      </InputGroup.Addon>\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>USD</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
+          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height."
         },
         {
           "name": "Align",
-          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Ada Lovelace\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>Full name</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Input placeholder=\"Ada Lovelace\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>Full name</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone\n<FieldGroup columns>\n<Field row label=\"Amount\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"0.00\" inputMode=\"decimal\" />\n      <InputGroup.Addon align=\"inline-start\">\n        <InputGroup.Text>$</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Weight\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"0\" inputMode=\"decimal\" />\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>kg</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
           "details": "Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position."
         },
         {
           "name": "Text",
-          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"0.00\" inputMode=\"decimal\" />\n<InputGroup.Addon>\n  <InputGroup.Text>$</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>USD</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Input placeholder=\"0.00\" inputMode=\"decimal\" />\n<InputGroup.Addon>\n  <InputGroup.Text>$</InputGroup.Text>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>USD</InputGroup.Text>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone: a counter is the group's footer.\n<FieldGroup columns>\n<Field row label=\"Amount\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"0.00\" inputMode=\"decimal\" />\n      <InputGroup.Addon>\n        <InputGroup.Text>$</InputGroup.Text>\n      </InputGroup.Addon>\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>USD</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Website\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"acme.com\" inputMode=\"url\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon>\n        <InputGroup.Text>https://</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Email\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"name\" inputMode=\"email\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>@plexui.com</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>\n<FieldGroup footer={`${280 - post.length} characters left`}>\n<Field row orientation=\"vertical\" label=\"Post\">\n  <Textarea variant=\"ghost\" placeholder=\"What's happening?\" maxLength={280} value={post} onChange={(event) => setPost(event.target.value)} autoResize rows={2} />\n</Field>\n</FieldGroup>",
           "details": "Use InputGroup.Text for prefixes, suffixes, units and counters. Clicking text or icons in an addon focuses the field."
         },
         {
           "name": "Button",
-          "code": "<InputGroup>\n<InputGroup.Input placeholder=\"Search the docs...\" />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button variant=\"soft\">Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Input placeholder=\"Search the docs...\" />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button variant=\"soft\">Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone: the main action is the button under the rows.\n<FieldGroup columns>\n<Field row label=\"Link\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} defaultValue=\"plexui.com/r/input-group\" readOnly />\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Button uniform aria-label=\"Copy link\">\n          <Copy />\n        </InputGroup.Button>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Card\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"Card number\" inputMode=\"numeric\" autoComplete=\"cc-number\" />\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>\n<Button color=\"primary\" size=\"3xl\" pill block>Pay</Button>",
           "details": "InputGroup.Button is a Button that defaults to ghost and secondary and takes its size from the group. Pass uniform for icon buttons."
         },
         {
           "name": "Dropdown",
-          "code": "const UNITS = [\n{ value: \"kg\", label: \"Kilograms\" },\n{ value: \"lb\", label: \"Pounds\" },\n{ value: \"st\", label: \"Stones\" },\n]\nconst [unit, setUnit] = useState(\"kg\")\n\nreturn (\n<InputGroup>\n  <InputGroup.Input defaultValue=\"72\" inputMode=\"decimal\" aria-label=\"Weight\" />\n  <InputGroup.Addon>\n    <InputGroup.Text>Weight</InputGroup.Text>\n  </InputGroup.Addon>\n  <InputGroup.Addon align=\"inline-end\">\n    <Menu>\n      <Menu.Trigger>\n        <InputGroup.Button aria-label=\"Weight unit\">\n          {unit}\n          <ChevronDownMd />\n        </InputGroup.Button>\n      </Menu.Trigger>\n      <Menu.Content align=\"end\" minWidth={160}>\n        {UNITS.map((item) => (\n          <Menu.CheckboxItem\n            key={item.value}\n            checked={unit === item.value}\n            onCheckedChange={() => setUnit(item.value)}\n            indicatorVariant=\"ghost\"\n          >\n            {item.label} ({item.value})\n          </Menu.CheckboxItem>\n        ))}\n      </Menu.Content>\n    </Menu>\n  </InputGroup.Addon>\n</InputGroup>\n)",
+          "code": "const UNITS = [\n{ value: \"kg\", label: \"Kilograms\" },\n{ value: \"lb\", label: \"Pounds\" },\n{ value: \"st\", label: \"Stones\" },\n]\nconst [unit, setUnit] = useState(\"kg\")\n\n// Desktop\nreturn (\n<InputGroup>\n  <InputGroup.Input defaultValue=\"72\" inputMode=\"decimal\" aria-label=\"Weight\" />\n  <InputGroup.Addon>\n    <InputGroup.Text>Weight</InputGroup.Text>\n  </InputGroup.Addon>\n  <InputGroup.Addon align=\"inline-end\">\n    <Menu>\n      <Menu.Trigger>\n        <InputGroup.Button aria-label=\"Weight unit\">\n          {unit}\n          <ChevronDownMd />\n        </InputGroup.Button>\n      </Menu.Trigger>\n      <Menu.Content align=\"end\" minWidth={160}>\n        {UNITS.map((item) => (\n          <Menu.CheckboxItem\n            key={item.value}\n            checked={unit === item.value}\n            onCheckedChange={() => setUnit(item.value)}\n            indicatorVariant=\"ghost\"\n          >\n            {item.label} ({item.value})\n          </Menu.CheckboxItem>\n        ))}\n      </Menu.Content>\n    </Menu>\n  </InputGroup.Addon>\n</InputGroup>\n)\n\n// Phone\n<FieldGroup>\n<Field row label=\"Weight\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} defaultValue=\"72\" inputMode=\"decimal\" />\n      <InputGroup.Addon align=\"inline-end\">\n        <Menu>\n          <Menu.Trigger>\n            <InputGroup.Button aria-label={`Unit: ${weightUnit}`} className=\"text-secondary font-normal\">\n              {weightUnit}\n              <span className=\"ms-1\"><DropdownIcon iconType=\"dropdown\" /></span>\n            </InputGroup.Button>\n          </Menu.Trigger>\n          <Menu.Content align=\"end\" minWidth=\"auto\">\n            {units.map((unit) => (\n              <Menu.CheckboxItem\n                key={unit.value}\n                checked={weightUnit === unit.value}\n                onCheckedChange={() => setWeightUnit(unit.value)}\n                indicatorPosition=\"start\"\n                indicatorVariant=\"ghost\"\n              >\n                {unit.label}\n              </Menu.CheckboxItem>\n            ))}\n          </Menu.Content>\n        </Menu>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
           "details": "Wrap an InputGroup.Button in a Menu to pick a unit of measurement next to the value."
         },
         {
           "name": "Spinner",
-          "code": "<InputGroup>\n<InputGroup.Input defaultValue=\"Saving changes\" readOnly />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>Saving...</InputGroup.Text>\n  <LoadingIndicator />\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Input defaultValue=\"Saving changes\" readOnly />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>Saving...</InputGroup.Text>\n  <LoadingIndicator />\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Library\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} defaultValue=\"Searching...\" readOnly />\n      <InputGroup.Addon align=\"inline-end\">\n        <LoadingIndicator />\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
           "details": "Show a LoadingIndicator in an addon while a value is searched or saved."
         },
         {
           "name": "Textarea",
-          "code": "<InputGroup>\n<InputGroup.Textarea placeholder=\"console.log('Hello, world!');\" rows={4} className=\"font-mono\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>\n    <FileCode />\n    script.js\n  </InputGroup.Text>\n  <InputGroup.Button uniform aria-label=\"Copy\" className=\"ml-auto\">\n    <Copy />\n  </InputGroup.Button>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"block-end\">\n  <InputGroup.Text>Line 1, Column 1</InputGroup.Text>\n  <InputGroup.Button variant=\"solid\" color=\"primary\" className=\"ml-auto\">\n    Run\n    <Play />\n  </InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>",
+          "code": "// Desktop\n<InputGroup>\n<InputGroup.Textarea placeholder=\"console.log('Hello, world!');\" rows={4} className=\"font-mono\" />\n<InputGroup.Addon align=\"block-start\">\n  <InputGroup.Text>\n    <FileCode />\n    script.js\n  </InputGroup.Text>\n  <InputGroup.Button uniform aria-label=\"Copy\" className=\"ml-auto\">\n    <Copy />\n  </InputGroup.Button>\n</InputGroup.Addon>\n<InputGroup.Addon align=\"block-end\">\n  <InputGroup.Text>Line 1, Column 1</InputGroup.Text>\n  <InputGroup.Button variant=\"solid\" color=\"primary\" className=\"ml-auto\">\n    Run\n    <Play />\n  </InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone: the header is the row's label, the status line the group's footer.\n<FieldGroup footer=\"Line 1, Column 1\">\n<Field row orientation=\"vertical\" label=\"script.js\">\n  <Textarea variant=\"ghost\" placeholder=\"console.log('Hello, world!');\" rows={4} className=\"font-mono\" />\n</Field>\n</FieldGroup>\n<Button color=\"primary\" size=\"3xl\" pill block>Run</Button>",
           "details": "With InputGroup.Textarea, use block-start and block-end addons for a header and a footer. Utility classes such as ml-auto push a button to the far side."
         }
       ],
@@ -4966,66 +4966,66 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [value, setValue] = useState(\"\")\nconst placeholder = \"Select date...\"\n\nreturn (\n<Menu>\n  <Menu.Trigger>\n    <SelectControl className=\"w-[200px]\" selected={!!value} onClearClick={() => setValue(\"\")} StartIcon={CalendarAlt}>\n      {value || placeholder}\n    </SelectControl>\n  </Menu.Trigger>\n  <Menu.Content minWidth={200} width={200}>\n    <Menu.RadioGroup value={value} onChange={setValue}>\n      <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n      <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n      <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n      <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n    </Menu.RadioGroup>\n  </Menu.Content>\n</Menu>\n)"
+          "code": "const [value, setValue] = useState(\"\")\n\n// Desktop\n<Menu>\n<Menu.Trigger>\n  <SelectControl className=\"w-[200px]\" selected={!!value} onClearClick={() => setValue(\"\")} StartIcon={CalendarAlt}>\n    {value || \"Select date...\"}\n  </SelectControl>\n</Menu.Trigger>\n<Menu.Content minWidth={200} width={200}>\n  <Menu.RadioGroup value={value} onChange={setValue}>\n    <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n    <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n    <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n    <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n  </Menu.RadioGroup>\n</Menu.Content>\n</Menu>\n\n// Phone: the control is the value of a row; its label reaches the trigger, and None clears it.\n<FieldGroup>\n<Field row label=\"Period\">\n  {(control) => (\n    <Menu>\n      <Menu.Trigger>\n        <SelectControl {...control} selected={!!value}>\n          {value || \"None\"}\n        </SelectControl>\n      </Menu.Trigger>\n      <Menu.Content minWidth={200} align=\"end\">\n        <Menu.RadioGroup value={value} onChange={setValue}>\n          <Menu.RadioItem value=\"\">None</Menu.RadioItem>\n          <Menu.RadioItem value=\"Today\">Today</Menu.RadioItem>\n          <Menu.RadioItem value=\"Last week\">Last week</Menu.RadioItem>\n          <Menu.RadioItem value=\"Last month\">Last month</Menu.RadioItem>\n          <Menu.RadioItem value=\"Last 3 months\">Last 3 months</Menu.RadioItem>\n        </Menu.RadioGroup>\n      </Menu.Content>\n    </Menu>\n  )}\n</Field>\n</FieldGroup>"
         },
         {
           "name": "Variants",
-          "code": "<div className=\"flex w-full min-w-0 max-w-[400px] flex-col gap-6\">\n<SelectControl className=\"w-full\" variant=\"soft\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n<SelectControl className=\"w-full\" variant=\"outline\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n<SelectControl className=\"w-full\" variant=\"ghost\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n</div>",
+          "code": "// Desktop\n<div className=\"flex w-full min-w-0 max-w-[400px] flex-col gap-6\">\n<SelectControl className=\"w-full\" variant=\"soft\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n<SelectControl className=\"w-full\" variant=\"outline\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n<SelectControl className=\"w-full\" variant=\"ghost\" selected StartIcon={Cabinet} onClearClick={() => {}}>Sample value</SelectControl>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Folder\" errorMessage={invalid ? \"Choose a folder you can edit.\" : undefined}>\n  <SelectControl selected invalid={invalid} disabled={disabled}>Sample value</SelectControl>\n</Field>\n</FieldGroup>",
           "details": "Use the variant prop to stylize the select control. Available variant styles are similar to {\"\"}, but aligned with subtle differences from {\"\"} variant treatments."
         },
         {
           "name": "Sizing & roundness",
-          "code": "<SelectControl size=\"md\" pill={false} dropdownIconType=\"none\">Select...</SelectControl>\n<SelectControl size=\"md\" loading>Select...</SelectControl>\n<SelectControl size=\"md\">Select...</SelectControl>\n<SelectControl size=\"md\" StartIcon={Tools} dropdownIconType=\"none\">Tool calls</SelectControl>\n...",
-          "details": "Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill."
+          "code": "// Desktop\n<SelectControl size=\"md\" pill={false} dropdownIconType=\"none\">Select...</SelectControl>\n<SelectControl size=\"md\" loading>Select...</SelectControl>\n<SelectControl size=\"md\">Select...</SelectControl>\n<SelectControl size=\"md\" StartIcon={Tools} dropdownIconType=\"none\">Tool calls</SelectControl>\n...\n\n// Phone\n<FieldGroup>\n<Field row label=\"Model\">\n  <SelectControl>None</SelectControl>\n</Field>\n<Field row label=\"Tools\">\n  <SelectControl loading>Loading...</SelectControl>\n</Field>\n<Field row label=\"Date\">\n  <SelectControl selected>Today</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Sizing of the control is determined with the size prop. Each size provides dynamic values for various aspects of the control, including icon and indicator placement, as well font-size and gutter values.Create fully rounded controls with the pill prop. When pill is set, extra horizontal gutter is dynamically applied, and the clear action is also set to pill. On Phone the row sets the control's size, so a row's control takes no size or pill."
         },
         {
           "name": "Selected",
-          "code": "<SelectControl selected={false}>Select...</SelectControl>",
-          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you."
+          "code": "// Desktop\n<SelectControl selected={false}>Select...</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Fruit\">\n  <SelectControl selected={false}>Mango</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Use selected to indicate if the control has a selected value, which toggles visual placeholder styling.As you'll notice here, this doesn't do anything to the content of the control. That's up to you. In a phone row a selected value takes the secondary label color (the primary one in a group with columns), a placeholder the tertiary one."
         },
         {
           "name": "Start icon",
-          "code": "<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>",
-          "details": "Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically."
+          "code": "// Desktop\n<SelectControl StartIcon={CalendarAlt}>Select date...</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <SelectControl>None</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Use StartIcon to display an icon in the control. Sizing, spacing, and coloring are handled automatically. In a phone row the value stands alone at the row's end, so the row's control has no start icon."
         },
         {
           "name": "Dropdown icon",
-          "code": "<SelectControl selected dropdownIconType=\"dropdown\" StartIcon={CalendarAlt}>Select date...</SelectControl>",
-          "details": "Use dropdownIconType to control the presentation of the dropdown indicator."
+          "code": "// Desktop\n<SelectControl selected dropdownIconType=\"dropdown\" StartIcon={CalendarAlt}>Select date...</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <SelectControl selected>Today</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Use dropdownIconType to control the presentation of the dropdown indicator. In a phone row the default indicator is the up-down chevrons of an iOS pop-up button."
         },
         {
           "name": "Clearable",
-          "code": "<SelectControl selected onClearClick={() => setValue(\"\")} StartIcon={CalendarAlt}>\n{value || \"Select...\"}\n</SelectControl>",
+          "code": "// Desktop\n<SelectControl selected onClearClick={() => setValue(\"\")} StartIcon={CalendarAlt}>\n{value || \"Select...\"}\n</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <SelectControl selected={!!value} onClearClick={() => setValue(\"\")}>\n    {value || \"None\"}\n  </SelectControl>\n</Field>\n</FieldGroup>",
           "details": "Pass a callback onClearClick to enable the clearable action."
         },
         {
           "name": "Loading",
-          "code": "<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>",
+          "code": "// Desktop\n<SelectControl selected loading StartIcon={CalendarAlt}>Loading...</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Calendar\">\n  <SelectControl selected loading>Loading...</SelectControl>\n</Field>\n</FieldGroup>",
           "details": "During loading, the dropdown icon and clear action are automatically hidden, the control is marked aria-busy, and it ignores pointer and keyboard interaction. Use disabled to add visual disablement."
         },
         {
           "name": "Invalid",
-          "code": "<SelectControl invalid selected>Pineapple on pizza</SelectControl>",
-          "details": "Use invalid to visually indicate the control is in an invalid state."
+          "code": "// Desktop\n<SelectControl invalid selected>Pineapple on pizza</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Topping\" errorMessage=\"Choose another topping.\">\n  <SelectControl invalid selected>Pineapple</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Use invalid to visually indicate the control is in an invalid state. A row has no frame to color: on Phone, pair invalid with the row's errorMessage."
         },
         {
           "name": "Disabled",
-          "code": "<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>",
+          "code": "// Desktop\n<SelectControl disabled selected StartIcon={User}>Reader</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Role\">\n  <SelectControl disabled selected>Reader</SelectControl>\n</Field>\n</FieldGroup>",
           "details": "Use disabled to both visually and accessibly disable the control."
         },
         {
           "name": "Block",
-          "code": "<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<SelectControl block size=\"lg\" StartIcon={CalendarAlt}>Select...</SelectControl>\n</div>",
-          "details": "Create full-width controls with the block prop."
+          "code": "// Desktop\n<div className=\"w-[290px] text-center p-2 border border-dashed border-alpha/20 rounded-md\">\n<SelectControl block size=\"lg\" StartIcon={CalendarAlt}>Select...</SelectControl>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Date\">\n  <SelectControl>None</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Create full-width controls with the block prop. In a phone row the value sits at the row's end, so the row's control takes no block."
         },
         {
           "name": "Country selector",
-          "code": "const countries = [\n{ value: \"us\", label: \"United States\" },\n{ value: \"gb\", label: \"United Kingdom\" },\n// ...60 countries\n];\n\nconst CountryView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n  {label}\n</span>\n);\n\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPlaceholder=\"Search countries...\"\nTriggerView={CountryView}\nOptionView={CountryView}\nlistMinWidth={300}\n/>",
+          "code": "const countries = [\n{ value: \"us\", label: \"United States\" },\n{ value: \"gb\", label: \"United Kingdom\" },\n// ...60 countries\n];\n\nconst CountryView = ({ value, label }: Option) => (\n<span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n  <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n  {label}\n</span>\n);\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPlaceholder=\"Search countries...\"\nTriggerView={CountryView}\nOptionView={CountryView}\nlistMinWidth={300}\n/>\n\n// Phone: the country at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    OptionView={CountryView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
           "details": "A plain country selector built with Select. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it."
         },
         {
           "name": "Country code selector",
-          "code": "const countries = [\n{ value: \"us\", label: \"United States (+1)\", dialCode: \"+1\" },\n{ value: \"gb\", label: \"United Kingdom (+44)\", dialCode: \"+44\" },\n// ...60 countries\n];\n\nconst CountryTriggerView = ({ value }) => {\nconst country = lookup.get(value);\nreturn (\n  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPredicate={searchPredicate}\nTriggerView={CountryTriggerView}\nlistMinWidth={300}\n/>",
+          "code": "const countries = [\n{ value: \"us\", label: \"United States (+1)\", dialCode: \"+1\" },\n{ value: \"gb\", label: \"United Kingdom (+44)\", dialCode: \"+44\" },\n// ...60 countries\n];\n\nconst CountryTriggerView = ({ value }) => {\nconst country = lookup.get(value);\nreturn (\n  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>\n    <img src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/flags/4x3/${value}.svg`} alt=\"\" width={20} />\n    {country.label} ({country.dialCode})\n  </span>\n);\n};\n\n// Desktop\n<Select\nvalue={country}\noptions={countries}\nonChange={(option) => setCountry(option.value)}\nplaceholder=\"Select country...\"\nsize=\"lg\"\nblock\nsearchPredicate={searchPredicate}\nTriggerView={CountryTriggerView}\nlistMinWidth={300}\n/>\n\n// Phone: the country and its code at the row's end; the flags stay in the list.\n<FieldGroup>\n<Field row label=\"Country\">\n  <Select\n    value={country}\n    options={countries}\n    onChange={(option) => setCountry(option.value)}\n    block={false}\n    align=\"end\"\n    searchPlaceholder=\"Search countries...\"\n    searchPredicate={searchPredicate}\n    OptionView={CountryOptionView}\n    listMinWidth={300}\n  />\n</Field>\n</FieldGroup>",
           "details": "A searchable country selector built with Select. Custom TriggerView and OptionView render flag icons and dial codes. Search matches both country name and dial code."
         },
         {
@@ -5035,8 +5035,8 @@
         },
         {
           "name": "Optical alignment",
-          "code": "<SelectControl selected variant=\"ghost\" opticallyAlign=\"start\">Ghost control</SelectControl>",
-          "details": "Use opticallyAlign with either \"start\" or \"end\" to offset the gutter of the control."
+          "code": "// Desktop\n<SelectControl selected variant=\"ghost\" opticallyAlign=\"start\">Ghost control</SelectControl>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Theme\">\n  <SelectControl selected>System</SelectControl>\n</Field>\n</FieldGroup>",
+          "details": "Use opticallyAlign with either \"start\" or \"end\" to offset the gutter of the control. In a phone row the row aligns the value with its inset, so opticallyAlign is for desktop."
         }
       ],
       "docsUrl": "https://plexui.com/components/select-control"
@@ -5250,26 +5250,27 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "const [fruit, setFruit] = useState(\"\")\n\n<Select\nvalue={fruit}\noptions={fruits}\nonChange={({ value }) => setFruit(value)}\nplaceholder=\"Select a fruit...\"\nname=\"fruits\"\nvariant=\"outline\"\nsize=\"md\"\n/>"
+          "code": "const [fruit, setFruit] = useState(\"\")\n\n// Desktop\n<Select\nvalue={fruit}\noptions={fruits}\nonChange={({ value }) => setFruit(value)}\nplaceholder=\"Select a fruit...\"\nname=\"fruits\"\nvariant=\"outline\"\nsize=\"md\"\n/>\n\n// Phone: the select is the value of a row.\n<FieldGroup>\n<Field row label=\"Fruit\">\n  <Select\n    value={fruit}\n    options={fruits}\n    onChange={({ value }) => setFruit(value)}\n    placeholder=\"None\"\n    name=\"fruits\"\n    block={false}\n    align=\"end\"\n  />\n</Field>\n</FieldGroup>",
+          "details": "Pass the selection as value: a string, or an array of strings with multiple. onChange receives the selected option (or options)."
         },
         {
           "name": "With descriptions",
-          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n<div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n  {children}\n</div>\n);\n\nconst roles = [\n{\n  value: \"owner\",\n  label: \"Owner\",\n  description: (\n    <RoleOptionDescription>\n      Can modify project information and manage project members\n    </RoleOptionDescription>\n  ),\n},\n{\n  value: \"reader\",\n  label: \"Reader\",\n  description: (\n    <RoleOptionDescription>\n      Can make API requests that read or modify data\n    </RoleOptionDescription>\n  ),\n},\n];\n\n<Select\nvalue={role}\noptions={roles}\nplaceholder=\"Select role...\"\nalign=\"start\"\nlistMinWidth={260}\nvariant=\"outline\"\nsize=\"md\"\nonChange={({ value }) => setRole(value)}\nTriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>",
-          "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger."
+          "code": "const RoleOptionDescription = ({ children }: { children: ReactNode }) => (\n<div className=\"font-normal text-secondary text-[0.935em] leading-[1.45]\">\n  {children}\n</div>\n);\n\nconst roles = [\n{\n  value: \"owner\",\n  label: \"Owner\",\n  description: (\n    <RoleOptionDescription>\n      Can modify project information and manage project members\n    </RoleOptionDescription>\n  ),\n},\n{\n  value: \"reader\",\n  label: \"Reader\",\n  description: (\n    <RoleOptionDescription>\n      Can make API requests that read or modify data\n    </RoleOptionDescription>\n  ),\n},\n];\n\n<Select\nvalue={role}\noptions={roles}\nplaceholder=\"Select role...\"\nalign=\"start\"\nlistMinWidth={260}\nvariant=\"outline\"\nsize=\"md\"\nonChange={({ value }) => setRole(value)}\nTriggerStartIcon={role === \"owner\" ? UserLock : User}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Role\">\n  <Select\n    value={role}\n    options={roles}\n    block={false}\n    align=\"end\"\n    listMinWidth={260}\n    onChange={({ value }) => setRole(value)}\n  />\n</Field>\n</FieldGroup>",
+          "details": "Options carrying a description field render a secondary line under each label. The title stays semibold in every state (idle, highlighted, selected). The component handles that automatically, no optionClassName needed. Use TriggerStartIcon to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon."
         },
         {
           "name": "Actions",
-          "code": "<Select\nvalue={value}\nonChange={handleChange}\noptions={items}\nplaceholder=\"Select...\"\nalign=\"start\"\nlistMinWidth={240}\nactions={[\n  { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n  { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n]}\n/>",
+          "code": "// Desktop\n<Select\nvalue={value}\nonChange={handleChange}\noptions={items}\nplaceholder=\"Select...\"\nalign=\"start\"\nlistMinWidth={240}\nactions={[\n  { id: \"create\", label: \"Create project\", Icon: Plus, onSelect: () => {} },\n  { id: \"overview\", label: \"Organization overview\", Icon: Workspace, onSelect: () => {} },\n]}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Project\">\n  <Select\n    value={value}\n    onChange={handleChange}\n    options={items}\n    placeholder=\"None\"\n    block={false}\n    align=\"end\"\n    listMinWidth={240}\n    actions={actions}\n  />\n</Field>\n</FieldGroup>",
           "details": "Custom, arbitrary actions can be displayed below the options list via the actions prop."
         },
         {
           "name": "Grouped options",
-          "code": "<Select\nvalue={value}\noptions={groupedItems}\nonChange={(v) => setValue(v.value)}\nvariant=\"outline\"\nsize=\"lg\"\nside=\"bottom\"\nlistMinWidth={300}\nsearchPlaceholder=\"Select an option...\"\nclearable\n/>",
+          "code": "// Desktop\n<Select\nvalue={value}\noptions={groupedItems}\nonChange={(v) => setValue(v.value)}\nvariant=\"outline\"\nsize=\"lg\"\nside=\"bottom\"\nlistMinWidth={300}\nsearchPlaceholder=\"Select an option...\"\nclearable\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Plan\">\n  <Select\n    value={value}\n    options={groupedItems}\n    onChange={(v) => setValue(v.value)}\n    block={false}\n    align=\"end\"\n    listMinWidth={300}\n    searchPlaceholder=\"Select an option...\"\n  />\n</Field>\n</FieldGroup>",
           "details": "Select supports option groups, similar to the native &lt;optgroup&gt; element. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options."
         },
         {
           "name": "Multiple selection",
-          "code": "<Select\nvariant=\"soft\"\nplaceholder=\"Select fruits...\"\noptions={fruitsOptions}\nname=\"fruits\"\nmultiple\nclearable\nvalue={fruits}\nonChange={(values) => setFruits(values.map(({ value }) => value))}\nTriggerView={MultiFruitTriggerView}\n/>",
+          "code": "// Desktop\n<Select\nvariant=\"soft\"\nplaceholder=\"Select fruits...\"\noptions={fruitsOptions}\nname=\"fruits\"\nmultiple\nclearable\nvalue={fruits}\nonChange={(values) => setFruits(values.map(({ value }) => value))}\nTriggerView={MultiFruitTriggerView}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Fruits\">\n  <Select\n    placeholder=\"None\"\n    options={fruitsOptions}\n    name=\"fruits\"\n    multiple\n    clearable\n    block={false}\n    align=\"end\"\n    value={fruits}\n    onChange={(values) => setFruits(values.map(({ value }) => value))}\n    TriggerView={MultiFruitTriggerView}\n  />\n</Field>\n</FieldGroup>",
           "details": "Multiple selection is supported through the multiple property. This changes how value, onChange, and TriggerView are typed, accepting and returning arrays of values."
         },
         {
@@ -6305,7 +6306,7 @@
         {
           "name": "States",
           "code": "<Stepper aria-label=\"At the lowest value\" defaultValue={0} />\n<Stepper aria-label=\"Disabled\" defaultValue={3} disabled />\n<Stepper aria-label=\"Square ends\" defaultValue={3} pill={false} />",
-          "details": "At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. Set pill to false for square ends, as other controls in a dense layout have."
+          "details": "At the lowest value the minus segment is tertiary. A disabled stepper takes no focus. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS."
         }
       ],
       "docsUrl": "https://plexui.com/components/stepper"
@@ -7127,16 +7128,16 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"w-full min-w-0 max-w-[480px]\">\n<TagInput placeholder=\"Add a tag...\" size=\"md\" rows={1} pill={false} />\n</div>"
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[480px]\">\n<TagInput placeholder=\"Add a tag...\" size=\"md\" rows={1} pill={false} />\n</div>\n\n// Phone: the tags are the value of a row, under its label.\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Tags\">\n  <TagInput variant=\"ghost\" placeholder=\"Add a tag...\" rows={1} />\n</Field>\n</FieldGroup>"
         },
         {
           "name": "Inline filter row",
-          "code": "const FIELD_OPTIONS = [\n{ value: \"email\", label: \"Email\" },\n{ value: \"name\", label: \"Name\" },\n{ value: \"role\", label: \"Role\" },\n{ value: \"team\", label: \"Team\" },\n{ value: \"country\", label: \"Country\" },\n]\n\nconst [field, setField] = useState(\"email\")\nconst [tags, setTags] = useState<Tag[]>([\n{ value: \"ada@plexui.com\", valid: true },\n{ value: \"grace@plexui.com\", valid: true },\n])\nconst fieldLabel = FIELD_OPTIONS.find((option) => option.value === field)?.label ?? \"\"\n\nreturn (\n<div className=\"flex w-full max-w-2xl items-start gap-2\">\n  <Field label=\"Where\" className=\"w-[160px] shrink-0\">\n    <Menu>\n      <Menu.Trigger>\n        <SelectControl size=\"md\" pill={false} selected={!!field} className=\"w-full\">\n          {fieldLabel}\n        </SelectControl>\n      </Menu.Trigger>\n      <Menu.Content minWidth={160} onCloseAutoFocus={(event) => event.preventDefault()}>\n        {FIELD_OPTIONS.map((option) => (\n          <Menu.CheckboxItem\n            key={option.value}\n            checked={field === option.value}\n            onCheckedChange={() => setField(option.value)}\n            indicatorVariant=\"ghost\"\n          >\n            {option.label}\n          </Menu.CheckboxItem>\n        ))}\n      </Menu.Content>\n    </Menu>\n  </Field>\n  <Field label=\"Is in\" className=\"flex-1\">\n    <TagInput size=\"md\" pill={false} value={tags} onChange={setTags} placeholder=\"Add value, press Enter…\" />\n  </Field>\n</div>\n)",
+          "code": "const FIELD_OPTIONS = [\n{ value: \"email\", label: \"Email\" },\n{ value: \"name\", label: \"Name\" },\n{ value: \"role\", label: \"Role\" },\n{ value: \"team\", label: \"Team\" },\n{ value: \"country\", label: \"Country\" },\n]\n\nconst [field, setField] = useState(\"email\")\nconst [tags, setTags] = useState<Tag[]>([\n{ value: \"ada@plexui.com\", valid: true },\n{ value: \"grace@plexui.com\", valid: true },\n])\nconst fieldLabel = FIELD_OPTIONS.find((option) => option.value === field)?.label ?? \"\"\n\n// Desktop\nreturn (\n<div className=\"flex w-full max-w-2xl items-start gap-2\">\n  <Field label=\"Where\" className=\"w-[160px] shrink-0\">\n    <Menu>\n      <Menu.Trigger>\n        <SelectControl size=\"md\" pill={false} selected={!!field} className=\"w-full\">\n          {fieldLabel}\n        </SelectControl>\n      </Menu.Trigger>\n      <Menu.Content minWidth={160} onCloseAutoFocus={(event) => event.preventDefault()}>\n        {FIELD_OPTIONS.map((option) => (\n          <Menu.CheckboxItem\n            key={option.value}\n            checked={field === option.value}\n            onCheckedChange={() => setField(option.value)}\n            indicatorVariant=\"ghost\"\n          >\n            {option.label}\n          </Menu.CheckboxItem>\n        ))}\n      </Menu.Content>\n    </Menu>\n  </Field>\n  <Field label=\"Is in\" className=\"flex-1\">\n    <TagInput size=\"md\" pill={false} value={tags} onChange={setTags} placeholder=\"Add value, press Enter…\" />\n  </Field>\n</div>\n)\n\n// Phone\n<FieldGroup>\n<Field row label=\"Where\">\n  {(control) => (\n    <Menu>\n      <Menu.Trigger>\n        <SelectControl {...control} selected={!!field}>{fieldLabel}</SelectControl>\n      </Menu.Trigger>\n      <Menu.Content minWidth={160} align=\"end\">\n        {FIELD_OPTIONS.map((option) => (\n          <Menu.CheckboxItem\n            key={option.value}\n            checked={field === option.value}\n            onCheckedChange={() => setField(option.value)}\n            indicatorPosition=\"start\"\n            indicatorVariant=\"ghost\"\n          >\n            {option.label}\n          </Menu.CheckboxItem>\n        ))}\n      </Menu.Content>\n    </Menu>\n  )}\n</Field>\n<Field row orientation=\"vertical\" label=\"Is in\">\n  <TagInput variant=\"ghost\" value={tags} onChange={setTags} placeholder=\"Add a value\" />\n</Field>\n</FieldGroup>",
           "details": "When rows=1, TagInput matches the height of an Input or SelectControl of the same size, so it composes cleanly into horizontal filter rows. Toggle pill on both controls to keep the pair visually consistent."
         },
         {
           "name": "Suggestions",
-          "code": "const SUGGESTIONS = ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'AWS'];\n\nconst [tags, setTags] = useState([\n{ value: 'React', valid: true },\n{ value: 'TypeScript', valid: true },\n]);\n\nconst selectedValues = new Set(tags.map((t) => t.value));\nconst available = SUGGESTIONS.filter((s) => !selectedValues.has(s));\n\nreturn (\n<div className=\"flex flex-col gap-3\">\n  <TagInput value={tags} onChange={setTags} placeholder=\"Add a skill...\" size=\"md\" />\n  {available.length > 0 && (\n    <div className=\"flex flex-wrap gap-1.5\">\n      {available.map((s) => (\n        <Button key={s} size=\"xs\" color=\"secondary\" variant=\"soft\" pill={false}\n          onClick={() => setTags([...tags, { value: s, valid: true }])}>\n          {s}\n        </Button>\n      ))}\n    </div>\n  )}\n</div>\n);",
+          "code": "const SUGGESTIONS = ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'AWS'];\n\nconst [tags, setTags] = useState([\n{ value: 'React', valid: true },\n{ value: 'TypeScript', valid: true },\n]);\n\nconst selectedValues = new Set(tags.map((t) => t.value));\nconst available = SUGGESTIONS.filter((s) => !selectedValues.has(s));\n\n// Desktop\nreturn (\n<div className=\"flex flex-col gap-3\">\n  <TagInput value={tags} onChange={setTags} placeholder=\"Add a skill...\" size=\"md\" />\n  {available.length > 0 && (\n    <div className=\"flex flex-wrap gap-1.5\">\n      {available.map((s) => (\n        <Button key={s} size=\"xs\" color=\"secondary\" variant=\"soft\" pill={false}\n          onClick={() => setTags([...tags, { value: s, valid: true }])}>\n          {s}\n        </Button>\n      ))}\n    </div>\n  )}\n</div>\n);\n\n// Phone: the suggestions follow the group.\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Skills\">\n  <TagInput variant=\"ghost\" value={tags} onChange={setTags} placeholder=\"Add a skill...\" />\n</Field>\n</FieldGroup>\n{available.length > 0 && (\n<FieldGroup title=\"Suggestions\">\n  {available.map((s) => (\n    <Field row key={s} label={s}>\n      <Button color=\"primary\" variant=\"ghost\" aria-label={`Add ${s}`} onClick={() => setTags([...tags, { value: s, valid: true }])}>\n        Add\n      </Button>\n    </Field>\n  ))}\n</FieldGroup>\n)}",
           "details": "Combine TagInput with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected."
         }
       ],
@@ -7262,9 +7263,9 @@
         },
         {
           "name": "variant",
-          "type": "\"outline\" | \"soft\"",
+          "type": "\"outline\" | \"soft\" | \"ghost\"",
           "default": "\"outline\"",
-          "description": "Visual style of the textarea"
+          "description": "Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it"
         },
         {
           "name": "size",
@@ -7343,41 +7344,41 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" autoResize rows={3} />\n</div>"
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" autoResize rows={3} />\n</div>\n\n// Phone: the textarea is the value of a row, under its label.\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" placeholder=\"Add a note\" autoResize rows={2} />\n</Field>\n</FieldGroup>"
         },
         {
           "name": "Variants",
-          "code": "<div className=\"flex flex-col gap-6 w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" variant=\"outline\" rows={3} />\n<Textarea placeholder=\"Enter text...\" variant=\"soft\" rows={3} />\n</div>",
-          "details": "Use variant to stylize the textarea."
+          "code": "// Desktop\n<div className=\"flex flex-col gap-6 w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Enter text...\" variant=\"outline\" rows={3} />\n<Textarea placeholder=\"Enter text...\" variant=\"soft\" rows={3} />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Note for the courier\">\n  <Textarea variant=\"ghost\" placeholder=\"Gate code, floor, a safe place to leave it\" autoResize rows={2} />\n</Field>\n</FieldGroup>",
+          "details": "Use variant to stylize the textarea. ghost has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is ghost under the row's label."
         },
         {
           "name": "Auto resize",
-          "code": "const [value, setValue] = useState(\"Line 1\\nLine 2\\nLine 3\")\n\nreturn (\n<div className=\"w-full min-w-0 max-w-[400px]\">\n  <Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder=\"Type to grow...\" autoResize rows={3} maxRows={8} />\n</div>\n)",
-          "details": "Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows."
+          "code": "const [value, setValue] = useState(\"Line 1\\nLine 2\\nLine 3\")\n\n// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder=\"Type to grow...\" autoResize rows={3} maxRows={8} />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" value={value} onChange={(e) => setValue(e.target.value)} placeholder=\"Type to grow...\" autoResize rows={3} maxRows={8} />\n</Field>\n</FieldGroup>",
+          "details": "Enable autoResize to automatically grow/shrink the textarea as the user types. Control the bounds with rows (initial height) and maxRows. On Phone the row grows with it."
         },
         {
           "name": "Sizing",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Write a message...\" size=\"lg\" gutterSize=\"md\" />\n</div>",
-          "details": "Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently."
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea placeholder=\"Write a message...\" size=\"lg\" gutterSize=\"md\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Message\">\n  <Textarea variant=\"ghost\" placeholder=\"Write a message...\" rows={4} />\n</Field>\n</FieldGroup>",
+          "details": "Sizing of the textarea is controlled with size and gutterSize props. size sets the textarea to a specific control height for single-line equivalent, and gutterSize sets the horizontal padding.Each size provides default values for gutterSize, as well as font-size and border-radius. Each of these values can be overridden independently.On Phone the row sets the type and insets, so a textarea in a row takes no size or gutterSize; rows sets its height."
         },
         {
           "name": "Disabled",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea disabled defaultValue=\"Jane Doe\" aria-label=\"Name\" />\n</div>",
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea disabled defaultValue=\"Jane Doe\" aria-label=\"Name\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" disabled defaultValue=\"Leave it at the front desk.\" autoResize rows={2} />\n</Field>\n</FieldGroup>",
           "details": "Use the disabled prop to disable the textarea, greying it out and preventing user interactions."
         },
         {
           "name": "Invalid",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea invalid placeholder=\"Invalid textarea\" />\n</div>",
-          "details": "Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling."
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea invalid placeholder=\"Invalid textarea\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Reference\" errorMessage={invalid ? \"Keep it under 140 characters.\" : undefined}>\n  <Textarea variant=\"ghost\" defaultValue={reference} invalid={invalid} autoResize rows={2} />\n</Field>\n</FieldGroup>",
+          "details": "Use the invalid prop to mark the textarea as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling.On Phone the row is the frame, so the error is the errorMessage line under the row."
         },
         {
           "name": "Auto select text",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} aria-label=\"Notes\" />\n</div>",
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea defaultValue=\"Toggle to auto select\" autoSelect={false} aria-label=\"Notes\" />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Notes\">\n  <Textarea variant=\"ghost\" defaultValue=\"Toggle to auto select\" autoSelect={false} autoResize rows={2} />\n</Field>\n</FieldGroup>",
           "details": "Pass autoSelect to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
         },
         {
           "name": "Autofill extensions",
-          "code": "<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea name=\"email\" placeholder=\"Allowed\" allowAutofillExtensions />\n</div>",
+          "code": "// Desktop\n<div className=\"w-full min-w-0 max-w-[400px]\">\n<Textarea name=\"email\" placeholder=\"Allowed\" allowAutofillExtensions />\n</div>\n\n// Phone\n<FieldGroup>\n<Field row orientation=\"vertical\" label=\"Address\">\n  <Textarea variant=\"ghost\" name=\"address\" autoComplete=\"street-address\" placeholder=\"Allowed\" allowAutofillExtensions autoResize rows={2} />\n</Field>\n</FieldGroup>",
           "details": "By default, autofill extensions are prevented by Textarea. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling.When name is passed this value will default to true."
         }
       ],
@@ -7678,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T18:59:54.717Z"
+  "generatedAt": "2026-11-06T21:46:33.300Z"
 }

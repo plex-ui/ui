@@ -470,6 +470,20 @@
     line-height: var(--field-row-label-line-height);
   }
 
+  /* A value the person cannot edit (a read-only field) is the secondary label, as iOS
+     shows the values of a row that only informs, such as Settings, General, About. */
+  .Field:where([data-row]) .Control [data-slot="input"] > input[readonly],
+  .Field:where([data-row]) .Control [data-slot="input-group-control"][readonly] {
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+  }
+
+  /* A value or placeholder longer than its room ends in an ellipsis while it is not
+     being edited, as a text field of an iOS form does. */
+  .Field:where([data-row]) .Control [data-slot="input"] > input,
+  .Field:where([data-row]) .Control [data-slot="input-group-control"] {
+    text-overflow: ellipsis;
+  }
+
   /* Keep textarea row measurement consistent with the visible line box. */
   .Field:where([data-row]) .Control > [data-variant]:has(> textarea) {
     --textarea-line-height: var(--field-row-label-line-height);

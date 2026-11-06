@@ -38,6 +38,7 @@ const DEFAULT_STAGE = 'flex-1 flex flex-col items-center justify-center py-12 w-
 export function VueDemo({
   template,
   controls = [],
+  hiddenControls = [],
   reactiveControlDefaults = false,
   state,
   context,
@@ -48,6 +49,8 @@ export function VueDemo({
 }: {
   template: string;
   controls?: VueDemoControl[];
+  /** Names of controls that keep their value but are not shown, such as the desktop controls of a phone layout */
+  hiddenControls?: readonly string[];
   /** Apply changing defaults until a control is explicitly changed; preserve the mounted form. */
   reactiveControlDefaults?: boolean;
   /** Initial values the template reads and may change (`v-model:value="value"`) */
@@ -115,7 +118,8 @@ export function VueDemo({
       }}
     />
   );
-  if (controls.length === 0) {
+  const shownControls = controls.filter((control) => !hiddenControls.includes(control.name));
+  if (shownControls.length === 0) {
     return stageClassName ? (
       <div className={stageClassName} data-demo-stage>
         {preview}
@@ -128,7 +132,7 @@ export function VueDemo({
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        {controls.map((control) =>
+        {shownControls.map((control) =>
           control.type === 'boolean' ? (
             <DemoControlBoolean
               key={control.name}

@@ -7,8 +7,8 @@ import { Input } from '@plexui/ui/components/Input';
 import { Select, type Option } from '@plexui/ui/components/Select';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { FormScreen } from './FormRowsDemos';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldError } from '@plexui/ui/components/FieldError';
 
@@ -426,7 +426,34 @@ export function CountryCodeSelectorDemo() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [pill, setPill] = useState(false);
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
+  const phone = usePhoneRows();
 
+  if (phone) {
+    // The value of a row: the country at the row's end; the flags stay in the list.
+    return (
+      <>
+        <style>{COUNTRY_OPTION_STYLE}</style>
+        <PhoneRowsStage>
+          <FieldGroup>
+            <Field row label="Country">
+              <Select
+                value={country}
+                options={COUNTRY_OPTIONS}
+                onChange={(option) => setCountry(option.value)}
+                block={false}
+                align="end"
+                searchPlaceholder="Search countries..."
+                searchPredicate={countrySearchPredicate}
+                OptionView={CountryOptionView}
+                listMinWidth={300}
+                optionClassName={COUNTRY_OPTION_CLASS}
+              />
+            </Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      </>
+    );
+  }
   return (
     <>
       <style>{COUNTRY_OPTION_STYLE}</style>
@@ -491,7 +518,33 @@ export function CountrySelectorDemo() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('lg');
   const [pill, setPill] = useState(false);
   const [variant, setVariant] = useState<'outline' | 'soft'>('outline');
+  const phone = usePhoneRows();
 
+  if (phone) {
+    // The value of a row: the country at the row's end; the flags stay in the list.
+    return (
+      <>
+        <style>{COUNTRY_OPTION_STYLE}</style>
+        <PhoneRowsStage>
+          <FieldGroup>
+            <Field row label="Country">
+              <Select
+                value={country}
+                options={COUNTRIES}
+                onChange={(option) => setCountry(option.value)}
+                block={false}
+                align="end"
+                searchPlaceholder="Search countries..."
+                OptionView={CountryNameOptionView}
+                listMinWidth={300}
+                optionClassName={COUNTRY_OPTION_CLASS}
+              />
+            </Field>
+          </FieldGroup>
+        </PhoneRowsStage>
+      </>
+    );
+  }
   return (
     <>
       <style>{COUNTRY_OPTION_STYLE}</style>
@@ -585,8 +638,8 @@ export function PhoneFormDemo() {
 
   };
 
-  const wide = useBreakpoint('md');
-  if (!wide) return (
+  const phoneRows = usePhoneRows();
+  if (phoneRows) return (
     <>
       <style>{COUNTRY_OPTION_STYLE}</style>
       <FormScreen title="Phone number" submitLabel="Continue" onSubmit={handleSubmit} noValidate>

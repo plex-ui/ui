@@ -14,11 +14,13 @@ import {
   DateInputWithFieldDemo,
   DateInputWithFieldErrorDemo,
 } from "@/components/docs/DateInputDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 export const overviewCode = `import { useState } from 'react';
 import { DateTime } from 'luxon';
 import { DateInput } from '@plexui/ui/components/DateInput';
 
+// Desktop
 export default function DateInputExample() {
   const [date, setDate] = useState<DateTime | null>(null);
   const [disabled] = useState(false);
@@ -29,9 +31,18 @@ export default function DateInputExample() {
         clearable disabled={disabled} />
     </div>
   );
-}`
+}
+
+// Phone: the date is the value of a row.
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput value={date} onChange={setDate} clearable disabled={disabled} />
+  </Field>
+</FieldGroup>`
 
 <UsageBlock>{`import { DateInput } from "@plexui/ui/components/DateInput";`}</UsageBlock>
+
+On Phone, put a date input in a row of a `FieldGroup`, as the [Input](/components/input) examples and the [Form Examples](/components/form-examples) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `variant`, `size` and `pill` controls. To pick a date rather than type it, use the compact date of a [Date Picker](/components/date-picker) in the row.
 
 ## Examples
 
@@ -39,31 +50,48 @@ export default function DateInputExample() {
 
 ### Overview
 
-<ComponentPreview details={<>Pass a Luxon <code>DateTime</code> (or <code>null</code>) as <code>value</code> with <code>onChange</code>. <code>onChange</code> fires once a complete, valid date is typed, and with <code>null</code> when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again.</>} code={overviewCode} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass a Luxon <code>DateTime</code> (or <code>null</code>) as <code>value</code> with <code>onChange</code>. <code>onChange</code> fires once a complete, valid date is typed, and with <code>null</code> when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again.</>} code={overviewCode} previewMinHeight={168}>
   <DateInputBaseDemo />
 </ComponentPreview>
 
 ### With time
 
-<ComponentPreview details={<>Pass <code>timeMode="HH:MM"</code> to enable date + time input in one field.</>} code={`<div className="w-[260px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>timeMode="HH:MM"</code> to enable date + time input in one field.</>} code={`// Desktop
+<div className="w-[260px]">
   <DateInput value={date} onChange={setDate} timeMode="HH:MM" clearable />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Starts">
+    <DateInput value={date} onChange={setDate} timeMode="HH:MM" clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DateInputWithTimeDemo />
 </ComponentPreview>
 
 ### With seconds
 
-<ComponentPreview details={<>Use <code>timeMode="HH:MM:SS"</code> for second-level precision.</>} code={`<div className="w-[300px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>timeMode="HH:MM:SS"</code> for second-level precision.</>} code={`// Desktop
+<div className="w-[300px]">
   <DateInput value={date} onChange={setDate} timeMode="HH:MM:SS" clearable />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Logged">
+    <DateInput value={date} onChange={setDate} timeMode="HH:MM:SS" clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DateInputWithSecondsDemo />
 </ComponentPreview>
 
 ### Limits
 
-<ComponentPreview details={<>Use <code>min</code> and <code>max</code> to restrict the date range. The mask prevents entering values outside the allowed range. <code>today</code> is <code>DateTime.local()</code>.</>} code={`const today = DateTime.local()
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>min</code> and <code>max</code> to restrict the date range. The mask prevents entering values outside the allowed range. <code>today</code> is <code>DateTime.local()</code>.</>} code={`const today = DateTime.local()
 const [date, setDate] = useState<DateTime | null>(today)
 
+// Desktop
 <div className="w-[200px]">
   <DateInput
     value={date}
@@ -72,43 +100,88 @@ const [date, setDate] = useState<DateTime | null>(today)
     max={today.plus({ days: 30 }).endOf("day")}
     clearable
   />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput
+      value={date}
+      onChange={setDate}
+      min={today.minus({ days: 30 }).startOf("day")}
+      max={today.plus({ days: 30 }).endOf("day")}
+      clearable
+    />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DateInputLimitsDemo />
 </ComponentPreview>
 
 ### US format
 
-<ComponentPreview details={<>Set <code>mode="mm/dd/yyyy"</code> and <code>separator="/"</code> for US-style date formatting.</>} code={`<div className="w-[200px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>mode="mm/dd/yyyy"</code> and <code>separator="/"</code> for US-style date formatting.</>} code={`// Desktop
+<div className="w-[200px]">
   <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" clearable />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DateInputUSFormatDemo />
 </ComponentPreview>
 
 ### ISO format
 
-<ComponentPreview details={<>Set <code>mode="yyyy/mm/dd"</code> and <code>separator="-"</code> for ISO 8601 formatting.</>} code={`<div className="w-[200px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>mode="yyyy/mm/dd"</code> and <code>separator="-"</code> for ISO 8601 formatting.</>} code={`// Desktop
+<div className="w-[200px]">
   <DateInput value={date} onChange={setDate} mode="yyyy/mm/dd" separator="-" clearable />
-</div>`} previewMinHeight={80}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date">
+    <DateInput value={date} onChange={setDate} mode="yyyy/mm/dd" separator="-" clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={80}>
   <DateInputISOFormatDemo />
 </ComponentPreview>
 
 ### With Field
 
-<ComponentPreview details={<>Wrap with <code>Field</code> to add a label, description, and automatic accessibility attributes.</>} code={`<div className="w-[200px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap with <code>Field</code> to add a label, description, and automatic accessibility attributes.</>} code={`// Desktop
+<div className="w-[200px]">
   <Field label="Date of birth" description="Enter your date of birth">
     <DateInput value={date} onChange={setDate} clearable />
   </Field>
-</div>`} previewMinHeight={100}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date of birth" description="Enter your date of birth">
+    <DateInput value={date} onChange={setDate} clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={100}>
   <DateInputWithFieldDemo />
 </ComponentPreview>
 
 ### Validation
 
-<ComponentPreview details={<>Pass <code>errorMessage</code> to <code>Field</code> to display a validation error.</>} code={`<div className="w-[200px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass <code>errorMessage</code> to <code>Field</code> to display a validation error.</>} code={`// Desktop
+<div className="w-[200px]">
   <Field label="Date of birth" errorMessage={!date ? "Date is required" : undefined}>
     <DateInput value={date} onChange={setDate} clearable />
   </Field>
-</div>`} previewMinHeight={100}>
+</div>
+
+// Phone
+<FieldGroup>
+  <Field row label="Date of birth" errorMessage={!date ? "Date is required" : undefined}>
+    <DateInput value={date} onChange={setDate} clearable />
+  </Field>
+</FieldGroup>`} previewMinHeight={100}>
   <DateInputWithFieldErrorDemo />
 </ComponentPreview>
 

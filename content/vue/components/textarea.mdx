@@ -4,7 +4,9 @@ description: Multi-line text input that can grow with its content, with a size s
 metaDescription: Vue 3 textarea component for multi-line text input with v-model:value, auto-resize, a configurable size scale, autofill extension control, and invalid state styling.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const base = `<div class="w-full min-w-0 max-w-[400px]">
   <Textarea placeholder="Enter text..." auto-resize :rows="3" />
@@ -56,56 +58,122 @@ export const autofillExtensions = `<div class="w-full min-w-0 max-w-[400px]">
   />
 </div>`
 
+export const basePhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" placeholder="Add a note" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>`
+
+export const variantsPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Note for the courier">
+    <Textarea variant="ghost" placeholder="Gate code, floor, a safe place to leave it" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>`
+
+export const autoResizePhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea
+      v-model:value="value"
+      variant="ghost"
+      placeholder="Type to grow..."
+      :auto-resize="autoResize"
+      :rows="Number(rows)"
+      :max-rows="Number(maxRows)"
+    />
+  </Field>
+</FieldGroup>`
+
+export const sizingPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Message">
+    <Textarea variant="ghost" placeholder="Write a message..." :rows="4" />
+  </Field>
+</FieldGroup>`
+
+export const disabledPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" :disabled="disabled" default-value="Leave it at the front desk." auto-resize :rows="2" />
+  </Field>
+</FieldGroup>`
+
+export const invalidPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Reference" :error-message="invalid ? 'Keep it under 140 characters.' : undefined">
+    <Textarea variant="ghost" :default-value="reference" :invalid="invalid" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>`
+
+export const autoSelectPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Notes">
+    <Textarea variant="ghost" default-value="Toggle to auto select" :auto-select="autoSelect" auto-resize :rows="2" />
+  </Field>
+</FieldGroup>`
+
+export const autofillExtensionsPhone = `<FieldGroup>
+  <Field row orientation="vertical" label="Address">
+    <Textarea
+      :key="String(allowAutofillExtensions)"
+      variant="ghost"
+      name="address"
+      autocomplete="street-address"
+      :allow-autofill-extensions="allowAutofillExtensions"
+      :placeholder="allowAutofillExtensions ? 'Allowed' : 'Not allowed'"
+      auto-resize
+      :rows="2"
+    />
+  </Field>
+</FieldGroup>`
+
 <UsageBlock>{`import { Textarea } from "@plexui/vue/components/Textarea";`}</UsageBlock>
+
+On Phone, put a textarea under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Form Examples](/vue/components/form-examples) do. The row is its frame and sets its insets and type, so the Phone previews show rows without the `size`, `gutter-size` and `variant` controls; `rows` sets its height.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" code={base} previewMinHeight={168}>
-  <VueDemo template={base} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(base, basePhone, "the textarea is the value of a row, under its label.")} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={base} phoneTemplate={phoneRows(basePhone)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
 ### Variants
 
-<ComponentPreview language="vue" details={<>Use <code>variant</code> to stylize the textarea.</>} code={variants} previewMinHeight={168}>
-  <VueDemo template={variants} controls={[{ name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>variant</code> to stylize the textarea. <code>ghost</code> has no border and no fill, for a field its container already frames. On Phone the row is the frame, so the textarea is <code>ghost</code> under the row's label.</>} code={withPhone(variants, variantsPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={variants} phoneTemplate={phoneRows(variantsPhone)} phoneStageClassName="w-full" desktopControls={[{ name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }]} />
 </ComponentPreview>
 
 ### Auto resize
 
-<ComponentPreview language="vue" details={<>Enable <code>auto-resize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>max-rows</code>. Bind the text with <code>v-model:value</code>.</>} code={autoResize} previewMinHeight={168}>
-  <VueDemo template={autoResize} state={{ value: "Line 1\nLine 2\nLine 3" }} controls={[{ name: "autoResize", type: "boolean", default: true }, { name: "rows", type: "select", options: ["2", "3", "4", "5"], default: "3" }, { name: "maxRows", type: "select", options: ["4", "6", "8", "10"], default: "8" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable <code>auto-resize</code> to automatically grow/shrink the textarea as the user types. Control the bounds with <code>rows</code> (initial height) and <code>max-rows</code>. Bind the text with <code>v-model:value</code>. On Phone the row grows with it.</>} code={withPhone(autoResize, autoResizePhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={autoResize} phoneTemplate={phoneRows(autoResizePhone)} phoneStageClassName="w-full" state={{ value: "Line 1\nLine 2\nLine 3" }} controls={[{ name: "autoResize", type: "boolean", default: true }, { name: "rows", type: "select", options: ["2", "3", "4", "5"], default: "3" }, { name: "maxRows", type: "select", options: ["4", "6", "8", "10"], default: "8" }]} />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview language="vue" details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutter-size</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutter-size</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutter-size</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.</>} code={sizing} previewMinHeight={168}>
-  <VueDemo template={sizing} controls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" }, { name: "gutterSize", type: "select", options: ["2xs", "xs", "sm", "md", "lg", "xl"], default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Sizing of the textarea is controlled with <code>size</code> and <code>gutter-size</code> props. <code>size</code> sets the textarea to a specific control <code>height</code> for single-line equivalent, and <code>gutter-size</code> sets the horizontal padding.<br /><br />Each <code>size</code> provides default values for <code>gutter-size</code>, as well as <code>font-size</code> and <code>border-radius</code>. Each of these values can be overridden independently.<br /><br />On Phone the row sets the type and insets, so a textarea in a row takes no <code>size</code> or <code>gutter-size</code>; <code>rows</code> sets its height.</>} code={withPhone(sizing, sizingPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={sizing} phoneTemplate={phoneRows(sizingPhone)} phoneStageClassName="w-full" desktopControls={[{ name: "size", type: "select", options: ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], default: "lg" }, { name: "gutterSize", type: "select", options: ["2xs", "xs", "sm", "md", "lg", "xl"], default: "md" }]} />
 </ComponentPreview>
 
 ### Disabled
 
-<ComponentPreview language="vue" details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={disabled} previewMinHeight={168}>
-  <VueDemo template={disabled} controls={[{ name: "disabled", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>disabled</code> prop to disable the textarea, greying it out and preventing user interactions.</>} code={withPhone(disabled, disabledPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={disabled} phoneTemplate={phoneRows(disabledPhone)} phoneStageClassName="w-full" controls={[{ name: "disabled", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Invalid
 
-<ComponentPreview language="vue" details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>@focus</code>, <code>@input</code>, a submit handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.</>} code={invalid} previewMinHeight={168}>
-  <VueDemo template={invalid} controls={[{ name: "invalid", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>invalid</code> prop to mark the textarea as invalid. You decide how this state is removed, whether that's through <code>@focus</code>, <code>@input</code>, a submit handler, etc.<br /><br />Default visual styles will be applied, based on the <code>variant</code>. Additionally, <code>[data-invalid]</code> is applied to the container for custom styling.<br /><br />On Phone the row is the frame, so the error is the <code>error-message</code> line under the row.</>} code={withPhone(invalid, invalidPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={invalid} phoneTemplate={phoneRows(invalidPhone)} phoneStageClassName="w-full" state={{ reference: "Invoice 2026-114 for the October design work, the extra review round, and the new icons we added to the November release at the end of the month." }} controls={[{ name: "invalid", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Auto select text
 
-<ComponentPreview language="vue" details={<>Pass <code>auto-select</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={autoSelect} previewMinHeight={168}>
-  <VueDemo template={autoSelect} controls={[{ name: "autoSelect", type: "boolean", default: false }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass <code>auto-select</code> to select all text in the textarea, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.</>} code={withPhone(autoSelect, autoSelectPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={autoSelect} phoneTemplate={phoneRows(autoSelectPhone)} phoneStageClassName="w-full" controls={[{ name: "autoSelect", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Autofill extensions
 
-<ComponentPreview language="vue" details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allow-autofill-extensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={autofillExtensions} previewMinHeight={168}>
-  <VueDemo template={autofillExtensions} controls={[{ name: "allowAutofillExtensions", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>By default, autofill extensions are prevented by <code>Textarea</code>. For the occasions where you want browser extensions to be present, pass <code>allow-autofill-extensions</code> to remove the disabling.<br /><br />When <code>name</code> is passed this value will default to <code>true</code>.</>} code={withPhone(autofillExtensions, autofillExtensionsPhone)} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={autofillExtensions} phoneTemplate={phoneRows(autofillExtensionsPhone)} phoneStageClassName="w-full" controls={[{ name: "allowAutofillExtensions", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ## API
@@ -113,7 +181,7 @@ export const autofillExtensions = `<div class="w-full min-w-0 max-w-[400px]">
 <PropsTable data={[
   { prop: "value / v-model:value", type: "string | number", description: "Controlled value; uncontrolled when omitted" },
   { prop: "default-value", type: "string | number", description: "Initial value when uncontrolled" },
-  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the textarea" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height for single-line equivalent" },
   { prop: "gutter-size", type: '"2xs" | "xs" | "sm" | "md" | "lg" | "xl"', description: "Horizontal padding; defaults from size" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the textarea" },

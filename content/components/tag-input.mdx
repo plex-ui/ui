@@ -5,22 +5,33 @@ metaDescription: React tag input component for entering multiple unique values a
 ---
 
 import { TagInputBaseDemoWithControls, TagInputSuggestionsDemo, TagInputInlineFilterRowDemo } from '@/components/docs/TagInputDemo'
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { TagInput } from "@plexui/ui/components/TagInput";`}</UsageBlock>
+
+On Phone, put a tag input under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Form Examples](/components/form-examples) put a textarea. The row is its frame and sets its insets and type, so the Phone previews show rows without the `size` and `pill` controls. To pick tags from a fixed list, use the tag row of the Form Examples, which opens a sheet.
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview code={`<div className="w-full min-w-0 max-w-[480px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`// Desktop
+<div className="w-full min-w-0 max-w-[480px]">
   <TagInput placeholder="Add a tag..." size="md" rows={1} pill={false} />
-</div>`} previewMinHeight={168}>
+</div>
+
+// Phone: the tags are the value of a row, under its label.
+<FieldGroup>
+  <Field row orientation="vertical" label="Tags">
+    <TagInput variant="ghost" placeholder="Add a tag..." rows={1} />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <TagInputBaseDemoWithControls />
 </ComponentPreview>
 
 ### Inline filter row
 
-<ComponentPreview details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={`const FIELD_OPTIONS = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>When <code>rows=1</code>, <code>TagInput</code> matches the height of an <code>Input</code> or <code>SelectControl</code> of the same size, so it composes cleanly into horizontal filter rows. Toggle <code>pill</code> on both controls to keep the pair visually consistent.</>} code={`const FIELD_OPTIONS = [
   { value: "email", label: "Email" },
   { value: "name", label: "Name" },
   { value: "role", label: "Role" },
@@ -35,6 +46,7 @@ const [tags, setTags] = useState<Tag[]>([
 ])
 const fieldLabel = FIELD_OPTIONS.find((option) => option.value === field)?.label ?? ""
 
+// Desktop
 return (
   <div className="flex w-full max-w-2xl items-start gap-2">
     <Field label="Where" className="w-[160px] shrink-0">
@@ -62,13 +74,42 @@ return (
       <TagInput size="md" pill={false} value={tags} onChange={setTags} placeholder="Add value, press Enter…" />
     </Field>
   </div>
-)`} previewMinHeight={168}>
+)
+
+// Phone
+<FieldGroup>
+  <Field row label="Where">
+    {(control) => (
+      <Menu>
+        <Menu.Trigger>
+          <SelectControl {...control} selected={!!field}>{fieldLabel}</SelectControl>
+        </Menu.Trigger>
+        <Menu.Content minWidth={160} align="end">
+          {FIELD_OPTIONS.map((option) => (
+            <Menu.CheckboxItem
+              key={option.value}
+              checked={field === option.value}
+              onCheckedChange={() => setField(option.value)}
+              indicatorPosition="start"
+              indicatorVariant="ghost"
+            >
+              {option.label}
+            </Menu.CheckboxItem>
+          ))}
+        </Menu.Content>
+      </Menu>
+    )}
+  </Field>
+  <Field row orientation="vertical" label="Is in">
+    <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a value" />
+  </Field>
+</FieldGroup>`} previewMinHeight={168}>
   <TagInputInlineFilterRowDemo />
 </ComponentPreview>
 
 ### Suggestions
 
-<ComponentPreview details={<>Combine <code>TagInput</code> with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.</>} code={`const SUGGESTIONS = ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'AWS'];
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Combine <code>TagInput</code> with clickable buttons to let users add tags by clicking suggestions or typing manually. Suggestions disappear once selected.</>} code={`const SUGGESTIONS = ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'AWS'];
 
 const [tags, setTags] = useState([
   { value: 'React', valid: true },
@@ -78,6 +119,7 @@ const [tags, setTags] = useState([
 const selectedValues = new Set(tags.map((t) => t.value));
 const available = SUGGESTIONS.filter((s) => !selectedValues.has(s));
 
+// Desktop
 return (
   <div className="flex flex-col gap-3">
     <TagInput value={tags} onChange={setTags} placeholder="Add a skill..." size="md" />
@@ -92,7 +134,25 @@ return (
       </div>
     )}
   </div>
-);`} previewMinHeight={168}>
+);
+
+// Phone: the suggestions follow the group.
+<FieldGroup>
+  <Field row orientation="vertical" label="Skills">
+    <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a skill..." />
+  </Field>
+</FieldGroup>
+{available.length > 0 && (
+  <FieldGroup title="Suggestions">
+    {available.map((s) => (
+      <Field row key={s} label={s}>
+        <Button color="primary" variant="ghost" aria-label={\`Add \${s}\`} onClick={() => setTags([...tags, { value: s, valid: true }])}>
+          Add
+        </Button>
+      </Field>
+    ))}
+  </FieldGroup>
+)}`} previewMinHeight={168}>
   <TagInputSuggestionsDemo />
 </ComponentPreview>
 

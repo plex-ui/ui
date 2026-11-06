@@ -1208,7 +1208,7 @@ Props:
   - value (string | number) — Controlled value; uncontrolled when omitted
   - defaultValue (string | number) — Initial value when uncontrolled
   - onChange ((event: ChangeEvent<HTMLTextAreaElement>) => void) — Called on every input
-  - variant ("outline" | "soft") default: "outline" — Visual style of the textarea
+  - variant ("outline" | "soft" | "ghost") default: "outline" — Visual style of the textarea; ghost has no border and no fill, for a row or a container that frames it
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height for single-line equivalent
   - gutterSize ("2xs" | "xs" | "sm" | "md" | "lg" | "xl") — Horizontal padding; defaults from size
   - disabled (boolean) default: false — Disable the textarea

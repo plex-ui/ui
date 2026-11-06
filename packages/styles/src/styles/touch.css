@@ -188,6 +188,8 @@
     /* iOS 26 kit Stepper (507:24687): a 92 x 32 capsule of two 46px segments, minus and plus at 17pt semibold
        (the PlexUI icons at 22px draw 13px of ink), a 1 x 24 separator, and a 44px target. */
     --stepper-height: 32px;
+    /* The kit stepper is always a capsule; pill={false} keeps its corners on a desktop only */
+    --stepper-radius: 16px;
     --stepper-segment-width: 46px;
     --stepper-target-size: 44px;
     --stepper-icon-size: 22px;

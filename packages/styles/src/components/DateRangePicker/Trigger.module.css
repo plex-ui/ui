@@ -20,6 +20,17 @@
   text-align: center;
 }
 
+/* In a phone row the month keeps the width of the widest English month at the row's 17px
+   (September 2026 is 7.6em), so the arrows stay put when the month changes; the desktop 9em
+   would push the row's label onto two lines. The month gives the stepper its baseline, so it
+   sits on the row's line with the label and the other values, not 1.5px above it. */
+@media (max-width: 767px) {
+  :where([data-row]) .StepperText {
+    min-width: 7.75em;
+    align-self: baseline;
+  }
+}
+
 .RangeText {
   display: inline-block;
   font-variant: tabular-nums;
