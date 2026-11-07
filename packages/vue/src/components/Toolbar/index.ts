@@ -6,6 +6,7 @@ export {
   ToolbarTitle,
   ToolbarTrailing,
   TOOLBAR_HOST,
+  type BarBackground,
   type ToolbarBackground,
   type ToolbarHost,
   type ToolbarPlacement,

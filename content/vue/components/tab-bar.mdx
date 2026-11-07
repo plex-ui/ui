@@ -75,6 +75,14 @@ export const minimizeCode = `<TabBar v-model:value="tab" :search="{ value: 'sear
   ...
 </TabBar>`
 
+export const backgroundCode = `<Page surface="grouped">
+  <Toolbar background="hard">...</Toolbar>
+  <PageContent>...</PageContent>
+  <TabBar v-model:value="tab" background="hard">
+    ...
+  </TabBar>
+</Page>`
+
 <UsageBlock>{`import { TabBar, TabBarItem } from "@plexui/vue/components/TabBar";`}</UsageBlock>
 
 A tab bar moves between the top-level sections of an app on a phone, as the iOS 26 tab bar does: a symbol over a short label for each section, in a glass capsule that floats over the bottom of the content. Keep it to five tabs, and keep it visible in every section. Put actions that change the content of a section in a Toolbar instead. A desktop layout navigates with a Sidebar or Tabs, so the bar renders under 768px only.
@@ -101,6 +109,14 @@ Each example shows the phone view.
   <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} template={screen(`:search="{ value: 'search' }" minimize-behavior="onScrollDown" `, four.slice(0, 3))} />
 </ComponentPreview>
 
+### Background
+
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color in under the capsule, <code>hard</code> is an opaque band with a line on top, <code>glass</code> a translucent, blurred band with a hairline, and <code>solid</code> an opaque band with no line. Hard and glass show themselves while the content continues under the bar.</>} code={backgroundCode}>
+  <VueDemo stageClassName={STAGE} state={{ tab: 'home', title: 'Home' }} controls={[
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
+  ]} template={screen(`:background="background" `, four).replace('<Toolbar>', '<Toolbar :background="background">')} />
+</ComponentPreview>
+
 ## API
 
 ### TabBar
@@ -112,6 +128,7 @@ Each example shows the phone view.
   { prop: "minimize-behavior", type: '"never" | "onScrollDown"', default: '"never"', description: "Minimize to the selected tab while the Page content scrolls down" },
   { prop: "minimized", type: "boolean", description: "Controlled minimized state; bind with v-model:minimized" },
   { prop: "default-minimized", type: "boolean", default: "false", description: "Minimized state (uncontrolled)" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the bar meets the content scrolled under it, see Background" },
   { prop: "aria-label", type: "string", default: '"Tabs"', description: "Name of the navigation" },
 ]} />
 

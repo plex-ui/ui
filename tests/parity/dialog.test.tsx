@@ -242,7 +242,7 @@ describe("Dialog parity", () => {
     }
   })
 
-  test.each(["glass", "solid"] as const)("%s bar surfaces have identical React and Vue markup", async (background) => {
+  test.each(["soft", "hard", "glass", "solid"] as const)("%s bar surfaces have identical React and Vue markup", async (background) => {
     render(<div><ReactDialog.Header background={background}>Title</ReactDialog.Header><ReactDialog.Footer background={background}>Actions</ReactDialog.Footer></div>)
     const react = serializeDom()
     cleanup()

@@ -37,12 +37,43 @@
       pointer-events: none;
     }
 
-    &[data-background="solid"]::before {
+    /* The other backgrounds fill the bar itself (scroll edge styles of iOS 26, `BarBackground`). Hard and
+       solid are opaque: the kit's Hard edge (Materials 5661:26978) blurs under an opaque fill, which shows
+       nothing. Glass is the translucent, blurred bar of earlier iOS. Hard and glass draw a line once content
+       is under the bar, and glass shows itself only then. */
+    &:not([data-background="soft"])::before {
       inset: 0;
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
       -webkit-mask-image: none;
       mask-image: none;
+      transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    &[data-background="glass"]::before {
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) var(--page-bar-veil-opacity), transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      opacity: 0;
+    }
+  }
+
+  /* The line of a hard or glass bar faces the content: under a top bar, above a bottom one. */
+  .Toolbar[data-placement="top"] {
+    &[data-background="hard"]::before {
+      border-bottom: 1px solid transparent;
+    }
+
+    &[data-background="glass"]::before {
+      border-bottom: 0.5px solid var(--page-bar-line);
+    }
+
+    &[data-scrolled][data-background="hard"]::before {
+      border-bottom-color: var(--page-bar-hard-line);
+    }
+
+    &[data-scrolled][data-background="glass"]::before {
+      opacity: 1;
     }
   }
 
@@ -63,12 +94,28 @@
       mask-image: linear-gradient(to bottom, transparent, #000 60px);
     }
 
-    /* A solid bar is opaque from its top: the edge's mask, which comes later than the shared solid rule,
-       goes too. */
-    &[data-background="solid"]::before {
+    /* The other backgrounds start at the top of the bar: the edge's place and mask, which come later than
+       the shared rule, go too. */
+    &:not([data-background="soft"])::before {
       inset: 0;
       -webkit-mask-image: none;
       mask-image: none;
+    }
+
+    &[data-background="hard"]::before {
+      border-top: 1px solid transparent;
+    }
+
+    &[data-background="glass"]::before {
+      border-top: 0.5px solid var(--page-bar-line);
+    }
+
+    &[data-content-below][data-background="hard"]::before {
+      border-top-color: var(--page-bar-hard-line);
+    }
+
+    &[data-content-below][data-background="glass"]::before {
+      opacity: 1;
     }
   }
 
@@ -82,7 +129,7 @@
   .Toolbar[data-placement="top"]:has(> .Content[data-fill]) {
     --toolbar-padding-bottom: var(--toolbar-search-padding-bottom);
 
-    &:not([data-background="solid"])::before {
+    &[data-background="soft"]::before {
       inset: 0;
       background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) var(--toolbar-flat-opacity), transparent);
       -webkit-backdrop-filter: blur(var(--toolbar-flat-blur));
@@ -407,6 +454,20 @@
     &::before {
       inset: 0 0 auto;
       height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom) + 16px);
+    }
+
+    &:not([data-background="soft"])::before {
+      height: calc(var(--toolbar-padding-top, 0px) + var(--toolbar-item-size) + var(--toolbar-padding-bottom));
+    }
+
+    /* The large title is the content under the row until it has gone: a hard or glass bar shows its line
+       with the inline title, over the same last 8px. */
+    &[data-scrolled][data-background="hard"]::before {
+      border-bottom-color: color-mix(in srgb, var(--page-bar-hard-line) calc(clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1) * 100%), transparent);
+    }
+
+    &[data-scrolled][data-background="glass"]::before {
+      opacity: clamp(0, (var(--page-scroll-y, 0) - var(--toolbar-large-title-travel, 0) + 8) / 8, 1);
     }
 
     & > :is(.Leading, .Trailing, .Content),

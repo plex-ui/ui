@@ -96,6 +96,21 @@ export const bottom = `<Page surface="grouped">
   </ToolbarContent>
 </Toolbar>`
 
+export const backgroundCode = `<Page surface="grouped">
+  <Toolbar background="hard">
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Orders</ToolbarTitle>
+  </Toolbar>
+  <PageContent>...</PageContent>
+  <Toolbar placement="bottom" background="hard">
+    <ToolbarContent>
+      <Button color="primary" pill>New order</Button>
+    </ToolbarContent>
+  </Toolbar>
+</Page>`
+
 export const disabledCode = `<Page surface="grouped">
   <Toolbar>
     <ToolbarLeading>
@@ -279,6 +294,29 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
   </Page>`)} />
 </ComponentPreview>
 
+### Background
+
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. <code>soft</code>, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. <code>hard</code> is an opaque bar of the canvas color with a line. <code>glass</code> is a translucent, blurred bar with a hairline. <code>solid</code> is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>PageHeader</code>, <code>PageFooter</code>, the bars of a Sheet and <code>TabBar</code> take the same values.</>} code={backgroundCode}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
+  ]} template={frame(`  <Page surface="grouped">
+    <Toolbar :background="background">
+      <ToolbarLeading>
+        <NavigationButton action="back" />
+      </ToolbarLeading>
+      <ToolbarTitle>Orders</ToolbarTitle>
+    </Toolbar>
+    <PageContent>
+      ${list}
+    </PageContent>
+    <Toolbar placement="bottom" :background="background">
+      <ToolbarContent>
+        <Button color="primary" pill>New order</Button>
+      </ToolbarContent>
+    </Toolbar>
+  </Page>`)} />
+</ComponentPreview>
+
 ### Disabled
 
 <ComponentPreview phoneOnly language="vue" details={<>A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside <code>ToolbarGroup</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.</>} code={disabledCode}>
@@ -337,7 +375,7 @@ Put the Back button of a phone screen in the toolbar only. A desktop layout show
   { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "Top bar with 44px targets, or bottom bar with 48px targets" },
   { prop: "titleStyle", type: '"inline" | "large" | "compact-large" | "compact-medium"', default: '"inline"', description: "Size and place of ToolbarTitle in a top bar" },
   { prop: "titleAlign", type: '"center" | "start"', default: '"center"', description: "Alignment of an inline title. Large and compact titles always start at the leading edge" },
-  { prop: "background", type: '"edge" | "solid"', default: '"edge"', description: "edge fades the canvas color over the content under the bar; solid fills the bar" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft" },
   { prop: "class", type: "string", description: "Class of the bar" },
 ]} />
 
@@ -377,5 +415,7 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
 - `--toolbar-large-title-gap`: space between the row of controls and a large title (default `21px`)
 - `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
-- `--toolbar-background`: color of the fading edge (defaults to the Sheet or page canvas)
+- `--toolbar-background`: color of the fading edge and of a hard, glass or solid bar (defaults to the Sheet or page canvas)
+- `--page-bar-hard-line`: line of a hard bar (default `light-dark(rgb(0 0 0 / 12%), var(--color-border))`, the iOS 26 kit's Hard edge)
+- `--page-bar-line`, `--page-bar-veil-opacity`: hairline and opacity of a glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))` and `light-dark(72%, 60%)`)
 - `--toolbar-prominent-disabled-background`, `--toolbar-prominent-disabled-color`: capsule and label of a disabled prominent action (default `light-dark(var(--alpha-12), var(--alpha-20))` and `light-dark(var(--gray-0), var(--alpha-30))`). A disabled glass button keeps the glass and takes `--mobile-label-tertiary`

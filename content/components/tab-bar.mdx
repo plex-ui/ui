@@ -8,6 +8,7 @@ import {
   TabBarOverviewDemo,
   TabBarSearchDemo,
   TabBarMinimizeDemo,
+  TabBarBackgroundDemo,
 } from "@/components/docs/TabBarDemos"
 
 <UsageBlock>{`import { TabBar } from "@plexui/ui/components/TabBar";`}</UsageBlock>
@@ -55,6 +56,18 @@ Each example shows the phone view.
   <TabBarMinimizeDemo />
 </ComponentPreview>
 
+### Background
+
+<ComponentPreview phoneOnly details={<><code>background</code> sets how the bar meets the content scrolled under it, as a <a href="/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color in under the capsule, <code>hard</code> is an opaque band with a line on top, <code>glass</code> a translucent, blurred band with a hairline, and <code>solid</code> an opaque band with no line. Hard and glass show themselves while the content continues under the bar.</>} code={`<Page surface="grouped">
+  <Toolbar background="hard">...</Toolbar>
+  <Page.Content>...</Page.Content>
+  <TabBar value={tab} onValueChange={setTab} background="hard">
+    ...
+  </TabBar>
+</Page>`}>
+  <TabBarBackgroundDemo />
+</ComponentPreview>
+
 ## API
 
 ### TabBar
@@ -68,6 +81,7 @@ Each example shows the phone view.
   { prop: "minimized", type: "boolean", description: "Controlled minimized state" },
   { prop: "defaultMinimized", type: "boolean", default: "false", description: "Minimized state (uncontrolled)" },
   { prop: "onMinimizedChange", type: "(minimized: boolean) => void", description: "Called when the bar minimizes or expands" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the bar meets the content scrolled under it, see Background" },
   { prop: "aria-label", type: "string", default: '"Tabs"', description: "Name of the navigation" },
   { prop: "className", type: "string", description: "CSS classes applied to the bar" },
 ]} />

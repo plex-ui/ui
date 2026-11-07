@@ -740,29 +740,82 @@
     scroll-padding-bottom: calc(16px + var(--dialog-footer-height, 0px));
   }
 
-  /* Keep the bar material behind its controls without making Header a
-     backdrop root: HeaderAction and the sibling Close sample the same content. */
-  .Content[data-mobile-variant="sheet"] .Header::after {
+  /* The bars of a Sheet meet the content scrolled under them by their `background`, as the bars of a
+     phone Toolbar do: by default the soft scroll edge of iOS 26. The material sits on a pseudo-element, so
+     Header does not become a backdrop root: HeaderAction and the sibling Close sample the same content.
+     Soft: under the header the panel color fades out over its bottom padding and 16px past it; over the
+     footer it starts 27px above the actions and covers the content fully 33px below their top (IMG_5491). */
+  .Content[data-mobile-variant="sheet"] .Header::after,
+  .Content[data-mobile-variant="sheet"] .Footer::before {
     position: absolute;
     z-index: -1;
-    inset: 0;
-    border-radius: var(--dialog-panel-radius);
+    background: var(--dialog-panel-background, var(--color-surface-elevated));
+    -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
+    backdrop-filter: blur(var(--toolbar-edge-blur-small));
     content: "";
     pointer-events: none;
+    transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
   }
 
-  .Content[data-mobile-variant="sheet"] .Header::after,
-  .Content[data-mobile-variant="sheet"] .Footer {
+  .Content[data-mobile-variant="sheet"] .Header::after {
+    inset: 0 0 -16px;
+    border-radius: var(--dialog-panel-radius);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer::before {
+    inset: -15px 0 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60px);
+    mask-image: linear-gradient(to bottom, transparent, #000 60px);
+  }
+
+  /* Hard and solid are opaque, glass is translucent and shows itself once content is under the bar; hard
+     and glass then draw a line on the edge that faces the content. */
+  .Content[data-mobile-variant="sheet"] .Header:not([data-background="soft"])::after,
+  .Content[data-mobile-variant="sheet"] .Footer:not([data-background="soft"])::before {
+    inset: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="glass"]::after,
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="glass"]::before {
     background: var(--page-bar-veil);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     backdrop-filter: blur(20px) saturate(180%);
+    opacity: 0;
   }
 
-  .Content[data-mobile-variant="sheet"] .Header[data-background="solid"]::after,
-  .Content[data-mobile-variant="sheet"] .Footer[data-background="solid"] {
-    background: var(--dialog-panel-background, var(--color-surface-elevated));
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+  .Content[data-mobile-variant="sheet"] .Header[data-background="hard"]::after {
+    border-bottom: 1px solid transparent;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-background="glass"]::after {
+    border-bottom: 0.5px solid var(--page-bar-line);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="hard"]::before {
+    border-top: 1px solid transparent;
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer[data-background="glass"]::before {
+    border-top: 0.5px solid var(--page-bar-line);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-scrolled][data-background="hard"]::after {
+    border-bottom-color: var(--page-bar-hard-line);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Footer[data-content-below][data-background="hard"]::before {
+    border-top-color: var(--page-bar-hard-line);
+  }
+
+  .Content[data-mobile-variant="sheet"] .Header[data-scrolled][data-background="glass"]::after,
+  .Content[data-mobile-variant="sheet"] .Footer[data-content-below][data-background="glass"]::before {
+    opacity: 1;
   }
 
   .Content[data-mobile-variant="sheet"] .Footer {

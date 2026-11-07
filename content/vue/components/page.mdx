@@ -52,6 +52,14 @@ export const heading = `<PageBar>
   <PageActions>...</PageActions>
 </PageBar>`
 
+export const backgroundCode = `<Page>
+  <PageHeader background="hard">...</PageHeader>
+  <PageContent>...</PageContent>
+  <PageFooter background="hard">
+    <Button color="primary" pill block>New order</Button>
+  </PageFooter>
+</Page>`
+
 export const fill = `<Page>
   <PageHeader :divider="false">...</PageHeader>
   <PageContent fill>
@@ -153,6 +161,26 @@ export const fill = `<Page>
   </Page>`)} />
 </ComponentPreview>
 
+### Background
+
+<ComponentPreview phoneOnly language="vue" details={<><code>background</code> sets how the header and the footer meet the content scrolled under them on a phone, as a <a href="/vue/components/toolbar#background">Toolbar</a> does: <code>soft</code> (the default) fades the canvas color out under the bar, <code>hard</code> is an opaque bar with a line, <code>glass</code> a translucent, blurred bar with a hairline, and <code>solid</code> an opaque bar with no line. Hard and glass show themselves once content is under the bar; <code>:divider="false"</code> keeps a header without its line.</>} code={backgroundCode}>
+  <VueDemo stageClassName={STAGE} state={{ rows }} controls={[
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft" },
+  ]} template={frame(`  <Page>
+    <PageHeader :background="background">
+      <PageBar>
+        <PageTitle>Orders</PageTitle>
+      </PageBar>
+    </PageHeader>
+    <PageContent>
+      ${list}
+    </PageContent>
+    <PageFooter :background="background">
+      <Button color="primary" pill block>New order</Button>
+    </PageFooter>
+  </Page>`)} />
+</ComponentPreview>
+
 ## Phone
 
 A page needs a bounded parent. These demos use a 420px frame on desktop and the full viewport on phones, without an outer border or rounded container:
@@ -174,7 +202,7 @@ A page needs a bounded parent. These demos use a 420px frame on desktop and the 
 }
 ```
 
-Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats: at rest nothing shows, and content scrolled under it turns it to glass with a hairline. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
+Under 768px the header contains a 44px toolbar row with 10px below it, plus the device top safe area. It floats over the content and meets what scrolls under it by its `background`, see [Background](#background): by default the canvas color covers the content under the row and fades out below it. The content keeps its place through `--page-top`, the top inset and the bar together, also for anything else that has to start below the bar, such as a banner.
 
 Keep the row to a title and one group of actions. The bar has no room for a second row, so anything set under `PageBar`, such as a search field, belongs at the top of `PageContent` on a phone. `useBreakpoint("md")` tells which one to render. Use `PageLeading` for a Back button or the menu button of a sidebar. The title stays centred between the leading and trailing controls.
 
@@ -197,8 +225,8 @@ All other attributes fall through to the root.
 ### PageHeader
 
 <PropsTable data={[
-  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile toolbar background" },
-  { prop: "divider", type: "boolean", default: "true", description: "Shows a divider once the content has scrolled under the header" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the bar meets the content scrolled under it on a phone, see Background" },
+  { prop: "divider", type: "boolean", default: "true", description: "Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background" },
   { prop: "class", type: "string", description: "Class of the band" },
 ]} />
 
@@ -215,7 +243,7 @@ The default slot stands in the shared column. All other attributes, listeners in
 
 ### PageFooter
 
-Actions stay below the scrolling `PageContent`. The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
+Actions stay below the scrolling `PageContent`. `background` sets how the footer meets the content under it on a phone, as the header's does (default `"soft"`). The footer shares the page column and includes at least 16px of bottom padding, or the device's bottom safe area when larger. Give `Page` a bounded height, such as `100dvh`, to keep the footer at the bottom of the screen. Native div attributes are forwarded to the footer.
 
 ### Parts
 
@@ -230,9 +258,9 @@ Actions stay below the scrolling `PageContent`. The footer shares the page colum
 
 ## Styling
 
-`surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background="glass" | "solid"` material and leaves desktop colors unchanged.
+`surface="plain"` is the default mobile canvas. Use `surface="grouped"` for screens of related field groups: light mode uses a gray canvas with white groups; dark mode uses the corresponding base surface levels. This palette is separate from the bars' `background` and leaves desktop colors unchanged.
 
-`PageHeader` and `PageFooter` accept `background="glass"` (the default) or `background="solid"`. Use solid bars when the content should not show through them on phones.
+`PageHeader` and `PageFooter` take `background`: `soft` (the default), `hard`, `glass` or `solid`, see [Background](#background). Use hard or solid bars when the content should not show through them on phones.
 
 Page reads these component tokens. Override them at any scope to restyle it:
 
@@ -241,8 +269,9 @@ Page reads these component tokens. Override them at any scope to restyle it:
 - `--page-bar-gap`: gap between title and actions (default `24px`)
 - `--page-bar-height`: bar height (default `36px`)
 - `--page-bar-height-phone`: bar height on a phone (default `44px`)
-- `--page-bar-line`: hairline of the glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
-- `--page-bar-veil`: translucent bar fill derived from the current mobile canvas
+- `--page-bar-hard-line`: line of a hard bar (default `light-dark(rgb(0 0 0 / 12%), var(--color-border))`, the iOS 26 kit's Hard edge)
+- `--page-bar-line`: hairline of a glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))`)
+- `--page-bar-veil`: translucent fill of a glass bar, derived from the current mobile canvas
 - `--page-content-padding-bottom`: bottom of the content (default `48px`)
 - `--page-content-padding-top`: top of the content on a phone (default `16px`)
 - `--page-gutter`: side gutter on a phone (default `16px`)

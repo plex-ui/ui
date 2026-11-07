@@ -139,10 +139,10 @@
   }
 }
 
-/* One row, the height of Apple's bar. It floats over the page: at rest nothing shows, and content
-   scrolled under it turns it to glass with a hairline. The blur sits on `::before`: on the bar itself
-   it would hold the bar's children inside its own backdrop. The first column keeps the place of a
-   sidebar's menu button. */
+/* One row, the height of Apple's bar. It floats over the page and meets the content scrolled under it
+   by its `background`, as a phone Toolbar does: by default the soft scroll edge of iOS 26. The material
+   sits on `::before`: on the bar itself a blur would hold the bar's children inside its own backdrop.
+   The first column keeps the place of a sidebar's menu button. */
 @media (max-width: 767.98px) {
   .Page {
     --page-top: var(--page-toolbar-height, var(--page-header-height, calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + var(--page-bar-height-phone) + 10px)));
@@ -186,38 +186,59 @@
     inset: 0 0 auto;
     padding-block: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) 10px;
 
+    /* Soft: the canvas covers content under the row and fades out over the bar's bottom padding and
+       16px past the bar, as the soft edge of a top Toolbar does. */
     &::before {
       position: absolute;
       z-index: -1;
+      inset: 0 0 -16px;
+      background: var(--page-background);
+      -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      content: "";
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 10px - 16px), transparent);
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    /* Hard and solid are opaque, glass is translucent and shows itself once content is under the bar.
+       Hard and glass then draw a line, unless `divider` is off. */
+    &:not([data-background="soft"])::before {
       inset: 0;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    &[data-background="hard"]::before {
+      border-bottom: 1px solid transparent;
+    }
+
+    &[data-background="glass"]::before {
       border-bottom: 0.5px solid transparent;
       background: var(--page-bar-veil);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       backdrop-filter: blur(20px) saturate(180%);
-      content: "";
       opacity: 0;
-      pointer-events: none;
-      transition: opacity var(--transition-duration-basic);
     }
 
-    &[data-background="solid"]::before {
-      background: var(--page-background);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
+    &[data-scrolled][data-background="glass"]::before {
       opacity: 1;
     }
 
-    &[data-scrolled]::before {
-      opacity: 1;
+    &[data-scrolled][data-divider][data-background="hard"]::before {
+      border-bottom-color: var(--page-bar-hard-line);
+    }
+
+    &[data-scrolled][data-divider][data-background="glass"]::before {
+      border-bottom-color: var(--page-bar-line);
     }
 
     /* The bar's glass buttons cast a shadow only over content scrolled under them. */
     &[data-scrolled] {
       --mobile-glass-shadow: var(--mobile-glass-shadow-raised);
-    }
-
-    &[data-scrolled][data-divider]::before {
-      border-bottom-color: var(--page-bar-line);
     }
   }
 
@@ -317,17 +338,54 @@
     padding-left: 8px;
   }
 
+  /* The footer meets the content scrolled under it by its `background`, as a bottom Toolbar does. Soft:
+     the canvas starts 27px above the actions and covers the content fully 33px below their top (native
+     iOS 26 bottom bars, IMG_5491). */
   .Footer {
     position: relative;
     z-index: 5;
-    background: var(--page-bar-veil);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    background: none;
 
-    &[data-background="solid"] {
+    &::before {
+      position: absolute;
+      z-index: -1;
+      inset: calc(var(--page-footer-padding-top) - 27px) 0 0;
       background: var(--page-background);
+      -webkit-backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      backdrop-filter: blur(var(--toolbar-edge-blur-small));
+      content: "";
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60px);
+      mask-image: linear-gradient(to bottom, transparent, #000 60px);
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    &:not([data-background="soft"])::before {
+      inset: 0;
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    &[data-background="hard"]::before {
+      border-top: 1px solid transparent;
+    }
+
+    &[data-background="glass"]::before {
+      border-top: 0.5px solid var(--page-bar-line);
+      background: var(--page-bar-veil);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      opacity: 0;
+    }
+
+    &[data-content-below][data-background="hard"]::before {
+      border-top-color: var(--page-bar-hard-line);
+    }
+
+    &[data-content-below][data-background="glass"]::before {
+      opacity: 1;
     }
   }
 

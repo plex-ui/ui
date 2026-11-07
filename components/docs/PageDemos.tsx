@@ -3,10 +3,11 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
-import { Page, type PageWidth } from '@plexui/ui/components/Page';
+import { Page, type PageBarBackground, type PageWidth } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { useDemoControlSync } from './PreviewEmbed';
+import { BarBackgroundControl } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 
 const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
@@ -127,5 +128,30 @@ export function PageFillDemo() {
         </Page.Content>
       </Page>
     </Frame>
+  );
+}
+
+export function PageBackgroundDemo() {
+  const [background, setBackground] = useState<PageBarBackground>('soft');
+
+  return (
+    <>
+      <BarBackgroundControl value={background} onChange={setBackground} />
+      <Frame>
+        <Page>
+          <Page.Header background={background}>
+            <Page.Bar>
+              <Page.Title>Orders</Page.Title>
+            </Page.Bar>
+          </Page.Header>
+          <Page.Content>
+            <Rows />
+          </Page.Content>
+          <Page.Footer background={background}>
+            <Button color="primary" pill block>New order</Button>
+          </Page.Footer>
+        </Page>
+      </Frame>
+    </>
   );
 }

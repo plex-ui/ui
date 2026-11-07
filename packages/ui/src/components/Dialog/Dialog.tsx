@@ -18,7 +18,8 @@ import { useEscCloseStack } from "../../hooks/useEscCloseStack"
 import { keepMovedFocus, preventDefaultHandler, toCssVariables } from "../../lib/helpers"
 import { useStableCallback } from "../../hooks/useStableCallback"
 import { NavigationButton } from "../Button/NavigationButton"
-import { ToolbarHostContext, type ToolbarHost } from "../Toolbar/Toolbar"
+import { ToolbarHostContext, type BarBackground, type ToolbarHost } from "../Toolbar/Toolbar"
+import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
@@ -142,6 +143,11 @@ const Content = ({
       : requestedMobilePlacement ?? (mobileVariant === "sheet" ? "bottom" : undefined)
   const [exitGuard] = useState(createExitGuard)
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
+  // Dialog.Body reports where content lies under the bars: they show their lines with it.
+  const [edges, setEdgesState] = useState(NO_SCROLL_EDGES)
+  const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
+  const scroll = useMemo(() => ({ edges, setEdges }), [edges, setEdges])
+  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "dialog", scrolled: edges.scrolled, contentBelow: edges.contentBelow }), [edges])
   const boundary = useFloatingBoundaryScope()
   const setRoot = boundary.setRoot
   const setPanelRef = useCallback((node: HTMLDivElement | null) => { setPanel(node); setRoot(node) }, [setRoot])
@@ -231,7 +237,9 @@ const Content = ({
                     <NavigationButton action="close" variant="ghost" className={s.CloseButton} aria-label="Close dialog" />
                   </RadixDialog.Close>
                 )}
-                <ToolbarHostContext.Provider value={DIALOG_TOOLBAR_HOST}>{children}</ToolbarHostContext.Provider>
+                <DialogScrollContext.Provider value={scroll}>
+                  <ToolbarHostContext.Provider value={toolbarHost}>{children}</ToolbarHostContext.Provider>
+                </DialogScrollContext.Provider>
               </div>
             </RadixDialog.Content>
           </div>
@@ -242,7 +250,8 @@ const Content = ({
   )
 }
 
-const DIALOG_TOOLBAR_HOST: ToolbarHost = { kind: "dialog" }
+type DialogScrollValue = { edges: ScrollEdges; setEdges: (edges: ScrollEdges) => void }
+const DialogScrollContext = createContext<DialogScrollValue | null>(null)
 const TOP_TOOLBAR = '[data-toolbar][data-placement="top"]'
 const BOTTOM_TOOLBAR = '[data-toolbar][data-placement="bottom"]'
 
@@ -251,11 +260,16 @@ type DialogSlotProps = {
   className?: string
 }
 
-export type DialogBarBackground = "glass" | "solid"
-export type DialogHeaderProps = DialogSlotProps & { background?: DialogBarBackground }
+/** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
+export type DialogBarBackground = BarBackground
+export type DialogHeaderProps = DialogSlotProps & {
+  /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
+  background?: DialogBarBackground
+}
 
-const Header = ({ children, className, background = "glass" }: DialogHeaderProps) => {
-  return <div className={clsx(s.Header, className)} data-background={background}>{children}</div>
+const Header = ({ children, className, background = "soft" }: DialogHeaderProps) => {
+  const scrolled = useContext(DialogScrollContext)?.edges.scrolled
+  return <div className={clsx(s.Header, className)} data-background={background} data-scrolled={scrolled ? "" : undefined}>{children}</div>
 }
 
 const HeaderAction = ({ children, className }: DialogSlotProps) => {
@@ -264,18 +278,38 @@ const HeaderAction = ({ children, className }: DialogSlotProps) => {
 
 /** The scrolling part between Header and Footer: with it, only the body scrolls */
 const Body = ({ children, className }: DialogSlotProps) => {
-  return <div className={clsx(s.Body, className)}>{children}</div>
+  const setEdges = useContext(DialogScrollContext)?.setEdges
+  const element = useRef<HTMLDivElement | null>(null)
+  useLayoutEffect(() => {
+    const body = element.current
+    if (!body || !setEdges) return
+    const stop = observeScrollEdges(body, setEdges)
+    return () => { stop(); setEdges(NO_SCROLL_EDGES) }
+  }, [setEdges])
+  return <div ref={element} className={clsx(s.Body, className)}>{children}</div>
 }
 
 export type DialogFooterProps = DialogSlotProps & {
+  /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
   background?: DialogBarBackground
   /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
   mobileLayout?: "inline" | "stacked"
 }
 
-const Footer = ({ children, className, mobileLayout, background = "glass" }: DialogFooterProps) => {
+const Footer = ({ children, className, mobileLayout, background = "soft" }: DialogFooterProps) => {
   const setFooter = useFloatingBoundaryRegistration()?.setFooter
-  return <div ref={setFooter} className={clsx(s.Footer, className)} data-mobile-layout={mobileLayout} data-background={background}>{children}</div>
+  const contentBelow = useContext(DialogScrollContext)?.edges.contentBelow
+  return (
+    <div
+      ref={setFooter}
+      className={clsx(s.Footer, className)}
+      data-mobile-layout={mobileLayout}
+      data-background={background}
+      data-content-below={contentBelow ? "" : undefined}
+    >
+      {children}
+    </div>
+  )
 }
 
 const Title = ({ children, className }: DialogSlotProps) => {

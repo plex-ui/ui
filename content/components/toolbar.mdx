@@ -10,6 +10,7 @@ import {
   ToolbarGroupDemo,
   ToolbarSearchDemo,
   ToolbarBottomDemo,
+  ToolbarBackgroundDemo,
   ToolbarDisabledDemo,
   ToolbarSheetDemo,
 } from "@/components/docs/ToolbarDemos"
@@ -109,6 +110,25 @@ Toolbar is a phone component: under 768px it renders, from 768px up it takes no 
   <ToolbarBottomDemo />
 </ComponentPreview>
 
+### Background
+
+<ComponentPreview phoneOnly details={<><code>background</code> sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. <code>soft</code>, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. <code>hard</code> is an opaque bar of the canvas color with a line. <code>glass</code> is a translucent, blurred bar with a hairline. <code>solid</code> is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. <code>Page.Header</code>, <code>Page.Footer</code>, the bars of a Sheet and <code>TabBar</code> take the same values.</>} code={`<Page surface="grouped">
+  <Toolbar background="hard">
+    <Toolbar.Leading>
+      <NavigationButton action="back" />
+    </Toolbar.Leading>
+    <Toolbar.Title>Orders</Toolbar.Title>
+  </Toolbar>
+  <Page.Content>...</Page.Content>
+  <Toolbar placement="bottom" background="hard">
+    <Toolbar.Content>
+      <Button color="primary" pill>New order</Button>
+    </Toolbar.Content>
+  </Toolbar>
+</Page>`}>
+  <ToolbarBackgroundDemo />
+</ComponentPreview>
+
 ### Disabled
 
 <ComponentPreview phoneOnly details={<>A disabled bar button keeps its glass capsule and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do. Inside <code>Toolbar.Group</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule, with a white label in light and a dim one in dark. Cancel and More stay enabled.</>} code={`<Page surface="grouped">
@@ -177,7 +197,7 @@ Put the Back button of a phone screen in the toolbar only. A desktop layout show
 | `placement` | `"top" \| "bottom"` | `"top"` | Top bar with 44px targets, or bottom bar with 48px targets |
 | `titleStyle` | `"inline" \| "large" \| "compact-large" \| "compact-medium"` | `"inline"` | Size and place of `Toolbar.Title` in a top bar |
 | `titleAlign` | `"center" \| "start"` | `"center"` | Alignment of an inline title. Large and compact titles always start at the leading edge |
-| `background` | `"edge" \| "solid"` | `"edge"` | `edge` fades the canvas color over the content under the bar; `solid` fills the bar |
+| `background` | `"soft" \| "hard" \| "glass" \| "solid"` | `"soft"` | How the bar meets the content scrolled under it, see [Background](#background). `"edge"` is the earlier name of `"soft"` |
 | `className` | `string` | — | Applied to the bar |
 
 All other `<div>` attributes and `ref` are forwarded to the bar.
@@ -216,5 +236,7 @@ Toolbar reads these component tokens. Override them at any scope to restyle it:
 - `--toolbar-title-font-size`, `--toolbar-large-title-font-size`, `--toolbar-medium-title-font-size`: title sizes (default `17px`, `34px` and `22px`)
 - `--toolbar-large-title-gap`: space between the row of controls and a large title (default `21px`)
 - `--toolbar-icon-size`, `--toolbar-search-icon-size`: icon boxes of the buttons and of the search field (default `24px` and `26px`)
-- `--toolbar-background`: color of the fading edge (defaults to the Sheet or page canvas)
+- `--toolbar-background`: color of the fading edge and of a hard, glass or solid bar (defaults to the Sheet or page canvas)
+- `--page-bar-hard-line`: line of a hard bar (default `light-dark(rgb(0 0 0 / 12%), var(--color-border))`, the iOS 26 kit's Hard edge)
+- `--page-bar-line`, `--page-bar-veil-opacity`: hairline and opacity of a glass bar (default `light-dark(rgb(0 0 0 / 10%), var(--color-border))` and `light-dark(72%, 60%)`)
 - `--toolbar-prominent-disabled-background`, `--toolbar-prominent-disabled-color`: capsule and label of a disabled prominent action (default `light-dark(var(--alpha-12), var(--alpha-20))` and `light-dark(var(--gray-0), var(--alpha-30))`). A disabled glass button keeps the glass and takes `--mobile-label-tertiary`

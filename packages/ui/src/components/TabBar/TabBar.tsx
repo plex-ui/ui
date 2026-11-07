@@ -16,7 +16,7 @@ import {
 import s from "@plexui/styles/components/TabBar/TabBar.module.css"
 import { useLatestValue } from "../../hooks/useLatestValue"
 import { Search as SearchIcon } from "../Icon"
-import { ToolbarHostContext } from "../Toolbar/Toolbar"
+import { ToolbarHostContext, type BarBackground } from "../Toolbar/Toolbar"
 
 /** A scroll of at least this many pixels in one direction minimizes or expands the bar. */
 const MINIMIZE_AFTER = 8
@@ -63,6 +63,8 @@ export type TabBarProps = {
   defaultMinimized?: boolean
   /** Called when the bar minimizes or expands. */
   onMinimizedChange?: (minimized: boolean) => void
+  /** How the bar meets the content scrolled under it; see `BarBackground`. @default "soft" */
+  background?: BarBackground
   /** Accessible name of the navigation. @default "Tabs" */
   "aria-label"?: string
   /** `TabBar.Item` elements. */
@@ -87,6 +89,7 @@ function TabBarRoot({
   minimized: minimizedProp,
   defaultMinimized = false,
   onMinimizedChange,
+  background = "soft",
   "aria-label": ariaLabel = "Tabs",
   children,
   className,
@@ -168,6 +171,8 @@ function TabBarRoot({
       aria-label={ariaLabel}
       className={clsx(s.TabBar, className)}
       data-host={host?.kind}
+      data-background={background}
+      data-content-below={host?.contentBelow ? "" : undefined}
       data-minimized={minimized ? "" : undefined}
       data-search={search ? "" : undefined}
     >

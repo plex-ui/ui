@@ -2223,7 +2223,7 @@
         {
           "name": "Scrolling body",
           "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Terms of service</Dialog.Title></div>\n  <Dialog.Description>Please read them before you continue.</Dialog.Description>\n</Dialog.Header>\n<Dialog.Body>\n  <div className=\"flex flex-col gap-4 text-sm text-secondary max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]\">\n    {terms.map((term) => <p key={term}>{term}</p>)}\n  </div>\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Decline</Button></Dialog.Close>\n  <Button color=\"primary\">Accept</Button>\n</Dialog.Footer>\n</Dialog.Content>",
-          "details": "Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls."
+          "details": "Put long content in Dialog.Body: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on Dialog.Header and Dialog.Footer sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: soft by default, or hard, glass or solid."
         },
         {
           "name": "Placement",
@@ -2306,9 +2306,9 @@
           "props": [
             {
               "name": "background",
-              "type": "\"glass\" | \"solid\"",
-              "default": "\"glass\"",
-              "description": "Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged"
+              "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
+              "default": "\"soft\"",
+              "description": "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged"
             },
             {
               "name": "mobileLayout",
@@ -4320,6 +4320,11 @@
           "name": "Fill",
           "code": "<Page>\n<Page.Header divider={false}>...</Page.Header>\n<Page.Content fill>\n  <div className=\"min-h-0 flex-1 overflow-auto\">...</div>\n</Page.Content>\n</Page>",
           "details": "fill stops the page scrolling from 768px up, so a table can scroll inside itself. A table that draws its own line under a sticky head turns the header's off with divider."
+        },
+        {
+          "name": "Background",
+          "code": "<Page>\n<Page.Header background=\"hard\">...</Page.Header>\n<Page.Content>...</Page.Content>\n<Page.Footer background=\"hard\">\n  <Button color=\"primary\" pill block>New order</Button>\n</Page.Footer>\n</Page>",
+          "details": "background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the bar, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; divider={false} keeps a header without its line."
         }
       ],
       "subComponents": [
@@ -4328,15 +4333,15 @@
           "props": [
             {
               "name": "background",
-              "type": "\"glass\" | \"solid\"",
-              "default": "\"glass\"",
-              "description": "Mobile toolbar background"
+              "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
+              "default": "\"soft\"",
+              "description": "How the bar meets the content scrolled under it on a phone, see Background"
             },
             {
               "name": "divider",
               "type": "boolean",
               "default": "true",
-              "description": "Shows a divider once the content has scrolled under the header"
+              "description": "Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background"
             },
             {
               "name": "className",
@@ -6456,6 +6461,12 @@
           "description": "Called when the bar minimizes or expands"
         },
         {
+          "name": "background",
+          "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
+          "default": "\"soft\"",
+          "description": "How the bar meets the content scrolled under it, see Background"
+        },
+        {
           "name": "aria-label",
           "type": "string",
           "default": "\"Tabs\"",
@@ -6482,6 +6493,11 @@
           "name": "Minimize on scroll",
           "code": "<TabBar value={tab} onValueChange={setTab} search={{ value: 'search' }} minimizeBehavior=\"onScrollDown\">\n...\n</TabBar>",
           "details": "With minimizeBehavior=\"onScrollDown\" the bar shrinks to the selected tab while the content scrolls down and comes back when it scrolls up, as in iOS 26. Tap the minimized tab to bring the others back."
+        },
+        {
+          "name": "Background",
+          "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">...</Toolbar>\n<Page.Content>...</Page.Content>\n<TabBar value={tab} onValueChange={setTab} background=\"hard\">\n  ...\n</TabBar>\n</Page>",
+          "details": "background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) fades the canvas color in under the capsule, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar."
         }
       ],
       "subComponents": [
@@ -7477,9 +7493,9 @@
         },
         {
           "name": "background",
-          "type": "\"edge\" | \"solid\"",
-          "default": "\"edge\"",
-          "description": "edge fades the canvas color over the content under the bar; solid fills the bar"
+          "type": "\"soft\" | \"hard\" | \"glass\" | \"solid\"",
+          "default": "\"soft\"",
+          "description": "How the bar meets the content scrolled under it, see Background. \"edge\" is the earlier name of \"soft\""
         },
         {
           "name": "className",
@@ -7513,6 +7529,11 @@
           "name": "Bottom",
           "code": "<Page surface=\"grouped\">\n<Toolbar>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\">\n  <Toolbar.Leading>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Filter\"><Filter /></Button>\n  </Toolbar.Leading>\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n  <Toolbar.Trailing>\n    <Button color=\"secondary\" variant=\"soft\" uniform pill aria-label=\"Search\"><Search /></Button>\n  </Toolbar.Trailing>\n</Toolbar>\n</Page>\n\n<Toolbar placement=\"bottom\">\n<Toolbar.Content fill>\n  <Button color=\"primary\" pill block><Plus /> New order</Button>\n</Toolbar.Content>\n</Toolbar>",
           "details": "placement=\"bottom\" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The page content scrolls under both bars."
+        },
+        {
+          "name": "Background",
+          "code": "<Page surface=\"grouped\">\n<Toolbar background=\"hard\">\n  <Toolbar.Leading>\n    <NavigationButton action=\"back\" />\n  </Toolbar.Leading>\n  <Toolbar.Title>Orders</Toolbar.Title>\n</Toolbar>\n<Page.Content>...</Page.Content>\n<Toolbar placement=\"bottom\" background=\"hard\">\n  <Toolbar.Content>\n    <Button color=\"primary\" pill>New order</Button>\n  </Toolbar.Content>\n</Toolbar>\n</Page>",
+          "details": "background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values."
         },
         {
           "name": "Disabled",
@@ -7659,5 +7680,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T10:40:23.558Z"
+  "generatedAt": "2026-11-07T11:16:33.864Z"
 }

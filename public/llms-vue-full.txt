@@ -2601,7 +2601,7 @@ Props:
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
   DialogFooter:
-    - background ("glass" | "solid") default: "glass" — Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged
+    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
 
 ### Overview
@@ -3448,7 +3448,7 @@ const extraOrigins = Array.from({ length: 24 }, (_, index) => `https://preview-$
 ```
 
 ### Scrolling body
-Put long content in DialogBody: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.
+Put long content in DialogBody: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, background on DialogHeader and DialogFooter sets how the Sheet's bars meet the body scrolled under them, as a Toolbar's do: soft by default, or hard, glass or solid.
 ```vue
 <Dialog v-model:open="open">
   <DialogTrigger>
@@ -6693,8 +6693,8 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - background ("glass" | "solid") default: "glass" — Mobile toolbar background
-    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header
+    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it on a phone, see Background
+    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - class (string) — Class of the band
   PageContent:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
@@ -6750,6 +6750,18 @@ fill stops the page scrolling from 768px up, so a table can scroll inside itself
   <PageContent fill>
     <div class="min-h-0 flex-1 overflow-auto">...</div>
   </PageContent>
+</Page>
+```
+
+### Background
+background sets how the header and the footer meet the content scrolled under them on a phone, as a Toolbar does: soft (the default) fades the canvas color out under the bar, hard is an opaque bar with a line, glass a translucent, blurred bar with a hairline, and solid an opaque bar with no line. Hard and glass show themselves once content is under the bar; :divider="false" keeps a header without its line.
+```vue
+<Page>
+  <PageHeader background="hard">...</PageHeader>
+  <PageContent>...</PageContent>
+  <PageFooter background="hard">
+    <Button color="primary" pill block>New order</Button>
+  </PageFooter>
 </Page>
 ```
 
@@ -10499,6 +10511,7 @@ Props:
   - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
   - default-minimized (boolean) default: false — Minimized state (uncontrolled)
+  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background
   - aria-label (string) default: "Tabs" — Name of the navigation
   TabBarItem:
     - value (string) — Value of the tab
@@ -10553,6 +10566,18 @@ With minimize-behavior="onScrollDown" the bar shrinks to the selected tab while 
 <TabBar v-model:value="tab" :search="{ value: 'search' }" minimize-behavior="onScrollDown">
   ...
 </TabBar>
+```
+
+### Background
+background sets how the bar meets the content scrolled under it, as a Toolbar does: soft (the default) fades the canvas color in under the capsule, hard is an opaque band with a line on top, glass a translucent, blurred band with a hairline, and solid an opaque band with no line. Hard and glass show themselves while the content continues under the bar.
+```vue
+<Page surface="grouped">
+  <Toolbar background="hard">...</Toolbar>
+  <PageContent>...</PageContent>
+  <TabBar v-model:value="tab" background="hard">
+    ...
+  </TabBar>
+</Page>
 ```
 
 ## Table
@@ -11718,7 +11743,7 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("edge" | "solid") default: "edge" — edge fades the canvas color over the content under the bar; solid fills the bar
+  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
   - class (string) — Class of the bar
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
@@ -11815,6 +11840,25 @@ placement="bottom" sets the bar at the bottom of the page with 48px targets and 
     <Button color="primary" pill block><Plus /> New order</Button>
   </ToolbarContent>
 </Toolbar>
+```
+
+### Background
+background sets how a bar meets the content scrolled under it, after the scroll edge effect of iOS 26. soft, the default, covers the content under the controls with the canvas color and fades it out past them over a light blur, with no line. hard is an opaque bar of the canvas color with a line. glass is a translucent, blurred bar with a hairline. solid is an opaque bar with no line. Hard and glass show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. PageHeader, PageFooter, the bars of a Sheet and TabBar take the same values.
+```vue
+<Page surface="grouped">
+  <Toolbar background="hard">
+    <ToolbarLeading>
+      <NavigationButton action="back" />
+    </ToolbarLeading>
+    <ToolbarTitle>Orders</ToolbarTitle>
+  </Toolbar>
+  <PageContent>...</PageContent>
+  <Toolbar placement="bottom" background="hard">
+    <ToolbarContent>
+      <Button color="primary" pill>New order</Button>
+    </ToolbarContent>
+  </Toolbar>
+</Page>
 ```
 
 ### Disabled

@@ -15,19 +15,19 @@ import {
   type UIEvent,
 } from "react"
 import { FloatingBoundaryProvider, useFloatingBoundaryRegistration, useFloatingBoundaryScope } from "../../hooks/useFloatingBoundary"
-import { ToolbarHostContext, type ToolbarHost, type ToolbarPlacement } from "../Toolbar/Toolbar"
+import { ToolbarHostContext, type BarBackground, type ToolbarHost, type ToolbarPlacement } from "../Toolbar/Toolbar"
+import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges } from "../../lib/scrollEdges"
 import s from "@plexui/styles/components/Page/Page.module.css"
 
-export type PageBarBackground = "glass" | "solid"
+/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. */
+export type PageBarBackground = BarBackground
 
 export type PageWidth = "full" | "wide" | "column"
 
-// A trackpad's small settle at the top must not flash the line.
-const SCROLLED_AFTER = 4
-
 type PageContextValue = {
-  scrolled: boolean
-  setScrolled: (scrolled: boolean) => void
+  /** Content under the header (scrolled) and under the footer (content below). */
+  edges: ScrollEdges
+  setEdges: (edges: ScrollEdges) => void
   setFooterHeight: (height: number) => void
   setHeaderHeight: (height: number | undefined) => void
   /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
@@ -80,7 +80,8 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
     }
     if (ref) ref.current = node
   }, [ref, setRoot])
-  const [scrolled, setScrolled] = useState(false)
+  const [edges, setEdgesState] = useState(NO_SCROLL_EDGES)
+  const setEdges = useCallback((next: ScrollEdges) => setEdgesState((current) => sameScrollEdges(current, next) ? current : next), [])
   const [footerHeight, setFooterHeight] = useState(0)
   const [headerHeight, setHeaderHeight] = useState<number>()
   // Written straight to the element: a scroll frame must not render the page again.
@@ -92,12 +93,12 @@ function PageRoot({ width = "full", surface = "plain", className, children, styl
     listeners.add(listener)
     return () => { listeners.delete(listener) }
   }, [])
-  const context = useMemo(() => ({ scrolled, setScrolled, setFooterHeight, setHeaderHeight, setScrollY, notifyScroll }), [scrolled, setScrollY, notifyScroll])
+  const context = useMemo(() => ({ edges, setEdges, setFooterHeight, setHeaderHeight, setScrollY, notifyScroll }), [edges, setEdges, setScrollY, notifyScroll])
   // A phone Toolbar replaces the header and footer bars; it reports its own heights.
   const [toolbarTop, setToolbarTop] = useState<number>()
   const [toolbarBottom, setToolbarBottom] = useState<number>()
   const setToolbarHeight = useCallback((placement: ToolbarPlacement, height: number | undefined) => (placement === "top" ? setToolbarTop : setToolbarBottom)(height), [])
-  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled, subscribeScroll }), [setToolbarHeight, scrolled, subscribeScroll])
+  const toolbarHost = useMemo<ToolbarHost>(() => ({ kind: "page", setHeight: setToolbarHeight, scrolled: edges.scrolled, contentBelow: edges.contentBelow, subscribeScroll }), [setToolbarHeight, edges, subscribeScroll])
   const pageStyle = {
     "--page-footer-height": `${footerHeight}px`,
     ...(headerHeight !== undefined ? { "--page-header-height": `${headerHeight}px` } : {}),
@@ -126,18 +127,19 @@ PageRoot.displayName = "Page"
 
 export type PageHeaderProps = HTMLAttributes<HTMLDivElement> & {
   /**
-   * Shows a divider once the content has scrolled under the header.
+   * Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone
+   * with a `"hard"` or `"glass"` background.
    * Turn it off when the content already draws a line of its own at that place.
    * @default true
    */
   divider?: boolean
-  /** Mobile bar surface. Glass blurs content beneath the bar. */
+  /** How the bar meets the content scrolled under it on a phone. @default "soft" */
   background?: PageBarBackground
   ref?: Ref<HTMLDivElement>
 }
 
-function PageHeader({ divider = true, background = "glass", className, children, ref, ...restProps }: PageHeaderProps) {
-  const { scrolled, setHeaderHeight } = usePageContext("Header")
+function PageHeader({ divider = true, background = "soft", className, children, ref, ...restProps }: PageHeaderProps) {
+  const { edges: { scrolled }, setHeaderHeight } = usePageContext("Header")
   const element = useRef<HTMLDivElement | null>(null)
   const setRef = useCallback((node: HTMLDivElement | null) => {
     element.current = node
@@ -243,11 +245,22 @@ export type PageContentProps = HTMLAttributes<HTMLDivElement> & {
   ref?: Ref<HTMLDivElement>
 }
 
-function PageContent({ fill = false, className, children, onScroll, ...restProps }: PageContentProps) {
-  const { setScrolled, setScrollY, notifyScroll } = usePageContext("Content")
+function PageContent({ fill = false, className, children, onScroll, ref, ...restProps }: PageContentProps) {
+  const { setEdges, setScrollY, notifyScroll } = usePageContext("Content")
+  const element = useRef<HTMLDivElement | null>(null)
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node
+    if (typeof ref === "function") return ref(node)
+    if (ref) ref.current = node
+  }, [ref])
+  useLayoutEffect(() => {
+    const content = element.current
+    if (!content) return
+    const stop = observeScrollEdges(content, setEdges)
+    return () => { stop(); setEdges(NO_SCROLL_EDGES) }
+  }, [setEdges])
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    setScrolled(event.currentTarget.scrollTop > SCROLLED_AFTER)
     setScrollY(event.currentTarget.scrollTop)
     notifyScroll(event.currentTarget.scrollTop)
     onScroll?.(event)
@@ -255,6 +268,7 @@ function PageContent({ fill = false, className, children, onScroll, ...restProps
 
   return (
     <div
+      ref={setRef}
       className={clsx(s.Content, className)}
       data-fill={fill ? "" : undefined}
       onScroll={handleScroll}
@@ -266,12 +280,15 @@ function PageContent({ fill = false, className, children, onScroll, ...restProps
 }
 PageContent.displayName = "Page.Content"
 
-export type PageFooterProps = PageSlotProps & { background?: PageBarBackground }
+export type PageFooterProps = PageSlotProps & {
+  /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+  background?: PageBarBackground
+}
 
 /** Actions that remain below the scrolling content, inside the page's safe area. */
-function PageFooter({ className, children, background = "glass", ref, ...restProps }: PageFooterProps) {
+function PageFooter({ className, children, background = "soft", ref, ...restProps }: PageFooterProps) {
   const element = useRef<HTMLDivElement | null>(null)
-  const { setFooterHeight } = usePageContext("Footer")
+  const { edges: { contentBelow }, setFooterHeight } = usePageContext("Footer")
   const setFloatingFooter = useFloatingBoundaryRegistration()?.setFooter
   const setRef = useCallback((node: HTMLDivElement | null) => {
     element.current = node
@@ -293,7 +310,13 @@ function PageFooter({ className, children, background = "glass", ref, ...restPro
     return () => { observer?.disconnect(); setFooterHeight(0) }
   }, [setFooterHeight])
   return (
-    <div ref={setRef} className={clsx(s.Footer, className)} data-background={background} {...restProps}>
+    <div
+      ref={setRef}
+      className={clsx(s.Footer, className)}
+      data-background={background}
+      data-content-below={contentBelow ? "" : undefined}
+      {...restProps}
+    >
       <div className={s.FooterContent}>{children}</div>
     </div>
   )

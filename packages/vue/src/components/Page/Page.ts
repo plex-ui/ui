@@ -13,22 +13,24 @@ import {
   type Ref,
 } from "vue"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
-import { TOOLBAR_HOST, type ToolbarPlacement } from "../Toolbar/Toolbar.js"
+import { TOOLBAR_HOST, type BarBackground, type ToolbarPlacement } from "../Toolbar/Toolbar.js"
+import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Page/Page.module.css"
 
 // Vue port of packages/ui/src/components/Page/Page.tsx. Exports are flat
 // (`PageHeader` for `Page.Header`, ...). As in React, caller attributes are
 // applied after the page's own (`class` is merged), so they win.
 
-export type PageBarBackground = "glass" | "solid"
+/** How a phone bar of the page meets the content scrolled under it; see `BarBackground`. */
+export type PageBarBackground = BarBackground
 
 export type PageWidth = "full" | "wide" | "column"
 
-// A trackpad's small settle at the top must not flash the line.
-const SCROLLED_AFTER = 4
-
 type PageContext = {
+  /** Content has scrolled under the header. */
   scrolled: Ref<boolean>
+  /** Content continues under the footer. */
+  contentBelow: Ref<boolean>
   footerHeight: Ref<number>
   headerHeight: Ref<number | undefined>
   /** Writes the content's scroll offset to the page as `--page-scroll-y`, which a large Toolbar title follows. */
@@ -75,7 +77,7 @@ const PageComponent = defineComponent({
       scrollListeners.add(listener)
       return () => { scrollListeners.delete(listener) }
     }
-    const context = { scrolled: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY, notifyScroll }
+    const context = { scrolled: ref(false), contentBelow: ref(false), footerHeight: ref(0), headerHeight: ref<number>(), setScrollY, notifyScroll }
     provide(PAGE_CONTEXT, context)
     // A phone Toolbar replaces the header and footer bars; it reports its own heights.
     const toolbarTop = ref<number>()
@@ -83,6 +85,7 @@ const PageComponent = defineComponent({
     provide(TOOLBAR_HOST, {
       kind: "page",
       scrolled: context.scrolled,
+      contentBelow: context.contentBelow,
       subscribeScroll,
       setHeight: (placement: ToolbarPlacement, height: number | undefined) => { (placement === "top" ? toolbarTop : toolbarBottom).value = height },
     })
@@ -106,13 +109,15 @@ export const PageHeader = defineComponent({
   name: "PageHeader",
   props: {
     /**
-     * Shows a divider once the content has scrolled under the header.
+     * Shows a divider once the content has scrolled under the header: on a
+     * desktop layout, and on a phone with a `"hard"` or `"glass"` background.
      * Turn it off when the content already draws a line of
      * its own at that place.
      * @default true
      */
     divider: { type: Boolean, default: true },
-    background: { type: String as PropType<PageBarBackground>, default: "glass" },
+    /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+    background: { type: String as PropType<PageBarBackground>, default: "soft" },
   },
   setup(props, { slots }) {
     const { scrolled, headerHeight } = injectPageContext("PageHeader")
@@ -193,11 +198,20 @@ export const PageContent = defineComponent({
     fill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
-    const { scrolled, setScrollY, notifyScroll } = injectPageContext("PageContent")
+    const { scrolled, contentBelow, setScrollY, notifyScroll } = injectPageContext("PageContent")
+    const element = ref<HTMLElement | null>(null)
+    let stop: (() => void) | undefined
+    onMounted(() => {
+      if (!element.value) return
+      stop = observeScrollEdges(element.value, (edges) => {
+        scrolled.value = edges.scrolled
+        contentBelow.value = edges.contentBelow
+      })
+    })
+    onBeforeUnmount(() => { stop?.(); scrolled.value = false; contentBelow.value = false })
 
     const onScroll = (event: Event) => {
       const top = (event.currentTarget as HTMLElement).scrollTop
-      scrolled.value = top > SCROLLED_AFTER
       setScrollY(top)
       notifyScroll(top)
     }
@@ -206,7 +220,7 @@ export const PageContent = defineComponent({
       h(
         "div",
         mergeProps(
-          { "class": s.Content, "data-fill": props.fill ? "" : undefined, onScroll },
+          { "ref": element, "class": s.Content, "data-fill": props.fill ? "" : undefined, onScroll },
           attrs,
         ),
         [h("div", { class: s.Column }, slots.default?.())],
@@ -217,10 +231,13 @@ export const PageContent = defineComponent({
 /** Actions that remain below the scrolling content (React `Page.Footer`). */
 export const PageFooter = defineComponent({
   name: "PageFooter",
-  props: { background: { type: String as PropType<PageBarBackground>, default: "glass" } },
+  props: {
+    /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+    background: { type: String as PropType<PageBarBackground>, default: "soft" },
+  },
   setup(props, { slots }) {
     const element = ref<HTMLElement | null>(null)
-    const { footerHeight } = injectPageContext("PageFooter")
+    const { contentBelow, footerHeight } = injectPageContext("PageFooter")
     const boundary = useFloatingBoundaryRegistration()
     const setFooter = (node: unknown) => {
       element.value = node instanceof HTMLElement ? node : null
@@ -237,7 +254,7 @@ export const PageFooter = defineComponent({
       observer.observe(footer, { box: "border-box" })
     })
     onBeforeUnmount(() => { observer?.disconnect(); footerHeight.value = 0 })
-    return () => h("div", { ref: setFooter, class: s.Footer, "data-background": props.background }, [
+    return () => h("div", { ref: setFooter, class: s.Footer, "data-background": props.background, "data-content-below": contentBelow.value ? "" : undefined }, [
       h("div", { class: s.FooterContent }, slots.default?.()),
     ])
   },

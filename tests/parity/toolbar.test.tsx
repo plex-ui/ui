@@ -407,10 +407,10 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     expect(document.querySelector("[data-toolbar] > .CollapsedTitle")).toBeNull()
   })
 
-  test("a bottom bar's edge starts 27px above its items and covers fully 60px later; a solid bar keeps no mask (IMG_5491)", () => {
+  test("a bottom bar's edge starts 27px above its items and covers fully 60px later; other backgrounds keep no mask (IMG_5491)", () => {
     const bottom = css.slice(css.indexOf('.Toolbar[data-placement="bottom"] {'))
     expect(bottom).toMatch(/&::before \{[^}]*inset: calc\(var\(--toolbar-bottom-item-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 60px\);/)
-    expect(bottom).toMatch(/&\[data-background="solid"\]::before \{\s*inset: 0;\s*-webkit-mask-image: none;\s*mask-image: none;/)
+    expect(bottom).toMatch(/&:not\(\[data-background="soft"\]\)::before \{\s*inset: 0;\s*-webkit-mask-image: none;\s*mask-image: none;/)
     // A single wide action has more room above it, and the edge moves with it.
     expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
   })

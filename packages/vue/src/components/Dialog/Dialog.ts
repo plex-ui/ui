@@ -39,10 +39,15 @@ import { attachSheetDrag } from "./sheetDrag.js"
 import { overlayTiming, overlayTimingLarge } from "../Transition/shared.js"
 import { provideFloatingBoundaryScope, useFloatingBoundaryRegistration } from "../../composables/useFloatingBoundary.js"
 import { NavigationButton } from "../Button/NavigationButton.js"
-import { TOOLBAR_HOST } from "../Toolbar/Toolbar.js"
+import { TOOLBAR_HOST, type BarBackground } from "../Toolbar/Toolbar.js"
+import { observeScrollEdges } from "../../lib/scrollEdges.js"
 import s from "@plexui/styles/components/Dialog/Dialog.module.css"
 
 const DOUBLE_CLICK = 300
+
+/** Where content lies under the bars: DialogBody reports it, the bars show their lines with it. */
+type DialogScroll = { scrolled: Ref<boolean>; contentBelow: Ref<boolean> }
+const DIALOG_SCROLL: InjectionKey<DialogScroll> = Symbol("DialogScroll")
 
 // Vue port of packages/ui/src/components/Dialog/Dialog.tsx on Reka UI
 // (the Vue lineage of Radix, same anatomy). Exports are flat (`Dialog`,
@@ -210,7 +215,9 @@ export const DialogContent = defineComponent({
   },
   setup(props, { slots, attrs }) {
     const { open, setOpen, titleCount, descriptionCount } = useDialogContext()
-    provide(TOOLBAR_HOST, { kind: "dialog" })
+    const scroll: DialogScroll = { scrolled: ref(false), contentBelow: ref(false) }
+    provide(DIALOG_SCROLL, scroll)
+    provide(TOOLBAR_HOST, { kind: "dialog", scrolled: scroll.scrolled, contentBelow: scroll.contentBelow })
     const mobilePlacement = computed(() =>
       props.mobileVariant === "alert"
         ? "center"
@@ -408,13 +415,18 @@ export const DialogContent = defineComponent({
   },
 })
 
-export type DialogBarBackground = "glass" | "solid"
+/** How a Sheet's bar meets the content scrolled under it; see `BarBackground`. */
+export type DialogBarBackground = BarBackground
 
 export const DialogHeader = defineComponent({
   name: "DialogHeader",
-  props: { background: { type: String as PropType<DialogBarBackground>, default: "glass" } },
+  props: {
+    /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
+    background: { type: String as PropType<DialogBarBackground>, default: "soft" },
+  },
   setup(props, { slots }) {
-    return () => h("div", { class: s.Header, "data-background": props.background }, slots.default?.())
+    const scroll = inject(DIALOG_SCROLL, null)
+    return () => h("div", { class: s.Header, "data-background": props.background, "data-scrolled": scroll?.scrolled.value ? "" : undefined }, slots.default?.())
   },
 })
 
@@ -430,7 +442,21 @@ export const DialogBody = defineComponent({
   name: "DialogBody",
   inheritAttrs: false,
   setup(_props, { slots, attrs }) {
-    return () => h("div", { class: [s.Body, attrs.class] }, slots.default?.())
+    const scroll = inject(DIALOG_SCROLL, null)
+    const element = ref<HTMLElement | null>(null)
+    let stop: (() => void) | undefined
+    onMounted(() => {
+      if (!element.value || !scroll) return
+      stop = observeScrollEdges(element.value, (edges) => {
+        scroll.scrolled.value = edges.scrolled
+        scroll.contentBelow.value = edges.contentBelow
+      })
+    })
+    onBeforeUnmount(() => {
+      stop?.()
+      if (scroll) { scroll.scrolled.value = false; scroll.contentBelow.value = false }
+    })
+    return () => h("div", { ref: element, class: [s.Body, attrs.class] }, slots.default?.())
   },
 })
 
@@ -439,11 +465,19 @@ export const DialogFooter = defineComponent({
   props: {
     /** Override the mobile action layout. Alerts default to inline; sheets to stacked. */
     mobileLayout: String as PropType<"inline" | "stacked">,
-    background: { type: String as PropType<DialogBarBackground>, default: "glass" },
+    /** How the bar meets the content scrolled under it in a phone Sheet. @default "soft" */
+    background: { type: String as PropType<DialogBarBackground>, default: "soft" },
   },
   setup(props, { slots }) {
     const boundary = useFloatingBoundaryRegistration()
-    return () => h("div", { ref: boundary?.setFooter, class: s.Footer, "data-mobile-layout": props.mobileLayout, "data-background": props.background }, slots.default?.())
+    const scroll = inject(DIALOG_SCROLL, null)
+    return () => h("div", {
+      "ref": boundary?.setFooter,
+      "class": s.Footer,
+      "data-mobile-layout": props.mobileLayout,
+      "data-background": props.background,
+      "data-content-below": scroll?.contentBelow.value ? "" : undefined,
+    }, slots.default?.())
   },
 })
 

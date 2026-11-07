@@ -8,7 +8,7 @@ import { DotsHorizontal, Filter, InfoCircle, Plus, Search, Translate } from '@pl
 import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Toolbar, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
+import { Toolbar, type BarBackground, type ToolbarTitleAlign, type ToolbarTitleStyle } from '@plexui/ui/components/Toolbar';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
@@ -192,6 +192,49 @@ export function ToolbarBottomDemo() {
               </Toolbar.Content>
             </Toolbar>
           )}
+        </Page>
+      </Frame>
+    </>
+  );
+}
+
+export const BAR_BACKGROUNDS = ['soft', 'hard', 'glass', 'solid'] as const satisfies readonly BarBackground[];
+
+/** The `background` control of the bar demos: one SegmentedControl over the four scroll edge styles. */
+export function BarBackgroundControl({ value, onChange, phoneOnly = false }: { value: BarBackground; onChange: (value: BarBackground) => void; phoneOnly?: boolean }) {
+  return (
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlRow name="background" phoneOnly={phoneOnly}>
+        <SegmentedControl<BarBackground> aria-label="background" size="xs" value={value} onChange={onChange}>
+          {BAR_BACKGROUNDS.map((background) => <SegmentedControl.Option key={background} value={background}>{background}</SegmentedControl.Option>)}
+        </SegmentedControl>
+      </DemoControlRow>
+    </div>
+  );
+}
+
+export function ToolbarBackgroundDemo() {
+  const [background, setBackground] = useState<BarBackground>('soft');
+
+  return (
+    <>
+      <BarBackgroundControl value={background} onChange={setBackground} />
+      <Frame>
+        <Page surface="grouped">
+          <Toolbar background={background}>
+            <Toolbar.Leading>
+              <NavigationButton action="back" />
+            </Toolbar.Leading>
+            <Toolbar.Title>Orders</Toolbar.Title>
+          </Toolbar>
+          <Page.Content>
+            <Rows />
+          </Page.Content>
+          <Toolbar placement="bottom" background={background}>
+            <Toolbar.Content>
+              <Button color="primary" pill>New order</Button>
+            </Toolbar.Content>
+          </Toolbar>
         </Page>
       </Frame>
     </>

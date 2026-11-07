@@ -238,7 +238,7 @@ describe("Page line", () => {
     expect(header.hasAttribute("data-scrolled")).toBe(false)
   })
 
-  test("a header without a divider still tracks scrolling for its glass surface", async () => {
+  test("a header without a divider still tracks scrolling for its background", async () => {
     render(reactTree({}, { divider: false }))
     await act(async () => scrollTo(document.querySelector(".Content")!, 20))
     expect(document.querySelector(".Header")!.hasAttribute("data-scrolled")).toBe(true)
@@ -300,8 +300,10 @@ describe.each(["React", "Vue"])("%s Page footer measurement", (framework) => {
       await flushVue()
       expect(document.querySelector<HTMLElement>(".Page")?.style.getPropertyValue("--page-footer-height")).toBe("90px")
       expect(document.querySelector(".Footer")?.getAttribute("data-background")).toBe("solid")
-      // Padding and safe-area changes alter the border box without changing the content box.
-      expect(observe).toHaveBeenCalledExactlyOnceWith(document.querySelector(".Footer"), { box: "border-box" })
+      // Padding and safe-area changes alter the border box without changing the content box. (The content
+      // is observed too, for the scroll edges of the bars.)
+      const footer = document.querySelector(".Footer")
+      expect(observe.mock.calls.filter(([target]) => target === footer)).toEqual([[footer, { box: "border-box" }]])
       height = 150
       await act(async () => { notify?.(); await flushVue() })
       expect(document.querySelector<HTMLElement>(".Page")?.style.getPropertyValue("--page-footer-height")).toBe("150px")

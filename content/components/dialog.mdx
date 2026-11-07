@@ -336,7 +336,7 @@ const field = useRef<HTMLInputElement>(null)
 
 ### Scrolling body
 
-<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={`const heading = useRef<HTMLDivElement>(null)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>Put long content in <code>Dialog.Body</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>Dialog.Header</code> and <code>Dialog.Footer</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/components/toolbar#background">Toolbar</a>'s do: <code>soft</code> by default, or <code>hard</code>, <code>glass</code> or <code>solid</code>.</>} code={`const heading = useRef<HTMLDivElement>(null)
 
 <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
   <Dialog.Header>
@@ -435,7 +435,7 @@ export default function Example() {
 
 **Dialog.Trigger**: opens the dialog; renders its child element (Radix `asChild`).
 
-**Dialog.Header**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. Set `background="solid"` for an opaque bar or keep `background="glass"` for a translucent blurred surface.
+**Dialog.Header**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `soft` (the default), `hard`, `glass` or `solid`, as on a [Toolbar](/components/toolbar#background).
 
 **Dialog.HeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it inside Dialog.Header and label icon-only controls. Mobile alerts hide this slot.
 
@@ -448,7 +448,7 @@ export default function Example() {
 **Dialog.Footer**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 
 <PropsTable data={[
-  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged" },
   { prop: "mobileLayout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
 ]} />
 
@@ -456,11 +456,11 @@ export default function Example() {
 
 ## Styling
 
-Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and glass/solid bars.
+Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and the bars' `background`.
 
 Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
-- `--dialog-panel-background`: panel and solid bar color; mobile follows the selected elevated surface role
+- `--dialog-panel-background`: panel color, and the color of a Sheet's soft, hard and solid bars; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 

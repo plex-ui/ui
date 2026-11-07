@@ -22,8 +22,16 @@ export type ToolbarPlacement = "top" | "bottom"
 /** Title layouts of the phone top bar. */
 export type ToolbarTitleStyle = "inline" | "large" | "compact-large" | "compact-medium"
 export type ToolbarTitleAlign = "center" | "start"
-/** `"edge"` fades the canvas over content scrolled under the bar; `"solid"` fills the bar. */
-export type ToolbarBackground = "edge" | "solid"
+/**
+ * How a bar meets the content scrolled under it, after the scroll edge effect of iOS 26:
+ * - `"soft"`: the canvas color covers the content under the bar's controls and fades out past them, over a light blur
+ * - `"hard"`: an opaque bar of the canvas color with a line once content is under it
+ * - `"glass"`: a translucent, blurred bar with a hairline, shown once content is under it
+ * - `"solid"`: an opaque bar of the canvas color without a line
+ */
+export type BarBackground = "soft" | "hard" | "glass" | "solid"
+/** `"edge"` is the earlier name of `"soft"`. */
+export type ToolbarBackground = BarBackground | "edge"
 
 /**
  * A surface that places phone toolbars: `Page` puts the top bar over its content
@@ -32,8 +40,10 @@ export type ToolbarBackground = "edge" | "solid"
 export type ToolbarHost = {
   kind: "page" | "dialog"
   setHeight?: (placement: ToolbarPlacement, height: number | undefined) => void
-  /** Content has scrolled under the top bar, so its glass casts a shadow. */
+  /** Content has scrolled under the top bar, so its glass casts a shadow and a hard or glass bar shows its line. */
   scrolled?: Ref<boolean>
+  /** Content continues under the bottom bar, so a hard or glass bar shows its line. */
+  contentBelow?: Ref<boolean>
   /** Calls the listener with the content's scroll offset on every scroll; returns the unsubscribe. A TabBar minimizes with it. */
   subscribeScroll?: (listener: (scrollTop: number) => void) => () => void
 }
@@ -65,8 +75,8 @@ const ToolbarComponent = defineComponent({
     titleStyle: { type: String as PropType<ToolbarTitleStyle>, default: "inline" },
     /** Alignment of an inline title. Compact and large titles always start at the leading edge. @default "center" */
     titleAlign: { type: String as PropType<ToolbarTitleAlign>, default: "center" },
-    /** @default "edge" */
-    background: { type: String as PropType<ToolbarBackground>, default: "edge" },
+    /** How the bar meets the content scrolled under it on a phone. @default "soft" */
+    background: { type: String as PropType<ToolbarBackground>, default: "soft" },
   },
   setup(props, { slots }) {
     const host = inject(TOOLBAR_HOST, null)
@@ -100,9 +110,10 @@ const ToolbarComponent = defineComponent({
       "data-placement": props.placement,
       "data-title-style": props.placement === "top" ? props.titleStyle : undefined,
       "data-title-align": props.placement === "top" ? props.titleAlign : undefined,
-      "data-background": props.background,
+      "data-background": props.background === "edge" ? "soft" : props.background,
       "data-host": host?.kind,
       "data-scrolled": props.placement === "top" && host?.scrolled?.value ? "" : undefined,
+      "data-content-below": props.placement === "bottom" && host?.contentBelow?.value ? "" : undefined,
     }, slots.default?.())
   },
 })
@@ -112,6 +123,7 @@ export type ToolbarProps = {
   placement?: ToolbarPlacement
   titleStyle?: ToolbarTitleStyle
   titleAlign?: ToolbarTitleAlign
+  /** How the bar meets the content scrolled under it on a phone. @default "soft" */
   background?: ToolbarBackground
 } & HTMLAttributes
 

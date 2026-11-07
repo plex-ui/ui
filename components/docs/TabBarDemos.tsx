@@ -5,7 +5,8 @@ import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Calendar, Home, Images, SettingsCog } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
 import { TabBar } from '@plexui/ui/components/TabBar';
-import { Toolbar } from '@plexui/ui/components/Toolbar';
+import { Toolbar, type BarBackground } from '@plexui/ui/components/Toolbar';
+import { BarBackgroundControl } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
 
@@ -32,13 +33,13 @@ function Rows({ label }: { label: string }) {
   );
 }
 
-function Screen({ tabs, search, minimize = false }: { tabs: typeof TABS; search?: boolean; minimize?: boolean }) {
+function Screen({ tabs, search, minimize = false, background }: { tabs: typeof TABS; search?: boolean; minimize?: boolean; background?: BarBackground }) {
   const [tab, setTab] = useState(tabs[0].value);
   const title = tab === 'search' ? 'Search' : tabs.find((item) => item.value === tab)?.label ?? '';
   return (
     <Frame>
       <Page surface="grouped">
-        <Toolbar>
+        <Toolbar background={background}>
           <Toolbar.Title>{title}</Toolbar.Title>
         </Toolbar>
         <Page.Content>
@@ -49,6 +50,7 @@ function Screen({ tabs, search, minimize = false }: { tabs: typeof TABS; search?
           onValueChange={setTab}
           search={search ? { value: 'search' } : undefined}
           minimizeBehavior={minimize ? 'onScrollDown' : 'never'}
+          background={background}
         >
           {tabs.map((item) => <TabBar.Item key={item.value} {...item} />)}
         </TabBar>
@@ -67,4 +69,15 @@ export function TabBarSearchDemo() {
 
 export function TabBarMinimizeDemo() {
   return <Screen tabs={TABS.slice(0, 3)} search minimize />;
+}
+
+export function TabBarBackgroundDemo() {
+  const [background, setBackground] = useState<BarBackground>('soft');
+
+  return (
+    <>
+      <BarBackgroundControl value={background} onChange={setBackground} />
+      <Screen tabs={TABS} background={background} />
+    </>
+  );
 }

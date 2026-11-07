@@ -1,6 +1,7 @@
 export {
   Toolbar,
   ToolbarHostContext,
+  type BarBackground,
   type ToolbarBackground,
   type ToolbarContentProps,
   type ToolbarHost,

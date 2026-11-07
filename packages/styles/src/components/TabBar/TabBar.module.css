@@ -30,6 +30,38 @@
       -webkit-mask-image: linear-gradient(to top, #000, transparent);
       mask-image: linear-gradient(to top, #000, transparent);
       pointer-events: none;
+      transition: opacity var(--transition-duration-basic), border-color var(--transition-duration-basic);
+    }
+
+    /* The other backgrounds of a bar (`BarBackground`) fill the bar behind the capsule: hard and solid
+       opaque, glass translucent and shown once content is under it. Hard and glass then draw a line on
+       the bar's top edge. */
+    &:not([data-background="soft"])::before {
+      inset: 0;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    &[data-background="hard"]::before {
+      border-top: 1px solid transparent;
+    }
+
+    &[data-background="glass"]::before {
+      border-top: 0.5px solid var(--page-bar-line);
+      background: color-mix(in srgb, var(--tab-bar-edge-background, var(--page-background)) var(--page-bar-veil-opacity), transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      opacity: 0;
+    }
+
+    &[data-content-below][data-background="hard"]::before {
+      border-top-color: var(--page-bar-hard-line);
+    }
+
+    &[data-content-below][data-background="glass"]::before {
+      opacity: 1;
     }
 
     /* With a search tab, or minimized, the capsule keeps to the leading edge and search to the trailing one. */

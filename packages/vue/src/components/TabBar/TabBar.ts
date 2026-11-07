@@ -14,7 +14,7 @@ import {
 } from "vue"
 import s from "@plexui/styles/components/TabBar/TabBar.module.css"
 import { Search as SearchIcon } from "../Icon/index.js"
-import { TOOLBAR_HOST } from "../Toolbar/Toolbar.js"
+import { TOOLBAR_HOST, type BarBackground } from "../Toolbar/Toolbar.js"
 
 // Vue port of packages/ui/src/components/TabBar/TabBar.tsx. Exports are flat (`TabBarItem` for `TabBar.Item`);
 // the symbol of an item is its `icon` slot. React's `value` + `onValueChange` become `value` + `update:value`
@@ -119,6 +119,8 @@ const TabBarComponent = defineComponent({
     minimized: { type: Boolean, default: undefined },
     /** The minimized state when it is initially rendered. @default false */
     defaultMinimized: { type: Boolean, default: false },
+    /** How the bar meets the content scrolled under it; see `BarBackground`. @default "soft" */
+    background: { type: String as PropType<BarBackground>, default: "soft" },
     /** Accessible name of the navigation. @default "Tabs" */
     ariaLabel: { type: String, default: "Tabs" },
   },
@@ -198,6 +200,8 @@ const TabBarComponent = defineComponent({
       "aria-label": props.ariaLabel,
       "class": [s.TabBar, attrs.class],
       "data-host": host?.kind,
+      "data-background": props.background,
+      "data-content-below": host?.contentBelow?.value ? "" : undefined,
       "data-minimized": minimized.value ? "" : undefined,
       "data-search": props.search ? "" : undefined,
     }, [

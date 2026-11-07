@@ -398,7 +398,7 @@ Props:
     - @open-auto-focus ((event: Event) => void) — Called when focus moves into the dialog on open; call event.preventDefault() to place it yourself, for example on the panel instead of the first field
     - @close-auto-focus ((event: Event) => void) — Called when focus returns on close; call event.preventDefault() to keep it elsewhere
   DialogFooter:
-    - background ("glass" | "solid") default: "glass" — Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged
+    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged
     - mobile-layout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
 Examples: Overview, Destructive confirmation, Text field, Metadata details, Sections and actions, Long details, Scrolling body, Placement, View options sheet, Segmented composer header
 
@@ -702,13 +702,13 @@ Props:
   - surface ("plain" | "grouped") default: "plain" — Mobile canvas and field-group palette; desktop colors stay unchanged
   - class (string) — Class of the root element
   PageHeader:
-    - background ("glass" | "solid") default: "glass" — Mobile toolbar background
-    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header
+    - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it on a phone, see Background
+    - divider (boolean) default: true — Shows a divider once the content has scrolled under the header: on a desktop layout, and on a phone with a hard or glass background
     - class (string) — Class of the band
   PageContent:
     - fill (boolean) default: false — The content fills the page and scrolls inside itself, from 768px up
     - class (string) — Class of the element that scrolls
-Examples: Overview, Widths, Heading, Fill
+Examples: Overview, Widths, Heading, Fill, Background
 
 ## Page Control
 A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
@@ -1073,13 +1073,14 @@ Props:
   - minimize-behavior ("never" | "onScrollDown") default: "never" — Minimize to the selected tab while the Page content scrolls down
   - minimized (boolean) — Controlled minimized state; bind with v-model:minimized
   - default-minimized (boolean) default: false — Minimized state (uncontrolled)
+  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background
   - aria-label (string) default: "Tabs" — Name of the navigation
   TabBarItem:
     - value (string) — Value of the tab
     - label (string) — Label under the symbol and the name of the tab
     - href (string) — Makes the tab a link
     - disabled (boolean) default: false — The tab cannot be selected
-Examples: Overview, Search tab, Minimize on scroll
+Examples: Overview, Search tab, Minimize on scroll, Background
 
 ## Table
 Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.
@@ -1237,12 +1238,12 @@ Props:
   - placement ("top" | "bottom") default: "top" — Top bar with 44px targets, or bottom bar with 48px targets
   - titleStyle ("inline" | "large" | "compact-large" | "compact-medium") default: "inline" — Size and place of ToolbarTitle in a top bar
   - titleAlign ("center" | "start") default: "center" — Alignment of an inline title. Large and compact titles always start at the leading edge
-  - background ("edge" | "solid") default: "edge" — edge fades the canvas color over the content under the bar; solid fills the bar
+  - background ("soft" | "hard" | "glass" | "solid") default: "soft" — How the bar meets the content scrolled under it, see Background. edge is the earlier name of soft
   - class (string) — Class of the bar
   ToolbarTitle:
     - subtitle (string) — Second, smaller line below the title. The subtitle slot takes precedence
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
-Examples: Overview, Titles, Group, Search, Bottom, Disabled, Sheet
+Examples: Overview, Titles, Group, Search, Bottom, Background, Disabled, Sheet
 
 ## Tooltip
 Brief informative text shown on hover or focus, for any trigger element, with conditional enabling and a compact variant.

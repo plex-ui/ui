@@ -588,8 +588,10 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 ### Scrolling body
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls.</>} code={body} previewMinHeight={120}>
-  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>Put long content in <code>DialogBody</code>: only the body scrolls, while the header and footer stay in view. Without it the whole panel scrolls. On a phone, <code>background</code> on <code>DialogHeader</code> and <code>DialogFooter</code> sets how the Sheet's bars meet the body scrolled under them, as a <a href="/vue/components/toolbar#background">Toolbar</a>'s do: <code>soft</code> by default, or <code>hard</code>, <code>glass</code> or <code>solid</code>.</>} code={body} previewMinHeight={120}>
+  <VueDemo template={body} phoneTemplate={body.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '').replace('<DialogHeader>', '<DialogHeader :background="background">').replace('<DialogFooter>', '<DialogFooter :background="background">')} controls={[
+    { name: "background", type: "select", options: ["soft", "hard", "glass", "solid"], default: "soft", phoneOnly: true },
+  ]} phoneState={{ open: true }} stageClassName="py-10 flex justify-center" state={{ open: false, terms }} />
 </ComponentPreview>
 
 ### Placement
@@ -660,7 +662,7 @@ import { SegmentedComposer } from './vue/SegmentedComposer';
 
 **DialogTrigger**: opens the dialog; renders its child element (Reka's `as-child`).
 
-**DialogHeader**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. Set `background="solid"` for an opaque bar or keep `background="glass"` for a translucent blurred surface.
+**DialogHeader**: wrapper for title, description and an optional header action. In a mobile Sheet, the title is centered and supporting content belongs on the next line. In a phone Sheet, `background` sets how the bar meets the body scrolled under it: `soft` (the default), `hard`, `glass` or `solid`, as on a [Toolbar](/vue/components/toolbar#background).
 
 **DialogHeaderAction**: positions one toolbar control beside Close on desktop and opposite Close in a mobile sheet. Place it inside DialogHeader and label icon-only controls. Mobile alerts hide this slot.
 
@@ -673,7 +675,7 @@ import { SegmentedComposer } from './vue/SegmentedComposer';
 **DialogFooter**: footer area for action buttons. Mobile alert actions are 48px pills in a wrapping row by default. Mobile sheets use 50px pill actions, 24px side gutters and at least 24px below the actions, including the bottom safe area. Standard dialogs and sheets stack their mobile actions.
 
 <PropsTable data={[
-  { prop: "background", type: '"glass" | "solid"', default: '"glass"', description: "Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "solid"', default: '"soft"', description: "How the phone Sheet's bar meets the body scrolled under it, as on a Toolbar. Also available on the header; desktop and Alert surfaces are unchanged" },
   { prop: "mobile-layout", type: '"inline" | "stacked"', description: "Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit" },
 ]} />
 
@@ -681,11 +683,11 @@ import { SegmentedComposer } from './vue/SegmentedComposer';
 
 ## Styling
 
-Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and glass/solid bars.
+Use `surface="grouped"` on dialog content for grouped forms. The default `surface="plain"` suits confirmations and standalone content. Mobile dialogs use elevated dark surface levels; the choice is independent of alert/sheet geometry and the bars' `background`.
 
 Dialog reads the shared semantic color, typography and spacing tokens listed in [Design tokens](/docs/foundations/design-tokens), so it follows theme changes made there. Override these Dialog tokens at any scope:
 
-- `--dialog-panel-background`: panel and solid bar color; mobile follows the selected elevated surface role
+- `--dialog-panel-background`: panel color, and the color of a Sheet's soft, hard and solid bars; mobile follows the selected elevated surface role
 - `--dialog-close-background`: close button background (default `transparent`)
 - `--dialog-close-background-hover`: close button background on hover
 
