@@ -179,6 +179,22 @@
   opacity: 1;
 }
 
+/* On a phone the clear button takes the 44px target of iOS, as SelectControl's and the
+   FloatingLabelInput's do: the target takes layout space, the face and glyph keep their size. */
+@media (max-width: 767px) {
+  .Clear {
+    min-width: 44px;
+    min-height: 44px;
+
+    &::before,
+    &::after {
+      width: var(--button-size);
+      height: var(--button-size);
+      margin: auto;
+    }
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .FieldFootprint:hover:where(:not(:root[data-input="touch"] *)):not([data-disabled]) .Clear {
     opacity: 1;

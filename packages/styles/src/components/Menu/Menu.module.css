@@ -218,6 +218,23 @@
   opacity: 1;
 }
 
+/* On a phone an action takes the 44px target of iOS around its face; the negative margin keeps the
+   row's layout and the glyph where they were. */
+@media (max-width: 767px) {
+  .ItemActions > button {
+    min-width: 44px;
+    min-height: 44px;
+    margin: calc((var(--button-size) - 44px) / 2);
+
+    &::before,
+    &::after {
+      width: var(--button-size);
+      height: var(--button-size);
+      margin: auto;
+    }
+  }
+}
+
 .Separator {
   height: 1px;
   margin: var(--menu-separator-gutter);

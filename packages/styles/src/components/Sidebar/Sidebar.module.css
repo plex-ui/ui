@@ -851,6 +851,23 @@
   border-radius: var(--radius-xs);
 }
 
+/* On a phone the dismiss button takes the 44px target of iOS around its face; the negative margin
+   keeps the glyph in the card's corner. */
+@media (max-width: 767px) {
+  .CardDismiss {
+    min-width: 44px;
+    min-height: 44px;
+    margin: calc((var(--button-size) - 44px) / 2);
+
+    &::before,
+    &::after {
+      width: var(--button-size);
+      height: var(--button-size);
+      margin: auto;
+    }
+  }
+}
+
 .CardContent {
   flex: 1;
   color: var(--color-text-secondary);
