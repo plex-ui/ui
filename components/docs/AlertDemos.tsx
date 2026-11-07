@@ -29,18 +29,30 @@ function RowMatrix({
 }) {
   return (
     <div className="flex flex-col gap-6">
+      {/* On a phone the color names stand above the alerts, which keep the screen's width */}
       {rowLabels.map((row, ri) => (
-        <div key={ri} className="flex items-center">
+        <div key={ri} className="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0">
           <div
-            className="text-right text-sm mr-8 min-w-[4rem]"
+            className="text-sm md:text-right md:mr-8 md:min-w-[4rem]"
             style={{ color: 'var(--color-text-tertiary)' }}
           >
             {row}
           </div>
-          <div className="flex-1">{renderRow(ri)}</div>
+          <div className="md:flex-1">{renderRow(ri)}</div>
         </div>
       ))}
     </div>
+  );
+}
+
+/** The Overview notice; on a phone its dismiss button is the close button in the corner of an iOS tip. */
+export function AlertOverviewDemo() {
+  return (
+    <Alert
+      title="Scheduled maintenance"
+      description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
+      onDismiss={() => {}}
+    />
   );
 }
 
@@ -65,7 +77,7 @@ export function AlertColorsDemo() {
         </DemoControlRow>
       </div>
       <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
-        <div className="w-fit min-w-full max-w-[500px]">
+        <div className="w-fit max-w-[500px]">
           <RowMatrix
             rowLabels={[...COLOR_OPTIONS]}
             renderRow={(row) => (
@@ -95,11 +107,7 @@ export function AlertIndicatorDemo() {
     <div data-demo-stage className="flex-1 w-full py-12 flex flex-col items-center justify-center gap-6">
       <Alert
         indicator={<Lightbulb />}
-        description={
-          <>
-            We&apos;re working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-          </>
-        }
+        description="Tip: pin the projects you open most, and they stay at the top of the list."
       />
       <Alert
         indicator={false}

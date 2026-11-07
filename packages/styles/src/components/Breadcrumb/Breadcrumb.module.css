@@ -66,3 +66,40 @@
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
+
+/* iOS has no breadcrumb: a phone screen goes back with the back button of its bar (Toolbar). A trail
+   kept on a phone takes the iOS Subheadline, 15/20, at either size (14 and 12 are not iOS text styles),
+   as the secondary text of phone rows does, and each link the 44pt touch target of iOS. A link keeps its
+   text width in the line; its target reaches 44px wide around a short word, so the gaps stay those of
+   the text. Lines of a wrapping trail stand 44px apart, one target each. */
+@media (max-width: 767px) {
+  .Breadcrumb,
+  .Breadcrumb[data-size="sm"] {
+    --breadcrumb-font-size: 15px;
+    --breadcrumb-line-height: 20px;
+    --breadcrumb-gap: 6px;
+  }
+
+  .List {
+    row-gap: 0;
+  }
+
+  /* Every line of a wrapping trail is a 44px line, also one without a link */
+  .Item {
+    min-height: 44px;
+  }
+
+  .Item > .Link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+
+    &::after {
+      position: absolute;
+      inset-block: 0;
+      inset-inline: min(0px, (100% - 44px) / 2);
+      content: "";
+    }
+  }
+}

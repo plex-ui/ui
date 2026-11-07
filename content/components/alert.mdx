@@ -8,7 +8,7 @@ import { Alert } from "@plexui/ui/components/Alert"
 import { Button } from "@plexui/ui/components/Button"
 
 import { TextLink } from "@plexui/ui/components/TextLink"
-import { AlertColorsDemo, AlertActionsDemo, AlertIndicatorDemo, AlertDismissibleDemo, AlertBannerDemo } from "@/components/docs/AlertDemos"
+import { AlertOverviewDemo, AlertColorsDemo, AlertActionsDemo, AlertIndicatorDemo, AlertDismissibleDemo, AlertBannerDemo } from "@/components/docs/AlertDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import { Alert } from "@plexui/ui/components/Alert";`}</UsageBlock>
@@ -18,20 +18,12 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview code={`<Alert
+<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.</>} code={`<Alert
   title="Scheduled maintenance"
   description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-  actions={<Button color="primary" variant="soft" pill>Dismiss</Button>}
+  onDismiss={() => {}}
 />`} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <Alert
-    title="Scheduled maintenance"
-    description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-    actions={
-      <Button color="primary" variant="soft" pill>
-        Dismiss
-      </Button>
-    }
-  />
+  <AlertOverviewDemo />
 </ComponentPreview>
 
 ### Colors & variants
@@ -93,7 +85,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Action placement
 
-<ComponentPreview details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actionsPlacement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>.</>} code={`<Alert
+<ComponentPreview details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actionsPlacement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.</>} phonePresentation="none" code={`<Alert
   title="Our terms of service has been updated"
   description="We've updated our terms to clarify how we handle data, billing, and user permissions. Please review and accept the latest terms to avoid impacting your service."
   actions={(
@@ -126,11 +118,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 <ComponentPreview details={<>Alert provides an indicator icon by default. You can override it by passing a custom icon to <code>indicator</code>, or pass <code>indicator={'{false}'}</code> to hide it entirely.</>} code={`<>
   <Alert
     indicator={<Lightbulb />}
-    description={
-      <>
-        We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-      </>
-    }
+    description="Tip: pin the projects you open most, and they stay at the top of the list."
   />
   <Alert
     indicator={false}
@@ -142,7 +130,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Dismissible
 
-<ComponentPreview details={<>The suggested approach for dismissible notices is to use labeled buttons via <code>actions</code>. You can also provide <code>onDismiss</code> to render a dismiss button in the alert chrome.</>} code={`<>
+<ComponentPreview details={<>The suggested approach for dismissible notices is to use labeled buttons via <code>actions</code>. You can also provide <code>onDismiss</code> to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.</>} code={`<>
   <Alert
     className="items-start"
     title="Try our new dashboard layout"

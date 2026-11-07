@@ -223,7 +223,7 @@ These examples keep the panel beside the trigger on desktop and below it on phon
 
 ### Open on hover
 
-<ComponentPreview language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>show-on-hover</code> to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.<br/><br/>By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and <code>tab</code> is used to navigate into the popover, focus will be restored to the trigger on close.</>} code={responsiveCode(hover)} previewMinHeight={168}>
   <VuePopoverDemo template={hover} />
 </ComponentPreview>
 

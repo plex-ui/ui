@@ -10,21 +10,18 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 export const overview = `<Alert
   title="Scheduled maintenance"
   description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
->
-  <template #actions>
-    <Button color="primary" variant="soft" pill>Dismiss</Button>
-  </template>
-</Alert>`
+  @dismiss="() => {}"
+/>`
 
-export const colors = `<div class="w-fit min-w-full max-w-[500px]">
+export const colors = `<div class="w-fit max-w-[500px]">
   <div class="flex flex-col gap-6">
     <div
       v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
       :key="color"
-      class="flex items-center"
+      class="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0"
     >
-      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
-      <div class="flex-1">
+      <div class="text-sm md:text-right md:mr-8 md:min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
+      <div class="md:flex-1">
         <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
           <template #description>
             Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
@@ -79,12 +76,9 @@ export const actionPlacement = `<Alert
 </Alert>`
 
 export const indicator = `<div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert>
+  <Alert description="Tip: pin the projects you open most, and they stay at the top of the list.">
     <template #indicator>
       <Lightbulb />
-    </template>
-    <template #description>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
     </template>
   </Alert>
   <Alert
@@ -111,7 +105,7 @@ export const dismissible = `<div class="flex flex-col items-center justify-cente
   />
 </div>`
 
-export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6">
+export const banner = `<div class="flex flex-col items-stretch justify-center gap-6 w-full">
   <Alert
     banner
     color="caution"
@@ -133,7 +127,7 @@ export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stret
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview details={<>On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.</>} language="vue" code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo template={overview} />
 </ComponentPreview>
 
@@ -167,7 +161,7 @@ export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stret
 
 ### Action placement
 
-<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>.</>} code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>Actions are automatically positioned in the alert by default. You can force a specific position with the <code>actions-placement</code> prop by passing either <code>'end'</code> or <code>'bottom'</code>. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.</>} phonePresentation="none" code={actionPlacement} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo template={actionPlacement} />
 </ComponentPreview>
 
@@ -179,7 +173,7 @@ export const banner = `<div class="flex-1 w-full py-12 flex flex-col items-stret
 
 ### Dismissible
 
-<ComponentPreview language="vue" details={<>The suggested approach for dismissible notices is to use labeled buttons in the <code>actions</code> slot. You can also listen to <code>@dismiss</code> to render a dismiss button in the alert chrome.</>} code={dismissible} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview language="vue" details={<>The suggested approach for dismissible notices is to use labeled buttons in the <code>actions</code> slot. You can also listen to <code>@dismiss</code> to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.</>} code={dismissible} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo template={dismissible} />
 </ComponentPreview>
 

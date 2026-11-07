@@ -577,14 +577,18 @@ const OVERFLOW_WIDTHS = ['240', '360', '560'] as const;
 
 export function TabsOverflowMenuDemo() {
   const [tab, setTab] = useState('code');
-  const [width, setWidth] = useState<(typeof OVERFLOW_WIDTHS)[number]>('360');
+  const [chosenWidth, setWidth] = useState<(typeof OVERFLOW_WIDTHS)[number]>('360');
+  // A phone screen is narrower than 560px, so a phone offers the widths it can show
+  const phone = usePhoneRows();
+  const widths = phone ? OVERFLOW_WIDTHS.filter((w) => w !== '560') : OVERFLOW_WIDTHS;
+  const width = phone && chosenWidth === '560' ? '360' : chosenWidth;
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlRow name="container width">
           <SegmentedControl value={width} onChange={setWidth} size="xs" aria-label="container width">
-            {OVERFLOW_WIDTHS.map((w) => (
+            {widths.map((w) => (
               <SegmentedControl.Option key={w} value={w}>{w}px</SegmentedControl.Option>
             ))}
           </SegmentedControl>

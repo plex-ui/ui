@@ -53,7 +53,8 @@
 .Title {
   color: var(--color-text);
   font-size: var(--font-text-sm-size);
-  line-height: var(--font-text-sm-line-height);
+  /* Sonner's unlayered [data-title] sets line-height: 1.5 (21px at 14px) */
+  line-height: var(--font-text-sm-line-height) !important;
   /* Sonner pins font-weight: 500; keep that for title-only toasts and only
      lift to semibold when a description sits alongside (so the title is
      visually anchored against the secondary text). */
@@ -66,10 +67,16 @@
 }
 
 .Description {
-  color: var(--color-text-secondary);
+  /* Sonner's unlayered [data-description] sets line-height: 1.4 and its own gray (below) */
   font-size: var(--font-text-sm-size);
-  line-height: var(--font-text-sm-line-height);
+  line-height: var(--font-text-sm-line-height) !important;
   text-wrap: pretty;
+}
+
+/* Sonner's unlayered stylesheet paints the description #3f3f3f (91% in dark); a toast with rich
+   colors keeps Sonner's inherited color. */
+.Toast:not([data-rich-colors="true"]) .Description {
+  color: var(--color-text-secondary) !important;
 }
 
 .Content {
@@ -153,8 +160,9 @@
   box-shadow: none !important;
 }
 
-/* Toast is an in-app web feedback composition, not the iOS notification banner.
-   These targets and wrapping rules adapt Sonner's controls for phone use. */
+/* A toast stays an in-app web message: it takes the look of an iOS notification banner on a phone
+   (below) but not its behavior. These targets and wrapping rules adapt Sonner's controls for touch:
+   an action stands under the message, which keeps the toast's width. */
 @media (max-width: 767px), (pointer: coarse) {
   .Toast[data-styled="true"] {
     flex-wrap: wrap;
@@ -211,5 +219,48 @@
   .Toaster[dir="rtl"] .Toast[data-styled="true"] > [data-close-button] {
     left: auto !important;
     right: 0 !important;
+  }
+}
+
+/* On a phone a toast takes the corners, padding and text of the iOS notification banner, the
+   system's own message at the top of the screen (kit iOS 27, Notifications, Notification - Collapsed
+   Stack=1 0:11292): corners 24, padding 14, a 10px gap, the title at 15/17 semibold and the
+   description at 15/18. The kit's -0.23 tracking of 15pt text is left to the system font, which
+   tracks it itself. It keeps its own width and opaque surface, not the banner's glass and width. Its buttons are drawn as a medium phone Button (touch.css): a 34px capsule,
+   15/20 regular, gutter 14, centered in the 44px target above. */
+@media (max-width: 767px) {
+  .Toast[data-styled="true"] {
+    gap: 10px !important;
+    padding: 14px !important;
+    border-radius: 24px !important;
+    letter-spacing: normal;
+
+    & .Title,
+    & .Description {
+      font-size: 15px;
+      line-height: 18px !important;
+    }
+
+    & .Title {
+      line-height: 17px !important;
+    }
+
+    & > :is(.ActionButton, .CancelButton) {
+      position: relative;
+      min-height: 34px;
+      margin-block: 5px !important;
+      padding: 7px 14px !important;
+      border-radius: var(--radius-full) !important;
+      font-size: 15px !important;
+      font-weight: var(--font-weight-normal) !important;
+      line-height: 20px;
+
+      /* The 44px target reaches 5px past the capsule above and below */
+      &::after {
+        position: absolute;
+        inset: -5px 0;
+        content: "";
+      }
+    }
   }
 }

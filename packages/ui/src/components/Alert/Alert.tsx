@@ -5,7 +5,7 @@ import { type ReactNode, type Ref, useEffect, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { useResizeObserver } from "usehooks-ts"
 import { type SemanticColors, type Variants } from "../../types"
-import { CheckCircle, Info, Warning } from "../Icon"
+import { CheckCircle, Info, Warning, X } from "../Icon"
 import { Button } from "../Button"
 import s from "@plexui/styles/components/Alert/Alert.module.css"
 
@@ -102,13 +102,19 @@ export const Alert = ({
           <div className={clsx(s.Actions, actionsClassName)} ref={actionsRef}>
             {actions}
             {onDismiss && (
-              <Button type="button" onClick={onDismiss} color={color} variant="soft" pill>
+              <Button type="button" onClick={onDismiss} color={color} variant="soft" pill className={s.DismissButton}>
                 Dismiss
               </Button>
             )}
           </div>
         )}
       </div>
+      {/* On a phone the alert is dismissed with a close button in its corner, as an iOS tip is */}
+      {onDismiss && (
+        <Button type="button" onClick={onDismiss} color="secondary" variant="soft" size="sm" uniform pill aria-label="Dismiss" className={s.CloseButton}>
+          <X />
+        </Button>
+      )}
     </div>
   )
 }

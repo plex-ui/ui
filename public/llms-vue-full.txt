@@ -200,29 +200,27 @@ Props:
   - banner (boolean) default: false — Full-width strip: square corners, lines above and below only
 
 ### Overview
+On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.
 ```vue
 <Alert
   title="Scheduled maintenance"
   description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
->
-  <template #actions>
-    <Button color="primary" variant="soft" pill>Dismiss</Button>
-  </template>
-</Alert>
+  @dismiss="() => {}"
+/>
 ```
 
 ### Colors & variants
 You can stylize the display of the alert using the color and variant props.
 ```vue
-<div class="w-fit min-w-full max-w-[500px]">
+<div class="w-fit max-w-[500px]">
   <div class="flex flex-col gap-6">
     <div
       v-for="color in ['primary', 'success', 'danger', 'warning', 'caution', 'info', 'discovery']"
       :key="color"
-      class="flex items-center"
+      class="flex flex-col items-stretch gap-1.5 md:flex-row md:items-center md:gap-0"
     >
-      <div class="text-right text-sm mr-8 min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
-      <div class="flex-1">
+      <div class="text-sm md:text-right md:mr-8 md:min-w-[4rem]" style="color: var(--color-text-tertiary)">{{ color }}</div>
+      <div class="md:flex-1">
         <Alert :color="color" :variant="variant" title="Scheduled maintenance on Saturday, 2-4 AM PT">
           <template #description>
             Track status updates on <TextLink color="currentcolor" href="#">status page</TextLink>
@@ -279,7 +277,7 @@ You can add actions to the alert with the actions slot. Combine with @dismiss to
 ```
 
 ### Action placement
-Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'.
+Actions are automatically positioned in the alert by default. You can force a specific position with the actions-placement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
 ```vue
 <Alert
   title="Our terms of service has been updated"
@@ -297,12 +295,9 @@ Actions are automatically positioned in the alert by default. You can force a sp
 Alert provides an indicator icon by default. You can override it with the indicator slot, or pass :indicator="false" to hide it entirely.
 ```vue
 <div class="flex flex-col items-center justify-center gap-6 w-full">
-  <Alert>
+  <Alert description="Tip: pin the projects you open most, and they stay at the top of the list.">
     <template #indicator>
       <Lightbulb />
-    </template>
-    <template #description>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
     </template>
   </Alert>
   <Alert
@@ -313,7 +308,7 @@ Alert provides an indicator icon by default. You can override it with the indica
 ```
 
 ### Dismissible
-The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome.
+The suggested approach for dismissible notices is to use labeled buttons in the actions slot. You can also listen to @dismiss to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.
 ```vue
 <div class="flex flex-col items-center justify-center gap-6 w-full">
   <Alert
@@ -337,7 +332,7 @@ The suggested approach for dismissible notices is to use labeled buttons in the 
 ### Banner
 Use banner for a full-width strip across the top or bottom of a page or panel: offline, read-only, a new version. It drops the rounded corners and keeps only the lines above and below. Pass :indicator="false" for a plain strip.
 ```vue
-<div class="flex-1 w-full py-12 flex flex-col items-stretch justify-center gap-6">
+<div class="flex flex-col items-stretch justify-center gap-6 w-full">
   <Alert
     banner
     color="caution"
@@ -624,7 +619,7 @@ Props:
     - class (string) — Applied to the li element
 
 ### Overview
-Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href or to is a link (internal paths use the link component from PlexUIProvider, such as vue-router's RouterLink); the current item is plain text marked aria-current="page".
+Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href or to is a link (internal paths use the link component from PlexUIProvider, such as vue-router's RouterLink); the current item is plain text marked aria-current="page". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.
 ```vue
 <Breadcrumb>
   <BreadcrumbItem href="#">Home</BreadcrumbItem>
@@ -634,7 +629,7 @@ Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An 
 ```
 
 ### Sizes
-Use size="sm" for a trail above a compact header; the default md sits above a page title.
+Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
 ```vue
 <Breadcrumb size="sm">
   <BreadcrumbItem href="#">Projects</BreadcrumbItem>
@@ -1957,6 +1952,7 @@ Props:
   - @copy ((copied: boolean) => void) — Emitted once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
+Hovering the trigger shows Copy after open-delay, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
 ```vue
 <CopyTooltip
   copy-value="sess_12345abcdefg"
@@ -6717,7 +6713,7 @@ The header has no line at rest. Scroll the content: the line comes after 4px and
 ```
 
 ### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
 ```vue
 <Page width="column">
   <PageHeader>...</PageHeader>
@@ -6904,7 +6900,7 @@ The popover can be sized with any combination of width, min-width, or max-width.
 ```
 
 ### Open on hover
-Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
+Use show-on-hover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
 ```vue
 <script setup lang="ts">
 import { Button } from '@plexui/vue/components/Button';
@@ -7175,7 +7171,7 @@ Use size to control the scale of step indicators.
 ```
 
 ### Vertical
-Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {"{ title, description }"} objects. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.
+Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {"{ title, description }"} objects. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen. The Overview already shows these vertical steps on a phone, with the dashed connector among its settings, so this example is desktop only.
 ```vue
 <div class="flex flex-wrap justify-center gap-20">
   <div>
@@ -11708,6 +11704,7 @@ Docs: https://plexui.com/vue/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
+On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface.
 ```vue
 <Button color="secondary" variant="outline" @click="toast('Inquiry ID copied')">
   Show toast

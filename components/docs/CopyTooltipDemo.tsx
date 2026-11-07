@@ -20,7 +20,8 @@ export function CopyTooltipBaseDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="openDelay">
+        {/* A tap copies and opens the tooltip at once: the hover delay is for a pointer only */}
+        <DemoControlRow name="openDelay" desktopOnly>
           <SliderValueControl
             ariaLabel="openDelay"
             min={0}

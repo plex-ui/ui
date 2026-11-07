@@ -208,6 +208,11 @@
     --sidebar-menu-sub-item-line-height: 22px;
     --sidebar-icon-size: 20px;
 
+    /* An inline Alert takes the text of an iOS tip (TipKit): the description at 15/20 (here), the
+       title at 17/22 semibold (Alert.module.css). 14 is not an iOS text style. */
+    --alert-font-size: 15px;
+    --alert-line-height: 20px;
+
     --table-cell-font-size: 15px;
     --table-cell-line-height: 20px;
     /* Dense data tables are a web composition: keep every column reachable

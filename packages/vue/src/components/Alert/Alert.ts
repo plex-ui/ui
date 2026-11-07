@@ -12,7 +12,7 @@ import {
   type VNodeChild,
 } from "vue"
 import type { SemanticColors, Variants } from "@plexui/styles/types"
-import { CheckCircle, Info, Warning } from "../Icon/index.js"
+import { CheckCircle, Info, Warning, X } from "../Icon/index.js"
 import { Button } from "../Button/index.js"
 import { hasContent } from "../../lib/slotContent.js"
 import s from "@plexui/styles/components/Alert/Alert.module.css"
@@ -144,13 +144,21 @@ const AlertComponent = defineComponent({
                   props.onDismiss
                     ? h(
                         Button,
-                        { type: "button", onClick: props.onDismiss, color, variant: "soft", pill: true },
+                        { type: "button", onClick: props.onDismiss, color, variant: "soft", pill: true, class: s.DismissButton },
                         { default: () => "Dismiss" },
                       )
                     : null,
                 ])
               : null,
           ]),
+          // On a phone the alert is dismissed with a close button in its corner, as an iOS tip is
+          props.onDismiss
+            ? h(
+                Button,
+                { "type": "button", "onClick": props.onDismiss, "color": "secondary", "variant": "soft", "size": "sm", "uniform": true, "pill": true, "aria-label": "Dismiss", "class": s.CloseButton },
+                { default: () => [h(X)] },
+              )
+            : null,
         ],
       )
     }

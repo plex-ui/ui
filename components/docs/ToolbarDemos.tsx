@@ -20,7 +20,8 @@ function Frame({ children }: { children: ReactNode }) {
   return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;
 }
 
-function Rows() {
+/** Orders in the rows of a FieldGroup: an iOS list on a phone, a bordered list on a desktop. */
+export function Rows() {
   return (
     <FieldGroup>
       {ROWS.map((row) => (

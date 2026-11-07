@@ -133,11 +133,12 @@ Props:
   - className (string) — Class applied to the alert container
 
 ### Overview
+On a phone an alert takes the shape and text of an iOS tip (TipKit), the system's message inside a screen: 26px corners, the title at 17/22 semibold and the description at 15/20, its actions under the message as 50px capsules side by side, and a close button in its corner instead of Dismiss. It keeps its icon, colors and variants.
 ```tsx
 <Alert
 title="Scheduled maintenance"
 description="We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database."
-actions={<Button color="primary" variant="soft" pill>Dismiss</Button>}
+onDismiss={() => {}}
 />
 ```
 
@@ -193,7 +194,7 @@ You can add actions to the alert with the actions prop, which accepts ReactNode.
 ```
 
 ### Action placement
-Actions are automatically positioned in the alert by default. You can force a specific position with the actionsPlacement prop by passing either 'end' or 'bottom'.
+Actions are automatically positioned in the alert by default. You can force a specific position with the actionsPlacement prop by passing either 'end' or 'bottom'. On a phone the actions always stand under the message, as in an iOS tip, so this example is desktop only.
 ```tsx
 <Alert
 title="Our terms of service has been updated"
@@ -214,11 +215,7 @@ Alert provides an indicator icon by default. You can override it by passing a cu
 <>
 <Alert
   indicator={<Lightbulb />}
-  description={
-    <>
-      We're working on centralizing SCIM and invite settings. For now, setup is handled within individual product settings. <TextLink href="#">Learn more</TextLink>
-    </>
-  }
+  description="Tip: pin the projects you open most, and they stay at the top of the list."
 />
 <Alert
   indicator={false}
@@ -228,7 +225,7 @@ Alert provides an indicator icon by default. You can override it by passing a cu
 ```
 
 ### Dismissible
-The suggested approach for dismissible notices is to use labeled buttons via actions. You can also provide onDismiss to render a dismiss button in the alert chrome.
+The suggested approach for dismissible notices is to use labeled buttons via actions. You can also provide onDismiss to render a dismiss button in the alert chrome. On a phone that button is a close button in the alert's corner, as on an iOS tip, while a labeled action stays a capsule under the message.
 ```tsx
 <>
 <Alert
@@ -524,7 +521,7 @@ Props:
     - className (string) — Applied to the li element
 
 ### Overview
-Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href is a link (internal paths use the linkComponent of PlexUIProvider, such as your router's link); the current item is plain text marked aria-current="page".
+Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An item with href is a link (internal paths use the linkComponent of PlexUIProvider, such as your router's link); the current item is plain text marked aria-current="page". iOS has no breadcrumb, a phone screen goes back with the back button of its Toolbar. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.
 ```tsx
 <Breadcrumb>
 <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
@@ -534,7 +531,7 @@ Breadcrumb renders a nav landmark named "Breadcrumb" around an ordered list. An 
 ```
 
 ### Sizes
-Use size="sm" for a trail above a compact header; the default md sits above a page title.
+Use size="sm" for a trail above a compact header; the default md sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.
 ```tsx
 <Breadcrumb size="sm">
 <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
@@ -1934,6 +1931,7 @@ Props:
   - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
+Hovering the trigger shows Copy after openDelay, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.
 ```tsx
 <CopyTooltip copyValue="sess_12345abcdefg">
 <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
@@ -6402,7 +6400,7 @@ The header has no line at rest. Scroll the content: the line comes after 4px and
 ```
 
 ### Widths
-The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size.
+The width belongs to the page, so the line, the title, the buttons and the content always stand in one column. Take full for tables, wide for overviews and column for settings and forms. For any other width set --page-width on the page. This frame is narrower than a screen, so the preview shows both widths at half their size. On a phone a page takes the width of the screen at every width, so this example is desktop only.
 ```tsx
 <Page width="column">
 <Page.Header>...</Page.Header>
@@ -6499,7 +6497,7 @@ The popover can be sized with any combination of width, minWidth, or maxWidth. A
 ```
 
 ### Open on hover
-Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
+Use showOnHover to create popovers that appear on hover and focus events. This should be used sparingly and with clear intention. A phone has no hover: a tap opens it, as in the Overview, so this example is desktop only.By default, hover popovers will not alter the focused element on the page, nor restore focus to the trigger on close. However, if interactive content is present in the popover, and tab is used to navigate into the popover, focus will be restored to the trigger on close.
 ```tsx
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 
@@ -6720,7 +6718,7 @@ Use size to control the scale of step indicators.
 ```
 
 ### Vertical
-Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.
+Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen. The Overview already shows these vertical steps on a phone, with the dashed connector among its settings, so this example is desktop only.
 ```tsx
 <ProgressSteps current={2} orientation="vertical">...</ProgressSteps>
 <ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">...</ProgressSteps>
@@ -10276,6 +10274,7 @@ Docs: https://plexui.com/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
+On a phone a toast takes the corners, padding and text of an iOS notification banner, the system's own message at the top of the screen: 24px corners and 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. It stays a message of the page, with its own width and opaque surface.
 ```tsx
 toast("Inquiry ID copied")
 ```

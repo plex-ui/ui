@@ -26,12 +26,12 @@ import { Button } from "@plexui/vue/components/Button";`}</UsageBlock>
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+<ComponentPreview details={<>Hovering the trigger shows Copy after <code>open-delay</code>, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.</>} language="vue" code={overview} previewMinHeight={168}>
   <VueDemo
     template={overview}
     stageClassName=""
     controls={[
-      { name: "openDelay", type: "range", min: 0, max: 1500, step: 50, default: 150 },
+      { name: "openDelay", desktopOnly: true, type: "range", min: 0, max: 1500, step: 50, default: 150 },
       { name: "sideOffset", type: "range", min: 0, max: 40, step: 1, default: 5 },
       { name: "alignOffset", type: "range", min: 0, max: 40, step: 1, default: 0 },
       { name: "side", type: "select", options: ["top", "right", "bottom", "left"], default: "top" },

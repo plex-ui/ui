@@ -220,3 +220,118 @@
     margin-top: var(--alert-gutter);
   }
 }
+/* The close button of a phone alert (below) */
+.Alert > .CloseButton {
+  display: none;
+}
+
+/* On a phone an Alert takes the shape and text of an iOS inline tip (TipKit), the system's message
+   inside a screen (kit TipKit, iOS Mini Tip Style=Hint 41:4207): 26 corners, 22 above and 16 at the
+   sides and below (22 below as well when no action shows), the icon 22 from the edge and 12 from the message, the title at 17/22 semibold and
+   the description at 15/20 4 under it, 22 to the actions, and the actions as 50px capsules with 17/22
+   semibold labels (a phone xl Button in touch.css), side by side 12 apart, each at least half the width,
+   wrapping when a label needs more. A dismissible alert closes with a 30px button in its corner, 19 from
+   the edges, in a 44px target, instead of a Dismiss action. The alert keeps its icon, colors and variants; a banner keeps
+   its square strip. */
+@media (max-width: 767px) {
+  .Alert {
+    position: relative;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 12px;
+    row-gap: 22px;
+    padding: 22px 16px;
+    border-radius: 26px;
+    --alert-indicator-size: 28px;
+
+    &:has(> .Content > .Actions > :not(.DismissButton)) {
+      padding-bottom: 16px;
+    }
+  }
+
+  .Alert[data-banner] {
+    border-radius: 0;
+  }
+
+  /* The actions take a line of their own under the icon and the message */
+  .Content {
+    display: contents;
+  }
+
+  .Indicator {
+    padding-inline-start: 6px;
+
+    &::before {
+      content: none;
+    }
+  }
+
+  .Message {
+    padding-inline-start: 6px;
+  }
+
+  .Indicator + .Content > .Message {
+    padding-inline-start: 0;
+  }
+
+  .Alert:has(> .CloseButton) .Message {
+    padding-inline-end: 34px;
+  }
+
+  .Title {
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .Title ~ .Description {
+    margin-top: 4px;
+  }
+
+  .Actions {
+    flex: 1 0 100%;
+    flex-flow: row wrap;
+    gap: 10px 12px;
+    align-self: stretch;
+    margin: 0;
+
+    &:not(:has(> :not(.DismissButton))) {
+      display: none;
+    }
+  }
+
+  .Alert .Actions > :where(button, a, [role="link"]) {
+    --button-size: var(--button-size-xl, 50px);
+    --button-font-size: var(--button-font-size-xl, 17px);
+    --button-font-weight: var(--font-weight-semibold);
+    --button-gutter: var(--button-gutter-xl, 20px);
+    --button-radius: var(--radius-full);
+    flex: 1 0 auto;
+    min-width: calc(50% - 6px);
+    max-width: 100%;
+    min-height: var(--button-size-xl, 50px);
+    height: auto;
+    padding-block: 14px;
+    line-height: var(--button-line-height-xl, 22px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .Alert .Actions > .DismissButton {
+    display: none;
+  }
+
+  /* A 44px target with its 30px circle (the background and the focus ring) 19 from the edges */
+  .Alert > .CloseButton {
+    --button-uniform-size: 44px;
+    --button-icon-size: 16px;
+    position: absolute;
+    top: 12px;
+    inset-inline-end: 12px;
+    display: inline-flex;
+
+    &::before,
+    &::after {
+      inset: 7px;
+    }
+  }
+}

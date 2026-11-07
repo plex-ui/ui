@@ -7,29 +7,14 @@ import { Page, type PageBarBackground, type PageWidth } from '@plexui/ui/compone
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { useDemoControlSync } from './PreviewEmbed';
-import { BarBackgroundControl } from './ToolbarDemos';
+import { BarBackgroundControl, Rows } from './ToolbarDemos';
 import s from './PageDemos.module.css';
-
-const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
 
 // The frame of a preview is narrower than both widths, so at their real size all three look alike.
 const HALF_WIDTHS = { '--page-width-wide': '640px', '--page-width-column': '384px' } as CSSProperties;
 
 function Frame({ children }: { children: ReactNode }) {
   return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;
-}
-
-function Rows() {
-  return (
-    <div className="divide-y divide-default rounded-xl border border-default">
-      {ROWS.map((row) => (
-        <div key={row} className="flex items-center justify-between px-4 py-3 text-sm">
-          <span>{row}</span>
-          <span className="text-secondary">Paid</span>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 export function PageOverviewDemo() {
@@ -61,9 +46,9 @@ export function PageWidthsDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlRow name="width">
           <SegmentedControl<PageWidth> aria-label="Page width" size="xs" value={width} onChange={setWidth}>
-            <SegmentedControl.Option value="full">Full</SegmentedControl.Option>
-            <SegmentedControl.Option value="wide">Wide</SegmentedControl.Option>
-            <SegmentedControl.Option value="column">Column</SegmentedControl.Option>
+            <SegmentedControl.Option value="full">full</SegmentedControl.Option>
+            <SegmentedControl.Option value="wide">wide</SegmentedControl.Option>
+            <SegmentedControl.Option value="column">column</SegmentedControl.Option>
           </SegmentedControl>
         </DemoControlRow>
       </div>
@@ -71,9 +56,9 @@ export function PageWidthsDemo() {
           <Page style={HALF_WIDTHS} width={width}>
             <Page.Header>
               <Page.Bar>
-                <Page.Title>Settings</Page.Title>
+                <Page.Title>Orders</Page.Title>
                 <Page.Actions>
-                  <Button color="primary" pill size="md">Save</Button>
+                  <Button color="primary" pill size="md">Export</Button>
                 </Page.Actions>
               </Page.Bar>
             </Page.Header>

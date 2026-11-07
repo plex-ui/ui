@@ -13,7 +13,7 @@ import { Button } from "@plexui/ui/components/Button";`}</UsageBlock>
 
 ### Overview
 
-<ComponentPreview code={`<CopyTooltip copyValue="sess_12345abcdefg">
+<ComponentPreview details={<>Hovering the trigger shows Copy after <code>openDelay</code>, keyboard focus shows it at once; a click copies the value and the tooltip says Copied! On a phone a tap copies and shows Copied! at once, so the delay applies to a pointer only.</>} code={`<CopyTooltip copyValue="sess_12345abcdefg">
   <Button color="secondary" variant="ghost" size="xl" aria-label="Copy session ID">
     sess_12345abcdefg
   </Button>

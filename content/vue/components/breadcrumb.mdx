@@ -48,13 +48,13 @@ export const wrap = `<div class="w-[260px]">
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> or <code>to</code> is a link (internal paths use the link component from <code>PlexUIProvider</code>, such as vue-router's <code>RouterLink</code>); the <code>current</code> item is plain text marked <code>aria-current="page"</code>.</>} code={overview} previewMinHeight={140}>
+<ComponentPreview language="vue" details={<>Breadcrumb renders a <code>nav</code> landmark named "Breadcrumb" around an ordered list. An item with <code>href</code> or <code>to</code> is a link (internal paths use the link component from <code>PlexUIProvider</code>, such as vue-router's <code>RouterLink</code>); the <code>current</code> item is plain text marked <code>aria-current="page"</code>. iOS has no breadcrumb, a phone screen goes back with the back button of its <a href="/vue/components/toolbar"><code>Toolbar</code></a>. A trail kept on a phone takes the 15/20 text of iOS and gives each link a 44px touch target.</>} code={overview} previewMinHeight={140}>
   <VueDemo stageClassName={STAGE} template={overview} />
 </ComponentPreview>
 
 ### Sizes
 
-<ComponentPreview language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title.</>} code={sizes} previewMinHeight={160}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>size="sm"</code> for a trail above a compact header; the default <code>md</code> sits above a page title. On a phone both sizes take the 15/20 text of iOS, so this example is desktop only.</>} code={sizes} previewMinHeight={160}>
   <VueDemo stageClassName={STAGE} template={sizes} />
 </ComponentPreview>
 
