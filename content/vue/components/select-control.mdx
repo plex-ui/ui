@@ -322,7 +322,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phoneMenuHeight={322} className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone)} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueSelectDemo phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" stageClassName={STAGE} template={overview} state={{ value: "" }} />
 </ComponentPreview>
 
@@ -388,13 +388,13 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `icon-type`
 
 ### Country selector
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={withPhone(countrySelector, countrySelectorPhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A plain country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots show flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. <code>countries</code> holds <code>{"{ value, label }"}</code> options, and <code>FlagIcon</code> renders the flag image for a country code. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={withPhone(countrySelector, countrySelectorPhone)} previewMinHeight={168}>
   <VueCountrySelectDemo phoneTemplate={phoneRows(countrySelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countrySelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Country code selector
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={withPhone(countryCodeSelector, countryCodeSelectorPhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A searchable country selector built with <code>Select</code>. The <code>#triggerView</code> and <code>#optionView</code> slots render flag icons and dial codes. A <code>search-predicate</code> matches both country name and dial code.</>} code={withPhone(countryCodeSelector, countryCodeSelectorPhone)} previewMinHeight={168}>
   <VueCountrySelectDemo phoneTemplate={phoneRows(countryCodeSelectorPhone)} phoneStageClassName="w-full" desktopControlNames={["size", "variant", "pill"]} stageClassName="py-10" template={countryCodeSelector} state={{ country: "us" }} controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "variant", type: "select", options: ["outline", "soft"], default: "outline" }, { name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 

@@ -45,43 +45,43 @@ export const weight = `<TextLink href="#" class="font-semibold" :underline="fals
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" code={overview} previewMinHeight={168}>
   <VueDemo template={overview} />
 </ComponentPreview>
 
 ### Inline usage
 
-<ComponentPreview language="vue" code={inline} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" code={inline} previewMinHeight={168}>
   <VueDemo template={inline} stageClassName="flex-1 flex flex-col items-center justify-center py-12 w-full" />
 </ComponentPreview>
 
 ### Default inheritance
 
-<ComponentPreview language="vue" details={<>By default, <code>TextLink</code> uses <code>currentcolor</code> inheritance and <code>text-decoration: underline</code> to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the <code>currentcolor</code>, with some special cases for <code>text-secondary</code> and <code>text-tertiary</code> contexts.<br /><br />You can see this behavior by changing the text color context of the paragraph the links are in below:</>} code={inheritance} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>By default, <code>TextLink</code> uses <code>currentcolor</code> inheritance and <code>text-decoration: underline</code> to create subtle visual differentiation from surrounding text. The hover effect is a dynamic deemphasis of the <code>currentcolor</code>, with some special cases for <code>text-secondary</code> and <code>text-tertiary</code> contexts.<br /><br />You can see this behavior by changing the text color context of the paragraph the links are in below:</>} code={inheritance} previewMinHeight={168}>
   <VueDemo template={inheritance} controls={[{ name: "colorClassName", type: "select", options: [{ value: "text-default", label: "default" }, { value: "text-base", label: "base" }, { value: "text-secondary", label: "secondary" }, { value: "text-tertiary", label: "tertiary" }, { value: "text-primary", label: "primary" }], default: "text-secondary" }]} />
 </ComponentPreview>
 
 ### Primary color
 
-<ComponentPreview language="vue" details={<>You can create a colorful link style with the <code>primary</code> prop, which uses color for visual differentiation.<br /><br />Primary links also remove the default <code>underline</code> treatment: pass <code>underline</code> to re-apply that style.</>} code={primary} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>You can create a colorful link style with the <code>primary</code> prop, which uses color for visual differentiation.<br /><br />Primary links also remove the default <code>underline</code> treatment: pass <code>underline</code> to re-apply that style.</>} code={primary} previewMinHeight={168}>
   <VueDemo template={primary} controls={[{ name: "primary", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Underline
 
-<ComponentPreview language="vue" details={<>Links have an underlined aesthetic by default.<br /><br />Pass <code>{':underline="false"'}</code> to remove the underline from the link.</>} code={underline} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Links have an underlined aesthetic by default.<br /><br />Pass <code>{':underline="false"'}</code> to remove the underline from the link.</>} code={underline} previewMinHeight={168}>
   <VueDemo template={underline} controls={[{ name: "underline", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### External links
 
-<ComponentPreview language="vue" details={<>When external paths are provided, <code>{'<a>'}</code> will be used with <code>{'target="_blank"'}</code> and <code>{'rel="noopener noreferrer"'}</code> included by default. You can also compose icons along with the text to add visual indication.</>} code={external} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>When external paths are provided, <code>{'<a>'}</code> will be used with <code>{'target="_blank"'}</code> and <code>{'rel="noopener noreferrer"'}</code> included by default. You can also compose icons along with the text to add visual indication.</>} code={external} previewMinHeight={168}>
   <VueDemo template={external} />
 </ComponentPreview>
 
 ### Font weight
 
-<ComponentPreview language="vue" details={<>Use the <code>class</code> attribute to customize font weight.</>} code={weight} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use the <code>class</code> attribute to customize font weight.</>} code={weight} previewMinHeight={168}>
   <VueDemo template={weight} />
 </ComponentPreview>
 

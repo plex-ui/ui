@@ -2,10 +2,10 @@
 
 import { useState, type ReactNode } from 'react';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName } from './phoneRowsTemplate';
+import { phoneCalendarSecondRowStageClassName, phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName } from './phoneRowsTemplate';
 import { usePhoneViewport } from './PreviewEmbed';
 
-export { phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName };
+export { phoneCalendarSecondRowStageClassName, phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName };
 
 /** True in a Phone preview, in the page's controls for it, and on a real narrow viewport. */
 export function usePhoneRows() {

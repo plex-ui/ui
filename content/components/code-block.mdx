@@ -14,7 +14,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Overview
 
-<ComponentPreview code={`<CodeBlock language="javascript">{codeSnippet}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="javascript">{codeSnippet}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="javascript">{CODE_BLOCK_SAMPLES.base}</CodeBlock>
   </div>
@@ -22,7 +22,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Collapsible
 
-<ComponentPreview details={<>Use <code>CollapsibleCodeBlock</code> to display code in a compact view with gradient overlay and an expand action.</>} code={`<CollapsibleCodeBlock language="tsx">{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" details={<>Use <code>CollapsibleCodeBlock</code> to display code in a compact view with gradient overlay and an expand action.</>} code={`<CollapsibleCodeBlock language="tsx">{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="tsx">{CODE_BLOCK_SAMPLES.tsx}</CollapsibleCodeBlock>
   </div>
@@ -30,7 +30,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Expanded by default
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="tsx" defaultExpanded>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="tsx" defaultExpanded>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="tsx" defaultExpanded>{CODE_BLOCK_SAMPLES.tsx}</CollapsibleCodeBlock>
   </div>
@@ -38,7 +38,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Custom collapsed height
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="typescript" collapsedHeight={60}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
   </div>
@@ -46,7 +46,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Max expanded height
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="typescript" defaultExpanded maxExpandedHeight={200}>{CODE_BLOCK_SAMPLES.typescript}</CollapsibleCodeBlock>
   </div>
@@ -54,7 +54,7 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Without copy button
 
-<ComponentPreview code={`<CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{code}</CollapsibleCodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CollapsibleCodeBlock language="python" defaultExpanded copyable={false}>{CODE_BLOCK_SAMPLES.python}</CollapsibleCodeBlock>
   </div>
@@ -62,49 +62,49 @@ import { CODE_BLOCK_SAMPLES } from "@/components/docs/CodeBlockSamples"
 
 ### Supported languages
 
-<ComponentPreview details={<>A pragmatic set of Prism grammars are pre-registered out of the box.</>} code={`<CodeBlock language="javascript">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" details={<>A pragmatic set of Prism grammars are pre-registered out of the box.</>} code={`<CodeBlock language="javascript">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="javascript">{CODE_BLOCK_SAMPLES.base}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="typescript">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="typescript">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="typescript">{CODE_BLOCK_SAMPLES.typescript}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="python">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="python">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="python">{CODE_BLOCK_SAMPLES.python}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="json">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="json">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="json">{CODE_BLOCK_SAMPLES.json}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="shell">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="shell">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="shell">{CODE_BLOCK_SAMPLES.bash}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="css">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="css">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="css">{CODE_BLOCK_SAMPLES.css}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="sql">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="sql">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="sql">{CODE_BLOCK_SAMPLES.sql}</CodeBlock>
   </div>
 </ComponentPreview>
 
-<ComponentPreview code={`<CodeBlock language="go">{code}</CodeBlock>`} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" code={`<CodeBlock language="go">{code}</CodeBlock>`} previewMinHeight={168}>
   <div className="w-full">
     <CodeBlock language="go">{CODE_BLOCK_SAMPLES.go}</CodeBlock>
   </div>

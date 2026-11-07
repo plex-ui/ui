@@ -11,8 +11,9 @@ import {
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
+import { Select } from '@plexui/ui/components/Select';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { PhoneRowsStage, phoneCalendarStageClassName, usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, phoneCalendarSecondRowStageClassName, phoneCalendarStageClassName, usePhoneRows } from './PhoneRows';
 
 // On a phone a date range picker is the value of a row in a FieldGroup: the range (short dates, None when empty)
 // and its up-down chevrons at the row's end, as a pop-up, opening our calendar. The row sets its height and
@@ -127,13 +128,42 @@ export function DateRangePickerLimitsDemo() {
   );
 }
 
+// The calendar shows no shortcuts below the md breakpoint. As in iOS settings, a phone offers them as a pop-up in a
+// row of their own (kit Lists, trailing Pop-up) above the row of dates; the row reads Custom for any other range.
+const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }));
+/** The label of the shortcut whose range the dates are, or '' */
+const periodOf = (range: DateRange | null) => {
+  if (!range) return '';
+  return dayShortcuts.find(({ getDateRange }) => {
+    const [start, end] = getDateRange();
+    return range[0].hasSame(start, 'day') && range[1].hasSame(end, 'day');
+  })?.label ?? '';
+};
+
 export function DateRangePickerShortcutsDemo() {
   const [value, setValue] = useState<DateRange | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneRangeRow label="Period">
-      <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} shortcuts={dayShortcuts} />
-    </PhoneRangeRow>
+    <PhoneRowsStage className={phoneCalendarSecondRowStageClassName}>
+      <FieldGroup>
+        <Field row label="Period">
+          <Select
+            value={periodOf(value)}
+            options={periodOptions}
+            onChange={({ value: label }) => {
+              const shortcut = dayShortcuts.find((item) => item.label === label);
+              if (shortcut) setValue(shortcut.getDateRange());
+            }}
+            placeholder={value ? 'Custom' : 'None'}
+            block={false}
+            align="end"
+          />
+        </Field>
+        <Field row label="Dates">
+          <DateRangePicker triggerShowIcon={false} triggerDateFormat="MMM d" placeholder="None" value={value} onChange={setValue} />
+        </Field>
+      </FieldGroup>
+    </PhoneRowsStage>
   );
   return (
     <div style={{ width: 'fit-content' }}>

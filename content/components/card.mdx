@@ -16,6 +16,7 @@ import {
   CardProcessingDemo,
   CardPricingDemo,
 } from "@/components/docs/CardDemos"
+import { PhoneScreen } from "@/components/docs/PhoneScreen"
 
 <UsageBlock>{`import { Card } from "@plexui/ui/components/Card";`}</UsageBlock>
 
@@ -24,7 +25,7 @@ import {
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview code={`<Card style={{ maxWidth: 380 }}>
+<ComponentPreview phonePresentation="screen" code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Project activity</Card.Title>
     <Card.Description>
@@ -36,12 +37,12 @@ import {
     <Button color="secondary" variant="outline" size="sm">Dismiss</Button>
   </Card.Footer>
 </Card>`}>
-  <CardOverviewDemo />
+  <PhoneScreen><CardOverviewDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Login
 
-<ComponentPreview details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={`<Card style={{ maxWidth: 380 }}>
+<ComponentPreview phonePresentation="screen" details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Log in to your account</Card.Title>
     <Card.Description>Enter your email below to log in to your account.</Card.Description>
@@ -68,12 +69,12 @@ import {
     </Card.Description>
   </Card.Footer>
 </Card>`}>
-  <CardLoginDemo />
+  <PhoneScreen><CardLoginDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Create project
 
-<ComponentPreview details={<>Right-aligned footer with Cancel / Deploy. Use <code>{'style={{ justifyContent: "flex-end" }}'}</code> on <code>Card.Footer</code>.</>} code={`<Card style={{ maxWidth: 380 }}>
+<ComponentPreview phonePresentation="screen" details={<>Right-aligned footer with Cancel / Deploy. Use <code>{'style={{ justifyContent: "flex-end" }}'}</code> on <code>Card.Footer</code>.</>} code={`<Card style={{ maxWidth: 380 }}>
   <Card.Header>
     <Card.Title>Create project</Card.Title>
     <Card.Description>Deploy a new project in one-click with sensible defaults.</Card.Description>
@@ -93,12 +94,12 @@ import {
     <Button color="primary" variant="solid" size="sm">Deploy</Button>
   </Card.Footer>
 </Card>`}>
-  <CardCreateProjectDemo />
+  <PhoneScreen><CardCreateProjectDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Payment Method
 
-<ComponentPreview details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={`const monthOptions = Array.from({ length: 12 }, (_, i) => {
+<ComponentPreview phonePresentation="screen" details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={`const monthOptions = Array.from({ length: 12 }, (_, i) => {
   const value = String(i + 1).padStart(2, "0")
   return { label: value, value }
 })
@@ -159,12 +160,12 @@ const [sameAsShipping, setSameAsShipping] = useState(true)
     </div>
   </div>
 </Card>`}>
-  <CardPaymentMethodDemo />
+  <PhoneScreen><CardPaymentMethodDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### No team members (empty state)
 
-<ComponentPreview details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
+<ComponentPreview phonePresentation="screen" details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
   <EmptyMessage>
     <EmptyMessage.Icon>
       <UserAdd />
@@ -176,12 +177,12 @@ const [sameAsShipping, setSameAsShipping] = useState(true)
     </EmptyMessage.ActionRow>
   </EmptyMessage>
 </Card>`}>
-  <CardNoTeamMembersDemo />
+  <PhoneScreen><CardNoTeamMembersDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### How did you hear about us?
 
-<ComponentPreview details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={`const [source, setSource] = useState("social")
+<ComponentPreview phonePresentation="screen" details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={`const [source, setSource] = useState("social")
 
 <Card style={{ maxWidth: 380 }}>
   <Card.Header>
@@ -200,12 +201,12 @@ const [sameAsShipping, setSameAsShipping] = useState(true)
     <Button color="primary" variant="solid" block>Submit</Button>
   </Card.Footer>
 </Card>`}>
-  <CardSurveyDemo />
+  <PhoneScreen><CardSurveyDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Processing your request
 
-<ComponentPreview details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
+<ComponentPreview phonePresentation="screen" details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={`<Card style={{ maxWidth: 380, padding: 24 }}>
   <EmptyMessage>
     <div style={{ marginBottom: 12, color: "var(--color-text-tertiary)" }}>
       <LoadingIndicator size={28} />
@@ -219,12 +220,12 @@ const [sameAsShipping, setSameAsShipping] = useState(true)
     </EmptyMessage.ActionRow>
   </EmptyMessage>
 </Card>`}>
-  <CardProcessingDemo />
+  <PhoneScreen><CardProcessingDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Pricing
 
-<ComponentPreview details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={`const plans = [
+<ComponentPreview phonePresentation="screen" details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={`const plans = [
   { name: "Starter", price: "$0", highlighted: false, features: ["1 project", "Community support", "Plex UI core"] },
   { name: "Pro", price: "$19", highlighted: true, features: ["Unlimited projects", "Priority support", "Custom domains", "Early components"] },
 ]
@@ -261,7 +262,7 @@ const [sameAsShipping, setSameAsShipping] = useState(true)
     </Card>
   ))}
 </div>`}>
-  <CardPricingDemo />
+  <PhoneScreen><CardPricingDemo /></PhoneScreen>
 </ComponentPreview>
 </div>
 

@@ -112,6 +112,23 @@
   }
 }
 
+/* On a phone, with touch.css, the chevron of a closed item points to the end, as the iOS disclosure chevron
+   (chevron.right) does, and turns down when the item opens: --accordion-chevron-closed-angle -90deg (mirrored for
+   right to left) and --accordion-chevron-open-angle 0deg. Without touch.css it keeps the desktop turn. */
+@media (max-width: 767px) {
+  .Chevron {
+    transform: rotate(var(--accordion-chevron-closed-angle, 0deg));
+  }
+
+  .Chevron:dir(rtl) {
+    transform: rotate(calc(var(--accordion-chevron-closed-angle, 0deg) * -1));
+  }
+
+  .Trigger[data-state="open"] .Chevron {
+    transform: rotate(var(--accordion-chevron-open-angle, 180deg));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .Trigger,
   .Chevron {

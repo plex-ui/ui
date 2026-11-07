@@ -238,7 +238,7 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 
 ### Overflow menu
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+<ComponentPreview phoneMenuHeight={325} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VuePhoneRowsDemo stageClassName={STAGE} template={overflowMenu} phoneTemplate={phoneRows(overflowMenu)} phoneStageClassName="w-full" state={{ tab: "code" }} controls={[{ name: "width", label: "container width", type: "select", options: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }, { value: "560", label: "560px" }], phoneOptions: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }], default: "360" }]} />
 </ComponentPreview>
 

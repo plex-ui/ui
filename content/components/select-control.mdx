@@ -36,7 +36,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} code={`const [value, setValue] = useState("")
+<ComponentPreview phoneMenuHeight={322} className={phoneRowsStyles.PhoneRowsPreview} code={`const [value, setValue] = useState("")
 
 // Desktop
 <Menu>
@@ -243,7 +243,7 @@ The same module exports `DropdownIcon` for custom menu triggers. Its `iconType` 
 
 ### Country selector
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={`const countries = [
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} details={<>A plain country selector built with <code>Select</code>. Shows flag icons with country names, no dial codes. Useful for profile forms, shipping addresses, and other country-only fields. The search box appears on its own because the list has more than 15 options; there is no prop for it.</>} code={`const countries = [
   { value: "us", label: "United States" },
   { value: "gb", label: "United Kingdom" },
   // ...60 countries
@@ -290,7 +290,7 @@ const CountryView = ({ value, label }: Option) => (
 
 ### Country code selector
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A searchable country selector built with <code>Select</code>. Custom <code>TriggerView</code> and <code>OptionView</code> render flag icons and dial codes. Search matches both country name and dial code.</>} code={`const countries = [
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} details={<>A searchable country selector built with <code>Select</code>. Custom <code>TriggerView</code> and <code>OptionView</code> render flag icons and dial codes. Search matches both country name and dial code.</>} code={`const countries = [
   { value: "us", label: "United States (+1)", dialCode: "+1" },
   { value: "gb", label: "United Kingdom (+44)", dialCode: "+44" },
   // ...60 countries

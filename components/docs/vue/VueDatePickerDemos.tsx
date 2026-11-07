@@ -60,6 +60,18 @@ const dayShortcuts = [
   },
 ];
 
+/** Shortcuts on a phone: the pop-up of the Period row holds the shortcuts */
+const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }));
+
+/** Shortcuts on a phone: the label of the shortcut whose range the dates are, or '' (the row then reads Custom) */
+const periodOf = (range: DateRange | null) => {
+  if (!range) return '';
+  return dayShortcuts.find(({ getDateRange }) => {
+    const [start, end] = getDateRange();
+    return range[0].hasSame(start, 'day') && range[1].hasSame(end, 'day');
+  })?.label ?? '';
+};
+
 /** "Two fields": the typed time, masked to HH:MM as in the React demo */
 const formatTime = (value: string) => {
   const raw = value.replace(/[^\d:]/g, '');
@@ -121,7 +133,8 @@ export function VueDatePickerDemo({
 }
 
 /**
- * A VueDemo whose template can use `DateTime`, `dayShortcuts`, `minDate`
+ * A VueDemo whose template can use `DateTime`, `dayShortcuts` (with
+ * `periodOptions` and `periodOf` for the phone rows), `minDate`
  * (30 days ago) and `maxDate` (the end of today). `value` starts empty, at
  * this month within the limits (`initialRange="limits"`), or at this month
  * up to today (`initialRange="month"`).
@@ -141,7 +154,7 @@ export function VueDateRangePickerDemo({
         : initialRange === 'month'
           ? getMonthStartAndEnd(today, { max: today })
           : null;
-    return { DateTime, dayShortcuts, minDate, maxDate, value };
+    return { DateTime, dayShortcuts, periodOptions, periodOf, minDate, maxDate, value };
   });
   if (props.phoneTemplate) return <VuePhoneRowsDemo {...props} state={{ ...scope, ...state }} />;
   return <VueDemo {...props} state={{ ...scope, ...state }} />;

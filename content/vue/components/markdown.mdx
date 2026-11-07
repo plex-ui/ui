@@ -17,7 +17,7 @@ export const math = `<Markdown include-math>{{ markdownWithLatex }}</Markdown>`
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Use <code>Markdown</code> to render rich markdown text. The markdown is the text of the default slot: interpolate a string (<code>{"{{ markdown }}"}</code>) so its newlines are kept, or pass it with the <code>source</code> prop.</>} code={overview} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>Markdown</code> to render rich markdown text. The markdown is the text of the default slot: interpolate a string (<code>{"{{ markdown }}"}</code>) so its newlines are kept, or pass it with the <code>source</code> prop.</>} code={overview} previewMinHeight={168}>
   <div className="w-full max-w-[700px] mx-auto py-8">
     <VueDemo template={overview} state={{ markdownContent }} />
   </div>
@@ -25,7 +25,7 @@ export const math = `<Markdown include-math>{{ markdownWithLatex }}</Markdown>`
 
 ### Math
 
-<ComponentPreview language="vue" details={<>Use <code>include-math</code> to enable LaTeX rendering.</>} code={math} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>Use <code>include-math</code> to enable LaTeX rendering.</>} code={math} previewMinHeight={168}>
   <div className="w-full max-w-[700px] mx-auto py-8">
     <VueDemo template={math} state={{ markdownWithLatex }} />
   </div>

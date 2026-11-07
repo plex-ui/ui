@@ -13,7 +13,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
 
 ### Overview
 
-<ComponentPreview details={<><code>ShimmerText</code> applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.</>} code={`<ShimmerText className="text-lg font-semibold">
+<ComponentPreview phonePresentation="none" details={<><code>ShimmerText</code> applies a continuous shimmer animation to text content. Useful for loading states, AI-generated content indicators, or visual emphasis.</>} code={`<ShimmerText className="text-lg font-semibold">
   Thinking...
 </ShimmerText>`} previewMinHeight={168}>
   <ShimmerText className="text-lg font-semibold">
@@ -23,7 +23,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
 
 ### Semantic elements
 
-<ComponentPreview details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code>.</>} code={`<div className="flex flex-col gap-4">
+<ComponentPreview phonePresentation="none" details={<>Use the <code>as</code> prop to render as any text element: <code>p</code>, <code>span</code>, <code>h1</code> to <code>h6</code>, or <code>div</code>.</>} code={`<div className="flex flex-col gap-4">
   <ShimmerText as="h2" className="text-2xl font-bold">Heading shimmer</ShimmerText>
   <ShimmerText as="p" className="text-base">Paragraph shimmer effect</ShimmerText>
   <ShimmerText as="span" className="text-sm text-secondary">Inline shimmer</ShimmerText>
@@ -37,7 +37,7 @@ import { ShimmerableTextDemo } from "@/components/docs/ShimmerTextDemos"
 
 ### Controllable shimmer
 
-<ComponentPreview details={<>
+<ComponentPreview phonePresentation="none" details={<>
   <p><code>ShimmerableText</code> allows toggling the shimmer on and off. When <code>shimmer</code> is set to <code>false</code>, the animation finishes its current iteration and then pauses gracefully, with no abrupt cut.</p>
   <p>Use this variant when text transitions between a loading and idle state.</p>
 </>} code={`const [shimmer, setShimmer] = useState(true)

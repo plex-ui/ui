@@ -6,7 +6,7 @@ metaDescription: Vue 3 date range picker with an interactive calendar, min/max l
 
 import { VueDateRangePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneCalendarStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
+import { phoneCalendarSecondRowStageClassName, phoneCalendarStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
@@ -81,12 +81,21 @@ export const limitsPhone = `<FieldGroup>
 
 export const shortcutsPhone = `<FieldGroup>
   <Field row label="Period">
+    <Select
+      :value="periodOf(value)"
+      :options="periodOptions"
+      :placeholder="value ? 'Custom' : 'None'"
+      :block="false"
+      align="end"
+      @change="({ value: label }) => (value = dayShortcuts.find((item) => item.label === label)?.getDateRange() ?? value)"
+    />
+  </Field>
+  <Field row label="Dates">
     <DateRangePicker
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
       placeholder="None"
       v-model:value="value"
-      :shortcuts="dayShortcuts"
     />
   </Field>
 </FieldGroup>`
@@ -121,8 +130,8 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
 
 ### Shortcuts
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>@change</code> carries that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarStageClassName} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>@change</code> carries that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a <code>Select</code> of the shortcut labels (<code>periodOptions</code>) above the Dates row. <code>periodOf(value)</code> is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
+  <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarSecondRowStageClassName} />
 </ComponentPreview>
 
 ### Month stepper
@@ -142,7 +151,7 @@ In the calendars, the arrow keys move focus by a day or a week, Home and End mov
   { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "max-range-days", type: "number", description: "Max length of range in days (inclusive)" },
   { prop: "week-starts-on", type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "0", description: "The day each week starts on, from 0 (Sunday) to 6 (Saturday)" },
-  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
+  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement." },
   { prop: "side-offset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },

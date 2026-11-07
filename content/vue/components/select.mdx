@@ -252,31 +252,31 @@ On Phone, put a select in a row of a `FieldGroup` with `:block="false"` and `ali
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the selection with <code>v-model:value</code>: a string, or an array of strings with <code>multiple</code>. The <code>@change</code> event carries the selected option (or options), like React's <code>onChange</code>.</>} code={withPhone(overview, overviewPhone, "the select is the value of a row.")} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={410} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the selection with <code>v-model:value</code>: a string, or an array of strings with <code>multiple</code>. The <code>@change</code> event carries the selected option (or options), like React's <code>onChange</code>.</>} code={withPhone(overview, overviewPhone, "the select is the value of a row.")} previewMinHeight={168}>
   <VueSelectDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size"]} state={{ fruit: "", multiFruits: [] }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "outline" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "checkPosition", type: "select", options: CHECK_POSITIONS, default: "start" }, { name: "clearable", type: "boolean", default: false }, { name: "multiple", type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### With descriptions
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Options carrying a <code>description</code> field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning <code>{'<div class="font-normal text-secondary py-px text-[0.935em] leading-[1.45]">'}</code>. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no <code>option-class-name</code> needed. Pass a component to <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon.</>} code={withPhone(descriptions, descriptionsPhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={261} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Options carrying a <code>description</code> field render a secondary line under each label. A description is a string, a VNode or a render function; here each role's is a render function returning <code>{'<div class="font-normal text-secondary py-px text-[0.935em] leading-[1.45]">'}</code>. The title stays semibold in every state (idle, highlighted, selected): the component handles that automatically, no <code>option-class-name</code> needed. Pass a component to <code>TriggerStartIcon</code> to reflect the selected option's identity in the trigger. In a phone row the value stands alone at the row's end, so the row has no trigger icon.</>} code={withPhone(descriptions, descriptionsPhone)} previewMinHeight={168}>
   <VueSelectDemo stageClassName={STAGE} template={descriptions} phoneTemplate={phoneRows(descriptionsPhone)} phoneStageClassName="w-full" desktopControlNames={["variant", "size", "triggerIcon"]} state={{ role: "reader" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "outline" }, { name: "size", type: "select", options: SIZES, default: "md" }, { name: "checkPosition", type: "select", options: CHECK_POSITIONS, default: "start" }, { name: "triggerIcon", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Actions
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Custom, arbitrary actions can be displayed below the options list via the <code>actions</code> prop. Each action has an <code>id</code>, a <code>label</code>, an optional <code>Icon</code> component and <code>className</code>, and an <code>onSelect</code> callback.</>} code={withPhone(actions, actionsPhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Custom, arbitrary actions can be displayed below the options list via the <code>actions</code> prop. Each action has an <code>id</code>, a <code>label</code>, an optional <code>Icon</code> component and <code>className</code>, and an <code>onSelect</code> callback.</>} code={withPhone(actions, actionsPhone)} previewMinHeight={168}>
   <VueSelectDemo template={actions} phoneTemplate={phoneRows(actionsPhone)} phoneStageClassName="w-full" state={{ value: "" }} />
 </ComponentPreview>
 
 ### Grouped options
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={withPhone(grouped, groupedPhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={482} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Select supports option groups, similar to the native <code>&lt;optgroup&gt;</code> element, and per-option tooltips. Each group is announced as a group named by its label. All selects are searchable by default, but will only present a searchbox when it makes sense. Currently, this means when there are more than 15 options.</>} code={withPhone(grouped, groupedPhone)} previewMinHeight={168}>
   <VueSelectDemo template={grouped} phoneTemplate={phoneRows(groupedPhone)} phoneStageClassName="w-full" state={{ value: "1" }} />
 </ComponentPreview>
 
 ### Multiple selection
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>v-model:value</code>, <code>@change</code>, and the <code>#triggerView</code> slot are typed, accepting and returning arrays of values.</>} code={withPhone(multiple, multiplePhone)} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={410} className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Multiple selection is supported through the <code>multiple</code> property. This changes how <code>v-model:value</code>, <code>@change</code>, and the <code>#triggerView</code> slot are typed, accepting and returning arrays of values.</>} code={withPhone(multiple, multiplePhone)} previewMinHeight={168}>
   <VueSelectDemo template={multiple} phoneTemplate={phoneRows(multiplePhone)} phoneStageClassName="w-full" state={{ fruits: [] }} />
 </ComponentPreview>
 

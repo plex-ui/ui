@@ -362,7 +362,7 @@ Props:
   - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - max-range-days (number) — Max length of range in days (inclusive)
   - week-starts-on (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - side-offset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment

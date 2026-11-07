@@ -324,13 +324,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow."
+          "code": "<div class=\"flex gap-4\">\n  <Avatar name=\"Tyler\" image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" :size=\"48\" />\n  <Avatar name=\"Will Harper\" :size=\"48\" />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"primary\" variant=\"solid\" />\n</div>",
+          "details": "A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words."
         },
         {
           "name": "Text",
-          "code": "<Avatar name=\"David\" :size=\"48\" />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
+          "code": "<Avatar name=\"David Park\" :size=\"48\" />",
+          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does."
         },
         {
           "name": "Image",
@@ -349,7 +349,7 @@
         },
         {
           "name": "Sizing",
-          "code": "<Avatar name=\"David\" :size=\"size\" />",
+          "code": "<Avatar name=\"David Park\" :size=\"size\" />",
           "details": "To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
         },
         {
@@ -364,7 +364,7 @@
         },
         {
           "name": "Interactive",
-          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
+          "code": "<div class=\"flex items-center gap-4\">\n  <Avatar name=\"Will Harper\" :size=\"48\" @click=\"saySup\" />\n  <Avatar\n    image-url=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n    name=\"Tyler\"\n    :size=\"48\"\n    @click=\"saySup\"\n  />\n  <Avatar name=\"Tech support\" :Icon=\"Robot\" :size=\"48\" color=\"info\" @click=\"saySup\" />\n</div>",
           "details": "Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles."
         }
       ],
@@ -2073,7 +2073,7 @@
         {
           "name": "shortcuts",
           "type": "DateRangeShortcut[]",
-          "description": "Quick selection shortcuts ({ label, getDateRange })"
+          "description": "Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up"
         },
         {
           "name": "side",
@@ -2183,8 +2183,8 @@
         },
         {
           "name": "Shortcuts",
-          "code": "<!-- Desktop -->\n<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    clearable\n    v-model:value=\"value\"\n    :shortcuts=\"dayShortcuts\"\n  />\n</div>\n\n<!-- Phone -->\n<FieldGroup>\n  <Field row label=\"Period\">\n    <DateRangePicker\n      :trigger-show-icon=\"false\"\n      trigger-date-format=\"MMM d\"\n      placeholder=\"None\"\n      v-model:value=\"value\"\n      :shortcuts=\"dayShortcuts\"\n    />\n  </Field>\n</FieldGroup>",
-          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled."
+          "code": "<!-- Desktop -->\n<div style=\"width: fit-content\">\n  <DateRangePicker\n    size=\"lg\"\n    pill\n    clearable\n    v-model:value=\"value\"\n    :shortcuts=\"dayShortcuts\"\n  />\n</div>\n\n<!-- Phone -->\n<FieldGroup>\n  <Field row label=\"Period\">\n    <Select\n      :value=\"periodOf(value)\"\n      :options=\"periodOptions\"\n      :placeholder=\"value ? 'Custom' : 'None'\"\n      :block=\"false\"\n      align=\"end\"\n      @change=\"({ value: label }) => (value = dayShortcuts.find((item) => item.label === label)?.getDateRange() ?? value)\"\n    />\n  </Field>\n  <Field row label=\"Dates\">\n    <DateRangePicker\n      :trigger-show-icon=\"false\"\n      trigger-date-format=\"MMM d\"\n      placeholder=\"None\"\n      v-model:value=\"value\"\n    />\n  </Field>\n</FieldGroup>",
+          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a Select of the shortcut labels (periodOptions) above the Dates row. periodOf(value) is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates."
         },
         {
           "name": "Month stepper",
@@ -7702,5 +7702,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T16:34:35.020Z"
+  "generatedAt": "2026-11-07T19:26:43.898Z"
 }

@@ -298,7 +298,7 @@ On Phone the fields keep this web form at touch sizes: iOS has no floating label
 
 #### Label inside
 
-<ComponentPreview details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={`const [country, setCountry] = useState("es")
+<ComponentPreview phoneMenuHeight={577} details={<>Use <code>labelPlacement="inside"</code> on <code>FloatingLabelInput</code> and <code>FloatingLabelSelect</code> for long forms such as an address: the label stays inside the box, with the value under it. It works with <code>multiline</code>, adornments, errors and the clear button, and always takes the rounded box.</>} code={`const [country, setCountry] = useState("es")
 const label = countries.find((option) => option.value === country)?.label
 const trigger = useCallback(
   ({ open }: { open: boolean }) => (
@@ -396,7 +396,7 @@ Choose Empty or Filled to replace the date with a preset. The invalid, disabled 
 
 #### Phone input
 
-<ComponentPreview details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example.</>} code={`const [country, setCountry] = useState("es")
+<ComponentPreview phoneMenuHeight={497} details={<>A country code selector paired with a <code>FloatingLabelInput</code> that uses <code>startAdornment</code> to show the dial code as a non-editable prefix. The prefix is always shown, and it keeps the label floated. The country list, its search predicate and trigger, <code>CountryOptionView</code>, <code>formatPhoneNumber</code> and <code>dialCodeOf</code> are helpers of the example.</>} code={`const [country, setCountry] = useState("es")
 const [phone, setPhone] = useState("")
 const phoneInputRef = useRef<HTMLInputElement>(null)
 
@@ -436,7 +436,7 @@ const phoneInputRef = useRef<HTMLInputElement>(null)
 
 #### Select
 
-<ComponentPreview details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview phoneMenuHeight={381} details={<>Use <code>FloatingLabelSelect</code> for plain text dropdowns. The label floats up when a value is selected, matching <code>FloatingLabelInput</code> styling.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select } from "@plexui/ui/components/Select"
 
 const [role, setRole] = useState("")
@@ -473,7 +473,7 @@ const trigger = useCallback(
 
 #### Multiple selection
 
-<ComponentPreview details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview phoneMenuHeight={469} details={<>Pair <code>FloatingLabelSelect</code> with a <code>multiple</code> <code>Select</code> to collect several values while keeping the floating-label treatment. The trigger shows the selected count and exposes a clear button that resets the whole list.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select } from "@plexui/ui/components/Select"
 
 const [skills, setSkills] = useState<string[]>([])
@@ -517,7 +517,7 @@ const trigger = useCallback(
 
 #### Country select
 
-<ComponentPreview details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. <code>CountryLabel</code> is a helper of the example that shows a flag next to the name.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
+<ComponentPreview phoneMenuHeight={497} details={<>Use <code>FloatingLabelSelect</code> alongside <code>FloatingLabelInput</code> for consistent form styling. The select trigger shares the same floating-label visual shell. The label floats up when a value is selected. <code>CountryLabel</code> is a helper of the example that shows a flag next to the name.</>} code={`import { FloatingLabelSelect } from "@plexui/ui/components/FloatingLabelSelect"
 import { Select, type Option } from "@plexui/ui/components/Select"
 
 // Outside the component: Select needs a stable OptionView

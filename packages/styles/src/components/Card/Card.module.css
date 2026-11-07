@@ -10,7 +10,7 @@
   color: var(--card-text-color);
   box-shadow: 0 0 0 1px var(--card-border-color) inset;
   font-size: var(--card-font-size);
-  line-height: var(--font-text-sm-line-height);
+  line-height: var(--card-line-height, var(--font-text-sm-line-height));
   transition-duration: var(--transition-duration-basic);
   transition-property: background-color, box-shadow, border-color;
   transition-timing-function: var(--transition-ease-basic);
@@ -49,12 +49,12 @@
   }
 
   &:where([data-size="md"]) {
-    --card-padding: spacing(5);
+    --card-padding: var(--card-padding-md, spacing(5));
     --card-gap: spacing(4);
   }
 
   &:where([data-size="lg"]) {
-    --card-padding: spacing(6);
+    --card-padding: var(--card-padding-lg, spacing(6));
     --card-gap: spacing(5);
   }
 
@@ -95,8 +95,8 @@
   color: var(--card-title-color);
   font-size: var(--card-title-font-size);
   font-weight: var(--card-title-font-weight);
-  line-height: var(--font-heading-xs-line-height);
-  letter-spacing: var(--font-heading-xs-tracking);
+  line-height: var(--card-title-line-height, var(--font-heading-xs-line-height));
+  letter-spacing: var(--card-title-letter-spacing, var(--font-heading-xs-tracking));
   text-wrap: balance;
 }
 
@@ -104,7 +104,7 @@
   margin: calc(spacing(1.5) * -1) 0 0;
   color: var(--card-description-color);
   font-size: var(--card-description-font-size);
-  line-height: var(--font-text-sm-line-height);
+  line-height: var(--card-description-line-height, var(--font-text-sm-line-height));
   text-wrap: pretty;
 }
 
@@ -139,4 +139,23 @@
   display: flex;
   align-items: center;
   gap: spacing(1);
+}
+
+/*
+ * On a phone, with touch.css, an outline card is a section of an iOS inset grouped list, as a FieldGroup is: no
+ * border, and the fill of the FieldGroup on the same surface (touch.css resolves --card-section-background on the
+ * card itself: the secondary grouped background on a grouped Page or Dialog, a gray section on a plain one). A
+ * solid card takes a gray fill so it still stands apart from those sections; a ghost card stays clear. Without
+ * touch.css every value falls back to the desktop one.
+ */
+@media (max-width: 767px) {
+  .Card:where([data-variant="outline"]) {
+    --card-background: var(--card-section-background, var(--color-surface));
+    --card-border-color: var(--card-section-border-color, var(--color-border));
+    --card-border-color-hover: var(--card-section-border-color, var(--color-border-primary-outline-hover));
+  }
+
+  .Card:where([data-variant="solid"]) {
+    --card-background: var(--card-solid-section-background, var(--color-surface-secondary));
+  }
 }

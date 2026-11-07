@@ -365,19 +365,19 @@ Props:
   - @pointerdown ((event: PointerEvent) => void) — Makes avatar interactive (renders a button)
 
 ### Overview
-A variety of avatar types: text, image, icon, and overflow.
+A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.
 ```vue
 <div class="flex gap-4">
   <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
-  <Avatar name="Will" :size="48" />
+  <Avatar name="Will Harper" :size="48" />
   <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
 </div>
 ```
 
 ### Text
-For text-based avatars, a single initial is displayed based on the name prop passed to the component.
+For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.
 ```vue
-<Avatar name="David" :size="48" />
+<Avatar name="David Park" :size="48" />
 ```
 
 ### Image
@@ -408,7 +408,7 @@ To display an overflow avatar, provide a number to the overflow-count prop. The 
 ### Sizing
 To size the avatar, pass a number to the size prop, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
 ```vue
-<Avatar name="David" :size="size" />
+<Avatar name="David Park" :size="size" />
 ```
 
 ### Colors & variants
@@ -455,7 +455,7 @@ By default, avatars are fully rounded. You can override this by passing a Tailwi
 Avatars can be used as interactive elements by listening to @click (or @pointerdown). The avatar then renders a button and applies semantic and visual interaction styles.
 ```vue
 <div class="flex items-center gap-4">
-  <Avatar name="Will" :size="48" @click="saySup" />
+  <Avatar name="Will Harper" :size="48" @click="saySup" />
   <Avatar
     image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
     name="Tyler"
@@ -2473,7 +2473,7 @@ Props:
   - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - max-range-days (number) — Max length of range in days (inclusive)
   - week-starts-on (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - side-offset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
@@ -2550,7 +2550,7 @@ Use min and max to limit the selectable range. Use max-range-days to limit the r
 ```
 
 ### Shortcuts
-Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled.
+Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and @change carries that shortcut as its second argument, like React's onChange(range, shortcut). Each shortcut has a label and a getDateRange() function; dayShortcuts here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than max-range-days, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a Select of the shortcut labels (periodOptions) above the Dates row. periodOf(value) is the label of the shortcut the dates match, or an empty string, so the Period row reads Custom for any other range and None without dates.
 ```vue
 <!-- Desktop -->
 <div style="width: fit-content">
@@ -2566,12 +2566,21 @@ Use the shortcuts array to provide quick date range options. When a shortcut is 
 <!-- Phone -->
 <FieldGroup>
   <Field row label="Period">
+    <Select
+      :value="periodOf(value)"
+      :options="periodOptions"
+      :placeholder="value ? 'Custom' : 'None'"
+      :block="false"
+      align="end"
+      @change="({ value: label }) => (value = dayShortcuts.find((item) => item.label === label)?.getDateRange() ?? value)"
+    />
+  </Field>
+  <Field row label="Dates">
     <DateRangePicker
       :trigger-show-icon="false"
       trigger-date-format="MMM d"
       placeholder="None"
       v-model:value="value"
-      :shortcuts="dayShortcuts"
     />
   </Field>
 </FieldGroup>

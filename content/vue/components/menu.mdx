@@ -207,19 +207,19 @@ export const danger = `<Menu>
 
 ### Overview
 
-<ComponentPreview language="vue" code={overview} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={377} language="vue" code={overview} previewMinHeight={168}>
   <VueDemo template={overview} />
 </ComponentPreview>
 
 ### Natural sizing
 
-<ComponentPreview language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul></>} code={naturalSizing} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={319} language="vue" details={<>Menu supports several sizing strategies:<ul><li><strong>Natural sizing</strong>: use <code>min-width="auto"</code> to have the menu fit naturally to the size of the content.</li><li><strong>Fixed size</strong>: use <code>width</code> and <code>min-width</code> to set the menu to a fixed size, regardless of content size.</li><li><strong>Flexible sizing</strong>: <code>min-width</code> can be used by itself to describe a menu that must be a given size, but can grow larger depending on its content.</li><li><strong>Max sizing</strong>: apply <code>max-width</code> to the children of <code>MenuContent</code>. <code>maxWidth</code> isn't exposed as a prop because it's reserved for the custom properties used in collision detection.</li></ul></>} code={naturalSizing} previewMinHeight={168}>
   <VueDemo template={naturalSizing} />
 </ComponentPreview>
 
 ### Horizontal (icons only)
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneMenuHeight={155} language="vue" details={<>
   <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
   <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
 </>} code={horizontalIcons} previewMinHeight={168}>
@@ -228,7 +228,7 @@ export const danger = `<Menu>
 
 ### Horizontal (icons with labels)
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneMenuHeight={155} language="vue" details={<>
   <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
   <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
 </>} code={horizontalLabels} previewMinHeight={168}>
@@ -237,19 +237,19 @@ export const danger = `<Menu>
 
 ### Grouped items
 
-<ComponentPreview language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={grouped} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={398} language="vue" details={<>Use <code>MenuGroup</code> and <code>MenuLabel</code> to organize related items into labeled sections.</>} code={grouped} previewMinHeight={168}>
   <VueDemo template={grouped} />
 </ComponentPreview>
 
 ### Submenus
 
-<ComponentPreview language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus.</>} code={submenus} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={426} language="vue" details={<>Use <code>MenuSub</code>, <code>MenuSubTrigger</code>, and <code>MenuSubContent</code> for nested menus.</>} code={submenus} previewMinHeight={168}>
   <VueDemo template={submenus} />
 </ComponentPreview>
 
 ### Checkbox items
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneMenuHeight={231} language="vue" details={<>
   <p>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
 </>} code={checkboxItems} previewMinHeight={168}>
@@ -258,7 +258,7 @@ export const danger = `<Menu>
 
 ### Radio items
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneMenuHeight={319} language="vue" details={<>
   <p>Use <code>MenuRadioGroup</code> and <code>MenuRadioItem</code> for single-selection options. Bind the selection with <code>v-model:value</code>.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
 </>} code={radioItems} previewMinHeight={168}>
@@ -267,13 +267,13 @@ export const danger = `<Menu>
 
 ### Item actions
 
-<ComponentPreview language="vue" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.</>} code={itemActions} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={231} language="vue" details={<>Use <code>MenuItemActions</code> and <code>MenuItemAction</code> for hover actions (e.g. delete) on an item.<br/><br/><strong>Accessibility note:</strong> these actions are not keyboard accessible due to how the menu primitive works, so they should not be critical actions with no other parity.</>} code={itemActions} previewMinHeight={168}>
   <VueDemo template={itemActions} />
 </ComponentPreview>
 
 ### Destructive items
 
-<ComponentPreview language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={danger} previewMinHeight={168}>
+<ComponentPreview phoneMenuHeight={262} language="vue" details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and the highlight take the danger color, and a <code>description</code> keeps its secondary color. <code>MenuLink</code> takes <code>danger</code> too. Put such items last, after a separator.</>} code={danger} previewMinHeight={168}>
   <VueDemo template={danger} />
 </ComponentPreview>
 

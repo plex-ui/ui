@@ -55,7 +55,7 @@ export function AvatarSizingDemo() {
         data-demo-stage
         className="flex-1 w-full py-12 flex items-center justify-center"
       >
-        <Avatar name="David" size={size} />
+        <Avatar name="David Park" size={size} />
       </div>
     </>
   );
@@ -118,7 +118,7 @@ export function AvatarHeroStorybookDemo() {
         imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
         size={48}
       />
-      <Avatar name="Will" size={48} />
+      <Avatar name="Will Harper" size={48} />
       <Avatar name="Tech support" Icon={IconRobot} size={48} color="primary" variant="solid" />
     </>
   );
@@ -129,7 +129,7 @@ export const AvatarHeroContent = AvatarHeroStorybookDemo;
 export function AvatarInteractiveDemo() {
   return (
     <div className="flex items-center gap-4">
-      <Avatar name="Will" size={48} onClick={() => {}} />
+      <Avatar name="Will Harper" size={48} onClick={() => {}} />
       <Avatar
         imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
         name="Tyler"

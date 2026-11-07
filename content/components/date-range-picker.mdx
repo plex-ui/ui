@@ -93,7 +93,7 @@ const [value, setValue] = useState<DateRange | null>([
 
 ### Shortcuts
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a <code>Select</code> of the shortcut labels above the Dates row. When the dates match no shortcut, the Period row reads Custom.</>} code={`const dayShortcuts: DateRangeShortcut[] = [
   {
     label: "Today",
     getDateRange: () => {
@@ -137,16 +137,36 @@ const [value, setValue] = useState<DateRange | null>(null)
   />
 </div>
 
-// Phone
+// Phone: the shortcuts are a pop-up in a row of their own, which reads Custom for any other range
+const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }))
+const period = value
+  ? dayShortcuts.find(({ getDateRange }) => {
+      const [start, end] = getDateRange()
+      return value[0].hasSame(start, "day") && value[1].hasSame(end, "day")
+    })?.label ?? ""
+  : ""
+
 <FieldGroup>
   <Field row label="Period">
+    <Select
+      value={period}
+      options={periodOptions}
+      onChange={({ value: label }) => {
+        const shortcut = dayShortcuts.find((item) => item.label === label)
+        if (shortcut) setValue(shortcut.getDateRange())
+      }}
+      placeholder={value ? "Custom" : "None"}
+      block={false}
+      align="end"
+    />
+  </Field>
+  <Field row label="Dates">
     <DateRangePicker
       triggerShowIcon={false}
       triggerDateFormat="MMM d"
       placeholder="None"
       value={value}
       onChange={setValue}
-      shortcuts={dayShortcuts}
     />
   </Field>
 </FieldGroup>`} previewMinHeight={168}>
@@ -197,7 +217,7 @@ In the calendars, the arrow keys move focus by a day or a week, Home and End mov
   { prop: "max", type: "DateTime", description: "Latest selectable date (inclusive). Must not be before min" },
   { prop: "maxRangeDays", type: "number", description: "Max length of range in days (inclusive)" },
   { prop: "weekStartsOn", type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "0", description: "The day each week starts on, from 0 (Sunday) to 6 (Saturday)" },
-  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange })" },
+  { prop: "shortcuts", type: "DateRangeShortcut[]", description: "Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up" },
   { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement." },
   { prop: "sideOffset", type: "number", default: "8", description: "Distance from trigger in pixels" },
   { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred popover alignment" },

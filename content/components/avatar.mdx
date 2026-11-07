@@ -21,9 +21,9 @@ import {
 
 ### Overview
 
-<ComponentPreview details={<>A variety of avatar types: text, image, icon, and overflow.</>} code={`<div className="flex gap-4">
+<ComponentPreview details={<>A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.</>} code={`<div className="flex gap-4">
   <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" size={48} />
-  <Avatar name="Will" size={48} />
+  <Avatar name="Will Harper" size={48} />
   <Avatar name="Tech support" Icon={Robot} size={48} color="primary" variant="solid" />
 </div>`} previewMinHeight={168}>
   <div className="flex gap-4">
@@ -33,8 +33,8 @@ import {
 
 ### Text
 
-<ComponentPreview details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component.</>} code={`<Avatar name="David" size={48} />`} previewMinHeight={168}>
-  <Avatar name="David" size={48} />
+<ComponentPreview details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.</>} code={`<Avatar name="David Park" size={48} />`} previewMinHeight={168}>
+  <Avatar name="David Park" size={48} />
 </ComponentPreview>
 
 ### Image
@@ -68,7 +68,7 @@ import {
 
 ### Sizing
 
-<ComponentPreview details={<>To size the avatar, pass a <code>number</code> to the <code>size</code> property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.</>} code={`<Avatar name="David" size={48} />`} previewMinHeight={228}>
+<ComponentPreview details={<>To size the avatar, pass a <code>number</code> to the <code>size</code> property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.</>} code={`<Avatar name="David Park" size={48} />`} previewMinHeight={228}>
   <AvatarSizingDemo />
 </ComponentPreview>
 
@@ -107,7 +107,7 @@ import {
 ### Interactive
 
 <ComponentPreview details={<>Avatars can be used as interactive elements by passing an <code>onClick</code> (or <code>onPointerDown</code>) handler. The avatar then renders a <code>button</code> and applies semantic and visual interaction styles.</>} code={`<div className="flex items-center gap-4">
-  <Avatar name="Will" size={48} onClick={saySup} />
+  <Avatar name="Will Harper" size={48} onClick={saySup} />
   <Avatar
     imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
     name="Tyler"

@@ -34,7 +34,7 @@ const DateRangePickerComponent = defineComponent({
     maxRangeDays: Number,
     /** The day each week starts on, from 0 (Sunday) to 6 (Saturday). @default 0 */
     weekStartsOn: { type: Number as PropType<WeekStart>, default: 0 },
-    /** Date range shortcuts for quick selection, shown to the left of the calendar. */
+    /** Date range shortcuts for quick selection, shown to the left of the calendar. Not shown below the md breakpoint: on a phone, offer them in a row of their own (see the docs). */
     shortcuts: Array as PropType<DateRangeShortcut[]>,
     /** Preferred side; collisions can flip it. On phones, left and right prefer bottom so seven 44px day targets fit. @default "bottom" */
     side: { type: String as PropType<PopoverSide>, default: "bottom" },

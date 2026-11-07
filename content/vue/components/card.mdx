@@ -5,6 +5,7 @@ metaDescription: Vue 3 card surface component for composing login flows, sign-up
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { phoneScreen } from "@/components/docs/phoneRowsTemplate"
 
 export const overview = `<Card style="max-width: 380px">
   <CardHeader>
@@ -225,50 +226,50 @@ export const pricing = `<div style="display: grid; gap: 16px; grid-template-colu
 <div id="first-component-page">
 ### Overview
 
-<ComponentPreview language="vue" code={overview}>
-  <VueDemo template={overview} />
+<ComponentPreview phonePresentation="screen" language="vue" code={overview}>
+  <VueDemo template={overview} phoneTemplate={phoneScreen(overview)} />
 </ComponentPreview>
 
 ### Login
 
-<ComponentPreview language="vue" details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={login}>
-  <VueDemo template={login} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A classic login form with a primary <strong>Log in</strong> CTA and an inline <em>Sign up</em> link below.</>} code={login}>
+  <VueDemo template={login} phoneTemplate={phoneScreen(login)} />
 </ComponentPreview>
 
 ### Create project
 
-<ComponentPreview language="vue" details={<>Right-aligned footer with Cancel / Deploy. Use <code>style="justify-content: flex-end"</code> on <code>CardFooter</code>.</>} code={createProject}>
-  <VueDemo template={createProject} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Right-aligned footer with Cancel / Deploy. Use <code>style="justify-content: flex-end"</code> on <code>CardFooter</code>.</>} code={createProject}>
+  <VueDemo template={createProject} phoneTemplate={phoneScreen(createProject)} />
 </ComponentPreview>
 
 ### Payment Method
 
-<ComponentPreview language="vue" details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={paymentMethod}>
-  <VueDemo template={paymentMethod} state={paymentMethodState} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Full-fidelity payment form. <strong>Month</strong>, <strong>Year</strong> and <strong>CVV</strong> share one row, with a <code>Select</code> for the month and the year. A <code>Separator</code> sets off the Billing Address section, whose <code>Checkbox</code> takes its text through <code>label</code>.</>} code={paymentMethod}>
+  <VueDemo template={paymentMethod} phoneTemplate={phoneScreen(paymentMethod)} state={paymentMethodState} />
 </ComponentPreview>
 
 ### No team members (empty state)
 
-<ComponentPreview language="vue" details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={noTeamMembers}>
-  <VueDemo template={noTeamMembers} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Compose <code>Card</code> with <code>EmptyMessage</code> for a center-aligned empty state with icon badge, title, description, and primary action.</>} code={noTeamMembers}>
+  <VueDemo template={noTeamMembers} phoneTemplate={phoneScreen(noTeamMembers)} />
 </ComponentPreview>
 
 ### How did you hear about us?
 
-<ComponentPreview language="vue" details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={survey}>
-  <VueDemo template={survey} state={{ source: "social" }} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>A single-question survey using <code>RadioGroup</code> with <code>direction="col"</code> and a full-width submit button.</>} code={survey}>
+  <VueDemo template={survey} phoneTemplate={phoneScreen(survey)} state={{ source: "social" }} />
 </ComponentPreview>
 
 ### Processing your request
 
-<ComponentPreview language="vue" details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={processing}>
-  <VueDemo template={processing} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Loading state built with <code>EmptyMessage</code> and a <code>LoadingIndicator</code> as the visual anchor.</>} code={processing}>
+  <VueDemo template={processing} phoneTemplate={phoneScreen(processing)} />
 </ComponentPreview>
 
 ### Pricing
 
-<ComponentPreview language="vue" details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={pricing}>
-  <VueDemo template={pricing} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>Mix <code>variant="outline"</code> and <code>variant="solid"</code> to emphasize a highlighted plan.</>} code={pricing}>
+  <VueDemo template={pricing} phoneTemplate={phoneScreen(pricing)} />
 </ComponentPreview>
 </div>
 

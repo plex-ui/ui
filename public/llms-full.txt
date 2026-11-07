@@ -318,19 +318,19 @@ Props:
   - onPointerDown (() => void) — Makes avatar interactive (renders a button)
 
 ### Overview
-A variety of avatar types: text, image, icon, and overflow.
+A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.
 ```tsx
 <div className="flex gap-4">
 <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" size={48} />
-<Avatar name="Will" size={48} />
+<Avatar name="Will Harper" size={48} />
 <Avatar name="Tech support" Icon={Robot} size={48} color="primary" variant="solid" />
 </div>
 ```
 
 ### Text
-For text-based avatars, a single initial is displayed based on the name prop passed to the component.
+For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.
 ```tsx
-<Avatar name="David" size={48} />
+<Avatar name="David Park" size={48} />
 ```
 
 ### Image
@@ -361,7 +361,7 @@ To display an overflow avatar, provide a number to the overflowCount prop. The n
 ### Sizing
 To size the avatar, pass a number to the size property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value.
 ```tsx
-<Avatar name="David" size={48} />
+<Avatar name="David Park" size={48} />
 ```
 
 ### Colors & variants
@@ -400,7 +400,7 @@ By default, avatars are fully rounded. You can override this by passing a Tailwi
 Avatars can be used as interactive elements by passing an onClick (or onPointerDown) handler. The avatar then renders a button and applies semantic and visual interaction styles.
 ```tsx
 <div className="flex items-center gap-4">
-<Avatar name="Will" size={48} onClick={saySup} />
+<Avatar name="Will Harper" size={48} onClick={saySup} />
 <Avatar
   imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
   name="Tyler"
@@ -2501,7 +2501,7 @@ Props:
   - max (DateTime) — Latest selectable date (inclusive). Must not be before min
   - maxRangeDays (number) — Max length of range in days (inclusive)
   - weekStartsOn (0 | 1 | 2 | 3 | 4 | 5 | 6) default: 0 — The day each week starts on, from 0 (Sunday) to 6 (Saturday)
-  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange })
+  - shortcuts (DateRangeShortcut[]) — Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up
   - side ("top" | "right" | "bottom" | "left") default: "bottom" — Preferred side of the calendar popover. On phones, left and right prefer bottom so all seven day targets fit. Top and bottom keep their preference; collisions can still flip placement.
   - sideOffset (number) default: 8 — Distance from trigger in pixels
   - align ("start" | "center" | "end") default: "center" — Preferred popover alignment
@@ -2593,7 +2593,7 @@ DateTime.min(maxDate, today.endOf("month")),
 ```
 
 ### Shortcuts
-Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled.
+Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a Select of the shortcut labels above the Dates row. When the dates match no shortcut, the Period row reads Custom.
 ```tsx
 const dayShortcuts: DateRangeShortcut[] = [
 {
@@ -2639,16 +2639,36 @@ const [value, setValue] = useState<DateRange | null>(null)
 />
 </div>
 
-// Phone
+// Phone: the shortcuts are a pop-up in a row of their own, which reads Custom for any other range
+const periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }))
+const period = value
+? dayShortcuts.find(({ getDateRange }) => {
+    const [start, end] = getDateRange()
+    return value[0].hasSame(start, "day") && value[1].hasSame(end, "day")
+  })?.label ?? ""
+: ""
+
 <FieldGroup>
 <Field row label="Period">
+  <Select
+    value={period}
+    options={periodOptions}
+    onChange={({ value: label }) => {
+      const shortcut = dayShortcuts.find((item) => item.label === label)
+      if (shortcut) setValue(shortcut.getDateRange())
+    }}
+    placeholder={value ? "Custom" : "None"}
+    block={false}
+    align="end"
+  />
+</Field>
+<Field row label="Dates">
   <DateRangePicker
     triggerShowIcon={false}
     triggerDateFormat="MMM d"
     placeholder="None"
     value={value}
     onChange={setValue}
-    shortcuts={dayShortcuts}
   />
 </Field>
 </FieldGroup>

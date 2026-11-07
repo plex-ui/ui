@@ -33,6 +33,7 @@ export function ComponentPreview({
   phoneDialog = false,
   phonePresentation: requestedPhonePresentation,
   phoneOnly = false,
+  phoneMenuHeight,
   resizable = false,
 }: {
   /** Assigned by remarkPreviewId, shared by the docs page and its Phone iframe. */
@@ -46,8 +47,12 @@ export function ComponentPreview({
   previewMinHeight?: number | string;
   /** Reserve a scrim and reveal the phone only after its initial dialog has mounted. */
   phoneDialog?: boolean;
-  /** Component viewport, complete screen, or a pointer/keyboard-only example. */
+  /** Component viewport, complete screen, or none: a pointer/keyboard-only example, or a component that looks the
+   * same on a phone, whose page then offers no Phone view. */
   phonePresentation?: PhonePresentation;
+  /** The height a compact phone preview keeps from the start for the menu or popover its example opens, measured
+   * with it open, so opening it does not grow the preview (as the calendar stages keep room for the calendar). */
+  phoneMenuHeight?: number;
   /** A phone-only component, such as Toolbar: the preview always shows the Phone view, without the Desktop switch. */
   phoneOnly?: boolean;
   resizable?: boolean;
@@ -176,7 +181,7 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide && phonePresentation !== 'none' ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation } : null}
+            phone={viewport === 'phone' && wide && phonePresentation !== 'none' ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation, menuHeight: phoneMenuHeight } : null}
           >
             {normalizedChildren}
           </PreviewPane>
@@ -210,6 +215,7 @@ function PhonePreview({
   src,
   previewKey,
   previewMinHeight,
+  menuHeight = 0,
   startsWithDialog,
   presentation,
   frameRef,
@@ -219,6 +225,7 @@ function PhonePreview({
   src: string;
   previewKey: string;
   previewMinHeight?: number | string;
+  menuHeight?: number;
   startsWithDialog: boolean;
   presentation: Exclude<PhonePresentation, 'none'>;
   frameRef: React.RefObject<HTMLIFrameElement | null>;
@@ -227,7 +234,7 @@ function PhonePreview({
 }) {
   const screen = presentation === 'screen';
   const minimumHeight = typeof previewMinHeight === 'number' ? previewMinHeight : 168;
-  const [contentHeight, setContentHeight] = useState(() => compactPreviewHeight(minimumHeight));
+  const [contentHeight, setContentHeight] = useState(() => compactPreviewHeight(Math.max(minimumHeight, menuHeight)));
   const deviceRef = useRef<HTMLDivElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [statusBarScrim, setStatusBarScrim] = useState(startsWithDialog);
@@ -264,7 +271,8 @@ function PhonePreview({
       }
       if ('previewHeight' in data && typeof data.previewHeight === 'number' && Number.isFinite(data.previewHeight)) {
         // Once measured, compact content owns its height; the desktop minimum is only a loading placeholder.
-        setContentHeight(compactPreviewHeight(data.previewHeight, 0));
+        // The room kept for an example's menu stays, so opening the menu does not grow the preview.
+        setContentHeight(compactPreviewHeight(data.previewHeight, menuHeight));
       }
       if ('previewBackground' in data && typeof data.previewBackground === 'string' && CSS.supports('color', data.previewBackground)) {
         setScreenBackground(data.previewBackground);
@@ -294,7 +302,7 @@ function PhonePreview({
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [previewKey, frameRef, screen, sendKeyboard]);
+  }, [previewKey, frameRef, screen, sendKeyboard, menuHeight]);
 
   const frame = (
     <iframe
@@ -365,7 +373,7 @@ function PreviewPane({
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
-  phone: { src: string; previewKey: string; dialog: boolean; presentation: Exclude<PhonePresentation, 'none'>; activation: number } | null;
+  phone: { src: string; previewKey: string; dialog: boolean; presentation: Exclude<PhonePresentation, 'none'>; activation: number; menuHeight?: number } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -475,6 +483,7 @@ function PreviewPane({
           startsWithDialog={phone.dialog}
           presentation={phone.presentation}
           previewMinHeight={previewMinHeight}
+          menuHeight={phone.menuHeight}
           frameRef={frameRef}
           onReady={sendAll}
           activation={phone.activation}

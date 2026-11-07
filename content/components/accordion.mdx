@@ -11,6 +11,7 @@ import {
   AccordionMultipleDemo,
   AccordionCardDemo,
 } from "@/components/docs/AccordionDemos"
+import { PhoneScreen } from "@/components/docs/PhoneScreen"
 
 <UsageBlock>{`import { Accordion } from "@plexui/ui/components/Accordion";`}</UsageBlock>
 
@@ -22,7 +23,7 @@ Compose with `Accordion.Item`, `Accordion.Trigger`, and `Accordion.Content`. Bui
 
 ### Overview
 
-<ComponentPreview details={<>The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={`const [value, setValue] = useState("shipping")
+<ComponentPreview phonePresentation="screen" details={<>The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={`const [value, setValue] = useState("shipping")
 const [returnsDisabled, setReturnsDisabled] = useState(false)
 
 <Accordion type="single" collapsible value={value} onValueChange={setValue}>
@@ -46,7 +47,7 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
 
 ### Single
 
-<ComponentPreview details={<>Default shape. <code>type="single"</code> + <code>collapsible</code> lets users close the currently open item; without <code>collapsible</code>, one item is always open.</>} code={`<Accordion type="single" collapsible defaultValue="trial">
+<ComponentPreview phonePresentation="screen" details={<>Default shape. <code>type="single"</code> + <code>collapsible</code> lets users close the currently open item; without <code>collapsible</code>, one item is always open.</>} code={`<Accordion type="single" collapsible defaultValue="trial">
   {items.map((item) => (
     <Accordion.Item key={item.value} value={item.value}>
       <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
@@ -54,12 +55,12 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
     </Accordion.Item>
   ))}
 </Accordion>`}>
-  <AccordionSingleDemo />
+  <PhoneScreen section><AccordionSingleDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Multiple
 
-<ComponentPreview details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={`<Accordion type="multiple" defaultValue={["notifications"]}>
+<ComponentPreview phonePresentation="screen" details={<>Use <code>type="multiple"</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references.</>} code={`<Accordion type="multiple" defaultValue={["notifications"]}>
   {items.map((item) => (
     <Accordion.Item key={item.value} value={item.value}>
       <Accordion.Trigger>{item.trigger}</Accordion.Trigger>
@@ -67,12 +68,12 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
     </Accordion.Item>
   ))}
 </Accordion>`}>
-  <AccordionMultipleDemo />
+  <PhoneScreen section><AccordionMultipleDemo /></PhoneScreen>
 </ComponentPreview>
 
 ### Card
 
-<ComponentPreview details={<>Composed inside <code>Card</code>, the most common landing-page FAQ pattern.</>} code={`<Card>
+<ComponentPreview phonePresentation="screen" details={<>Composed inside <code>Card</code>, the most common landing-page FAQ pattern.</>} code={`<Card>
   <Card.Header>
     <Card.Title>Subscription & billing</Card.Title>
     <Card.Description>Common questions about plans, invoices, and cancellations.</Card.Description>
@@ -88,7 +89,7 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
     </Accordion>
   </Card.Content>
 </Card>`}>
-  <AccordionCardDemo />
+  <PhoneScreen><AccordionCardDemo /></PhoneScreen>
 </ComponentPreview>
 
 ## API

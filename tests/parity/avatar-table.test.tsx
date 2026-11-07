@@ -40,6 +40,11 @@ const VARIANTS = ["soft", "solid"]
 const avatarCases: [string, Props][] = [
   ["empty", {}],
   ["name initial is upper-cased", { name: "david" }],
+  // The initial of the last word shows only on a phone (an iOS monogram)
+  ["first and last initials", { name: "will harper" }],
+  ["middle words and outer spaces", { name: "Ann  Marie Lee " }],
+  ["a leading space", { name: " Will Harper" }],
+  ["an emoji word", { name: "Ann \u{1F600}" }],
   ["size", { name: "Will", size: 48 }],
   ["size zero", { name: "Will", size: 0 }],
   ...COLORS.flatMap((color) =>

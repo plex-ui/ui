@@ -383,13 +383,13 @@
       "examples": [
         {
           "name": "Overview",
-          "code": "<div className=\"flex gap-4\">\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" size={48} />\n<Avatar name=\"Will\" size={48} />\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"primary\" variant=\"solid\" />\n</div>",
-          "details": "A variety of avatar types: text, image, icon, and overflow."
+          "code": "<div className=\"flex gap-4\">\n<Avatar name=\"Tyler\" imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\" size={48} />\n<Avatar name=\"Will Harper\" size={48} />\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"primary\" variant=\"solid\" />\n</div>",
+          "details": "A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words."
         },
         {
           "name": "Text",
-          "code": "<Avatar name=\"David\" size={48} />",
-          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component."
+          "code": "<Avatar name=\"David Park\" size={48} />",
+          "details": "For text-based avatars, a single initial is displayed based on the name prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does."
         },
         {
           "name": "Image",
@@ -408,7 +408,7 @@
         },
         {
           "name": "Sizing",
-          "code": "<Avatar name=\"David\" size={48} />",
+          "code": "<Avatar name=\"David Park\" size={48} />",
           "details": "To size the avatar, pass a number to the size property, which will set the width and height in pixels. Text and icon avatars will scale their sizes dynamically based on this value."
         },
         {
@@ -423,7 +423,7 @@
         },
         {
           "name": "Interactive",
-          "code": "<div className=\"flex items-center gap-4\">\n<Avatar name=\"Will\" size={48} onClick={saySup} />\n<Avatar\n  imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  name=\"Tyler\"\n  size={48}\n  onClick={saySup}\n/>\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"info\" onClick={saySup} />\n</div>",
+          "code": "<div className=\"flex items-center gap-4\">\n<Avatar name=\"Will Harper\" size={48} onClick={saySup} />\n<Avatar\n  imageUrl=\"https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552\"\n  name=\"Tyler\"\n  size={48}\n  onClick={saySup}\n/>\n<Avatar name=\"Tech support\" Icon={Robot} size={48} color=\"info\" onClick={saySup} />\n</div>",
           "details": "Avatars can be used as interactive elements by passing an onClick (or onPointerDown) handler. The avatar then renders a button and applies semantic and visual interaction styles."
         }
       ],
@@ -2056,7 +2056,7 @@
         {
           "name": "shortcuts",
           "type": "DateRangeShortcut[]",
-          "description": "Quick selection shortcuts ({ label, getDateRange })"
+          "description": "Quick selection shortcuts ({ label, getDateRange }), shown next to the calendar from the md breakpoint up"
         },
         {
           "name": "side",
@@ -2166,8 +2166,8 @@
         },
         {
           "name": "Shortcuts",
-          "code": "const dayShortcuts: DateRangeShortcut[] = [\n{\n  label: \"Today\",\n  getDateRange: () => {\n    const today = DateTime.local()\n    return [today.startOf(\"day\"), today.endOf(\"day\")]\n  },\n},\n{\n  label: \"Yesterday\",\n  getDateRange: () => {\n    const yesterday = DateTime.local().minus({ days: 1 })\n    return [yesterday.startOf(\"day\"), yesterday.endOf(\"day\")]\n  },\n},\n{\n  label: \"Last 7 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 6 }).startOf(\"day\"), today]\n  },\n},\n{\n  label: \"Last 30 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 29 }).startOf(\"day\"), today]\n  },\n},\n]\nconst [value, setValue] = useState<DateRange | null>(null)\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Period\">\n  <DateRangePicker\n    triggerShowIcon={false}\n    triggerDateFormat=\"MMM d\"\n    placeholder=\"None\"\n    value={value}\n    onChange={setValue}\n    shortcuts={dayShortcuts}\n  />\n</Field>\n</FieldGroup>",
-          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled."
+          "code": "const dayShortcuts: DateRangeShortcut[] = [\n{\n  label: \"Today\",\n  getDateRange: () => {\n    const today = DateTime.local()\n    return [today.startOf(\"day\"), today.endOf(\"day\")]\n  },\n},\n{\n  label: \"Yesterday\",\n  getDateRange: () => {\n    const yesterday = DateTime.local().minus({ days: 1 })\n    return [yesterday.startOf(\"day\"), yesterday.endOf(\"day\")]\n  },\n},\n{\n  label: \"Last 7 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 6 }).startOf(\"day\"), today]\n  },\n},\n{\n  label: \"Last 30 days\",\n  getDateRange: () => {\n    const today = DateTime.local().endOf(\"day\")\n    return [today.minus({ days: 29 }).startOf(\"day\"), today]\n  },\n},\n]\nconst [value, setValue] = useState<DateRange | null>(null)\n\n// Desktop\n<div style={{ width: \"fit-content\" }}>\n<DateRangePicker\n  size=\"lg\"\n  pill\n  clearable\n  value={value}\n  onChange={setValue}\n  shortcuts={dayShortcuts}\n/>\n</div>\n\n// Phone: the shortcuts are a pop-up in a row of their own, which reads Custom for any other range\nconst periodOptions = dayShortcuts.map(({ label }) => ({ value: label, label }))\nconst period = value\n? dayShortcuts.find(({ getDateRange }) => {\n    const [start, end] = getDateRange()\n    return value[0].hasSame(start, \"day\") && value[1].hasSame(end, \"day\")\n  })?.label ?? \"\"\n: \"\"\n\n<FieldGroup>\n<Field row label=\"Period\">\n  <Select\n    value={period}\n    options={periodOptions}\n    onChange={({ value: label }) => {\n      const shortcut = dayShortcuts.find((item) => item.label === label)\n      if (shortcut) setValue(shortcut.getDateRange())\n    }}\n    placeholder={value ? \"Custom\" : \"None\"}\n    block={false}\n    align=\"end\"\n  />\n</Field>\n<Field row label=\"Dates\">\n  <DateRangePicker\n    triggerShowIcon={false}\n    triggerDateFormat=\"MMM d\"\n    placeholder=\"None\"\n    value={value}\n    onChange={setValue}\n  />\n</Field>\n</FieldGroup>",
+          "details": "Use the shortcuts array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: here a Period row with a Select of the shortcut labels above the Dates row. When the dates match no shortcut, the Period row reads Custom."
         },
         {
           "name": "Month stepper",
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T16:34:33.459Z"
+  "generatedAt": "2026-11-07T19:26:41.170Z"
 }

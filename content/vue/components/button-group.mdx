@@ -251,13 +251,13 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Dropdown menu
 
-<ComponentPreview language="vue" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
+<ComponentPreview phoneMenuHeight={334} language="vue" details={<>Compose a primary action with a <a href="/vue/components/menu"><code>Menu</code></a> trigger for follow-up options. Common for Export / Format, Save / Save-As, Share / ….</>} code={dropdownMenu}>
   <VueDemo template={dropdownMenu} controls={sizeControl} />
 </ComponentPreview>
 
 ### Select
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview phoneMenuHeight={241} language="vue" details={<>
   <p>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
   <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
 </>} code={select}>
@@ -277,7 +277,7 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Popover
 
-<ComponentPreview language="vue" details={<>Same split-button shape, but the trailing trigger opens a <a href="/vue/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={popover}>
+<ComponentPreview phoneMenuHeight={286} language="vue" details={<>Same split-button shape, but the trailing trigger opens a <a href="/vue/components/popover"><code>Popover</code></a> instead of a menu, useful for richer panels (prompt composers, notification preferences, link previews).</>} code={popover}>
   <VueDemo template={popover} controls={sizeControl} />
 </ComponentPreview>
 

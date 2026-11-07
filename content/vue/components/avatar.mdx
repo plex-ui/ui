@@ -9,11 +9,11 @@ import { VueAvatarDemo } from "@/components/docs/vue/VueAvatarDemos"
 
 export const overview = `<div class="flex gap-4">
   <Avatar name="Tyler" image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" :size="48" />
-  <Avatar name="Will" :size="48" />
+  <Avatar name="Will Harper" :size="48" />
   <Avatar name="Tech support" :Icon="Robot" :size="48" color="primary" variant="solid" />
 </div>`
 
-export const text = `<Avatar name="David" :size="48" />`
+export const text = `<Avatar name="David Park" :size="48" />`
 
 export const image = `<Avatar
   name="Tyler"
@@ -28,7 +28,7 @@ export const icon = `<Avatar
 
 export const overflowCount = `<Avatar :overflow-count="overflowCount" :size="size" />`
 
-export const sizing = `<Avatar name="David" :size="size" />`
+export const sizing = `<Avatar name="David Park" :size="size" />`
 
 export const colors = `<div
   class="grid items-center gap-x-8 gap-y-5"
@@ -63,7 +63,7 @@ export const roundness = `<Avatar
 />`
 
 export const interactive = `<div class="flex items-center gap-4">
-  <Avatar name="Will" :size="48" @click="saySup" />
+  <Avatar name="Will Harper" :size="48" @click="saySup" />
   <Avatar
     image-url="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552"
     name="Tyler"
@@ -79,13 +79,13 @@ export const interactive = `<div class="flex items-center gap-4">
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>A variety of avatar types: text, image, icon, and overflow.</>} code={overview} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>A variety of avatar types: text, image, icon, and overflow. On a phone a text avatar is an iOS monogram: its color runs from light at the top to deep at the bottom, the initials are in the rounded system font where the browser has it, and a name of several words shows the initials of its first and last words.</>} code={overview} previewMinHeight={168}>
   <VueAvatarDemo template={overview} />
 </ComponentPreview>
 
 ### Text
 
-<ComponentPreview language="vue" details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component.</>} code={text} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>For text-based avatars, a single initial is displayed based on the <code>name</code> prop passed to the component. On a phone a name of several words shows the initials of its first and last words, as an iOS monogram does.</>} code={text} previewMinHeight={168}>
   <VueDemo template={text} />
 </ComponentPreview>
 

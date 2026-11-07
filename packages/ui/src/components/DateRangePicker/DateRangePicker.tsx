@@ -43,6 +43,7 @@ export type DateRangePickerProps = {
   weekStartsOn?: WeekStart
   /**
    * List of date range shortcuts displayed for quick selection, shown to the left of the calendar.
+   * Not shown below the md breakpoint: on a phone, offer them in a row of their own (see the docs).
    */
   shortcuts?: DateRangeShortcut[]
   /**

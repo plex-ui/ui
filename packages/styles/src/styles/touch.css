@@ -19,6 +19,14 @@
     --color-text-secondary: var(--mobile-label-secondary);
   }
 
+  /* An outline Card is a section of an inset grouped list: the fill of a FieldGroup on the same surface. It is
+     resolved on the card itself, so a grouped Page or a Sheet gives its own section fill; a section does not
+     lighten under the pointer (Card.module.css). Other outline controls do not read these tokens. */
+  :where([data-variant="outline"]) {
+    --card-section-background: var(--field-group-background);
+    --card-background-hover: var(--field-group-background);
+  }
+
   /* A content button group keeps one height (connected segments have no iOS control of their own).
      Beside text buttons its icon-only buttons take their 28, 34 or 50px instead of the 44px of a
      toolbar button; a group of icon-only buttons stays a 44px toolbar group. Beside a text field
@@ -129,17 +137,6 @@
     --button-uniform-size-2xs: var(--control-size-sm);
     --button-uniform-size-xs: var(--control-size-sm);
 
-    /* Web disclosure panels composed from native list height and text roles.
-       Expanded FAQ content and its spacing are a web adaptation. */
-    --accordion-trigger-min-height: 52px;
-    --accordion-trigger-font-size: 17px;
-    --accordion-trigger-line-height: 22px;
-    --accordion-trigger-font-weight: 590;
-    --accordion-trigger-padding-block: 15px;
-    --accordion-content-font-size: 17px;
-    --accordion-content-line-height: 22px;
-    --accordion-content-padding-bottom: 16px;
-
     --sortable-handle-size: 44px;
     --sortable-handle-icon-size: 17px;
     --sortable-desktop-grip-display: none;
@@ -212,6 +209,40 @@
        title at 17/22 semibold (Alert.module.css). 14 is not an iOS text style. */
     --alert-font-size: 15px;
     --alert-line-height: 20px;
+
+    /* A Card is a section of an iOS inset grouped list (kit iOS 27 Lists: 26 corners, no border, the content 16
+       from the edge or 20 in a large card; its fill below), with the text of an iOS tip: the title at 17/22
+       semibold, the description and the body at 15/20, the description in the secondary label color. A solid
+       card takes a gray fill, apart from the sections. */
+    --card-radius: 26px;
+    --card-font-size: 15px;
+    --card-line-height: 20px;
+    --card-padding-md: 16px;
+    --card-padding-lg: 20px;
+    --card-title-font-size: 17px;
+    --card-title-line-height: 22px;
+    --card-title-letter-spacing: normal;
+    --card-description-font-size: 15px;
+    --card-description-line-height: 20px;
+    --card-description-color: var(--color-text-secondary);
+    --card-section-border-color: transparent;
+    --card-solid-section-background: var(--color-background-secondary-soft-alpha);
+
+    /* An Accordion item is an iOS disclosure row (kit iOS 27 Lists, _Trailing Type=Disclosure): a 52px row with
+       its title at 17/22 regular and a chevron in the accent color (PlexUI primary) that points to the end and
+       turns down when the item opens (Accordion.module.css); the content reads as a row subtitle, 15/20 secondary. */
+    --accordion-chevron-closed-angle: -90deg;
+    --accordion-chevron-open-angle: 0deg;
+    --accordion-trigger-font-size: 17px;
+    --accordion-trigger-line-height: 22px;
+    --accordion-trigger-font-weight: var(--font-weight-normal);
+    --accordion-trigger-min-height: 52px;
+    --accordion-trigger-padding-block: 15px;
+    --accordion-icon-color: var(--color-text);
+    --accordion-content-font-size: 15px;
+    --accordion-content-line-height: 20px;
+    --accordion-content-color: var(--color-text-secondary);
+    --accordion-content-padding-bottom: 15px;
 
     --table-cell-font-size: 15px;
     --table-cell-line-height: 20px;
