@@ -223,7 +223,7 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 
 <ComponentPreview language="vue" details={<>
   <p>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</p>
-  <p>On a phone with <code>touch.css</code> horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 22, 24 and 26px at <code>3xs</code> to <code>xs</code>, 44px from <code>sm</code> to <code>2xl</code> and 50px at <code>3xl</code>. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
+  <p>On a phone with <code>touch.css</code> horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 44px with the 17px label from <code>3xs</code> to <code>2xl</code> (a <code>3xs</code>, <code>2xs</code> or <code>xs</code> tab takes the row, text, gutter, icon and badge of <code>sm</code>; a gutter set with <code>gutter-size</code> stays) and 50px at <code>3xl</code>. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
 </>} code={sizing} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
   <VueDemo stageClassName={STAGE} template={sizing} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
