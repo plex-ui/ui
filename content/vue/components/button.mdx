@@ -182,7 +182,7 @@ export const sizeOptions = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "
   <p>For icon-only buttons, there are two common approaches:</p>
   <p><strong>Square</strong>: create perfect square icon buttons with the <code>uniform</code> prop. When <code>uniform</code> is passed, <code>gutter-size</code> is ignored. Combine with <code>pill</code> to make circular icons.</p>
   <p><strong>Tighter gutters</strong>: applying a smaller <code>gutter-size</code> than <code>size</code> can create well-sized, but not exactly square, icon buttons.</p>
-  <p>On a phone with <code>touch.css</code> the icon follows the three iOS sizes unless <code>icon-size</code> is set. With <code>uniform</code> the button is currently a 44px circle at every size on a phone.</p>
+  <p>On a phone with <code>touch.css</code> the icon follows the three iOS sizes unless <code>icon-size</code> is set: <code>3xs</code> to <code>lg</code> show the 18px icon and <code>xl</code> to <code>3xl</code> the 20px one, as the kit sets a button's symbol at the size of its label (15 and 17px). With <code>uniform</code> the button is a 44px circle on a phone, 50px at <code>3xl</code>.</p>
 </>} code={withPhone(icons, iconsPhone, "the three sizes of iOS buttons")} previewMinHeight={216}>
   <VuePhoneRowsDemo
     template={icons}

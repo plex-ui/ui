@@ -841,6 +841,10 @@
 }
 
 .CardDismiss {
+  /* Keeps its 3xs face and glyph on a phone, where touch.css makes a 3xs icon button 44px. */
+  --button-uniform-size-3xs: var(--control-size-3xs);
+  --button-icon-size-3xs: var(--control-icon-size-xs);
+
   position: absolute;
   top: 6px;
   right: 6px;

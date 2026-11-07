@@ -159,7 +159,7 @@ export function ComponentPreview({
             <SegmentedControl.Option value="details" icon={<InfoCircle />} aria-label="Details" />
           )}
         </SegmentedControl>
-        <Button type="button" color="secondary" variant="ghost" size="xs" uniform pill
+        <Button type="button" color="secondary" variant="ghost" size="xs" uniform pill className={s.ResetPreview}
           aria-label="Reset preview" title="Reset preview"
           onClick={() => { setResetRevision((revision) => revision + 1); setMode('preview'); }}>
           <Reload />

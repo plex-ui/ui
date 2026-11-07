@@ -166,6 +166,9 @@
 .Clear {
   --button-size: 24px;
   --button-icon-size: 16px;
+  /* Keeps its face on a phone, where touch.css makes a 3xs icon button 44px. */
+  --button-uniform-size-3xs: var(--control-size-3xs);
+  --button-icon-size-3xs: var(--control-icon-size-xs);
 
   position: relative;
   opacity: 0.75;

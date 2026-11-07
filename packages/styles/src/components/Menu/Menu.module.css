@@ -191,6 +191,10 @@
 }
 
 .ItemActions {
+  /* An action keeps its xs face on a phone, where touch.css makes an xs icon button 44px. */
+  --button-uniform-size-xs: var(--control-size-xs);
+  --button-icon-size-xs: var(--control-icon-size-sm);
+
   /* Prevent adding height to the MenuItem, and horizontally center */
   display: flex;
   align-items: center;

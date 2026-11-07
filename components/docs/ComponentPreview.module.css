@@ -68,6 +68,12 @@ html.dark .PreviewInner {
   .ScreenSwitch {
     display: none !important;
   }
+
+  /* The reset is a 44px icon button on a phone with touch.css; it overhangs the 32px row of
+     the view switch rather than making every preview taller. */
+  .ResetPreview {
+    margin-block: calc((32px - var(--button-size)) / 2);
+  }
 }
 
 /* Descriptions stay in normal flow, below the heading's toolbar. */

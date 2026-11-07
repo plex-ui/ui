@@ -38,6 +38,31 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* With touch.css a 2xs icon button is 44px on a phone; the copy button keeps its 24px face and
+   glyph inside the 32px box, and its target takes the 44px of iOS around the box, as the clear
+   button of SelectControl does. */
+.CopyButtonContainer {
+  --button-uniform-size-2xs: var(--control-size-2xs);
+  --button-icon-size-2xs: var(--control-icon-size-sm);
+  --button-indicator-size-2xs: 12px;
+}
+
+@media (max-width: 767px) {
+  .CopyButtonContainer button {
+    min-width: 44px;
+    min-height: 44px;
+    /* The target overhangs the 32px box evenly, so the glyph stays at its centre. */
+    margin: calc((32px - 44px) / 2);
+
+    &::before,
+    &::after {
+      width: var(--button-size);
+      height: var(--button-size);
+      margin: auto;
+    }
+  }
+}
+
 /* The button's own outline stays off; keyboard focus shows Button's
    ::after ring */
 .CopyButtonContainer button:focus,

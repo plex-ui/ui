@@ -112,12 +112,12 @@
     --button-line-height: var(--button-line-height-3xs, 1);
     --button-gutter: var(--button-gutter-3xs, var(--control-gutter-2xs));
     --button-font-size: var(--button-font-size-3xs, var(--control-font-size-sm));
-    --button-icon-size: var(--control-icon-size-xs);
+    --button-icon-size: var(--button-icon-size-3xs, var(--control-icon-size-xs));
     --button-gap: var(--button-gap-sm);
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
-    --indicator-size: 11px;
-    --circular-progress-size: 11px;
+    --indicator-size: var(--button-indicator-size-3xs, 11px);
+    --circular-progress-size: var(--button-indicator-size-3xs, 11px);
   }
 
   &:where([data-size="2xs"]) {
@@ -126,12 +126,12 @@
     --button-line-height: var(--button-line-height-2xs, 1);
     --button-gutter: var(--button-gutter-2xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-2xs, var(--control-font-size-sm));
-    --button-icon-size: var(--control-icon-size-sm);
+    --button-icon-size: var(--button-icon-size-2xs, var(--control-icon-size-sm));
     --button-gap: var(--button-gap-md);
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
-    --indicator-size: 12px;
-    --circular-progress-size: 12px;
+    --indicator-size: var(--button-indicator-size-2xs, 12px);
+    --circular-progress-size: var(--button-indicator-size-2xs, 12px);
   }
 
   &:where([data-size="xs"]) {
@@ -140,12 +140,12 @@
     --button-line-height: var(--button-line-height-xs, 1);
     --button-gutter: var(--button-gutter-xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-xs, var(--control-font-size-md));
-    --button-icon-size: var(--control-icon-size-sm);
+    --button-icon-size: var(--button-icon-size-xs, var(--control-icon-size-sm));
     --button-gap: var(--button-gap-md);
     --button-radius: var(--button-touch-radius, var(--control-radius-sm));
     --button-icon-offset: -1px;
-    --indicator-size: 13px;
-    --circular-progress-size: 14px;
+    --indicator-size: var(--button-indicator-size-xs, 13px);
+    --circular-progress-size: var(--button-indicator-size-xs, 14px);
   }
 
   &:where([data-size="sm"]) {
@@ -196,7 +196,7 @@
     --button-line-height: var(--button-line-height-xl, 1);
     --button-gutter: var(--button-gutter-xl, var(--control-gutter-lg));
     --button-font-size: var(--button-font-size-xl, var(--control-font-size-md));
-    --button-icon-size: var(--control-icon-size-md);
+    --button-icon-size: var(--button-icon-size-xl, var(--control-icon-size-md));
     --button-gap: var(--button-gap-lg);
     --button-radius: var(--button-touch-radius, var(--control-radius-xl));
     --button-icon-offset: -1px;

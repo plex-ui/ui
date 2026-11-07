@@ -114,6 +114,20 @@
     --button-gutter-3xl: 20px;
     --button-font-size-3xl: 17px;
     --button-line-height-3xl: 22px;
+    /* The kit (Buttons 507:24673) sets a button's symbol at the size of its label: 15pt in the small and
+       medium buttons, 17pt in the large one. So 3xs to lg show the 18px icon and xl to 3xl the 20px one;
+       3xs, 2xs and xs, the kit's small button as sm is, also take sm's loading indicator, and an icon-only
+       one sm's 44px. A component that sizes its own accessory keeps it (CodeBlock, FloatingLabelSelect, Menu, Sidebar). */
+    --button-icon-size-3xs: var(--control-icon-size-md);
+    --button-icon-size-2xs: var(--control-icon-size-md);
+    --button-icon-size-xs: var(--control-icon-size-md);
+    --button-icon-size-xl: var(--control-icon-size-lg);
+    --button-indicator-size-3xs: 15px;
+    --button-indicator-size-2xs: 15px;
+    --button-indicator-size-xs: 15px;
+    --button-uniform-size-3xs: var(--control-size-sm);
+    --button-uniform-size-2xs: var(--control-size-sm);
+    --button-uniform-size-xs: var(--control-size-sm);
 
     /* Web disclosure panels composed from native list height and text roles.
        Expanded FAQ content and its spacing are a web adaptation. */
