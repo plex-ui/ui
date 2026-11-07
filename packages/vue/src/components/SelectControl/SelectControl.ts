@@ -155,6 +155,7 @@ const SelectControlComponent = defineComponent({
           "class": clsx(s.SelectControl, className as ClassValue),
           // Recreate <button> semantics
           "role": "button",
+          "data-slot": "select-control",
           "tabindex": disabled ? -1 : 0,
           "onPointerenter": (evt: PointerEvent) => {
             handlePressableMouseEnter(evt)

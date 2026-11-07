@@ -19,6 +19,37 @@
     --color-text-secondary: var(--mobile-label-secondary);
   }
 
+  /* A content button group keeps one height (connected segments have no iOS control of their own).
+     Beside text buttons its icon-only buttons take their 28, 34 or 50px instead of the 44px of a
+     toolbar button; a group of icon-only buttons stays a 44px toolbar group. Beside a text field
+     or a select every button takes the field's height. */
+  :where([data-slot="button-group"]):has(:is(button, a)[data-size]:not([data-uniform])) {
+    --button-uniform-size-3xs: var(--button-size-3xs);
+    --button-uniform-size-2xs: var(--button-size-2xs);
+    --button-uniform-size-xs: var(--button-size-xs);
+    --button-uniform-size-sm: var(--button-size-sm);
+    --button-uniform-size-md: var(--button-size-md);
+    --button-uniform-size-lg: var(--button-size-lg);
+    --button-uniform-size-xl: var(--button-size-xl);
+    --button-uniform-size-2xl: var(--button-size-2xl);
+    --button-uniform-size-3xl: var(--button-size-3xl);
+  }
+
+  :where([data-slot="button-group"]):has(
+    > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]),
+    > [data-slot="button-group"] > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"])
+  ) {
+    --button-size-3xs: var(--control-size-3xs);
+    --button-size-2xs: var(--control-size-2xs);
+    --button-size-xs: var(--control-size-xs);
+    --button-size-sm: var(--control-size-sm);
+    --button-size-md: var(--control-size-md);
+    --button-size-lg: var(--control-size-lg);
+    --button-size-xl: var(--control-size-xl);
+    --button-size-2xl: var(--control-size-2xl);
+    --button-size-3xl: var(--control-size-3xl);
+  }
+
   html:root {
     /* iOS layout margin: 16pt up to 402pt wide (the iOS 26 kit's toolbar and row insets at 402), 20pt from
        414pt (IMG_5470/5508/5512/5514/5515 at 430pt put bar buttons, list groups and row text at 20). Page

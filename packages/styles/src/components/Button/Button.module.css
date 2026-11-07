@@ -108,7 +108,7 @@
   ============================================= */
   &:where([data-size="3xs"]) {
     --button-size: var(--button-size-3xs, var(--control-size-3xs));
-    --button-uniform-size: var(--control-size-3xs);
+    --button-uniform-size: var(--button-uniform-size-3xs, var(--control-size-3xs));
     --button-line-height: var(--button-line-height-3xs, 1);
     --button-gutter: var(--button-gutter-3xs, var(--control-gutter-2xs));
     --button-font-size: var(--button-font-size-3xs, var(--control-font-size-sm));
@@ -122,7 +122,7 @@
 
   &:where([data-size="2xs"]) {
     --button-size: var(--button-size-2xs, var(--control-size-2xs));
-    --button-uniform-size: var(--control-size-2xs);
+    --button-uniform-size: var(--button-uniform-size-2xs, var(--control-size-2xs));
     --button-line-height: var(--button-line-height-2xs, 1);
     --button-gutter: var(--button-gutter-2xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-2xs, var(--control-font-size-sm));
@@ -136,7 +136,7 @@
 
   &:where([data-size="xs"]) {
     --button-size: var(--button-size-xs, var(--control-size-xs));
-    --button-uniform-size: var(--control-size-xs);
+    --button-uniform-size: var(--button-uniform-size-xs, var(--control-size-xs));
     --button-line-height: var(--button-line-height-xs, 1);
     --button-gutter: var(--button-gutter-xs, var(--control-gutter-xs));
     --button-font-size: var(--button-font-size-xs, var(--control-font-size-md));
@@ -150,7 +150,7 @@
 
   &:where([data-size="sm"]) {
     --button-size: var(--button-size-sm, var(--control-size-sm));
-    --button-uniform-size: var(--control-size-sm);
+    --button-uniform-size: var(--button-uniform-size-sm, var(--control-size-sm));
     --button-line-height: var(--button-line-height-sm, 1);
     --button-gutter: var(--button-gutter-sm, var(--control-gutter-sm));
     --button-font-size: var(--button-font-size-sm, var(--control-font-size-md));
@@ -164,7 +164,7 @@
 
   &:where([data-size="md"]) {
     --button-size: var(--button-size-md, var(--control-size-md));
-    --button-uniform-size: var(--control-size-md);
+    --button-uniform-size: var(--button-uniform-size-md, var(--control-size-md));
     --button-line-height: var(--button-line-height-md, 1);
     --button-gutter: var(--button-gutter-md, var(--control-gutter-md));
     --button-font-size: var(--button-font-size-md, var(--control-font-size-md));
@@ -178,7 +178,7 @@
 
   &:where([data-size="lg"]) {
     --button-size: var(--button-size-lg, var(--control-size-lg));
-    --button-uniform-size: var(--control-size-lg);
+    --button-uniform-size: var(--button-uniform-size-lg, var(--control-size-lg));
     --button-line-height: var(--button-line-height-lg, 1);
     --button-gutter: var(--button-gutter-lg, var(--control-gutter-md));
     --button-font-size: var(--button-font-size-lg, var(--control-font-size-md));
@@ -192,7 +192,7 @@
 
   &:where([data-size="xl"]) {
     --button-size: var(--button-size-xl, var(--control-size-xl));
-    --button-uniform-size: var(--control-size-xl);
+    --button-uniform-size: var(--button-uniform-size-xl, var(--control-size-xl));
     --button-line-height: var(--button-line-height-xl, 1);
     --button-gutter: var(--button-gutter-xl, var(--control-gutter-lg));
     --button-font-size: var(--button-font-size-xl, var(--control-font-size-md));
@@ -206,7 +206,7 @@
 
   &:where([data-size="2xl"]) {
     --button-size: var(--button-size-2xl, var(--control-size-2xl));
-    --button-uniform-size: var(--control-size-2xl);
+    --button-uniform-size: var(--button-uniform-size-2xl, var(--control-size-2xl));
     --button-line-height: var(--button-line-height-2xl, 1);
     --button-gutter: var(--button-gutter-2xl, var(--control-gutter-lg));
     --button-font-size: var(--button-font-size-2xl, var(--control-font-size-lg));
@@ -220,7 +220,7 @@
 
   &:where([data-size="3xl"]) {
     --button-size: var(--button-size-3xl, var(--control-size-3xl));
-    --button-uniform-size: var(--control-size-3xl);
+    --button-uniform-size: var(--button-uniform-size-3xl, var(--control-size-3xl));
     --button-line-height: var(--button-line-height-3xl, 1);
     --button-gutter: var(--button-gutter-3xl, var(--control-gutter-xl));
     --button-font-size: var(--button-font-size-3xl, var(--control-font-size-lg));

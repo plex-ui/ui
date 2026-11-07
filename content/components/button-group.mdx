@@ -49,7 +49,10 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Orientation
 
-<ComponentPreview details={<>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
+<ComponentPreview details={<>
+  <p>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</p>
+  <p>On a phone with <code>touch.css</code> a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={`<ButtonGroup orientation="vertical" aria-label="Zoom controls">
   <Button variant="outline" color="secondary" size="sm" uniform aria-label="Zoom in">
     <PlusSm />
   </Button>
@@ -62,7 +65,10 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Size
 
-<ComponentPreview details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</>} code={`<div className="flex flex-col items-start gap-6">
+<ComponentPreview details={<>
+  <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
+  <p>On a phone with <code>touch.css</code> a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
+</>} code={`<div className="flex flex-col items-start gap-6">
   <ButtonGroup>
     <Button variant="outline" color="secondary" size="sm">Small</Button>
     <Button variant="outline" color="secondary" size="sm">Button</Button>
@@ -129,7 +135,10 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Input
 
-<ComponentPreview details={<>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>
+  <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
+  <p>On a phone with <code>touch.css</code> the button takes the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={`<ButtonGroup>
   <Input placeholder="Search docs..." size="sm" />
   <Button variant="outline" color="secondary" size="sm" aria-label="Search">
     <SearchSm />
@@ -140,7 +149,10 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Input group
 
-<ComponentPreview details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={`<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
+<ComponentPreview details={<>
+  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via <code>endAdornment</code>. Use <code>Input.AdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
+  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={`<ButtonGroup style={{ width: "100%", maxWidth: 280 }}>
   <ButtonGroup>
     <Button variant="outline" color="secondary" pill size="sm" uniform aria-label="Add attachment">
       <Plus />
@@ -193,7 +205,10 @@ Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and remov
 
 ### Select
 
-<ComponentPreview details={<>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</>} code={`<ButtonGroup>
+<ComponentPreview details={<>
+  <p>Mix a <a href="/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
+  <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
+</>} code={`<ButtonGroup>
   <ButtonGroup>
     <Select
       options={units}

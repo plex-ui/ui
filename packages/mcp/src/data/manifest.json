@@ -643,12 +643,12 @@
         {
           "name": "Orientation",
           "code": "<ButtonGroup orientation=\"vertical\" aria-label=\"Zoom controls\">\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom in\">\n  <PlusSm />\n</Button>\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Zoom out\">\n  <Minus />\n</Button>\n</ButtonGroup>",
-          "details": "Pass orientation=\"vertical\" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar."
+          "details": "Pass orientation=\"vertical\" to stack the buttons, useful for + / − steppers, zoom controls, or any vertical toolbar. On a phone with touch.css a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control."
         },
         {
           "name": "Size",
           "code": "<div className=\"flex flex-col items-start gap-6\">\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Small</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Button</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\">Group</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Add\"><PlusSm /></Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\">Default</Button>\n  <Button variant=\"outline\" color=\"secondary\">Button</Button>\n  <Button variant=\"outline\" color=\"secondary\">Group</Button>\n  <Button variant=\"outline\" color=\"secondary\" uniform aria-label=\"Add\"><PlusSm /></Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Large</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Button</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"lg\">Group</Button>\n  <Button variant=\"outline\" color=\"secondary\" size=\"lg\" uniform aria-label=\"Add\"><PlusSm /></Button>\n</ButtonGroup>\n</div>",
-          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding."
+          "details": "Set size on every Button inside the group so corner radii match. Mix icon-only (uniform) with text buttons; each child keeps its own padding. On a phone with touch.css a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own."
         },
         {
           "name": "Nested",
@@ -668,12 +668,12 @@
         {
           "name": "Input",
           "code": "<ButtonGroup>\n<Input placeholder=\"Search docs...\" size=\"sm\" />\n<Button variant=\"outline\" color=\"secondary\" size=\"sm\" aria-label=\"Search\">\n  <SearchSm />\n</Button>\n</ButtonGroup>",
-          "details": "Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content."
+          "details": "Join an Input to a trailing Button for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content. On a phone with touch.css the button takes the field's 44px at each size shown, so the phone view leaves out the size control."
         },
         {
           "name": "Input group",
           "code": "<ButtonGroup style={{ width: \"100%\", maxWidth: 280 }}>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" pill size=\"sm\" uniform aria-label=\"Add attachment\">\n    <Plus />\n  </Button>\n</ButtonGroup>\n<ButtonGroup>\n  <Input\n    pill\n    size=\"sm\"\n    placeholder={voiceEnabled ? \"Recording your idea…\" : \"Describe a component…\"}\n    disabled={voiceEnabled}\n    endAdornment={\n      <Input.AdornmentButton\n        color={voiceEnabled ? \"caution\" : undefined}\n        aria-label=\"Toggle voice mode\"\n        aria-pressed={voiceEnabled}\n        onClick={() => setVoiceEnabled((prev) => !prev)}\n      >\n        <Mic />\n      </Input.AdornmentButton>\n    }\n  />\n</ButtonGroup>\n</ButtonGroup>",
-          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size."
+          "details": "Richer composition for message composers: wrap each slot (leading action, flexible Input) in its own ButtonGroup so the outer group inserts a gap between them. The voice toggle rides inside the input via endAdornment. Use Input.AdornmentButton: it sizes off the input's own size token so the button stays concentric with the pill at every size. On a phone with touch.css the buttons take the field's 44px at each size shown, so the phone view leaves out the size control."
         },
         {
           "name": "Dropdown menu",
@@ -683,7 +683,7 @@
         {
           "name": "Select",
           "code": "<ButtonGroup>\n<ButtonGroup>\n  <Select\n    options={units}\n    value={unit}\n    onChange={(option) => setUnit(option.value)}\n    variant=\"outline\"\n    size=\"sm\"\n    block={false}\n  />\n  <Input placeholder=\"2.50\" size=\"sm\" inputMode=\"decimal\" />\n</ButtonGroup>\n<ButtonGroup>\n  <Button variant=\"outline\" color=\"secondary\" size=\"sm\" uniform aria-label=\"Log weight\">\n    <ArrowRight />\n  </Button>\n</ButtonGroup>\n</ButtonGroup>",
-          "details": "Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any \"qualifier + value\" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance."
+          "details": "Mix a Select and an Input inside one ButtonGroup for unit pickers, currency entry, or any \"qualifier + value\" pattern. Wrap each slot in a nested ButtonGroup to get a gap between the compound field and the send affordance. On a phone with touch.css the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control."
         },
         {
           "name": "Popover",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T00:03:49.033Z"
+  "generatedAt": "2026-11-07T00:51:36.041Z"
 }

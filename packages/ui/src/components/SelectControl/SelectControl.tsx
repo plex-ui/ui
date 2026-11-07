@@ -195,6 +195,7 @@ export const SelectControl = ({
       className={clsx(s.SelectControl, className)}
       // Recreate <button> semantics
       role="button"
+      data-slot="select-control"
       tabIndex={disabled ? -1 : 0}
       onPointerEnter={(evt: React.PointerEvent<HTMLAnchorElement>) => {
         handlePressableMouseEnter(evt)

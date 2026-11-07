@@ -40,10 +40,11 @@ import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 const SIZE_OPTIONS = ['sm', 'md', 'lg'] as const;
 type DemoSize = (typeof SIZE_OPTIONS)[number];
 
-function SizeToggle({ value, onChange }: { value: DemoSize; onChange: (v: DemoSize) => void }) {
+/** `desktopOnly` where a phone group takes 44px at every size: beside a text field, or icon-only buttons alone. */
+function SizeToggle({ value, onChange, desktopOnly = false }: { value: DemoSize; onChange: (v: DemoSize) => void; desktopOnly?: boolean }) {
   return (
     <div data-demo-controls style={controlsTableStyle}>
-      <DemoControlRow name="size">
+      <DemoControlRow name="size" desktopOnly={desktopOnly}>
         <SegmentedControl<DemoSize> value={value} onChange={onChange} aria-label="size" size="xs">
           {SIZE_OPTIONS.map((s) => (
             <SegmentedControl.Option key={s} value={s}>
@@ -121,7 +122,7 @@ export function ButtonGroupOrientationDemo() {
   const [size, setSize] = useState<DemoSize>('sm');
   return (
     <>
-      <SizeToggle value={size} onChange={setSize} />
+      <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
       <ButtonGroup orientation="vertical" aria-label="Zoom controls">
         <Button
@@ -336,7 +337,7 @@ export function ButtonGroupInputDemo() {
   const [size, setSize] = useState<DemoSize>('sm');
   return (
     <>
-      <SizeToggle value={size} onChange={setSize} />
+      <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
       <ButtonGroup>
         <Input placeholder="Search docs..." size={size} />
@@ -359,8 +360,11 @@ export function ButtonGroupInputGroupDemo() {
 
   return (
     <>
-      <SizeToggle value={size} onChange={setSize} />
+      <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
+      {/* A narrow docs page caps the stage's direct children at its width; this wrapper keeps the
+          group's own 280px there, as the Vue preview's wrapper does. */}
+      <div className="contents">
       <ButtonGroup style={{ width: '100%', maxWidth: 280 }}>
         <ButtonGroup>
           <Button
@@ -393,6 +397,7 @@ export function ButtonGroupInputGroupDemo() {
           />
         </ButtonGroup>
       </ButtonGroup>
+      </div>
       </DemoStage>
     </>
   );
@@ -466,7 +471,7 @@ export function ButtonGroupSelectDemo() {
 
   return (
     <>
-      <SizeToggle value={size} onChange={setSize} />
+      <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
       <ButtonGroup>
         <ButtonGroup>

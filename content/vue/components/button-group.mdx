@@ -8,6 +8,9 @@ import { VueDemo } from "@/components/docs/vue/VueDemo"
 
 export const sizeControl = [{ name: "size", type: "select", options: ["sm", "md", "lg"], default: "sm" }]
 
+{/* A phone group beside a text field, or of icon-only buttons alone, takes 44px at every size. */}
+export const phoneFixedSizeControl = [{ name: "size", desktopOnly: true, type: "select", options: ["sm", "md", "lg"], default: "sm" }]
+
 export const overview = `<ButtonGroup>
   <ButtonGroup>
     <Button variant="outline" color="secondary" :size="size" uniform aria-label="Go back">
@@ -194,13 +197,19 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Orientation
 
-<ComponentPreview language="vue" details={<>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</>} code={orientation}>
-  <VueDemo template={orientation} controls={sizeControl} />
+<ComponentPreview language="vue" details={<>
+  <p>Pass <code>orientation="vertical"</code> to stack the buttons, useful for <code>+</code> / <code>−</code> steppers, zoom controls, or any vertical toolbar.</p>
+  <p>On a phone with <code>touch.css</code> a group of icon-only buttons keeps their 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={orientation}>
+  <VueDemo template={orientation} controls={phoneFixedSizeControl} />
 </ComponentPreview>
 
 ### Size
 
-<ComponentPreview language="vue" details={<>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</>} code={sizes}>
+<ComponentPreview language="vue" details={<>
+  <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
+  <p>On a phone with <code>touch.css</code> a group keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>
+</>} code={sizes}>
   <VueDemo template={sizes} />
 </ComponentPreview>
 
@@ -224,14 +233,20 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Input
 
-<ComponentPreview language="vue" details={<>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</>} code={input}>
-  <VueDemo template={input} controls={sizeControl} />
+<ComponentPreview language="vue" details={<>
+  <p>Join an <code>Input</code> to a trailing <code>Button</code> for inline search, token entry, or URL shorteners. The input flexes to fill the row; the button hugs its content.</p>
+  <p>On a phone with <code>touch.css</code> the button takes the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={input}>
+  <VueDemo template={input} controls={phoneFixedSizeControl} />
 </ComponentPreview>
 
 ### Input group
 
-<ComponentPreview language="vue" details={<>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</>} code={inputGroup}>
-  <VueDemo template={inputGroup} controls={sizeControl} state={{ voiceEnabled: false }} />
+<ComponentPreview language="vue" details={<>
+  <p>Richer composition for message composers: wrap each slot (leading action, flexible <code>Input</code>) in its own <code>ButtonGroup</code> so the outer group inserts a gap between them. The voice toggle rides inside the input via the <code>endAdornment</code> slot. Use <code>InputAdornmentButton</code>: it sizes off the input's own size token so the button stays concentric with the pill at every size.</p>
+  <p>On a phone with <code>touch.css</code> the buttons take the field's 44px at each size shown, so the phone view leaves out the size control.</p>
+</>} code={inputGroup}>
+  <VueDemo template={inputGroup} controls={phoneFixedSizeControl} state={{ voiceEnabled: false }} />
 </ComponentPreview>
 
 ### Dropdown menu
@@ -242,10 +257,13 @@ Wraps any row of controls (`Button`, `Input`, a popover trigger, ...) and remove
 
 ### Select
 
-<ComponentPreview language="vue" details={<>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</>} code={select}>
+<ComponentPreview language="vue" details={<>
+  <p>Mix a <a href="/vue/components/select"><code>Select</code></a> and an <code>Input</code> inside one <code>ButtonGroup</code> for unit pickers, currency entry, or any "qualifier + value" pattern. Wrap each slot in a nested <code>ButtonGroup</code> to get a gap between the compound field and the send affordance.</p>
+  <p>On a phone with <code>touch.css</code> the button takes the height of the 44px fields at each size shown, so the phone view leaves out the size control.</p>
+</>} code={select}>
   <VueDemo
     template={select}
-    controls={sizeControl}
+    controls={phoneFixedSizeControl}
     state={{
       unit: "kg",
       unitOptions: [
