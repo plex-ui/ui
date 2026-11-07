@@ -42,51 +42,157 @@ export function InputOverviewDemo() {
   );
 }
 
+const STATE_OPTIONS = ['empty', 'entered', 'invalid', 'disabled'] as const;
+type InputState = (typeof STATE_OPTIONS)[number];
+const VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
+
+// A phone row puts its value in one of three places: at the end of the row, at one
+// column for the whole group (an iOS address form), or under the label.
+const PHONE_VALUE_PLACES = [
+  { title: 'Value at the end', columns: false, vertical: false },
+  { title: 'Values in a column', columns: true, vertical: false },
+  { title: 'Value under the label', columns: false, vertical: true },
+] as const;
+
+/** The value an email input of the Variants example holds in each state. */
+function emailOf(state: InputState) {
+  if (state === 'empty') return undefined;
+  return state === 'invalid' ? 'jane@example' : 'jane@example.com';
+}
+
 export function InputVariantsDemo() {
   const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup>
-          <Field row label="First name">
-            <Input defaultValue="Jane" />
-          </Field>
-          <Field row orientation="vertical" label="Address">
-            <Input variant="ghost" placeholder="Street and building" />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
+  const [state, setState] = useState<InputState>('entered');
+  const invalid = state === 'invalid';
+  const disabled = state === 'disabled';
   return (
-    <div className="flex flex-col gap-2 w-[320px]">
-      <Input placeholder="Enter text..." variant="outline" />
-      <Input placeholder="Enter text..." variant="soft" />
-      <Input placeholder="Enter text..." variant="ghost" />
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="state">
+          <SegmentedControl<InputState> value={state} onChange={setState} aria-label="state" size="xs">
+            {STATE_OPTIONS.map((option) => (
+              <SegmentedControl.Option key={option} value={option}>
+                {option}
+              </SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      {phone ? (
+        <PhoneRowsStage>
+          {PHONE_VALUE_PLACES.map(({ title, columns, vertical }) => (
+            <FieldGroup key={title} title={title} columns={columns}>
+              <Field row orientation={vertical ? 'vertical' : undefined} label="Name">
+                <Input
+                  key={state}
+                  variant={vertical ? 'ghost' : undefined}
+                  placeholder="Required"
+                  defaultValue={state === 'empty' ? undefined : 'Jane Appleseed'}
+                  disabled={disabled}
+                />
+              </Field>
+              <Field
+                row
+                orientation={vertical ? 'vertical' : undefined}
+                label="Email"
+                errorMessage={invalid ? 'Enter a valid email address.' : undefined}
+              >
+                <Input
+                  key={state}
+                  type="email"
+                  variant={vertical ? 'ghost' : undefined}
+                  placeholder="name@example.com"
+                  defaultValue={emailOf(state)}
+                  invalid={invalid}
+                  disabled={disabled}
+                />
+              </Field>
+            </FieldGroup>
+          ))}
+        </PhoneRowsStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="flex flex-col gap-2 w-[320px]">
+            {VARIANT_OPTIONS.map((variant) => (
+              <Input
+                key={`${variant}-${state}`}
+                type="email"
+                variant={variant}
+                placeholder="name@example.com"
+                defaultValue={emailOf(state)}
+                invalid={invalid}
+                disabled={disabled}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-export function InputStartAdornmentDemo() {
+const POSITION_OPTIONS = ['start', 'end'] as const;
+type AdornmentPosition = (typeof POSITION_OPTIONS)[number];
+
+export function InputAdornmentsDemo() {
   const phone = usePhoneRows();
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup columns>
-          <Field row label="Amount">
-            <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
+  const [position, setPosition] = useState<AdornmentPosition>('start');
+  const [username, setUsername] = useState('');
+  const counter = {
+    value: username,
+    onChange: (evt: React.ChangeEvent<HTMLInputElement>) => setUsername(evt.target.value),
+    maxLength: 16,
+  };
   return (
-    <div className="w-[320px]">
-      <Input
-        placeholder="Start adornment"
-        startAdornment={<Search className="fill-tertiary" />}
-      />
-    </div>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlRow name="position">
+          <SegmentedControl<AdornmentPosition> value={position} onChange={setPosition} aria-label="position" size="xs">
+            {POSITION_OPTIONS.map((option) => (
+              <SegmentedControl.Option key={option} value={option}>
+                {option}
+              </SegmentedControl.Option>
+            ))}
+          </SegmentedControl>
+        </DemoControlRow>
+      </div>
+      {phone ? (
+        <PhoneRowsStage>
+          {position === 'start' ? (
+            <FieldGroup key="start" columns>
+              <Field row label="Amount">
+                <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
+              </Field>
+            </FieldGroup>
+          ) : (
+            <FieldGroup key="end">
+              <Field row label="Username">
+                <Input placeholder="Required" {...counter} endAdornment={<PhoneCounter length={username.length} />} />
+              </Field>
+            </FieldGroup>
+          )}
+        </PhoneRowsStage>
+      ) : (
+        <div data-demo-stage className="py-10">
+          <div className="w-[320px]">
+            {position === 'start' ? (
+              <Input key="start" placeholder="Search" startAdornment={<Search className="fill-tertiary" />} />
+            ) : (
+              <Input
+                key="end"
+                placeholder="Username"
+                {...counter}
+                endAdornment={
+                  <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
+                    {username.length}/16
+                  </span>
+                }
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -233,135 +339,20 @@ export function InputEndAdornmentDemo() {
   );
 }
 
-export function InputCharacterCounterDemo() {
-  const phone = usePhoneRows();
-  const [username, setUsername] = useState('');
-  if (phone) {
-    return (
-      <PhoneRowsStage>
-        <FieldGroup>
-          <Field row label="Username">
-            <Input
-              placeholder="Required"
-              value={username}
-              onChange={(evt) => setUsername(evt.target.value)}
-              maxLength={16}
-              endAdornment={<PhoneCounter length={username.length} />}
-            />
-          </Field>
-        </FieldGroup>
-      </PhoneRowsStage>
-    );
-  }
-  return (
-    <div className="w-[320px]">
-      <Input
-        placeholder="Username"
-        value={username}
-        onChange={(evt) => setUsername(evt.target.value)}
-        maxLength={16}
-        endAdornment={
-          <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
-            {username.length}/16
-          </span>
-        }
-      />
-    </div>
-  );
-}
-
-export function InputDisabledDemo() {
-  const phone = usePhoneRows();
-  const [disabled, setDisabled] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          <FieldGroup>
-            <Field row label="Name">
-              <Input placeholder="Required" disabled={disabled} defaultValue="Jane Doe" />
-            </Field>
-          </FieldGroup>
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="py-10">
-          <div className="w-[320px]">
-            <Input placeholder="Jane Doe" disabled={disabled} defaultValue="Jane Doe" />
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function InputInvalidDemo() {
-  const phone = usePhoneRows();
-  const [invalid, setInvalid] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          <FieldGroup>
-            {/* A row is the field's frame, so the error is the line under it */}
-            <Field row label="Email" errorMessage={invalid ? 'Enter a valid email address.' : undefined}>
-              <Input type="email" placeholder="name@example.com" defaultValue="jane@example" invalid={invalid} />
-            </Field>
-          </FieldGroup>
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="py-10">
-          <div className="w-[320px]">
-            <Input placeholder="Invalid input" invalid={invalid} />
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function InputAutoSelectDemo() {
+// Selection and autofill behave the same in a phone row: the phone form only shows where the input stands.
+export function InputBehaviorDemo() {
   const phone = usePhoneRows();
   const [autoSelect, setAutoSelect] = useState(false);
+  const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true);
+  const autofill = {
+    name: 'email',
+    allowAutofillExtensions,
+    placeholder: allowAutofillExtensions ? 'Allowed' : 'Not allowed',
+  };
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="autoSelect" value={autoSelect} onChange={setAutoSelect} />
-      </div>
-      {phone ? (
-        <PhoneRowsStage>
-          <FieldGroup>
-            <Field row label="Name">
-              <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
-            </Field>
-          </FieldGroup>
-        </PhoneRowsStage>
-      ) : (
-        <div data-demo-stage className="py-10">
-          <div className="w-[320px]">
-            <Input
-              placeholder="Add text..."
-              autoSelect={autoSelect}
-              defaultValue="Toggle to auto select"
-            />
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function InputAutofillExtensionsDemo() {
-  const phone = usePhoneRows();
-  const [allowAutofillExtensions, setAllowAutofillExtensions] = useState(true);
-  return (
-    <>
-      <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean
           name="allowAutofillExtensions"
           value={allowAutofillExtensions}
@@ -371,25 +362,19 @@ export function InputAutofillExtensionsDemo() {
       {phone ? (
         <PhoneRowsStage>
           <FieldGroup>
+            <Field row label="Name">
+              <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
+            </Field>
             <Field row label="Email">
-              <Input
-                key={String(allowAutofillExtensions)}
-                name="email"
-                allowAutofillExtensions={allowAutofillExtensions}
-                placeholder={allowAutofillExtensions ? 'Allowed' : 'Not allowed'}
-              />
+              <Input key={String(allowAutofillExtensions)} {...autofill} />
             </Field>
           </FieldGroup>
         </PhoneRowsStage>
       ) : (
         <div data-demo-stage className="py-10">
-          <div className="w-[320px]">
-            <Input
-              key={String(allowAutofillExtensions)}
-              name="email"
-              allowAutofillExtensions={allowAutofillExtensions}
-              placeholder={allowAutofillExtensions ? 'Allowed' : 'Not allowed'}
-            />
+          <div className="flex flex-col gap-2 w-[320px]">
+            <Input placeholder="Add text..." autoSelect={autoSelect} defaultValue="Toggle to auto select" />
+            <Input key={String(allowAutofillExtensions)} {...autofill} />
           </div>
         </div>
       )}

@@ -674,6 +674,28 @@
     --button-icon-size: 24px;
   }
 
+  /* The glass of a sheet's bar: Close, the header actions and a control in the header, such as a segmented
+     control. Native iOS 26 sheets (Calendar, IMG_5433 light, iOS2 IMG_5522 dark) light the glass along both
+     edges, about 7 levels at the top fading within 2pt and again over the last 6pt at the bottom, rather
+     than darkening its top. In light the capsule also has a hairline outline (196 to 227 on a 242 sheet)
+     and a soft shadow at rest, 3 levels just under it and gone within 12pt; dark glass has neither. */
+  .Content[data-mobile-variant="sheet"] :is(.Header, .CloseButton) {
+    --mobile-glass-sheen: linear-gradient(light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 6%)), transparent 6px, transparent calc(100% - 8px), light-dark(rgb(255 255 255 / 45%), rgb(255 255 255 / 4%)));
+    --mobile-glass-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 2%), transparent), 0 0 0 0.5px light-dark(rgb(0 0 0 / 12%), transparent), inset 0.67px 0.67px 0 var(--mobile-glass-rim), inset -0.67px -0.67px 0 var(--mobile-glass-rim);
+  }
+
+  /* A disabled prominent action, such as confirm before there is anything to save, is a gray capsule with a white
+     glyph in that same glass, not the flat disabled fill of a button: 212 under a white check on the 242 sheet,
+     with the outline and the shadow (IMG_5433), the gray capsule of a bar (--toolbar-prominent-disabled-*). */
+  .Content[data-mobile-variant="sheet"] .HeaderAction > button[data-disabled][data-variant="solid"] {
+    --button-background-color: var(--toolbar-prominent-disabled-background);
+    --button-text-color: var(--toolbar-prominent-disabled-color);
+
+    &::before {
+      box-shadow: var(--mobile-glass-shadow);
+    }
+  }
+
   .Content[data-mobile-variant="sheet"] .HeaderAction > button:where(:not([data-disabled], [data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
     --button-mobile-material-background: var(--mobile-glass-background);
     --button-mobile-material-hover: var(--mobile-glass-background-hover);

@@ -91,11 +91,12 @@ export function ProductVariants({ value, onChange, wide }: {
         }}>
         <Dialog.Header>
           <Dialog.Title>{editingId ? 'Edit variant' : 'Add variant'}</Dialog.Title>
-          <Dialog.Description>A size, finish, or combination a buyer can choose.</Dialog.Description>
+          <Dialog.Description className="sr-only">A size, finish, or combination a buyer can choose.</Dialog.Description>
         </Dialog.Header>
         <Dialog.Body>
           <form ref={form} id={formId} noValidate onSubmit={save} className="flex flex-col gap-6">
-            <FieldGroup>
+            {/* What a variant is explains the group, so it is the group's footer (iOS 26 kit Lists), not a line under the title. */}
+            <FieldGroup footer="A size, finish, or combination a buyer can choose.">
               <Field row orientation="vertical" label="Variant name" errorMessage={error || undefined}>
                 <Input variant="ghost" value={name} autoComplete="off" placeholder="For example, Small / natural"
                   onChange={(event) => { setName(event.target.value); setError(''); }} />

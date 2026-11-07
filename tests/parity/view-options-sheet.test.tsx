@@ -59,7 +59,7 @@ const selectOption = async (label: string, option: string) => {
   expect(within(sheet()).getByRole("button", { name: new RegExp(`^${label} `) }).textContent).toBe(option)
 }
 
-describe.each<Framework>(["React", "Vue"])("%s floating View Options Sheet", (framework) => {
+describe.each<Framework>(["React", "Vue"])("%s View Options Sheet", (framework) => {
   test("renders group headings and notes in their groups, and opening focuses the heading without scrolling", async () => {
     await mountDemo(framework)
     const current = page().getByRole("group", { name: "Current view" })
@@ -80,6 +80,8 @@ describe.each<Framework>(["React", "Vue"])("%s floating View Options Sheet", (fr
     expect(focusCall).toBeGreaterThanOrEqual(0)
     expect(focus.mock.calls[focusCall]).toEqual([{ preventScroll: true }])
     expect(content.queryByRole("button", { name: "Close dialog" })).toBeNull()
+    // On a phone the sheet is the library bottom sheet on the grouped surface, not a floating panel.
+    expect(document.querySelector('[data-mobile-variant="sheet"]')?.getAttribute("data-surface")).toBe("grouped")
   })
 
   test("each nested Select updates immediately; Done restores focus and reopening keeps all choices", async () => {

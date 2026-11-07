@@ -9,14 +9,16 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { controlsTableStyle, DemoControlBoolean } from './ButtonDemos';
-import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, phoneCalendarStageClassName, phoneCalendarTimeStageClassName, usePhoneRows } from './PhoneRows';
 
 // On a phone a date picker is the value of a row in a FieldGroup, as in the Form Examples: the compact date
 // of iOS, a capsule with the date and no icon, opening our calendar. The row sets its height and insets, so
 // the phone examples drop the desktop size, pill, icon and clear button.
-function PhoneDateRows({ children }: { children: React.ReactNode }) {
+// A row that opens the calendar keeps room for its tallest month; a typed date input opens nothing.
+function PhoneDateRows({ children, reserve = 'calendar' }: { children: React.ReactNode; reserve?: 'calendar' | 'time' | 'none' }) {
+  const stage = reserve === 'none' ? undefined : reserve === 'time' ? phoneCalendarTimeStageClassName : phoneCalendarStageClassName;
   return (
-    <PhoneRowsStage>
+    <PhoneRowsStage className={stage}>
       <FieldGroup>{children}</FieldGroup>
     </PhoneRowsStage>
   );
@@ -136,7 +138,7 @@ export function DatePickerTimeDemo() {
   const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneDateRows>
+    <PhoneDateRows reserve="time">
       <Field row label="Starts">
         <DatePicker id="date-picker-time" triggerDateFormat="MMM d, yyyy HH:mm" triggerShowIcon={false} placeholder="Select date" showTime value={selectedDate} onChange={setSelectedDate} />
       </Field>
@@ -161,7 +163,7 @@ export function DatePickerDateTimeDropdownDemo() {
   const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneDateRows>
+    <PhoneDateRows reserve="time">
       <Field row label="Event">
         <DatePicker id="date-picker-datetime-dropdown" triggerDateFormat="MMM d, yyyy HH:mm" triggerShowIcon={false} placeholder="Select date" captionLayout="dropdown" showTime yearRange={[2020, 2030]} value={selectedDate} onChange={setSelectedDate} />
       </Field>
@@ -262,7 +264,7 @@ export function DatePickerMaskedDateDemo() {
   const [date, setDate] = useState<DateTime | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneDateRows>
+    <PhoneDateRows reserve="none">
       <Field row label="Date">
         <DateInput value={date} onChange={setDate} mode="mm/dd/yyyy" separator="/" />
       </Field>
@@ -279,7 +281,7 @@ export function DatePickerMaskedDateTimeDemo() {
   const [dateTime, setDateTime] = useState<DateTime | null>(null);
   const phone = usePhoneRows();
   if (phone) return (
-    <PhoneDateRows>
+    <PhoneDateRows reserve="none">
       <Field row label="Starts">
         <DateInput value={dateTime} onChange={setDateTime} mode="mm/dd/yyyy" separator="/" timeMode="HH:MM" />
       </Field>

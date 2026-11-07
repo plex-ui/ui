@@ -502,6 +502,19 @@
   .Day[data-is-in-range]:not([data-is-end]):not([data-is-last-range-trail]):not(:last-child)::after {
     background-color: light-dark(var(--alpha-06), var(--alpha-08));
   }
+
+  /* The range is a capsule on every week: where a week starts or ends inside the range, the band rounds
+     fully, as its start and end days do. A month trail sits inside a week and keeps its fade; when the
+     month's last day opens a week, or its first day closes one, that week edge rounds too. */
+  .Day[data-is-in-range]:first-child {
+    border-top-left-radius: var(--radius-full);
+    border-bottom-left-radius: var(--radius-full);
+  }
+
+  .Day[data-is-in-range]:last-child {
+    border-top-right-radius: var(--radius-full);
+    border-bottom-right-radius: var(--radius-full);
+  }
 }
 
 

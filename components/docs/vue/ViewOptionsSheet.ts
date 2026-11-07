@@ -30,17 +30,17 @@ export const ViewOptionsSheet = defineComponent({
     return () => h(Dialog, { open: props.open, 'onUpdate:open': (open: boolean) => emit('update:open', open) }, () => [
       h(DialogTrigger, null, () => slots.trigger?.() ?? h(Button, { color: 'secondary', variant: 'soft', pill: true }, () => 'View options')),
       h(DialogContent, {
-        mobileVariant: 'sheet', showClose: false, class: s.FloatingSheet,
+        mobileVariant: 'sheet', surface: 'grouped', showClose: false,
         onOpenAutoFocus: (event: Event) => { event.preventDefault(); heading.value?.focus({ preventScroll: true }); },
       }, () => [
-        h(DialogHeader, { class: s.FloatingHeader }, () => [
+        h(DialogHeader, null, () => [
           h('div', { ref: heading, tabindex: -1, class: s.Heading }, [h(DialogTitle, null, () => 'View Options')]),
           h(DialogDescription, { class: 'sr-only' }, () => 'Choose how items are sorted and displayed. Changes apply immediately.'),
-          h(DialogHeaderAction, { class: s.FloatingAction }, () => h(DialogClose, null, () =>
+          h(DialogHeaderAction, null, () => h(DialogClose, null, () =>
             h(Button, { color: 'info', variant: 'solid', pill: true, uniform: true, 'aria-label': 'Done' }, () => h(Check)),
           )),
         ]),
-        h(DialogBody, { class: s.FloatingBody }, () => h('div', { class: s.Sections }, [
+        h(DialogBody, null, () => h('div', { class: s.Sections }, [
           h(FieldGroup, { 'aria-label': 'Sorting and grouping' }, () => [
             h(Field, { row: true, label: 'Sort By' }, () => h(Select, {
               value: props.value.sort, options: sortOptions, block: false, align: 'end',

@@ -8,6 +8,7 @@ import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Input } from '@plexui/ui/components/Input';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 import { usePhoneViewport, usePreviewEmbed } from './PreviewEmbed';
 import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
 
@@ -163,6 +164,8 @@ export function DialogPlacementDemo() {
   const heading = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('end');
   const phoneViewport = usePhoneViewport();
+  // An iOS sheet has no line under its title: on a phone the note is the footer of the group it explains.
+  const phone = usePhoneRows();
   const placements = phoneViewport ? PLACEMENTS.filter((value) => value === 'bottom' || value === 'fullscreen') : PLACEMENTS;
   const activePlacement = placements.some((value) => value === placement) ? placement : 'bottom';
 
@@ -187,10 +190,10 @@ export function DialogPlacementDemo() {
           <Dialog.Content mobileVariant="sheet" mobilePlacement={activePlacement === 'fullscreen' ? 'fullscreen' : 'bottom'} onOpenAutoFocus={(event) => { event.preventDefault(); if (!phonePreview) heading.current?.focus({ preventScroll: true }); }} placement={activePlacement} width={activePlacement === 'start' || activePlacement === 'end' ? 360 : 480}>
             <Dialog.Header>
               <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
-              <Dialog.Description>Narrow the list down.</Dialog.Description>
+              <Dialog.Description className={phone ? 'sr-only' : undefined}>Narrow the list down.</Dialog.Description>
             </Dialog.Header>
             <Dialog.Body>
-              <FieldGroup columns>
+              <FieldGroup columns footer={phone ? 'Narrow the list down.' : undefined}>
                 <Field row label="Status">
                   <Input placeholder="Any status" />
                 </Field>

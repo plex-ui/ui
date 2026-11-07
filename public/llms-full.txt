@@ -3427,9 +3427,11 @@ const heading = useRef<HTMLDivElement>(null)
 <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement="end" width={360}>
 <Dialog.Header>
   <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
+  {/* On a phone (phone = !useBreakpoint('md')) the note is the group's footer, so the description is only read out. */}
+  <Dialog.Description className={phone ? 'sr-only' : undefined}>Narrow the list down.</Dialog.Description>
 </Dialog.Header>
 <Dialog.Body>
-  <FieldGroup columns>
+  <FieldGroup columns footer={phone ? 'Narrow the list down.' : undefined}>
     <Field row label="Status"><Input placeholder="Any status" /></Field>
     <Field row label="Owner"><Input placeholder="Anyone" /></Field>
     <Field row label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
@@ -3442,7 +3444,7 @@ const heading = useRef<HTMLDivElement>(null)
 </Dialog.Content>
 ```
 
-### Floating view options
+### View options sheet
 ```tsx
 import { ViewOptionsSheetDemo } from './ViewOptionsSheet';
 
@@ -5422,28 +5424,49 @@ Props:
 ```
 
 ### Variants
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. On Phone the row is the frame: the default outline input stands beside its label, a ghost input under it.
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical" and a ghost input. A row has no frame to color, so an error is the row's errorMessage under it.
 ```tsx
 // Desktop
 <div className="flex flex-col gap-2 w-[320px]">
-<Input placeholder="Enter text..." variant="outline" />
-<Input placeholder="Enter text..." variant="soft" />
-<Input placeholder="Enter text..." variant="ghost" />
+<Input type="email" placeholder="name@example.com" variant="outline" />
+<Input type="email" placeholder="name@example.com" variant="soft" />
+<Input type="email" placeholder="name@example.com" variant="ghost" />
 </div>
 
-// Phone: outline beside its label, ghost under it.
-<FieldGroup>
-<Field row label="First name">
-  <Input defaultValue="Jane" />
+// States
+<Input type="email" defaultValue="jane@example.com" />
+<Input type="email" defaultValue="jane@example" invalid />
+<Input type="email" defaultValue="jane@example.com" disabled />
+
+// Phone: the value at the end of the row, at one column, or under the label.
+<FieldGroup title="Value at the end">
+<Field row label="Name">
+  <Input placeholder="Required" defaultValue="Jane Appleseed" />
 </Field>
-<Field row orientation="vertical" label="Address">
-  <Input variant="ghost" placeholder="Street and building" />
+<Field row label="Email" errorMessage="Enter a valid email address.">
+  <Input type="email" placeholder="name@example.com" defaultValue="jane@example" invalid />
+</Field>
+</FieldGroup>
+<FieldGroup title="Values in a column" columns>
+<Field row label="Name">
+  <Input placeholder="Required" defaultValue="Jane Appleseed" />
+</Field>
+<Field row label="Email">
+  <Input type="email" placeholder="name@example.com" />
+</Field>
+</FieldGroup>
+<FieldGroup title="Value under the label">
+<Field row orientation="vertical" label="Name">
+  <Input variant="ghost" placeholder="Required" defaultValue="Jane Appleseed" disabled />
+</Field>
+<Field row orientation="vertical" label="Email">
+  <Input variant="ghost" type="email" placeholder="name@example.com" disabled />
 </Field>
 </FieldGroup>
 ```
 
 ### Sizing & roundness
-Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls.
+Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
 ```tsx
 // Desktop
 <div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
@@ -5463,19 +5486,35 @@ Sizing of the input is controlled with size and gutterSize props. size sets the 
 </FieldGroup>
 ```
 
-### Start adornment
-You can add arbitrary content to the beginning of an input with startAdornment, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency.
+### Adornments
+Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
 ```tsx
 // Desktop
 <Input
-placeholder="Start adornment"
+placeholder="Search"
 startAdornment={<Search className="fill-tertiary" />}
 />
+<Input
+placeholder="Username"
+value={username}
+onChange={(evt) => setUsername(evt.target.value)}
+maxLength={16}
+endAdornment={
+  <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
+    {username.length}/16
+  </span>
+}
+/>
 
-// Phone: a prefix of the value, which starts at the column.
+// Phone: a prefix of the value, which starts at the column, or trailing text.
 <FieldGroup columns>
 <Field row label="Amount">
   <Input placeholder="0.00" inputMode="decimal" startAdornment={<span className="text-secondary">$</span>} />
+</Field>
+</FieldGroup>
+<FieldGroup>
+<Field row label="Username">
+  <Input placeholder="Required" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
 </Field>
 </FieldGroup>
 ```
@@ -5496,30 +5535,6 @@ pill
 <FieldGroup>
 <Field row label="Name">
   <Input placeholder="Enter text..." value={value} onChange={(evt) => setValue(evt.target.value)} onClear={() => setValue("")} />
-</Field>
-</FieldGroup>
-```
-
-### End adornment
-You can add arbitrary content to the end of an input with endAdornment, like a character counter or custom icon. The same spacing guidance from startAdornment applies here. On Phone, trailing text-secondary text takes the row's accessory color.
-```tsx
-// Desktop
-<Input
-placeholder="Username"
-value={username}
-onChange={(evt) => setUsername(evt.target.value)}
-maxLength={16}
-endAdornment={
-  <span className="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">
-    {username.length}/16
-  </span>
-}
-/>
-
-// Phone
-<FieldGroup>
-<Field row label="Username">
-  <Input placeholder="Required" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className="tabular-nums text-secondary">{username.length}/16</span>} />
 </Field>
 </FieldGroup>
 ```
@@ -5629,56 +5644,18 @@ invalid={!!errorMessage}
 </FieldGroup>
 ```
 
-### Disabled
-Use the disabled prop to disable the input, greying it out and preventing user interactions.
-```tsx
-// Desktop
-<Input disabled defaultValue="Jane Doe" />
-
-// Phone
-<FieldGroup>
-<Field row label="Name">
-  <Input disabled defaultValue="Jane Doe" />
-</Field>
-</FieldGroup>
-```
-
-### Invalid
-Use the invalid prop to mark the input as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc. Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling. A row has no frame to color: on Phone, pair invalid with the row's errorMessage.
-```tsx
-// Desktop
-<Input invalid placeholder="Invalid input" />
-
-// Phone
-<FieldGroup>
-<Field row label="Email" errorMessage="Enter a valid email address.">
-  <Input type="email" defaultValue="jane@example" invalid />
-</Field>
-</FieldGroup>
-```
-
-### Auto select text
-Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
+### Behavior
+Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
 ```tsx
 // Desktop
 <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
+<Input allowAutofillExtensions name="email" placeholder="Allowed" />
 
 // Phone
 <FieldGroup>
 <Field row label="Name">
   <Input autoSelect placeholder="Add text..." defaultValue="Toggle to auto select" />
 </Field>
-</FieldGroup>
-```
-
-### Autofill extensions
-By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true.
-```tsx
-// Desktop
-<Input allowAutofillExtensions name="email" placeholder="Allowed" />
-
-// Phone
-<FieldGroup>
 <Field row label="Email">
   <Input allowAutofillExtensions name="email" placeholder="Allowed" />
 </Field>

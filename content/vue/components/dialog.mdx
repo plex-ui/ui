@@ -596,16 +596,16 @@ Alert actions wrap onto separate rows when their labels need more space. Set `<D
 
 <ComponentPreview phonePresentation="screen" description="Phone offers a bottom Sheet or a fullscreen form. Desktop also includes center, top, start and end placements." phoneDialog language="vue" details={<>Use <code>placement</code> to move the panel: <code>top</code> for search and command lists, <code>bottom</code> for a sheet along the bottom edge, <code>start</code> and <code>end</code> for a full-height side panel, <code>fullscreen</code> for the whole screen. <code>mobile-placement</code> applies at 767px and below, so a centered dialog can become a bottom sheet on phones: <code>{'<DialogContent mobile-placement="bottom">'}</code>.</>} code={placement} previewMinHeight={160}>
   <VueDialogPlacementDemo
-    template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '')}
+    template={placement} phoneTemplate={placement.replace('v-model:open="open"', ':open="true"').replace('; $refs.heading.focus({ preventScroll: true })', '').replace('<DialogDescription>Narrow the list down.</DialogDescription>', '<DialogDescription class="sr-only">Narrow the list down.</DialogDescription>').replace('<FieldGroup columns>', '<FieldGroup columns>\n        <template #footer>Narrow the list down.</template>')}
     phoneState={{ open: true }}
     stageClassName="py-10 flex justify-center"
     state={{ open: false }}
   />
 </ComponentPreview>
 
-### Floating view options
+### View options sheet
 
-A compact sheet for preferences that take effect immediately. On phones it floats 8px from the sides and bottom, with rounded lower corners. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
+A compact sheet for preferences that take effect immediately. On phones it is a bottom sheet on the grouped surface, flush with the sides and bottom of the screen: a web page cannot know the device's corner radius, so the sheet does not float. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
 
 Copy the [ViewOptionsSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/ViewOptionsSheet.ts), [option data](https://github.com/plex-ui/ui/blob/master/components/docs/viewOptionsData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.module.css) together, preserving their relative paths. The helper composes Dialog, FieldGroup, Field, Select and Switch. Its controlled `v-model:value` connects the choices to your application.
 

@@ -363,9 +363,11 @@ const field = useRef<HTMLInputElement>(null)
 <Dialog.Content mobileVariant="sheet" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement="end" width={360}>
   <Dialog.Header>
     <div ref={heading} tabIndex={-1} className="outline-none"><Dialog.Title>Filters</Dialog.Title></div>
+    {/* On a phone (phone = !useBreakpoint('md')) the note is the group's footer, so the description is only read out. */}
+    <Dialog.Description className={phone ? 'sr-only' : undefined}>Narrow the list down.</Dialog.Description>
   </Dialog.Header>
   <Dialog.Body>
-    <FieldGroup columns>
+    <FieldGroup columns footer={phone ? 'Narrow the list down.' : undefined}>
       <Field row label="Status"><Input placeholder="Any status" /></Field>
       <Field row label="Owner"><Input placeholder="Anyone" /></Field>
       <Field row label="Created after"><Input placeholder="YYYY-MM-DD" /></Field>
@@ -379,9 +381,9 @@ const field = useRef<HTMLInputElement>(null)
   <DialogPlacementDemo />
 </ComponentPreview>
 
-### Floating view options
+### View options sheet
 
-A compact sheet for preferences that take effect immediately. On phones it floats 8px from the sides and bottom, with rounded lower corners. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
+A compact sheet for preferences that take effect immediately. On phones it is a bottom sheet on the grouped surface, flush with the sides and bottom of the screen: a web page cannot know the device's corner radius, so the sheet does not float. Done and outside dismissal keep the selection; opening it again shows the current values. Desktop uses a centered dialog.
 
 Copy the [ViewOptionsSheet helper](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.tsx), [option data](https://github.com/plex-ui/ui/blob/master/components/docs/viewOptionsData.ts), and [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/ViewOptionsSheet.module.css) together. The helper composes Dialog, FieldGroup, Field, Select and Switch. Its controlled `value` and `onValueChange` connect the choices to your application.
 

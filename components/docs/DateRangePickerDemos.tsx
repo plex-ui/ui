@@ -12,7 +12,7 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
+import { PhoneRowsStage, phoneCalendarStageClassName, usePhoneRows } from './PhoneRows';
 
 // On a phone a date range picker is the value of a row in a FieldGroup: the range (short dates, None when empty)
 // and its up-down chevrons at the row's end, as a pop-up, opening our calendar. The row sets its height and
@@ -20,7 +20,7 @@ import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 // month stepper keeps the width of the longest month, so its arrows stay put.
 function PhoneRangeRow({ label, children }: { label: string; children: React.ReactElement }) {
   return (
-    <PhoneRowsStage>
+    <PhoneRowsStage className={phoneCalendarStageClassName}>
       <FieldGroup>
         <Field row label={label}>{children}</Field>
       </FieldGroup>

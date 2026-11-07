@@ -401,7 +401,7 @@ Props:
   Dialog.Footer:
     - background ("glass" | "solid") default: "glass" — Mobile Sheet bar surface. Also available on the header; desktop and Alert surfaces are unchanged
     - mobileLayout ("inline" | "stacked") — Action layout at 767px and below. Defaults to inline for alert, stacked otherwise. Inline actions wrap when they do not fit
-Examples: Overview, Destructive confirmation, Text field, Metadata details, Sections and actions, Long details, Scrolling body, Placement, Floating view options, Segmented composer header
+Examples: Overview, Destructive confirmation, Text field, Metadata details, Sections and actions, Long details, Scrolling body, Placement, View options sheet, Segmented composer header
 
 ## Empty Message
 Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
@@ -574,7 +574,7 @@ Props:
   Input.AdornmentButton:
     - color (SemanticColor) — Tint of the pressed (aria-pressed="true") state; the neutral primary-soft tint when unset
     - type (string) default: "button" — Button type
-Examples: Overview, Variants, Sizing & roundness, Start adornment, Clear button, End adornment, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Disabled, Invalid, Auto select text, Autofill extensions, With button, Optical alignment
+Examples: Overview, Variants, Sizing & roundness, Adornments, Clear button, Password with visibility toggle, SSN input, Birthday input, Birthday with validation, Behavior, With button, Optical alignment
 
 ## Kbd
 A key or a keyboard shortcut, such as ⌘K, set inline in text, in a tooltip or at the end of a menu item.

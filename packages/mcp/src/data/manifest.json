@@ -2227,11 +2227,11 @@
         },
         {
           "name": "Placement",
-          "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement=\"end\" width={360}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Filters</Dialog.Title></div>\n</Dialog.Header>\n<Dialog.Body>\n  <FieldGroup columns>\n    <Field row label=\"Status\"><Input placeholder=\"Any status\" /></Field>\n    <Field row label=\"Owner\"><Input placeholder=\"Anyone\" /></Field>\n    <Field row label=\"Created after\"><Input placeholder=\"YYYY-MM-DD\" /></Field>\n  </FieldGroup>\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Clear filters</Button></Dialog.Close>\n  <Button color=\"primary\">Done</Button>\n</Dialog.Footer>\n</Dialog.Content>",
+          "code": "const heading = useRef<HTMLDivElement>(null)\n\n<Dialog.Content mobileVariant=\"sheet\" onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }} placement=\"end\" width={360}>\n<Dialog.Header>\n  <div ref={heading} tabIndex={-1} className=\"outline-none\"><Dialog.Title>Filters</Dialog.Title></div>\n  {/* On a phone (phone = !useBreakpoint('md')) the note is the group's footer, so the description is only read out. */}\n  <Dialog.Description className={phone ? 'sr-only' : undefined}>Narrow the list down.</Dialog.Description>\n</Dialog.Header>\n<Dialog.Body>\n  <FieldGroup columns footer={phone ? 'Narrow the list down.' : undefined}>\n    <Field row label=\"Status\"><Input placeholder=\"Any status\" /></Field>\n    <Field row label=\"Owner\"><Input placeholder=\"Anyone\" /></Field>\n    <Field row label=\"Created after\"><Input placeholder=\"YYYY-MM-DD\" /></Field>\n  </FieldGroup>\n</Dialog.Body>\n<Dialog.Footer>\n  <Dialog.Close><Button color=\"secondary\" variant=\"soft\">Clear filters</Button></Dialog.Close>\n  <Button color=\"primary\">Done</Button>\n</Dialog.Footer>\n</Dialog.Content>",
           "details": "Use placement to move the panel: top for search and command lists, bottom for a sheet along the bottom edge, start and end for a full-height side panel, fullscreen for the whole screen. mobilePlacement applies at 767px and below, so a centered dialog can become a bottom sheet on phones: {''}."
         },
         {
-          "name": "Floating view options",
+          "name": "View options sheet",
           "code": "import { ViewOptionsSheetDemo } from './ViewOptionsSheet';\n\nexport default function ViewPreferences() {\nreturn <ViewOptionsSheetDemo />;\n}"
         },
         {
@@ -3479,28 +3479,23 @@
         },
         {
           "name": "Variants",
-          "code": "// Desktop\n<div className=\"flex flex-col gap-2 w-[320px]\">\n<Input placeholder=\"Enter text...\" variant=\"outline\" />\n<Input placeholder=\"Enter text...\" variant=\"soft\" />\n<Input placeholder=\"Enter text...\" variant=\"ghost\" />\n</div>\n\n// Phone: outline beside its label, ghost under it.\n<FieldGroup>\n<Field row label=\"First name\">\n  <Input defaultValue=\"Jane\" />\n</Field>\n<Field row orientation=\"vertical\" label=\"Address\">\n  <Input variant=\"ghost\" placeholder=\"Street and building\" />\n</Field>\n</FieldGroup>",
-          "details": "Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. On Phone the row is the frame: the default outline input stands beside its label, a ghost input under it."
+          "code": "// Desktop\n<div className=\"flex flex-col gap-2 w-[320px]\">\n<Input type=\"email\" placeholder=\"name@example.com\" variant=\"outline\" />\n<Input type=\"email\" placeholder=\"name@example.com\" variant=\"soft\" />\n<Input type=\"email\" placeholder=\"name@example.com\" variant=\"ghost\" />\n</div>\n\n// States\n<Input type=\"email\" defaultValue=\"jane@example.com\" />\n<Input type=\"email\" defaultValue=\"jane@example\" invalid />\n<Input type=\"email\" defaultValue=\"jane@example.com\" disabled />\n\n// Phone: the value at the end of the row, at one column, or under the label.\n<FieldGroup title=\"Value at the end\">\n<Field row label=\"Name\">\n  <Input placeholder=\"Required\" defaultValue=\"Jane Appleseed\" />\n</Field>\n<Field row label=\"Email\" errorMessage=\"Enter a valid email address.\">\n  <Input type=\"email\" placeholder=\"name@example.com\" defaultValue=\"jane@example\" invalid />\n</Field>\n</FieldGroup>\n<FieldGroup title=\"Values in a column\" columns>\n<Field row label=\"Name\">\n  <Input placeholder=\"Required\" defaultValue=\"Jane Appleseed\" />\n</Field>\n<Field row label=\"Email\">\n  <Input type=\"email\" placeholder=\"name@example.com\" />\n</Field>\n</FieldGroup>\n<FieldGroup title=\"Value under the label\">\n<Field row orientation=\"vertical\" label=\"Name\">\n  <Input variant=\"ghost\" placeholder=\"Required\" defaultValue=\"Jane Appleseed\" disabled />\n</Field>\n<Field row orientation=\"vertical\" label=\"Email\">\n  <Input variant=\"ghost\" type=\"email\" placeholder=\"name@example.com\" disabled />\n</Field>\n</FieldGroup>",
+          "details": "Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation=\"vertical\" and a ghost input. A row has no frame to color, so an error is the row's errorMessage under it."
         },
         {
           "name": "Sizing & roundness",
           "code": "// Desktop\n<div className=\"flex flex-col gap-2.5 justify-start items-start w-[320px]\">\n<Input placeholder=\"Enter text...\" size=\"lg\" />\n<Input placeholder=\"Search...\" startAdornment={<Search className=\"fill-tertiary\" />} size=\"lg\" />\n<Input value={username} placeholder=\"Username\" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">{username.length}/16</span>} />\n</div>\n\n// Phone: the row sets the height, insets and type.\n<FieldGroup columns>\n<Field row label=\"Name\">\n  <Input placeholder=\"Enter text...\" />\n</Field>\n<Field row label=\"Username\">\n  <Input value={username} placeholder=\"Required\" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"tabular-nums text-secondary\">{username.length}/16</span>} />\n</Field>\n</FieldGroup>",
-          "details": "Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls."
+          "details": "Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch."
         },
         {
-          "name": "Start adornment",
-          "code": "// Desktop\n<Input\nplaceholder=\"Start adornment\"\nstartAdornment={<Search className=\"fill-tertiary\" />}\n/>\n\n// Phone: a prefix of the value, which starts at the column.\n<FieldGroup columns>\n<Field row label=\"Amount\">\n  <Input placeholder=\"0.00\" inputMode=\"decimal\" startAdornment={<span className=\"text-secondary\">$</span>} />\n</Field>\n</FieldGroup>",
-          "details": "You can add arbitrary content to the beginning of an input with startAdornment, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency."
+          "name": "Adornments",
+          "code": "// Desktop\n<Input\nplaceholder=\"Search\"\nstartAdornment={<Search className=\"fill-tertiary\" />}\n/>\n<Input\nplaceholder=\"Username\"\nvalue={username}\nonChange={(evt) => setUsername(evt.target.value)}\nmaxLength={16}\nendAdornment={\n  <span className=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">\n    {username.length}/16\n  </span>\n}\n/>\n\n// Phone: a prefix of the value, which starts at the column, or trailing text.\n<FieldGroup columns>\n<Field row label=\"Amount\">\n  <Input placeholder=\"0.00\" inputMode=\"decimal\" startAdornment={<span className=\"text-secondary\">$</span>} />\n</Field>\n</FieldGroup>\n<FieldGroup>\n<Field row label=\"Username\">\n  <Input placeholder=\"Required\" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"tabular-nums text-secondary\">{username.length}/16</span>} />\n</Field>\n</FieldGroup>",
+          "details": "Add arbitrary content to the beginning of an input with startAdornment, like a search icon, or to its end with endAdornment, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutterSize determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutterSize, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color."
         },
         {
           "name": "Clear button",
           "code": "// Desktop\n<Input\nplaceholder=\"Enter text...\"\nvalue={value}\nonChange={(evt) => setValue(evt.target.value)}\nonClear={() => setValue(\"\")}\npill\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Name\">\n  <Input placeholder=\"Enter text...\" value={value} onChange={(evt) => setValue(evt.target.value)} onClear={() => setValue(\"\")} />\n</Field>\n</FieldGroup>",
           "details": "Use the onClear prop to display a built-in clear button. The button appears when the input has a value and is not disabled or read-only. Clicking it keeps focus in the input."
-        },
-        {
-          "name": "End adornment",
-          "code": "// Desktop\n<Input\nplaceholder=\"Username\"\nvalue={username}\nonChange={(evt) => setUsername(evt.target.value)}\nmaxLength={16}\nendAdornment={\n  <span className=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">\n    {username.length}/16\n  </span>\n}\n/>\n\n// Phone\n<FieldGroup>\n<Field row label=\"Username\">\n  <Input placeholder=\"Required\" value={username} onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"tabular-nums text-secondary\">{username.length}/16</span>} />\n</Field>\n</FieldGroup>",
-          "details": "You can add arbitrary content to the end of an input with endAdornment, like a character counter or custom icon. The same spacing guidance from startAdornment applies here. On Phone, trailing text-secondary text takes the row's accessory color."
         },
         {
           "name": "Password with visibility toggle",
@@ -3523,24 +3518,9 @@
           "details": "Use invalid and FieldError to display a validation state when the entered date is not valid. On Phone, give the message to the row's Field as errorMessage: it stands under the row."
         },
         {
-          "name": "Disabled",
-          "code": "// Desktop\n<Input disabled defaultValue=\"Jane Doe\" />\n\n// Phone\n<FieldGroup>\n<Field row label=\"Name\">\n  <Input disabled defaultValue=\"Jane Doe\" />\n</Field>\n</FieldGroup>",
-          "details": "Use the disabled prop to disable the input, greying it out and preventing user interactions."
-        },
-        {
-          "name": "Invalid",
-          "code": "// Desktop\n<Input invalid placeholder=\"Invalid input\" />\n\n// Phone\n<FieldGroup>\n<Field row label=\"Email\" errorMessage=\"Enter a valid email address.\">\n  <Input type=\"email\" defaultValue=\"jane@example\" invalid />\n</Field>\n</FieldGroup>",
-          "details": "Use the invalid prop to mark the input as invalid. You decide how this state is removed, whether that's through onFocus, onChange, an onSubmit handler, etc. Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling. A row has no frame to color: on Phone, pair invalid with the row's errorMessage."
-        },
-        {
-          "name": "Auto select text",
-          "code": "// Desktop\n<Input autoSelect placeholder=\"Add text...\" defaultValue=\"Toggle to auto select\" />\n\n// Phone\n<FieldGroup>\n<Field row label=\"Name\">\n  <Input autoSelect placeholder=\"Add text...\" defaultValue=\"Toggle to auto select\" />\n</Field>\n</FieldGroup>",
-          "details": "Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change."
-        },
-        {
-          "name": "Autofill extensions",
-          "code": "// Desktop\n<Input allowAutofillExtensions name=\"email\" placeholder=\"Allowed\" />\n\n// Phone\n<FieldGroup>\n<Field row label=\"Email\">\n  <Input allowAutofillExtensions name=\"email\" placeholder=\"Allowed\" />\n</Field>\n</FieldGroup>",
-          "details": "By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to \"password\", this value will default to true."
+          "name": "Behavior",
+          "code": "// Desktop\n<Input autoSelect placeholder=\"Add text...\" defaultValue=\"Toggle to auto select\" />\n<Input allowAutofillExtensions name=\"email\" placeholder=\"Allowed\" />\n\n// Phone\n<FieldGroup>\n<Field row label=\"Name\">\n  <Input autoSelect placeholder=\"Add text...\" defaultValue=\"Toggle to auto select\" />\n</Field>\n<Field row label=\"Email\">\n  <Input allowAutofillExtensions name=\"email\" placeholder=\"Allowed\" />\n</Field>\n</FieldGroup>",
+          "details": "Pass autoSelect to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allowAutofillExtensions to remove the disabling. When name is passed, or type is set to \"password\", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch."
         },
         {
           "name": "With button",
@@ -7679,5 +7659,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T06:03:34.523Z"
+  "generatedAt": "2026-11-07T07:55:19.583Z"
 }

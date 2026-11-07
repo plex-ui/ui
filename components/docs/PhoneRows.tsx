@@ -2,10 +2,10 @@
 
 import { useState, type ReactNode } from 'react';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { phoneRowsClassName } from './phoneRowsTemplate';
+import { phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName } from './phoneRowsTemplate';
 import { usePhoneViewport } from './PreviewEmbed';
 
-export { phoneRowsClassName };
+export { phoneCalendarStageClassName, phoneCalendarTimeStageClassName, phoneRowsClassName };
 
 /** True in a Phone preview, in the page's controls for it, and on a real narrow viewport. */
 export function usePhoneRows() {
@@ -27,9 +27,9 @@ export function PhoneRows({ children }: { children: ReactNode }) {
 }
 
 /** A demo's stage holding phone rows; the preview splits it from the demo's controls. */
-export function PhoneRowsStage({ children }: { children: ReactNode }) {
+export function PhoneRowsStage({ children, className = 'w-full' }: { children: ReactNode; className?: string }) {
   return (
-    <div data-demo-stage className="w-full">
+    <div data-demo-stage className={className}>
       <PhoneRows>{children}</PhoneRows>
     </div>
   );

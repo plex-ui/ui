@@ -98,13 +98,17 @@ export const ProductVariants = defineComponent({
       }, () => [
         h(DialogHeader, null, () => [
           h(DialogTitle, null, () => editingId.value ? 'Edit variant' : 'Add variant'),
-          h(DialogDescription, null, () => 'A size, finish, or combination a buyer can choose.'),
+          h(DialogDescription, { class: 'sr-only' }, () => 'A size, finish, or combination a buyer can choose.'),
         ]),
         h(DialogBody, null, () => h('form', { ref: form, id: formId, noValidate: true, onSubmit: save, class: 'flex flex-col gap-6' }, [
-          h(FieldGroup, null, () => h(Field, { row: true, orientation: 'vertical', label: 'Variant name', errorMessage: error.value || undefined }, () => h(Input, {
-            variant: 'ghost', value: name.value, autoComplete: 'off', placeholder: 'For example, Small / natural',
-            'onUpdate:value': (next: string) => { name.value = next; error.value = ''; },
-          }))),
+          // What a variant is explains the group, so it is the group's footer (iOS 26 kit Lists), not a line under the title.
+          h(FieldGroup, null, {
+            default: () => h(Field, { row: true, orientation: 'vertical', label: 'Variant name', errorMessage: error.value || undefined }, () => h(Input, {
+              variant: 'ghost', value: name.value, autoComplete: 'off', placeholder: 'For example, Small / natural',
+              'onUpdate:value': (next: string) => { name.value = next; error.value = ''; },
+            })),
+            footer: () => 'A size, finish, or combination a buyer can choose.',
+          }),
           editingId.value && h(Button, { type: 'button', color: 'danger', variant: 'ghost', onClick: remove }, () => 'Remove variant'),
         ])),
         h(DialogFooter, null, () => [

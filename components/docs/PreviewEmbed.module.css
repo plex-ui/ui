@@ -35,6 +35,13 @@
   --file-upload-background: var(--mobile-surface-plain-primary, var(--color-fd-background));
 }
 
+/* Phone rows paint the grouped surface. The document under them takes the same surface, so a popover that
+   reaches past the rows, such as a calendar, never uncovers another background. */
+:global(:root:has([data-preview-presentation="component"] [data-phone-rows])),
+:global(:root:has([data-preview-presentation="component"] [data-phone-rows]) body) {
+  background: var(--mobile-surface-grouped-primary);
+}
+
 /* Full-screen embeds own the viewport; component preview gutters stay outside them. */
 .Root [data-preview-presentation="screen"] [data-demo-stage] {
   padding: 0;

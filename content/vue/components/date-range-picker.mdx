@@ -6,7 +6,7 @@ metaDescription: Vue 3 date range picker with an interactive calendar, min/max l
 
 import { VueDateRangePickerDemo } from "@/components/docs/vue/VueDatePickerDemos"
 import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
-import { phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
+import { phoneCalendarStageClassName, phoneRows, withPhone } from "@/components/docs/phoneRowsTemplate"
 
 export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
@@ -108,25 +108,25 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Form Examp
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Bind the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) with <code>v-model:value</code>. The <code>@change</code> event carries the same range and, when a shortcut was picked, that shortcut as its second argument, like React's <code>onChange(range, shortcut)</code>.</>} code={withPhone(overview, overviewPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName="w-full" />
+  <VueDateRangePickerDemo template={overview} phoneTemplate={phoneRows(overviewPhone)} phoneStageClassName={phoneCalendarStageClassName} />
 </ComponentPreview>
 
 ### Limits
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>min</code> and <code>max</code> to limit the selectable range. Use <code>max-range-days</code> to limit the range length. Here <code>minDate</code> is 30 days ago (start of day) and <code>maxDate</code> is the end of today.</>} code={withPhone(limits, limitsPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={limits} phoneTemplate={phoneRows(limitsPhone)} phoneStageClassName="w-full" initialRange="limits" />
+  <VueDateRangePickerDemo template={limits} phoneTemplate={phoneRows(limitsPhone)} phoneStageClassName={phoneCalendarStageClassName} initialRange="limits" />
 </ComponentPreview>
 
 ### Shortcuts
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use the <code>shortcuts</code> array to provide quick date range options. When a shortcut is selected, its label is shown in the trigger. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; <code>dayShortcuts</code> here holds Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>max-range-days</code>, is disabled.</>} code={withPhone(shortcuts, shortcutsPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName="w-full" />
+  <VueDateRangePickerDemo template={shortcuts} phoneTemplate={phoneRows(shortcutsPhone)} phoneStageClassName={phoneCalendarStageClassName} />
 </ComponentPreview>
 
 ### Month stepper
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Enable a stepper in the trigger with <code>trigger-stepper-unit="month"</code>. When the selected range matches the unit, the trigger shows the stepper.</>} code={withPhone(monthStepper, monthStepperPhone)} previewMinHeight={168}>
-  <VueDateRangePickerDemo template={monthStepper} phoneTemplate={phoneRows(monthStepperPhone)} phoneStageClassName="w-full" initialRange="month" stageClassName="" controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} desktopControlNames={["size", "pill"]} />
+  <VueDateRangePickerDemo template={monthStepper} phoneTemplate={phoneRows(monthStepperPhone)} phoneStageClassName={phoneCalendarStageClassName} initialRange="month" stageClassName="" controls={[{ name: "size", type: "select", options: SIZES, default: "lg" }, { name: "pill", type: "boolean", default: true }]} desktopControlNames={["size", "pill"]} />
 </ComponentPreview>
 
 ## API

@@ -1,4 +1,5 @@
-/* A separate, copyable floating composition. The public tall Sheet stays flush. */
+/* A separate, copyable compact sheet. On a phone it is the library bottom sheet on the grouped surface,
+   flush with the sides and the bottom: a web page cannot know the device corner radius, so it does not float. */
 /* The stage is a flex item, so the screen itself carries the height, as in the Settings example. */
 .Screen {
   width: 480px;
@@ -22,43 +23,6 @@
     --page-content-padding-top: 16px;
     width: 100%;
     height: 100dvh;
-  }
-
-  .FloatingSheet {
-    --dialog-panel-width: calc(100% - 16px);
-    --dialog-panel-max-height: calc(100dvh - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - 24px);
-    --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 46px 46px;
-    --dialog-panel-hidden-transform: translateY(calc(100% + 8px));
-    --dialog-panel-background: var(--mobile-glass-background);
-    --field-group-background: var(--color-background-secondary-soft-alpha);
-    margin: 0 8px 8px;
-    box-shadow: var(--mobile-glass-shadow);
-    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
-    backdrop-filter: var(--mobile-glass-backdrop-filter);
-  }
-
-  .FloatingHeader {
-    min-height: 84px;
-    padding: 20px calc(var(--mobile-layout-margin, 16px) + 48px);
-  }
-
-  /* The floating panel owns one glass surface, including its header. */
-  .FloatingHeader::before,
-  .FloatingHeader::after {
-    display: none;
-  }
-
-  .FloatingAction {
-    top: 20px;
-    inset-inline-end: var(--mobile-layout-margin, 16px);
-  }
-
-  .FloatingBody {
-    padding-inline: var(--mobile-layout-margin, 16px);
-    padding-top: calc(20px + var(--dialog-header-height, 0px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: calc(20px + var(--dialog-header-height, 0px));
-    scroll-padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
 
   .Sections {

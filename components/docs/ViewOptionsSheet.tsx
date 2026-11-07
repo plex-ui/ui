@@ -29,16 +29,16 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
       <Dialog.Trigger>
         {trigger ?? <Button color="secondary" variant="soft" pill>View options</Button>}
       </Dialog.Trigger>
-      <Dialog.Content mobileVariant="sheet" showClose={false} className={s.FloatingSheet}
+      <Dialog.Content mobileVariant="sheet" surface="grouped" showClose={false}
         onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
-        <Dialog.Header className={s.FloatingHeader}>
+        <Dialog.Header>
           <div ref={heading} tabIndex={-1} className={s.Heading}><Dialog.Title>View Options</Dialog.Title></div>
           <Dialog.Description className="sr-only">Choose how items are sorted and displayed. Changes apply immediately.</Dialog.Description>
-          <Dialog.HeaderAction className={s.FloatingAction}>
+          <Dialog.HeaderAction>
             <Dialog.Close><Button color="info" variant="solid" pill uniform aria-label="Done"><Check /></Button></Dialog.Close>
           </Dialog.HeaderAction>
         </Dialog.Header>
-        <Dialog.Body className={s.FloatingBody}>
+        <Dialog.Body>
           <div className={s.Sections}>
             <FieldGroup aria-label="Sorting and grouping">
               <Field row label="Sort By">

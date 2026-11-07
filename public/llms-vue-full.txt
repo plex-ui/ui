@@ -3503,7 +3503,7 @@ Use placement to move the panel: top for search and command lists, bottom for a 
 </Dialog>
 ```
 
-### Floating view options
+### View options sheet
 ```vue
 <script setup lang="ts">
 import { ViewOptionsSheetDemo } from './vue/ViewOptionsSheet';
@@ -5016,28 +5016,63 @@ Props:
 ```
 
 ### Variants
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. On Phone the row is the frame: the default outline input stands beside its label, a ghost input under it.
+Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. The state control shows each variant empty, with a value, invalid and disabled. You decide how the invalid state is removed, whether that's through @focus, @update:value, a submit handler, etc.; [data-invalid] is applied to the container for custom styling. disabled greys the input out and prevents user interactions. On Phone the row is the frame, and the value stands in one of three places: at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical" and a ghost input. A row has no frame to color, so an error is the row's error-message under it.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2 w-[320px]">
-  <Input placeholder="Enter text..." variant="outline" />
-  <Input placeholder="Enter text..." variant="soft" />
-  <Input placeholder="Enter text..." variant="ghost" />
+  <Input
+    v-for="variant in ['outline', 'soft', 'ghost']"
+    :key="variant + state"
+    type="email"
+    :variant="variant"
+    placeholder="name@example.com"
+    :default-value="state === 'empty' ? undefined : state === 'invalid' ? 'jane@example' : 'jane@example.com'"
+    :invalid="state === 'invalid'"
+    :disabled="state === 'disabled'"
+  />
 </div>
 
-<!-- Phone: outline beside its label, ghost under it. -->
-<FieldGroup>
-  <Field row label="First name">
-    <Input default-value="Jane" />
+<!-- Phone: the value at the end of the row, at one column, or under the label. -->
+<FieldGroup
+  v-for="place in [
+    { title: 'Value at the end', columns: false, vertical: false },
+    { title: 'Values in a column', columns: true, vertical: false },
+    { title: 'Value under the label', columns: false, vertical: true },
+  ]"
+  :key="place.title"
+  :title="place.title"
+  :columns="place.columns"
+>
+  <Field row :orientation="place.vertical ? 'vertical' : undefined" label="Name">
+    <Input
+      :key="state"
+      :variant="place.vertical ? 'ghost' : undefined"
+      placeholder="Required"
+      :default-value="state === 'empty' ? undefined : 'Jane Appleseed'"
+      :disabled="state === 'disabled'"
+    />
   </Field>
-  <Field row orientation="vertical" label="Address">
-    <Input variant="ghost" placeholder="Street and building" />
+  <Field
+    row
+    :orientation="place.vertical ? 'vertical' : undefined"
+    label="Email"
+    :error-message="state === 'invalid' ? 'Enter a valid email address.' : undefined"
+  >
+    <Input
+      :key="state"
+      type="email"
+      :variant="place.vertical ? 'ghost' : undefined"
+      placeholder="name@example.com"
+      :default-value="state === 'empty' ? undefined : state === 'invalid' ? 'jane@example' : 'jane@example.com'"
+      :invalid="state === 'invalid'"
+      :disabled="state === 'disabled'"
+    />
   </Field>
 </FieldGroup>
 ```
 
 ### Sizing & roundness
-Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls.
+Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so this example has no Phone switch.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
@@ -5086,24 +5121,38 @@ Sizing of the input is controlled with the size and gutter-size props. size sets
 </FieldGroup>
 ```
 
-### Start adornment
-You can add arbitrary content to the beginning of an input with the startAdornment slot, like a search icon. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutter-size determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutter-size, use negative left margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency.
+### Adornments
+Add arbitrary content to the beginning of an input with the startAdornment slot, like a search icon, or to its end with the endAdornment slot, like a character counter or custom icon; position switches between the two. Ideally, the spacing will look pretty good by default. If you need to customize the spacing: gutter-size determines the amount of spacing on the edges of the container, which you can fine-tune as needed (if you need precise spacing not supported by gutter-size, use a negative margin on your adornment directly, e.g. -ml-2). The spacing between the adornment and the input is controlled with gap on the container, which you can customize as needed with Tailwind classes. On Phone, search is the Toolbar search field; in a row a start adornment is a prefix of the value, such as a currency, and trailing text-secondary text takes the row's accessory color.
 ```vue
 <!-- Desktop -->
 <div class="w-[320px]">
-  <Input placeholder="Start adornment">
+  <Input v-if="position === 'start'" placeholder="Search">
     <template #startAdornment>
       <Search class="fill-tertiary" />
     </template>
   </Input>
+  <Input v-else v-model:value="username" placeholder="Username" maxlength="16">
+    <template #endAdornment>
+      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
+    </template>
+  </Input>
 </div>
 
-<!-- Phone: a prefix of the value, which starts at the column. -->
-<FieldGroup columns>
+<!-- Phone: a prefix of the value, which starts at the column, or trailing text. -->
+<FieldGroup v-if="position === 'start'" columns>
   <Field row label="Amount">
     <Input placeholder="0.00" inputmode="decimal">
       <template #startAdornment>
         <span class="text-secondary">$</span>
+      </template>
+    </Input>
+  </Field>
+</FieldGroup>
+<FieldGroup v-else>
+  <Field row label="Username">
+    <Input v-model:value="username" placeholder="Required" maxlength="16">
+      <template #endAdornment>
+        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
       </template>
     </Input>
   </Field>
@@ -5128,30 +5177,6 @@ Listen to @clear to display a built-in clear button. The button appears when the
 <FieldGroup>
   <Field row label="Name">
     <Input v-model:value="value" placeholder="Enter text..." @clear="value = ''" />
-  </Field>
-</FieldGroup>
-```
-
-### End adornment
-You can add arbitrary content to the end of an input with the endAdornment slot, like a character counter or custom icon. The same spacing guidance from startAdornment applies here. On Phone, trailing text-secondary text takes the row's accessory color.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
-  <Input v-model:value="username" placeholder="Username" maxlength="16">
-    <template #endAdornment>
-      <span class="mt-[1.5px] tabular-nums text-tertiary text-[.875em]">{{ username.length }}/16</span>
-    </template>
-  </Input>
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Username">
-    <Input v-model:value="username" placeholder="Required" maxlength="16">
-      <template #endAdornment>
-        <span class="tabular-nums text-secondary">{{ username.length }}/16</span>
-      </template>
-    </Input>
   </Field>
 </FieldGroup>
 ```
@@ -5432,59 +5457,12 @@ Use invalid and FieldError to display a validation state when the entered date i
 </FieldGroup>
 ```
 
-### Disabled
-Use the disabled prop to disable the input, greying it out and preventing user interactions.
+### Behavior
+Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change. By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true. Both behave the same in a phone row, so this example has no Phone switch.
 ```vue
 <!-- Desktop -->
-<div class="w-[320px]">
-  <Input placeholder="Jane Doe" :disabled="disabled" default-value="Jane Doe" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Name">
-    <Input placeholder="Required" :disabled="disabled" default-value="Jane Doe" />
-  </Field>
-</FieldGroup>
-```
-
-### Invalid
-Use the invalid prop to mark the input as invalid. You decide how this state is removed, whether that's through @focus, @update:value, a submit handler, etc. Default visual styles will be applied, based on the variant. Additionally, [data-invalid] is applied to the container for custom styling. A row has no frame to color: on Phone, pair invalid with the row's error-message.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
-  <Input placeholder="Invalid input" :invalid="invalid" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Email" :error-message="invalid ? 'Enter a valid email address.' : undefined">
-    <Input type="email" placeholder="name@example.com" default-value="jane@example" :invalid="invalid" />
-  </Field>
-</FieldGroup>
-```
-
-### Auto select text
-Pass auto-select to select all text in the input, useful when pairing with other copy actions. This prop behaves like an imperative action when toggled and allows selection to change.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
+<div class="flex flex-col gap-2 w-[320px]">
   <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
-</div>
-
-<!-- Phone -->
-<FieldGroup>
-  <Field row label="Name">
-    <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
-  </Field>
-</FieldGroup>
-```
-
-### Autofill extensions
-By default, autofill extensions are prevented by Input. For the occasions where you want browser extensions to be present, pass allow-autofill-extensions to remove the disabling. When name is passed, or type is set to "password", this value will default to true.
-```vue
-<!-- Desktop -->
-<div class="w-[320px]">
   <Input
     :key="String(allowAutofillExtensions)"
     name="email"
@@ -5495,6 +5473,9 @@ By default, autofill extensions are prevented by Input. For the occasions where 
 
 <!-- Phone -->
 <FieldGroup>
+  <Field row label="Name">
+    <Input placeholder="Add text..." :auto-select="autoSelect" default-value="Toggle to auto select" />
+  </Field>
   <Field row label="Email">
     <Input
       :key="String(allowAutofillExtensions)"
