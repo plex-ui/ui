@@ -24,7 +24,8 @@
   }
 }
 
-/* A row with a handle: the handle, then the row */
+/* A row with a handle: the handle, then the row. With touch.css a phone moves the handle to the end of the
+   row, where iOS puts its reorder control (--sortable-handle-order and the two margins). */
 .Sortable > :has(> .Handle) {
   display: flex;
   align-items: center;
@@ -36,8 +37,14 @@
 }
 
 .Sortable > :has(> .Handle) > .Handle {
-  margin-inline-start: var(--sortable-handle-inset);
-  margin-inline-end: calc(var(--sortable-handle-inset) * -1);
+  order: var(--sortable-handle-order, 0);
+  margin-inline-start: var(--sortable-handle-margin-start, var(--sortable-handle-inset));
+  margin-inline-end: var(--sortable-handle-margin-end, calc(var(--sortable-handle-inset) * -1));
+}
+
+/* Before a Field row a shown handle may reach into the row's own inline padding (touch.css: the kit's 12px from the value) */
+.Sortable[data-handles="true"] > :has(> .Handle) > .Handle:has(+ [data-slot="field"][data-row]) {
+  margin-inline-start: var(--sortable-handle-field-margin-start, var(--sortable-handle-margin-start, var(--sortable-handle-inset)));
 }
 
 /* =============================================

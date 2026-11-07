@@ -202,3 +202,37 @@ describe("content-area buttons on a phone (kit iOS 27 Button - Content Area 40:5
     expect(tokens).toContain("--button-gap-md: 4px;")
   })
 })
+
+describe("lists on a phone (kit iOS 27 Lists 507:24675)", () => {
+  test("a Sortable row's handle ends the row in the tertiary label color, with touch.css only", () => {
+    const sortable = baseRules("packages/styles/src/components/Sortable/Sortable.module.css")
+    expect(decls(sortable.get(".Sortable > :has(> .Handle) > .Handle"))).toEqual({
+      order: "var(--sortable-handle-order, 0)",
+      "margin-inline-start": "var(--sortable-handle-margin-start, var(--sortable-handle-inset))",
+      "margin-inline-end": "var(--sortable-handle-margin-end, calc(var(--sortable-handle-inset) * -1))",
+    })
+    // Only beside a Field row does the handle reach into the row's padding; other content keeps it clear.
+    expect(decls(sortable.get('.Sortable[data-handles="true"] > :has(> .Handle) > .Handle:has(+ [data-slot="field"][data-row])'))).toEqual({
+      "margin-inline-start": "var(--sortable-handle-field-margin-start, var(--sortable-handle-margin-start, var(--sortable-handle-inset)))",
+    })
+    const roots: Record<string, string>[] = []
+    postcss.parse(touch).walkAtRules("media", (media) => {
+      if (media.params === "(max-width: 767px)") media.walkRules("html:root", (rule) => { roots.push(decls(rule)) })
+    })
+    expect(roots.find((d) => "--sortable-handle-inset" in d)).toMatchObject({
+      "--sortable-handle-order": "1",
+      "--sortable-handle-margin-end": "calc(var(--mobile-layout-margin) - 11px)",
+      "--sortable-handle-margin-start": "0px",
+      "--sortable-handle-field-margin-start": "calc(1px - var(--mobile-layout-margin))",
+      "--sortable-handle-color": "var(--mobile-label-tertiary)",
+      "--sortable-handle-color-hover": "var(--mobile-label-tertiary)",
+    })
+    // Desktop keeps the leading grip: no order or margin tokens outside touch.css.
+    expect(read("packages/styles/src/styles/variables-components.css")).not.toMatch(/--sortable-handle-(order|margin-start|margin-end|field-margin-start):/)
+  })
+
+  test("a FieldGroup footer is Footnote, 13/18 (Grouped Table Footer)", () => {
+    expect(touch).toContain("--field-group-footer-font-size: 13px;")
+    expect(touch).toContain("--field-group-footer-line-height: 18px;")
+  })
+})

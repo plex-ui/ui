@@ -151,6 +151,17 @@
     --sortable-phone-grip-display: block;
     --sortable-phone-grip-ink-width: 17px;
     --sortable-handle-inset: 4px;
+    /* Kit iOS 27 Lists (Row, _Grabber 5533:12351): the reorder control ends the row, after its value, in the
+       tertiary label color. Its 22px symbol frame stands on the row margin, 12px after the value; the 44px target
+       centers the 17px symbol, so it reaches 11px past that frame on each side. After a Field row, whose own
+       inline padding is the layout margin, it reaches into that padding; after other content it starts where the
+       content ends, so it never covers it. */
+    --sortable-handle-order: 1;
+    --sortable-handle-margin-end: calc(var(--mobile-layout-margin) - 11px);
+    --sortable-handle-margin-start: 0px;
+    --sortable-handle-field-margin-start: calc(1px - var(--mobile-layout-margin));
+    --sortable-handle-color: var(--mobile-label-tertiary);
+    --sortable-handle-color-hover: var(--mobile-label-tertiary);
 
     /* Touch menus use selection indicators without a persistent row fill. */
     --menu-item-highlight-opacity: 0;
@@ -506,7 +517,8 @@
     --field-group-header-align: end;
     --field-group-header-padding-bottom: 9px;
     --field-group-footer-font-size: 13px;
-    --field-group-footer-line-height: 16px;
+    /* Kit iOS 27 Lists, Grouped Table Footer: Footnote, 13/18. */
+    --field-group-footer-line-height: 18px;
     --field-group-footer-padding: 8px var(--mobile-layout-margin) 6px;
     --field-group-title-padding-inline: var(--mobile-layout-margin);
     --field-group-description-font-size: 13px;

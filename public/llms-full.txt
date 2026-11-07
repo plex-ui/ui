@@ -8768,7 +8768,7 @@ const [rows, setRows] = useState(sections);
 ```
 
 ### Rows with a handle
-A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row.
+A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, in the tertiary label color, where iOS puts its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode.
 ```tsx
 <FieldGroup title="Contact details">
 <Sortable value={rows} onChange={setRows} handles>

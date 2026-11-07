@@ -101,6 +101,8 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - Menus on a phone have the iOS 27 kit Menu's 34px corners (`--menu-radius`, `--menu-radius-pill`, were 32px), as a phone popover does.
 - `ColorPicker` Mode control on a phone is the iOS 27 kit picker's small segmented control, 32px (was 36px).
 - A small button on a phone (`3xs` to `sm`, the kit's small button) leaves 3px between its icon and label, as the iOS 27 kit Button - Content Area does (touch stylesheet, React and Vue; was 4px at `2xs`, `xs` and `sm`). New token: `--button-touch-gap-sm`.
+- `Sortable` on a phone puts a row's handle at its end, after the value, as the iOS 27 kit's reorder control (Lists, Row and _Grabber), and draws every handle, a table's included, in the tertiary label color (touch stylesheet, React and Vue). New tokens: `--sortable-handle-order`, `--sortable-handle-margin-start`, `--sortable-handle-margin-end`, `--sortable-handle-field-margin-start`.
+- A `FieldGroup` footer on a phone is Footnote 13/18, as the iOS 27 kit's Grouped Table Footer (was 13/16).
 - `PageControl` on a phone draws its other dots in the tertiary label (`--mobile-label-tertiary`, was `--alpha-30`), as the iOS 27 kit does.
 
 ### Fixed

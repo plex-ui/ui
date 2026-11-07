@@ -5,6 +5,8 @@
 @import '../packages/styles/dist/es/styles/variables-semantic.css';
 @import '../packages/styles/dist/es/styles/variables-components.css';
 @import '../packages/styles/dist/es/styles/touch.css';
+/* KaTeX layout for Markdown math, as @plexui/styles/styles/index.css bundles it */
+@import '../packages/styles/dist/es/styles/katex.min.css' layer(base);
 
 @theme static {
   --breakpoint-xs: 380px;

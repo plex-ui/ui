@@ -5998,7 +5998,7 @@
         {
           "name": "Rows with a handle",
           "code": "<div class=\"w-[480px] max-w-full\">\n  <FieldGroup title=\"Contact details\">\n    <Sortable v-model:value=\"rows\" handles>\n      <div v-for=\"row in rows\" :key=\"row.id\" data-row>\n        <SortableHandle :aria-label=\"'Reorder ' + row.label\" />\n        <Field row :label=\"row.label\">\n          <Input variant=\"ghost\" :default-value=\"row.value\" />\n        </Field>\n      </div>\n    </Sortable>\n  </FieldGroup>\n</div>",
-          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row."
+          "details": "A row that is mostly a field needs a grip: handles shows it, and then only the grip drags the row. On a phone with touch.css the grip ends the row, after its value, in the tertiary label color, where iOS puts its reorder control; it stays first in the reading order. A grip drags at once, so on a phone show it while the list is being edited, as iOS shows its reorder controls only in Edit mode."
         },
         {
           "name": "Stacked rows",
@@ -7702,5 +7702,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T22:29:42.995Z"
+  "generatedAt": "2026-11-07T23:10:32.582Z"
 }
