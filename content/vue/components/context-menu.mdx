@@ -4,6 +4,9 @@ description: "A menu of actions for an element: a secondary click opens it at th
 metaDescription: "Vue 3 context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
 ---
 
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import demoStyles from "@/components/docs/ContextMenuDemos.module.css"
 import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
@@ -69,8 +72,8 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element.</>} code={overviewCode} previewMinHeight={240}>
-  <VueDemo template={overview} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Wrap the element in <code>ContextMenuTrigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.</>} code={overviewCode} previewMinHeight={240}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" />
 </ComponentPreview>
 
 ### Rounded elements

@@ -5,6 +5,7 @@ metaDescription: "React context menu in the iOS 26 style: right click at the poi
 ---
 
 import { ContextMenuOverviewDemo, ContextMenuTilesDemo } from "@/components/docs/ContextMenuDemos"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { ContextMenu } from "@plexui/ui/components/ContextMenu";`}</UsageBlock>
 
@@ -14,7 +15,7 @@ A context menu gathers the actions for one element, such as a row, a file or a p
 
 ### Overview
 
-<ComponentPreview details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element.</>} code={`<ContextMenu>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list.</>} code={`<ContextMenu>
   <ContextMenu.Trigger>
     <div tabIndex={0}>Groceries</div>
   </ContextMenu.Trigger>

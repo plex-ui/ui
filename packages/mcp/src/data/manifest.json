@@ -1458,7 +1458,7 @@
         {
           "name": "Color well",
           "code": "const [tint, setTint] = useState('#af52de')\nconst [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])\n\n<FieldGroup>\n<Field row label=\"Tint\">\n  <ColorWell aria-label=\"Tint\" value={tint} onChange={setTint}\n    swatches={swatches} onSwatchesChange={setSwatches} />\n</Field>\n</FieldGroup>",
-          "details": "The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors."
+          "details": "The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit on the grouped background of an iOS settings screen."
         },
         {
           "name": "Sizes and states",
@@ -1565,7 +1565,7 @@
         {
           "name": "Overview",
           "code": "<ContextMenu>\n<ContextMenu.Trigger>\n  <div tabIndex={0}>Groceries</div>\n</ContextMenu.Trigger>\n<ContextMenu.Content>\n  <ContextMenu.Item onSelect={copy}><Copy /> Copy</ContextMenu.Item>\n  <ContextMenu.Item onSelect={share}><Share /> Share</ContextMenu.Item>\n  <ContextMenu.Item onSelect={pin}><Pin /> Pin</ContextMenu.Item>\n  <ContextMenu.Separator />\n  <ContextMenu.Item danger onSelect={remove}><RemoveTrash /> Delete</ContextMenu.Item>\n</ContextMenu.Content>\n</ContextMenu>",
-          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element."
+          "details": "Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 18px below it, at the edge on the side of the touch. The press that opened the menu does not activate the element. On a phone the rows sit on the grouped background of an iOS list."
         },
         {
           "name": "Rounded elements",
@@ -2554,7 +2554,7 @@
         {
           "name": "Rows",
           "code": "<FieldGroup title=\"Notifications\" description=\"How we reach you.\">\n<Field row label=\"Email updates\">\n  <Switch />\n</Field>\n<Field row label=\"Weekly summary\" description=\"Sent on Mondays.\">\n  <Switch />\n</Field>\n</FieldGroup>",
-          "details": "Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone."
+          "details": "Use row for one line of a block: the label at the start, the control at the end, an error under both. FieldGroup holds the rows, with a title, an action and a footer, and draws the hairlines between them. With touch.css rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen."
         },
         {
           "name": "Fields in rows",
@@ -5977,7 +5977,7 @@
         {
           "name": "Rows",
           "code": "const [rows, setRows] = useState(sections);\n\n<FieldGroup title=\"Home screen\">\n<Sortable value={rows} onChange={setRows}>\n  {rows.map((row) => (\n    <div key={row.id} data-row>\n      <Sortable.Handle aria-label={`Reorder ${row.label}`} />\n      <Field row label={row.label} description={row.description}>\n        <Switch defaultChecked />\n      </Field>\n    </div>\n  ))}\n</Sortable>\n</FieldGroup>",
-          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap."
+          "details": "Every direct child is an item, in the order of value. A row drags from anywhere but a control, so the switch keeps working. Its grip is hidden and still takes the keyboard: Tab to the row and press the arrow keys. On a touch screen a row lifts after a short hold, and a swipe still scrolls the page. Esc cancels a drag. A wrapper with data-row keeps the lines of the group, and rows that touch hold still: the line alone marks the gap. On a phone the rows sit on the grouped background of an iOS settings screen."
         },
         {
           "name": "Rows with a handle",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T02:41:58.865Z"
+  "generatedAt": "2026-11-07T03:28:01.247Z"
 }

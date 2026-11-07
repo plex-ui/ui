@@ -5,6 +5,7 @@ import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Calendar, Copy, Home, Images, Pin, RemoveTrash, Share } from '@plexui/ui/components/Icon';
 import c from './ContextMenuDemos.module.css';
 import t from './ToolbarDemos.module.css';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const NOTES = ['Groceries', 'Trip to Lisbon', 'Book club'];
 const TILES = [
@@ -26,7 +27,8 @@ function Actions() {
 }
 
 export function ContextMenuOverviewDemo() {
-  return (
+  const phone = usePhoneRows();
+  const group = (
     <FieldGroup className={c.List}>
       {NOTES.map((note) => (
         <ContextMenu key={note}>
@@ -38,6 +40,8 @@ export function ContextMenuOverviewDemo() {
       ))}
     </FieldGroup>
   );
+  // On a phone the rows sit on the grouped surface of an iOS list, as on the Input page
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }
 
 export function ContextMenuTilesDemo() {

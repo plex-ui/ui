@@ -719,6 +719,9 @@ export const birthdaySelect = `<div class="w-[320px]">
 </div>`
 
 import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 <UsageBlock>{`import { Field } from "@plexui/vue/components/Field";`}</UsageBlock>
 
@@ -768,14 +771,14 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 ### Rows
 
-<ComponentPreview language="vue" details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone.</>} code={rows} previewMinHeight={168}>
-  <VueDemo template={rows} stageClassName="py-10" />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={rows} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={rows} phoneTemplate={phoneRows(rows)} phoneStageClassName="w-full" stageClassName="py-10" />
 </ComponentPreview>
 
 ### Fields in rows
 
-<ComponentPreview language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
-  <VueDemo template={rowFields} state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
+  <VuePhoneRowsDemo template={rowFields} phoneTemplate={phoneRows(rowFields)} phoneStageClassName="w-full" state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
 </ComponentPreview>
 
 ### Textarea

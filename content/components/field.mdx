@@ -4,6 +4,7 @@ description: Form field wrapper with a label, helper text, an error message, and
 metaDescription: React form field component with a label, helper text, and an error message that wires id, aria-describedby, and aria-invalid onto its control.
 ---
 
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { Field } from "@plexui/ui/components/Field"
 import { Input } from "@plexui/ui/components/Input"
 import { Textarea } from "@plexui/ui/components/Textarea"
@@ -127,7 +128,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Rows
 
-<ComponentPreview details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone.</>} code={`<FieldGroup title="Notifications" description="How we reach you.">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>row</code> for one line of a block: the label at the start, the control at the end, an error under both. <code>FieldGroup</code> holds the rows, with a title, an action and a footer, and draws the hairlines between them. With <code>touch.css</code> rows take the iOS sizes on a phone. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={`<FieldGroup title="Notifications" description="How we reach you.">
   <Field row label="Email updates">
     <Switch />
   </Field>
@@ -140,7 +141,7 @@ import { FieldGroup } from "@plexui/ui/components/FieldGroup";`}</UsageBlock>
 
 ### Fields in rows
 
-<ComponentPreview details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>pill={false}</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>block={false}</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={`<FieldGroup>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>pill={false}</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>block={false}</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={`<FieldGroup>
   <Field row label="Price">
     <Input defaultValue="11" endAdornment="€" />
   </Field>

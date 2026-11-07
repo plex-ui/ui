@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ColorPicker, ColorWell } from '@plexui/ui/components/ColorPicker';
 import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 /** The saved colors of the kit's Swatches (515:52724). */
 const KIT_SWATCHES = ['#000000', '#007aff', '#34c759', '#ffcc00', '#ff3b30', '#7ac6f5', '#af52de', '#5856d6', '#ff2d55'];
@@ -13,7 +14,8 @@ export function ColorWellOverviewDemo() {
   const [highlight, setHighlight] = useState<string | null>(null);
   // Both wells share the saved colors, as the system picker shares them across an app.
   const [swatches, setSwatches] = useState(KIT_SWATCHES);
-  return (
+  const phone = usePhoneRows();
+  const group = (
     <FieldGroup className="w-full max-w-[400px]">
       <Field row label="Tint">
         <ColorWell aria-label="Tint" value={tint} onChange={setTint} swatches={swatches} onSwatchesChange={setSwatches} />
@@ -23,6 +25,8 @@ export function ColorWellOverviewDemo() {
       </Field>
     </FieldGroup>
   );
+  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }
 
 export function ColorWellSizesDemo() {

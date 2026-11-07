@@ -30,7 +30,7 @@ const Slider = dynamic(
 );
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
-import { useDesktopOnlyState } from './PhoneRows';
+import { PhoneRowsStage, useDesktopOnlyState, usePhoneRows } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
@@ -135,7 +135,8 @@ export function FieldRequiredDemo() {
 }
 
 export function FieldRowsDemo() {
-  return (
+  const phone = usePhoneRows();
+  const group = (
     <div className="w-full max-w-[480px]">
       <FieldGroup title="Notifications" description="How we reach you.">
         <Field row label="Email updates">
@@ -147,12 +148,15 @@ export function FieldRowsDemo() {
       </FieldGroup>
     </div>
   );
+  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }
 
 export function FieldRowFieldsDemo() {
   const [unit, setUnit] = useState('ml');
 
-  return (
+  const phone = usePhoneRows();
+  const group = (
     <div className="w-full max-w-[480px]">
       <FieldGroup>
         <Field row label="Price">
@@ -176,6 +180,8 @@ export function FieldRowFieldsDemo() {
       </FieldGroup>
     </div>
   );
+  // On a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page
+  return phone ? <PhoneRowsStage>{group}</PhoneRowsStage> : group;
 }
 
 export function FieldOrientationDemo() {

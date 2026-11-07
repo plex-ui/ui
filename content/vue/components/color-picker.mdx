@@ -5,6 +5,9 @@ metaDescription: "Vue 3 color picker in the iOS 26 style: a grid of colors, a sp
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 export const kitSwatches = ['#000000', '#007aff', '#34c759', '#ffcc00', '#ff3b30', '#7ac6f5', '#af52de', '#5856d6', '#ff2d55']
 
@@ -61,8 +64,8 @@ A color well shows a color and opens the system color picker, where people choos
 
 ### Color well
 
-<ComponentPreview language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors.</>} code={overviewCode} previewMinHeight={200}>
-  <VueDemo template={overview} state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" phonePresentation="screen" details={<>The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (<code>null</code>). It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen. Both wells here share their saved colors. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={overviewCode} previewMinHeight={200}>
+  <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ tint: '#af52de', highlight: null, swatches: kitSwatches }} />
 </ComponentPreview>
 
 ### Sizes and states

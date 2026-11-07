@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { DateTime } from 'luxon';
 import { Badge } from '@plexui/ui/components/Badge';
 import { DatePicker } from '@plexui/ui/components/DatePicker';
@@ -14,6 +14,7 @@ import { StatCard } from '@plexui/ui/components/StatCard';
 import { Switch } from '@plexui/ui/components/Switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@plexui/ui/components/Table';
 import { Textarea } from '@plexui/ui/components/Textarea';
+import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview', description: 'Today at a glance.' },
@@ -76,11 +77,17 @@ const CARDS = [
 
 const STAGE = 'flex w-full justify-center py-10';
 
+/** The stage of a group of rows: on a phone the rows sit on the grouped surface of an iOS settings screen, as on the Input page. */
+function RowsStage({ children }: { children: ReactNode }) {
+  const phone = usePhoneRows();
+  return phone ? <PhoneRowsStage>{children}</PhoneRowsStage> : <div data-demo-stage className={STAGE}>{children}</div>;
+}
+
 export function SortableRowsDemo() {
   const [rows, setRows] = useState(SECTIONS);
 
   return (
-    <div data-demo-stage className={STAGE}>
+    <RowsStage>
       <div className="w-[480px] max-w-full">
         <FieldGroup title="Home screen">
           <Sortable value={rows} onChange={setRows}>
@@ -95,7 +102,7 @@ export function SortableRowsDemo() {
           </Sortable>
         </FieldGroup>
       </div>
-    </div>
+    </RowsStage>
   );
 }
 
@@ -103,7 +110,7 @@ export function SortableInputsDemo() {
   const [rows, setRows] = useState(CONTACT);
 
   return (
-    <div data-demo-stage className={STAGE}>
+    <RowsStage>
       <div className="w-[480px] max-w-full">
         <FieldGroup title="Contact details">
           <Sortable value={rows} onChange={setRows} handles>
@@ -118,7 +125,7 @@ export function SortableInputsDemo() {
           </Sortable>
         </FieldGroup>
       </div>
-    </div>
+    </RowsStage>
   );
 }
 
@@ -126,7 +133,7 @@ export function SortableStackedDemo() {
   const [rows, setRows] = useState(QUESTIONS);
 
   return (
-    <div data-demo-stage className={STAGE}>
+    <RowsStage>
       <div className="w-[480px] max-w-full">
         <FieldGroup title="Questions">
           <Sortable value={rows} onChange={setRows}>
@@ -141,7 +148,7 @@ export function SortableStackedDemo() {
           </Sortable>
         </FieldGroup>
       </div>
-    </div>
+    </RowsStage>
   );
 }
 
@@ -165,7 +172,7 @@ export function SortableControlsDemo() {
   };
 
   return (
-    <div data-demo-stage className={STAGE}>
+    <RowsStage>
       <div className="w-[480px] max-w-full">
         <FieldGroup title="Preferences">
           <Sortable value={rows} onChange={setRows}>
@@ -180,7 +187,7 @@ export function SortableControlsDemo() {
           </Sortable>
         </FieldGroup>
       </div>
-    </div>
+    </RowsStage>
   );
 }
 
