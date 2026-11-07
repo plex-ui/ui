@@ -168,18 +168,22 @@ function ToolbarTitle({ children, subtitle, as, className, ref, ...restProps }: 
   const titleStyle = useContext(ToolbarTitleStyleContext)
   const decorative = host?.kind === "dialog"
   const Tag = as ?? "h1"
+  const hasSubtitle = subtitle != null && subtitle !== false && subtitle !== ""
   const heading = (
     <div className={s.Heading} aria-hidden={decorative || undefined}>
       <Tag ref={ref} className={clsx(s.Title, className)} {...restProps}>{children}</Tag>
-      {subtitle != null && subtitle !== false && <p className={s.Subtitle}>{subtitle}</p>}
+      {hasSubtitle && <p className={s.Subtitle}>{subtitle}</p>}
     </div>
   )
   if (titleStyle !== "large" || host?.kind !== "page") return heading
-  // The inline copy the row of controls shows once the large title has scrolled under it.
+  // The inline copy the row of controls shows once the large title has scrolled under it. A subtitle stays
+  // as a second line, as in the inline title (iOS 26 kit Toolbar - Top - iPhone, Title 2 Line).
   return (
     <>
       {heading}
-      <span className={s.CollapsedTitle} aria-hidden="true">{children}</span>
+      <span className={s.CollapsedTitle} aria-hidden="true">
+        {hasSubtitle ? <><span className={s.CollapsedLine}>{children}</span><span className={s.CollapsedSubtitle}>{subtitle}</span></> : children}
+      </span>
     </>
   )
 }

@@ -164,14 +164,21 @@ export const ToolbarTitle = defineComponent({
     const host = inject(TOOLBAR_HOST, null)
     const titleStyle = inject(TOOLBAR_TITLE_STYLE, null)
     return () => {
+      // An empty subtitle, from the prop or a slot that renders nothing, leaves the title on one line, as in React.
+      const present = (value: unknown) => (Array.isArray(value) ? value.length > 0 : value != null && value !== "")
       const subtitle = slots.subtitle?.() ?? props.subtitle
       const heading = h("div", { "class": s.Heading, "aria-hidden": host?.kind === "dialog" ? "true" : undefined }, [
         h(props.as, { ...attrs, class: [s.Title, attrs.class] }, slots.default?.()),
-        subtitle != null && subtitle !== "" ? h("p", { class: s.Subtitle }, subtitle) : null,
+        present(subtitle) ? h("p", { class: s.Subtitle }, subtitle) : null,
       ])
       if (titleStyle?.value !== "large" || host?.kind !== "page") return heading
-      // The inline copy the row of controls shows once the large title has scrolled under it.
-      return [heading, h("span", { "class": s.CollapsedTitle, "aria-hidden": "true" }, slots.default?.())]
+      // The inline copy the row of controls shows once the large title has scrolled under it. A subtitle stays
+      // as a second line, as in the inline title (iOS 26 kit Toolbar - Top - iPhone, Title 2 Line).
+      const copySubtitle = slots.subtitle?.() ?? props.subtitle
+      const copy = present(copySubtitle)
+        ? [h("span", { class: s.CollapsedLine }, slots.default?.()), h("span", { class: s.CollapsedSubtitle }, copySubtitle)]
+        : slots.default?.()
+      return [heading, h("span", { "class": s.CollapsedTitle, "aria-hidden": "true" }, copy)]
     }
   },
 })

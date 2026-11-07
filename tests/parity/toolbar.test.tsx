@@ -342,16 +342,16 @@ describe("Toolbar disabled buttons", () => {
 
 describe("A large title on a page scrolls with the content (iOS 26)", () => {
   const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
-  const reactLarge = (titleStyle: string) => createElement(
+  const reactLarge = (titleStyle: string, title: Record<string, unknown> = {}) => createElement(
     RPage as unknown as AnyComponent,
     null,
-    reactBar({ root: { titleStyle }, title: {} }),
+    reactBar({ root: { titleStyle }, title }),
     createElement(RPage.Content, null, "Body"),
   )
-  const vueLarge = (titleStyle: string) => () => h(Page as never, null, () => [vueBar({ root: { titleStyle }, title: {} }), h(PageContent, null, () => "Body")])
-  const mount = async (framework: "React" | "Vue", titleStyle: string) => {
-    const view = framework === "React" ? render(reactLarge(titleStyle)) : null
-    const vue = framework === "Vue" ? mountVue(vueLarge(titleStyle) as () => VNode) : null
+  const vueLarge = (titleStyle: string, title: Record<string, unknown> = {}) => () => h(Page as never, null, () => [vueBar({ root: { titleStyle }, title }), h(PageContent, null, () => "Body")])
+  const mount = async (framework: "React" | "Vue", titleStyle: string, title: Record<string, unknown> = {}) => {
+    const view = framework === "React" ? render(reactLarge(titleStyle, title)) : null
+    const vue = framework === "Vue" ? mountVue(vueLarge(titleStyle, title) as () => VNode) : null
     await (framework === "React" ? act(async () => {}) : flushVue())
     return () => { view?.unmount(); vue?.unmount() }
   }
@@ -378,6 +378,25 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     unmount()
   })
 
+  test.each(["React", "Vue"] as const)("%s: a subtitle stays as the second line of the inline copy (kit Title 2 Line)", async (framework) => {
+    const unmount = await mount(framework, "large", { subtitle: "24 orders" })
+    const copy = document.querySelector('[data-toolbar][data-title-style="large"] > .CollapsedTitle')
+    expect(copy?.getAttribute("aria-hidden")).toBe("true")
+    expect(Array.from(copy?.children ?? [], (line) => `${line.className}:${line.textContent}`)).toEqual(["CollapsedLine:Orders", "CollapsedSubtitle:24 orders"])
+    expect(document.querySelectorAll(".Subtitle")).toHaveLength(1)
+    unmount()
+    const plain = await mount(framework, "large")
+    const plainCopy = document.querySelector("[data-toolbar] > .CollapsedTitle")
+    expect(plainCopy?.children).toHaveLength(0)
+    expect(plainCopy?.textContent).toBe("Orders")
+    plain()
+    // An empty subtitle keeps one line in both frameworks.
+    const empty = await mount(framework, "large", { subtitle: "" })
+    expect(document.querySelector("[data-toolbar] > .CollapsedTitle")?.children).toHaveLength(0)
+    expect(document.querySelector(".Subtitle")).toBeNull()
+    empty()
+  })
+
   test.each(["React", "Vue"] as const)("%s: an inline title on a page and a large title off a page keep one heading", async (framework) => {
     const unmount = await mount(framework, "inline")
     expect(document.querySelector("[data-toolbar] > .CollapsedTitle")).toBeNull()
@@ -386,6 +405,14 @@ describe("A large title on a page scrolls with the content (iOS 26)", () => {
     else mountVue(() => vueBar({ root: { titleStyle: "large" }, title: {} }))
     await (framework === "React" ? act(async () => {}) : flushVue())
     expect(document.querySelector("[data-toolbar] > .CollapsedTitle")).toBeNull()
+  })
+
+  test("a bottom bar's edge starts 27px above its items and covers fully 60px later; a solid bar keeps no mask (IMG_5491)", () => {
+    const bottom = css.slice(css.indexOf('.Toolbar[data-placement="bottom"] {'))
+    expect(bottom).toMatch(/&::before \{[^}]*inset: calc\(var\(--toolbar-bottom-item-top\) - 27px\) 0 0;[^}]*mask-image: linear-gradient\(to bottom, transparent, #000 60px\);/)
+    expect(bottom).toMatch(/&\[data-background="solid"\]::before \{\s*inset: 0;\s*-webkit-mask-image: none;\s*mask-image: none;/)
+    // A single wide action has more room above it, and the edge moves with it.
+    expect(css).toMatch(/:has\(> \.Content\[data-fill\] > :where\(button, a\)\) \{[^}]*--toolbar-bottom-item-top: var\(--toolbar-bottom-fill-padding-top\);/)
   })
 
   test("the title moves with the scroll, fades under the row of controls and shows inline at the end of its way", () => {
