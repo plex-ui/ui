@@ -122,6 +122,11 @@
     --button-gutter-3xl: 20px;
     --button-font-size-3xl: 17px;
     --button-line-height-3xl: 22px;
+    /* A glass text button (`mobileMaterial="glass"`): kit iOS 27 Button - Liquid Glass - Text 5473:21667, Medium,
+       17px at 34 and 50 (15px at 28, the content-area size). */
+    --button-glass-font-weight: var(--toolbar-label-font-weight);
+    --button-glass-font-size: 17px;
+    --button-glass-line-height: 22px;
     /* The kit (Buttons 507:24673) sets a button's symbol at the size of its label: 15pt in the small and
        medium buttons, 17pt in the large one. So 3xs to lg show the 18px icon and xl to 3xl the 20px one;
        3xs, 2xs and xs, the kit's small button as sm is, also take sm's loading indicator, and an icon-only
@@ -153,8 +158,9 @@
     --menu-default-min-width: 238px;
     --menu-padding-inline: 16px;
     --menu-shadow: 0 8px 40px rgb(0 0 0 / 12%);
-    --menu-radius: 32px;
-    --menu-radius-pill: 32px;
+    /* A menu has the corner of the iOS 27 kit Menu (Menus: 238 wide, r34), as a popover on a phone does. */
+    --menu-radius: 34px;
+    --menu-radius-pill: 34px;
     /* A popover on a phone has the corner of an iOS 26 action sheet presented from its source: 34px, as
        the kit Action Sheet (5446:10266) and an iPhone confirmation popover (iOS2 IMG_5528) measure. */
     --popover-radius: 34px;
@@ -281,13 +287,15 @@
     --stepper-segment-width: 46px;
     --stepper-target-size: 44px;
     --stepper-icon-size: 22px;
-    --stepper-background: var(--stepper-mobile-background);
-    --stepper-segment-background-hover: transparent;
+    --stepper-background: transparent;
+    --stepper-segment-background: var(--stepper-mobile-segment-background);
+    --stepper-segment-background-hover: var(--stepper-mobile-segment-background);
     --stepper-segment-background-active: var(--stepper-mobile-segment-background-active);
+    --stepper-segment-background-disabled: var(--stepper-mobile-segment-background-disabled);
     --stepper-separator-color: var(--stepper-mobile-separator-color);
     --stepper-icon-disabled-color: var(--mobile-label-tertiary);
     /* Color picker: the iOS 26 kit Color Picker - iPhone (0:5275), 358px wide in its sheet. The segmented control
-       is the kit's 36px one, grid cells 30, the Opacity track 40 with a 36px knob (3px white ring), the field 75 x 40,
+       is the iOS 27 kit's small one, 32px (ColorPicker.module.css), grid cells 30, the Opacity track 40 with a 36px knob (3px white ring), the field 75 x 40,
        the current color 82 and saved colors 30, 24 apart, in rows 22 apart; the checkerboard is 13.6px. */
     --color-picker-width: 100%;
     --color-picker-modes-gap: 24px;
@@ -321,8 +329,10 @@
     --color-picker-add-icon-size: 20px;
     --color-picker-page-control-row-height: 10px;
     --color-picker-page-control-empty-display: flex;
-    /* Page control: the kit component is 44pt tall around its 24px capsule. */
+    /* Page control: the kit component is 44pt tall around its 24px capsule; its other dots are Labels/Tertiary
+       (iOS 27 kit Page Controls). */
     --page-control-target-size: 44px;
+    --page-control-dot-color: var(--mobile-label-tertiary);
 
     --checkbox-target-size: 44px;
     --checkbox-target-offset: 0px;
@@ -371,8 +381,6 @@
     /* The knob is white in both themes (kit iOS 27 Sliders 7:53847, Knob 255,255,255 in Light and Dark). */
     --slider-thumb-background: var(--white);
     --slider-thumb-shadow: 0 0.5px 4px rgb(0 0 0 / 12%), 0 6px 13px rgb(0 0 0 / 12%);
-    --progress-height: 6px;
-    --progress-radius: 3px;
 
     /* Full empty states follow the iOS 27 empty state (kit iOS 27, Empty States 5583:24408): message 22
        Semibold and description 22 Medium in the secondary label, 26px lines with no gap, the symbol in a
@@ -415,15 +423,16 @@
     --empty-message-icon-radius: var(--radius-full);
     --empty-message-icon-gap: 16px;
 
-    /* Native 8-spoke progress indicator. Caller sizes, colors and durations win. */
-    --indicator-default-size: 30px;
+    /* Native 8-spoke progress indicator at the iOS 27 kit's Regular 20 (Spinner 5425:3431; the UIKit medium
+       indicator). Caller sizes, colors and durations win. */
+    --indicator-default-size: 20px;
     --indicator-container-type: size;
     --indicator-ring-display: none;
     --indicator-spoke-display: block;
     --indicator-rotate-timing: steps(8, end);
-    /* In a field (an Input adornment, an InputGroup addon, a SelectControl) the indicator is the kit's Small 22
-       (Progress indicator 5425:3443), the size of the field's accessory, not the standalone 30. */
-    --control-indicator-size: 22px;
+    /* In a field (an Input adornment, an InputGroup addon, a SelectControl) the indicator is the same Regular 20,
+       as a list row shows it, not the text size. */
+    --control-indicator-size: 20px;
 
     /* Clear targets occupy layout space; their glyphs keep the existing paint size. */
     --input-control-min-width: 0px;

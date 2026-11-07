@@ -21,7 +21,7 @@ const noop = () => {}
 const phoneRules = (path: string) => {
   const rules = new Map<string, postcss.Rule>()
   postcss.parse(read(path)).walkAtRules("media", (media) => {
-    if (media.params === "(max-width: 767px)" || media.params === "(width <= 767px)") media.walkRules((rule) => { rules.set(rule.selector, rule) })
+    if (["(max-width: 767px)", "(max-width: 767.98px)", "(width <= 767px)"].includes(media.params)) media.walkRules((rule) => { rules.set(rule.selector, rule) })
   })
   return rules
 }
@@ -145,5 +145,39 @@ describe("a phone sheet whose header has a description (kit iOS 27 Toolbar Title
       "font-size": "var(--toolbar-subtitle-font-size)",
       "font-weight": "var(--toolbar-subtitle-font-weight)",
     })
+  })
+})
+
+describe("Liquid Glass text buttons on a phone (kit iOS 27 Button - Liquid Glass - Text 5473:21667)", () => {
+  test("a Page bar's text button and a sheet header's action take a Toolbar item's 17px Medium label", () => {
+    const page = phoneRules("packages/styles/src/components/Page/Page.module.css")
+    expect(decls(page.get(".Leading > :is(button, a),\n  .Actions > :is(button, a)"))).toMatchObject({
+      "--button-font-size": "var(--toolbar-label-font-size)",
+      "--button-line-height": "var(--toolbar-label-line-height)",
+      "--button-font-weight": "var(--toolbar-label-font-weight)",
+    })
+    const dialog = phoneRules("packages/styles/src/components/Dialog/Dialog.module.css")
+    expect(decls(dialog.get("& > button"))).toMatchObject({ "--button-font-weight": "var(--toolbar-label-font-weight)", "--button-font-size": "var(--toolbar-label-font-size)" })
+  })
+
+  test("a glass Button's label is Medium, and 17px at md and lg, with touch.css only", () => {
+    const button = phoneRules("packages/styles/src/components/Button/Button.module.css")
+    const glass = '.Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"])'
+    expect(decls(button.get(glass))).toEqual({ "font-weight": "var(--button-glass-font-weight, var(--button-font-weight))" })
+    expect(decls(button.get('&:where([data-size="md"], [data-size="lg"])'))).toEqual({
+      "font-size": "var(--button-glass-font-size, var(--button-font-size))",
+      "line-height": "var(--button-glass-line-height, var(--button-line-height, 1))",
+    })
+    for (const token of ["--button-glass-font-weight: var(--toolbar-label-font-weight);", "--button-glass-font-size: 17px;", "--button-glass-line-height: 22px;"]) expect(touch).toContain(token)
+  })
+})
+
+describe("other kit iOS 27 values on a phone", () => {
+  test("menus have 34px corners, other page dots the tertiary label, and Progress keeps its 4px rounded track", () => {
+    for (const token of ["--menu-radius: 34px;", "--menu-radius-pill: 34px;", "--page-control-dot-color: var(--mobile-label-tertiary);"]) expect(touch).toContain(token)
+    expect(touch).not.toMatch(/--progress-(height|radius):/)
+    const tokens = read("packages/styles/src/styles/variables-components.css")
+    expect(tokens).toContain("--progress-height: 4px;")
+    expect(tokens).toContain("--progress-radius: var(--radius-full);")
   })
 })

@@ -714,8 +714,13 @@
     top: var(--dialog-sheet-action-inset-block, 16px);
     inset-inline-end: var(--dialog-sheet-action-inset-inline, var(--mobile-layout-margin, 16px));
 
+    /* A text action in the sheet's bar is a Liquid Glass text button, 17px Medium as a Toolbar's items
+       (kit iOS 27, Button - Liquid Glass - Text 5473:21667). */
     & > button {
       --button-size: var(--dialog-sheet-close-size);
+      --button-font-size: var(--toolbar-label-font-size);
+      --button-line-height: var(--toolbar-label-line-height);
+      --button-font-weight: var(--toolbar-label-font-weight);
     }
   }
 

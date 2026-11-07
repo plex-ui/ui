@@ -4955,8 +4955,8 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
 Docs: https://plexui.com/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size.
-    - strokeWidth (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size.
+    - strokeWidth (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)
     - done (boolean) default: false — Fills the ring and ends the simulated progress
@@ -5045,8 +5045,9 @@ The indicator defaults to currentcolor, inheriting the surrounding text color. Y
 ### Phone spinner
 ```tsx
 <div className="flex items-center gap-6">
+<LoadingIndicator size={14} />
 <LoadingIndicator />
-<LoadingIndicator size={22} />
+<LoadingIndicator size={35} />
 </div>
 ```
 
@@ -5398,7 +5399,7 @@ const phoneUnitMenu = (units, unit, setUnit) => (
 ```
 
 ### Spinner
-Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px.
+Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
 ```tsx
 // Desktop
 <InputGroup>

@@ -1,7 +1,8 @@
-/* Two segments that decrease and increase a value, after the iOS 26 kit Stepper (507:24687): a minus and a
-   plus over one fill, a short separator between them, the pressed segment darker, a segment at the end of
-   the range in the tertiary label. Sizes and colors are tokens: the PlexUI control size on a desktop, the
-   kit's 92 x 32 capsule on a phone (touch.css). */
+/* Two segments that decrease and increase a value: a minus and a plus, a short separator between them, a
+   segment at the end of the range in the tertiary label. On a desktop one fill lies under both segments and a
+   pressed one darkens; on a phone (touch.css) each segment has its own fill, as in the iOS 27 kit Stepper, and a
+   pressed one or one at the end of the range takes the lighter fill. Sizes and colors are tokens: the PlexUI
+   control size on a desktop, the kit's 92 x 32 capsule on a phone. */
 .Stepper {
   position: relative;
   display: inline-flex;
@@ -41,7 +42,7 @@
   padding: 0;
   border: 0;
   border-radius: inherit;
-  background: transparent;
+  background: var(--stepper-segment-background, transparent);
   color: var(--stepper-icon-color);
   font: inherit;
   cursor: pointer;
@@ -71,6 +72,7 @@
   }
 
   &[data-disabled] {
+    background: var(--stepper-segment-background-disabled, var(--stepper-segment-background, transparent));
     color: var(--stepper-icon-disabled-color);
     cursor: default;
   }

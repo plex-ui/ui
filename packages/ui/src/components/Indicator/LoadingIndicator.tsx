@@ -6,7 +6,7 @@ import s from "@plexui/styles/components/Indicator/LoadingIndicator.module.css"
 export type LoadingIndicatorProps = {
   /** Classname applied to the indicator */
   className?: string
-  /** Size of the indicator, in pixels. The optional touch stylesheet defaults to 30px.
+  /** Size of the indicator, in pixels. The optional touch stylesheet defaults to 20px.
    * @default 1em
    */
   size?: number | string

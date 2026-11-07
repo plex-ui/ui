@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs"
 import { describe, expect, test } from "vitest"
 
 // Plan 158: on a phone, a field's parts follow the iOS 26 field row (kit Text Field 553:23047, one 52px row).
-// An indicator inside a field is the kit's Small progress indicator (5425:3443, 22px), not the standalone
-// Regular 30; a trailing addon takes the row's accessory tone; and a phone example keeps a text prefix in a
+// An indicator inside a field is the iOS 27 kit's Regular spinner (5425:3431, 20px), as a standalone one is
+// (row 165; it was the iOS 26 kit's Small 22 beside a standalone 30); a trailing addon takes the row's accessory tone; and a phone example keeps a text prefix in a
 // column or a unit after the value at the row's edge, never both, so a unit never stands away from its value.
 
 const root = process.cwd()
@@ -11,11 +11,11 @@ const read = (path: string) => readFileSync(`${root}/${path}`, "utf8")
 const css = (path: string) => read(`packages/styles/src/${path}`).replace(/\/\*[\s\S]*?\*\//g, "")
 
 describe("an indicator in a field on a phone", () => {
-  test("the touch stylesheet sizes field indicators at the kit's Small 22, standalone ones at 30", () => {
+  test("the touch stylesheet sizes indicators at the iOS 27 kit's Regular 20, in a field and standalone", () => {
     const touch = css("styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px)"))
-    expect(phone).toMatch(/--indicator-default-size:\s*30px;/)
-    expect(phone).toMatch(/--control-indicator-size:\s*22px;/)
+    expect(phone).toMatch(/--indicator-default-size:\s*20px;/)
+    expect(phone).toMatch(/--control-indicator-size:\s*20px;/)
   })
 
   test("Input adornments, InputGroup addons and SelectControl take the field size, or the text size on desktop", () => {
@@ -27,8 +27,14 @@ describe("an indicator in a field on a phone", () => {
     expect(select).toContain("--indicator-default-size: var(--control-indicator-size, 1em);")
   })
 
-  test("22px selects the small spoke geometry", () => {
-    expect(css("components/Indicator/LoadingIndicator.module.css")).toMatch(/@container plex-loading-indicator \(max-width: 22px\)/)
+  test("the kit's spoke geometry: Regular 20 (4/30 x 10/30), Small up to 16px (2/14 x 4/14), Large from 28px (5/35 x 13/35)", () => {
+    const sheet = css("components/Indicator/LoadingIndicator.module.css")
+    // The spoke sizes come from container queries, which need the size container the touch stylesheet turns on
+    expect(sheet).toContain("container-type: var(--indicator-container-type, normal);")
+    expect(css("styles/touch.css")).toMatch(/--indicator-container-type:\s*size;/)
+    expect(sheet).toContain("width: var(--indicator-stroke, calc(4 / 30 * 100%));")
+    expect(sheet).toMatch(/@container plex-loading-indicator \(max-width: 16px\) \{\s*\.Spoke::before \{\s*width: var\(--indicator-stroke, calc\(2 \/ 14 \* 100%\)\);\s*height: calc\(4 \/ 14 \* 100%\);/)
+    expect(sheet).toMatch(/@container plex-loading-indicator \(min-width: 28px\) \{\s*\.Spoke::before \{\s*width: var\(--indicator-stroke, calc\(5 \/ 35 \* 100%\)\);\s*height: calc\(13 \/ 35 \* 100%\);/)
   })
 })
 

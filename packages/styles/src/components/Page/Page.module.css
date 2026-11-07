@@ -305,11 +305,14 @@
     min-width: 0;
   }
 
+  /* A bar's text button is the Liquid Glass text button of the iOS 27 kit (Button - Liquid Glass - Text
+     5473:21667): 17px Medium, the label of a Toolbar's items. */
   .Leading > :is(button, a),
   .Actions > :is(button, a) {
     --button-size: 44px;
-    --button-font-size: 17px;
-    --button-line-height: 22px;
+    --button-font-size: var(--toolbar-label-font-size);
+    --button-line-height: var(--toolbar-label-line-height);
+    --button-font-weight: var(--toolbar-label-font-weight);
     --button-radius: var(--radius-full);
   }
 

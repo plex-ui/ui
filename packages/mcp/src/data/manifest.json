@@ -3211,7 +3211,7 @@
         },
         {
           "name": "Phone spinner",
-          "code": "<div className=\"flex items-center gap-6\">\n<LoadingIndicator />\n<LoadingIndicator size={22} />\n</div>"
+          "code": "<div className=\"flex items-center gap-6\">\n<LoadingIndicator size={14} />\n<LoadingIndicator />\n<LoadingIndicator size={35} />\n</div>"
         }
       ],
       "subComponents": [
@@ -3222,13 +3222,13 @@
               "name": "size",
               "type": "number | string",
               "default": "\"1em\"",
-              "description": "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size."
+              "description": "Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size."
             },
             {
               "name": "strokeWidth",
               "type": "number",
               "default": "2",
-              "description": "Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px."
+              "description": "Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px."
             }
           ]
         },
@@ -3363,7 +3363,7 @@
         {
           "name": "Spinner",
           "code": "// Desktop\n<InputGroup>\n<InputGroup.Input defaultValue=\"Saving changes\" readOnly />\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Text>Saving...</InputGroup.Text>\n  <LoadingIndicator />\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone: a value being checked; in a field the indicator is the kit's Small 22.\n<FieldGroup footer=\"Checking availability...\">\n<Field row label=\"Username\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} defaultValue=\"ada\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon align=\"inline-end\">\n        <LoadingIndicator />\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
-          "details": "Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px."
+          "details": "Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is."
         },
         {
           "name": "Textarea",
@@ -7688,5 +7688,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T21:00:35.335Z"
+  "generatedAt": "2026-11-07T21:45:50.969Z"
 }

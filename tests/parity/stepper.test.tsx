@@ -250,18 +250,19 @@ describe("stepValue", () => {
   })
 })
 
-describe("Stepper tokens follow the iOS 26 kit Stepper (507:24687) on a phone", () => {
+describe("Stepper tokens follow the iOS 27 kit Stepper (Steppers: _Decrement, _Increment) on a phone", () => {
   test("desktop: the PlexUI control size and the segmented track colors", () => {
     const tokens = read("packages/styles/src/styles/variables-components.css")
     expect(tokens).toContain("--stepper-height: var(--control-size-md);")
     expect(tokens).toContain("--stepper-background: light-dark(var(--gray-100), var(--alpha-08));")
     expect(tokens).toContain("--segmented-control-background: light-dark(var(--gray-100), var(--alpha-08));")
-    expect(tokens).toContain("--stepper-mobile-background: light-dark(var(--alpha-05), var(--alpha-08));")
-    expect(tokens).toContain("--stepper-mobile-segment-background-active: var(--alpha-08);")
+    expect(tokens).toContain("--stepper-mobile-segment-background: light-dark(var(--alpha-06), var(--alpha-12));")
+    expect(tokens).toContain("--stepper-mobile-segment-background-active: light-dark(var(--alpha-05), var(--alpha-08));")
+    expect(tokens).toContain("--stepper-mobile-segment-background-disabled: light-dark(var(--alpha-05), var(--alpha-08));")
     expect(tokens).toContain("--stepper-mobile-separator-color: var(--alpha-25);")
   })
 
-  test("phone: 92 x 32, 46px segments, a 44px target, 22px icons, no hover, the tertiary label at an end", () => {
+  test("phone: 92 x 32, 46px segments with their own fill, a 44px target, 22px icons, no hover, the lighter fill when pressed and at an end", () => {
     const touch = read("packages/styles/src/styles/touch.css")
     const phone = touch.slice(touch.indexOf("@media (max-width: 767px) {"), touch.indexOf("@media (min-width: 414px)"))
     for (const line of [
@@ -269,9 +270,11 @@ describe("Stepper tokens follow the iOS 26 kit Stepper (507:24687) on a phone", 
       "--stepper-segment-width: 46px;",
       "--stepper-target-size: 44px;",
       "--stepper-icon-size: 22px;",
-      "--stepper-background: var(--stepper-mobile-background);",
-      "--stepper-segment-background-hover: transparent;",
+      "--stepper-background: transparent;",
+      "--stepper-segment-background: var(--stepper-mobile-segment-background);",
+      "--stepper-segment-background-hover: var(--stepper-mobile-segment-background);",
       "--stepper-segment-background-active: var(--stepper-mobile-segment-background-active);",
+      "--stepper-segment-background-disabled: var(--stepper-mobile-segment-background-disabled);",
       "--stepper-separator-color: var(--stepper-mobile-separator-color);",
       "--stepper-icon-disabled-color: var(--mobile-label-tertiary);",
     ]) expect(phone).toContain(line)
@@ -288,5 +291,18 @@ describe("Stepper tokens follow the iOS 26 kit Stepper (507:24687) on a phone", 
     expect(separator).toContain("transform: translateX(-50%);")
     expect(css).toContain("inset: min(0px, calc((var(--stepper-height) - var(--stepper-target-size, 0px)) / 2)) 0;")
     expect(css).toContain("border-radius: calc(var(--stepper-height) / 2);")
+  })
+
+  test("a segment carries its own fill; the end of the range wins over pressed, both over hover", () => {
+    const css = read("packages/styles/src/components/Stepper/Stepper.module.css")
+    const segment = css.slice(css.indexOf(".Segment {"), css.indexOf(".Separator {"))
+    expect(segment).toContain("background: var(--stepper-segment-background, transparent);")
+    const hover = segment.indexOf("&:not([data-disabled]):not([data-pressed]) {")
+    const pressed = segment.indexOf("&[data-pressed] {")
+    const disabled = segment.indexOf("&[data-disabled] {")
+    expect(hover).toBeGreaterThan(-1)
+    expect(pressed).toBeGreaterThan(hover)
+    expect(disabled).toBeGreaterThan(pressed)
+    expect(segment.slice(disabled)).toMatch(/^&\[data-disabled\] \{\s*background: var\(--stepper-segment-background-disabled, var\(--stepper-segment-background, transparent\)\);/)
   })
 })

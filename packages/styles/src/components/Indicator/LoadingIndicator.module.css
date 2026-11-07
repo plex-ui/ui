@@ -32,8 +32,9 @@
   }
 }
 
-/* iOS 26 Progress indicator 5425:3432. These decorative spokes are enabled
-   only by the optional touch stylesheet; desktop keeps the original ring. */
+/* The iOS 27 kit Spinner (Progress Indicators 5425:3431): Regular 20 with 2.7 x 6.7px spokes, as here, Small 14
+   with 2 x 4 and Large 35 with 5 x 13, all fully rounded. These decorative spokes are enabled only by the
+   optional touch stylesheet; desktop keeps the original ring. */
 .Spoke {
   position: absolute;
   inset: 0;
@@ -61,13 +62,21 @@
   &:nth-child(8) { transform: rotate(315deg); opacity: 0.87; }
 }
 
-/* Small 5425:3443 is 22px with 3 × 7px spokes and 1.5px corners.
-   A size container also covers CSS sizes and indicators nested in buttons. */
-@container plex-loading-indicator (max-width: 22px) {
+/* Small up to 16px (kit Small 14) and Large from 28px (kit Large 35). A size container also covers CSS sizes
+   and indicators nested in buttons. */
+@container plex-loading-indicator (max-width: 16px) {
   .Spoke::before {
-    width: var(--indicator-stroke, calc(3 / 22 * 100%));
-    height: calc(7 / 22 * 100%);
-    border-radius: calc(1.5 / 22 * 100cqw);
+    width: var(--indicator-stroke, calc(2 / 14 * 100%));
+    height: calc(4 / 14 * 100%);
+    border-radius: calc(2 / 14 * 100cqw);
+  }
+}
+
+@container plex-loading-indicator (min-width: 28px) {
+  .Spoke::before {
+    width: var(--indicator-stroke, calc(5 / 35 * 100%));
+    height: calc(13 / 35 * 100%);
+    border-radius: calc(5 / 35 * 100cqw);
   }
 }
 

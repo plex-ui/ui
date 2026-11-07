@@ -444,7 +444,7 @@ describe("ColorPicker tokens follow the iOS 26 kit (Color Picker - iPhone 0:5275
     // The Mode control stays the kit picker's plain segmented control on a phone, not the glass of other tabs.
     const modes = styles.match(/\.Modes\[data-variant="segmented"\]\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
     expect(styles.indexOf(".Modes[data-variant")).toBeGreaterThan(styles.indexOf("@media (max-width: 767px)"))
-    expect(value(modes, "--segmented-control-size")).toBe("36px")
+    expect(value(modes, "--segmented-control-size")).toBe("32px")
     expect(value(modes, "--segmented-control-thumb-outset")).toBe("0px")
     expect([value(modes, "--segmented-control-font-weight"), value(modes, "--segmented-control-active-font-weight")]).toEqual(["510", "590"])
     expect(value(modes, "--segmented-control-background")).toBe("var(--color-picker-mobile-mode-background)")

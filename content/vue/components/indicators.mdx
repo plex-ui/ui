@@ -116,13 +116,14 @@ export const dotsColor = `<div class="text-danger">
 
 ### Phone spinner
 
-With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 30px, and 22px inside a field (an `Input` adornment, an `InputGroup` addon or a `SelectControl`, through `--control-indicator-size`); `size="22px"` selects the small geometry. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
+With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 20px, the iOS 27 Regular spinner, also inside a field (an `Input` adornment, an `InputGroup` addon or a `SelectControl`, through `--control-indicator-size`); up to 16px, as `:size="14"`, takes the Small spokes and from 28px, as `:size="35"`, the Large ones. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
 
 <ComponentPreview language="vue" code={`<div class="flex items-center gap-6">
+  <LoadingIndicator :size="14" />
   <LoadingIndicator />
-  <LoadingIndicator :size="22" />
+  <LoadingIndicator :size="35" />
 </div>`} previewMinHeight={168}>
-  <VueDemo template={`<div class="flex items-center gap-6"><LoadingIndicator /><LoadingIndicator :size="22" /></div>`} />
+  <VueDemo template={`<div class="flex items-center gap-6"><LoadingIndicator :size="14" /><LoadingIndicator /><LoadingIndicator :size="35" /></div>`} />
 </ComponentPreview>
 
 ## API
@@ -130,8 +131,8 @@ With the optional [touch stylesheet](/docs/installation), the spinner uses eight
 ### LoadingIndicator
 
 <PropsTable data={[
-  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size." },
-  { prop: "stroke-width", type: "number", default: "2", description: "Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px." },
+  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size." },
+  { prop: "stroke-width", type: "number", default: "2", description: "Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px." },
 ]} />
 
 ### CircularProgress

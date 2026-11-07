@@ -3210,7 +3210,7 @@
         },
         {
           "name": "Phone spinner",
-          "code": "<div class=\"flex items-center gap-6\">\n<LoadingIndicator />\n<LoadingIndicator :size=\"22\" />\n</div>"
+          "code": "<div class=\"flex items-center gap-6\">\n<LoadingIndicator :size=\"14\" />\n<LoadingIndicator />\n<LoadingIndicator :size=\"35\" />\n</div>"
         }
       ],
       "subComponents": [
@@ -3221,13 +3221,13 @@
               "name": "size",
               "type": "number | string",
               "default": "\"1em\"",
-              "description": "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size."
+              "description": "Size in px or any CSS length. Defaults to 20px with the optional touch stylesheet, also inside a field. Also accepts --indicator-size."
             },
             {
               "name": "stroke-width",
               "type": "number",
               "default": "2",
-              "description": "Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px."
+              "description": "Ring stroke or mobile spoke width in px. Mobile spokes default to the iOS 27 kit proportion: 2/14 of the size up to 16px, 4/30 to 27px, 5/35 from 28px."
             }
           ]
         },
@@ -3541,7 +3541,7 @@
         {
           "name": "Spinner",
           "code": "<!-- Desktop -->\n<div class=\"flex flex-col gap-2.5 w-[320px]\">\n  <InputGroup>\n    <InputGroupInput default-value=\"Searching...\" readonly />\n    <InputGroupAddon align=\"inline-end\">\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput default-value=\"Processing...\" readonly />\n    <InputGroupAddon>\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n  <InputGroup>\n    <InputGroupInput default-value=\"Saving changes\" readonly />\n    <InputGroupAddon align=\"inline-end\">\n      <InputGroupText>Saving...</InputGroupText>\n      <LoadingIndicator />\n    </InputGroupAddon>\n  </InputGroup>\n</div>\n\n<!-- Phone -->\n<FieldGroup>\n  <template #footer>Checking availability...</template>\n  <Field row label=\"Username\">\n    <template #default=\"control\">\n      <InputGroup>\n        <InputGroupInput v-bind=\"control\" default-value=\"ada\" autocapitalize=\"none\" spellcheck=\"false\" />\n        <InputGroupAddon align=\"inline-end\">\n          <LoadingIndicator />\n        </InputGroupAddon>\n      </InputGroup>\n    </template>\n  </Field>\n</FieldGroup>",
-          "details": "Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px."
+          "details": "Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is."
         },
         {
           "name": "Textarea",
@@ -7702,5 +7702,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T21:00:37.413Z"
+  "generatedAt": "2026-11-07T21:45:52.895Z"
 }
