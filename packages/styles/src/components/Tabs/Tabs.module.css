@@ -739,14 +739,143 @@
   color: var(--color-text-secondary);
 }
 
-/* The native segment already includes its final gutter; pill scaling is desktop-only. */
+/* Shown only on a phone, in vertical tabs (below). */
+.Tab > .TabCheckmark {
+  display: none;
+}
+
+/* =============================================
+  Phone (iOS 26). iOS switches the views of a screen with one control, the segmented control
+  (kit Segmented control 6:57374); it has no underline tabs and no vertical segments.
+============================================= */
 @media (max-width: 767px) {
-  .Tabs[data-variant="segmented"][data-orientation="horizontal"] .Tab {
+  /* Horizontal tabs of either variant are the segmented control. Its segments share one width, as
+     UISegmentedControl divides its width (every kit example is 2 to 5 equal segments); a segment
+     never narrows below its content, so tabs that do not fit still scroll. A block control fills its
+     container, as the 370px kit examples do, and its labels shorten instead. */
+  .Tabs:where([data-orientation="horizontal"]) {
+    display: inline-grid;
+    grid-auto-columns: minmax(max-content, 1fr);
+    grid-auto-flow: column;
+  }
+
+  .Tabs:where([data-orientation="horizontal"][data-block]) {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .Tabs:where([data-variant="underline"][data-orientation="horizontal"]) {
+    --segmented-control-option-radius: calc(var(--segmented-control-radius) - var(--segmented-control-gutter));
+
+    gap: var(--segmented-control-gap);
+    padding: var(--segmented-control-gutter);
+    border: 0;
+    border-radius: var(--segmented-control-radius);
+    background: var(--segmented-control-background);
+  }
+
+  .Tabs:where([data-variant="underline"][data-orientation="horizontal"]) > .TabsThumb {
+    top: var(--segmented-control-gutter);
+    bottom: var(--segmented-control-gutter);
+    height: auto;
+    border-radius: var(--segmented-control-option-radius);
+    background: var(--segmented-control-thumb-background);
+    box-shadow: var(--segmented-control-thumb-shadow);
+  }
+
+  /* The native segment already includes its final gutter; pill scaling is desktop-only. */
+  .Tabs[data-orientation="horizontal"] .Tab {
     padding-inline: var(--segmented-control-option-gutter);
+    border-radius: var(--segmented-control-option-radius);
     /* iOS 26 draws every segment label in the primary label color; only the weight marks the selection
        (590 against 510), kit 6:57374 and IMG_5433/5434. No tracking: the system font applies its own, as
        native text widths show (17pt "All Inboxes" 241 at @3x in Mail, 242 in Chromium without it). */
     color: var(--color-text);
+  }
+
+  /* Vertical tabs of either variant are an inset grouped list (kit Lists, Row 550:50430): rows of
+     52px with 17px text from the 16px margin, a symbol in a 28px column 8px before the text, a
+     separator from the text and the 17pt checkmark (22px) at the end of the selected row, as iOS
+     marks the one choice of a list. The selection keeps the regular weight. */
+  .Tabs:where([data-orientation="vertical"]) {
+    --segmented-control-icon-size: 22px;
+    --segmented-control-icon-offset: 3px;
+    --segmented-control-content-gap: 11px;
+    --option-badge-size: var(--badge-size-sm);
+    --option-badge-gutter: var(--badge-gutter-sm);
+    --option-badge-font-size: var(--badge-font-size-sm);
+    --option-badge-font-weight: var(--badge-font-weight-sm);
+    --option-badge-tracking: var(--badge-tracking-sm);
+    --option-badge-radius: var(--badge-radius-sm);
+
+    width: 100%;
+    gap: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--field-group-radius, 26px);
+    background: var(--mobile-surface-grouped-secondary, var(--color-surface));
+    font-size: var(--field-row-label-font-size, 17px);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--field-row-label-line-height, 22px);
+  }
+
+  .Tabs:where([data-orientation="vertical"]) > .TabsThumb {
+    display: none;
+  }
+
+  .Tabs[data-orientation="vertical"] .Tab {
+    gap: 16px;
+    height: auto;
+    min-height: var(--field-row-min-height, 52px);
+    padding: 0 var(--mobile-layout-margin, 16px);
+    border-radius: 0;
+    color: var(--color-text);
+    font-weight: inherit;
+
+    /* The pressed row, clipped by the list's corners */
+    &::before {
+      position: absolute;
+      inset: 0;
+      border-radius: 0;
+      background: var(--segmented-control-option-highlight-background-color);
+      content: "";
+      opacity: 0;
+      pointer-events: none;
+      transform: none;
+    }
+
+    &:where(:not([data-disabled])):active::before {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .Tabs[data-orientation="vertical"] .Tab + .Tab::after {
+    position: absolute;
+    top: 0;
+    inset-inline: var(--mobile-layout-margin, 16px) 0;
+    height: 1px;
+    background: var(--color-border);
+    content: "";
+    pointer-events: none;
+  }
+
+  .Tabs[data-orientation="vertical"] .Tab:has(> .TabContent > svg:first-child:not(:only-child)) + .Tab::after,
+  .Tabs[data-orientation="vertical"] .Tab + .Tab:has(> .TabContent > svg:first-child:not(:only-child))::after {
+    inset-inline-start: calc(var(--mobile-layout-margin, 16px) + 36px);
+  }
+
+  .Tabs[data-orientation="vertical"] .Tab > .TabCheckmark {
+    display: block;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-inline-start: auto;
+    visibility: hidden;
+  }
+
+  .Tabs[data-orientation="vertical"] .Tab[data-state="on"] > .TabCheckmark {
+    visibility: visible;
   }
 }
 

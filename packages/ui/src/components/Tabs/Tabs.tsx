@@ -5,9 +5,11 @@ import { ToggleGroup } from "radix-ui"
 import {
   Children,
   cloneElement,
+  createContext,
   Fragment,
   isValidElement,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -18,7 +20,7 @@ import {
 import { useResizeObserver } from "usehooks-ts"
 import { handlePressableMouseEnter, prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers"
 import { type ControlSize, type SemanticColors, type Sizes, type Variants } from "../../types"
-import { ChevronDownMd } from "../Icon"
+import { CheckMd, ChevronDownMd } from "../Icon"
 import { LoadingIndicator } from "../Indicator"
 import { Menu } from "../Menu"
 import { visibleTabCount } from "./overflow"
@@ -109,6 +111,9 @@ export type TabsProps<T extends string> = {
   "className"?: string
   "children": React.ReactNode
 }
+
+/** Vertical tabs are a list on a phone, where the selected row shows a checkmark */
+const TabsVerticalContext = createContext(false)
 
 export const Tabs = <T extends string>({ overflow = "scroll", overflowLabel = "More", ...props }: TabsProps<T>) => {
   if (overflow === "menu" && !props.block && props.orientation !== "vertical") {
@@ -319,7 +324,7 @@ const TabsRoot = <T extends string>({
       {...restProps}
     >
       <div className={s.TabsThumb} ref={thumbRef} />
-      {children}
+      <TabsVerticalContext.Provider value={isVertical}>{children}</TabsVerticalContext.Provider>
     </ToggleGroup.Root>
   )
 }
@@ -379,6 +384,7 @@ const isBadgeObject = (
 const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
   // Normalize badge prop
   const badgeProps = badge != null ? (isBadgeObject(badge) ? badge : { content: badge }) : null
+  const vertical = useContext(TabsVerticalContext)
 
   return (
     <ToggleGroup.Item
@@ -400,6 +406,7 @@ const Tab = ({ children, icon, badge, ...restProps }: TabProps) => {
           </span>
         )}
       </span>
+      {vertical && <CheckMd className={s.TabCheckmark} aria-hidden="true" />}
     </ToggleGroup.Item>
   )
 }

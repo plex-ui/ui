@@ -26,6 +26,7 @@ import {
 import { RovingFocusGroup, RovingFocusItem } from "reka-ui"
 import type { ControlSize, SemanticColors, Sizes, Variants } from "@plexui/styles/types"
 import { handlePressableMouseEnter, prefersReducedMotion, waitForAnimationFrame } from "../../lib/helpers.js"
+import CheckMd from "../Icon/svg/CheckMd.js"
 import ChevronDownMd from "../Icon/svg/ChevronDownMd.js"
 import { LoadingIndicator } from "../Indicator/index.js"
 import { Menu, MenuContent, MenuRadioGroup, MenuRadioItem, MenuTrigger } from "../Menu/index.js"
@@ -68,6 +69,8 @@ export type TabsIconProp = string | VNode | Component
 type TabsContextValue = {
   value: ComputedRef<string>
   disabled: ComputedRef<boolean>
+  /** Vertical tabs are a list on a phone, where the selected row shows a checkmark */
+  vertical: ComputedRef<boolean>
   setValue: (nextValue: string) => void
 }
 
@@ -256,6 +259,7 @@ const TabsComponent = defineComponent({
     provide(TabsContextKey, {
       value: currentValue,
       disabled: computed(() => props.disabled),
+      vertical: computed(() => props.orientation === "vertical"),
       setValue,
     })
 
@@ -625,6 +629,7 @@ const TabComponent = defineComponent({
                         )
                       : null,
                   ]),
+                  context.vertical.value ? h(CheckMd, { "class": s.TabCheckmark, "aria-hidden": "true" }) : null,
                 ],
               },
             ),

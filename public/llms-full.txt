@@ -9550,7 +9550,7 @@ Props:
     - children (ReactNode) — Tab label
 
 ### Overview
-Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.
+Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls.
 ```tsx
 const [tab, setTab] = useState("overview")
 const [disabled, setDisabled] = useState(false)
@@ -9597,7 +9597,7 @@ Pass a number or an object with content, color, variant, and pill to the badge p
 ```
 
 ### Underline
-Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.
+Set variant="underline" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -9608,7 +9608,7 @@ Set variant="underline" for a minimal tab style with an animated line indicator 
 ```
 
 ### Underline flush
-Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.
+Add flush with variant="underline" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" flush value={tab} onChange={setTab} aria-label="Sections">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -9619,7 +9619,7 @@ Add flush with variant="underline" for minimal tabs where the indicator matches 
 ```
 
 ### Underline block
-Use block with the underline variant for full-width tabs that stretch evenly across the container.
+Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" block value={tab} onChange={setTab} aria-label="Sections">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -9629,7 +9629,7 @@ Use block with the underline variant for full-width tabs that stretch evenly acr
 ```
 
 ### Underline with icons
-Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs.
+Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
 <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
@@ -9639,7 +9639,7 @@ Icons work with the underline variant the same way as with segmented. Use the ic
 ```
 
 ### Underline with badge
-Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill.
+Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
 <Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
@@ -9649,7 +9649,7 @@ Badges are supported with the underline variant. Pass a simple value or an objec
 ```
 
 ### Vertical segmented
-Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down.
+Set orientation="vertical" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.
 ```tsx
 <Tabs orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
 <Tabs.Tab value="account">Account</Tabs.Tab>
@@ -9660,7 +9660,7 @@ Set orientation="vertical" to stack tabs vertically. The sliding thumb animates 
 ```
 
 ### Vertical underline
-Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side.
+Combine variant="underline" with orientation="vertical" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.
 ```tsx
 <Tabs variant="underline" orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
 <Tabs.Tab value="account">Account</Tabs.Tab>
@@ -9681,7 +9681,7 @@ Vertical underline tabs with icons provide a rich navigation experience commonly
 ```
 
 ### Sizing
-Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 44px with the 17px label from 3xs to 2xl (a 3xs, 2xs or xs tab takes the row, text, gutter, icon and badge of sm; a gutter set with gutterSize stays) and 50px at 3xl. The phone view shows each example at its default size, without the size and pill controls.
+Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls.
 ```tsx
 <Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
 <Tabs.Tab value="overview">Overview</Tabs.Tab>

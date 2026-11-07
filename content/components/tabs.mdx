@@ -4,6 +4,7 @@ description: Switch between grouped views with segmented or underline tabs, icon
 metaDescription: React tabs component for switching between grouped views, with segmented and underline styles, icon-only triggers, and badge counts on each tab.
 ---
 
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import {
   TabsOverviewDemo,
   TabsSegmentedIconsDemo,
@@ -31,7 +32,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ### Overview
 
-<ComponentPreview details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.</>} code={`const [tab, setTab] = useState("overview")
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no <code>variant</code>, <code>flush</code>, <code>block</code>, <code>size</code> and <code>pill</code> controls.</>} code={`const [tab, setTab] = useState("overview")
 const [disabled, setDisabled] = useState(false)
 const [reportsDisabled, setReportsDisabled] = useState(false)
 
@@ -48,7 +49,7 @@ return (
 
 ### Segmented with icons
 
-<ComponentPreview details={<>Icons work with the segmented variant. Use the <code>icon</code> prop on individual tabs. Icons are automatically sized to match the current <code>size</code>.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Icons work with the segmented variant. Use the <code>icon</code> prop on individual tabs. Icons are automatically sized to match the current <code>size</code>.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Navigation">
   <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
   <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
   <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
@@ -58,7 +59,7 @@ return (
 
 ### Icon only
 
-<ComponentPreview details={<>Omit the text children and pass only the <code>icon</code> prop for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={`<Tabs value={tab} onChange={setTab} aria-label="Navigation">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Omit the text children and pass only the <code>icon</code> prop for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={`<Tabs value={tab} onChange={setTab} aria-label="Navigation">
   <Tabs.Tab value="home" icon={<Home />} aria-label="Home" />
   <Tabs.Tab value="settings" icon={<SettingsCog />} aria-label="Settings" />
   <Tabs.Tab value="notifications" icon={<Bell />} aria-label="Notifications" />
@@ -68,7 +69,7 @@ return (
 
 ### Segmented with badge
 
-<ComponentPreview details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Filter">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={`<Tabs size="lg" value={tab} onChange={setTab} aria-label="Filter">
   <Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
   <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
   <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
@@ -78,7 +79,7 @@ return (
 
 ### Underline
 
-<ComponentPreview details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.</>} code={`<Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.</>} code={`<Tabs variant="underline" value={tab} onChange={setTab} aria-label="Sections">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
   <Tabs.Tab value="reports">Reports</Tabs.Tab>
@@ -89,7 +90,7 @@ return (
 
 ### Underline flush
 
-<ComponentPreview details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.</>} code={`<Tabs variant="underline" flush value={tab} onChange={setTab} aria-label="Sections">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.</>} code={`<Tabs variant="underline" flush value={tab} onChange={setTab} aria-label="Sections">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
   <Tabs.Tab value="reports">Reports</Tabs.Tab>
@@ -100,7 +101,7 @@ return (
 
 ### Underline block
 
-<ComponentPreview details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container.</>} code={`<Tabs variant="underline" block value={tab} onChange={setTab} aria-label="Sections">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.</>} code={`<Tabs variant="underline" block value={tab} onChange={setTab} aria-label="Sections">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
   <Tabs.Tab value="reports">Reports</Tabs.Tab>
@@ -110,7 +111,7 @@ return (
 
 ### Underline with icons
 
-<ComponentPreview details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> prop on individual tabs.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
   <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
   <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
   <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
@@ -120,7 +121,7 @@ return (
 
 ### Underline with badge
 
-<ComponentPreview details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.</>} code={`<Tabs variant="underline" size="lg" value={tab} onChange={setTab} aria-label="Filter">
   <Tabs.Tab value="all" badge={{ content: 128, pill: true }}>All</Tabs.Tab>
   <Tabs.Tab value="unread" badge={{ content: 12, color: "info", pill: true }}>Unread</Tabs.Tab>
   <Tabs.Tab value="flagged" badge={{ content: 3, color: "danger", pill: true }}>Flagged</Tabs.Tab>
@@ -130,7 +131,7 @@ return (
 
 ### Vertical segmented
 
-<ComponentPreview details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down.</>} code={`<Tabs orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.</>} code={`<Tabs orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
   <Tabs.Tab value="account">Account</Tabs.Tab>
   <Tabs.Tab value="password">Password</Tabs.Tab>
   <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
@@ -141,7 +142,7 @@ return (
 
 ### Vertical underline
 
-<ComponentPreview details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side.</>} code={`<Tabs variant="underline" orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.</>} code={`<Tabs variant="underline" orientation="vertical" value={tab} onChange={setTab} aria-label="Settings">
   <Tabs.Tab value="account">Account</Tabs.Tab>
   <Tabs.Tab value="password">Password</Tabs.Tab>
   <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
@@ -152,7 +153,7 @@ return (
 
 ### Vertical underline with icons
 
-<ComponentPreview details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={`<Tabs variant="underline" orientation="vertical" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={`<Tabs variant="underline" orientation="vertical" size="lg" value={tab} onChange={setTab} aria-label="Navigation">
   <Tabs.Tab value="home" icon={<Home />}>Home</Tabs.Tab>
   <Tabs.Tab value="settings" icon={<SettingsCog />}>Settings</Tabs.Tab>
   <Tabs.Tab value="notifications" icon={<Bell />}>Notifications</Tabs.Tab>
@@ -162,9 +163,9 @@ return (
 
 ### Sizing
 
-<ComponentPreview details={<>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" details={<>
   <p>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</p>
-  <p>On a phone with <code>touch.css</code> horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 44px with the 17px label from <code>3xs</code> to <code>2xl</code> (a <code>3xs</code>, <code>2xs</code> or <code>xs</code> tab takes the row, text, gutter, icon and badge of <code>sm</code>; a gutter set with <code>gutterSize</code> stays) and 50px at <code>3xl</code>. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
+  <p>On a phone with <code>touch.css</code> horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
 </>} code={`<Tabs variant="underline" size="md" value={tab} onChange={setTab} aria-label="Demo tabs">
   <Tabs.Tab value="overview">Overview</Tabs.Tab>
   <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
@@ -175,7 +176,7 @@ return (
 
 ### Scrollable
 
-<ComponentPreview details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={`<div className="flex w-full min-w-0 max-w-[400px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={`<div className="flex w-full min-w-0 max-w-[400px]">
   <Tabs value={tab} onChange={setTab} aria-label="Scrollable tabs">
     <Tabs.Tab value="1">Overview</Tabs.Tab>
     <Tabs.Tab value="2">Analytics</Tabs.Tab>
@@ -192,7 +193,7 @@ return (
 
 ### Overflow menu
 
-<ComponentPreview details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflowLabel</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={`<div className="flex min-w-0 max-w-full w-[360px]">
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflowLabel</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={`<div className="flex min-w-0 max-w-full w-[360px]">
   <Tabs value={tab} onChange={setTab} variant="underline" overflow="menu" aria-label="Repository">
     <Tabs.Tab value="code">Code</Tabs.Tab>
     <Tabs.Tab value="issues" badge={12}>Issues</Tabs.Tab>

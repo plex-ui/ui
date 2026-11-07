@@ -443,9 +443,9 @@
     --dialog-panel-radius: 34px;
   }
 
-  /* Horizontal segmented controls use the native 32px track; underline and
-     vertical tabs retain their own layout. */
-  html [data-variant="segmented"][data-orientation="horizontal"] {
+  /* Horizontal tabs of either variant are the native 32px segmented control (underline tabs have no
+     iOS control of their own; Tabs.module.css gives them the track). Vertical tabs are list rows there. */
+  html :is([data-variant="segmented"], [data-variant="underline"])[data-orientation="horizontal"] {
     /* A component can ask for another kit height, such as the Color Picker's 36px segmented control. */
     --segmented-control-size: var(--segmented-control-mobile-size, 32px);
     --segmented-control-gutter: 2px;
@@ -462,27 +462,6 @@
     --segmented-control-background: var(--segmented-control-mobile-background);
     --segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);
     --segmented-control-thumb-shadow: none;
-  }
-
-  /* Underline tabs and vertical segments have no iOS control of their own. At 3xs, 2xs and xs they take
-     the 44px row, text, gutter, icon and badge of sm, as a field and a button do on a phone: a 22 to 26px
-     row could not hold the 17px label. */
-  html :is([data-variant="underline"], [data-variant="segmented"][data-orientation="vertical"])[data-orientation]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
-    --segmented-control-size: var(--control-size-sm);
-    --segmented-control-font-size: var(--control-font-size-md);
-    --segmented-control-icon-size: var(--control-icon-size-md);
-    --segmented-control-content-gap: var(--button-gap-md);
-    --option-badge-size: var(--badge-size-sm);
-    --option-badge-gutter: var(--badge-gutter-sm);
-    --option-badge-font-size: var(--badge-font-size-sm);
-    --option-badge-font-weight: var(--badge-font-weight-sm);
-    --option-badge-tracking: var(--badge-tracking-sm);
-    --option-badge-radius: var(--badge-radius-sm);
-  }
-
-  /* A gutter the tabs set with gutterSize stays. */
-  html :is([data-variant="underline"], [data-variant="segmented"][data-orientation="vertical"])[data-orientation]:not([data-gutter-size]):where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
-    --segmented-control-option-gutter: var(--control-gutter-sm);
   }
 
   /* Fixed-width mobile segments keep their labels on one line. */

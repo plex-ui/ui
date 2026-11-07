@@ -6913,7 +6913,7 @@
         {
           "name": "Overview",
           "code": "const [tab, setTab] = useState(\"overview\")\nconst [disabled, setDisabled] = useState(false)\nconst [reportsDisabled, setReportsDisabled] = useState(false)\n\nreturn (\n<Tabs value={tab} onChange={setTab} disabled={disabled} aria-label=\"Demo tabs\">\n  <Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n  <Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n  <Tabs.Tab value=\"reports\" disabled={reportsDisabled}>Reports</Tabs.Tab>\n  <Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>\n)",
-          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value."
+          "details": "Tabs provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator. Both support horizontal and vertical orientations. disabled affects the whole group; reportsDisabled disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no variant, flush, block, size and pill controls."
         },
         {
           "name": "Segmented with icons",
@@ -6933,37 +6933,37 @@
         {
           "name": "Underline",
           "code": "<Tabs variant=\"underline\" value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n<Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>",
-          "details": "Set variant=\"underline\" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered."
+          "details": "Set variant=\"underline\" for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview."
         },
         {
           "name": "Underline flush",
           "code": "<Tabs variant=\"underline\" flush value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n<Tabs.Tab value=\"settings\">Settings</Tabs.Tab>\n</Tabs>",
-          "details": "Add flush with variant=\"underline\" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding."
+          "details": "Add flush with variant=\"underline\" for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
         },
         {
           "name": "Underline block",
           "code": "<Tabs variant=\"underline\" block value={tab} onChange={setTab} aria-label=\"Sections\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Use block with the underline variant for full-width tabs that stretch evenly across the container."
+          "details": "Use block with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview."
         },
         {
           "name": "Underline with icons",
           "code": "<Tabs variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Navigation\">\n<Tabs.Tab value=\"home\" icon={<Home />}>Home</Tabs.Tab>\n<Tabs.Tab value=\"settings\" icon={<SettingsCog />}>Settings</Tabs.Tab>\n<Tabs.Tab value=\"notifications\" icon={<Bell />}>Notifications</Tabs.Tab>\n</Tabs>",
-          "details": "Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs."
+          "details": "Icons work with the underline variant the same way as with segmented. Use the icon prop on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview."
         },
         {
           "name": "Underline with badge",
           "code": "<Tabs variant=\"underline\" size=\"lg\" value={tab} onChange={setTab} aria-label=\"Filter\">\n<Tabs.Tab value=\"all\" badge={{ content: 128, pill: true }}>All</Tabs.Tab>\n<Tabs.Tab value=\"unread\" badge={{ content: 12, color: \"info\", pill: true }}>Unread</Tabs.Tab>\n<Tabs.Tab value=\"flagged\" badge={{ content: 3, color: \"danger\", pill: true }}>Flagged</Tabs.Tab>\n</Tabs>",
-          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill."
+          "details": "Badges are supported with the underline variant. Pass a simple value or an object with content, color, variant, and pill. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview."
         },
         {
           "name": "Vertical segmented",
           "code": "<Tabs orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<Tabs.Tab value=\"account\">Account</Tabs.Tab>\n<Tabs.Tab value=\"password\">Password</Tabs.Tab>\n<Tabs.Tab value=\"notifications\">Notifications</Tabs.Tab>\n<Tabs.Tab value=\"display\">Display</Tabs.Tab>\n</Tabs>",
-          "details": "Set orientation=\"vertical\" to stack tabs vertically. The sliding thumb animates up and down."
+          "details": "Set orientation=\"vertical\" to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb."
         },
         {
           "name": "Vertical underline",
           "code": "<Tabs variant=\"underline\" orientation=\"vertical\" value={tab} onChange={setTab} aria-label=\"Settings\">\n<Tabs.Tab value=\"account\">Account</Tabs.Tab>\n<Tabs.Tab value=\"password\">Password</Tabs.Tab>\n<Tabs.Tab value=\"notifications\">Notifications</Tabs.Tab>\n<Tabs.Tab value=\"display\">Display</Tabs.Tab>\n</Tabs>",
-          "details": "Combine variant=\"underline\" with orientation=\"vertical\" for a sidebar-style navigation pattern. The line indicator appears on the left side."
+          "details": "Combine variant=\"underline\" with orientation=\"vertical\" for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview."
         },
         {
           "name": "Vertical underline with icons",
@@ -6973,7 +6973,7 @@
         {
           "name": "Sizing",
           "code": "<Tabs variant=\"underline\" size=\"md\" value={tab} onChange={setTab} aria-label=\"Demo tabs\">\n<Tabs.Tab value=\"overview\">Overview</Tabs.Tab>\n<Tabs.Tab value=\"analytics\">Analytics</Tabs.Tab>\n<Tabs.Tab value=\"reports\">Reports</Tabs.Tab>\n</Tabs>",
-          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 44px with the 17px label from 3xs to 2xl (a 3xs, 2xs or xs tab takes the row, text, gutter, icon and badge of sm; a gutter set with gutterSize stays) and 50px at 3xl. The phone view shows each example at its default size, without the size and pill controls."
+          "details": "Both variants support the full 9-step size scale. The size prop controls the height, font size, icon size, and spacing of tabs. On a phone with touch.css horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the size and pill controls."
         },
         {
           "name": "Scrollable",
@@ -7659,5 +7659,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T07:55:19.583Z"
+  "generatedAt": "2026-11-07T09:04:20.181Z"
 }

@@ -4,7 +4,9 @@ description: Switch between grouped views with segmented or underline tabs, icon
 metaDescription: Vue 3 tabs component for switching between grouped views, with segmented and underline styles, icon-only triggers, and badge counts on each tab.
 ---
 
-import { VueDemo } from "@/components/docs/vue/VueDemo"
+import { VuePhoneRowsDemo } from "@/components/docs/vue/VuePhoneRowsDemo"
+import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
+import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 export const SIZES = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
@@ -13,12 +15,12 @@ export const ORIENTATIONS = ["horizontal", "vertical"]
 export const STAGE = "flex-1 flex items-center justify-center py-12 w-full"
 
 export const overviewControls = [
-  { name: "variant", type: "select", options: VARIANTS, default: "segmented" },
+  { name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" },
   { name: "orientation", type: "select", options: ORIENTATIONS, default: "horizontal" },
   { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" },
   { name: "pill", desktopOnly: true, type: "boolean", default: true },
-  { name: "flush", type: "boolean", default: false },
-  { name: "block", type: "boolean", default: false },
+  { name: "flush", desktopOnly: true, type: "boolean", default: false },
+  { name: "block", desktopOnly: true, type: "boolean", default: false },
   { name: "disabled", type: "boolean", default: false },
   { name: "reportsDisabled", type: "boolean", default: false },
 ]
@@ -149,95 +151,95 @@ export const overflowMenu = `<div class="flex min-w-0 max-w-full" :style="{ widt
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
-  <VueDemo stageClassName={STAGE} template={overview} state={{ tab: "overview" }} controls={overviewControls} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Tabs provides two visual variants: <code>segmented</code> (default) with a sliding background highlight, and <code>underline</code> with an animated line indicator. Both support horizontal and vertical orientations. Bind the selected tab with <code>v-model:value</code>; the examples keep it in a <code>tab</code> variable. <code>disabled</code> affects the whole group; <code>reportsDisabled</code> disables only Reports. Arrow-key navigation skips disabled tabs without resetting the selected value. On a phone horizontal tabs of either variant are the iOS segmented control: segments of one width on a gray track, filling the row of a phone screen; vertical tabs are an inset grouped list. So the phone view has no <code>variant</code>, <code>flush</code>, <code>block</code>, <code>size</code> and <code>pill</code> controls.</>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.controlWithPanel}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={overviewControls} />
 </ComponentPreview>
 
 ### Segmented with icons
 
-<ComponentPreview language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={segmentedIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Icons work with the segmented variant: put the icon in the <code>icon</code> slot of individual tabs, or pass a component to the <code>icon</code> prop. Icons are automatically sized to match the current <code>size</code>.</>} code={segmentedIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={segmentedIcons} phoneTemplate={phoneRows(segmentedIcons)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Icon only
 
-<ComponentPreview language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={iconOnly} state={{ tab: "home" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Leave out the label and fill only the <code>icon</code> slot for compact icon-only tabs. Always provide an <code>aria-label</code> on each tab for accessibility.</>} code={iconOnly} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={iconOnly} phoneTemplate={phoneRows(iconOnly)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Segmented with badge
 
-<ComponentPreview language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={segmentedBadge} state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Pass a number or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code> to the <code>badge</code> prop. Badges render inline after the tab label inside the segmented container.</>} code={segmentedBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={segmentedBadge} phoneTemplate={phoneRows(segmentedBadge)} phoneStageClassName="w-full" state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "pill", desktopOnly: true, type: "boolean", default: true }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Underline
 
-<ComponentPreview language="vue" details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered.</>} code={underline} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underline} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Set <code>variant="underline"</code> for a minimal tab style with an animated line indicator under the active tab. No background container is rendered. iOS has no underline tabs: on a phone they are the segmented control of Overview, so this example has no Phone preview.</>} code={underline} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={underline} phoneTemplate={phoneRows(underline)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline flush
 
-<ComponentPreview language="vue" details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding.</>} code={underlineFlush} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineFlush} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Add <code>flush</code> with <code>variant="underline"</code> for minimal tabs where the indicator matches the text width exactly. No container border is rendered, and spacing between tabs uses gap instead of padding. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.</>} code={underlineFlush} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={underlineFlush} phoneTemplate={phoneRows(underlineFlush)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline block
 
-<ComponentPreview language="vue" details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container.</>} code={underlineBlock} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineBlock} state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Use <code>block</code> with the underline variant for full-width tabs that stretch evenly across the container. On a phone these tabs are the segmented control of Overview, so this example has no Phone preview.</>} code={underlineBlock} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={underlineBlock} phoneTemplate={phoneRows(underlineBlock)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Underline with icons
 
-<ComponentPreview language="vue" details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> slot on individual tabs.</>} code={underlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Icons work with the underline variant the same way as with segmented. Use the <code>icon</code> slot on individual tabs. On a phone these tabs are the segmented control of Segmented with icons, so this example has no Phone preview.</>} code={underlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={underlineIcons} phoneTemplate={phoneRows(underlineIcons)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
 </ComponentPreview>
 
 ### Underline with badge
 
-<ComponentPreview language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={underlineBadge} state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Badges are supported with the underline variant. Pass a simple value or an object with <code>content</code>, <code>color</code>, <code>variant</code>, and <code>pill</code>. On a phone these tabs are the segmented control of Segmented with badge, so this example has no Phone preview.</>} code={underlineBadge} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={underlineBadge} phoneTemplate={phoneRows(underlineBadge)} phoneStageClassName="w-full" state={{ tab: "all" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }, { name: "badgePill", type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Vertical segmented
 
-<ComponentPreview language="vue" details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down.</>} code={verticalSegmented} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalSegmented} state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Set <code>orientation="vertical"</code> to stack tabs vertically. The sliding thumb animates up and down. On a phone vertical tabs are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb.</>} code={verticalSegmented} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={verticalSegmented} phoneTemplate={phoneRows(verticalSegmented)} phoneStageClassName="w-full" state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Vertical underline
 
-<ComponentPreview language="vue" details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side.</>} code={verticalUnderline} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalUnderline} state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>Combine <code>variant="underline"</code> with <code>orientation="vertical"</code> for a sidebar-style navigation pattern. The line indicator appears on the left side. On a phone both vertical variants are the list of Vertical segmented, so this example has no Phone preview.</>} code={verticalUnderline} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={verticalUnderline} phoneTemplate={phoneRows(verticalUnderline)} phoneStageClassName="w-full" state={{ tab: "account" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Vertical underline with icons
 
-<ComponentPreview language="vue" details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={verticalUnderlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
-  <VueDemo stageClassName={STAGE} template={verticalUnderlineIcons} state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Vertical underline tabs with icons provide a rich navigation experience commonly used in settings or admin panels.</>} code={verticalUnderlineIcons} previewMinHeight={PREVIEW_MIN_HEIGHT.controlLarge}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={verticalUnderlineIcons} phoneTemplate={phoneRows(verticalUnderlineIcons)} phoneStageClassName="w-full" state={{ tab: "home" }} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "lg" }]} />
 </ComponentPreview>
 
 ### Sizing
 
-<ComponentPreview language="vue" details={<>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} phonePresentation="none" language="vue" details={<>
   <p>Both variants support the full 9-step size scale. The <code>size</code> prop controls the height, font size, icon size, and spacing of tabs.</p>
-  <p>On a phone with <code>touch.css</code> horizontal segmented tabs are the 32px segmented control of iOS at every size. Underline and vertical tabs are 44px with the 17px label from <code>3xs</code> to <code>2xl</code> (a <code>3xs</code>, <code>2xs</code> or <code>xs</code> tab takes the row, text, gutter, icon and badge of <code>sm</code>; a gutter set with <code>gutter-size</code> stays) and 50px at <code>3xl</code>. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
+  <p>On a phone with <code>touch.css</code> horizontal tabs of either variant are the 32px segmented control of iOS, and vertical tabs are 52px list rows with the 17px label, at every size. The phone view shows each example at its default size, without the <code>size</code> and <code>pill</code> controls.</p>
 </>} code={sizing} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={sizing} state={{ tab: "overview" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "underline" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+  <VuePhoneRowsDemo stageClassName={STAGE} template={sizing} phoneTemplate={phoneRows(sizing)} phoneStageClassName="w-full" state={{ tab: "overview" }} controls={[{ name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "underline" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Scrollable
 
-<ComponentPreview language="vue" details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={scrollable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={scrollable} state={{ tab: "1" }} controls={[{ name: "variant", type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>When tabs overflow their container, they automatically become horizontally scrollable. The active tab scrolls into view smoothly. No extra prop is needed: just constrain the container width.</>} code={scrollable} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={scrollable} phoneTemplate={phoneRows(scrollable)} phoneStageClassName="w-full" state={{ tab: "1" }} controls={[{ name: "variant", desktopOnly: true, type: "select", options: VARIANTS, default: "segmented" }, { name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Overflow menu
 
-<ComponentPreview language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
-  <VueDemo stageClassName={STAGE} template={overflowMenu} state={{ tab: "code" }} controls={[{ name: "width", label: "container width", type: "select", options: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }, { value: "560", label: "560px" }], default: "360" }]} />
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>With <code>overflow="menu"</code>, the tabs that do not fit stay out of the row and move into a menu at its end, instead of a sideways scroll that a phone does not show. When the active tab is a hidden one, the menu button shows its name and carries the selection. A tab's badge moves into the menu with it. <code>overflow-label</code> sets the button's text (default "More"). Works for horizontal tabs without <code>block</code>.</>} code={overflowMenu} previewMinHeight={PREVIEW_MIN_HEIGHT.control}>
+  <VuePhoneRowsDemo stageClassName={STAGE} template={overflowMenu} phoneTemplate={phoneRows(overflowMenu)} phoneStageClassName="w-full" state={{ tab: "code" }} controls={[{ name: "width", label: "container width", type: "select", options: [{ value: "240", label: "240px" }, { value: "360", label: "360px" }, { value: "560", label: "560px" }], default: "360" }]} />
 </ComponentPreview>
 
 Tabs shares the unified 9-step size scale with Button, Input, Select, and SelectControl.

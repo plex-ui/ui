@@ -1114,7 +1114,7 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 
   test("track and thumb use the kit fills from root tokens, with no thumb shadow", () => {
     const touch = read("styles/touch.css")
-    const block = touch.match(/html \[data-variant="segmented"\]\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
+    const block = touch.match(/html :is\(\[data-variant="segmented"\], \[data-variant="underline"\]\)\[data-orientation="horizontal"\] \{([^}]*)\}/)?.[1] ?? ""
     expect(block).toContain("--segmented-control-background: var(--segmented-control-mobile-background);")
     expect(block).toContain("--segmented-control-thumb-background: var(--segmented-control-mobile-thumb-background);")
     expect(block).toContain("--segmented-control-thumb-shadow: none;")
@@ -1127,9 +1127,57 @@ describe("Segmented Tabs on a phone follow the iOS 26 kit", () => {
 
   test("every segment label is primary and untracked (the system font tracks it); only the weight marks the selection", () => {
     const css = read("components/Tabs/Tabs.module.css")
-    const phone = css.match(/@media \(max-width: 767px\) \{\s*\.Tabs\[data-variant="segmented"\]\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)")).match(/\.Tabs\[data-orientation="horizontal"\] \.Tab \{([^}]*)\}/)?.[1] ?? ""
     expect(phone).toContain("color: var(--color-text);")
     expect(phone).not.toContain("letter-spacing")
     expect(read("styles/touch.css")).not.toContain("--segmented-control-letter-spacing")
+  })
+
+  // iOS switches the views of a screen with the segmented control only; it has no underline tabs.
+  test("horizontal tabs of either variant are the kit control: segments of one width, scrolling when they do not fit", () => {
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\) \{\s*display: inline-grid;\s*grid-auto-columns: minmax\(max-content, 1fr\);\s*grid-auto-flow: column;\s*\}/)
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="horizontal"\]\[data-block\]\) \{\s*display: grid;\s*grid-auto-columns: minmax\(0, 1fr\);\s*\}/)
+    const track = phone.match(/\.Tabs:where\(\[data-variant="underline"\]\[data-orientation="horizontal"\]\) \{([^}]*)\}/)?.[1] ?? ""
+    expect(track).toContain("padding: var(--segmented-control-gutter);")
+    expect(track).toContain("border: 0;")
+    expect(track).toContain("border-radius: var(--segmented-control-radius);")
+    expect(track).toContain("background: var(--segmented-control-background);")
+    const thumb = phone.match(/\.Tabs:where\(\[data-variant="underline"\]\[data-orientation="horizontal"\]\) > \.TabsThumb \{([^}]*)\}/)?.[1] ?? ""
+    expect(thumb).toContain("top: var(--segmented-control-gutter);")
+    expect(thumb).toContain("height: auto;")
+    expect(thumb).toContain("background: var(--segmented-control-thumb-background);")
+  })
+
+  test("vertical tabs are list rows (kit Row 550:50430): 52px, no thumb, the checkmark shows on the selected row only", () => {
+    const css = read("components/Tabs/Tabs.module.css")
+    const phone = css.slice(css.indexOf("@media (max-width: 767px)"))
+    expect(phone).toMatch(/\.Tabs:where\(\[data-orientation="vertical"\]\) > \.TabsThumb \{\s*display: none;\s*\}/)
+    const row = phone.match(/\.Tabs\[data-orientation="vertical"\] \.Tab \{([^}]*)/)?.[1] ?? ""
+    expect(row).toContain("min-height: var(--field-row-min-height, 52px);")
+    expect(row).toContain("padding: 0 var(--mobile-layout-margin, 16px);")
+    expect(row).toContain("font-weight: inherit;")
+    expect(phone).toMatch(/\.Tab > \.TabCheckmark \{\s*display: block;[^}]*visibility: hidden;/)
+    expect(phone).toMatch(/\.Tab\[data-state="on"\] > \.TabCheckmark \{\s*visibility: visible;\s*\}/)
+    // Off a phone the checkmark never shows.
+    expect(css.slice(0, css.indexOf("@media (max-width: 767px)"))).toMatch(/\.Tab > \.TabCheckmark \{\s*display: none;\s*\}/)
+  })
+
+  test("only vertical tabs carry the checkmark, one per tab, hidden from screen readers (React = Vue)", async () => {
+    const vertical = await pairOf({ value: "reports", orientation: "vertical", tabs: SECTIONS })
+    expect(vertical.vue).toBe(vertical.react)
+    expect(vertical.react.match(/TabCheckmark/g)?.length).toBe(SECTIONS.length)
+    const horizontal = await pairOf({ value: "reports", variant: "underline", tabs: SECTIONS })
+    expect(horizontal.vue).toBe(horizontal.react)
+    expect(horizontal.react).not.toContain("TabCheckmark")
+    render(
+      <ReactTabs value="reports" orientation="vertical" aria-label="Sections" onChange={() => {}}>
+        <ReactTabs.Tab value="overview">Overview</ReactTabs.Tab>
+        <ReactTabs.Tab value="reports">Reports</ReactTabs.Tab>
+      </ReactTabs>,
+    )
+    const marks = document.querySelectorAll('button > svg[aria-hidden="true"]:last-child')
+    expect(marks).toHaveLength(2)
   })
 })
