@@ -4877,7 +4877,7 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
 Docs: https://plexui.com/vue/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size.
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size.
     - stroke-width (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)
@@ -5611,9 +5611,6 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
         <InputGroupAddon>
           <InputGroupText>$</InputGroupText>
         </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>USD</InputGroupText>
-        </InputGroupAddon>
       </InputGroup>
     </template>
   </Field>
@@ -5621,7 +5618,7 @@ Put an InputGroupInput and one or more InputGroupAddons inside an InputGroup. Th
 ```
 
 ### Variants
-Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border.
+Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border, and the row places the value: at its end, or, with columns, at one column shared by the group's rows.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
@@ -5640,13 +5637,35 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
 </div>
 
 <!-- Phone -->
-<FieldGroup columns>
-  <Field row label="Website">
+<FieldGroup title="Value at the end">
+  <Field row label="Distance">
     <template #default="control">
       <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupInput v-bind="control" default-value="5" inputmode="decimal" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupText>km</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
+<FieldGroup title="Values in a column" columns>
+  <Field row label="Handle">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="username" autocapitalize="none" spellcheck="false" />
         <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
+          <InputGroupText>@</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </template>
+  </Field>
+  <Field row label="Price">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupAddon>
+          <InputGroupText>€</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
     </template>
@@ -5655,7 +5674,7 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height.
+Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so the Phone preview has one size.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[360px]">
@@ -5675,25 +5694,12 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with th
 
 <!-- Phone -->
 <FieldGroup columns>
-  <Field row label="Website">
+  <Field row label="Domain">
     <template #default="control">
       <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <InputGroupInput v-bind="control" default-value="plexui.com" inputmode="url" autocapitalize="none" spellcheck="false" />
         <InputGroupAddon>
           <InputGroupText>https://</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Amount">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
-        <InputGroupAddon>
-          <InputGroupText>$</InputGroupText>
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>USD</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
     </template>
@@ -5702,7 +5708,7 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with th
 ```
 
 ### Align
-Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position.
+Use align on InputGroupAddon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. On Phone the inline addons stay in the row (see Variants), a block-start text becomes the row's label and a block-end text the group's footer.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
@@ -5733,24 +5739,21 @@ Use align on InputGroupAddon to place it before (inline-start, the default) or a
 </div>
 
 <!-- Phone -->
-<FieldGroup columns>
+<FieldGroup>
+  <Field row label="Full name">
+    <template #default="control">
+      <InputGroup>
+        <InputGroupInput v-bind="control" placeholder="Ada Lovelace" />
+      </InputGroup>
+    </template>
+  </Field>
+</FieldGroup>
+<FieldGroup>
+  <template #footer>Amount in USD</template>
   <Field row label="Amount">
     <template #default="control">
       <InputGroup>
         <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
-        <InputGroupAddon align="inline-start">
-          <InputGroupText>$</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Weight">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0" inputmode="decimal" />
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>kg</InputGroupText>
-        </InputGroupAddon>
       </InputGroup>
     </template>
   </Field>
@@ -5799,35 +5802,12 @@ Use InputGroupText for prefixes, suffixes, units and counters. Clicking text or 
 
 <!-- Phone: a counter is the group's footer. -->
 <FieldGroup columns>
-  <Field row label="Amount">
+  <Field row label="Page">
     <template #default="control">
       <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="0.00" inputmode="decimal" />
+        <InputGroupInput v-bind="control" placeholder="docs" autocapitalize="none" spellcheck="false" />
         <InputGroupAddon>
-          <InputGroupText>$</InputGroupText>
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>USD</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Website">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="acme.com" inputmode="url" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Email">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" placeholder="name" inputmode="email" autocapitalize="none" spellcheck="false" />
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>@plexui.com</InputGroupText>
+          <InputGroupText>plexui.com/</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
     </template>
@@ -5875,7 +5855,7 @@ InputGroupButton is a Button that defaults to ghost and secondary and takes its 
 </div>
 
 <!-- Phone: the main action is the button under the rows. -->
-<FieldGroup columns>
+<FieldGroup>
   <Field row label="Link">
     <template #default="control">
       <InputGroup>
@@ -5892,7 +5872,11 @@ InputGroupButton is a Button that defaults to ghost and secondary and takes its 
     <template #default="control">
       <InputGroup>
         <InputGroupInput v-bind="control" placeholder="Card number" inputmode="numeric" autocomplete="cc-number" />
-
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton uniform aria-label="Scan card">
+            <CameraPhoto />
+          </InputGroupButton>
+        </InputGroupAddon>
       </InputGroup>
     </template>
   </Field>
@@ -6015,7 +5999,7 @@ const unit = ref("kg")
 ```
 
 ### Spinner
-Show a LoadingIndicator in an addon while a value is searched or saved.
+Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[320px]">
@@ -6042,20 +6026,11 @@ Show a LoadingIndicator in an addon while a value is searched or saved.
 
 <!-- Phone -->
 <FieldGroup>
-  <Field row label="Library">
+  <template #footer>Checking availability...</template>
+  <Field row label="Username">
     <template #default="control">
       <InputGroup>
-        <InputGroupInput v-bind="control" default-value="Searching..." readonly />
-        <InputGroupAddon align="inline-end">
-          <LoadingIndicator />
-        </InputGroupAddon>
-      </InputGroup>
-    </template>
-  </Field>
-  <Field row label="Changes">
-    <template #default="control">
-      <InputGroup>
-        <InputGroupInput v-bind="control" default-value="Saving..." readonly />
+        <InputGroupInput v-bind="control" default-value="ada" autocapitalize="none" spellcheck="false" />
         <InputGroupAddon align="inline-end">
           <LoadingIndicator />
         </InputGroupAddon>

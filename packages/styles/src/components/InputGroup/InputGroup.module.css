@@ -255,6 +255,10 @@ textarea.Control {
   color: var(--input-placeholder-text-color);
   user-select: none;
 
+  /* A LoadingIndicator here is the field's accessory: the control's text size, or the touch
+     stylesheet's field size; an explicit size still wins */
+  --indicator-default-size: var(--control-indicator-size, 1em);
+
   > svg {
     flex-shrink: 0;
     width: var(--input-group-icon-size);

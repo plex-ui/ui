@@ -12,6 +12,7 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { LoadingIndicator } from '@plexui/ui/components/Indicator';
 import {
   ArrowUpSm,
+  CameraPhoto,
   ChevronDownMd,
   Copy,
   CreditCard,
@@ -28,7 +29,9 @@ import { PhoneRowsStage, usePhoneRows } from './PhoneRows';
 // its prefix, unit and button sit in the row, the row's label names it, and the row is its frame. The row
 // sets its height, insets and type, so the phone examples drop the desktop size, variant and pill controls.
 // A block addon (a heading or a counter) becomes the row's label or the group's footer. With a prefix the
-// group takes `columns`, so the value starts at the column, as in the Input examples.
+// group takes `columns`, so the value starts at the column, as in the Input examples; without one the value
+// ends at the row's edge with its unit after it ("72 kg"). A row keeps a prefix or a unit, not both: in a
+// column the unit would stand at the far edge, away from its value.
 
 function PhoneWebsiteRow({ disabled, invalid }: { disabled?: boolean; invalid?: boolean }) {
   return (
@@ -53,9 +56,6 @@ function PhoneAmountRow({ disabled }: { disabled?: boolean }) {
           <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
           <InputGroup.Addon>
             <InputGroup.Text>$</InputGroup.Text>
-          </InputGroup.Addon>
-          <InputGroup.Addon align="inline-end">
-            <InputGroup.Text>USD</InputGroup.Text>
           </InputGroup.Addon>
         </InputGroup>
       )}
@@ -178,8 +178,40 @@ export function InputGroupVariantsDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
-        <FieldGroup columns>
-          <PhoneWebsiteRow />
+        {/* The row is the frame and places the value. */}
+        <FieldGroup title="Value at the end">
+          <Field row label="Distance">
+            {(control) => (
+              <InputGroup>
+                <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
+                <InputGroup.Addon align="inline-end">
+                  <InputGroup.Text>km</InputGroup.Text>
+                </InputGroup.Addon>
+              </InputGroup>
+            )}
+          </Field>
+        </FieldGroup>
+        <FieldGroup title="Values in a column" columns>
+          <Field row label="Handle">
+            {(control) => (
+              <InputGroup>
+                <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
+                <InputGroup.Addon>
+                  <InputGroup.Text>@</InputGroup.Text>
+                </InputGroup.Addon>
+              </InputGroup>
+            )}
+          </Field>
+          <Field row label="Price">
+            {(control) => (
+              <InputGroup>
+                <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+                <InputGroup.Addon>
+                  <InputGroup.Text>€</InputGroup.Text>
+                </InputGroup.Addon>
+              </InputGroup>
+            )}
+          </Field>
         </FieldGroup>
       </PhoneRowsStage>
     );
@@ -204,9 +236,18 @@ export function InputGroupSizesDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
+        {/* One size, the 52px row. */}
         <FieldGroup columns>
-          <PhoneWebsiteRow />
-          <PhoneAmountRow />
+          <Field row label="Domain">
+            {(control) => (
+              <InputGroup>
+                <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+                <InputGroup.Addon>
+                  <InputGroup.Text>https://</InputGroup.Text>
+                </InputGroup.Addon>
+              </InputGroup>
+            )}
+          </Field>
         </FieldGroup>
       </PhoneRowsStage>
     );
@@ -243,24 +284,21 @@ export function InputGroupAlignDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
-        <FieldGroup columns>
+        {/* Block-start text is the row's label, block-end text the group's footer. */}
+        <FieldGroup>
+          <Field row label="Full name">
+            {(control) => (
+              <InputGroup>
+                <InputGroup.Input {...control} placeholder="Ada Lovelace" />
+              </InputGroup>
+            )}
+          </Field>
+        </FieldGroup>
+        <FieldGroup footer="Amount in USD">
           <Field row label="Amount">
             {(control) => (
               <InputGroup>
                 <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-                <InputGroup.Addon align="inline-start">
-                  <InputGroup.Text>$</InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-          <Field row label="Weight">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} placeholder="0" inputMode="decimal" />
-                <InputGroup.Addon align="inline-end">
-                  <InputGroup.Text>kg</InputGroup.Text>
-                </InputGroup.Addon>
               </InputGroup>
             )}
           </Field>
@@ -304,15 +342,14 @@ export function InputGroupTextDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
+        {/* A prefix in a row; a counter is the group's footer. */}
         <FieldGroup columns>
-          <PhoneAmountRow />
-          <PhoneWebsiteRow />
-          <Field row label="Email">
+          <Field row label="Page">
             {(control) => (
               <InputGroup>
-                <InputGroup.Input {...control} placeholder="name" inputMode="email" autoCapitalize="none" spellCheck={false} />
-                <InputGroup.Addon align="inline-end">
-                  <InputGroup.Text>@plexui.com</InputGroup.Text>
+                <InputGroup.Input {...control} placeholder="docs" autoCapitalize="none" spellCheck={false} />
+                <InputGroup.Addon>
+                  <InputGroup.Text>plexui.com/</InputGroup.Text>
                 </InputGroup.Addon>
               </InputGroup>
             )}
@@ -390,7 +427,8 @@ export function InputGroupButtonDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
-        <FieldGroup columns>
+        {/* The main action is the button under the rows. */}
+        <FieldGroup>
           <Field row label="Link">
             {(control) => (
               <InputGroup>
@@ -407,6 +445,11 @@ export function InputGroupButtonDemo() {
             {(control) => (
               <InputGroup>
                 <InputGroup.Input {...control} placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+                <InputGroup.Addon align="inline-end">
+                  <InputGroup.Button uniform aria-label="Scan card">
+                    <CameraPhoto />
+                  </InputGroup.Button>
+                </InputGroup.Addon>
               </InputGroup>
             )}
           </Field>
@@ -569,21 +612,12 @@ export function InputGroupSpinnerDemo() {
   if (phone) {
     return (
       <PhoneRowsStage>
-        <FieldGroup>
-          <Field row label="Library">
+        {/* A value being checked; in a field the indicator is the kit's Small 22. */}
+        <FieldGroup footer="Checking availability...">
+          <Field row label="Username">
             {(control) => (
               <InputGroup>
-                <InputGroup.Input {...control} defaultValue="Searching..." readOnly />
-                <InputGroup.Addon align="inline-end">
-                  <LoadingIndicator />
-                </InputGroup.Addon>
-              </InputGroup>
-            )}
-          </Field>
-          <Field row label="Changes">
-            {(control) => (
-              <InputGroup>
-                <InputGroup.Input {...control} defaultValue="Saving..." readOnly />
+                <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
                 <InputGroup.Addon align="inline-end">
                   <LoadingIndicator />
                 </InputGroup.Addon>

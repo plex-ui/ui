@@ -116,7 +116,7 @@ export const dotsColor = `<div class="text-danger">
 
 ### Phone spinner
 
-With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 30px; `size="22px"` selects the small geometry. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
+With the optional [touch stylesheet](/docs/installation), the spinner uses eight rounded spokes. The default size is 30px, and 22px inside a field (an `Input` adornment, an `InputGroup` addon or a `SelectControl`, through `--control-indicator-size`); `size="22px"` selects the small geometry. Explicit sizes, color and animation duration remain configurable. Desktop keeps the circular ring.
 
 <ComponentPreview language="vue" code={`<div class="flex items-center gap-6">
   <LoadingIndicator />
@@ -130,7 +130,7 @@ With the optional [touch stylesheet](/docs/installation), the spinner uses eight
 ### LoadingIndicator
 
 <PropsTable data={[
-  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size." },
+  { prop: "size", type: "number | string", default: '"1em"', description: "Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size." },
   { prop: "stroke-width", type: "number", default: "2", description: "Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px." },
 ]} />
 
@@ -152,7 +152,7 @@ A `style` attribute replaces the size, stroke and color variables these props se
 
 The indicators read these CSS custom properties, each with a fallback. Set them at any scope to restyle the indicators inside it:
 
-- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`, or `30px` with the touch stylesheet)
+- `--indicator-size`: `LoadingIndicator` size (defaults to `1em`, or `30px` with the touch stylesheet and `22px` inside a field)
 - `--indicator-stroke`: ring stroke width (defaults to `2px`) or mobile spoke width (defaults to `4px` at 30px and `3px` at 22px)
 - `--indicator-color`: `LoadingIndicator` color (defaults to `currentcolor`)
 - `--indicator-rotate-duration`: time of one `LoadingIndicator` turn (defaults to `0.8s`)

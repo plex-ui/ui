@@ -1,4 +1,8 @@
 .Container {
+  /* A LoadingIndicator adornment is the field's accessory: the control's text size, or the touch
+     stylesheet's field size; an explicit size still wins */
+  --indicator-default-size: var(--control-indicator-size, 1em);
+
   display: flex;
   align-items: center;
   gap: var(--input-gap);

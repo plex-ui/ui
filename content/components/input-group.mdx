@@ -21,7 +21,7 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 For a single icon or action button inside a plain field, [Input](/components/input) with `startAdornment` / `endAdornment` is enough. Reach for `InputGroup` when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row.
 
-On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight row of the [Form Examples](/components/form-examples): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes `columns`, so the value starts at the column. A header becomes the row's label, a counter or status line the group's `footer`, and a main action the full-width button under the group. The Phone previews show rows without the `size`, `variant` and `pill` controls.
+On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight row of the [Form Examples](/components/form-examples): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes `columns`, so the value starts at the column; without one the value ends at the row's edge with its unit or menu after it, as iOS writes "72 kg". A row keeps a prefix or a unit, not both: in a column the unit would stand at the far edge, away from its value. A header becomes the row's label, a counter or status line the group's `footer`, and a main action the full-width button under the group. The Phone previews show rows without the `size`, `variant` and `pill` controls.
 
 ## Examples
 
@@ -57,9 +57,6 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
         <InputGroup.Addon>
           <InputGroup.Text>$</InputGroup.Text>
         </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>USD</InputGroup.Text>
-        </InputGroup.Addon>
       </InputGroup>
     )}
   </Field>
@@ -69,18 +66,40 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ### Variants
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>. On Phone the row is the frame, so a group in a row keeps the default <code>outline</code>, which the row draws without a border.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>variant</code> to stylize the group, like <code>Input</code>. On Phone the row is the frame, so a group in a row keeps the default <code>outline</code>, which the row draws without a border, and the row places the value: at its end, or, with <code>columns</code>, at one column shared by the group's rows.</>} code={`// Desktop
 <InputGroup variant="outline">...</InputGroup>
 <InputGroup variant="soft">...</InputGroup>
 
-// Phone
-<FieldGroup columns>
-  <Field row label="Website">
+// Phone: the row is the frame and places the value.
+<FieldGroup title="Value at the end">
+  <Field row label="Distance">
     {(control) => (
       <InputGroup>
-        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Text>km</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>
+<FieldGroup title="Values in a column" columns>
+  <Field row label="Handle">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
         <InputGroup.Addon>
-          <InputGroup.Text>https://</InputGroup.Text>
+          <InputGroup.Text>@</InputGroup.Text>
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Price">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Addon>
+          <InputGroup.Text>€</InputGroup.Text>
         </InputGroup.Addon>
       </InputGroup>
     )}
@@ -91,7 +110,7 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ### Sizes
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroup.Button</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so the Phone preview has one size.</>} code={`// Desktop
 <InputGroup size="lg">
   <InputGroup.Input placeholder="Search..." />
   <InputGroup.Addon>
@@ -102,27 +121,14 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   </InputGroup.Addon>
 </InputGroup>
 
-// Phone
+// Phone: one size, the 52px row.
 <FieldGroup columns>
-  <Field row label="Website">
+  <Field row label="Domain">
     {(control) => (
       <InputGroup>
-        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
         <InputGroup.Addon>
           <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-  <Field row label="Amount">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-        <InputGroup.Addon>
-          <InputGroup.Text>$</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>USD</InputGroup.Text>
         </InputGroup.Addon>
       </InputGroup>
     )}
@@ -133,7 +139,7 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ### Align
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Use <code>align</code> on <code>InputGroup.Addon</code> to place it before (<code>inline-start</code>, the default) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it. Place addons after the control in the markup so the tab order starts with the field; <code>align</code> handles the visual position. On Phone the inline addons stay in the row (see Variants), a <code>block-start</code> text becomes the row's label and a <code>block-end</code> text the group's footer.</>} code={`// Desktop
 <InputGroup>
   <InputGroup.Input placeholder="Ada Lovelace" />
   <InputGroup.Addon align="block-start">
@@ -141,25 +147,21 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   </InputGroup.Addon>
 </InputGroup>
 
-// Phone
-<FieldGroup columns>
+// Phone: block-start text is the row's label, block-end text the group's footer.
+<FieldGroup>
+  <Field row label="Full name">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} placeholder="Ada Lovelace" />
+      </InputGroup>
+    )}
+  </Field>
+</FieldGroup>
+<FieldGroup footer="Amount in USD">
   <Field row label="Amount">
     {(control) => (
       <InputGroup>
         <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-        <InputGroup.Addon align="inline-start">
-          <InputGroup.Text>$</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-  <Field row label="Weight">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="0" inputMode="decimal" />
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>kg</InputGroup.Text>
-        </InputGroup.Addon>
       </InputGroup>
     )}
   </Field>
@@ -180,37 +182,14 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
   </InputGroup.Addon>
 </InputGroup>
 
-// Phone: a counter is the group's footer.
+// Phone: a prefix in a row; a counter is the group's footer.
 <FieldGroup columns>
-  <Field row label="Amount">
+  <Field row label="Page">
     {(control) => (
       <InputGroup>
-        <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+        <InputGroup.Input {...control} placeholder="docs" autoCapitalize="none" spellCheck={false} />
         <InputGroup.Addon>
-          <InputGroup.Text>$</InputGroup.Text>
-        </InputGroup.Addon>
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>USD</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-  <Field row label="Website">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon>
-          <InputGroup.Text>https://</InputGroup.Text>
-        </InputGroup.Addon>
-      </InputGroup>
-    )}
-  </Field>
-  <Field row label="Email">
-    {(control) => (
-      <InputGroup>
-        <InputGroup.Input {...control} placeholder="name" inputMode="email" autoCapitalize="none" spellCheck={false} />
-        <InputGroup.Addon align="inline-end">
-          <InputGroup.Text>@plexui.com</InputGroup.Text>
+          <InputGroup.Text>plexui.com/</InputGroup.Text>
         </InputGroup.Addon>
       </InputGroup>
     )}
@@ -235,7 +214,7 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 </InputGroup>
 
 // Phone: the main action is the button under the rows.
-<FieldGroup columns>
+<FieldGroup>
   <Field row label="Link">
     {(control) => (
       <InputGroup>
@@ -252,6 +231,11 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
     {(control) => (
       <InputGroup>
         <InputGroup.Input {...control} placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+        <InputGroup.Addon align="inline-end">
+          <InputGroup.Button uniform aria-label="Scan card">
+            <CameraPhoto />
+          </InputGroup.Button>
+        </InputGroup.Addon>
       </InputGroup>
     )}
   </Field>
@@ -262,73 +246,109 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ### Dropdown
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap an <code>InputGroup.Button</code> in a <a href="/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={`const UNITS = [
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap an <code>InputGroup.Button</code> in a <a href="/components/menu"><code>Menu</code></a> to pick a unit of measurement next to the value.</>} code={`const WEIGHT_UNITS = [
   { value: "kg", label: "Kilograms" },
   { value: "lb", label: "Pounds" },
   { value: "st", label: "Stones" },
 ]
-const [unit, setUnit] = useState("kg")
+const LENGTH_UNITS = [
+  { value: "cm", label: "Centimeters" },
+  { value: "m", label: "Meters" },
+  { value: "in", label: "Inches" },
+  { value: "ft", label: "Feet" },
+]
+const [weightUnit, setWeightUnit] = useState("kg")
+const [lengthUnit, setLengthUnit] = useState("cm")
 
-// Desktop
-return (
-  <InputGroup>
-    <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
-    <InputGroup.Addon>
-      <InputGroup.Text>Weight</InputGroup.Text>
-    </InputGroup.Addon>
-    <InputGroup.Addon align="inline-end">
-      <Menu>
-        <Menu.Trigger>
-          <InputGroup.Button aria-label="Weight unit">
-            {unit}
-            <ChevronDownMd />
-          </InputGroup.Button>
-        </Menu.Trigger>
-        <Menu.Content align="end" minWidth={160}>
-          {UNITS.map((item) => (
-            <Menu.CheckboxItem
-              key={item.value}
-              checked={unit === item.value}
-              onCheckedChange={() => setUnit(item.value)}
-              indicatorVariant="ghost"
-            >
-              {item.label} ({item.value})
-            </Menu.CheckboxItem>
-          ))}
-        </Menu.Content>
-      </Menu>
-    </InputGroup.Addon>
-  </InputGroup>
+// Desktop: the unit is a button with a menu at the end of the field.
+const unitMenu = (units, unit, setUnit, label) => (
+  <Menu>
+    <Menu.Trigger>
+      <InputGroup.Button aria-label={\`\${label} unit\`}>
+        {unit}
+        <ChevronDownMd />
+      </InputGroup.Button>
+    </Menu.Trigger>
+    <Menu.Content align="end" minWidth={160}>
+      {units.map((item) => (
+        <Menu.CheckboxItem
+          key={item.value}
+          checked={unit === item.value}
+          onCheckedChange={() => setUnit(item.value)}
+          indicatorVariant="ghost"
+        >
+          {item.label} ({item.value})
+        </Menu.CheckboxItem>
+      ))}
+    </Menu.Content>
+  </Menu>
 )
 
-// Phone
+return (
+  <>
+    <InputGroup>
+      <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
+      <InputGroup.Addon>
+        <InputGroup.Text>Weight</InputGroup.Text>
+      </InputGroup.Addon>
+      <InputGroup.Addon align="inline-end">
+        {unitMenu(WEIGHT_UNITS, weightUnit, setWeightUnit, "Weight")}
+      </InputGroup.Addon>
+    </InputGroup>
+    <InputGroup>
+      <InputGroup.Input defaultValue="180" inputMode="decimal" aria-label="Height" />
+      <InputGroup.Addon>
+        <InputGroup.Text>Height</InputGroup.Text>
+      </InputGroup.Addon>
+      <InputGroup.Addon align="inline-end">
+        {unitMenu(LENGTH_UNITS, lengthUnit, setLengthUnit, "Height")}
+      </InputGroup.Addon>
+    </InputGroup>
+  </>
+)
+
+// Phone: the label names the value; the unit after it is a pop-up button in the accessory tone.
+const phoneUnitMenu = (units, unit, setUnit) => (
+  <Menu>
+    <Menu.Trigger>
+      <InputGroup.Button aria-label={\`Unit: \${unit}\`} className="text-secondary font-normal">
+        {unit}
+        <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
+      </InputGroup.Button>
+    </Menu.Trigger>
+    <Menu.Content align="end" minWidth="auto">
+      {units.map((item) => (
+        <Menu.CheckboxItem
+          key={item.value}
+          checked={unit === item.value}
+          onCheckedChange={() => setUnit(item.value)}
+          indicatorPosition="start"
+          indicatorVariant="ghost"
+        >
+          {item.label}
+        </Menu.CheckboxItem>
+      ))}
+    </Menu.Content>
+  </Menu>
+)
+
 <FieldGroup>
   <Field row label="Weight">
     {(control) => (
       <InputGroup>
         <InputGroup.Input {...control} defaultValue="72" inputMode="decimal" />
         <InputGroup.Addon align="inline-end">
-          <Menu>
-            <Menu.Trigger>
-              <InputGroup.Button aria-label={\`Unit: \${weightUnit}\`} className="text-secondary font-normal">
-                {weightUnit}
-                <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
-              </InputGroup.Button>
-            </Menu.Trigger>
-            <Menu.Content align="end" minWidth="auto">
-              {units.map((unit) => (
-                <Menu.CheckboxItem
-                  key={unit.value}
-                  checked={weightUnit === unit.value}
-                  onCheckedChange={() => setWeightUnit(unit.value)}
-                  indicatorPosition="start"
-                  indicatorVariant="ghost"
-                >
-                  {unit.label}
-                </Menu.CheckboxItem>
-              ))}
-            </Menu.Content>
-          </Menu>
+          {phoneUnitMenu(WEIGHT_UNITS, weightUnit, setWeightUnit)}
+        </InputGroup.Addon>
+      </InputGroup>
+    )}
+  </Field>
+  <Field row label="Height">
+    {(control) => (
+      <InputGroup>
+        <InputGroup.Input {...control} defaultValue="180" inputMode="decimal" />
+        <InputGroup.Addon align="inline-end">
+          {phoneUnitMenu(LENGTH_UNITS, lengthUnit, setLengthUnit)}
         </InputGroup.Addon>
       </InputGroup>
     )}
@@ -339,7 +359,7 @@ return (
 
 ### Spinner
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched or saved.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Show a <a href="/components/indicators"><code>LoadingIndicator</code></a> in an addon while a value is searched, checked or saved. On a phone with <code>touch.css</code> an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px.</>} code={`// Desktop
 <InputGroup>
   <InputGroup.Input defaultValue="Saving changes" readOnly />
   <InputGroup.Addon align="inline-end">
@@ -348,12 +368,12 @@ return (
   </InputGroup.Addon>
 </InputGroup>
 
-// Phone
-<FieldGroup>
-  <Field row label="Library">
+// Phone: a value being checked; in a field the indicator is the kit's Small 22.
+<FieldGroup footer="Checking availability...">
+  <Field row label="Username">
     {(control) => (
       <InputGroup>
-        <InputGroup.Input {...control} defaultValue="Searching..." readOnly />
+        <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
         <InputGroup.Addon align="inline-end">
           <LoadingIndicator />
         </InputGroup.Addon>

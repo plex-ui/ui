@@ -652,9 +652,10 @@
 
 /* Shares margin offset with dropdown indicator */
 .LoadingIndicator {
-  /* Embedded loading follows the control's text size; standalone touch
-     indicators keep their larger default and explicit sizes still win. */
-  --indicator-default-size: 1em;
+  /* Embedded loading follows the control's text size, or the touch stylesheet's
+     field size; standalone touch indicators keep their larger default and explicit
+     sizes still win. */
+  --indicator-default-size: var(--control-indicator-size, 1em);
 
   margin-right: var(--dropdown-icon-offset);
 

@@ -359,6 +359,9 @@
     --indicator-ring-display: none;
     --indicator-spoke-display: block;
     --indicator-rotate-timing: steps(8, end);
+    /* In a field (an Input adornment, an InputGroup addon, a SelectControl) the indicator is the kit's Small 22
+       (Progress indicator 5425:3443), the size of the field's accessory, not the standalone 30. */
+    --control-indicator-size: 22px;
 
     /* Clear targets occupy layout space; their glyphs keep the existing paint size. */
     --input-control-min-width: 0px;

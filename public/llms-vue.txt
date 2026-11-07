@@ -520,7 +520,7 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/vue/components/Indicator"
 Docs: https://plexui.com/vue/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size.
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size.
     - stroke-width (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)

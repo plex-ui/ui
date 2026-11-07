@@ -4905,7 +4905,7 @@ Loading and progress indicators, from circular spinners and determinate progress
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
 Docs: https://plexui.com/components/indicators
   LoadingIndicator:
-    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet. Also accepts --indicator-size.
+    - size (number | string) default: "1em" — Size in px or any CSS length. Defaults to 30px with the optional touch stylesheet, 22px inside a field. Also accepts --indicator-size.
     - strokeWidth (number) default: 2 — Ring stroke or mobile spoke width in px. Mobile defaults to 4px at 30px and 3px at 22px.
   CircularProgress:
     - progress (number) — Static progress 0-100 (disables the simulated animation)
@@ -5048,9 +5048,6 @@ Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. 
       <InputGroup.Addon>
         <InputGroup.Text>$</InputGroup.Text>
       </InputGroup.Addon>
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>USD</InputGroup.Text>
-      </InputGroup.Addon>
     </InputGroup>
   )}
 </Field>
@@ -5058,20 +5055,42 @@ Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. 
 ```
 
 ### Variants
-Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border.
+Use variant to stylize the group, like Input. On Phone the row is the frame, so a group in a row keeps the default outline, which the row draws without a border, and the row places the value: at its end, or, with columns, at one column shared by the group's rows.
 ```tsx
 // Desktop
 <InputGroup variant="outline">...</InputGroup>
 <InputGroup variant="soft">...</InputGroup>
 
-// Phone
-<FieldGroup columns>
-<Field row label="Website">
+// Phone: the row is the frame and places the value.
+<FieldGroup title="Value at the end">
+<Field row label="Distance">
   {(control) => (
     <InputGroup>
-      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Input {...control} defaultValue="5" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>km</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
+<FieldGroup title="Values in a column" columns>
+<Field row label="Handle">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="username" autoCapitalize="none" spellCheck={false} />
       <InputGroup.Addon>
-        <InputGroup.Text>https://</InputGroup.Text>
+        <InputGroup.Text>@</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Price">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon>
+        <InputGroup.Text>€</InputGroup.Text>
       </InputGroup.Addon>
     </InputGroup>
   )}
@@ -5080,7 +5099,7 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height.
+Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height: the iOS 26 field is one 52px row, so the Phone preview has one size.
 ```tsx
 // Desktop
 <InputGroup size="lg">
@@ -5093,27 +5112,14 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with t
 </InputGroup.Addon>
 </InputGroup>
 
-// Phone
+// Phone: one size, the 52px row.
 <FieldGroup columns>
-<Field row label="Website">
+<Field row label="Domain">
   {(control) => (
     <InputGroup>
-      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
+      <InputGroup.Input {...control} defaultValue="plexui.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
       <InputGroup.Addon>
         <InputGroup.Text>https://</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Amount">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-      <InputGroup.Addon>
-        <InputGroup.Text>$</InputGroup.Text>
-      </InputGroup.Addon>
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>USD</InputGroup.Text>
       </InputGroup.Addon>
     </InputGroup>
   )}
@@ -5122,7 +5128,7 @@ Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with t
 ```
 
 ### Align
-Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position.
+Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. On Phone the inline addons stay in the row (see Variants), a block-start text becomes the row's label and a block-end text the group's footer.
 ```tsx
 // Desktop
 <InputGroup>
@@ -5132,25 +5138,21 @@ Use align on InputGroup.Addon to place it before (inline-start, the default) or 
 </InputGroup.Addon>
 </InputGroup>
 
-// Phone
-<FieldGroup columns>
+// Phone: block-start text is the row's label, block-end text the group's footer.
+<FieldGroup>
+<Field row label="Full name">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} placeholder="Ada Lovelace" />
+    </InputGroup>
+  )}
+</Field>
+</FieldGroup>
+<FieldGroup footer="Amount in USD">
 <Field row label="Amount">
   {(control) => (
     <InputGroup>
       <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
-      <InputGroup.Addon align="inline-start">
-        <InputGroup.Text>$</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Weight">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="0" inputMode="decimal" />
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>kg</InputGroup.Text>
-      </InputGroup.Addon>
     </InputGroup>
   )}
 </Field>
@@ -5171,37 +5173,14 @@ Use InputGroup.Text for prefixes, suffixes, units and counters. Clicking text or
 </InputGroup.Addon>
 </InputGroup>
 
-// Phone: a counter is the group's footer.
+// Phone: a prefix in a row; a counter is the group's footer.
 <FieldGroup columns>
-<Field row label="Amount">
+<Field row label="Page">
   {(control) => (
     <InputGroup>
-      <InputGroup.Input {...control} placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Input {...control} placeholder="docs" autoCapitalize="none" spellCheck={false} />
       <InputGroup.Addon>
-        <InputGroup.Text>$</InputGroup.Text>
-      </InputGroup.Addon>
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>USD</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Website">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="acme.com" inputMode="url" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon>
-        <InputGroup.Text>https://</InputGroup.Text>
-      </InputGroup.Addon>
-    </InputGroup>
-  )}
-</Field>
-<Field row label="Email">
-  {(control) => (
-    <InputGroup>
-      <InputGroup.Input {...control} placeholder="name" inputMode="email" autoCapitalize="none" spellCheck={false} />
-      <InputGroup.Addon align="inline-end">
-        <InputGroup.Text>@plexui.com</InputGroup.Text>
+        <InputGroup.Text>plexui.com/</InputGroup.Text>
       </InputGroup.Addon>
     </InputGroup>
   )}
@@ -5226,7 +5205,7 @@ InputGroup.Button is a Button that defaults to ghost and secondary and takes its
 </InputGroup>
 
 // Phone: the main action is the button under the rows.
-<FieldGroup columns>
+<FieldGroup>
 <Field row label="Link">
   {(control) => (
     <InputGroup>
@@ -5243,6 +5222,11 @@ InputGroup.Button is a Button that defaults to ghost and secondary and takes its
   {(control) => (
     <InputGroup>
       <InputGroup.Input {...control} placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Button uniform aria-label="Scan card">
+          <CameraPhoto />
+        </InputGroup.Button>
+      </InputGroup.Addon>
     </InputGroup>
   )}
 </Field>
@@ -5253,73 +5237,109 @@ InputGroup.Button is a Button that defaults to ghost and secondary and takes its
 ### Dropdown
 Wrap an InputGroup.Button in a Menu to pick a unit of measurement next to the value.
 ```tsx
-const UNITS = [
+const WEIGHT_UNITS = [
 { value: "kg", label: "Kilograms" },
 { value: "lb", label: "Pounds" },
 { value: "st", label: "Stones" },
 ]
-const [unit, setUnit] = useState("kg")
+const LENGTH_UNITS = [
+{ value: "cm", label: "Centimeters" },
+{ value: "m", label: "Meters" },
+{ value: "in", label: "Inches" },
+{ value: "ft", label: "Feet" },
+]
+const [weightUnit, setWeightUnit] = useState("kg")
+const [lengthUnit, setLengthUnit] = useState("cm")
 
-// Desktop
-return (
-<InputGroup>
-  <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
-  <InputGroup.Addon>
-    <InputGroup.Text>Weight</InputGroup.Text>
-  </InputGroup.Addon>
-  <InputGroup.Addon align="inline-end">
-    <Menu>
-      <Menu.Trigger>
-        <InputGroup.Button aria-label="Weight unit">
-          {unit}
-          <ChevronDownMd />
-        </InputGroup.Button>
-      </Menu.Trigger>
-      <Menu.Content align="end" minWidth={160}>
-        {UNITS.map((item) => (
-          <Menu.CheckboxItem
-            key={item.value}
-            checked={unit === item.value}
-            onCheckedChange={() => setUnit(item.value)}
-            indicatorVariant="ghost"
-          >
-            {item.label} ({item.value})
-          </Menu.CheckboxItem>
-        ))}
-      </Menu.Content>
-    </Menu>
-  </InputGroup.Addon>
-</InputGroup>
+// Desktop: the unit is a button with a menu at the end of the field.
+const unitMenu = (units, unit, setUnit, label) => (
+<Menu>
+  <Menu.Trigger>
+    <InputGroup.Button aria-label={`${label} unit`}>
+      {unit}
+      <ChevronDownMd />
+    </InputGroup.Button>
+  </Menu.Trigger>
+  <Menu.Content align="end" minWidth={160}>
+    {units.map((item) => (
+      <Menu.CheckboxItem
+        key={item.value}
+        checked={unit === item.value}
+        onCheckedChange={() => setUnit(item.value)}
+        indicatorVariant="ghost"
+      >
+        {item.label} ({item.value})
+      </Menu.CheckboxItem>
+    ))}
+  </Menu.Content>
+</Menu>
 )
 
-// Phone
+return (
+<>
+  <InputGroup>
+    <InputGroup.Input defaultValue="72" inputMode="decimal" aria-label="Weight" />
+    <InputGroup.Addon>
+      <InputGroup.Text>Weight</InputGroup.Text>
+    </InputGroup.Addon>
+    <InputGroup.Addon align="inline-end">
+      {unitMenu(WEIGHT_UNITS, weightUnit, setWeightUnit, "Weight")}
+    </InputGroup.Addon>
+  </InputGroup>
+  <InputGroup>
+    <InputGroup.Input defaultValue="180" inputMode="decimal" aria-label="Height" />
+    <InputGroup.Addon>
+      <InputGroup.Text>Height</InputGroup.Text>
+    </InputGroup.Addon>
+    <InputGroup.Addon align="inline-end">
+      {unitMenu(LENGTH_UNITS, lengthUnit, setLengthUnit, "Height")}
+    </InputGroup.Addon>
+  </InputGroup>
+</>
+)
+
+// Phone: the label names the value; the unit after it is a pop-up button in the accessory tone.
+const phoneUnitMenu = (units, unit, setUnit) => (
+<Menu>
+  <Menu.Trigger>
+    <InputGroup.Button aria-label={`Unit: ${unit}`} className="text-secondary font-normal">
+      {unit}
+      <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
+    </InputGroup.Button>
+  </Menu.Trigger>
+  <Menu.Content align="end" minWidth="auto">
+    {units.map((item) => (
+      <Menu.CheckboxItem
+        key={item.value}
+        checked={unit === item.value}
+        onCheckedChange={() => setUnit(item.value)}
+        indicatorPosition="start"
+        indicatorVariant="ghost"
+      >
+        {item.label}
+      </Menu.CheckboxItem>
+    ))}
+  </Menu.Content>
+</Menu>
+)
+
 <FieldGroup>
 <Field row label="Weight">
   {(control) => (
     <InputGroup>
       <InputGroup.Input {...control} defaultValue="72" inputMode="decimal" />
       <InputGroup.Addon align="inline-end">
-        <Menu>
-          <Menu.Trigger>
-            <InputGroup.Button aria-label={`Unit: ${weightUnit}`} className="text-secondary font-normal">
-              {weightUnit}
-              <span className="ms-1"><DropdownIcon iconType="dropdown" /></span>
-            </InputGroup.Button>
-          </Menu.Trigger>
-          <Menu.Content align="end" minWidth="auto">
-            {units.map((unit) => (
-              <Menu.CheckboxItem
-                key={unit.value}
-                checked={weightUnit === unit.value}
-                onCheckedChange={() => setWeightUnit(unit.value)}
-                indicatorPosition="start"
-                indicatorVariant="ghost"
-              >
-                {unit.label}
-              </Menu.CheckboxItem>
-            ))}
-          </Menu.Content>
-        </Menu>
+        {phoneUnitMenu(WEIGHT_UNITS, weightUnit, setWeightUnit)}
+      </InputGroup.Addon>
+    </InputGroup>
+  )}
+</Field>
+<Field row label="Height">
+  {(control) => (
+    <InputGroup>
+      <InputGroup.Input {...control} defaultValue="180" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        {phoneUnitMenu(LENGTH_UNITS, lengthUnit, setLengthUnit)}
       </InputGroup.Addon>
     </InputGroup>
   )}
@@ -5328,7 +5348,7 @@ return (
 ```
 
 ### Spinner
-Show a LoadingIndicator in an addon while a value is searched or saved.
+Show a LoadingIndicator in an addon while a value is searched, checked or saved. On a phone with touch.css an indicator in a field is 22px, the iOS 26 small indicator, instead of the standalone 30px.
 ```tsx
 // Desktop
 <InputGroup>
@@ -5339,12 +5359,12 @@ Show a LoadingIndicator in an addon while a value is searched or saved.
 </InputGroup.Addon>
 </InputGroup>
 
-// Phone
-<FieldGroup>
-<Field row label="Library">
+// Phone: a value being checked; in a field the indicator is the kit's Small 22.
+<FieldGroup footer="Checking availability...">
+<Field row label="Username">
   {(control) => (
     <InputGroup>
-      <InputGroup.Input {...control} defaultValue="Searching..." readOnly />
+      <InputGroup.Input {...control} defaultValue="ada" autoCapitalize="none" spellCheck={false} />
       <InputGroup.Addon align="inline-end">
         <LoadingIndicator />
       </InputGroup.Addon>

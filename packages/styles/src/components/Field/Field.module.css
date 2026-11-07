@@ -664,8 +664,11 @@
     }
   }
 
-  /* Trailing units share the accessory tone; the input and the button keep their own disabled states. */
+  /* Trailing units share the accessory tone; the input and the button keep their own disabled states.
+     An InputGroup's inline addons (a prefix, a unit, an icon, an indicator) take it too, as Input's
+     prefix and unit do; the kit's indicator is Labels/Secondary. */
   .Field:where([data-row]) .Control > [data-slot="input"]:not([data-disabled]) > span:global(.text-secondary):last-child,
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"]:not([data-disabled]) > [data-align^="inline"],
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"] > [data-align="inline-end"] > button:last-child:not([data-uniform], [disabled], [data-disabled], [aria-disabled="true"]) {
     color: var(--mobile-accessory-secondary, var(--color-text-secondary));
   }
