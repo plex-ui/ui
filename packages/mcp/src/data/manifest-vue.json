@@ -2558,12 +2558,12 @@
         {
           "name": "Sizing",
           "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
-          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props."
+          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from sm to 2xl and 50px at 3xl, with the 17px text of iOS. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows)."
         },
         {
           "name": "Horizontal layout",
           "code": "<div class=\"w-full max-w-[480px] flex flex-col gap-4\">\n  <Field label=\"First name\" :orientation=\"orientation\">\n    <Input placeholder=\"Jane\" />\n  </Field>\n  <Field label=\"Last name\" :orientation=\"orientation\">\n    <Input placeholder=\"Doe\" />\n  </Field>\n</div>",
-          "details": "Use orientation=\"horizontal\" to render the label beside the control instead of above it."
+          "details": "Use orientation=\"horizontal\" to render the label beside the control instead of above it. On a phone with touch.css the control narrows to the width its label leaves, instead of running past the screen at its 240px (--field-horizontal-control-flex). For a form on a phone, rows are the iOS layout: see Rows below."
         },
         {
           "name": "Rows",
@@ -2627,7 +2627,7 @@
         {
           "name": "Optical alignment",
           "code": "<div class=\"w-full min-w-0 max-w-[400px]\">\n  <div class=\"border border-dashed border-alpha/20 rounded-md py-6 px-8\">\n    <div class=\"mb-5 text-secondary text-sm\">\n      {{ opticallyAlign ? 'optically-align=\"start\"' : 'Default' }}\n    </div>\n    <div class=\"flex flex-col gap-5\">\n      <Field label=\"Full name\" :optically-align=\"opticallyAlign ? 'start' : undefined\">\n        <Input placeholder=\"Jane Doe\" :pill=\"pill\" />\n      </Field>\n      <Field\n        label=\"Email\"\n        description=\"We'll never share your email.\"\n        error-message=\"Please enter a valid email address.\"\n        required\n        :optically-align=\"opticallyAlign ? 'start' : undefined\"\n      >\n        <Input placeholder=\"jane@example.com\" :pill=\"pill\" />\n      </Field>\n    </div>\n    <Button class=\"mt-6\" color=\"primary\" variant=\"soft\" :pill=\"pill\">Submit</Button>\n  </div>\n</div>",
-          "details": "Use optically-align=\"start\" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it."
+          "details": "Use optically-align=\"start\" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it. The phone view leaves out the pill control, as the Input page leaves out its own."
         },
         {
           "name": "Form example",
@@ -7693,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T01:28:49.417Z"
+  "generatedAt": "2026-11-07T01:55:32.943Z"
 }

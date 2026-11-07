@@ -3702,7 +3702,7 @@ Use required to show a visual asterisk after the label. This is purely visual an
 ```
 
 ### Sizing
-The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props.
+The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from sm to 2xl and 50px at 3xl, with the 17px text of iOS. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
 ```vue
 <div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
   <Field
@@ -3719,7 +3719,7 @@ The label and description scale with the child control: Field reads the control'
 ```
 
 ### Horizontal layout
-Use orientation="horizontal" to render the label beside the control instead of above it.
+Use orientation="horizontal" to render the label beside the control instead of above it. On a phone with touch.css the control narrows to the width its label leaves, instead of running past the screen at its 240px (--field-horizontal-control-flex). For a form on a phone, rows are the iOS layout: see Rows below.
 ```vue
 <div class="w-full max-w-[480px] flex flex-col gap-4">
   <Field label="First name" :orientation="orientation">
@@ -3938,7 +3938,7 @@ Combine required and error-message for client-side validation feedback. Toggle e
 ```
 
 ### Optical alignment
-Use optically-align="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it.
+Use optically-align="start" to apply a negative margin on the child control, aligning its text with the surrounding content. Works with pill inputs. The label, description, and error message stay at the container edge while the control extends past it. The phone view leaves out the pill control, as the Input page leaves out its own.
 ```vue
 <div class="w-full min-w-0 max-w-[400px]">
   <div class="border border-dashed border-alpha/20 rounded-md py-6 px-8">

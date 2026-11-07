@@ -367,6 +367,9 @@
     --mobile-field-error-icon-gap: 4px;
     --mobile-field-error-icon-display: none;
     --mobile-field-error-margin-bottom: 0px;
+    /* A label beside its control: the control narrows to what the label leaves instead of
+       running past a phone's screen at its 240px (120 + gap + 240 is wider than 358). */
+    --field-horizontal-control-flex: 0 1 auto;
 
     --field-row-min-height: 52px;
     --field-row-padding-block: 4px;

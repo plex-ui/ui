@@ -42,8 +42,9 @@
 }
 
 .Field:where([data-orientation="horizontal"]) .Content {
-  flex-shrink: 0;
+  flex: var(--field-horizontal-control-flex, 0 0 auto);
   width: var(--field-horizontal-control-width);
+  min-width: 0;
 }
 
 /* =============================================

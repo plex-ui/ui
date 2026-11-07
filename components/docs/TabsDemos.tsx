@@ -9,18 +9,12 @@ import {
 import { Tabs } from '@plexui/ui/components/Tabs';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
-import { usePhoneRows } from './PhoneRows';
+import { useDesktopOnlyState } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 const VARIANT_OPTIONS = ['segmented', 'underline'] as const;
 const ORIENTATION_OPTIONS = ['horizontal', 'vertical'] as const;
 
-/** A size or pill control is desktop-only: on a phone, where it is hidden, the demo shows its initial value. */
-function useDesktopOnlyState<T>(initial: T) {
-  const phone = usePhoneRows();
-  const [value, setValue] = useState(initial);
-  return [value, setValue, phone ? initial : value] as const;
-}
 
 // ─── Overview demo with all controls ───
 export function TabsOverviewDemo() {

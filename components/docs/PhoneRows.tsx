@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { phoneRowsClassName } from './phoneRowsTemplate';
 import { usePhoneViewport } from './PreviewEmbed';
@@ -12,6 +12,13 @@ export function usePhoneRows() {
   const preview = usePhoneViewport();
   const wide = useBreakpoint('md');
   return preview || !wide;
+}
+
+/** A size or pill control is desktop-only: on a phone, where it is hidden, the demo shows its initial value. */
+export function useDesktopOnlyState<T>(initial: T) {
+  const phone = usePhoneRows();
+  const [value, setValue] = useState(initial);
+  return [value, setValue, phone ? initial : value] as const;
 }
 
 /** The grouped surface and 16px screen gutters around phone rows; pair with `PhoneRowsPreview` on the preview. */

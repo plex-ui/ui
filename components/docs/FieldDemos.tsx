@@ -30,20 +30,21 @@ const Slider = dynamic(
 );
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
+import { useDesktopOnlyState } from './PhoneRows';
 
 const SIZE_OPTIONS = ['3xs', '2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
 
 export function FieldOverviewDemo() {
-  const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
+  const [size, setSize, shownSize] = useDesktopOnlyState<(typeof SIZE_OPTIONS)[number]>('md');
   const [description, setDescription] = useState(true);
   const [error, setError] = useState(true);
   const [required, setRequired] = useState(true);
   const [horizontal, setHorizontal] = useState(false);
-  const [pill, setPill] = useState(false);
+  const [pill, setPill, shownPill] = useDesktopOnlyState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
             value={size}
             onChange={setSize}
@@ -57,7 +58,7 @@ export function FieldOverviewDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
         <DemoControlBoolean name="description" value={description} onChange={setDescription} />
         <DemoControlBoolean name="errorMessage" value={error} onChange={setError} />
         <DemoControlBoolean name="required" value={required} onChange={setRequired} />
@@ -67,13 +68,13 @@ export function FieldOverviewDemo() {
         <div className={horizontal ? "w-full max-w-[480px]" : "w-full max-w-[320px]"}>
           <Field
             label="Email"
-            size={size}
+            size={shownSize}
             description={description ? "We'll never share your email with anyone else." : undefined}
             errorMessage={error ? "Please enter a valid email address." : undefined}
             required={required}
             orientation={horizontal ? "horizontal" : "vertical"}
           >
-            <Input placeholder="Enter email..." size={size} pill={pill} />
+            <Input placeholder="Enter email..." size={shownSize} pill={shownPill} />
           </Field>
         </div>
       </div>
@@ -523,13 +524,13 @@ export function FieldFormExampleDemo() {
 
 export function FieldOpticalAlignDemo() {
   const [opticallyAlign, setOpticallyAlign] = useState(true);
-  const [pill, setPill] = useState(false);
+  const [pill, setPill, shownPill] = useDesktopOnlyState(false);
 
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="opticallyAlign" value={opticallyAlign} onChange={setOpticallyAlign} />
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
       </div>
       <div data-demo-stage className="py-10">
         <div className="w-full min-w-0 max-w-[400px]">
@@ -542,7 +543,7 @@ export function FieldOpticalAlignDemo() {
                 label="Full name"
                 opticallyAlign={opticallyAlign ? "start" : undefined}
               >
-                <Input placeholder="Jane Doe" pill={pill} />
+                <Input placeholder="Jane Doe" pill={shownPill} />
               </Field>
               <Field
                 label="Email"
@@ -551,14 +552,14 @@ export function FieldOpticalAlignDemo() {
                 required
                 opticallyAlign={opticallyAlign ? "start" : undefined}
               >
-                <Input placeholder="jane@example.com" pill={pill} />
+                <Input placeholder="jane@example.com" pill={shownPill} />
               </Field>
             </div>
             <Button
               className="mt-6"
               color="primary"
               variant="soft"
-              pill={pill}
+              pill={shownPill}
             >
               Submit
             </Button>
