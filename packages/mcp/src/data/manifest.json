@@ -3920,12 +3920,12 @@
         {
           "name": "Horizontal (icons only)",
           "code": "<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content layout=\"horizontal\" size=\"md\" minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><EditPencil /><span className=\"sr-only\">Edit</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><SettingsCog /><span className=\"sr-only\">Settings</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><Play /><span className=\"sr-only\">Play</span></Menu.Item>\n  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /><span className=\"sr-only\">Expand</span></Menu.Item>\n</Menu.Content>\n</Menu>",
-          "details": "Set layout=\"horizontal\" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action."
+          "details": "Set layout=\"horizontal\" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
         },
         {
           "name": "Horizontal (icons with labels)",
           "code": "<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" size=\"lg\" variant=\"ghost\">Actions <ChevronDownMd /></Button>\n</Menu.Trigger>\n<Menu.Content layout=\"horizontal\" size=\"md\" minWidth=\"auto\">\n  <Menu.Item onSelect={() => {}}><EditPencil /> Edit</Menu.Item>\n  <Menu.Item onSelect={() => {}}><SettingsCog /> Settings</Menu.Item>\n  <Menu.Item onSelect={() => {}}><Play /> Play</Menu.Item>\n  <Menu.Item onSelect={() => {}}><UnfoldHorizontal /> Expand</Menu.Item>\n</Menu.Content>\n</Menu>",
-          "details": "Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item."
+          "details": "Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control."
         },
         {
           "name": "Grouped items",
@@ -3940,12 +3940,12 @@
         {
           "name": "Checkbox items",
           "code": "const [settings, setSettings] = useState({\nshowGrid: true,\nshowLabels: false,\nenableShadows: false,\n})\n\nreturn (\n<Menu>\n  <Menu.Trigger>\n    <Button variant=\"ghost\" color=\"primary\">\n      Checkbox menu <ChevronDownMd />\n    </Button>\n  </Menu.Trigger>\n  <Menu.Content minWidth={200}>\n    <Menu.CheckboxItem\n      checked={settings.showGrid}\n      onCheckedChange={(checked) => setSettings((s) => ({ ...s, showGrid: checked }))}\n      onSelect={(evt) => evt.preventDefault()}\n      indicatorPosition=\"end\"\n      indicatorVariant=\"solid\"\n    >\n      Show grid lines\n    </Menu.CheckboxItem>\n    <Menu.CheckboxItem\n      checked={settings.showLabels}\n      onCheckedChange={(checked) => setSettings((s) => ({ ...s, showLabels: checked }))}\n      onSelect={(evt) => evt.preventDefault()}\n      indicatorPosition=\"end\"\n      indicatorVariant=\"solid\"\n    >\n      Display labels\n    </Menu.CheckboxItem>\n    <Menu.CheckboxItem\n      checked={settings.enableShadows}\n      onCheckedChange={(checked) => setSettings((s) => ({ ...s, enableShadows: checked }))}\n      onSelect={(evt) => evt.preventDefault()}\n      indicatorPosition=\"end\"\n      indicatorVariant=\"solid\"\n    >\n      Enable shadows\n    </Menu.CheckboxItem>\n  </Menu.Content>\n</Menu>\n)",
-          "details": "Use Menu.CheckboxItem with checked, onCheckedChange, and {\"onSelect={(evt) => evt.preventDefault()}\"} to keep the menu open."
+          "details": "Use Menu.CheckboxItem with checked, onCheckedChange, and {\"onSelect={(evt) => evt.preventDefault()}\"} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls."
         },
         {
           "name": "Radio items",
           "code": "const [value, setValue] = useState(\"any\")\n\n<Menu>\n<Menu.Trigger>\n  <Button color=\"primary\" variant=\"ghost\">\n    Radio menu <ChevronDownMd />\n  </Button>\n</Menu.Trigger>\n<Menu.Content align=\"start\" minWidth=\"auto\" width=\"auto\">\n  <Menu.RadioGroup\n    indicatorPosition=\"end\"\n    value={value}\n    onChange={setValue}\n  >\n    <Menu.RadioItem value=\"any\">Any time</Menu.RadioItem>\n    <Menu.RadioItem value=\"today\" disabled>Today</Menu.RadioItem>\n    <Menu.RadioItem value=\"last7d\">Last 7 days</Menu.RadioItem>\n    <Menu.RadioItem value=\"last30d\">Last 30 days</Menu.RadioItem>\n    <Menu.RadioItem value=\"last3m\">Last 3 months</Menu.RadioItem>\n  </Menu.RadioGroup>\n</Menu.Content>\n</Menu>",
-          "details": "Use Menu.RadioGroup and Menu.RadioItem for single-selection options."
+          "details": "Use Menu.RadioGroup and Menu.RadioItem for single-selection options. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition says, so the phone view leaves out that control."
         },
         {
           "name": "Item actions",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-06T23:28:26.560Z"
+  "generatedAt": "2026-11-07T00:03:49.033Z"
 }

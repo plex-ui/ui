@@ -6443,7 +6443,7 @@ Menu supports several sizing strategies:Natural sizing: use min-width="auto" to 
 ```
 
 ### Horizontal (icons only)
-Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.
+Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -6459,7 +6459,7 @@ Set layout="horizontal" on MenuContent for an iOS-style icon toolbar. Give each 
 ```
 
 ### Horizontal (icons with labels)
-Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.
+Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -6528,7 +6528,7 @@ Use MenuSub, MenuSubTrigger, and MenuSubContent for nested menus.
 ```
 
 ### Checkbox items
-Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open.
+Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDefault()"'} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
 ```vue
 <Menu>
   <MenuTrigger>
@@ -6564,7 +6564,7 @@ Use MenuCheckboxItem with v-model:checked and {'@select="(evt) => evt.preventDef
 ```
 
 ### Radio items
-Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the selection with v-model:value.
+Use MenuRadioGroup and MenuRadioItem for single-selection options. Bind the selection with v-model:value. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition says, so the phone view leaves out that control.
 ```vue
 <Menu>
   <MenuTrigger>

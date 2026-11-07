@@ -59,7 +59,10 @@ import {
 
 ### Horizontal (icons only)
 
-<ComponentPreview details={<>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</>} code={`<Menu>
+<ComponentPreview details={<>
+  <p>Set <code>layout="horizontal"</code> on <code>Menu.Content</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
+  <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
+</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -75,7 +78,10 @@ import {
 
 ### Horizontal (icons with labels)
 
-<ComponentPreview details={<>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</>} code={`<Menu>
+<ComponentPreview details={<>
+  <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
+  <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
+</>} code={`<Menu>
   <Menu.Trigger>
     <Button color="primary" size="lg" variant="ghost">Actions <ChevronDownMd /></Button>
   </Menu.Trigger>
@@ -144,7 +150,10 @@ import {
 
 ### Checkbox items
 
-<ComponentPreview details={<>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open.</>} code={`const [settings, setSettings] = useState({
+<ComponentPreview details={<>
+  <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
+</>} code={`const [settings, setSettings] = useState({
   showGrid: true,
   showLabels: false,
   enableShadows: false,
@@ -193,7 +202,10 @@ return (
 
 ### Radio items
 
-<ComponentPreview details={<>Use <code>Menu.RadioGroup</code> and <code>Menu.RadioItem</code> for single-selection options.</>} code={`const [value, setValue] = useState("any")
+<ComponentPreview details={<>
+  <p>Use <code>Menu.RadioGroup</code> and <code>Menu.RadioItem</code> for single-selection options.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
+</>} code={`const [value, setValue] = useState("any")
 
 <Menu>
   <Menu.Trigger>
@@ -350,6 +362,7 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
 - `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 238px with touch styles)
+- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 238px with touch styles)
 - `--menu-item-press-scale`: pressed surface scale (1 with touch styles; otherwise follows the pointer interaction scale)
 - `--menu-item-gap`: item gap (default `spacing(1.5)`)
 - `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)

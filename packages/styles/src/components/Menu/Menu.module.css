@@ -412,9 +412,13 @@
   --h-padding: var(--menu-horizontal-item-padding, spacing(2));
   --h-gap: var(--menu-horizontal-item-gap, spacing(1));
 
-  display: flex;
+  display: var(--menu-horizontal-display, flex);
   flex-direction: row;
-  min-width: auto;
+  /* Flex cannot size every action to the widest one; grid columns can, and a label
+     never wraps inside its fixed-height action (phone, through touch.css). */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(max-content, 1fr);
+  min-width: var(--menu-horizontal-min-width, auto);
   gap: var(--menu-horizontal-gap, normal);
   padding-inline: var(--menu-horizontal-padding-inline, var(--menu-gutter));
 
@@ -465,6 +469,7 @@
   }
 
   & .Separator {
+    display: var(--menu-horizontal-separator-display, block);
     width: 1px;
     height: auto;
     align-self: stretch;
@@ -584,7 +589,8 @@
 
   /* iOS 26 kit Menu Items (Menu has Selection): the checkmark leads the row, so the desktop end
      position moves to the start on a phone. */
-  .MenuList:not([data-layout="horizontal"]) :is(.RadioItem, .CheckboxItem)[data-indicator-position="end"] {
+  .MenuList:not([data-layout="horizontal"]) .CheckboxItem[data-indicator-position="end"],
+  .MenuList:not([data-layout="horizontal"]) [data-indicator-position="end"] .RadioItem {
     justify-content: flex-start;
   }
 

@@ -134,6 +134,10 @@
     --menu-leading-icon-size: 17px;
     --menu-leading-icon-slot: 28px;
     --menu-leading-icon-gap: 8px;
+    /* Kit Quick Actions (5500:7456): equal actions across the menu's width, without dividers. */
+    --menu-horizontal-display: grid;
+    --menu-horizontal-min-width: 238px;
+    --menu-horizontal-separator-display: none;
     --menu-horizontal-item-display: flex;
     --menu-horizontal-item-height: 56px;
     --menu-horizontal-item-padding: 6px 4px;

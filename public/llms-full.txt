@@ -5990,7 +5990,7 @@ Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to h
 ```
 
 ### Horizontal (icons only)
-Set layout="horizontal" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.
+Set layout="horizontal" on Menu.Content for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action. On a phone with touch.css the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```tsx
 <Menu>
 <Menu.Trigger>
@@ -6006,7 +6006,7 @@ Set layout="horizontal" on Menu.Content for an iOS-style icon toolbar. Give each
 ```
 
 ### Horizontal (icons with labels)
-Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.
+Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item. On a phone with touch.css these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever width and minWidth say, at every size, so the phone view leaves out the size control.
 ```tsx
 <Menu>
 <Menu.Trigger>
@@ -6075,7 +6075,7 @@ Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus.
 ```
 
 ### Checkbox items
-Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open.
+Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls.
 ```tsx
 const [settings, setSettings] = useState({
 showGrid: true,
@@ -6124,7 +6124,7 @@ return (
 ```
 
 ### Radio items
-Use Menu.RadioGroup and Menu.RadioItem for single-selection options.
+Use Menu.RadioGroup and Menu.RadioItem for single-selection options. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition says, so the phone view leaves out that control.
 ```tsx
 const [value, setValue] = useState("any")
 

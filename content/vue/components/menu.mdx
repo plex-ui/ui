@@ -219,14 +219,20 @@ export const danger = `<Menu>
 
 ### Horizontal (icons only)
 
-<ComponentPreview language="vue" details={<>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</>} code={horizontalIcons} previewMinHeight={168}>
-  <VueDemo template={horizontalIcons} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Set <code>layout="horizontal"</code> on <code>MenuContent</code> for an iOS-style icon toolbar. Give each icon-only item a visually hidden label so screen readers can name the action.</p>
+  <p>On a phone with <code>touch.css</code> the row takes the geometry of the quick actions of an iOS menu (the kit has no icon-only row): equal 56px-tall actions with a 13px symbol, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
+</>} code={horizontalIcons} previewMinHeight={168}>
+  <VueDemo template={horizontalIcons} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Horizontal (icons with labels)
 
-<ComponentPreview language="vue" details={<>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</>} code={horizontalLabels} previewMinHeight={168}>
-  <VueDemo template={horizontalLabels} controls={[{ name: "size", type: "select", options: SIZES, default: "md" }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Add text labels below icons for a labeled toolbar. The horizontal layout automatically stacks icon and text vertically within each item.</p>
+  <p>On a phone with <code>touch.css</code> these are the quick actions of an iOS menu: a 13px symbol over a 12px label in equal 56px-tall actions, as wide as the widest label, without separators, across at least 238px whatever <code>width</code> and <code>minWidth</code> say, at every <code>size</code>, so the phone view leaves out the size control.</p>
+</>} code={horizontalLabels} previewMinHeight={168}>
+  <VueDemo template={horizontalLabels} controls={[{ name: "size", desktopOnly: true, type: "select", options: SIZES, default: "md" }]} />
 </ComponentPreview>
 
 ### Grouped items
@@ -243,14 +249,20 @@ export const danger = `<Menu>
 
 ### Checkbox items
 
-<ComponentPreview language="vue" details={<>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</>} code={checkboxItems} previewMinHeight={168}>
-  <VueDemo template={checkboxItems} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>MenuCheckboxItem</code> with <code>v-model:checked</code> and <code>{'@select="(evt) => evt.preventDefault()"'}</code> to keep the menu open.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls.</p>
+</>} code={checkboxItems} previewMinHeight={168}>
+  <VueDemo template={checkboxItems} state={{ settings: { showGrid: true, showLabels: false, enableShadows: false } }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: INDICATOR_VARIANTS, default: "solid" }]} />
 </ComponentPreview>
 
 ### Radio items
 
-<ComponentPreview language="vue" details={<>Use <code>MenuRadioGroup</code> and <code>MenuRadioItem</code> for single-selection options. Bind the selection with <code>v-model:value</code>.</>} code={radioItems} previewMinHeight={168}>
-  <VueDemo template={radioItems} state={{ value: "any" }} controls={[{ name: "indicatorPosition", type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>MenuRadioGroup</code> and <code>MenuRadioItem</code> for single-selection options. Bind the selection with <code>v-model:value</code>.</p>
+  <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> says, so the phone view leaves out that control.</p>
+</>} code={radioItems} previewMinHeight={168}>
+  <VueDemo template={radioItems} state={{ value: "any" }} controls={[{ name: "indicatorPosition", desktopOnly: true, type: "select", options: INDICATOR_POSITIONS, default: "end" }]} />
 </ComponentPreview>
 
 ### Item actions
@@ -348,6 +360,7 @@ Menu reads these component tokens. Override them at any scope to restyle it:
 - `--menu-gutter`: gutter (default `spacing(1.5)`)
 - `--menu-item-background-color`: item background color (default `light-dark(var(--alpha-08), var(--alpha-10))`)
 - `--menu-default-min-width`: default minimum width before a content-level override (300px on desktop, 238px with touch styles)
+- `--menu-horizontal-min-width`: minimum width of a horizontal menu (none on desktop, 238px with touch styles)
 - `--menu-item-press-scale`: pressed surface scale (1 with touch styles; otherwise follows the pointer interaction scale)
 - `--menu-item-gap`: item gap (default `spacing(1.5)`)
 - `--menu-item-padding`: item padding (default `spacing(1.5) spacing(2)`)

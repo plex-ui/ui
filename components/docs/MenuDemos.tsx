@@ -198,7 +198,7 @@ export function MenuWithCheckboxesDemoWithControls() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="indicatorPosition">
+        <DemoControlRow name="indicatorPosition" desktopOnly>
           <SegmentedControl<(typeof INDICATOR_POSITION_OPTIONS)[number]>
             value={indicatorPosition}
             onChange={setIndicatorPosition}
@@ -212,7 +212,7 @@ export function MenuWithCheckboxesDemoWithControls() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="indicatorVariant">
+        <DemoControlRow name="indicatorVariant" desktopOnly>
           <SegmentedControl<(typeof INDICATOR_VARIANT_OPTIONS)[number]>
             value={indicatorVariant}
             onChange={setIndicatorVariant}
@@ -278,7 +278,7 @@ export function MenuWithRadioItemsDemoWithControls() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="indicatorPosition">
+        <DemoControlRow name="indicatorPosition" desktopOnly>
           <SegmentedControl<(typeof INDICATOR_POSITION_OPTIONS)[number]>
             value={indicatorPosition}
             onChange={setIndicatorPosition}
@@ -328,7 +328,7 @@ export function MenuHorizontalIconsOnlyDemoWithControls() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
             value={size}
             onChange={setSize}
@@ -380,7 +380,7 @@ export function MenuHorizontalWithLabelsDemoWithControls() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlRow name="size">
+        <DemoControlRow name="size" desktopOnly>
           <SegmentedControl<(typeof SIZE_OPTIONS)[number]>
             value={size}
             onChange={setSize}
