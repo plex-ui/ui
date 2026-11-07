@@ -422,8 +422,8 @@
 }
 
 /* On a phone a list takes the width of its own line under the label and the action.
-   The row is the frame of every field, as on iOS: the framed fields of the web read
-   as the ghost above, with nothing for the author to change. */
+   The row is the frame of every field, as on iOS: the framed and the filled (soft) fields
+   of the web read as the ghost above, with nothing for the author to change. */
 @media (max-width: 767px) {
   .Field:where([data-row]) {
     --field-description-color: var(--mobile-label-secondary, var(--color-text-secondary));
@@ -565,28 +565,30 @@
   }
 
   .Field:where([data-row]:not([data-orientation="vertical"])):has(
-      .Control > [data-variant="outline"] > input,
-      .Control > [data-variant="outline"] > textarea
+      .Control > :is([data-variant="outline"], [data-variant="soft"]) > input,
+      .Control > :is([data-variant="outline"], [data-variant="soft"]) > textarea
     ) {
     grid-template-columns: auto minmax(0, 1fr);
   }
 
   .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(
-      > [data-variant="outline"] > input,
-      > [data-variant="outline"] > textarea
+      > :is([data-variant="outline"], [data-variant="soft"]) > input,
+      > :is([data-variant="outline"], [data-variant="soft"]) > textarea
     ) {
     justify-self: stretch;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"]:is(:has(> input), :has(> textarea)),
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)),
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     --input-outline-border-color: transparent;
     --input-outline-border-color-hover: transparent;
     --input-outline-border-color-focus: transparent;
     --input-border-color-invalid: transparent;
+    --input-soft-background-color: transparent;
+    --input-soft-border-color-focus: transparent;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"]:is(:has(> input), :has(> textarea)) {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]):is(:has(> input), :has(> textarea)) {
     --input-size: var(--field-row-label-line-height);
     --input-gutter: 0px;
     --input-adornment-offset: 0px;
@@ -596,38 +598,38 @@
     border-radius: 0;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"] > input {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]) > input {
     text-align: end;
   }
 
   /* A Select or a date: its value ends at the row's edge, its mark too, as the row has no pill to sit in */
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control [data-variant="outline"][role="button"] {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     --dropdown-icon-pill-offset: 0px;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="ghost"])[role="button"] {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"] {
     padding-inline: 0;
   }
 
   /* The Field already delegates its non-interactive area to this linked popup.
      Keep one row surface; the trigger remains its only keyboard stop. */
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
     --select-control-size: var(--field-row-label-line-height);
     border-radius: 0;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::before {
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::before {
     background-color: transparent;
     box-shadow: none;
     transform: none;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::after {
+  .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"])::after {
     outline: none;
     transform: none;
   }
 
-  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is([data-variant="outline"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
+  .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is([data-variant="outline"], [data-variant="soft"], [data-variant="ghost"])[role="button"][aria-haspopup]:not([aria-haspopup="false"], [disabled], [data-disabled], [aria-disabled="true"], [data-loading], [aria-busy="true"])) {
     cursor: pointer;
   }
 
@@ -668,7 +670,7 @@
 
   /* An InputGroup: its value and its unit end at the row's edge too. A button at the end
      reads as the row's text, as a Select's value does: no gutter and no fill */
-  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"][data-variant="outline"] {
+  .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-slot="input-group"]:is([data-variant="outline"], [data-variant="soft"]) {
     --input-group-gutter: 0px;
   }
 
@@ -705,8 +707,8 @@
   /* With `columns` the value starts at the column and takes the rest of the row: a unit,
      a Select's mark and an icon end at its edge, as on iOS */
   [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Action))):has(
-      .Control > [data-variant="outline"] > input,
-      .Control > [data-variant="outline"] > textarea
+      .Control > :is([data-variant="outline"], [data-variant="soft"]) > input,
+      .Control > :is([data-variant="outline"], [data-variant="soft"]) > textarea
     ) {
     grid-template-columns: var(--field-row-column-width) minmax(0, 1fr);
   }
@@ -719,11 +721,11 @@
     justify-self: stretch;
   }
 
-  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"] > input {
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"]) > input {
     text-align: start;
   }
 
-  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant="outline"][role="button"] {
+  [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     width: 100%;
   }
 }

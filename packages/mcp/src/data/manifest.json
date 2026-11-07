@@ -2559,7 +2559,7 @@
         {
           "name": "Fields in rows",
           "code": "<FieldGroup>\n<Field row label=\"Price\">\n  <Input defaultValue=\"11\" endAdornment=\"€\" />\n</Field>\n<Field row label=\"Weight\" description=\"Shown beside the name.\">\n  <Input defaultValue=\"250\" />\n</Field>\n<Field row label=\"Unit\">\n  <Select block={false} align=\"end\" options={units} value={unit} onChange={setUnit} />\n</Field>\n</FieldGroup>",
-          "details": "A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: pill={false} on the control keeps the rounded box. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge."
+          "details": "A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: pill={false} on the control keeps the rounded box. Its width cannot follow what is typed, so it takes --field-row-control-width. A Select follows its value with block={false}, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge."
         },
         {
           "name": "Textarea",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T03:28:01.247Z"
+  "generatedAt": "2026-11-07T03:43:06.683Z"
 }

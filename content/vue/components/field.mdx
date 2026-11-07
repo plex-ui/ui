@@ -777,7 +777,7 @@ import { phoneRows } from "@/components/docs/phoneRowsTemplate"
 
 ### Fields in rows
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>A field keeps its frame in a row and is a pill there, as the buttons and tags beside it: <code>:pill="false"</code> on the control keeps the rounded box. Its width cannot follow what is typed, so it takes <code>--field-row-control-width</code>. A Select follows its value with <code>:block="false"</code>, and every control ends on the edge of the row. On a phone the row is the frame: the frame goes, a soft field loses its fill too, and the value ends at its edge.</>} code={rowFields} previewMinHeight={168}>
   <VuePhoneRowsDemo template={rowFields} phoneTemplate={phoneRows(rowFields)} phoneStageClassName="w-full" state={{ unit: "ml", units: [{ value: "ml", label: "Millilitres" }, { value: "g", label: "Grams" }] }} stageClassName="py-10" />
 </ComponentPreview>
 
