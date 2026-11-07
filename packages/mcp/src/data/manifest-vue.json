@@ -4669,7 +4669,7 @@
         {
           "name": "Vertical",
           "code": "<div class=\"flex flex-wrap justify-center gap-20\">\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">Default</div>\n    <ProgressSteps :current=\"2\" orientation=\"vertical\">\n      <ProgressStepsStep v-for=\"step in steps\" :key=\"step.title\">\n        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>\n        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>\n      </ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n  <div>\n    <div class=\"mb-4 text-tertiary text-sm\">With dashed connector</div>\n    <ProgressSteps :current=\"3\" orientation=\"vertical\" connector-style=\"dashed\">\n      <ProgressStepsStep v-for=\"step in steps\" :key=\"step.title\">\n        <ProgressStepsTitle>{{ step.title }}</ProgressStepsTitle>\n        <ProgressStepsDescription>{{ step.description }}</ProgressStepsDescription>\n      </ProgressStepsStep>\n    </ProgressSteps>\n  </div>\n</div>",
-          "details": "Use orientation=\"vertical\" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {\"{ title, description }\"} objects."
+          "details": "Use orientation=\"vertical\" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {\"{ title, description }\"} objects. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen."
         },
         {
           "name": "With Icons",
@@ -7693,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T00:51:38.717Z"
+  "generatedAt": "2026-11-07T01:09:30.605Z"
 }

@@ -17,13 +17,13 @@ export type VueDemoControl = {
   name: string;
   label?: string;
   phoneOnly?: boolean;
-  /** Hidden on a phone (narrow page or Phone preview), where the template gets its `default` */
+  /** Hidden on a phone (narrow page or Phone preview), where the template gets its `phoneDefault`, else `default` */
   desktopOnly?: boolean;
 } & (
-  | { type: 'boolean'; default: boolean }
+  | { type: 'boolean'; default: boolean; phoneDefault?: boolean }
   /** `phoneOptions`: the options shown on a phone; a value outside them shows as `default` there */
-  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean }
-  | { type: 'range'; min: number; max: number; step: number; default: number }
+  | { type: 'select'; options: readonly VueDemoOption[]; phoneOptions?: readonly VueDemoOption[]; default: string | boolean; phoneDefault?: string | boolean }
+  | { type: 'range'; min: number; max: number; step: number; default: number; phoneDefault?: number }
 );
 
 const optionsOf = (options: readonly VueDemoOption[]) =>
@@ -59,7 +59,7 @@ type VueDemoProps = {
   controls?: VueDemoControl[];
   /** Names of controls that keep their value but are not shown, such as the desktop controls of a phone layout */
   hiddenControls?: readonly string[];
-  /** A phone layout (`VuePhoneRowsDemo` sets it): select controls offer their `phoneOptions`, desktop-only controls give their `default` */
+  /** A phone layout (`VuePhoneRowsDemo` sets it): select controls offer their `phoneOptions`, desktop-only controls give their `phoneDefault`, else `default` */
   phone?: boolean;
   /** Apply changing defaults until a control is explicitly changed; preserve the mounted form. */
   reactiveControlDefaults?: boolean;
@@ -112,10 +112,10 @@ function VueDemoView({
       .map((control) => [control.name, control.default])) : {}),
     ...context,
   }), [context, controls, loop?.name, modifiedControls, phone, reactiveControlDefaults, values]);
-  // A hidden desktop-only control keeps the chosen value; the template shows its default
+  // A hidden desktop-only control keeps the chosen value; the template shows its phone default or default
   const templateProps = useMemo(() => (phone ? {
     ...props,
-    ...Object.fromEntries(controls.filter((control) => control.desktopOnly).map((control) => [control.name, control.default])),
+    ...Object.fromEntries(controls.filter((control) => control.desktopOnly).map((control) => [control.name, control.phoneDefault ?? control.default])),
   } : props), [controls, phone, props]);
   const set = (name: string) => (value: unknown) => {
     setValues((current) => ({ ...current, [name]: value }));

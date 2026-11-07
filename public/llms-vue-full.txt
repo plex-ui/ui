@@ -7151,7 +7151,7 @@ Use size to control the scale of step indicators.
 ```
 
 ### Vertical
-Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {"{ title, description }"} objects.
+Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. steps is an array of {"{ title, description }"} objects. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.
 ```vue
 <div class="flex flex-wrap justify-center gap-20">
   <div>

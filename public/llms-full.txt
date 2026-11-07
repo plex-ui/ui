@@ -6635,7 +6635,7 @@ Use size to control the scale of step indicators.
 ```
 
 ### Vertical
-Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style.
+Use orientation="vertical" to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.
 ```tsx
 <ProgressSteps current={2} orientation="vertical">...</ProgressSteps>
 <ProgressSteps current={3} orientation="vertical" connectorStyle="dashed">...</ProgressSteps>

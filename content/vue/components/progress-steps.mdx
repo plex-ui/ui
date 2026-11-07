@@ -90,6 +90,9 @@ export const withIcons = `<ProgressSteps :current="3" class="w-full">
   </ProgressStepsStep>
 </ProgressSteps>`
 
+{/* The phone shows the steps vertically, where each description has room; the code shows the template above. */}
+export const withIconsDemo = withIcons.replace('<ProgressSteps :current="3"', '<ProgressSteps :current="3" :orientation="orientation"')
+
 export const withNavigation = `<div class="flex flex-col items-center gap-6">
   <ProgressSteps variant="minimal" :current="step" :total="4" />
   <div class="text-center">
@@ -153,7 +156,7 @@ export const colors = `<div class="flex flex-col gap-12 w-full">
     stageClassName="py-8 px-4 w-full"
     controls={[
       { name: "current", type: "select", options: ["1", "2", "3", "4"], default: "2" },
-      { name: "orientation", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
+      { name: "orientation", desktopOnly: true, phoneDefault: "vertical", type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
       { name: "size", type: "select", options: ["sm", "md", "lg"], default: "md" },
       { name: "color", type: "select", options: ["default", "success"], default: "default" },
       { name: "connectorStyle", type: "select", options: ["solid", "dashed"], default: "solid" },
@@ -176,7 +179,10 @@ export const colors = `<div class="flex flex-col gap-12 w-full">
 
 ### Vertical
 
-<ComponentPreview language="vue" details={<>Use <code>orientation="vertical"</code> to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. <code>steps</code> is an array of <code>{"{ title, description }"}</code> objects.</>} code={vertical} previewMinHeight={168}>
+<ComponentPreview language="vue" details={<>
+  <p>Use <code>orientation="vertical"</code> to display steps in a vertical layout, ideal for sidebar navigation or multi-step forms. The example also shows the dashed connector style. <code>steps</code> is an array of <code>{"{ title, description }"}</code> objects.</p>
+  <p>On a phone the four columns of a horizontal row cannot hold a step's description, so the Overview and With Icons examples show the steps vertically there; Overview leaves out its orientation control. Progress steps have no iOS control of their own; With Navigation shows a compact composition for a phone screen.</p>
+</>} code={vertical} previewMinHeight={168}>
   <div className="w-full h-full flex items-center justify-center py-6 px-4">
     <VueDemo template={vertical} state={{ steps }} />
   </div>
@@ -186,7 +192,7 @@ export const colors = `<div class="flex flex-col gap-12 w-full">
 
 <ComponentPreview language="vue" details={<>Use the <code>icon</code> slot (or the <code>icon</code> prop) on <code>ProgressStepsStep</code> to display custom icons instead of step numbers.</>} code={withIcons} previewMinHeight={168}>
   <div className="py-6 px-4 w-full">
-    <VueDemo template={withIcons} />
+    <VueDemo template={withIconsDemo} controls={[{ name: "orientation", desktopOnly: true, phoneDefault: "vertical", type: "select", options: ["horizontal", "vertical"], default: "horizontal" }]} hiddenControls={["orientation"]} />
   </div>
 </ComponentPreview>
 

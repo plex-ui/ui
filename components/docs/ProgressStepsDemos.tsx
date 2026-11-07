@@ -6,6 +6,7 @@ import { Button } from '@plexui/ui/components/Button';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Bolt, Email, Globe, Users } from '@plexui/ui/components/Icon';
 import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { usePhoneRows } from './PhoneRows';
 
 const steps = [
   { title: 'Your details', description: 'Please provide your name and email' },
@@ -41,6 +42,8 @@ export function ProgressStepsBaseDemoWithControls() {
   const [size, setSize] = useState<(typeof SIZE_OPTIONS)[number]>('md');
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>('default');
   const [connectorStyle, setConnectorStyle] = useState<(typeof CONNECTOR_OPTIONS)[number]>('solid');
+  // Four steps side by side leave each description about 80px on a phone, so a phone shows them vertically
+  const phone = usePhoneRows();
 
   return (
     <>
@@ -59,7 +62,7 @@ export function ProgressStepsBaseDemoWithControls() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlRow name="orientation">
+        <DemoControlRow name="orientation" desktopOnly>
           <SegmentedControl<(typeof ORIENTATION_OPTIONS)[number]>
             value={orientation}
             onChange={setOrientation}
@@ -119,7 +122,7 @@ export function ProgressStepsBaseDemoWithControls() {
       <div data-demo-stage className="py-8 px-4 w-full">
         <ProgressSteps
           current={Number(current)}
-          orientation={orientation}
+          orientation={phone ? 'vertical' : orientation}
           size={size}
           color={color}
           connectorStyle={connectorStyle}
@@ -268,9 +271,11 @@ export function ProgressStepsVerticalDemo() {
 }
 
 export function ProgressStepsWithIconsDemo() {
+  // A phone shows the steps vertically, where each description has room
+  const phone = usePhoneRows();
   return (
     <div className="py-6 px-4 w-full">
-      <ProgressSteps current={3} className="w-full">
+      <ProgressSteps current={3} orientation={phone ? 'vertical' : 'horizontal'} className="w-full">
         <ProgressSteps.Step icon={<Email />}>
           <ProgressSteps.Title>Your details</ProgressSteps.Title>
           <ProgressSteps.Description>Please provide your name and email</ProgressSteps.Description>
