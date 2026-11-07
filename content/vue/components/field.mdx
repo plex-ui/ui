@@ -752,7 +752,7 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 <ComponentPreview language="vue" details={<>
   <p>The label and description scale with the child control: Field reads the control's <code>size</code>, so <code>{'<Input size="lg" />'}</code> gets a <code>lg</code> label without repeating it. Pass <code>size</code> to Field to set the label size yourself, or when the slot reads the field props.</p>
-  <p>On a phone with <code>touch.css</code> a text field is 44px from <code>sm</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS. The phone view shows the <code>md</code> field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a <code>FieldGroup</code> (see Rows).</p>
+  <p>On a phone with <code>touch.css</code> a text field is 44px from <code>3xs</code> to <code>2xl</code> and 50px at <code>3xl</code>, with the 17px text of iOS: a <code>3xs</code>, <code>2xs</code> or <code>xs</code> field takes the height, text and gutter of <code>sm</code>, and a horizontal label lines up with it. The phone view shows the <code>md</code> field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a <code>FieldGroup</code> (see Rows).</p>
 </>} code={overview} previewMinHeight={168}>
   <VueDemo template={overview} stageClassName="py-10" controls={overviewControls} />
 </ComponentPreview>

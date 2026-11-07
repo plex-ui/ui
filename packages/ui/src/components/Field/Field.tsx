@@ -230,6 +230,7 @@ export function Field({
           }
         } : undefined}
         className={clsx(s.Field, className)}
+        data-slot="field"
         data-size={size}
         data-orientation={orientation}
         data-optically-align={opticallyAlign}

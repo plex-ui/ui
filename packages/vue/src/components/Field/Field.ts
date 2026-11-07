@@ -261,6 +261,7 @@ const FieldComponent = defineComponent({
         mergeProps({
           ...(row && { ...attrs, onClick: undefined }),
           "class": clsx(s.Field, attrs.class as ClassValue),
+          "data-slot": "field",
           "data-size": size,
           "data-orientation": orientation,
           "data-optically-align": opticallyAlign,

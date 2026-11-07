@@ -2558,7 +2558,7 @@
         {
           "name": "Sizing",
           "code": "<div :class=\"horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'\">\n  <Field\n    label=\"Email\"\n    :size=\"size\"\n    :description=\"description ? 'We\\'ll never share your email with anyone else.' : undefined\"\n    :error-message=\"errorMessage ? 'Please enter a valid email address.' : undefined\"\n    :required=\"required\"\n    :orientation=\"horizontal ? 'horizontal' : 'vertical'\"\n  >\n    <Input placeholder=\"Enter email...\" :size=\"size\" :pill=\"pill\" />\n  </Field>\n</div>",
-          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from sm to 2xl and 50px at 3xl, with the 17px text of iOS. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows)."
+          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows)."
         },
         {
           "name": "Horizontal layout",
@@ -3378,7 +3378,7 @@
         {
           "name": "Sizing & roundness",
           "code": "<!-- Desktop -->\n<div class=\"flex flex-col gap-2.5 justify-start items-start w-[320px]\">\n  <Input\n    placeholder=\"Enter text...\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  />\n  <Input\n    placeholder=\"Search...\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  >\n    <template #startAdornment>\n      <Search class=\"fill-tertiary\" />\n    </template>\n  </Input>\n  <Input\n    v-model:value=\"username\"\n    placeholder=\"Username\"\n    maxlength=\"16\"\n    :size=\"size\"\n    :gutter-size=\"gutterSize === 'auto' ? undefined : gutterSize\"\n    :pill=\"pill\"\n  >\n    <template #endAdornment>\n      <span class=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">{{ username.length }}/16</span>\n    </template>\n  </Input>\n</div>\n\n<!-- Phone: the row sets the height, insets and type. -->\n<FieldGroup columns>\n  <Field row label=\"Name\">\n    <Input placeholder=\"Enter text...\" />\n  </Field>\n  <Field row label=\"Username\">\n    <Input v-model:value=\"username\" placeholder=\"Required\" maxlength=\"16\">\n      <template #endAdornment>\n        <span class=\"tabular-nums text-secondary\">{{ username.length }}/16</span>\n      </template>\n    </Input>\n  </Field>\n</FieldGroup>",
-          "details": "Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the sm to xl sizes are all 44px, so the Phone preview has no size controls."
+          "details": "Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls."
         },
         {
           "name": "Start adornment",
@@ -3529,7 +3529,7 @@
         {
           "name": "Sizes",
           "code": "<!-- Desktop -->\n<div class=\"flex flex-col gap-2.5 w-[360px]\">\n  <div v-for=\"size in sizes\" :key=\"size\" class=\"flex items-center gap-4\">\n    <span class=\"w-8 shrink-0 text-right text-sm text-tertiary\">{{ size }}</span>\n    <InputGroup :size=\"size\" :pill=\"pill\">\n      <InputGroupInput placeholder=\"Search...\" />\n      <InputGroupAddon>\n        <Search />\n      </InputGroupAddon>\n      <InputGroupAddon align=\"inline-end\">\n        <InputGroupButton>Search</InputGroupButton>\n      </InputGroupAddon>\n    </InputGroup>\n  </div>\n</div>\n\n<!-- Phone -->\n<FieldGroup columns>\n  <Field row label=\"Website\">\n    <template #default=\"control\">\n      <InputGroup>\n        <InputGroupInput v-bind=\"control\" placeholder=\"acme.com\" inputmode=\"url\" autocapitalize=\"none\" spellcheck=\"false\" />\n        <InputGroupAddon>\n          <InputGroupText>https://</InputGroupText>\n        </InputGroupAddon>\n      </InputGroup>\n    </template>\n  </Field>\n  <Field row label=\"Amount\">\n    <template #default=\"control\">\n      <InputGroup>\n        <InputGroupInput v-bind=\"control\" placeholder=\"0.00\" inputmode=\"decimal\" />\n        <InputGroupAddon>\n          <InputGroupText>$</InputGroupText>\n        </InputGroupAddon>\n        <InputGroupAddon align=\"inline-end\">\n          <InputGroupText>USD</InputGroupText>\n        </InputGroupAddon>\n      </InputGroup>\n    </template>\n  </Field>\n</FieldGroup>",
-          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height."
+          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height."
         },
         {
           "name": "Align",
@@ -7693,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T02:30:27.728Z"
+  "generatedAt": "2026-11-07T02:42:00.556Z"
 }

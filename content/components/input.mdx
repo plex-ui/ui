@@ -71,7 +71,7 @@ On Phone, put an input in a row of a `FieldGroup`, as the [Form Examples](/compo
 
 ### Sizing & roundness
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the input is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the input to a specific control <code>height</code>, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code>. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with <code>touch.css</code> the <code>sm</code> to <code>xl</code> sizes are all 44px, so the Phone preview has no size controls.</>} code={`// Desktop
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Sizing of the input is controlled with <code>size</code> and <code>gutterSize</code> props. <code>size</code> sets the input to a specific control <code>height</code>, and <code>gutterSize</code> sets the horizontal padding. Each <code>size</code> provides default values for <code>gutterSize</code>, as well as <code>font-size</code>. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with <code>touch.css</code> the <code>3xs</code> to <code>xl</code> sizes are all 44px, so the Phone preview has no size controls.</>} code={`// Desktop
 <div className="flex flex-col gap-2.5 justify-start items-start w-[320px]">
   <Input placeholder="Enter text..." size="lg" />
   <Input placeholder="Search..." startAdornment={<Search className="fill-tertiary" />} size="lg" />
@@ -367,7 +367,7 @@ Use `opticallyAlign` with either `"start"` or `"end"` to offset the gutter, alig
   <InputOpticalAlignDemo />
 </ComponentPreview>
 
-Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl. Set the same `size` on adjacent controls and they'll align perfectly. On a phone with `touch.css`, `sm` to `xl` are all 44px.
+Input shares the unified 9-step size scale with Button, Select, SelectControl, and SegmentedControl. Set the same `size` on adjacent controls and they'll align perfectly. On a phone with `touch.css`, `3xs` to `xl` are all 44px: a `3xs`, `2xs` or `xs` field takes the height, 17px text and gutter of `sm`.
 
 
 ## API

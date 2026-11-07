@@ -598,7 +598,7 @@ On Phone, an input group is the value of a row in a `FieldGroup`, as the Weight 
 
 ### Sizes
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroupButton</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>sm</code> to <code>xl</code> are all 44px, and in a row the row sets the height.</>} code={withPhone(sizes, sizesPhone)} previewMinHeight={480}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Every <code>Input</code> size from <code>3xs</code> to <code>3xl</code>. Icons, text and <code>InputGroupButton</code> scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with <code>touch.css</code>, <code>3xs</code> to <code>xl</code> are all 44px, and in a row the row sets the height.</>} code={withPhone(sizes, sizesPhone)} previewMinHeight={480}>
   <VuePhoneRowsDemo template={sizes} phoneTemplate={phoneRows(sizesPhone)} phoneStageClassName="w-full" desktopControlNames={["pill"]} stageClassName="py-10" state={{ sizes: sizeOptions }} controls={[{ name: "pill", type: "boolean", default: false }]} />
 </ComponentPreview>
 

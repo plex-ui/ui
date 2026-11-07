@@ -200,6 +200,7 @@ const TextareaComponent = defineComponent({
         "div",
         {
           "class": [s.Container, className],
+          "data-slot": "textarea",
           "data-variant": variant,
           "data-size": size,
           "data-gutter-size": gutterSize,

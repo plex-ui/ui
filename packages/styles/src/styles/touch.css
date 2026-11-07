@@ -22,7 +22,7 @@
   /* A content button group keeps one height (connected segments have no iOS control of their own).
      Beside text buttons its icon-only buttons take their 28, 34 or 50px instead of the 44px of a
      toolbar button; a group of icon-only buttons stays a 44px toolbar group. Beside a text field
-     or a select every button takes the field's height. */
+     or a select every button takes the field's height, 44px from 3xs (see the fields below). */
   :where([data-slot="button-group"]):has(:is(button, a)[data-size]:not([data-uniform])) {
     --button-uniform-size-3xs: var(--button-size-3xs);
     --button-uniform-size-2xs: var(--button-size-2xs);
@@ -39,9 +39,12 @@
     > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"]),
     > [data-slot="button-group"] > :is(input:not([type="hidden"], [type="checkbox"], [type="radio"]), [data-slot="input"], [data-slot="input-group"], [data-slot="select-control"])
   ) {
-    --button-size-3xs: var(--control-size-3xs);
-    --button-size-2xs: var(--control-size-2xs);
-    --button-size-xs: var(--control-size-xs);
+    --button-size-3xs: var(--control-size-sm);
+    --button-size-2xs: var(--control-size-sm);
+    --button-size-xs: var(--control-size-sm);
+    --button-uniform-size-3xs: var(--control-size-sm);
+    --button-uniform-size-2xs: var(--control-size-sm);
+    --button-uniform-size-xs: var(--control-size-sm);
     --button-size-sm: var(--control-size-sm);
     --button-size-md: var(--control-size-md);
     --button-size-lg: var(--control-size-lg);
@@ -466,6 +469,38 @@
 
     html [data-slot="input"][data-has-start-adornment] {
       --input-gutter: 11px;
+    }
+
+    /* A text field keeps the 44px of iOS at every size: a 3xs, 2xs or xs field of 22, 24 or 26px
+       could not hold the 17px text, so on a phone it takes the height, text, gutter and gap of
+       sm, and a horizontal label lines up with it. Glyphs keep their paint size, as above. */
+    html [data-slot="input"]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
+      --input-size: var(--control-size-sm);
+      --input-gap: var(--input-gap-md);
+    }
+
+    html [data-slot="input-group"]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
+      --input-group-size: var(--control-size-sm);
+      --input-group-font-size: var(--control-font-size-md);
+      --input-group-gutter: var(--control-gutter-sm);
+      --input-group-gap: var(--input-gap-md);
+    }
+
+    html [data-slot="select-control"]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
+      --select-control-size: var(--control-size-sm);
+      --select-control-font-size: var(--control-font-size-md);
+      --select-control-gutter: var(--control-gutter-sm);
+      --select-control-gap: 8px;
+    }
+
+    html [data-slot="textarea"]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
+      --textarea-base-height: var(--control-size-sm);
+      --textarea-font-size: var(--control-font-size-md);
+      --textarea-gutter-x: var(--control-gutter-sm);
+    }
+
+    html [data-slot="field"]:where([data-size="3xs"], [data-size="2xs"], [data-size="xs"]) {
+      --field-label-horizontal-offset: calc((var(--control-size-sm) - var(--font-text-xs-line-height)) / 2);
     }
   }
 

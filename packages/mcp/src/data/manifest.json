@@ -2544,7 +2544,7 @@
         {
           "name": "Sizing",
           "code": "<div className=\"w-full max-w-[320px]\">\n<Field\n  label=\"Email\"\n  description=\"We'll never share your email with anyone else.\"\n  errorMessage=\"Please enter a valid email address.\"\n  required\n  orientation=\"vertical\"\n>\n  <Input placeholder=\"Enter email...\" size=\"md\" />\n</Field>\n</div>",
-          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. On a phone with touch.css a text field is 44px from sm to 2xl and 50px at 3xl, with the 17px text of iOS. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows)."
+          "details": "The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the child is a render prop. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows)."
         },
         {
           "name": "Horizontal layout",
@@ -3331,7 +3331,7 @@
         {
           "name": "Sizes",
           "code": "// Desktop\n<InputGroup size=\"lg\">\n<InputGroup.Input placeholder=\"Search...\" />\n<InputGroup.Addon>\n  <Search />\n</InputGroup.Addon>\n<InputGroup.Addon align=\"inline-end\">\n  <InputGroup.Button>Search</InputGroup.Button>\n</InputGroup.Addon>\n</InputGroup>\n\n// Phone\n<FieldGroup columns>\n<Field row label=\"Website\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"acme.com\" inputMode=\"url\" autoCapitalize=\"none\" spellCheck={false} />\n      <InputGroup.Addon>\n        <InputGroup.Text>https://</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n<Field row label=\"Amount\">\n  {(control) => (\n    <InputGroup>\n      <InputGroup.Input {...control} placeholder=\"0.00\" inputMode=\"decimal\" />\n      <InputGroup.Addon>\n        <InputGroup.Text>$</InputGroup.Text>\n      </InputGroup.Addon>\n      <InputGroup.Addon align=\"inline-end\">\n        <InputGroup.Text>USD</InputGroup.Text>\n      </InputGroup.Addon>\n    </InputGroup>\n  )}\n</Field>\n</FieldGroup>",
-          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height."
+          "details": "Every Input size from 3xs to 3xl. Icons, text and InputGroup.Button scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height."
         },
         {
           "name": "Align",
@@ -3485,7 +3485,7 @@
         {
           "name": "Sizing & roundness",
           "code": "// Desktop\n<div className=\"flex flex-col gap-2.5 justify-start items-start w-[320px]\">\n<Input placeholder=\"Enter text...\" size=\"lg\" />\n<Input placeholder=\"Search...\" startAdornment={<Search className=\"fill-tertiary\" />} size=\"lg\" />\n<Input value={username} placeholder=\"Username\" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"mt-[1.5px] tabular-nums text-tertiary text-[.875em]\">{username.length}/16</span>} />\n</div>\n\n// Phone: the row sets the height, insets and type.\n<FieldGroup columns>\n<Field row label=\"Name\">\n  <Input placeholder=\"Enter text...\" />\n</Field>\n<Field row label=\"Username\">\n  <Input value={username} placeholder=\"Required\" onChange={(evt) => setUsername(evt.target.value)} maxLength={16} endAdornment={<span className=\"tabular-nums text-secondary\">{username.length}/16</span>} />\n</Field>\n</FieldGroup>",
-          "details": "Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the sm to xl sizes are all 44px, so the Phone preview has no size controls."
+          "details": "Sizing of the input is controlled with size and gutterSize props. size sets the input to a specific control height, and gutterSize sets the horizontal padding. Each size provides default values for gutterSize, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls."
         },
         {
           "name": "Start adornment",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T02:30:26.168Z"
+  "generatedAt": "2026-11-07T02:41:58.865Z"
 }

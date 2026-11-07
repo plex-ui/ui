@@ -3702,7 +3702,7 @@ Use required to show a visual asterisk after the label. This is purely visual an
 ```
 
 ### Sizing
-The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from sm to 2xl and 50px at 3xl, with the 17px text of iOS. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
+The label and description scale with the child control: Field reads the control's size, so {''} gets a lg label without repeating it. Pass size to Field to set the label size yourself, or when the slot reads the field props. On a phone with touch.css a text field is 44px from 3xs to 2xl and 50px at 3xl, with the 17px text of iOS: a 3xs, 2xs or xs field takes the height, text and gutter of sm, and a horizontal label lines up with it. The phone view shows the md field and leaves out the size and pill controls, here and in the Overview; the Input page leaves them out too. In a form on a phone, put fields in rows of a FieldGroup (see Rows).
 ```vue
 <div :class="horizontal ? 'w-full max-w-[480px]' : 'w-full max-w-[320px]'">
   <Field
@@ -5006,7 +5006,7 @@ Use variant to stylize the input. ghost has no border and no fill, for a field i
 ```
 
 ### Sizing & roundness
-Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the sm to xl sizes are all 44px, so the Phone preview has no size controls.
+Sizing of the input is controlled with the size and gutter-size props. size sets the input to a specific control height, and gutter-size sets the horizontal padding. Each size provides default values for gutter-size, as well as font-size. Each of these values can be overridden independently. On Phone, a row sets the input's height, insets and type, and with touch.css the 3xs to xl sizes are all 44px, so the Phone preview has no size controls.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 justify-start items-start w-[320px]">
@@ -5643,7 +5643,7 @@ Use variant to stylize the group, like Input. On Phone the row is the frame, so 
 ```
 
 ### Sizes
-Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, sm to xl are all 44px, and in a row the row sets the height.
+Every Input size from 3xs to 3xl. Icons, text and InputGroupButton scale with the group: buttons in inline addons fit the control height and keep a 4px inset. On a phone with touch.css, 3xs to xl are all 44px, and in a row the row sets the height.
 ```vue
 <!-- Desktop -->
 <div class="flex flex-col gap-2.5 w-[360px]">

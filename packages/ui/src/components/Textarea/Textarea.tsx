@@ -146,6 +146,7 @@ export const Textarea = (props: TextareaProps) => {
   return (
     <div
       className={clsx(s.Container, className)}
+      data-slot="textarea"
       data-variant={variant}
       data-size={size}
       data-optically-align={opticallyAlign}
