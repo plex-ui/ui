@@ -59,11 +59,13 @@ export default function VuePreviewRuntime({ template, props, onPropChange }: Vue
     return () => app.unmount();
   }, [template, idPrefix]);
 
-  // `contents` keeps the mount node out of the preview stage's layout.
+  // `contents` keeps the mount node out of the preview stage's layout; `data-vue-root` lets the
+  // preview's phone rules reach the example's own root, as they reach a React example's.
   // Placeholder `href="#"` links in examples must not jump the page.
   return (
     <div
       ref={hostRef}
+      data-vue-root=""
       className="contents"
       onClickCapture={(event) => {
         if ((event.target as Element).closest?.('a[href="#"]')) event.preventDefault();

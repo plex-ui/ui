@@ -362,9 +362,6 @@ export function ButtonGroupInputGroupDemo() {
     <>
       <SizeToggle value={size} onChange={setSize} desktopOnly />
       <DemoStage>
-      {/* A narrow docs page caps the stage's direct children at its width; this wrapper keeps the
-          group's own 280px there, as the Vue preview's wrapper does. */}
-      <div className="contents">
       <ButtonGroup style={{ width: '100%', maxWidth: 280 }}>
         <ButtonGroup>
           <Button
@@ -397,7 +394,6 @@ export function ButtonGroupInputGroupDemo() {
           />
         </ButtonGroup>
       </ButtonGroup>
-      </div>
       </DemoStage>
     </>
   );

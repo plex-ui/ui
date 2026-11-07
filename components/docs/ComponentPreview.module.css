@@ -334,6 +334,12 @@ html.dark .PreviewInner>[data-demo-controls]>* {
   }
 }
 
+/* A Vue example that renders its own stage sits inside the preview's stage: only the outer
+   one pads, as the single stage of the React example does. */
+.PreviewInner [data-demo-stage] [data-demo-stage] {
+  padding: 0;
+}
+
 .PreviewInner [data-demo-stage] > * {
   margin-left: auto;
   margin-right: auto;
@@ -341,8 +347,12 @@ html.dark .PreviewInner>[data-demo-controls]>* {
   box-sizing: border-box;
 }
 
+/* On a phone an example never runs past its stage; a maximum width the example sets for
+   itself stays. A Vue example's root sits in the display: contents mount node, so the
+   rule reaches through it, as it reaches a React example's root. */
 @media (max-width: 767px) {
-  .PreviewInner [data-demo-stage] > * {
+  .PreviewInner [data-demo-stage] > :not([class*="max-w-"], [style*="max-width"]),
+  .PreviewInner [data-demo-stage] > [data-vue-root] > :not([class*="max-w-"], [style*="max-width"]) {
     max-width: 100% !important;
   }
 }
@@ -367,7 +377,8 @@ html.dark .PreviewInner>[data-demo-controls]>* {
 }
 
 @media (max-width: 767px) {
-  .PreviewInner:not(:has([data-demo-controls])):not(:has([data-demo-stage])) > * {
+  .PreviewInner:not(:has([data-demo-controls])):not(:has([data-demo-stage])) > :not([class*="max-w-"], [style*="max-width"]),
+  .PreviewInner:not(:has([data-demo-controls])):not(:has([data-demo-stage])) > [data-vue-root] > :not([class*="max-w-"], [style*="max-width"]) {
     max-width: 100% !important;
   }
 }
