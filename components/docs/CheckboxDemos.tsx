@@ -8,6 +8,7 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { FormScreen } from './FormRowsDemos';
+import { usePhoneRows } from './PhoneRows';
 import { controlsTableStyle, DemoControlBoolean, DemoControlRow } from './ButtonDemos';
 
 const VARIANT_OPTIONS = ['solid', 'ghost'] as const;
@@ -34,7 +35,7 @@ export function CheckboxOverviewDemo() {
             ))}
           </SegmentedControl>
         </DemoControlRow>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
@@ -49,6 +50,8 @@ export function CheckboxOverviewDemo() {
 
 export function CheckboxVariantsDemo() {
   const [disabled, setDisabled] = useState(false);
+  // On a phone every solid indicator is the round iOS selection circle, so solid pill would repeat solid
+  const phone = usePhoneRows();
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -62,12 +65,14 @@ export function CheckboxVariantsDemo() {
             <Checkbox label="Checked" defaultChecked disabled={disabled} />
             <Checkbox label="Indeterminate" checked="indeterminate" disabled={disabled} />
           </div>
-          <div className="flex flex-col gap-3 items-start">
-            <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
-            <Checkbox label="Unchecked" pill disabled={disabled} />
-            <Checkbox label="Checked" pill defaultChecked disabled={disabled} />
-            <Checkbox label="Indeterminate" pill checked="indeterminate" disabled={disabled} />
-          </div>
+          {phone ? null : (
+            <div className="flex flex-col gap-3 items-start">
+              <span className="text-xs text-secondary font-mono mb-1">solid pill</span>
+              <Checkbox label="Unchecked" pill disabled={disabled} />
+              <Checkbox label="Checked" pill defaultChecked disabled={disabled} />
+              <Checkbox label="Indeterminate" pill checked="indeterminate" disabled={disabled} />
+            </div>
+          )}
           <div className="flex flex-col gap-3 items-start">
             <span className="text-xs text-secondary font-mono mb-1">ghost</span>
             <Checkbox label="Unchecked" variant="ghost" disabled={disabled} />
@@ -85,7 +90,7 @@ export function CheckboxPillDemo() {
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+        <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
       </div>
       <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
         <div className="flex flex-col gap-3">
@@ -201,10 +206,12 @@ export function CheckboxGroupDemo() {
 
 export function CheckboxWithoutLabelDemo() {
   return (
-    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full gap-4">
-      <Checkbox aria-label="Accept terms" />
-      <Checkbox aria-label="Subscribe" defaultChecked />
-      <Checkbox aria-label="Select all" checked="indeterminate" />
+    <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
+      <div className="flex gap-4">
+        <Checkbox aria-label="Accept terms" />
+        <Checkbox aria-label="Subscribe" defaultChecked />
+        <Checkbox aria-label="Select all" checked="indeterminate" />
+      </div>
     </div>
   );
 }

@@ -1486,7 +1486,7 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 ```
 
 ### Variants
-The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states.
+The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view leaves out the solid pill group. A ghost checkbox is the checkmark of an iOS list row.
 ```tsx
 const [disabled, setDisabled] = useState(false)
 
@@ -1513,7 +1513,7 @@ const [disabled, setDisabled] = useState(false)
 ```
 
 ### Pill
-Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius.
+Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius. On a phone with touch.css every checkbox indicator is round, the 22px selection circle of iOS, so pill makes no difference there. The phone view leaves out the pill control here and in the overview.
 ```tsx
 <div className="flex flex-col gap-3">
 <Checkbox label="Unchecked" pill />

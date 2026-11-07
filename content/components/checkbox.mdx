@@ -145,7 +145,10 @@ const toggle = (key: keyof typeof settings) => () =>
 
 ### Variants
 
-<ComponentPreview details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</>} code={`const [disabled, setDisabled] = useState(false)
+<ComponentPreview details={<>
+  <p>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</p>
+  <p>On a phone with <code>touch.css</code> a solid checkbox is the 22px selection circle of iOS with or without <code>pill</code>, so the phone view leaves out the <code>solid pill</code> group. A ghost checkbox is the checkmark of an iOS list row.</p>
+</>} code={`const [disabled, setDisabled] = useState(false)
 
 <div className="flex flex-wrap gap-x-12 gap-y-6">
   <div className="flex flex-col gap-3 items-start">
@@ -172,7 +175,10 @@ const toggle = (key: keyof typeof settings) => () =>
 
 ### Pill
 
-<ComponentPreview details={<>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</>} code={`<div className="flex flex-col gap-3">
+<ComponentPreview details={<>
+  <p>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</p>
+  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there. The phone view leaves out the <code>pill</code> control here and in the overview.</p>
+</>} code={`<div className="flex flex-col gap-3">
   <Checkbox label="Unchecked" pill />
   <Checkbox label="Checked" pill defaultChecked />
   <Checkbox label="Indeterminate" pill checked="indeterminate" />

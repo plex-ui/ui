@@ -1224,12 +1224,12 @@
         {
           "name": "Variants",
           "code": "const [disabled, setDisabled] = useState(false)\n\n<div className=\"flex flex-wrap gap-x-12 gap-y-6\">\n<div className=\"flex flex-col gap-3 items-start\">\n  <span className=\"text-xs text-secondary font-mono mb-1\">solid</span>\n  <Checkbox disabled={disabled} label=\"Unchecked\" />\n  <Checkbox disabled={disabled} label=\"Checked\" defaultChecked />\n  <Checkbox disabled={disabled} label=\"Indeterminate\" checked=\"indeterminate\" />\n</div>\n<div className=\"flex flex-col gap-3 items-start\">\n  <span className=\"text-xs text-secondary font-mono mb-1\">solid pill</span>\n  <Checkbox disabled={disabled} label=\"Unchecked\" pill />\n  <Checkbox disabled={disabled} label=\"Checked\" pill defaultChecked />\n  <Checkbox disabled={disabled} label=\"Indeterminate\" pill checked=\"indeterminate\" />\n</div>\n<div className=\"flex flex-col gap-3 items-start\">\n  <span className=\"text-xs text-secondary font-mono mb-1\">ghost</span>\n  <Checkbox disabled={disabled} label=\"Unchecked\" variant=\"ghost\" />\n  <Checkbox disabled={disabled} label=\"Checked\" variant=\"ghost\" defaultChecked />\n  <Checkbox disabled={disabled} label=\"Indeterminate\" variant=\"ghost\" checked=\"indeterminate\" />\n</div>\n</div>",
-          "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states."
+          "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view leaves out the solid pill group. A ghost checkbox is the checkmark of an iOS list row."
         },
         {
           "name": "Pill",
           "code": "<div className=\"flex flex-col gap-3\">\n<Checkbox label=\"Unchecked\" pill />\n<Checkbox label=\"Checked\" pill defaultChecked />\n<Checkbox label=\"Indeterminate\" pill checked=\"indeterminate\" />\n</div>",
-          "details": "Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius."
+          "details": "Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius. On a phone with touch.css every checkbox indicator is round, the 22px selection circle of iOS, so pill makes no difference there. The phone view leaves out the pill control here and in the overview."
         },
         {
           "name": "Ghost",
@@ -7679,5 +7679,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T01:09:29.303Z"
+  "generatedAt": "2026-11-07T01:28:48.182Z"
 }

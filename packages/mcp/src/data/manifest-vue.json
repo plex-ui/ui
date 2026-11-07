@@ -1219,12 +1219,12 @@
         {
           "name": "Variants",
           "code": "<div class=\"flex flex-wrap gap-x-12 gap-y-6\">\n  <div\n    v-for=\"group in [\n      { name: 'solid' },\n      { name: 'solid pill', pill: true },\n      { name: 'ghost', variant: 'ghost' },\n    ]\"\n    :key=\"group.name\"\n    class=\"flex flex-col gap-3 items-start\"\n  >\n    <span class=\"text-xs text-secondary font-mono mb-1\">{{ group.name }}</span>\n    <Checkbox label=\"Unchecked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" />\n    <Checkbox label=\"Checked\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" default-checked />\n    <Checkbox label=\"Indeterminate\" :pill=\"group.pill\" :variant=\"group.variant\" :disabled=\"disabled\" checked=\"indeterminate\" />\n  </div>\n</div>",
-          "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states."
+          "details": "The checkbox supports three visual styles: solid (default) with a filled background and standard radius, solid pill with fully rounded corners, and ghost, which renders only the checkmark without a border or background fill. Toggle disabled without resetting checked or indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view leaves out the solid pill group. A ghost checkbox is the checkmark of an iOS list row."
         },
         {
           "name": "Pill",
           "code": "<div class=\"flex flex-col gap-3\">\n  <Checkbox label=\"Unchecked\" :pill=\"pill\" />\n  <Checkbox label=\"Checked\" :pill=\"pill\" default-checked />\n  <Checkbox label=\"Indeterminate\" :pill=\"pill\" checked=\"indeterminate\" />\n</div>",
-          "details": "Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius."
+          "details": "Set pill to render the checkbox indicator with fully rounded corners (border-radius: full) instead of the default square radius. On a phone with touch.css every checkbox indicator is round, the 22px selection circle of iOS, so pill makes no difference there. The phone view leaves out the pill control here and in the overview."
         },
         {
           "name": "Ghost",
@@ -7693,5 +7693,5 @@
       "docsUrl": "https://plexui.com/vue/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-07T01:09:30.605Z"
+  "generatedAt": "2026-11-07T01:28:49.417Z"
 }

@@ -97,6 +97,7 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
 
 export const variantsControls = [
   { name: "disabled", type: "boolean", default: false },
+  { name: "pillGroup", desktopOnly: true, type: "boolean", default: true, phoneDefault: false },
 ]
 
 export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
@@ -115,6 +116,9 @@ export const variants = `<div class="flex flex-wrap gap-x-12 gap-y-6">
     <Checkbox label="Indeterminate" :pill="group.pill" :variant="group.variant" :disabled="disabled" checked="indeterminate" />
   </div>
 </div>`
+
+{/* On a phone every solid indicator is the round iOS selection circle, so the preview leaves out solid pill; the code shows the template above, and the search string must match it. */}
+export const variantsDemo = variants.replace("{ name: 'solid pill', pill: true },", "...(pillGroup ? [{ name: 'solid pill', pill: true }] : []),")
 
 export const pill = `<div class="flex flex-col gap-3">
   <Checkbox label="Unchecked" :pill="pill" />
@@ -251,7 +255,7 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
     stageClassName={stage}
     controls={[
       { name: "variant", type: "select", options: ["solid", "ghost"], default: "solid" },
-      { name: "pill", type: "boolean", default: false },
+      { name: "pill", desktopOnly: true, type: "boolean", default: false },
       { name: "disabled", type: "boolean", default: false },
     ]}
   />
@@ -277,14 +281,20 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 
 ### Variants
 
-<ComponentPreview language="vue" details={<>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</>} code={variants} previewMinHeight={240}>
-  <VueDemo template={variants} stageClassName={stage} controls={variantsControls} />
+<ComponentPreview language="vue" details={<>
+  <p>The checkbox supports three visual styles: <code>solid</code> (default) with a filled background and standard radius, <code>solid pill</code> with fully rounded corners, and <code>ghost</code>, which renders only the checkmark without a border or background fill. Toggle <code>disabled</code> without resetting checked or indeterminate states.</p>
+  <p>On a phone with <code>touch.css</code> a solid checkbox is the 22px selection circle of iOS with or without <code>pill</code>, so the phone view leaves out the <code>solid pill</code> group. A ghost checkbox is the checkmark of an iOS list row.</p>
+</>} code={variants} previewMinHeight={240}>
+  <VueDemo template={variantsDemo} stageClassName={stage} controls={variantsControls} hiddenControls={["pillGroup"]} />
 </ComponentPreview>
 
 ### Pill
 
-<ComponentPreview language="vue" details={<>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</>} code={pill} previewMinHeight={168}>
-  <VueDemo template={pill} stageClassName={stage} controls={[{ name: "pill", type: "boolean", default: true }]} />
+<ComponentPreview language="vue" details={<>
+  <p>Set <code>pill</code> to render the checkbox indicator with fully rounded corners (<code>border-radius: full</code>) instead of the default square radius.</p>
+  <p>On a phone with <code>touch.css</code> every checkbox indicator is round, the 22px selection circle of iOS, so <code>pill</code> makes no difference there. The phone view leaves out the <code>pill</code> control here and in the overview.</p>
+</>} code={pill} previewMinHeight={168}>
+  <VueDemo template={pill} stageClassName={stage} controls={[{ name: "pill", desktopOnly: true, type: "boolean", default: true }]} />
 </ComponentPreview>
 
 ### Ghost
